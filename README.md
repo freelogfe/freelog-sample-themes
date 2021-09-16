@@ -1,2 +1,1 @@
-# freelog-sample-themes
-freelog示例主题
+# freelog-sample-themes freelog示例主题
