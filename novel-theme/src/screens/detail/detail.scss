@@ -1,0 +1,260 @@
+.detail-wrapper {
+  min-height: 100vh;
+  background-color: #fafafa;
+
+  .bg-cover-box {
+    display: none;
+    border-radius: 0 0 4px 4px;
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .bg-cover {
+      filter: blur(3px);
+    }
+  }
+
+  .body-wrapper {
+    .content-wrapper {
+      min-height: 100vh;
+      width: 1000px;
+      padding: 112px 100px 40px;
+      animation: fade-in 0.3s ease-out;
+    }
+
+    .pc-btns {
+      display: flex;
+    }
+
+    .mobile-btns {
+      display: none;
+    }
+
+    .body-info {
+      display: flex;
+
+      .book-cover-box {
+        width: 160px;
+        height: 231px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .book-content {
+        margin-left: 40px;
+        padding-top: 20px;
+        flex: 1;
+        width: 0;
+
+        .book-name {
+          font-size: 24px;
+        }
+
+        .book-author {
+          font-size: 18px;
+        }
+
+        .mt {
+          margin-top: 19px;
+        }
+      }
+    }
+
+    .book-intro {
+      color: #858c96;
+
+      &:hover {
+        color: #333;
+      }
+
+      &::after {
+        content: "更多信息";
+        margin-left: 10px;
+        color: #333;
+        font-weight: bold;
+      }
+    }
+
+    .collect-btn {
+      color: #4fa1ff;
+      border: 1px solid #ddd;
+
+      &:hover,
+      &.collect {
+        border-color: #4fa1ff;
+      }
+    }
+  }
+
+  .intro-modal-wrapper {
+    background-color: rgba(0, 0, 0, 0.4);
+
+    .intro,
+    .form-value {
+      color: #5d646e;
+    }
+
+    .intro {
+      &::-webkit-scrollbar {
+        width: 2px !important;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background-color: #eee !important;
+      }
+
+      &::-webkit-scrollbar-track {
+        box-shadow: none !important;
+      }
+    }
+
+    .form-title {
+      color: #858c96;
+    }
+  }
+}
+
+@media (max-width: 1500px) {
+  .content-wrapper {
+    width: 760px !important;
+    padding: 112px 72px 40px !important;
+  }
+
+  .book-cover-box {
+    width: 134px !important;
+    height: 195px !important;
+  }
+}
+
+@media (max-width: 1125px) {
+  .content-wrapper {
+    width: 560px !important;
+    padding: 112px 36px 40px !important;
+  }
+
+  .book-cover-box {
+    width: 108px !important;
+    height: 157px !important;
+  }
+
+  .book-name {
+    font-size: 20px !important;
+  }
+
+  .book-author {
+    font-size: 15px !important;
+  }
+
+  .mt {
+    margin-top: 10px !important;
+  }
+}
+
+@media (max-width: 843px) {
+  .content-wrapper {
+    width: 100% !important;
+    padding: 112px 24px 40px !important;
+  }
+
+  .book-cover-box {
+    width: 108px !important;
+    height: 157px !important;
+  }
+}
+
+@media (max-width: 550px) {
+  .detail-wrapper {
+    .header-wrapper {
+      box-shadow: none;
+      background-color: transparent;
+      padding: 0 20px;
+
+      .iconfont {
+        display: block;
+      }
+
+      .logo {
+        display: none;
+      }
+    }
+
+    .bg-cover-box {
+      display: block;
+    }
+
+    .body-wrapper {
+      margin-top: -130px;
+      z-index: 1;
+
+      .content-wrapper {
+        min-height: auto !important;
+        padding-top: 0 !important;
+        background-color: transparent !important;
+
+        .pc-btns {
+          display: none;
+        }
+
+        .mobile-btns {
+          display: flex;
+        }
+
+        .book-cover-box {
+          box-shadow: 0 0 3px #fff !important;
+          padding: 3px;
+
+          .book-shadow {
+            display: none;
+          }
+        }
+
+        .book-content {
+          margin-left: 20px !important;
+          color: #fff;
+
+          .book-name {
+            font-size: 22px !important;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+
+          .book-author {
+            font-size: 18px !important;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+
+          .mt {
+            margin-top: 17px !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+.fade-in-enter {
+  opacity: 0;
+}
+
+.fade-in-enter-active {
+  opacity: 1;
+  transition: all 300ms ease-out;
+}
+
+.fade-in-exit {
+  opacity: 1;
+}
+
+.fade-in-exit-active {
+  opacity: 0;
+  transition: all 300ms ease-in;
+}

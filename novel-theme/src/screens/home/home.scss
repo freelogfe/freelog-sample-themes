@@ -1,0 +1,167 @@
+.home-wrapper {
+  min-height: 100vh;
+
+  .home-body {
+    padding: 0 40px;
+
+    .shelf-title .iconfont {
+      color: #9ac9ff;
+    }
+
+    .hot-title .iconfont {
+      color: #fc6e51;
+    }
+
+    .more-shelf {
+      color: #5d646e;
+
+      &:hover {
+        color: #212832;
+      }
+    }
+
+    .book-box {
+      width: 23.5%;
+      height: 352px;
+      margin-right: 2%;
+      margin-bottom: 30px;
+
+      &:nth-child(4n) {
+        margin-right: 0;
+      }
+
+      &.shelf-book {
+        height: 169px;
+      }
+    }
+  }
+
+  .tip {
+    color: #ccccd0;
+
+    &::before,
+    &::after {
+      content: " ";
+      height: 1px;
+      width: 60px;
+      background-color: #e6e6e6;
+      margin: 0 30px;
+    }
+  }
+
+  .back-top-btn {
+    background-color: rgba(138, 172, 170, 0.6);
+    animation: fade 0.3s ease both;
+
+    &:hover {
+      background-color: #8aacaa;
+    }
+  }
+}
+
+@media (max-width: 1200px) {
+  .home-wrapper {
+    .home-body {
+      .book-box.shelf-book {
+        height: 138px;
+
+        .book-cover {
+          width: 68px;
+          height: 98px;
+
+          .book-name {
+            font-size: 15px;
+          }
+      
+          .book-author {
+            font-size: 13px;
+            margin-top: 6px;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 960px) {
+  .home-wrapper {
+    .home-body {
+      padding: 0 30px;
+
+      .book-box {
+        width: 48%;
+        margin-right: 4%;
+
+        &:nth-child(2n) {
+          margin-right: 0;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 620px) {
+  .home-wrapper {
+    .home-body {
+      .book-box {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 20px;
+      }
+    }
+  }
+}
+
+@media (max-width: 460px) {
+  .home-wrapper {
+    .home-body {
+      .book-box {
+        height: fit-content;
+
+        .home-novel-wrapper {
+          flex-direction: row;
+          justify-content: center;
+          padding: 20px;
+
+          .book-cover {
+            width: 68px;
+            height: 98px;
+            margin-top: 0;
+          }
+
+          .book-info {
+            flex: 1;
+            width: 0;
+            margin-top: 0;
+            justify-content: center;
+            align-items: start;
+            margin-left: 18px;
+
+            .book-name,
+            .book-author {
+              text-align: left;
+            }
+
+            .book-name {
+              font-size: 15px;
+            }
+
+            .book-author {
+              font-size: 13px;
+              margin-top: 6px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

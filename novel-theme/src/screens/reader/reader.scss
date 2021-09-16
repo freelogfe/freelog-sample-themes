@@ -1,0 +1,247 @@
+.reader-wrapper {
+  min-height: 100vh;
+
+  &.light {
+    background-color: #ececf0;
+
+    .reader-header-wrapper {
+      color: #eee;
+      background-color: rgba(23, 241, 198, 0.9);
+
+      &.hide .logo {
+        color: #bbb;
+      }
+
+      .logo:hover,
+      .link:hover {
+        color: #fff;
+      }
+
+      .link {
+        display: block;
+      }
+    }
+
+    .operate-btn-wrapper {
+      color: #aaa;
+      background-color: #ececf0;
+      box-shadow: 5px 5px 10px #c6c6ca, -5px -5px 10px #ffffff;
+
+      .operate-btn:hover {
+        color: #7a7a7a;
+      }
+    }
+
+    .theme-btn {
+      box-shadow: 3px 3px 6px #a8a8aa, -3px -3px 6px #ffffff;
+    }
+
+    .footer-wrapper {
+      box-shadow: 0 -1px 10px #e8e8e8;
+      color: #66bbb4;
+      background-color: #ffffff;
+
+      .shelf-btn {
+        background-color: #66bbb4;
+        color: #fff;
+      }
+    }
+  }
+
+  &.dark {
+    background-color: #3e3e46;
+
+    .reader-header-wrapper {
+      color: #9f9fa3;
+      background-color: rgba(31, 31, 31, 0.9);
+
+      .link {
+        display: block;
+      }
+
+      .logo:hover,
+      .link:hover {
+        color: #fff !important;
+      }
+    }
+
+    .operate-btn-wrapper {
+      color: #aaa;
+      background-color: #3e3e46;
+      box-shadow: 5px 5px 10px #222227, -5px -5px 10px #5a5a66;
+
+      .operate-btn:hover {
+        color: #fff;
+      }
+    }
+
+    .theme-btn {
+      box-shadow: 3px 3px 6px #222227, -3px -3px 6px #5a5a66;
+    }
+
+    .ant-slider-track {
+      background-color: #aaa;
+    }
+
+    .footer-wrapper {
+      box-shadow: 0 -1px 10px #1f1f1f;
+      background-color: #3e3e46;
+      color: #fff;
+
+      .detail-icon::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(159, 159, 163, 0.3);
+      }
+
+      .shelf-btn {
+        background-color: #cacaca;
+        color: #3e3e46;
+      }
+    }
+  }
+
+  .reader-header-wrapper {
+    &.hide {
+      background-color: transparent !important;
+
+      .link {
+        display: none !important;
+      }
+    }
+  }
+
+  .body-wrapper {
+    min-height: 100vh;
+    width: 800px;
+    padding: 30px 72px;
+    background-image: url(http://zhongguose.com/img/texture.png);
+    animation: fade-in 0.3s ease-out;
+
+    .no-more {
+      color: #5d646e;
+    }
+  }
+
+  .operater-wrapper {
+    left: 50%;
+    bottom: 48px;
+    margin-left: 500px;
+  }
+
+  .operate-btn-wrapper {
+    border-radius: 48px;
+
+    .iconfont {
+      width: 48px;
+      height: 48px;
+    }
+
+    .ant-slider-track {
+      background-color: #aaa;
+    }
+  }
+
+  .footer-wrapper {
+    display: none !important;
+    border-radius: 10px 10px 0 0;
+    animation: slide-up 0.5s ease;
+  }
+}
+
+@media (max-width: 1365px) {
+  .reader-wrapper {
+    .body-wrapper {
+      width: 760px;
+    }
+
+    .operater-wrapper {
+      margin-left: 480px;
+    }
+  }
+}
+
+@media (max-width: 1023px) {
+  .reader-wrapper {
+    .body-wrapper {
+      width: 560px;
+      padding: 30px;
+    }
+
+    .operater-wrapper {
+      margin-left: 380px;
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .reader-wrapper {
+    .reader-header-wrapper {
+      display: none !important;
+    }
+
+    .body-wrapper {
+      width: 100%;
+    }
+
+    .operater-wrapper {
+      left: calc(100% - 30px);
+      bottom: 80px;
+      margin-left: 0;
+
+      .operate-btn-wrapper {
+        box-shadow: 1px 1px 3px #ccc;
+        border-radius: 40px;
+
+        & + .operate-btn-wrapper {
+          margin-top: 16px !important;
+        }
+
+        .iconfont {
+          font-size: 18px !important;
+          width: 40px;
+          height: 40px;
+        }
+      }
+
+      &.show {
+        display: block;
+        animation: fade-in .3s ease;
+      }
+
+      &.hide {
+        display: none;
+      }
+    }
+
+    .footer-wrapper {
+      display: flex !important;
+    }
+  }
+}
+
+.slide-up-enter {
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+.slide-up-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 300ms ease-out;
+}
+
+.slide-up-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.slide-up-exit-active {
+  opacity: 0;
+  transform: translateY(100%);
+  transition: all 300ms ease-in;
+}

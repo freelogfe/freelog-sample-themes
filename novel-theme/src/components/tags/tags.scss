@@ -1,0 +1,33 @@
+.tag {
+  &.large {
+    font-size: 14px;
+    padding: 0 10px;
+    background-color: #9bcaff;
+    color: #fff;
+
+    &:hover {
+      background-color: #7cb9ff;
+    }
+
+    &+.tag {
+      margin-left: 10px;
+    }
+  }
+
+  &.small {
+    height: 20px;
+    line-height: 20px;
+    font-size: 12px;
+    padding: 0 5px;
+    color: #fff;
+    background-color: #cecece;
+
+    &:hover {
+      background-color: #bdbdbd;
+    }
+
+    &+.tag {
+      margin-left: 5px;
+    }
+  }
+}

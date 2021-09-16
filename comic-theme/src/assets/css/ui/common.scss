@@ -1,0 +1,44 @@
+.disabled {
+  pointer-events: none;
+}
+
+.opacity-0 {
+  opacity: 0;
+}
+
+.gray {
+  filter: grayscale(100%);
+}
+
+.input-none {
+  background: none;
+  outline: none;
+  border: none;
+  padding: 0;
+}
+.input-none:focus {
+  border: none;
+  box-shadow: none;
+}
+
+.disabled {
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.6;
+}
+
+/*css主要部分的样式*/
+/*定义滚动条宽高及背景，宽高分别对应横竖滚动条的尺寸*/
+
+::-webkit-scrollbar {
+  width: 5px;
+  /*对垂直流动条有效*/
+  height: 5px;
+  /*对水平流动条有效*/
+}
+
+/*定义滑块颜色、内阴影及圆角*/
+::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background-color: #d0e6ff;
+}

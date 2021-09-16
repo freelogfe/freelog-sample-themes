@@ -1,0 +1,82 @@
+.shelf-wrapper {
+  .content {
+    padding: 0 40px;
+
+    .book-box,
+    .add-book-box {
+      width: 23.5%;
+      height: 169px;
+      margin-right: 2%;
+      margin-bottom: 30px;
+
+      &:nth-child(4n) {
+        margin-right: 0;
+      }
+    }
+
+    .add-book-box {
+      margin-right: 0;
+      background-color: #f6f7f9;
+
+      &:hover {
+        background-color: #ececf0;
+      }
+    }
+  }
+}
+
+@media (max-width: 1200px) {
+  .shelf-wrapper {
+    .content {
+      .book-box,
+      .add-book-box {
+        height: 138px;
+
+        .book-cover {
+          width: 68px;
+          height: 98px;
+
+          .book-name {
+            font-size: 15px;
+          }
+
+          .book-author {
+            font-size: 13px;
+            margin-top: 6px;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 960px) {
+  .shelf-wrapper {
+    .content {
+      padding: 0 30px;
+
+      .book-box,
+      .add-book-box {
+        width: 48%;
+        margin-right: 4%;
+
+        &:nth-child(2n) {
+          margin-right: 0;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 620px) {
+  .shelf-wrapper {
+    .content {
+      .book-box,
+      .add-book-box {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 20px;
+      }
+    }
+  }
+}

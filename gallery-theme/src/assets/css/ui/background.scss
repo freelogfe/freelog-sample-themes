@@ -1,0 +1,105 @@
+.bg-less {
+  background-color: #f0f2f5;
+}
+
+.bg-white {
+  background-color: white;
+}
+
+.bg-content {
+  background-color: #fafbfc;
+}
+
+// color
+.bg-success {
+  background-color: $success;
+}
+
+.bg-warn {
+  background-color: $warn;
+}
+
+.bg-error {
+  background-color: $error;
+}
+
+.bg-main {
+  background-color: $bt-main;
+}
+
+.bg-hover {
+  background-color: $bt-hover;
+}
+
+.bg-active {
+  background-color: $bt-active;
+}
+.bg-disabled {
+  opacity: 0.4;
+}
+
+.bg-c-main {
+  background-color: $bt-c-main;
+}
+
+.bg-c-hover {
+  background-color: $bt-c-hover;
+}
+
+.bg-c-active {
+  background-color: $bt-c-active;
+}
+
+.bg-end {
+  background-color: $end;
+}
+
+.book-shadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: linear-gradient(
+    90deg,
+    hsla(0, 0%, 63.1%, 0.25),
+    rgba(21, 21, 20, 0.1) 1%,
+    hsla(0, 0%, 100%, 0.15) 4%,
+    hsla(0, 0%, 58%, 0.1) 8%,
+    hsla(0, 0%, 89%, 0) 57%,
+    rgba(223, 218, 218, 0.03) 91%,
+    rgba(223, 218, 218, 0.05) 98%,
+    hsla(0, 0%, 100%, 0.1)
+  );
+}
+
+.main-btn {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  span {
+    z-index: 1;
+  }
+
+  &::after {
+    content: "";
+    width: 200%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: linear-gradient(90deg, #0088ff, #8ed9ff);
+    transition: all 1s ease;
+  }
+
+  &:hover::after {
+    right: -100%;
+  }
+}
