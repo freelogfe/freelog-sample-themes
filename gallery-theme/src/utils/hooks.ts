@@ -13,11 +13,11 @@ export const useMyRouter = () => {
 
   watchEffect(() => {
     params.value = route.query;
-  })
+  });
 
   // 路由跳转方法
-  const switchPage = (path: string, query: any = {}) => {
-    router.push({ path, query });
+  const switchPage = (path: string, query: any = {}, mode = "push") => {
+    (router as any)[mode]({ path, query });
   };
 
   // 路由跳转方法
@@ -49,9 +49,7 @@ export const useMyShelf = (id?: string) => {
 
   // 判断当前资源是否已被收藏
   const ifExistInShelf = (presentableId: string) => {
-    const isCollected = data.myShelf.some(
-      (item) => item.presentableId === presentableId
-    );
+    const isCollected = data.myShelf.some((item) => item.presentableId === presentableId);
     return isCollected;
   };
 
@@ -66,9 +64,7 @@ export const useMyShelf = (id?: string) => {
     const isCollected = ifExistInShelf(exhibit.presentableId);
 
     if (isCollected) {
-      const index = data.myShelf.findIndex(
-        (item) => item.presentableId === exhibit?.presentableId
-      );
+      const index = data.myShelf.findIndex((item) => item.presentableId === exhibit?.presentableId);
       data.myShelf.splice(index, 1);
     } else {
       const { presentableId, coverImages, presentableTitle } = exhibit;
@@ -90,9 +86,7 @@ export const useMyShelf = (id?: string) => {
 /**
  * 获取列表数据hook
  */
-export const useGetList = (
-  request: (params: Partial<GetExhibitsListParams>) => any
-) => {
+export const useGetList = (request: (params: Partial<GetExhibitsListParams>) => any) => {
   const data = reactive({
     listData: <ExhibitItem[]>[],
     loading: false,
@@ -100,10 +94,7 @@ export const useGetList = (
     skip: 0,
   });
 
-  const getList = async (
-    params: Partial<GetExhibitsListParams> = {},
-    init = false
-  ) => {
+  const getList = async (params: Partial<GetExhibitsListParams> = {}, init = false) => {
     if (data.loading) return;
     if (data.total === data.listData.length && !init) return;
 

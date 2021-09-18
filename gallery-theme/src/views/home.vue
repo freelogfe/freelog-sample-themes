@@ -1,11 +1,20 @@
 <template>
   <div class="home-wrapper bg-white flex-column align-center">
-    <my-header :getList="getList" @search="searching = $event" />
+    <my-header :getList="getList" :searchData="searchData" @search="searchData = $event" />
 
     <div class="home-body w-100p b-box">
-      <div class="fs-24 mt-40 mb-20 fw-thin" v-show="!searching">Latest</div>
-
-      <div class="fs-24 mt-40 mb-20 fw-thin" v-show="searching">Tagged in {{ "mobile" }}</div>
+      <div class="fs-20 mt-40 mb-20 fw-thin">
+        <span class="fs-24" v-show="!searchData.keywords && !searchData.tags">Latest</span>
+        <span v-show="searchData.keywords">
+          <span>Searched in</span>
+          <span class="fs-30 fw-bold ml-10">{{ searchData.keywords }}</span>
+        </span>
+        <span v-show="searchData.tags">
+          <span class="mx-10" v-show="searchData.keywords">{{ `&` }}</span>
+          <span>Tagged in</span>
+          <span class="fs-30 fw-bold ml-10">{{ searchData.tags }}</span>
+        </span>
+      </div>
 
       <div class="flex-row">
         <div class="waterfall flex-1 ml-self-36" v-for="list in listNumber" :key="list">
@@ -14,7 +23,7 @@
             :data="item"
             v-for="item in waterfall[waterfallList[list - 1]]"
             :key="item.presentableId"
-            @click="showModal(item.presentableId)"
+            @click="currentId = item.presentableId"
           />
         </div>
       </div>
@@ -28,7 +37,7 @@
       {{ total === 0 ? "NO DATA" : "END" }}
     </div>
 
-    <detail-popup v-model:show="modalShow" :listData="listData" :id="currentId" />
+    <detail-popup v-model:id="currentId" :listData="listData" :getList="getList" @search="searchData.tags = $event" />
 
     <about-bar />
 
@@ -43,8 +52,8 @@
 <script lang="ts">
 import { defineAsyncComponent, onUnmounted, reactive, toRefs, watch } from "vue";
 import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
-import { getExhibitsList, GetExhibitsListParams } from "@/api/freelog";
-import { ExhibitItem } from "@/utils/interface";
+import { getExhibitsList, GetExhibitsListParams } from "../api/freelog";
+import { ExhibitItem } from "../utils/interface";
 
 export default {
   name: "home",
@@ -65,18 +74,12 @@ export default {
       waterfall: {} as any,
       listNumber: 0,
       waterfallList: ["waterfallFirst", "waterfallSecond", "waterfallThird", "waterfallFourth"],
-      modalShow: false,
       currentId: "",
-      searching: false,
+      searchData: {} as { keywords?: string; tags?: string },
     });
     let heightList: number[] = [];
 
     const methods = {
-      showModal(presentableId: string) {
-        data.currentId = presentableId;
-        data.modalShow = true;
-      },
-
       backToTop() {
         document.documentElement.scroll({ top: 0, behavior: "smooth" });
         document.body.scroll({ top: 0, behavior: "smooth" });
@@ -84,9 +87,11 @@ export default {
     };
 
     watch(
-      () => data.modalShow,
+      () => data.currentId,
       (cur) => {
-        document.body.style.overflow = cur ? "hidden" : "auto";
+        setTimeout(() => {
+          document.body.style.overflow = cur ? "hidden" : "auto";
+        }, 0);
       }
     );
 
@@ -102,17 +107,19 @@ export default {
     watch(
       () => datasOfGetList.listData.value,
       async (cur, pre) => {
+        if (datasOfGetList.skip.value === 0) initWaterfall();
+
         const dom: any = document.getElementsByClassName("waterfall")[0];
 
-        const index = pre?.length || 0;
+        const index = datasOfGetList.skip.value === 0 ? 0 : pre?.length || 0;
 
         for (let i = index; i < cur.length; i++) {
           const img = new Image();
           img.src = cur[i].coverImages[0];
           img.onload = () => {
-            img.height = Math.random() * 800;
-            (cur[i] as any).height = (dom.offsetWidth / img.width) * img.height;
-            (cur[i] as any).height = (cur[i] as any).height > 300 ? (cur[i] as any).height : 300;
+            img.height = Math.random() * 1400;
+            const height = (dom.offsetWidth / img.width) * img.height;
+            (cur[i] as any).height = height / 2 > 200 ? height / 2 : 200;
 
             if (i === cur.length - 1) setWaterFall(index);
           };
@@ -128,6 +135,7 @@ export default {
     );
 
     const setWaterFall = (startIndex = 0) => {
+      const GAP_HEIGHT = 36;
       for (let i = startIndex; i < datasOfGetList.listData.value.length; i++) {
         let minHeightItemIndex = 0;
         if (heightList.length < data.listNumber && heightList.length !== 0) {
@@ -139,7 +147,7 @@ export default {
 
         data.waterfall[data.waterfallList[minHeightItemIndex]].push(datasOfGetList.listData.value[i]);
         heightList[minHeightItemIndex] =
-          (heightList[minHeightItemIndex] || 0) + ((datasOfGetList.listData.value[i] as any).height || 0);
+          (heightList[minHeightItemIndex] || 0) + ((datasOfGetList.listData.value[i] as any).height || 0) + GAP_HEIGHT;
       }
     };
 
@@ -166,12 +174,16 @@ export default {
       }
       if (currentNumber === data.listNumber) return;
 
+      data.listNumber = currentNumber;
+      initWaterfall();
+    };
+
+    const initWaterfall = () => {
       heightList = [];
       data.waterfall = {};
-      for (let i = 0; i < currentNumber; i++) {
+      for (let i = 0; i < data.listNumber; i++) {
         data.waterfall[data.waterfallList[i]] = [] as ExhibitItem[] | { height: number }[];
       }
-      data.listNumber = currentNumber;
     };
 
     getListNumber();

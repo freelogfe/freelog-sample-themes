@@ -3,9 +3,9 @@
     <transition name="fade">
       <div
         class="modal p-fixed full lt-0 z-100 cur-pointer"
-        v-if="show"
-        @click="$emit('update:show', false)"
-        @touchmove.prevent
+        v-if="id"
+        @click="closePopup()"
+        @touchmove.prevent.passive
         @scroll.stop.prevent
       ></div>
     </transition>
@@ -13,8 +13,8 @@
     <transition name="fade">
       <div
         class="close-btn w-24 h-24 p-fixed rt-8 text-center transition cur-pointer z-102"
-        @click="$emit('update:show', false)"
-        v-if="show"
+        @click="closePopup()"
+        v-if="id"
       >
         <i class="iconfont fs-16">&#xe685;</i>
       </div>
@@ -24,7 +24,7 @@
       <div
         class="content-area p-fixed w-100p lb-0 bg-white flex-column align-center b-box y-auto z-101"
         @click.stop
-        v-if="show"
+        v-if="id"
       >
         <transition name="slide-down">
           <div class="w-100p mw-1172 flex-column align-center" v-if="contentShow">
@@ -54,6 +54,7 @@
                 class="tag ml-self-8 p-10 fs-12 brs-2 cur-pointer transition"
                 v-for="tag in listData.find((item) => item.presentableId === currentId).tags"
                 :key="tag"
+                @click="search(tag)"
               >
                 {{ tag }}
               </div>
@@ -65,12 +66,14 @@
               <div class="w-100p fs-16 fw-bold">more</div>
 
               <div class="more-images w-100p mt-16">
-                <frame
-                  :data="item"
+                <div
+                  class="p-relative w-100p pt-75p"
                   v-for="item in more"
                   :key="item.presentableId"
                   @click="viewImage(item.presentableId)"
-                />
+                >
+                  <frame class="frame-box lt-0 w-100p h-100p" :data="item" />
+                </div>
               </div>
             </template>
 
@@ -100,20 +103,32 @@
 </template>
 
 <script lang="ts">
-import { computed, defineAsyncComponent, reactive, SetupContext, toRefs, watch, watchEffect } from "vue";
-import { getInfo } from "@/api/freelog";
-import { ExhibitItem } from "@/utils/interface";
+import { computed, defineAsyncComponent, reactive, SetupContext, toRefs, watch } from "vue";
+import { getInfo, GetExhibitsListParams, getExhibitsInfo } from "../api/freelog";
+import { ExhibitItem } from "../utils/interface";
+import { getResourceName } from "../../../comic-theme/src/utils/common";
+import { useMyRouter } from "../utils/hooks";
 
 export default {
   name: "detail-popup",
 
-  props: ["listData", "id", "show"],
+  props: ["listData", "id", "getList"],
+
+  emits: ["update:id", "search"],
 
   components: {
     frame: defineAsyncComponent(() => import("../components/frame.vue")),
   },
 
-  setup(props: { listData: ExhibitItem[]; id: string; show: boolean }, context: SetupContext<Record<string, any>>) {
+  setup(
+    props: {
+      id: string;
+      listData: ExhibitItem[];
+      getList: (params: Partial<GetExhibitsListParams>, init?: boolean) => void;
+    },
+    context: SetupContext<Record<string, any>>
+  ) {
+    const { switchPage } = useMyRouter();
     const data = reactive({
       imageInfo: {} as Partial<ExhibitItem>,
       currentId: "",
@@ -127,16 +142,43 @@ export default {
       }),
     });
 
-    const viewImage = (id: string) => {
-      data.currentId = id;
+    const methods = {
+      // 切换图片
+      viewImage(id: string) {
+        data.currentId = id;
+      },
+
+      // 搜索标签
+      search(tag: string) {
+        const params: { tags?: string } = {};
+        params.tags = tag;
+        context.emit("search", params.tags);
+        this.closePopup();
+        props.getList(params, true);
+      },
+
+      closePopup() {
+        data.currentId = "";
+        context.emit("update:id", "");
+      },
     };
 
     const getImageInfo = async (id: string) => {
-      const resourceInfo = await getInfo(id, "getResourceInfoById", [], () => {
-        context.emit("update:show", false);
+      const exhibitInfo = await getExhibitsInfo(id, {
+        isLoadVersionProperty: 1,
+        isLoadCustomPropertyDescriptors: 1,
+        isLoadResourceDetailInfo: 1,
+        isLoadResourceVersionInfo: 1,
       });
-      const { intro, username } = resourceInfo.data.data;
-      const content: string = await getInfo(id, "getFileStreamById", [true]);
+      const { resourceVersionInfo, resourceInfo } = exhibitInfo.data.data;
+      const intro = resourceVersionInfo.description || resourceInfo.intro;
+      const username = getResourceName(resourceInfo.resourceName, 0);
+
+      await getInfo("getResourceInfoById", [id], () => {
+        methods.closePopup();
+      });
+
+      const content: string = await getInfo("getFileStreamById", [id, true]);
       data.imageInfo = { intro, username, content };
       setTimeout(() => {
         data.contentShow = true;
@@ -144,26 +186,36 @@ export default {
     };
 
     const keyup = (e: KeyboardEvent) => {
-      if (e.key === "Escape") context.emit("update:show", false);
+      if (e.key === "Escape") methods.closePopup();
       const currentIndex = props.listData.findIndex((item) => item.presentableId === data.currentId);
       if (e.key === "ArrowLeft" && currentIndex !== 0) data.currentId = props.listData[currentIndex - 1].presentableId;
       if (e.key === "ArrowRight" && currentIndex !== props.listData.length - 1)
         data.currentId = props.listData[currentIndex + 1].presentableId;
     };
 
-    watchEffect(() => {
-      if (props.show) {
-        data.currentId = props.id;
-        getImageInfo(data.currentId);
-        window.addEventListener("keyup", keyup);
-      } else {
-        window.removeEventListener("keyup", keyup);
+    watch(
+      () => props.id,
+      (cur) => {
+        if (cur) {
+          data.currentId = cur;
+          window.addEventListener("keyup", keyup);
+          switchPage("/", { id: data.currentId }, "replace");
+        } else {
+          window.removeEventListener("keyup", keyup);
+        }
       }
-    });
+    );
+
+    watch(
+      () => data.currentId,
+      (cur) => {
+        if (cur) getImageInfo(cur);
+      }
+    );
 
     return {
       ...toRefs(data),
-      viewImage,
+      ...methods,
     };
   },
 };
@@ -214,6 +266,10 @@ export default {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(204px, 1fr));
     grid-gap: 40px;
+
+    .frame-box {
+      position: absolute !important;
+    }
   }
 
   .key-tip {
