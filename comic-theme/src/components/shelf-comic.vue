@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import { useMyRouter } from "@/utils/hooks";
+import { useMyRouter } from "../utils/hooks";
 
 export default {
   name: "shelf-comic",

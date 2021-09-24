@@ -6,7 +6,7 @@
 
 <script lang="ts">
 import { ref, watch } from "vue";
-import { useMyScroll } from "@/utils/hooks";
+import { useMyScroll } from "../utils/hooks";
 
 export default {
   name: "back-top",

@@ -131,6 +131,10 @@
     left: 50%;
     bottom: 48px;
     margin-left: 500px;
+
+    .back-top {
+      margin-bottom: 24px;
+    }
   }
 
   .operate-btn-wrapper {
@@ -192,6 +196,10 @@
       left: calc(100% - 30px);
       bottom: 80px;
       margin-left: 0;
+
+      .back-top {
+        margin-bottom: 16px;
+      }
 
       .operate-btn-wrapper {
         box-shadow: 1px 1px 3px #ccc;

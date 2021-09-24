@@ -1,20 +1,22 @@
 <template>
-  <div class="about-btn-wrapper p-fixed lb-0 z-1">
-    <div
-      class="about-btn brs-50p text-center fc-white cur-pointer transition"
-      :class="{ active: aboutShow }"
-      @click="aboutShow = !aboutShow"
-    >
-      about
-    </div>
+  <div
+    class="about-btn p-fixed l-0 b-5 brs-50p text-center fc-white cur-pointer z-1"
+    :class="{ active: aboutShow }"
+    @click="aboutShow = !aboutShow"
+  >
+    about
   </div>
 
   <transition name="fade">
-    <div class="about-bar-wrapper p-fixed lb-0 w-100p px-30 b-box flex-row align-center justify-end" v-show="aboutShow">
-      <div class="cur-pointer" @click="openWeb('http://console.testfreelog.com')">关于freelog</div>
+    <div
+      class="about-bar-wrapper p-fixed lb-0 w-100p pr-26 b-box flex-row align-center justify-end"
+      @click="aboutShow = false"
+      v-show="aboutShow"
+    >
+      <div class="cur-pointer" @click.stop="openWeb('http://console.testfreelog.com')">关于freelog</div>
       <div
         class="ml-50 cur-pointer"
-        @click="openWeb('http://console.testfreelog.com/resource/details/611372050938740039ad6df2')"
+        @click.stop="openWeb('http://console.testfreelog.com/resource/details/611372050938740039ad6df2')"
       >
         关于此主题
       </div>
@@ -40,27 +42,24 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.about-btn-wrapper {
-  border-radius: 0 25px 25px 0;
-  background-color: #f7f7f7;
+.about-btn {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(145deg, #eaeaea, #c5c5c5);
+  transition: all 0.3s ease;
 
-  .about-btn {
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(145deg, #eaeaea, #c5c5c5);
+  &.active,
+  &:hover {
+    box-shadow: 5px 5px 10px #bababa, -5px -5px 10px #fcfcfc;
+  }
 
-    &:hover {
-      box-shadow: 5px 5px 10px #bababa, -5px -5px 10px #fcfcfc;
-    }
-
-    &.active {
-      box-shadow: 10px 10px 20px #bababa, -10px -10px 20px #fcfcfc;
-    }
+  &.active {
+    bottom: 25px !important;
   }
 }
 
 .about-bar-wrapper {
-  background: linear-gradient(to right, rgba(219, 219, 219, 0.9), rgba(240, 240, 240, 0.9));
+  background: linear-gradient(to right, rgba(219, 219, 219, 1), rgba(240, 240, 240, 1));
   color: #aaaaaa;
   height: 50px;
 
@@ -70,10 +69,13 @@ export default {
 }
 
 @media (max-width: 400px) {
-  .about-btn-wrapper {
-    .about-btn {
-      width: 40px;
-      height: 40px;
+  .about-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 12px;
+
+    &.active {
+      bottom: 20px !important;
     }
   }
 

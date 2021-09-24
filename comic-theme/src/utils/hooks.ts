@@ -103,7 +103,7 @@ export const useGetList = (request: (params: Partial<GetExhibitsListParams>) => 
     data.skip = init ? 0 : data.skip + 10;
     const queryParams = {
       skip: String(data.skip),
-      // resourceType: "comic",
+      resourceType: "comic",
       ...params,
     };
     const list = await request(queryParams);

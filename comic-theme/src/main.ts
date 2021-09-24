@@ -17,8 +17,8 @@ let instance: any = createApp(App)
   .use(router)
   .use(store)
   .use(lazyPlugin, {
-    loading: require("@/assets/image/default-img.jpg"),
-    error: require("@/assets/image/default-img.jpg"),
+    loading: require("./assets/image/default-img.jpg"),
+    error: require("./assets/image/default-img.jpg"),
   });
 
 instance.directive("focus", {

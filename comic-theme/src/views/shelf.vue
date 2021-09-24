@@ -35,7 +35,7 @@
 <script lang="ts">
 import { computed, defineAsyncComponent, ref } from "@vue/runtime-core";
 import { useMyRouter, useMyShelf } from "../utils/hooks";
-import { CollectExhibitItem } from "@/utils/interface";
+import { CollectExhibitItem } from "../utils/interface";
 
 export default {
   name: "shelf",

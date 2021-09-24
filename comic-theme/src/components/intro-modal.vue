@@ -8,10 +8,7 @@
         @touchmove.prevent
         @scroll.stop.prevent
       >
-        <div
-          class="p-relative w-80p mw-500 mh-80p flex-column bg-white brs-12 py-40 px-32 b-box"
-          @click.stop
-        >
+        <div class="p-relative w-80p mw-500 mh-80p flex-column bg-white brs-12 py-40 px-32 b-box" @click.stop>
           <img
             class="p-absolute w-20 h-20 rt-20 cur-pointer"
             src="https://weread-1258476243.file.myqcloud.com/web/wrwebnjlogic/image/dialog_close.a5f40ec8.png"
@@ -24,16 +21,10 @@
           </div>
 
           <div class="fs-18 mt-32 mb-16 lh-27">简介</div>
-          <div class="intro lh-24 flex-1 h-0 y-auto">
-            {{ data.intro || `${data.presentableTitle}-${data.username}` }}
-          </div>
+          <div class="intro lh-24 flex-1 h-0 y-auto" v-html="data.intro"></div>
 
           <div class="fs-18 mt-32 mb-16 lh-27">其他信息</div>
-          <div
-            class="flex-row align-center space-between mt-self-12"
-            v-for="item in otherInfo"
-            :key="item.title"
-          >
+          <div class="flex-row align-center space-between mt-self-12" v-for="item in otherInfo" :key="item.title">
             <div class="form-title">{{ item.title }}</div>
             <div class="form-value">{{ item.value }}</div>
           </div>

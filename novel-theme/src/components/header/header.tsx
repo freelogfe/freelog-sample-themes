@@ -40,13 +40,6 @@ export const SearchHeader = (props: {
     setSearch((pre) => pre + 1);
   };
 
-  const clearSearch = () => {
-    setFilterBoxShow(false);
-    setSearchKey("");
-    setTag([]);
-    setSearch((pre) => pre + 1);
-  };
-
   useEffect(() => {
     if (!props.defaultTag || props.defaultTag === "0") return;
     setFilterBoxShow(true);
@@ -67,7 +60,7 @@ export const SearchHeader = (props: {
         <div
           className={"logo-text fs-26 fc-white fw-bold f-italic flex-row align-center cur-pointer transition"}
           style={{ textShadow: "2px 2px 4px #8aacaa" }}
-          onClick={() => (history.location.pathname.startsWith("/home") ? clearSearch() : history.push(`/`))}
+          onClick={() => history.replace(`/`)}
         >
           freelog novel
         </div>
@@ -172,7 +165,7 @@ export const Header = () => {
   return (
     <div className="header-wrapper p-fixed lt-0 w-100p h-72 b-box text-center z-100">
       <div className="w-100p mw-1200 h-100p flex-row align-center space-between">
-        <i className="iconfont fs-20 fc-white" onClick={() => history.push(`/`)}>
+        <i className="iconfont fs-20 fc-white" onClick={() => history.replace(`/`)}>
           &#xe699;
         </i>
 

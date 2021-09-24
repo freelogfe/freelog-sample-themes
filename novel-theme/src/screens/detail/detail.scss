@@ -121,50 +121,56 @@
 }
 
 @media (max-width: 1500px) {
-  .content-wrapper {
-    width: 760px !important;
-    padding: 112px 72px 40px !important;
-  }
+  .detail-wrapper {
+    .content-wrapper {
+      width: 760px !important;
+      padding: 112px 72px 40px !important;
+    }
 
-  .book-cover-box {
-    width: 134px !important;
-    height: 195px !important;
+    .book-cover-box {
+      width: 134px !important;
+      height: 195px !important;
+    }
   }
 }
 
 @media (max-width: 1125px) {
-  .content-wrapper {
-    width: 560px !important;
-    padding: 112px 36px 40px !important;
-  }
+  .detail-wrapper {
+    .content-wrapper {
+      width: 560px !important;
+      padding: 112px 36px 40px !important;
+    }
 
-  .book-cover-box {
-    width: 108px !important;
-    height: 157px !important;
-  }
+    .book-cover-box {
+      width: 108px !important;
+      height: 157px !important;
+    }
 
-  .book-name {
-    font-size: 20px !important;
-  }
+    .book-name {
+      font-size: 20px !important;
+    }
 
-  .book-author {
-    font-size: 15px !important;
-  }
+    .book-author {
+      font-size: 15px !important;
+    }
 
-  .mt {
-    margin-top: 10px !important;
+    .mt {
+      margin-top: 10px !important;
+    }
   }
 }
 
 @media (max-width: 843px) {
-  .content-wrapper {
-    width: 100% !important;
-    padding: 112px 24px 40px !important;
-  }
+  .detail-wrapper {
+    .content-wrapper {
+      width: 100% !important;
+      padding: 112px 24px 40px !important;
+    }
 
-  .book-cover-box {
-    width: 108px !important;
-    height: 157px !important;
+    .book-cover-box {
+      width: 108px !important;
+      height: 157px !important;
+    }
   }
 }
 

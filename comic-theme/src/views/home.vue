@@ -60,7 +60,7 @@
 <script lang="ts">
 import { computed, defineAsyncComponent, reactive, toRefs, watch } from "vue";
 import { useGetList, useMyRouter, useMyScroll, useMyShelf } from "../utils/hooks";
-import { getExhibitsList, GetExhibitsListParams } from "@/api/freelog";
+import { getExhibitsList, GetExhibitsListParams } from "../api/freelog";
 
 export default {
   name: "home",

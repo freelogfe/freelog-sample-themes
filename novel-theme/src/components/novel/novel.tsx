@@ -1,5 +1,5 @@
 import "./novel.scss";
-import { CollectExhibitItem, ExhibitItem } from "../../utils/interface";
+import { ExhibitItem } from "../../utils/interface";
 import { useHistory } from "react-router-dom";
 import { getResourceName } from "../../utils/common";
 import { Tags } from "../tags/tags";
@@ -49,8 +49,8 @@ export const HomeNovel = (props: { data: ExhibitItem }) => {
 };
 
 export const ShelfNovel = (props: {
-  data: CollectExhibitItem;
-  operateShelf: (data: CollectExhibitItem) => void;
+  data: ExhibitItem;
+  operateShelf: (data: ExhibitItem) => void;
 }) => {
   const { data, operateShelf } = props;
   const history = useHistory();
@@ -65,7 +65,7 @@ export const ShelfNovel = (props: {
         <div className="book-cover p-relative over-h text-center">
           <img
             className="h-100p"
-            src={data.cover}
+            src={data.coverImages[0]}
             alt={data.presentableTitle}
           />
           <div className="book-shadow"></div>

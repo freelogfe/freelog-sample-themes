@@ -11,14 +11,6 @@ export interface ExhibitItem {
   updateDate: string;
 }
 
-// 收藏展品
-export interface CollectExhibitItem {
-  presentableId: string;
-  cover: string;
-  presentableTitle: string;
-  username: string;
-}
-
 // 资源
 export interface ResourceItem {
   presentableId: string;

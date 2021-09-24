@@ -2,41 +2,49 @@ import "./shelf.scss";
 import { useState, useEffect } from "react";
 import { SearchHeader } from "../../components/header/header";
 import { useHistory } from "react-router-dom";
-import { CollectExhibitItem } from "../../utils/interface";
-import { GetExhibitsListParams } from "../../api/freelog";
+import { ExhibitItem } from "../../utils/interface";
+import { GetExhibitsListParams, searchExhibits, SearchExhibitsParams } from "../../api/freelog";
 import { ShelfNovel } from "../../components/novel/novel";
 import { useMyShelf } from "../../utils/hooks";
 
 export const ShelfScreen = () => {
   const { myShelf, operateShelf } = useMyShelf();
+  const [shelf, setShelf] = useState<ExhibitItem[]>([]);
   const [keywords, setKeywords] = useState("");
   const getBookList = (params: Partial<GetExhibitsListParams>) => {
     const { keywords = "" } = params;
     setKeywords(keywords);
   };
 
+  const getShelfList = async () => {
+    const presentableIds = myShelf.join(",");
+    if (!presentableIds) {
+      setShelf([]);
+      return;
+    }
+
+    const queryParams: Partial<SearchExhibitsParams> = { presentableIds };
+    const list = await searchExhibits(queryParams);
+    setShelf(list.data.data);
+  };
+
   useEffect(() => {
-    getBookList({});
+    getShelfList();
     // eslint-disable-next-line
-  }, []);
+  }, [myShelf]);
 
   return (
     <div className="shelf-wrapper flex-column align-center">
       <SearchHeader search={getBookList}></SearchHeader>
       <ShelfBody
-        shelfList={myShelf.filter((item) =>
-          item.presentableTitle.includes(keywords)
-        )}
+        shelfList={shelf.filter((item) => item.presentableTitle.includes(keywords))}
         operateShelf={operateShelf}
       />
     </div>
   );
 };
 
-const ShelfBody = (props: {
-  shelfList: CollectExhibitItem[];
-  operateShelf: (data: CollectExhibitItem) => void;
-}) => {
+const ShelfBody = (props: { shelfList: ExhibitItem[]; operateShelf: (data: ExhibitItem) => void }) => {
   const { shelfList, operateShelf } = props;
 
   return (
@@ -61,10 +69,7 @@ const AddBook = () => {
   const history = useHistory();
 
   return (
-    <div
-      className="add-book-box text-center brs-6 transition cur-pointer"
-      onClick={() => history.push(`/`)}
-    >
+    <div className="add-book-box text-center brs-6 transition cur-pointer" onClick={() => history.push(`/`)}>
       <img
         className="w-32 h-32"
         src="https://weread-1258476243.file.myqcloud.com/web/wrwebnjlogic/image/shelf_last_add.fe952d0f.png"

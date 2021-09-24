@@ -3,7 +3,7 @@
     <transition name="fade">
       <div
         class="modal p-fixed full lt-0 z-100 cur-pointer"
-        v-if="id"
+        v-if="currentId"
         @click="closePopup()"
         @touchmove.prevent.passive
         @scroll.stop.prevent
@@ -14,7 +14,7 @@
       <div
         class="close-btn w-24 h-24 p-fixed rt-8 text-center transition cur-pointer z-102"
         @click="closePopup()"
-        v-if="id"
+        v-if="currentId"
       >
         <i class="iconfont fs-16">&#xe685;</i>
       </div>
@@ -22,9 +22,10 @@
 
     <transition name="slide-up">
       <div
+        ref="contentArea"
         class="content-area p-fixed w-100p lb-0 bg-white flex-column align-center b-box y-auto z-101"
         @click.stop
-        v-if="id"
+        v-if="currentId"
       >
         <transition name="slide-down">
           <div class="w-100p mw-1172 flex-column align-center" v-if="contentShow">
@@ -103,7 +104,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineAsyncComponent, reactive, SetupContext, toRefs, watch } from "vue";
+import { computed, defineAsyncComponent, reactive, ref, SetupContext, toRefs, watch } from "vue";
 import { getInfo, GetExhibitsListParams, getExhibitsInfo } from "../api/freelog";
 import { ExhibitItem } from "../utils/interface";
 import { getResourceName } from "../../../comic-theme/src/utils/common";
@@ -129,10 +130,11 @@ export default {
     context: SetupContext<Record<string, any>>
   ) {
     const { switchPage } = useMyRouter();
+    const contentArea = ref<any>(null);
     const data = reactive({
       imageInfo: {} as Partial<ExhibitItem>,
       currentId: "",
-      contentShow: true,
+      contentShow: false,
       more: computed(() => {
         const index = props.listData.findIndex((item) => item.presentableId === data.currentId);
         let moreImages = props.listData.slice(index + 1).filter((item, index) => index < 4);
@@ -164,6 +166,8 @@ export default {
     };
 
     const getImageInfo = async (id: string) => {
+      data.contentShow = false;
+
       const exhibitInfo = await getExhibitsInfo(id, {
         isLoadVersionProperty: 1,
         isLoadCustomPropertyDescriptors: 1,
@@ -180,9 +184,8 @@ export default {
 
       const content: string = await getInfo("getFileStreamById", [id, true]);
       data.imageInfo = { intro, username, content };
-      setTimeout(() => {
-        data.contentShow = true;
-      }, 100);
+      contentArea.value.scrollTop = 0;
+      data.contentShow = true;
     };
 
     const keyup = (e: KeyboardEvent) => {
@@ -216,6 +219,7 @@ export default {
     return {
       ...toRefs(data),
       ...methods,
+      contentArea,
     };
   },
 };
@@ -308,3 +312,5 @@ export default {
   }
 }
 </style>
+
+function useRef(initialValue: any) { throw new Error('Function not implemented.'); }

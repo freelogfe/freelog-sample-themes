@@ -12,7 +12,7 @@ export interface GetExhibitsListParams {
   isLoadVersionProperty: string; // 是否加载版本
 }
 
-// 获取展品列表请求参数
+// 获取展品信息请求参数
 export interface GetExhibitsInfoParams {
   projection?: string; // 需要指定哪些字段
   isLoadVersionProperty?: 0 | 1; // 是否需要展品版本属性
@@ -32,6 +32,7 @@ export const getExhibitsList = (query: Partial<GetExhibitsListParams>) => {
 /**
  * 获取展品信息
  * @param id 展品id
+ * @param query 获取展品列表请求参数
  */
 export const getExhibitsInfo = (id: string, query: GetExhibitsInfoParams) => {
   return MyWindow.freelogApp.getPresentableDetailById(id, query);
@@ -47,8 +48,8 @@ export const getResourceInfo = async (id: string) => {
 
 /**
  * 获取资源文件信息
- * @param presentableId   展品id
- * @param returnUrl 是否只返回url， 例如img标签图片只需要url
+ * @param presentableId 展品id
+ * @param returnUrl 是否只返回url，例如img标签图片只需要url
  * @param config axios的config 目前仅支持"onUploadProgress", "onDownloadProgress", "responseType"
  */
 export const getFileInfo = async (presentableId: string, returnUrl?: boolean, config?: any) => {

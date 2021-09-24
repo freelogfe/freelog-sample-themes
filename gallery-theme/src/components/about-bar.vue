@@ -1,6 +1,6 @@
 <template>
   <div
-    class="about-btn p-fixed b-0 brs-50p text-center fc-white cur-pointer z-1"
+    class="about-btn p-fixed l-0 b-5 brs-50p text-center fc-white cur-pointer z-1"
     :class="{ active: aboutShow }"
     @click="aboutShow = !aboutShow"
   >
@@ -9,7 +9,7 @@
 
   <transition name="fade">
     <div
-      class="about-bar-wrapper p-fixed lb-0 w-100p pr-80 b-box flex-row align-center justify-end"
+      class="about-bar-wrapper p-fixed lb-0 w-100p pr-26 b-box flex-row align-center justify-end"
       @click="aboutShow = false"
       v-show="aboutShow"
     >
@@ -46,8 +46,7 @@ export default {
   width: 50px;
   height: 50px;
   background: linear-gradient(145deg, #eaeaea, #c5c5c5);
-  left: 0;
-  transition: all 2s ease;
+  transition: all 0.3s ease;
 
   &.active,
   &:hover {
@@ -55,17 +54,14 @@ export default {
   }
 
   &.active {
-    left: calc(100% - 50px);
-    transform: rotate(1080deg);
-    transition: all 1s ease;
+    bottom: 25px !important;
   }
 }
 
 .about-bar-wrapper {
-  background: linear-gradient(to right, rgba(219, 219, 219, 0.9), rgba(240, 240, 240, 0.9));
+  background: linear-gradient(to right, rgba(219, 219, 219, 1), rgba(240, 240, 240, 1));
   color: #aaaaaa;
   height: 50px;
-  border-radius: 0 50px 50px 0;
 
   div:hover {
     color: #8b8b8b;
@@ -76,15 +72,15 @@ export default {
   .about-btn {
     width: 40px;
     height: 40px;
+    font-size: 12px;
 
     &.active {
-      left: calc(100% - 40px);
+      bottom: 20px !important;
     }
   }
 
   .about-bar-wrapper {
     height: 40px;
-    border-radius: 0 40px 40px 0;
   }
 }
 </style>

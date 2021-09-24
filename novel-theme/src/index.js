@@ -6,6 +6,11 @@ import reportWebVitals from "./reportWebVitals";
 import "./public-path";
 import RouterView from "./router";
 
+window.FREELOG_RESOURCENAME = 'ZhuC/novel-theme';
+window.freelogApp.onLogin(() => {
+  window.location.reload();
+});
+
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
@@ -23,11 +28,7 @@ export async function mount(props = {}) {
 
 export async function unmount(props) {
   const { container } = props;
-  ReactDOM.unmountComponentAtNode(
-    container
-      ? container.querySelector("#root")
-      : document.getElementById("root")
-  );
+  ReactDOM.unmountComponentAtNode(container ? container.querySelector("#root") : document.getElementById("root"));
 }
 
 if (!window.__POWERED_BY_FREELOG__) {

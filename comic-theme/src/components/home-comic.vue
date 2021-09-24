@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import { useMyRouter } from "@/utils/hooks";
+import { useMyRouter } from "../utils/hooks";
 import { getResourceName } from "../utils/common";
 import { defineAsyncComponent } from "vue";
 

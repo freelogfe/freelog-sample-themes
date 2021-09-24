@@ -80,9 +80,9 @@
 import { toRefs } from "@vue/reactivity";
 import { useMyRouter, useMyShelf } from "../utils/hooks";
 import { defineAsyncComponent, reactive } from "vue";
-import { ExhibitItem } from "@/utils/interface";
+import { ExhibitItem } from "../utils/interface";
 import { getResourceName } from "../utils/common";
-import { getInfo } from "@/api/freelog";
+import { getExhibitsInfo, getInfo } from "../api/freelog";
 
 export default {
   name: "reader",
@@ -107,9 +107,14 @@ export default {
     });
 
     const getComic = async (id: string) => {
-      const comicInfo = await getInfo(id, "getInfoById");
-      data.comicInfo = comicInfo.data.data;
-      const content: any = await getInfo(id, "getFileStreamById", true);
+      const exhibitInfo = await getExhibitsInfo(id, {
+        isLoadVersionProperty: 1,
+        isLoadCustomPropertyDescriptors: 1,
+        isLoadResourceDetailInfo: 1,
+        isLoadResourceVersionInfo: 1,
+      });
+      data.comicInfo = exhibitInfo.data.data;
+      const content: any = await getInfo("getFileStreamById", [id, true]);
       data.content = content;
     };
 

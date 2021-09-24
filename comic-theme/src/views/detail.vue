@@ -61,8 +61,11 @@
         </div>
 
         <div class="mt-30" v-if="comicInfo.intro || comicInfo.presentableTitle">
-          <span class="book-intro fs-14 lh-25 cur-pointer transition" @click="modalShow = true">
-            {{ comicInfo.intro || `${comicInfo.presentableTitle}-${comicInfo.username}` }}
+          <span
+            class="book-intro fs-14 lh-25 cur-pointer transition"
+            v-html="comicInfo.intro"
+            @click="modalShow = true"
+          >
           </span>
         </div>
 
@@ -89,9 +92,10 @@
 
 <script lang="ts">
 import { useMyRouter, useMyShelf } from "../utils/hooks";
-import { ExhibitItem } from "@/utils/interface";
+import { ExhibitItem } from "../utils/interface";
 import { defineAsyncComponent, reactive, toRefs } from "@vue/runtime-core";
-import { getExhibitsInfo, getInfo } from "@/api/freelog";
+import { getExhibitsInfo } from "../api/freelog";
+import { getResourceName } from "../utils/common";
 
 export default {
   name: "detail",
@@ -109,12 +113,19 @@ export default {
       comicInfo: {} as ExhibitItem,
       modalShow: false,
     });
-    
+
     const getComicInfo = async (id: string) => {
-      const resourceInfo = await getInfo(id, "getResourceInfoById");
-      const comicInfo = await getExhibitsInfo(id);
-      const { intro, username } = resourceInfo.data.data;
-      data.comicInfo = { ...comicInfo.data.data, intro, username };
+      const exhibitInfo = await getExhibitsInfo(id, {
+        isLoadVersionProperty: 1,
+        isLoadCustomPropertyDescriptors: 1,
+        isLoadResourceDetailInfo: 1,
+        isLoadResourceVersionInfo: 1,
+      });
+      const { presentableTitle, resourceVersionInfo, resourceInfo } = exhibitInfo.data.data;
+      const username = getResourceName(resourceInfo.resourceName, 0);
+      const intro = resourceVersionInfo.description || resourceInfo.intro || `${presentableTitle}-${username}`;
+
+      data.comicInfo = { ...exhibitInfo.data.data, intro, username };
     };
 
     getComicInfo(id);
