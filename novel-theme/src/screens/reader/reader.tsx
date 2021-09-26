@@ -234,7 +234,6 @@ const Operater = () => {
                 min={16}
                 max={26}
                 dots
-                tooltipVisible={false}
                 onChange={(e) => {
                   setFontSize(e);
                   localStorage.setItem("fontSize", String(e));
