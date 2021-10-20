@@ -65,7 +65,7 @@ export const HomeScreen = (props: any) => {
       <AboutBar />
 
       <BackTop>
-        <div className="back-top-btn p-fixed w-40 h-40 text-center brs-4 over-h r-20 b-20 cur-pointer transition">
+        <div className="back-top-btn p-fixed w-40 h-40 text-center brs-4 over-h r-20 b-60 cur-pointer transition">
           <i className="iconfont fs-26 fc-white">&#xe600;</i>
         </div>
       </BackTop>
@@ -100,7 +100,7 @@ const HomeBody = (props: { bookList: ExhibitItem[]; searching: boolean }) => {
 
   return (
     <div className="home-body w-100p mw-1412">
-      {shelf.length !== 0 && !searching && (
+      {!searching && (
         <div className="mt-40">
           <div className="shelf-title w-100p mb-20 flex-row align-center space-between">
             <div className="fs-24">
@@ -112,15 +112,19 @@ const HomeBody = (props: { bookList: ExhibitItem[]; searching: boolean }) => {
             </div>
           </div>
 
-          <div className="w-100p flex-row flex-wrap">
-            {shelf.map((item) => {
-              return (
-                <div className="book-box shelf-book" key={item.presentableId}>
-                  <ShelfNovel data={item} operateShelf={operateShelf}></ShelfNovel>
-                </div>
-              );
-            })}
-          </div>
+          {shelf.length !== 0 && (
+            <div className="w-100p flex-row flex-wrap">
+              {shelf.map((item) => {
+                return (
+                  <div className="book-box shelf-book" key={item.presentableId}>
+                    <ShelfNovel data={item} operateShelf={operateShelf}></ShelfNovel>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {shelf.length === 0 && <div className="tip text-center fs-18 my-30">暂无数据，快去收藏小说到书架吧</div>}
         </div>
       )}
 

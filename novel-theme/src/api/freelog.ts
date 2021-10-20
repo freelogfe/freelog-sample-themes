@@ -79,7 +79,7 @@ export const getFileInfo = async (presentableId: string, returnUrl?: boolean, co
  */
 export const getInfo = async (type: string, query: any[], errorCallback?: () => void) => {
   let info = await MyWindow.freelogApp[type](...query);
-  if (typeof info === "string" || info.status === 200) return info;
+  if (info.status === 200) return info;
 
   // 提交给运行时处理授权
   return new Promise((resolve) => {
@@ -90,9 +90,8 @@ export const getInfo = async (type: string, query: any[], errorCallback?: () => 
         resolve(info);
       },
       (e: any) => {
-        console.error("授权失败");
         errorCallback && errorCallback();
-        resolve({ data: { data: {} } });
+        resolve(null);
       },
       { immediate: true }
     );
@@ -126,13 +125,13 @@ export const getUser = () => {
 /**
  * 获取用户存储数据
  */
-export const getUserData = async () => {
-  return MyWindow.freelogApp.getUserData();
+export const getUserData = async (key: string) => {
+  return MyWindow.freelogApp.getUserData(key);
 };
 
 /**
  * 更新用户存储数据
  */
-export const updateUserData = async (data: any) => {
-  return MyWindow.freelogApp.updateUserData(data);
+export const setUserData = async (key: string, data: any) => {
+  return MyWindow.freelogApp.setUserData(key, data);
 };

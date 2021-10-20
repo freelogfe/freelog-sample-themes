@@ -123,8 +123,10 @@ const Body = () => {
 
   const getContent = useCallback(async () => {
     const info: any = await getInfo("getFileStreamById", [id], () => {
-      history.replace("/");
+      history.goBack();
     });
+    if (!info) return;
+
     const content = info.data.split(/\s/g).filter((item: string) => !!item);
     setContent(content);
   }, [id, history]);

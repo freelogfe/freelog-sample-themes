@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { getUserData, updateUserData } from "../api/freelog";
+import { getUserData, setUserData } from "../api/freelog";
 import { ExhibitItem } from "./interface";
 
 /**
@@ -11,7 +11,7 @@ export const useMyShelf = (id?: string) => {
 
   // 获取书架数据
   const getMyShelf = async () => {
-    const { shelf } = await getUserData();
+    const shelf = await getUserData('shelf');
     setMyShelf(shelf || []);
   };
 
@@ -32,7 +32,7 @@ export const useMyShelf = (id?: string) => {
     } else {
       shelf.push(exhibit.presentableId);
     }
-    await updateUserData({ shelf });
+    await setUserData('shelf', shelf);
     getMyShelf();
   };
 
