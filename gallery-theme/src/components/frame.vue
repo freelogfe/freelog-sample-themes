@@ -14,7 +14,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { ref } from "@vue/reactivity";
 export default {
   name: "frame",
