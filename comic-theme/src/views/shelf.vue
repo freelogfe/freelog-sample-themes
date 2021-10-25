@@ -11,7 +11,7 @@
           :data="item"
           :operateShelf="operateShelf"
           v-for="item in shelf"
-          :key="item.resourceId"
+          :key="item.presentableId"
         ></shelf-comic>
 
         <div

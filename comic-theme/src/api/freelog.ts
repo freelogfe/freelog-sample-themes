@@ -114,13 +114,20 @@ export const getUser = () => {
 /**
  * 获取用户存储数据
  */
-export const getUserData = async () => {
-  return MyWindow.freelogApp.getUserData();
+export const getUserData = async (key: string) => {
+  return MyWindow.freelogApp.getUserData(key);
 };
 
 /**
  * 更新用户存储数据
  */
-export const updateUserData = async (data: any) => {
-  return MyWindow.freelogApp.updateUserData(data);
+export const setUserData = async (key: string, data: any) => {
+  return MyWindow.freelogApp.setUserData(key, data);
+};
+
+/**
+ * 唤起登录弹窗
+ */
+export const callLogin = async (callback: () => void) => {
+  return MyWindow.freelogApp.callLogin(callback);
 };

@@ -135,3 +135,10 @@ export const getUserData = async (key: string) => {
 export const setUserData = async (key: string, data: any) => {
   return MyWindow.freelogApp.setUserData(key, data);
 };
+
+/**
+ * 唤起登录弹窗
+ */
+ export const callLogin = async (callback: () => void) => {
+  return MyWindow.freelogApp.callLogin(callback);
+};

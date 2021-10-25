@@ -15,6 +15,14 @@ export const useMyRouter = () => {
     params.value = route.query;
   });
 
+  router.beforeEach((to, from, next) => {
+    if (to.fullPath !== from.fullPath) {
+      next();
+    } else {
+      router.replace("/");
+    }
+  });
+
   // 路由跳转方法
   const switchPage = (path: string, query: any = {}, mode = "push") => {
     (router as any)[mode]({ path, query });

@@ -1,4 +1,4 @@
-import { GetExhibitsListParams, getUserData, updateUserData } from "@/api/freelog";
+import { GetExhibitsListParams, getUserData, setUserData } from "@/api/freelog";
 import { onUnmounted, reactive, ref, toRefs, watchEffect } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { CollectExhibitItem, ExhibitItem } from "./interface";
@@ -15,14 +15,22 @@ export const useMyRouter = () => {
     params.value = route.query;
   });
 
+  router.beforeEach((to, from, next) => {
+    if (to.fullPath !== from.fullPath) {
+      next();
+    } else {
+      router.replace("/");
+    }
+  });
+
   // 路由跳转方法
   const switchPage = (path: string, query: any = {}) => {
     router.push({ path, query });
   };
 
   // 路由跳转方法
-  const routerBack = (delta = -1) => {
-    router.go(delta);
+  const routerBack = () => {
+    router.back();
   };
 
   // 获取当前路由方法
@@ -44,7 +52,7 @@ export const useMyShelf = (id?: string) => {
 
   // 获取书架数据
   const getMyShelf = async () => {
-    const { shelf } = await getUserData();
+    const shelf = await getUserData("shelf");
     data.myShelf = shelf || [];
   };
 
@@ -55,8 +63,8 @@ export const useMyShelf = (id?: string) => {
   };
 
   // 更新书架数据以及收藏情况
-  const update = (presentableId: string) => {
-    getMyShelf();
+  const update = async (presentableId: string) => {
+    await getMyShelf();
     data.isCollected = ifExistInShelf(presentableId);
   };
 
@@ -75,7 +83,7 @@ export const useMyShelf = (id?: string) => {
         cover: coverImages[0] || "",
       });
     }
-    await updateUserData({ shelf: data.myShelf });
+    await setUserData("shelf", data.myShelf);
     update(exhibit.presentableId);
   };
 

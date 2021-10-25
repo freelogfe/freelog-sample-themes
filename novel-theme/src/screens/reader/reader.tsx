@@ -180,7 +180,7 @@ const Operater = () => {
   }, [scrollTop]);
 
   return (
-    <div className={`operater-wrapper p-fixed ${barShow ? "show" : "hide"}`}>
+    <div id="operater-wrapper" className={`operater-wrapper p-fixed ${barShow ? "show" : "hide"}`}>
       <div className="p-absolute rb-0 flex-column align-end">
         <div className="back-top">
           <BackTop
@@ -233,6 +233,7 @@ const Operater = () => {
               <Slider
                 className="w-150 mx-10"
                 defaultValue={fontSize}
+                getTooltipPopupContainer={() => (document.getElementById("operater-wrapper") as HTMLElement)}
                 min={16}
                 max={26}
                 dots

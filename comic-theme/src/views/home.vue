@@ -3,7 +3,7 @@
     <my-header :getList="getList" @search="searching = $event" :defaultTag="params.tag" />
 
     <div class="home-body w-100p mw-1412 b-box">
-      <template v-if="shelf.length !== 0 && !searching">
+      <template v-if="!searching">
         <div class="shelf-title w-100p mt-40 mb-20 flex-row align-center space-between">
           <div class="fs-24">
             我的漫画
@@ -14,13 +14,15 @@
           </div>
         </div>
 
-        <div class="w-100p flex-row">
+        <div className="tip text-center fs-18 my-30" v-if="shelf.length === 0">暂无数据，快去收藏漫画到书架吧</div>
+
+        <div class="w-100p flex-row" v-else>
           <shelf-comic
             class="book-box shelf-book"
             :data="item"
             :operateShelf="operateShelf"
             v-for="item in shelf"
-            :key="item.resourceId"
+            :key="item.presentableId"
           ></shelf-comic>
         </div>
       </template>
@@ -77,6 +79,7 @@ export default {
     const { params, switchPage } = useMyRouter();
     const { myShelf, operateShelf } = useMyShelf();
     const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
+
     const datasOfGetList = useGetList(getExhibitsList as (query: Partial<GetExhibitsListParams>) => any);
     const data = reactive({
       searching: false,
@@ -155,7 +158,7 @@ export default {
       margin: 0 30px;
     }
   }
-  
+
   .back-top-btn {
     opacity: 0.6;
     background-color: #9ac9ff;

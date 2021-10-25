@@ -107,7 +107,7 @@ export default {
       currentPath: "",
     });
 
-    const { switchPage, routerBack, getCurrentPath } = useMyRouter();
+    const { switchPage, getCurrentPath } = useMyRouter();
 
     const methods = {
       // 选择标签
@@ -159,7 +159,6 @@ export default {
       ...toRefs(data),
       ...methods,
       switchPage,
-      routerBack,
       comicTypeList,
     };
   },

@@ -3,7 +3,7 @@
     <!-- header -->
     <div class="header-wrapper p-fixed lt-0 w-100p h-72 b-box text-center z-100">
       <div class="w-100p mw-1200 h-100p flex-row align-center space-between">
-        <i class="iconfont fs-20 fc-white" @click="switchPage('/')">
+        <i class="iconfont fs-20 fc-white" @click="routerBack()">
           &#xe699;
         </i>
 

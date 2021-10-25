@@ -107,3 +107,10 @@ export const watchLogin = () => {
 export const getUserInfo = () => {
   return MyWindow.freelogApp.getCurrentUser();
 };
+
+/**
+ * 唤起登录弹窗
+ */
+ export const callLogin = async (callback: () => void) => {
+  return MyWindow.freelogApp.callLogin(callback);
+};
