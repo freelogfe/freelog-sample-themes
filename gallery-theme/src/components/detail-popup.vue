@@ -46,7 +46,14 @@
               class="w-100p mw-800 brs-8 mt-40"
               :src="imageInfo?.content"
               :alt="listData.find((item) => item.presentableId === currentId).presentableTitle"
+              v-if="imageInfo.type === 'image'"
             />
+            <video
+              class="w-100p mw-800 brs-8 mt-40"
+              :src="imageInfo?.content"
+              controls
+              v-if="imageInfo.type === 'video'"
+            ></video>
 
             <div class="w-100p mw-800 fs-20 lh-32 mt-56">{{ imageInfo?.intro }}</div>
 
@@ -110,6 +117,10 @@ import { ExhibitItem } from "../utils/interface";
 import { getResourceName } from "../../../comic-theme/src/utils/common";
 import { useMyRouter } from "../utils/hooks";
 
+interface imageInfo extends ExhibitItem {
+  type: string;
+}
+
 export default {
   name: "detail-popup",
 
@@ -132,7 +143,7 @@ export default {
     const { switchPage } = useMyRouter();
     const contentArea = ref<any>(null);
     const data = reactive({
-      imageInfo: {} as Partial<ExhibitItem>,
+      imageInfo: {} as Partial<imageInfo>,
       currentId: "",
       contentShow: false,
       more: computed(() => {
@@ -183,7 +194,7 @@ export default {
       });
 
       const content: string = await getInfo("getFileStreamById", [id, true]);
-      data.imageInfo = { intro, username, content };
+      data.imageInfo = { intro, username, content, type: resourceInfo.resourceType };
       contentArea.value.scrollTop = 0;
       data.contentShow = true;
     };

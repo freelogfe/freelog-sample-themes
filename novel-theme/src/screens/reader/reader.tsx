@@ -2,13 +2,12 @@ import React, { useContext } from "react";
 import "./reader.scss";
 import { useState, useEffect, useCallback } from "react";
 import { useHistory } from "react-router-dom";
-import { Slider } from "antd";
 import { ExhibitItem, ThemeItem } from "../../utils/interface";
 import { getExhibitsInfo, getInfo } from "../../api/freelog";
 import { themeList } from "../../api/data";
-import CSSTransition from "react-transition-group/CSSTransition";
 import { BackTop } from "../../components/back-top/back-top";
 import { useMyScroll, useMyShelf } from "../../utils/hooks";
+import { Header } from "../../components/header/header";
 
 const readerContext = React.createContext<any>({});
 
@@ -16,12 +15,9 @@ export const ReaderScreen = (props: any) => {
   const id = props.match.params.id;
   const myFontSize = Number(localStorage.getItem("fontSize"));
   const myTheme = JSON.parse(localStorage.getItem("theme") || "null");
-  const myBgTheme = localStorage.getItem("bgTheme");
   const [book, setBook] = useState<ExhibitItem | null>(null);
   const [fontSize, setFontSize] = useState(myFontSize || 22);
   const [theme, setTheme] = useState<ThemeItem>(myTheme || themeList[0]);
-  const [bgTheme, setBgTheme] = useState<"light" | "dark">(myBgTheme === "dark" ? "dark" : "light");
-  const [barShow, setBarShow] = useState(false);
   const [fontSizePopupShow, setFontSizePopupShow] = useState(false);
   const [themePopupShow, setThemePopupShow] = useState(false);
 
@@ -33,10 +29,6 @@ export const ReaderScreen = (props: any) => {
     setFontSize,
     theme,
     setTheme,
-    bgTheme,
-    setBgTheme,
-    barShow,
-    setBarShow,
     fontSizePopupShow,
     setFontSizePopupShow,
     themePopupShow,
@@ -57,10 +49,7 @@ export const ReaderScreen = (props: any) => {
     if (fontSizePopupShow || themePopupShow) {
       setFontSizePopupShow(false);
       setThemePopupShow(false);
-      return;
     }
-
-    setBarShow(!barShow);
   };
 
   useEffect(() => {
@@ -70,55 +59,24 @@ export const ReaderScreen = (props: any) => {
 
   return (
     <readerContext.Provider value={context}>
-      <div className={`reader-wrapper text-center transition ${bgTheme}`} onClick={() => clickPage()}>
+      <div
+        className="reader-wrapper flex-column align-center transition"
+        style={{ backgroundColor: theme?.bgColor }}
+        onClick={() => clickPage()}
+      >
         <Header />
-        <Body />
-        <Operater />
 
-        <CSSTransition in={barShow} classNames="slide-up" timeout={500} unmountOnExit>
-          <Footer />
-        </CSSTransition>
+        <Body />
+
+        <Operater />
       </div>
     </readerContext.Provider>
   );
 };
 
-const Header = () => {
-  const { book, barShow, setBarShow } = useContext(readerContext);
-  const history = useHistory();
-
-  return (
-    <div
-      className={`reader-header-wrapper p-fixed lt-0 w-100p flex-row align-center space-between h-73 pl-30 pr-72 b-box transition z-100 ${
-        !barShow && "hide"
-      }`}
-      onMouseOver={() => setBarShow(true)}
-      onMouseOut={() => setBarShow(false)}
-    >
-      <div className="flex-row align-center">
-        {/* logo */}
-        <div className="logo f-italic fw-bold fs-22 cur-pointer transition" onClick={() => history.push("/")}>
-          freelog novel
-        </div>
-
-        {/* 书名 */}
-        <div className="ml-20 fs-16 flex-row">
-          <div className="link cur-pointer transition" onClick={() => history.push(`/detail/${book?.presentableId}`)}>
-            {book?.presentableTitle}
-          </div>
-        </div>
-      </div>
-
-      <div className="link fs-16 cur-pointer transition" onClick={() => history.push(`/shelf`)}>
-        我的书架
-      </div>
-    </div>
-  );
-};
-
 const Body = () => {
   const history = useHistory();
-  const { id, fontSize, theme } = useContext(readerContext);
+  const { book, id, fontSize, theme } = useContext(readerContext);
   const [content, setContent] = useState<string[]>([]);
 
   const getContent = useCallback(async () => {
@@ -137,21 +95,40 @@ const Body = () => {
   }, [id]);
 
   return (
-    <div
-      className="body-wrapper transition"
-      style={{
-        backgroundColor: theme?.readerBg,
-        lineHeight: 2,
-        fontSize: fontSize + "px",
-      }}
-    >
-      {content.map((item, index) => {
-        return (
-          <p className="text-breakAll" key={item + index}>
-            {item}
-          </p>
-        );
-      })}
+    <div className="body-wrapper flex-1 flex-column">
+      <div className="bread-crumbs fw-bold">{book?.presentableTitle}</div>
+
+      <div
+        className={`content flex-1 transition ${theme?.type === 1 ? "dark" : "light"}`}
+        style={{
+          backgroundColor: theme?.bookColor,
+          fontSize: fontSize + "px",
+          lineHeight: fontSize + 14 + "px",
+        }}
+      >
+        {content.map((item, index) => {
+          return (
+            <p className="text-breakAll" key={item + index}>
+              {item}
+            </p>
+          );
+        })}
+      </div>
+
+      <div className="footer-bar flex-row align-center transition" style={{ backgroundColor: theme?.bookColor }}>
+        <div className={`footer-btn flex-1 text-center cur-pointer transition`} onClick={() => console.log(123)}>
+          上一章
+        </div>
+        <div
+          className="footer-btn flex-1 text-center cur-pointer transition"
+          onClick={() => history.push("/detail/" + id)}
+        >
+          书籍详情
+        </div>
+        <div className={`footer-btn flex-1 text-center cur-pointer transition`} onClick={() => console.log(123)}>
+          下一章
+        </div>
+      </div>
     </div>
   );
 };
@@ -162,16 +139,26 @@ const Operater = () => {
     book,
     fontSize,
     setFontSize,
+    theme,
     setTheme,
-    bgTheme,
-    setBgTheme,
-    barShow,
     fontSizePopupShow,
     setFontSizePopupShow,
     themePopupShow,
     setThemePopupShow,
   } = useContext(readerContext);
   const { isCollected, operateShelf } = useMyShelf(book?.presentableId);
+
+  const changeFontSize = (type: number) => {
+    let result = fontSize;
+    if (type === 0) {
+      if (result === 14) return;
+      result--;
+    } else {
+      if (result === 36) return;
+      result++;
+    }
+    setFontSize(result);
+  };
 
   useEffect(() => {
     if (fontSizePopupShow) setFontSizePopupShow(false);
@@ -180,8 +167,89 @@ const Operater = () => {
   }, [scrollTop]);
 
   return (
-    <div id="operater-wrapper" className={`operater-wrapper p-fixed ${barShow ? "show" : "hide"}`}>
+    <div className="operater-wrapper p-fixed l-50p">
       <div className="p-absolute rb-0 flex-column align-end">
+        <OperateBtn icon="fl-icon-xiaoshuomulu" onClick={() => {}} />
+
+        {isCollected ? (
+          <OperateBtn
+            icon="fl-icon-shoucangxiaoshuoyishoucang"
+            onClick={() => {
+              operateShelf(book);
+              setFontSizePopupShow(false);
+              setThemePopupShow(false);
+            }}
+          />
+        ) : (
+          <OperateBtn
+            icon="fl-icon-shoucangxiaoshuo"
+            onClick={() => {
+              operateShelf(book);
+              setFontSizePopupShow(false);
+              setThemePopupShow(false);
+            }}
+          />
+        )}
+
+        <OperateBtn
+          icon="fl-icon-fenxiang"
+          onClick={() => {
+            setFontSizePopupShow(false);
+            setThemePopupShow(false);
+          }}
+        />
+
+        <OperateBtn
+          icon="fl-icon-bianji"
+          onClick={() => {
+            setFontSizePopupShow(true);
+            setThemePopupShow(false);
+          }}
+          slot={
+            <div
+              className={`fontsize-popup text-center over-h transition ${theme?.type === 1 ? "dark" : "light"}`}
+              style={{ width: fontSizePopupShow ? "162px" : "0" }}
+            >
+              <div className="fontsize-label fw-bold" onClick={() => changeFontSize(0)}>
+                A-
+              </div>
+              <div className="fontsize-value text-center">{fontSize}</div>
+              <div className="fontsize-label fw-bold" onClick={() => changeFontSize(1)}>
+                A+
+              </div>
+            </div>
+          }
+        />
+
+        <OperateBtn
+          icon="fl-icon-beijingyanse"
+          onClick={() => {
+            setThemePopupShow(true);
+            setFontSizePopupShow(false);
+          }}
+          slot={
+            <div className="text-center over-h transition" style={{ maxWidth: themePopupShow ? "228px" : "0" }}>
+              {themeList.map((item) => {
+                return (
+                  <div
+                    className={`theme-btn brs-50p text-center cur-pointer ${
+                      theme.bookColor === item.bookColor && "active"
+                    }`}
+                    key={item.bookColor}
+                    style={{ backgroundColor: item.bookColor }}
+                    onClick={() => {
+                      setTheme(item);
+                      localStorage.setItem("theme", JSON.stringify(item));
+                    }}
+                  >
+                    <i className="freelog fl-icon-xuanzhong"></i>
+                  </div>
+                );
+              })}
+            </div>
+          }
+        />
+
         <div className="back-top">
           <BackTop
             onClick={() => {
@@ -189,156 +257,28 @@ const Operater = () => {
               setThemePopupShow(false);
             }}
           >
-            <OperateBtn icon="&#xe600;" />
+            <OperateBtn icon="fl-icon-huidaodingbu" />
           </BackTop>
         </div>
-
-        <OperateBtn
-          icon="&#xe6f1;"
-          onClick={() => {
-            setFontSizePopupShow(false);
-            setThemePopupShow(false);
-          }}
-        />
-
-        {isCollected ? (
-          <OperateBtn
-            icon="&#xe658;"
-            onClick={() => {
-              operateShelf(book);
-              setFontSizePopupShow(false);
-              setThemePopupShow(false);
-            }}
-          />
-        ) : (
-          <OperateBtn
-            icon="&#xe64c;"
-            onClick={() => {
-              operateShelf(book);
-              setFontSizePopupShow(false);
-              setThemePopupShow(false);
-            }}
-          />
-        )}
-
-        <OperateBtn
-          icon="&#xe650;"
-          onClick={() => {
-            setFontSizePopupShow(true);
-            setThemePopupShow(false);
-          }}
-          slot={
-            <div className="text-center over-h transition" style={{ maxWidth: fontSizePopupShow ? "300px" : "0" }}>
-              <i className="iconfont fs-16 text-center">&#xe650;</i>
-              <Slider
-                className="w-150 mx-10"
-                defaultValue={fontSize}
-                getTooltipPopupContainer={() => (document.getElementById("operater-wrapper") as HTMLElement)}
-                min={16}
-                max={26}
-                dots
-                onChange={(e) => {
-                  setFontSize(e);
-                  localStorage.setItem("fontSize", String(e));
-                }}
-              />
-            </div>
-          }
-        />
-
-        <OperateBtn
-          icon="&#xe823;"
-          onClick={() => {
-            setThemePopupShow(true);
-            setFontSizePopupShow(false);
-          }}
-          slot={
-            <div className="text-center transition" style={{ maxWidth: themePopupShow ? "300px" : "0" }}>
-              {themeList.map((theme) => {
-                return (
-                  <div
-                    className="theme-btn w-32 h-32 brs-50p ml-10 cur-pointer"
-                    key={theme.name}
-                    title={theme.name}
-                    style={{ backgroundColor: theme.readerBg }}
-                    onClick={() => {
-                      setTheme(theme);
-                      localStorage.setItem("theme", JSON.stringify(theme));
-                    }}
-                  ></div>
-                );
-              })}
-            </div>
-          }
-        />
-
-        {bgTheme === "light" ? (
-          <OperateBtn
-            icon="&#xe65f;"
-            onClick={() => {
-              setBgTheme("dark");
-              setFontSizePopupShow(false);
-              setThemePopupShow(false);
-              localStorage.setItem("bgTheme", "dark");
-            }}
-          />
-        ) : (
-          <OperateBtn
-            icon="&#xe68f;"
-            onClick={() => {
-              setBgTheme("light");
-              setFontSizePopupShow(false);
-              setThemePopupShow(false);
-              localStorage.setItem("bgTheme", "light");
-            }}
-          />
-        )}
       </div>
     </div>
   );
 };
 
-const OperateBtn = (props: { icon: string; disabled?: boolean; onClick?: (e: any) => void; slot?: any }) => {
-  const { icon, disabled = false, onClick, slot } = props;
+const OperateBtn = (props: { icon: string; onClick?: (e: any) => void; slot?: any }) => {
+  const { icon, onClick, slot } = props;
+  const { theme } = useContext(readerContext);
 
   return (
     <div
-      className={`operate-btn-wrapper mt-self-24 over-h text-center cur-pointer ${disabled && "disabled"}`}
+      className={`operate-btn-wrapper over-h text-center cur-pointer transition ${
+        theme?.type === 1 ? "dark" : "light"
+      }`}
+      style={{ backgroundColor: theme?.bookColor }}
       onClick={(e) => e.stopPropagation()}
     >
       {slot}
-      <i className="operate-btn iconfont fs-26 text-center" onClick={onClick}>
-        {icon}
-      </i>
-    </div>
-  );
-};
-
-const Footer = () => {
-  const { book } = useContext(readerContext);
-  const history = useHistory();
-
-  return (
-    <div
-      className="footer-wrapper p-fixed lb-0 w-100p h-56 text-center z-100 transition"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div className="flex-1 text-center-column" onClick={() => history.push(`/`)}>
-        <i className="iconfont fs-20 lh-20">&#xe663;</i>
-        <div className="fs-12 mt-3">首页</div>
-      </div>
-
-      <div className="flex-1 text-center-column" onClick={() => history.push(`/detail/${book?.presentableId}`)}>
-        <div className="detail-icon p-relative w-20 h-20 brs-4 text-center over-h">
-          <img className="h-100p" src={book?.coverImages[0]} alt={book?.presentableTitle} />
-        </div>
-
-        <div className="fs-12 mt-3">详情</div>
-      </div>
-
-      <div className="shelf-btn w-200 h-35 brs-40 fs-15 text-center mx-20" onClick={() => history.push(`/shelf`)}>
-        我的书架
-      </div>
+      <i className={`iconfont text-center ${icon}`} onClick={onClick}></i>
     </div>
   );
 };

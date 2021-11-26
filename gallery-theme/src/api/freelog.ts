@@ -30,6 +30,14 @@ export const getExhibitsList = (query: Partial<GetExhibitsListParams>) => {
 };
 
 /**
+ * 获取展品授权状态
+ * @param ids 查询的展品id（多个以逗号拼接）
+ */
+export const getExhibitsAuth = (ids: string) => {
+  return MyWindow.freelogApp.getPresentablesAuth(ids);
+};
+
+/**
  * 获取展品信息
  * @param id 展品id
  * @param query 获取展品列表请求参数
@@ -111,6 +119,6 @@ export const getUserInfo = () => {
 /**
  * 唤起登录弹窗
  */
- export const callLogin = async (callback: () => void) => {
+export const callLogin = async (callback: () => void) => {
   return MyWindow.freelogApp.callLogin(callback);
 };

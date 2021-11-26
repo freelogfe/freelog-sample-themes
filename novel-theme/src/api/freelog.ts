@@ -2,21 +2,16 @@ const MyWindow: any = window;
 
 // 获取展品列表请求参数
 export interface GetExhibitsListParams {
-  skip: string; // 从第几个开始
+  skip: number; // 从第几个开始
   limit: string; // 取多少个
   resourceType: string; // 资源类型
-  omitResourceType: string; // 过滤资源类型
-  tags: string; // 展品和资源标签，多个使用","隔开
-  projection: string;
-  keywords: string;
-  isLoadVersionProperty: string; // 是否加载版本
+  tags?: string; // 展品和资源标签，多个使用","隔开
+  keywords?: string; // 搜索关键字
 }
 
 // 搜索展品请求参数
 export interface SearchExhibitsParams {
-  presentableIds: string; // 展品ids 多个使用","隔开
-  resourceIds: string; // 资源ids
-  resourceNames: string; // 资源名称s
+  presentableIds: string; // 展品id，多个使用","隔开
 }
 
 // 获取展品信息请求参数
@@ -30,17 +25,17 @@ export interface GetExhibitsInfoParams {
 
 /**
  * 获取展品列表
- * @param query Partial<GetExhibitsListParams>
+ * @param query GetExhibitsListParams
  */
-export const getExhibitsList = (query: Partial<GetExhibitsListParams>) => {
+export const getExhibitsList = (query: GetExhibitsListParams) => {
   return MyWindow.freelogApp.getPresentablesPaging(query);
 };
 
 /**
  * 搜索展品
- * @param query Partial<SearchExhibitsParams>
+ * @param query SearchExhibitsParams
  */
-export const searchExhibits = (query: Partial<SearchExhibitsParams>) => {
+export const searchExhibits = (query: SearchExhibitsParams) => {
   return MyWindow.freelogApp.getPresentablesSearch(query);
 };
 
@@ -54,21 +49,11 @@ export const getExhibitsInfo = (id: string, query: GetExhibitsInfoParams) => {
 };
 
 /**
- * 获取资源信息
- * @param id 资源id
+ * 获取展品签约数
+ * @param id 展品id
  */
-export const getResourceInfo = async (id: string) => {
-  return await MyWindow.freelogApp.getResourceInfoById(id);
-};
-
-/**
- * 获取资源文件信息
- * @param presentableId 展品id
- * @param returnUrl 是否只返回url，例如img标签图片只需要url
- * @param config axios的config 目前仅支持"onUploadProgress", "onDownloadProgress", "responseType"
- */
-export const getFileInfo = async (presentableId: string, returnUrl?: boolean, config?: any) => {
-  return await MyWindow.freelogApp.getFileStreamById(presentableId, returnUrl, config);
+export const getExhibitsSignCount = (id: string) => {
+  return MyWindow.freelogApp.getPresentableSignCount(id);
 };
 
 /**
@@ -107,15 +92,6 @@ export const callAuth = () => {
 };
 
 /**
- * 监听登录
- */
-export const watchLogin = () => {
-  MyWindow.freelogApp.onLogin(() => {
-    window.location.reload();
-  });
-};
-
-/**
  * 获取用户信息
  */
 export const getUser = () => {
@@ -139,6 +115,20 @@ export const setUserData = async (key: string, data: any) => {
 /**
  * 唤起登录弹窗
  */
- export const callLogin = async (callback: () => void) => {
-  return MyWindow.freelogApp.callLogin(callback);
+export const callLogin = async () => {
+  return MyWindow.freelogApp.callLogin();
+};
+
+/**
+ * 唤起登出弹窗
+ */
+export const callLoginOut = async () => {
+  return MyWindow.freelogApp.callLoginOut();
+};
+
+/**
+ * 获取主题自定义选项配置
+ */
+export const getSelfConfig = async () => {
+  return MyWindow.freelogApp.getSelfConfig();
 };

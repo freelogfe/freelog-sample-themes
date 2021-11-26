@@ -5,9 +5,8 @@
 
 <style lang="scss">
 #app {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Microsoft Yahei,
-    Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans",
-    "Helvetica Neue", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Microsoft Yahei, Roboto, Oxygen, Ubuntu, Cantarell,
+    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 14px;
@@ -21,6 +20,7 @@ body,
 #app {
   width: 100%;
   height: 100%;
+  margin: 0;
 }
 
 img {

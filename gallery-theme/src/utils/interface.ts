@@ -8,6 +8,7 @@ export interface ExhibitItem {
   username: string;
   intro: string;
   content: string;
+  auth: boolean;
 }
 
 // 收藏展品

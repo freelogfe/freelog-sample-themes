@@ -1,4 +1,4 @@
-import { GetExhibitsListParams } from "@/api/freelog";
+import { getExhibitsAuth, GetExhibitsListParams } from "@/api/freelog";
 import { onUnmounted, reactive, ref, toRefs, watchEffect } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { CollectExhibitItem, ExhibitItem } from "./interface";
@@ -110,12 +110,25 @@ export const useGetList = (request: (params: Partial<GetExhibitsListParams>) => 
     data.skip = init ? 0 : data.skip + 12;
     const queryParams = {
       skip: String(data.skip),
-      resourceType: "image",
+      resourceType: "image,video",
       limit: "12",
       ...params,
     };
     const list = await request(queryParams);
     const { dataList, totalItem } = list.data.data;
+
+    const ids: string[] = [];
+    dataList.forEach((item: ExhibitItem) => {
+      ids.push(item.presentableId);
+    });
+    if (ids.length !== 0) {
+      const authList = await getExhibitsAuth(ids.join(","));
+      authList.data.data.forEach((item: { presentableId: string; isAuth: boolean }) => {
+        const { presentableId, isAuth } = item;
+        const exhibit = dataList.find((exhibit: { presentableId: string }) => exhibit.presentableId === presentableId);
+        exhibit.isAuth = isAuth;
+      });
+    }
     data.listData = init ? dataList : [...data.listData, ...dataList];
     data.total = totalItem;
     data.loading = false;

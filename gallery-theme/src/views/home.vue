@@ -2,7 +2,7 @@
   <div class="home-wrapper bg-white flex-column align-center">
     <my-header :getList="getList" :searchData="searchData" @search="searchData = $event" />
 
-    <div class="home-body w-100p b-box">
+    <div class="home-body w-100p b-box text-align-left">
       <div class="fs-20 mt-40 mb-20 fw-thin">
         <span class="fs-24" v-show="!searchData.keywords && !searchData.tags">Latest</span>
         <span v-show="searchData.keywords">

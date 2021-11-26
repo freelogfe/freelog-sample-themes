@@ -54,25 +54,6 @@
   background-color: $end;
 }
 
-.book-shadow {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: linear-gradient(
-    90deg,
-    hsla(0, 0%, 63.1%, 0.25),
-    rgba(21, 21, 20, 0.1) 1%,
-    hsla(0, 0%, 100%, 0.15) 4%,
-    hsla(0, 0%, 58%, 0.1) 8%,
-    hsla(0, 0%, 89%, 0) 57%,
-    rgba(223, 218, 218, 0.03) 91%,
-    rgba(223, 218, 218, 0.05) 98%,
-    hsla(0, 0%, 100%, 0.1)
-  );
-}
-
 .main-btn {
   position: relative;
   overflow: hidden;

@@ -1,0 +1,22 @@
+.footer-wrapper {
+  height: 48px;
+  background-color: #fafbfc;
+
+  .footer-btn {
+    padding: 0 20px;
+    font-size: 12px;
+    color: #999999;
+
+    & + .footer-btn {
+      border-left: 1px solid rgba(0, 0, 0, 0.15);
+    }
+
+    &:hover {
+      color: #529dff;
+    }
+
+    &:active {
+      color: #2376e5;
+    }
+  }
+}

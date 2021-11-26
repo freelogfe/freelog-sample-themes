@@ -6,7 +6,7 @@ import reportWebVitals from "./reportWebVitals";
 import "./public-path";
 import RouterView from "./router";
 
-window.FREELOG_RESOURCENAME = 'ZhuC/novel-theme';
+window.FREELOG_RESOURCENAME = "ZhuC/novel-theme";
 window.freelogApp.onLogin(() => {
   window.location.reload();
 });

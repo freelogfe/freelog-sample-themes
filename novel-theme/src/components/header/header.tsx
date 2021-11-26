@@ -1,50 +1,32 @@
 import "./header.scss";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useContext } from "react";
 import { useHistory } from "react-router-dom";
-import { GetExhibitsListParams } from "../../api/freelog";
+import { callLogin, callLoginOut } from "../../api/freelog";
 import { bookTypeList } from "../../api/data";
+import { globalContext } from "../../router";
 import CSSTransition from "react-transition-group/CSSTransition";
 
-export const SearchHeader = (props: {
-  search: (params: Partial<GetExhibitsListParams>, init: boolean) => void;
-  defaultTag?: string;
-  filter?: boolean;
-  setSearching?: (searching: boolean) => void;
-}) => {
+export const Header = (props: { homeHeader?: boolean; defaultTag?: string; defaultSearchKey?: string }) => {
   const history = useHistory();
-  const [searchKey, setSearchKey] = useState("");
-  const [tag, setTag] = useState<string[]>([]);
-  const [filterBoxShow, setFilterBoxShow] = useState(false);
+  const [tag, setTag] = useState("全部");
+  const [searchKey, setSearchKey] = useState(props.defaultSearchKey || "");
   const [search, setSearch] = useState(0);
+  const [userBoxShow, setUserBoxShow] = useState(false);
+  const { userData } = useContext(globalContext);
 
   const searchList = useCallback(() => {
-    const queryParams: Partial<GetExhibitsListParams> = {};
-    if (searchKey) queryParams.keywords = searchKey;
-    if (tag.length !== 0) queryParams.tags = tag.join(",");
-    props.setSearching && props.setSearching(tag.length !== 0);
-    props.search(queryParams, true);
-  }, [props, searchKey, tag]);
+    let url = `/home/${tag}`;
+    if (searchKey) url += `/${searchKey}`;
+    history.push(url);
+  }, [history, searchKey, tag]);
 
-  const selectTag = (value: string = "") => {
-    if (value) {
-      const index = tag.findIndex((item) => value === item);
-      if (index !== -1) {
-        tag.splice(index, 1);
-        setTag(tag);
-      } else {
-        setTag([...tag, value]);
-      }
-    } else {
-      setTag([]);
-    }
+  const selectTag = (value: string) => {
+    setTag(value);
     setSearch((pre) => pre + 1);
   };
 
   useEffect(() => {
-    if (!props.defaultTag || props.defaultTag === "0") return;
-    setFilterBoxShow(true);
-    setTag([props.defaultTag]);
-    setSearch((pre) => pre + 1);
+    if (props.defaultTag) setTag(props.defaultTag);
   }, [props.defaultTag]);
 
   useEffect(() => {
@@ -54,31 +36,88 @@ export const SearchHeader = (props: {
   }, [search]);
 
   return (
-    <div className="search-header-wrapper p-sticky lt-0 w-100p z-100" style={{ boxShadow: "0 5px 9px #f9f9f9" }}>
-      <div className="pt-20 pb-30 flex-column text-center z-1" style={{ backgroundColor: "#ececf0" }}>
-        {/* logo */}
-        <div
-          className={"logo-text fs-26 fc-white fw-bold f-italic flex-row align-center cur-pointer transition"}
-          style={{ textShadow: "2px 2px 4px #8aacaa" }}
-          onClick={() => history.replace(`/`)}
-        >
-          freelog novel
+    <div className="header-wrapper p-sticky lt-0 w-100p b-box flex-column align-center z-100">
+      {/* header顶部 */}
+      <div className="header-top flex-row align-center space-between">
+        <div className="flex-row align-center">
+          {/* logo */}
+          {/* <img className="logo cur-pointer" src={myLogo} onClick={() => history.replace(`/`)} /> */}
+          <div className="fc-18 lh-24 fc-white cur-pointer" onClick={() => history.replace(`/`)}>
+            freelog 读书
+          </div>
+
+          {/* 搜索框 */}
+          {!props.homeHeader && (
+            <div className="small-search-box bg-white text-center over-h">
+              <i className="freelog fl-icon-content"></i>
+              <input
+                className="search-input flex-1 h-100p input-none"
+                value={searchKey}
+                onChange={(e) => setSearchKey(e.target.value)}
+                onKeyUp={(e: { keyCode: number }) => {
+                  e.keyCode === 13 && setSearch((pre) => pre + 1);
+                  e.keyCode === 27 && setSearchKey("") && setSearch((pre) => pre + 1);
+                }}
+              />
+              {searchKey && (
+                <i
+                  className="freelog fl-icon-guanbi cur-pointer transition"
+                  onClick={() => {
+                    setSearchKey("");
+                    setSearch((pre) => pre + 1);
+                  }}
+                ></i>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* 搜索框 */}
-        <div
-          className="p-relative w-60p mw-840 h-40 brs-40 bg-white mt-20 flex-row align-center"
-          style={{ boxShadow: "0 4px 20px rgb(0 25 104 / 5%)" }}
-        >
-          <img
-            className="w-20 h-20 my-10 mx-15"
-            src="https://weread-1258476243.file.myqcloud.com/web/wrwebnjlogic/image/search_magnifier_white.567afaa9.png"
-            alt="search"
-          />
+        {userData ? (
+          <div
+            className="p-relative flex-row align-center cur-pointer"
+            onMouseOver={() => setUserBoxShow(true)}
+            onMouseLeave={() => setUserBoxShow(false)}
+          >
+            <div className="username fc-white">{userData.username}</div>
+            <img className="avatar brs-50p" src={userData.headImage} alt={userData.username} />
+
+            <CSSTransition in={userBoxShow} classNames="slide-down-scale" timeout={200} unmountOnExit>
+              <div className="user-box p-absolute r-0 t-100p">
+                <div className="user-box-body flex-column align-center">
+                  <img className="avatar brs-50p" src={userData.headImage} alt={userData.username} />
+                  <div className="username fw-bold">{userData.username}</div>
+                  <div className="mobile fw-bold">{userData.mobile}</div>
+                  <div className="btn w-100p" onClick={() => history.push("/shelf")}>
+                    我的书架
+                  </div>
+                  <div className="btn w-100p" onClick={() => callLoginOut()}>
+                    登出
+                  </div>
+                </div>
+              </div>
+            </CSSTransition>
+          </div>
+        ) : (
+          <div className="flex-row">
+            <div className="login-btn b-box text-center cur-pointer" onClick={() => callLogin()}>
+              登录
+            </div>
+            <div
+              className="register-btn fc-white fw-bold b-box text-center cur-pointer"
+              onClick={() => window.open("http://user.testfreelog.com/logon")}
+            >
+              注册
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 搜索框 */}
+      {props.homeHeader && (
+        <div className="search-box w-100p bg-white text-center over-h shrink-0">
+          <i className="freelog fl-icon-content"></i>
           <input
-            className="search-input flex-1 w-0 h-100p input-none fs-16 fc-black"
-            type="text"
-            placeholder="搜索"
+            className="search-input flex-1 h-100p input-none"
             value={searchKey}
             onChange={(e) => setSearchKey(e.target.value)}
             onKeyUp={(e: { keyCode: number }) => {
@@ -88,98 +127,39 @@ export const SearchHeader = (props: {
           />
           {searchKey && (
             <i
-              className="search-clear iconfont fs-24 mx-10 cur-pointer"
+              className="freelog fl-icon-guanbi cur-pointer transition"
               onClick={() => {
                 setSearchKey("");
                 setSearch((pre) => pre + 1);
               }}
-            >
-              &#xe8fc;
-            </i>
-          )}
-          <img
-            className="search-btn w-32 h-32 m-4 cur-pointer transition"
-            src="https://weread-1258476243.file.myqcloud.com/web/wrwebnjlogic/image/search_return_white.0c921c5a.png"
-            alt="search"
-            onClick={() => setSearch((pre) => pre + 1)}
-          />
-          {props.filter && (
-            <div
-              className="filter-btn fc-white p-absolute r--50 t-0 h-40 w-40 text-center cur-pointer transition"
-              title="筛选类别"
-              onClick={() => setFilterBoxShow((pre) => !pre)}
-            >
-              <i className="iconfont fs-24">&#xe61b;</i>
-            </div>
+            ></i>
           )}
         </div>
-      </div>
+      )}
 
-      {/* 筛选框 */}
-      <CSSTransition
-        in={filterBoxShow}
-        classNames="slide-down"
-        timeout={{
-          enter: 500,
-          exit: 300,
-        }}
-        unmountOnExit
-      >
-        <div
-          className="filter-box p-absolute l-0 t-100p w-100p text-center"
-          onMouseLeave={() => setFilterBoxShow(false)}
-        >
-          <div className="filter-btns mw-840 pt-10 flex-row flex-wrap">
-            <div
-              className={`category-btn fs-15 px-10 py-2 mx-5 mb-10 brs-4 text-center shrink-0 cur-pointer transition ${
-                tag.length === 0 && "active"
-              }`}
-              onClick={() => selectTag()}
-            >
-              全部
-            </div>
-
-            {bookTypeList.map((item) => {
-              return (
-                <div
-                  className={`category-btn fs-15 px-10 py-2 mx-5 mb-10 brs-4 text-center shrink-0 cur-pointer transition ${
-                    tag.includes(item) && "active"
-                  }`}
-                  key={item}
-                  onClick={() => selectTag(item)}
-                >
-                  {item}
-                </div>
-              );
-            })}
+      {/* 筛选栏 */}
+      {props.homeHeader && (
+        <div className="filter-bar flex-row flex-wrap">
+          <div
+            className={`category-btn cur-pointer transition ${tag === "全部" && "active"}`}
+            onClick={() => selectTag("全部")}
+          >
+            全部
           </div>
+
+          {bookTypeList.map((item) => {
+            return (
+              <div
+                className={`category-btn cur-pointer transition ${tag === item && "active"}`}
+                key={item}
+                onClick={() => selectTag(item)}
+              >
+                {item}
+              </div>
+            );
+          })}
         </div>
-      </CSSTransition>
-    </div>
-  );
-};
-
-export const Header = () => {
-  const history = useHistory();
-
-  return (
-    <div className="header-wrapper p-fixed lt-0 w-100p h-72 b-box text-center z-100">
-      <div className="w-100p mw-1200 h-100p flex-row align-center space-between">
-        <i className="iconfont fs-20 fc-white" onClick={() => history.replace(`/`)}>
-          &#xe699;
-        </i>
-
-        <div className="logo fs-22 fw-bold fc-white transition cur-pointer" onClick={() => history.replace(`/`)}>
-          freelog novel
-        </div>
-
-        <div
-          className="my-shelf fs-16 fw-bold fc-white fw-medium transition cur-pointer"
-          onClick={() => history.push(`/shelf`)}
-        >
-          我的书架
-        </div>
-      </div>
+      )}
     </div>
   );
 };

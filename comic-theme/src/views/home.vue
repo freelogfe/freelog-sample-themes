@@ -81,6 +81,7 @@ export default {
     const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
 
     const datasOfGetList = useGetList(getExhibitsList as (query: Partial<GetExhibitsListParams>) => any);
+
     const data = reactive({
       searching: false,
     });

@@ -1,50 +1,67 @@
-import { useState, useEffect, useCallback } from "react";
-import { getUserData, setUserData } from "../api/freelog";
+import { useState, useEffect, useCallback, useContext } from "react";
+import { getUserData, searchExhibits, SearchExhibitsParams, setUserData } from "../api/freelog";
+import { showToast } from "../components/toast/toast";
+import { globalContext } from "../router";
 import { ExhibitItem } from "./interface";
 
 /**
  * 我的书架hook
  */
 export const useMyShelf = (id?: string) => {
-  const [myShelf, setMyShelf] = useState<string[]>([]);
+  const { userData } = useContext(globalContext);
+  const [shelfIds, setShelfIds] = useState<string[]>([]);
+  const [myShelf, setMyShelf] = useState<ExhibitItem[]>([]);
   const [isCollected, setIsCollected] = useState(false);
 
   // 获取书架数据
   const getMyShelf = async () => {
-    const shelf = await getUserData('shelf');
-    setMyShelf(shelf || []);
+    // 用户未登录
+    if (!userData) return;
+
+    const ids = await getUserData("shelf");
+    setShelfIds(ids);
+
+    if (!ids || ids.length === 0) {
+      setMyShelf([]);
+      return;
+    }
+
+    const presentableIds = ids.join(",");
+    const queryParams: SearchExhibitsParams = { presentableIds };
+    const list = await searchExhibits(queryParams);
+    setMyShelf(list.data.data);
   };
 
   // 判断当前资源是否已被收藏
   const ifExistInShelf = (presentableId: string) => {
-    const isThisCollected = myShelf.includes(presentableId);
+    const isThisCollected = shelfIds.includes(presentableId);
     return isThisCollected;
   };
 
   // 操作收藏（如未收藏则收藏，反之取消收藏）
   const operateShelf = async (exhibit: ExhibitItem) => {
-    let shelf = myShelf;
     const isThisCollected = ifExistInShelf(exhibit.presentableId);
 
     if (isThisCollected) {
-      const index = myShelf.findIndex((item) => item === exhibit.presentableId);
-      shelf.splice(index, 1);
+      const index = shelfIds.findIndex((item) => item === exhibit.presentableId);
+      shelfIds.splice(index, 1);
     } else {
-      shelf.push(exhibit.presentableId);
+      shelfIds.push(exhibit.presentableId);
     }
-    await setUserData('shelf', shelf);
+    await setUserData("shelf", shelfIds);
+    showToast(isThisCollected ? `已将书籍从书架中移除～` : `已将书籍加入书架～`);
     getMyShelf();
   };
+
+  useEffect(() => {
+    getMyShelf();
+    // eslint-disable-next-line
+  }, [id, userData]);
 
   useEffect(() => {
     if (id) setIsCollected(ifExistInShelf(id));
     // eslint-disable-next-line
   }, [id, myShelf]);
-
-  useEffect(() => {
-    getMyShelf();
-    // eslint-disable-next-line
-  }, []);
 
   return { myShelf, isCollected, operateShelf };
 };

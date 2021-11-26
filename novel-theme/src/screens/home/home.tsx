@@ -1,17 +1,18 @@
 import "./home.scss";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useContext } from "react";
 import { useHistory } from "react-router-dom";
-import { SearchHeader } from "../../components/header/header";
-import { getExhibitsList, GetExhibitsListParams, searchExhibits, SearchExhibitsParams } from "../../api/freelog";
+import { Header } from "../../components/header/header";
+import { getExhibitsList, GetExhibitsListParams } from "../../api/freelog";
 import { ExhibitItem } from "../../utils/interface";
-import { HomeNovel, ShelfNovel } from "../../components/novel/novel";
+import { Novel } from "../../components/novel/novel";
 import { useMyScroll, useMyShelf } from "../../utils/hooks";
-import { AboutBar } from "../../components/about-bar/about-bar";
-import { BackTop } from "../../components/back-top/back-top";
+import { globalContext } from "../../router";
+import { ThemeEntrance } from "../../components/theme-entrance/theme-entrance";
+import { Footer } from "../../components/footer/footer";
 
 export const HomeScreen = (props: any) => {
+  const { tags, keywords } = props.match.params;
   const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
-  const tag = props.match.params.tag;
   const [bookList, setBookList] = useState<ExhibitItem[]>([]);
   const [total, setTotal] = useState<number | null>(null);
   const [searching, setSearching] = useState(false);
@@ -19,132 +20,142 @@ export const HomeScreen = (props: any) => {
   let loading: any = useRef(false);
 
   const getBookList = useCallback(
-    async (params: Partial<GetExhibitsListParams>, init = false) => {
+    async (init = false) => {
       if (loading.current) return;
 
       if (total === bookList.length && !init) return;
 
       loading.current = true;
-      skip.current = init ? 0 : skip.current + 12;
-      const queryParams = {
-        skip: skip.current.toString(),
+      skip.current = init ? 0 : skip.current + 9;
+      const queryParams: GetExhibitsListParams = {
+        skip: skip.current,
         resourceType: "novel",
-        limit: "12",
-        ...params,
+        limit: "9",
       };
+      if (tags !== "全部") queryParams.tags = tags;
+      if (keywords) queryParams.keywords = keywords;
+
       const list = await getExhibitsList(queryParams);
       const { dataList, totalItem } = list.data.data;
       setBookList((pre) => (init ? dataList : [...pre, ...dataList]));
       setTotal(totalItem);
       loading.current = false;
+      if (tags !== "全部" || keywords) {
+        setSearching(true);
+      } else {
+        setSearching(false);
+      }
     },
-    [bookList.length, total]
+    [bookList.length, total, tags, keywords]
   );
 
   useEffect(() => {
-    if (scrollTop + clientHeight === scrollHeight && scrollTop) getBookList({});
+    if (scrollTop + clientHeight === scrollHeight && scrollTop) getBookList();
   }, [scrollTop, clientHeight, scrollHeight, getBookList]);
 
   useEffect(() => {
-    if (tag === "0") getBookList({}, true);
+    getBookList(true);
     // eslint-disable-next-line
-  }, []);
+  }, [tags, keywords]);
 
   return (
-    <div className="home-wrapper flex-column align-center bg-white">
-      <SearchHeader search={getBookList} defaultTag={tag} filter setSearching={setSearching}></SearchHeader>
+    <div className="home-wrapper flex-column align-center">
+      <Header homeHeader={true} defaultTag={tags} defaultSearchKey={keywords}></Header>
 
-      <HomeBody bookList={bookList} searching={searching}></HomeBody>
+      <HomeBody bookList={bookList} searching={searching} total={total} tags={tags} keywords={keywords}></HomeBody>
 
-      {(total === bookList.length || total === 0) && (
-        <div className={`tip text-center fs-18 my-30 ${searching && total === 0 && "mt-100"}`}>
-          {total === 0 ? "NO DATA" : "END"}
-        </div>
-      )}
+      <Footer />
 
-      <AboutBar />
-
-      <BackTop>
-        <div className="back-top-btn p-fixed w-40 h-40 text-center brs-4 over-h r-20 b-60 cur-pointer transition">
-          <i className="iconfont fs-26 fc-white">&#xe600;</i>
-        </div>
-      </BackTop>
+      <ThemeEntrance />
     </div>
   );
 };
 
-const HomeBody = (props: { bookList: ExhibitItem[]; searching: boolean }) => {
-  const { bookList, searching } = props;
-  const { myShelf, operateShelf } = useMyShelf();
-  const [shelf, setShelf] = useState<ExhibitItem[]>([]);
+const HomeBody = (props: {
+  bookList: ExhibitItem[];
+  searching: boolean;
+  total: number | null;
+  tags: string;
+  keywords: string;
+}) => {
+  const { bookList, searching, total, tags, keywords } = props;
+  const { myShelf } = useMyShelf();
   const history = useHistory();
-
-  const getShelfList = async () => {
-    const presentableIds = myShelf.slice(myShelf.length > 4 ? myShelf.length - 4 : 0, myShelf.length).join(",");
-    if (!presentableIds) {
-      setShelf([]);
-      return;
-    }
-
-    const queryParams: Partial<SearchExhibitsParams> = {
-      presentableIds,
-    };
-    const list = await searchExhibits(queryParams);
-    setShelf(list.data.data);
-  };
-
-  useEffect(() => {
-    getShelfList();
-    // eslint-disable-next-line
-  }, [myShelf]);
+  const { userData } = useContext(globalContext);
 
   return (
-    <div className="home-body w-100p mw-1412">
+    <div className="home-body">
       {!searching && (
-        <div className="mt-40">
-          <div className="shelf-title w-100p mb-20 flex-row align-center space-between">
-            <div className="fs-24">
-              我的书架
-              <i className="iconfont fs-20 ml-5">&#xe6a3;</i>
-            </div>
-            <div className="more-shelf fs-16 lh-30 ml-20 cur-pointer transition" onClick={() => history.push("/shelf")}>
-              {"查看我的书架 >"}
-            </div>
+        <div className="book-list">
+          <div className="w-100p flex-row align-center space-between">
+            <div className="box-title">我的书架</div>
+            {userData && (
+              <div className="more-shelf cur-pointer transition" onClick={() => history.push("/shelf")}>
+                管理书架
+              </div>
+            )}
           </div>
 
-          {shelf.length !== 0 && (
+          {myShelf.length !== 0 && (
             <div className="w-100p flex-row flex-wrap">
-              {shelf.map((item) => {
+              {myShelf.map((item) => {
                 return (
-                  <div className="book-box shelf-book" key={item.presentableId}>
-                    <ShelfNovel data={item} operateShelf={operateShelf}></ShelfNovel>
+                  <div className="book-box" key={item.presentableId}>
+                    <Novel data={item}></Novel>
                   </div>
                 );
               })}
             </div>
           )}
 
-          {shelf.length === 0 && <div className="tip text-center fs-18 my-30">暂无数据，快去收藏小说到书架吧</div>}
-        </div>
-      )}
-
-      {searching ? (
-        <div className="hot-title fs-24 mt-40 mb-20">搜索结果</div>
-      ) : (
-        <div className="hot-title fs-24 mt-40 mb-20">
-          热门小说
-          <i className="iconfont fs-20 ml-5">&#xe65a;</i>
-        </div>
-      )}
-
-      <div className="w-100p flex-row flex-wrap">
-        {bookList.map((item) => {
-          return (
-            <div key={item.presentableId} className="book-box">
-              <HomeNovel data={item}></HomeNovel>
+          {!userData && <div className="tip w-100p text-align-center">登录后查看我的书架</div>}
+          {userData && myShelf.length === 0 && (
+            <div className="tip w-100p text-align-center">暂无数据，快去收藏书籍到书架吧～</div>
+          )}
+          {userData && myShelf.length !== 0 && (
+            <div className="tip shelf-tip w-100p text-align-center">
+              <span>已收藏 {myShelf.length} 本书籍</span>
+              <span className="view-all-btn cur-pointer transition" onClick={() => history.push("/shelf")}>
+                查看全部
+              </span>
             </div>
-          );
-        })}
+          )}
+        </div>
+      )}
+
+      <div className="book-list">
+        <div className="box-title">
+          {searching ? (
+            <div>
+              <span>
+                “{keywords}
+                {keywords && tags !== "全部" && "+"}
+                {tags !== "全部" ? tags : ""}”的搜索结果
+              </span>
+              <span className="search-book-total">({bookList.length})</span>
+            </div>
+          ) : (
+            <span>精选小说</span>
+          )}
+        </div>
+
+        <div className="w-100p flex-row flex-wrap">
+          {bookList.map((item) => {
+            return (
+              <div key={item.presentableId} className="book-box">
+                <Novel data={item}></Novel>
+              </div>
+            );
+          })}
+
+          {bookList.length === 0 && (
+            <div className="tip w-100p text-align-center">当前节点暂无任何书籍，请稍后查看</div>
+          )}
+
+          {bookList.length !== 0 && bookList.length === total && (
+            <div className="tip no-more w-100p text-align-center">— 已加载全部书籍 —</div>
+          )}
+        </div>
       </div>
     </div>
   );

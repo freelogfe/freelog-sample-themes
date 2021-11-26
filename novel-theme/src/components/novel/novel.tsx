@@ -5,98 +5,57 @@ import { getResourceName } from "../../utils/common";
 import { Tags } from "../tags/tags";
 import LazyLoad from "react-lazyload";
 
-export const HomeNovel = (props: { data: ExhibitItem }) => {
-  const { data } = props;
-  const history = useHistory();
-
-  return (
-    <div
-      className="home-novel-wrapper w-100p h-100p b-box brs-6 cur-pointer transition"
-      onClick={() => history.push("/detail/" + data.presentableId)}
-      title={data.presentableTitle}
-    >
-      <LazyLoad offset={100} once>
-        <div className="book-cover p-relative over-h text-center">
-          <img
-            className="h-100p"
-            src={data.coverImages[0]}
-            alt={data.presentableTitle}
-          />
-          <div className="book-shadow"></div>
-        </div>
-      </LazyLoad>
-
-      <div className="book-info flex-column">
-        <div
-          className="book-name w-100p lh-27 fw-bold text-ellipsis"
-          style={{ color: "#0d141e" }}
-        >
-          {data.presentableTitle}
-        </div>
-
-        <div className="book-author w-100p lh-21 text-ellipsis">
-          <span className="fs-12" style={{ color: "#858c96" }}>
-            {getResourceName(data.resourceInfo.resourceName, 0)}
-          </span>
-        </div>
-
-        <div className="mt-10">
-          <Tags data={data.tags} size="small" />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export const ShelfNovel = (props: {
-  data: ExhibitItem;
-  operateShelf: (data: ExhibitItem) => void;
-}) => {
+export const Novel = (props: { data: ExhibitItem; operateShelf?: (data: ExhibitItem) => void }) => {
   const { data, operateShelf } = props;
   const history = useHistory();
 
   return (
     <div
-      className="shelf-novel-wrapper p-relative w-100p h-100p b-box brs-6 cur-pointer transition"
+      className="home-novel-wrapper w-100p h-100p p-10 b-box flex-row align-center space-between cur-pointer transition"
       onClick={() => history.push("/detail/" + data.presentableId)}
-      title={data.presentableTitle}
     >
-      <LazyLoad offset={100} once>
-        <div className="book-cover p-relative over-h text-center">
-          <img
-            className="h-100p"
-            src={data.coverImages[0]}
-            alt={data.presentableTitle}
-          />
-          <div className="book-shadow"></div>
-        </div>
-      </LazyLoad>
+      <div className="flex-1 flex-row align-center">
+        <LazyLoad offset={100} once>
+          <div className="book-cover over-h text-center">
+            <img className="h-100p" src={data.coverImages[0]} alt={data.presentableTitle} />
+          </div>
+        </LazyLoad>
 
-      <div className="book-info flex-1 w-0 flex-column">
-        <div
-          className="book-name w-100p lh-27 fw-bold text-2-ellipsis"
-          style={{ color: "#0d141e" }}
-        >
-          {data.presentableTitle}
-        </div>
+        <div className="flex-1 w-0">
+          <div className="book-name w-100p fw-bold text-ellipsis" title={data.presentableTitle}>
+            {data.presentableTitle}
+          </div>
 
-        <div className="book-author w-100p lh-21 text-ellipsis">
-          <span className="fs-12" style={{ color: "#858c96" }}>
-            {data.username}
-          </span>
+          <div className="book-author w-100p text-ellipsis">{getResourceName(data.resourceInfo.resourceName, 0)}</div>
+
+          <div className="tags">
+            <Tags data={data.tags} size="small" />
+          </div>
         </div>
       </div>
 
-      <i
-        className="collect-icon iconfont fs-18 h-30 text-center ml-10 transition"
-        title="取消收藏"
-        onClick={(e) => {
-          e.stopPropagation();
-          operateShelf(data);
-        }}
-      >
-        &#xe658;
-      </i>
+      {operateShelf && (
+        <div className="flex-row">
+          <div
+            className="read-btn btn text-center fc-white fw-bold cur-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              history.push(`/reader/${data?.presentableId}`);
+            }}
+          >
+            立即阅读
+          </div>
+          <div
+            className="delete-btn btn text-center fw-bold cur-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              operateShelf(data);
+            }}
+          >
+            移出书架
+          </div>
+        </div>
+      )}
     </div>
   );
 };

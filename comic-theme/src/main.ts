@@ -13,23 +13,18 @@ import lazyPlugin from "vue3-lazy";
 //   window.location.reload();
 // });
 
-let instance: any = createApp(App)
-  .use(router)
-  .use(store)
-  .use(lazyPlugin, {
-    loading: require("./assets/image/default-img.jpg"),
-    error: require("./assets/image/default-img.jpg"),
-  });
-
-instance.directive("focus", {
-  mounted(el: HTMLInputElement) {
-    el.focus();
-  },
-});
+let instance: any = null;
 
 function render(props: any = {}) {
   const { container } = props;
 
+  instance = createApp(App)
+    .use(router)
+    .use(store)
+    .use(lazyPlugin, {
+      loading: require("./assets/image/default-img.jpg"),
+      error: require("./assets/image/default-img.jpg"),
+    });
   instance.mount(container ? container.querySelector("#app") : "#app");
 }
 

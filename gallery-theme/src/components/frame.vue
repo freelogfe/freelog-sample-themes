@@ -4,7 +4,12 @@
     @mouseover="modalShow = true"
     @mouseleave="modalShow = false"
   >
-    <img class="w-100p" :style="{ height: data.height + 'px' }" v-lazy="data.coverImages[0]" />
+    <img class="w-100p" :style="{ height: data.height + 'px' }" v-lazy="data.coverImages[0]" v-if="data.isAuth" />
+    <div
+      class="filter-modal p-relative w-100p"
+      :style="{ height: data.height + 'px', '--url': 'url(' + data.coverImages[0] + ')' }"
+      v-else
+    ></div>
 
     <transition name="fade">
       <div class="modal p-absolute lt-0 w-100p h-100p p-20 b-box" v-if="modalShow">
@@ -16,6 +21,7 @@
 
 <script lang="ts">
 import { ref } from "@vue/reactivity";
+
 export default {
   name: "frame",
 
@@ -33,6 +39,27 @@ export default {
 
 <style lang="scss" scoped>
 .frame-wrapper {
+  .filter-modal {
+    box-shadow: 0 10px 20px rgb(0 0 0 / 50%);
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      -webkit-filter: blur(5px);
+      -moz-filter: blur(5px);
+      -ms-filter: blur(5px);
+      -o-filter: blur(5px);
+      filter: blur(5px);
+      margin: -5px;
+      background-image: var(--url);
+      background-size: cover;
+    }
+  }
+
   .modal {
     background: linear-gradient(
       180deg,

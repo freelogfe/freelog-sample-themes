@@ -1,201 +1,156 @@
-import React, { useContext } from "react";
+import React, { useContext, useRef } from "react";
 import "./detail.scss";
 import { useState, useEffect, useCallback } from "react";
 import { Header } from "../../components/header/header";
 import { useHistory } from "react-router-dom";
 import { ExhibitItem } from "../../utils/interface";
-import { getExhibitsInfo } from "../../api/freelog";
+import { getExhibitsInfo, getExhibitsSignCount } from "../../api/freelog";
 import { formatDate, getResourceName } from "../../utils/common";
 import { Tags } from "../../components/tags/tags";
-import CSSTransition from "react-transition-group/CSSTransition";
 import { useMyShelf } from "../../utils/hooks";
+import { Footer } from "../../components/footer/footer";
+import { ThemeEntrance } from "../../components/theme-entrance/theme-entrance";
+import { Share } from "../../components/share/share";
 
 const detailContext = React.createContext<any>({});
 
 export const DetailScreen = (props: any) => {
-  const id = props.match.params.id;
+  const { id } = props.match.params;
   const [book, setBook] = useState<ExhibitItem | null>(null);
-  const [popupShow, setPopupShow] = useState<boolean>(false);
 
   const getBookInfo = useCallback(async () => {
-    const exhibitInfo = await getExhibitsInfo(id, {
-      isLoadVersionProperty: 1,
-      isLoadCustomPropertyDescriptors: 1,
-      isLoadResourceDetailInfo: 1,
-      isLoadResourceVersionInfo: 1,
-    });
+    const exhibitInfo = await getExhibitsInfo(id, { isLoadResourceDetailInfo: 1, isLoadResourceVersionInfo: 1 });
+    const signCountData = await getExhibitsSignCount(id);
     const { presentableTitle, resourceVersionInfo, resourceInfo } = exhibitInfo.data.data;
     const username = getResourceName(resourceInfo.resourceName, 0);
     const intro = resourceVersionInfo.description || resourceInfo.intro || `${presentableTitle}-${username}`;
-    setBook({ ...exhibitInfo.data.data, intro, username });
+    setBook({ ...exhibitInfo.data.data, intro, username, signCount: signCountData.data.data[0].count });
   }, [id]);
 
   useEffect(() => {
     getBookInfo();
     // eslint-disable-next-line
-  }, [id]);
+  }, []);
 
   return (
-    <detailContext.Provider value={{ book, setPopupShow }}>
+    <detailContext.Provider value={{ book }}>
       <div className="detail-wrapper flex-column align-center">
         <Header />
 
-        {book?.coverImages && (
+        {/* {book?.coverImages && (
           <div className="bg-cover-box p-relative w-100p pb-75p over-h">
             <img className="bg-cover p-absolute lt-0 w-100p" src={book?.coverImages[0]} alt={book?.presentableTitle} />
           </div>
-        )}
+        )} */}
 
         <BookBody />
 
-        <CSSTransition in={popupShow} classNames="fade-in" timeout={500} unmountOnExit>
-          <IntroPopup />
-        </CSSTransition>
+        <Footer />
+
+        <ThemeEntrance />
       </div>
     </detailContext.Provider>
   );
 };
 
 const BookBody = () => {
-  const { book, setPopupShow } = useContext(detailContext);
+  const { book } = useContext(detailContext);
   const { isCollected, operateShelf } = useMyShelf(book?.presentableId);
   const history = useHistory();
-
-  return (
-    <div className="body-wrapper w-100p b-box text-center z-1">
-      {book && (
-        <div className="content-wrapper b-box bg-white">
-          {/* 书籍信息 */}
-          <div className="body-info pb-36" style={{ borderBottom: "1px solid rgba(0, 0, 0, 0.05)" }}>
-            <div className="book-cover-box p-relative brs-6 b-box bg-white">
-              <div className="w-100p h-100p brs-4 over-h text-center">
-                <img className="h-100p" src={book?.coverImages[0]} alt={book?.presentableTitle} />
-                <div className="book-shadow"></div>
-              </div>
-            </div>
-
-            <div className="book-content flex-column">
-              <div className="book-name fw-bold">{book?.presentableTitle}</div>
-
-              <div className="book-author mt">{book?.username}</div>
-
-              <div className="mt">
-                <Tags data={book?.tags || []} size="large" />
-              </div>
-
-              <div className="pc-btns mt-25">
-                <div
-                  className="main-btn flex-1 mw-200 h-40"
-                  onClick={() => history.push(`/reader/${book?.presentableId}`)}
-                >
-                  <span>立即阅读</span>
-                </div>
-
-                <div
-                  className={`collect-btn flex-1 mw-200 h-40 brs-4 ml-20 b-box bg-white text-center cur-pointer shrink-0 transition ${
-                    isCollected && "collect"
-                  }`}
-                  onClick={() => operateShelf(book)}
-                >
-                  {isCollected ? "取消收藏" : "加入书架"}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {(book?.intro || book?.presentableTitle) && (
-            <div className="mt-30">
-              <div className="book-intro fs-14 lh-25 cur-pointer transition" onClick={() => setPopupShow(true)}>
-                {book?.intro || `${book?.presentableTitle}-${book?.username}`}
-              </div>
-            </div>
-          )}
-
-          <div className="mobile-btns mt-25">
-            <div className="main-btn flex-1 h-40" onClick={() => history.push(`/reader/${book?.presentableId}`)}>
-              <span>立即阅读</span>
-            </div>
-
-            <div
-              className={`collect-btn flex-1 h-40 brs-4 ml-20 b-box bg-white text-center cur-pointer shrink-0 transition ${
-                isCollected && "collect"
-              }`}
-              onClick={() => operateShelf(book)}
-            >
-              {isCollected ? "取消收藏" : "加入书架"}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-const IntroPopup = () => {
-  const { book, setPopupShow } = useContext(detailContext);
-  const infoList = [
-    {
-      title: "作者",
-      value: book?.username,
-    },
-    {
-      title: "创建时间",
-      value: formatDate(book?.createDate),
-    },
-    {
-      title: "更新时间",
-      value: formatDate(book?.updateDate),
-    },
-    {
-      title: "分类",
-      value: book?.tags?.join("、") || "无",
-    },
-  ];
+  const introContent = useRef<any>();
+  const [introState, setIntroState] = useState(0);
+  const [shareShow, setShareShow] = useState(false);
 
   useEffect(() => {
-    document.getElementById("popup")?.addEventListener("touchmove", (e) => {
-      e.preventDefault();
-    });
-    return () => {
-      document.getElementById("popup")?.addEventListener("touchmove", (e) => {
-        e.preventDefault();
-      });
-    };
-  }, []);
+    const introHeight = introContent.current?.clientHeight;
+    if (introHeight > 60) setIntroState(1);
+  }, [book]);
 
   return (
-    <div
-      id="popup"
-      className="intro-modal-wrapper p-fixed full lt-0 z-200 text-center"
-      onClick={() => setPopupShow(false)}
-    >
-      <div
-        className="p-relative w-80p mw-500 mh-80p flex-column bg-white brs-12 py-40 px-32 b-box"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <img
-          className="p-absolute w-20 h-20 rt-20 cur-pointer"
-          src="https://weread-1258476243.file.myqcloud.com/web/wrwebnjlogic/image/dialog_close.a5f40ec8.png"
-          alt="close"
-          onClick={() => setPopupShow(false)}
-        />
+    <div className="content flex-column align-center">
+      <div className="bread-crumbs w-100p">书籍详情</div>
 
-        <div className="fs-18 mb-16 lh-27">书名</div>
-        <div className="intro lh-24">{book.presentableTitle}</div>
+      {book && (
+        <div className="content-box">
+          {/* 书籍信息 */}
+          <div className="book-info flex-row">
+            <div className="book-cover over-h text-center">
+              <img className="h-100p" src={book.coverImages[0]} alt={book.presentableTitle} />
+            </div>
 
-        {/* <div className="fs-18 mt-32 mb-16 lh-27">简介</div>
-        <div className="intro lh-24 flex-1 h-0 y-auto">
-          {book.intro || `${book.presentableTitle}-${book.username}`}
-        </div> */}
+            <div className="book-content flex-1">
+              <div className="book-name fw-bold">{book.presentableTitle}</div>
 
-        <div className="fs-18 mt-32 mb-16 lh-27">信息</div>
-        {infoList.map((info) => (
-          <div className="flex-row align-center space-between mt-self-12" key={info.title}>
-            <div className="form-title">{info.title}</div>
-            <div className="form-value">{info.value}</div>
+              <div className="book-author">{book.username}</div>
+
+              <div className="tags">
+                <Tags data={book.tags || []} size="large" />
+              </div>
+
+              <div className="create-date">创建时间：{formatDate(book.createDate)}</div>
+
+              <div className="update-date">最近更新：{formatDate(book.updateDate)}</div>
+
+              <div className="btns-box flex-row align-center space-between">
+                <div className="flex-row">
+                  <div
+                    className="btn read-btn text-center fw-bold cur-pointer"
+                    onClick={() => history.push(`/reader/${book.presentableId}`)}
+                  >
+                    立即阅读
+                  </div>
+
+                  {isCollected ? (
+                    <div className="btn delete-btn text-center fw-bold cur-pointer" onClick={() => operateShelf(book)}>
+                      移出书架
+                    </div>
+                  ) : (
+                    <div className="btn collect-btn text-center fw-bold cur-pointer" onClick={() => operateShelf(book)}>
+                      加入书架
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-row align-center">
+                  <div className="sign-count">{book.signCount}人签约</div>
+                  <div
+                    className="share-btn p-relative flex-row align-center cur-pointer"
+                    onMouseOver={() => setShareShow(true)}
+                    onMouseLeave={() => setShareShow(false)}
+                  >
+                    <span className={`transition ${shareShow && "active"}`}>
+                      <i className="freelog fl-icon-fenxiang"></i>
+                      分享给更多人
+                    </span>
+
+                    <Share show={shareShow} exhibit={book} />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        ))}
-      </div>
+
+          <div className="book-intro">
+            <div className="intro-title fw-bold">内容简介</div>
+
+            {(book.intro || book.presentableTitle) && (
+              <div className={`intro p-relative over-h ${introState === 1 ? "fold" : "unfold"}`}>
+                <div className="intro-content" ref={introContent}>
+                  {book.intro || `${book.presentableTitle}-${book.username}`}
+                </div>
+
+                {introState === 1 && (
+                  <div className="view-all-btn p-absolute rb-0 bg-white cur-pointer" onClick={() => setIntroState(3)}>
+                    ...查看全部
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* <div className="directory-list">TODO</div> */}
+        </div>
+      )}
     </div>
   );
 };
