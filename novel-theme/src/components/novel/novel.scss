@@ -1,67 +1,210 @@
-.home-novel-wrapper {
-  height: 132px;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.04) 0%, rgba(255, 255, 255, 0.1) 100%);
-  border-radius: 6px;
+// 移动端书架小说组件
+.mobile-shelf-novel-wrapper {
+  width: 100px;
 
-  &:hover {
-    background: linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0%, rgba(255, 255, 255, 0.1) 100%);
-  }
-
-  .book-cover {
-    width: 80px;
-    height: 112px;
+  .book-cover-box {
+    width: 100px;
+    height: 140px;
     border-radius: 4px;
     background: #b7b7b7;
-    margin-right: 20px;
+    box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .book-cover {
+      height: 100%;
+    }
   }
 
   .book-name {
+    width: 100px;
     font-size: 16px;
+    font-weight: 600;
+    color: #222222;
     line-height: 22px;
+    margin-top: 10px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   .book-author {
+    width: 100px;
     font-size: 13px;
-    line-height: 18px;
     color: #666666;
-    margin-top: 10px;
+    line-height: 18px;
+    margin-top: 5px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
+}
 
-  .tags {
-    margin-top: 12px;
-  }
+// 普通小说组件
+.novel-wrapper {
+  width: 100%;
 
-  .btn {
-    height: 38px;
-    padding: 0 20px;
-    border-radius: 4px;
-    font-size: 14px;
+  .novel-content {
+    width: 100%;
+    display: flex;
+    align-items: center;
 
-    &.read-btn {
-      background-color: #2784ff;
+    .book-cover-box {
+      border-radius: 4px;
+      background: #b7b7b7;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
-      &:hover {
-        background-color: #529dff;
-      }
-
-      &:active {
-        background-color: #2376e5;
+      .book-cover {
+        height: 100%;
       }
     }
 
-    &.delete-btn {
-      color: #ee4040;
-      background-color: #fdebeb;
-      margin-left: 15px;
+    .book-info {
+      flex: 1;
+      width: 0;
 
-      &:hover {
-        color: #f86363;
-        background-color: #fef2f2;
+      .book-name {
+        width: 100%;
+        font-size: 16px;
+        color: #222;
+        line-height: 22px;
+        font-weight: bold;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
       }
 
-      &:active {
-        color: #eb3737;
-        background-color: #fee6e6;
+      .book-author {
+        width: 100%;
+        font-size: 13px;
+        line-height: 18px;
+        color: #666666;
+        margin-top: 10px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      .tags {
+        margin-top: 12px;
+      }
+    }
+  }
+
+  // 移动端普通小说组件
+  &.in-mobile {
+    padding: 0 20px;
+
+    &:active {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    .novel-content {
+      width: 100%;
+      padding: 15px 0;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+
+      .book-cover-box {
+        width: 70px;
+        height: 98px;
+        box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
+        margin-right: 15px;
+      }
+
+      .fl-icon-zhankaigengduo {
+        width: 6px;
+        height: 12px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+      }
+
+      .btn {
+        display: none;
+      }
+
+      .tag + .tag {
+        margin-left: 8px;
+      }
+    }
+  }
+
+  // PC端普通小说组件
+  &.in-pc {
+    border-radius: 6px;
+    padding: 10px;
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.04) 0%,
+      rgba(255, 255, 255, 0.1) 100%
+    );
+    cursor: pointer;
+
+    &:hover {
+      background: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.08) 0%,
+        rgba(255, 255, 255, 0.1) 100%
+      );
+    }
+
+    .book-cover-box {
+      width: 80px;
+      height: 112px;
+      margin-right: 20px;
+    }
+
+    .fl-icon-zhankaigengduo {
+      display: none;
+    }
+
+    .btn {
+      height: 38px;
+      padding: 0 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+
+      &.read-btn {
+        color: #fff;
+        background-color: #2784ff;
+
+        &:hover {
+          background-color: #529dff;
+        }
+
+        &:active {
+          background-color: #2376e5;
+        }
+      }
+
+      &.delete-btn {
+        color: #ee4040;
+        background-color: #fdebeb;
+        margin-left: 15px;
+
+        &:hover {
+          color: #f86363;
+          background-color: #fef2f2;
+        }
+
+        &:active {
+          color: #eb3737;
+          background-color: #fee6e6;
+        }
       }
     }
   }

@@ -6,11 +6,13 @@ import { ShelfScreen } from "../screens/shelf/shelf";
 import { DetailScreen } from "../screens/detail/detail";
 import { ReaderScreen } from "../screens/reader/reader";
 import { getSelfConfig, getUser } from "../api/freelog";
+import { judgeDevice } from "../utils/common";
 
 interface global {
   userData: userData | null;
-  records: any[];
+  locationHistory: string[];
   selfConfig: any;
+  inMobile: boolean;
 }
 
 interface userData {
@@ -19,15 +21,21 @@ interface userData {
   mobile: string;
 }
 
-export const history = createBrowserHistory();
+const history = createBrowserHistory();
 
-const globalData: global = { userData: null, records: [], selfConfig: {} };
+const globalData: global = {
+  userData: null,
+  locationHistory: ["/home/全部"],
+  selfConfig: {},
+  inMobile: false,
+};
 export const globalContext = React.createContext<global>(globalData);
 
 const RouterView = () => {
   const initGlobalData = async () => {
-    globalData.userData = getUser();
+    globalData.userData = await getUser();
     globalData.selfConfig = await getSelfConfig();
+    globalData.inMobile = judgeDevice();
   };
 
   useEffect(() => {

@@ -1,20 +1,23 @@
 import "./tags.scss";
-import { useHistory } from "react-router-dom";
+import { useMyHistory } from "../../utils/hooks";
+import { useContext } from "react";
+import { globalContext } from "../../router";
 
-export const Tags = (props: { data: string[]; size: string }) => {
-  const { data, size } = props;
-  const history = useHistory();
+export const Tags = (props: { data: string[] }) => {
+  const { data } = props;
+  const { inMobile } = useContext(globalContext);
+  const history = useMyHistory();
 
   return (
-    <div className="w-100p flex-row flex-wrap">
+    <div className="tag-wrapper">
       {data.map((tag) => (
         <div
-          className={`tag brs-3 py-2 b-box text-center cur-pointer transition ${size}`}
+          className={`tag ${inMobile ? "in-mobile" : "in-pc"}`}
           key={tag}
           title={`搜索“${tag}”`}
           onClick={(e) => {
             e.stopPropagation();
-            history.push(`/home/${tag}`);
+            history.switchPage(`/home/${tag}`);
           }}
         >
           {tag}

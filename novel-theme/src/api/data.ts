@@ -1,4 +1,8 @@
-import { freelogEntranceItem, shareBtnItem, ThemeItem } from "../utils/interface";
+import {
+  freelogEntranceItem,
+  shareBtnItem,
+  ThemeItem,
+} from "../utils/interface";
 
 // 搜索类型
 export const bookTypeList = [
@@ -31,17 +35,33 @@ export const themeList: ThemeItem[] = [
 
 // freelog相关入口
 export const freelogEntrances: freelogEntranceItem[] = [
-  { label: "freelog", url: "" },
+  { label: "freelog fl-icon-a-featherlogo5", url: "" },
   { label: "关于freelog", url: "" },
-  { label: "使用此主题", url: "http://console.testfreelog.com/resource/details/60ef9c4ea11650002e840fcd" },
+  {
+    label: "使用此主题",
+    url: "http://console.testfreelog.com/resource/details/60ef9c4ea11650002e840fcd",
+  },
   { label: "浏览更多主题", url: "http://console.testfreelog.com/market" },
 ];
 
 // 分享按钮
 export const shareBtns: shareBtnItem[] = [
-  { name: "qqZone", icon: "fl-icon-kongjian", bgColor: "#66d8f7" },
-  { name: "qq", icon: "fl-icon-QQ", bgColor: "#5382d3" },
-  { name: "weibo", icon: "fl-icon-weibo", bgColor: "#ff6f68" },
-  { name: "wechat", icon: "fl-icon-weixin", bgColor: "#1ec76f" },
-  { name: "douban", icon: "fl-icon-douban", bgColor: "#42a151" },
+  {
+    id: "qqZone",
+    name: "QQ空间",
+    icon: "fl-icon-kongjian",
+    bgColor: "#66d8f7",
+  },
+  { id: "qq", name: "QQ", icon: "fl-icon-QQ", bgColor: "#5382d3" },
+  { id: "weibo", name: "微博", icon: "fl-icon-weibo", bgColor: "#ff6f68" },
+  { id: "wechat", name: "微信", icon: "fl-icon-weixin", bgColor: "#1ec76f" },
+  { id: "douban", name: "豆瓣", icon: "fl-icon-douban", bgColor: "#42a151" },
 ];
+
+// 路由映射
+export const routerMappings: any = {
+  home: "首页",
+  shelf: "我的书架",
+  detail: "书籍详情",
+  reader: "",
+};

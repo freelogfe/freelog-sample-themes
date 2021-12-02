@@ -1,13 +1,16 @@
 import React, { useContext } from "react";
 import "./reader.scss";
 import { useState, useEffect, useCallback } from "react";
-import { useHistory } from "react-router-dom";
 import { ExhibitItem, ThemeItem } from "../../utils/interface";
 import { getExhibitsInfo, getInfo } from "../../api/freelog";
 import { themeList } from "../../api/data";
 import { BackTop } from "../../components/back-top/back-top";
-import { useMyScroll, useMyShelf } from "../../utils/hooks";
+import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
 import { Header } from "../../components/header/header";
+import { BreadCrumbs } from "../../components/breadcrumbs/breadcrumbs";
+import { Directory } from "../../components/directory/directory";
+import { globalContext } from "../../router";
+import { Share } from "../../components/share/share";
 
 const readerContext = React.createContext<any>({});
 
@@ -18,8 +21,10 @@ export const ReaderScreen = (props: any) => {
   const [book, setBook] = useState<ExhibitItem | null>(null);
   const [fontSize, setFontSize] = useState(myFontSize || 22);
   const [theme, setTheme] = useState<ThemeItem>(myTheme || themeList[0]);
+  const [sharePopupShow, setSharePopupShow] = useState(false);
   const [fontSizePopupShow, setFontSizePopupShow] = useState(false);
   const [themePopupShow, setThemePopupShow] = useState(false);
+  const [directoryShow, setDirectoryShow] = useState(false);
 
   const context = {
     id,
@@ -29,10 +34,14 @@ export const ReaderScreen = (props: any) => {
     setFontSize,
     theme,
     setTheme,
+    sharePopupShow,
+    setSharePopupShow,
     fontSizePopupShow,
     setFontSizePopupShow,
     themePopupShow,
     setThemePopupShow,
+    directoryShow,
+    setDirectoryShow,
   };
 
   const getBookInfo = useCallback(async () => {
@@ -46,7 +55,8 @@ export const ReaderScreen = (props: any) => {
   }, [id]);
 
   const clickPage = () => {
-    if (fontSizePopupShow || themePopupShow) {
+    if (sharePopupShow || fontSizePopupShow || themePopupShow) {
+      setSharePopupShow(false);
       setFontSizePopupShow(false);
       setThemePopupShow(false);
     }
@@ -60,28 +70,35 @@ export const ReaderScreen = (props: any) => {
   return (
     <readerContext.Provider value={context}>
       <div
-        className="reader-wrapper flex-column align-center transition"
+        className="reader-wrapper"
         style={{ backgroundColor: theme?.bgColor }}
         onClick={() => clickPage()}
       >
-        <Header />
+        <Header currentPage={book?.presentableTitle} />
 
         <Body />
 
         <Operater />
+
+        <Directory
+          book={book}
+          directoryShow={directoryShow}
+          setDirectoryShow={setDirectoryShow}
+        />
       </div>
     </readerContext.Provider>
   );
 };
 
 const Body = () => {
-  const history = useHistory();
+  const history = useMyHistory();
   const { book, id, fontSize, theme } = useContext(readerContext);
+  const { inMobile } = useContext(globalContext);
   const [content, setContent] = useState<string[]>([]);
 
   const getContent = useCallback(async () => {
     const info: any = await getInfo("getFileStreamById", [id], () => {
-      history.goBack();
+      history.back();
     });
     if (!info) return;
 
@@ -94,12 +111,31 @@ const Body = () => {
     // eslint-disable-next-line
   }, [id]);
 
-  return (
-    <div className="body-wrapper flex-1 flex-column">
-      <div className="bread-crumbs fw-bold">{book?.presentableTitle}</div>
+  return inMobile ? (
+    // mobile
+    <div
+      className={`mobile-body-wrapper ${theme?.type === 1 ? "dark" : "light"}`}
+      style={{
+        backgroundColor: theme?.bookColor,
+        fontSize: fontSize + "px",
+        lineHeight: fontSize + 14 + "px",
+      }}
+    >
+      {content.map((item, index) => {
+        return (
+          <p className="paragraph" key={item + index}>
+            {item}
+          </p>
+        );
+      })}
+    </div>
+  ) : (
+    // PC
+    <div className="body-wrapper">
+      <BreadCrumbs title={book?.presentableTitle} dark={theme?.type === 1} />
 
       <div
-        className={`content flex-1 transition ${theme?.type === 1 ? "dark" : "light"}`}
+        className={`content ${theme?.type === 1 ? "dark" : "light"}`}
         style={{
           backgroundColor: theme?.bookColor,
           fontSize: fontSize + "px",
@@ -108,24 +144,24 @@ const Body = () => {
       >
         {content.map((item, index) => {
           return (
-            <p className="text-breakAll" key={item + index}>
+            <p className="paragraph" key={item + index}>
               {item}
             </p>
           );
         })}
       </div>
 
-      <div className="footer-bar flex-row align-center transition" style={{ backgroundColor: theme?.bookColor }}>
-        <div className={`footer-btn flex-1 text-center cur-pointer transition`} onClick={() => console.log(123)}>
+      <div className="footer-bar" style={{ backgroundColor: theme?.bookColor }}>
+        <div className={`footer-btn`} onClick={() => console.log(123)}>
           上一章
         </div>
         <div
-          className="footer-btn flex-1 text-center cur-pointer transition"
-          onClick={() => history.push("/detail/" + id)}
+          className="footer-btn"
+          onClick={() => history.switchPage("/detail/" + id)}
         >
           书籍详情
         </div>
-        <div className={`footer-btn flex-1 text-center cur-pointer transition`} onClick={() => console.log(123)}>
+        <div className={`footer-btn`} onClick={() => console.log(123)}>
           下一章
         </div>
       </div>
@@ -141,11 +177,15 @@ const Operater = () => {
     setFontSize,
     theme,
     setTheme,
+    sharePopupShow,
+    setSharePopupShow,
     fontSizePopupShow,
     setFontSizePopupShow,
     themePopupShow,
     setThemePopupShow,
+    setDirectoryShow,
   } = useContext(readerContext);
+  const { inMobile } = useContext(globalContext);
   const { isCollected, operateShelf } = useMyShelf(book?.presentableId);
 
   const changeFontSize = (type: number) => {
@@ -160,33 +200,173 @@ const Operater = () => {
     setFontSize(result);
   };
 
+  const closeAllPopup = () => {
+    setSharePopupShow(false);
+    setFontSizePopupShow(false);
+    setThemePopupShow(false);
+  };
+
   useEffect(() => {
+    if (sharePopupShow) setSharePopupShow(false);
     if (fontSizePopupShow) setFontSizePopupShow(false);
     if (themePopupShow) setThemePopupShow(false);
     // eslint-disable-next-line
   }, [scrollTop]);
 
-  return (
-    <div className="operater-wrapper p-fixed l-50p">
-      <div className="p-absolute rb-0 flex-column align-end">
-        <OperateBtn icon="fl-icon-xiaoshuomulu" onClick={() => {}} />
+  useEffect(() => {
+    document.body.style.overflowY =
+      (sharePopupShow || fontSizePopupShow || themePopupShow) && inMobile
+        ? "hidden"
+        : "auto";
+  }, [sharePopupShow, fontSizePopupShow, themePopupShow, inMobile]);
+
+  return inMobile ? (
+    // mobile
+    <div className="mobile-operater-wrapper">
+      <div
+        className="operater-btn"
+        onClick={() => {
+          closeAllPopup();
+          setDirectoryShow(true);
+        }}
+      >
+        <i className="iconfont fl-icon-xiaoshuomulu"></i>
+        <div className="operater-btn-label">目录</div>
+      </div>
+
+      {isCollected ? (
+        <div
+          className="operater-btn"
+          onClick={() => {
+            closeAllPopup();
+            operateShelf(book);
+          }}
+        >
+          <i className="iconfont fl-icon-shoucangxiaoshuoyishoucang"></i>
+          <div className="operater-btn-label">移出书架</div>
+        </div>
+      ) : (
+        <div
+          className="operater-btn"
+          onClick={() => {
+            closeAllPopup();
+            operateShelf(book);
+          }}
+        >
+          <i className="iconfont fl-icon-shoucangxiaoshuo"></i>
+          <div className="operater-btn-label">加入书架</div>
+        </div>
+      )}
+
+      <div
+        className="operater-btn"
+        onClick={() => {
+          closeAllPopup();
+          setSharePopupShow(true);
+        }}
+      >
+        <i className="iconfont fl-icon-fenxiang"></i>
+        <div className="operater-btn-label">分享</div>
+      </div>
+
+      <div
+        className="operater-btn"
+        onClick={() => {
+          closeAllPopup();
+          setFontSizePopupShow(true);
+        }}
+      >
+        <div className="iconfont">A</div>
+        <div className="operater-btn-label">字号</div>
+      </div>
+
+      <div
+        className="operater-btn"
+        onClick={() => {
+          closeAllPopup();
+          setThemePopupShow(true);
+        }}
+      >
+        <i className="iconfont fl-icon-beijingyanse"></i>
+        <div className="operater-btn-label">背景色</div>
+      </div>
+
+      {fontSizePopupShow && (
+        <div
+          className="operater-popup"
+          onClick={() => setFontSizePopupShow(false)}
+        >
+          <div className="fontsize-popup" onClick={(e) => e.stopPropagation()}>
+            <div className="fontsize-label" onClick={() => changeFontSize(0)}>
+              A-
+            </div>
+            <div className="fontsize-value">{fontSize}</div>
+            <div className="fontsize-label" onClick={() => changeFontSize(1)}>
+              A+
+            </div>
+          </div>
+        </div>
+      )}
+
+      {themePopupShow && (
+        <div
+          className="operater-popup"
+          onClick={() => setThemePopupShow(false)}
+        >
+          <div className="theme-popup" onClick={(e) => e.stopPropagation()}>
+            {themeList.map((item) => {
+              return (
+                <div
+                  className={`theme-btn ${
+                    theme.bookColor === item.bookColor && "active"
+                  }`}
+                  key={item.bookColor}
+                  style={{ backgroundColor: item.bookColor }}
+                  onClick={() => {
+                    setTheme(item);
+                    localStorage.setItem("theme", JSON.stringify(item));
+                  }}
+                >
+                  <i className="freelog fl-icon-xuanzhong"></i>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <Share
+        show={sharePopupShow}
+        setShareShow={setSharePopupShow}
+        exhibit={book}
+      />
+    </div>
+  ) : (
+    // PC
+    <div className="operater-wrapper">
+      <div className="operater-btns-box">
+        <OperateBtn
+          icon="fl-icon-xiaoshuomulu"
+          onClick={() => {
+            closeAllPopup();
+            setDirectoryShow(true);
+          }}
+        />
 
         {isCollected ? (
           <OperateBtn
             icon="fl-icon-shoucangxiaoshuoyishoucang"
             onClick={() => {
+              closeAllPopup();
               operateShelf(book);
-              setFontSizePopupShow(false);
-              setThemePopupShow(false);
             }}
           />
         ) : (
           <OperateBtn
             icon="fl-icon-shoucangxiaoshuo"
             onClick={() => {
+              closeAllPopup();
               operateShelf(book);
-              setFontSizePopupShow(false);
-              setThemePopupShow(false);
             }}
           />
         )}
@@ -194,27 +374,30 @@ const Operater = () => {
         <OperateBtn
           icon="fl-icon-fenxiang"
           onClick={() => {
-            setFontSizePopupShow(false);
-            setThemePopupShow(false);
+            closeAllPopup();
+            setSharePopupShow(true);
           }}
+          slot={<Share show={sharePopupShow} exhibit={book} />}
         />
 
         <OperateBtn
-          icon="fl-icon-bianji"
+          text="A"
           onClick={() => {
+            closeAllPopup();
             setFontSizePopupShow(true);
-            setThemePopupShow(false);
           }}
           slot={
             <div
-              className={`fontsize-popup text-center over-h transition ${theme?.type === 1 ? "dark" : "light"}`}
+              className={`operater-popup ${
+                theme?.type === 1 ? "dark" : "light"
+              }`}
               style={{ width: fontSizePopupShow ? "162px" : "0" }}
             >
-              <div className="fontsize-label fw-bold" onClick={() => changeFontSize(0)}>
+              <div className="fontsize-label" onClick={() => changeFontSize(0)}>
                 A-
               </div>
-              <div className="fontsize-value text-center">{fontSize}</div>
-              <div className="fontsize-label fw-bold" onClick={() => changeFontSize(1)}>
+              <div className="fontsize-value">{fontSize}</div>
+              <div className="fontsize-label" onClick={() => changeFontSize(1)}>
                 A+
               </div>
             </div>
@@ -224,15 +407,18 @@ const Operater = () => {
         <OperateBtn
           icon="fl-icon-beijingyanse"
           onClick={() => {
+            closeAllPopup();
             setThemePopupShow(true);
-            setFontSizePopupShow(false);
           }}
           slot={
-            <div className="text-center over-h transition" style={{ maxWidth: themePopupShow ? "228px" : "0" }}>
+            <div
+              className="operater-popup"
+              style={{ width: themePopupShow ? "228px" : "0" }}
+            >
               {themeList.map((item) => {
                 return (
                   <div
-                    className={`theme-btn brs-50p text-center cur-pointer ${
+                    className={`theme-btn ${
                       theme.bookColor === item.bookColor && "active"
                     }`}
                     key={item.bookColor}
@@ -251,12 +437,7 @@ const Operater = () => {
         />
 
         <div className="back-top">
-          <BackTop
-            onClick={() => {
-              setFontSizePopupShow(false);
-              setThemePopupShow(false);
-            }}
-          >
+          <BackTop onClick={() => closeAllPopup()}>
             <OperateBtn icon="fl-icon-huidaodingbu" />
           </BackTop>
         </div>
@@ -265,20 +446,28 @@ const Operater = () => {
   );
 };
 
-const OperateBtn = (props: { icon: string; onClick?: (e: any) => void; slot?: any }) => {
-  const { icon, onClick, slot } = props;
+const OperateBtn = (props: {
+  icon?: string;
+  text?: string;
+  slot?: any;
+  onClick?: (e: any) => void;
+}) => {
+  const { icon, text, slot, onClick } = props;
   const { theme } = useContext(readerContext);
 
   return (
     <div
-      className={`operate-btn-wrapper over-h text-center cur-pointer transition ${
-        theme?.type === 1 ? "dark" : "light"
-      }`}
+      className={`operate-btn-wrapper ${theme?.type === 1 ? "dark" : "light"}`}
       style={{ backgroundColor: theme?.bookColor }}
       onClick={(e) => e.stopPropagation()}
     >
       {slot}
-      <i className={`iconfont text-center ${icon}`} onClick={onClick}></i>
+      {icon && <i className={`iconfont ${icon}`} onClick={onClick}></i>}
+      {text && (
+        <span className="iconfont" onClick={onClick}>
+          {text}
+        </span>
+      )}
     </div>
   );
 };

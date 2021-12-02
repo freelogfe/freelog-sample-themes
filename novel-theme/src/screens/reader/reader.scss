@@ -1,22 +1,52 @@
 .reader-wrapper {
   min-height: 100vh;
   background-image: url(../../assets/images/reader-bg.png);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.2s linear;
 
-  .body-wrapper {
-    width: 800px;
+  // mobile 主题内容区
+  .mobile-body-wrapper {
+    width: 100%;
+    flex: 1;
+    padding: 20px 20px 90px;
+    box-sizing: border-box;
+    background-image: url(../../assets/images/reader-bg.png);
+    animation: fade-in 0.3s ease-out;
+    transition: background-color 0.2s linear;
 
-    .bread-crumbs {
-      font-size: 16px;
-      line-height: 22px;
-      color: #222222;
-      margin: 24px 0;
+    .paragraph {
+      word-break: break-all;
     }
 
+    &.dark {
+      color: #999;
+    }
+
+    &.light {
+      color: #222;
+    }
+  }
+
+  // PC 主题内容区
+  .body-wrapper {
+    width: 800px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
     .content {
+      flex: 1;
       padding: 50px 60px;
       border-radius: 10px;
       background-image: url(../../assets/images/reader-bg.png);
       animation: fade-in 0.3s ease-out;
+      transition: all 0.2s linear;
+
+      .paragraph {
+        word-break: break-all;
+      }
 
       &.dark {
         color: #999;
@@ -32,11 +62,20 @@
       margin: 30px 0;
       border-radius: 10px;
       background-image: url(../../assets/images/reader-bg.png);
+      display: flex;
+      align-items: center;
+      transition: all 0.2s linear;
 
       .footer-btn {
+        flex: 1;
         font-size: 16px;
         line-height: 30px;
         color: #222222;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s linear;
 
         &:hover {
           color: #529dff;
@@ -58,90 +97,281 @@
     }
   }
 
-  .operater-wrapper {
-    bottom: 138px;
-    margin-left: 500px;
+  // mobile 操作按钮群
+  .mobile-operater-wrapper {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 60px;
+    background-color: #333;
+    padding: 0 20px;
+    display: flex;
 
-    .operate-btn-wrapper {
-      min-width: 48px;
-      height: 48px;
-      border-radius: 48px;
-      color: #aaa;
-      background-color: #ececf0;
+    .operater-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.6);
 
-      &.dark:hover {
-        box-shadow: 0px 2px 10px 0px rgba(255, 255, 255, 0.4);
-      }
-
-      &.light:hover {
-        box-shadow: 0px 2px 10px 0px rgba(0, 0, 0, 0.2);
-      }
-
-      & + .operate-btn-wrapper {
-        margin-top: 10px;
+      &:active {
+        color: #fff;
       }
 
       .iconfont {
-        width: 48px;
-        height: 48px;
+        width: 18px;
+        height: 18px;
         font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
+      .operater-btn-label {
+        font-size: 10px;
+        color: #ffffff;
+        line-height: 16px;
+        margin-top: 4px;
+      }
+
+      & + .operater-btn {
+        margin-left: 10px;
+      }
+    }
+
+    .operater-popup {
+      position: fixed;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 60px;
+
       .fontsize-popup {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 60px;
+        height: 100px;
+        background-color: #333;
+        box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.1);
+        padding: 0 33px;
+        display: flex;
+        align-items: center;
+
         .fontsize-label {
-          font-size: 16px;
+          width: 70px;
+          height: 44px;
+          font-size: 20px;
+          color: #ffffff;
+          background-color: #333;
+          font-weight: bold;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          &:active {
+            background-color: #565656;
+          }
         }
 
         .fontsize-value {
-          width: 60px;
-          height: 28px;
+          flex: 1;
+          height: 44px;
           border-radius: 4px;
-          margin: 0 15px;
-        }
-
-        &.dark {
-          color: #999;
-
-          .fontsize-value {
-            border: 1px solid #2d2d2d;
-          }
-        }
-
-        &.light {
-          color: #222;
-
-          .fontsize-value {
-            border: 1px solid #d1d1d1;
-          }
+          border: 1px solid rgba(255, 255, 255, 0.4);
+          font-size: 20px;
+          font-weight: bold;
+          color: #fff;
+          margin: 0 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
       }
 
-      .theme-btn {
-        width: 28px;
-        height: 28px;
-        margin-left: 10px;
-        border: 1px solid #d1d1d1;
+      .theme-popup {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 60px;
+        height: 100px;
+        background-color: #333;
+        box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.1);
+        padding: 0 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
-        &.active {
-          border-color: #2784ff;
+        .theme-btn {
+          flex: 1;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid transparent;
+
+          &:after {
+            content: "";
+            padding-top: 100%;
+          }
+
+          &.active {
+            border: 1px solid #2784ff;
+
+            .freelog {
+              opacity: 1;
+              transition: all 0.2s linear;
+            }
+          }
+
+          & + .theme-btn {
+            margin-left: 15px;
+          }
 
           .freelog {
-            opacity: 1;
+            width: 16px;
+            height: 10px;
+            font-size: 10px;
+            color: #2784ff;
+            opacity: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
-        }
-
-        .freelog {
-          font-size: 10px;
-          transform: scale(0.8);
-          color: #2784ff;
-          opacity: 0;
         }
       }
     }
   }
 
-  .back-top {
-    margin-top: 10px;
+  // PC 操作按钮群
+  .operater-wrapper {
+    position: fixed;
+    bottom: 138px;
+    left: 50%;
+    margin-left: 500px;
+
+    .operater-btns-box {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+
+      .operate-btn-wrapper {
+        min-width: 48px;
+        height: 48px;
+        border-radius: 48px;
+        color: #aaa;
+        background-color: #ececf0;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s linear;
+
+        &.dark:hover {
+          box-shadow: 0px 2px 10px 0px rgba(255, 255, 255, 0.4);
+        }
+
+        &.light:hover {
+          box-shadow: 0px 2px 10px 0px rgba(0, 0, 0, 0.2);
+        }
+
+        & + .operate-btn-wrapper {
+          margin-top: 10px;
+        }
+
+        .iconfont {
+          width: 48px;
+          height: 48px;
+          font-size: 18px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .operater-popup {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          transition: all 0.2s linear;
+
+          .fontsize-label {
+            font-size: 16px;
+            font-weight: bold;
+          }
+
+          .fontsize-value {
+            width: 60px;
+            height: 28px;
+            border-radius: 4px;
+            margin: 0 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          &.dark {
+            color: #999;
+
+            .fontsize-value {
+              border: 1px solid #2d2d2d;
+            }
+          }
+
+          &.light {
+            color: #222;
+
+            .fontsize-value {
+              border: 1px solid #d1d1d1;
+            }
+          }
+
+          .theme-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 10px;
+            border: 1px solid #d1d1d1;
+            cursor: pointer;
+
+            &.active {
+              border-color: #2784ff;
+
+              .freelog {
+                opacity: 1;
+              }
+            }
+
+            .freelog {
+              font-size: 10px;
+              transform: scale(0.8);
+              color: #2784ff;
+              opacity: 0;
+            }
+          }
+        }
+
+        .share-wrapper {
+          right: 100%;
+          top: 50%;
+          margin-top: -140px;
+          margin-right: 20px;
+        }
+      }
+
+      .back-top {
+        margin-top: 10px;
+      }
+    }
   }
 }
 

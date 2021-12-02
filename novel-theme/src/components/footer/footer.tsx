@@ -1,15 +1,44 @@
+import { useContext } from "react";
 import { freelogEntrances } from "../../api/data";
+import { globalContext } from "../../router";
 import "./footer.scss";
 
 export const Footer = () => {
-  return (
-    <div
-      className="footer-wrapper p-absolute b-0 l-0 w-100p text-center"
-      onClick={() => window.open("http://console.testfreelog.com/resource/details/60ef9c4ea11650002e840fcd")}
-    >
-      {freelogEntrances.map((item) => (
-        <div className="footer-btn cur-pointer transition" key={item.label} onClick={() => window.open(item.url)}>
-          {item.label}
+  const { inMobile } = useContext(globalContext);
+
+  return inMobile ? (
+    // mobile
+    <div className="mobile-footer-wrapper">
+      {freelogEntrances
+        .filter((_, entrancesIndex) => entrancesIndex < 2)
+        .map((item, index) => (
+          <div
+            className="footer-btn"
+            key={item.label}
+            onClick={() => window.open(item.url)}
+          >
+            {index === 0 ? (
+              <i className={item.label}></i>
+            ) : (
+              <span>{item.label}</span>
+            )}
+          </div>
+        ))}
+    </div>
+  ) : (
+    // PC
+    <div className="footer-wrapper">
+      {freelogEntrances.map((item, index) => (
+        <div
+          className="footer-btn"
+          key={item.label}
+          onClick={() => window.open(item.url)}
+        >
+          {index === 0 ? (
+            <i className={item.label}></i>
+          ) : (
+            <span>{item.label}</span>
+          )}
         </div>
       ))}
     </div>

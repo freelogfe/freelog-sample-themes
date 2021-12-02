@@ -1,5 +1,11 @@
 import { useState, useEffect, useCallback, useContext } from "react";
-import { getUserData, searchExhibits, SearchExhibitsParams, setUserData } from "../api/freelog";
+import { useHistory } from "react-router";
+import {
+  getUserData,
+  searchExhibits,
+  SearchExhibitsParams,
+  setUserData,
+} from "../api/freelog";
 import { showToast } from "../components/toast/toast";
 import { globalContext } from "../router";
 import { ExhibitItem } from "./interface";
@@ -12,6 +18,8 @@ export const useMyShelf = (id?: string) => {
   const [shelfIds, setShelfIds] = useState<string[]>([]);
   const [myShelf, setMyShelf] = useState<ExhibitItem[]>([]);
   const [isCollected, setIsCollected] = useState(false);
+  const history = useHistory();
+  const myHistory = useMyHistory();
 
   // 获取书架数据
   const getMyShelf = async () => {
@@ -43,17 +51,29 @@ export const useMyShelf = (id?: string) => {
     const isThisCollected = ifExistInShelf(exhibit.presentableId);
 
     if (isThisCollected) {
-      const index = shelfIds.findIndex((item) => item === exhibit.presentableId);
+      const index = shelfIds.findIndex(
+        (item) => item === exhibit.presentableId
+      );
       shelfIds.splice(index, 1);
     } else {
       shelfIds.push(exhibit.presentableId);
     }
-    await setUserData("shelf", shelfIds);
-    showToast(isThisCollected ? `已将书籍从书架中移除～` : `已将书籍加入书架～`);
-    getMyShelf();
+    const res = await setUserData("shelf", shelfIds);
+    if (res.data.msg === "success") {
+      showToast(
+        isThisCollected ? `已将书籍从书架中移除～` : `已将书籍加入书架～`
+      );
+      getMyShelf();
+    } else {
+      showToast("收藏失败");
+    }
   };
 
   useEffect(() => {
+    if (!userData && history.location.pathname === "/shelf") {
+      myHistory.switchPage("/");
+      return;
+    }
     getMyShelf();
     // eslint-disable-next-line
   }, [id, userData]);
@@ -67,7 +87,7 @@ export const useMyShelf = (id?: string) => {
 };
 
 /**
- * 获取页面相关信息hook
+ * 页面滚动相关hook
  */
 export const useMyScroll = () => {
   const [scrollTop, setScrollTop] = useState(0);
@@ -76,8 +96,12 @@ export const useMyScroll = () => {
 
   const scroll = useCallback(() => {
     setScrollTop(document.documentElement.scrollTop || document.body.scrollTop);
-    setClientHeight(document.documentElement.clientHeight || document.body.clientHeight);
-    setScrollHeight(document.documentElement.scrollHeight || document.body.scrollHeight);
+    setClientHeight(
+      document.documentElement.clientHeight || document.body.clientHeight
+    );
+    setScrollHeight(
+      document.documentElement.scrollHeight || document.body.scrollHeight
+    );
   }, [setScrollTop, setClientHeight, setScrollHeight]);
 
   useEffect(() => {
@@ -90,4 +114,38 @@ export const useMyScroll = () => {
     clientHeight,
     scrollHeight,
   };
+};
+
+/**
+ * 页面路由记录hook
+ */
+export const useMyHistory = () => {
+  const { locationHistory } = useContext(globalContext);
+  const history = useHistory();
+
+  const switchPage = (path: string) => {
+    if (path === "/") path = "/home/全部";
+    const pathname = path.split("/")[1];
+    const index = locationHistory.findIndex((item) => item.includes(pathname));
+    if (index !== -1) {
+      locationHistory.splice(index);
+      history.replace(path);
+    } else {
+      history.push(path);
+    }
+    locationHistory.push(path);
+  };
+
+  const back = () => {
+    history.goBack();
+    locationHistory.pop();
+  };
+
+  useEffect(() => {
+    const { pathname } = history.location;
+    if (pathname !== "/home/全部" && locationHistory.length === 1)
+      locationHistory.push(pathname);
+  }, [locationHistory, history.location]);
+
+  return { switchPage, back, locationHistory };
 };
