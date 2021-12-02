@@ -11,6 +11,7 @@ import { BreadCrumbs } from "../../components/breadcrumbs/breadcrumbs";
 import { Directory } from "../../components/directory/directory";
 import { globalContext } from "../../router";
 import { Share } from "../../components/share/share";
+import { showToast } from "../../components/toast/toast";
 
 const readerContext = React.createContext<any>({});
 
@@ -187,6 +188,7 @@ const Operater = () => {
   } = useContext(readerContext);
   const { inMobile } = useContext(globalContext);
   const { isCollected, operateShelf } = useMyShelf(book?.presentableId);
+  const [href, setHref] = useState("");
 
   const changeFontSize = (type: number) => {
     let result = fontSize;
@@ -205,6 +207,21 @@ const Operater = () => {
     setFontSizePopupShow(false);
     setThemePopupShow(false);
   };
+
+  const share = () => {
+    // 复制链接
+    const input: any = document.getElementById("href");
+    input.select();
+    document.execCommand("Copy");
+    showToast("链接复制成功～");
+  };
+
+  useEffect(() => {
+    setHref(
+      "http://freelognovel.testfreelog.com/?dev=http://localhost:3000/$_$freelog-60ef9c4ea11650002e840fcd=" +
+        window.location.href
+    );
+  }, []);
 
   useEffect(() => {
     if (sharePopupShow) setSharePopupShow(false);
@@ -262,7 +279,7 @@ const Operater = () => {
         className="operater-btn"
         onClick={() => {
           closeAllPopup();
-          setSharePopupShow(true);
+          share();
         }}
       >
         <i className="iconfont fl-icon-fenxiang"></i>
@@ -340,6 +357,8 @@ const Operater = () => {
         setShareShow={setSharePopupShow}
         exhibit={book}
       />
+      
+      <input id="href" className="hidden-input" value={href} readOnly />
     </div>
   ) : (
     // PC

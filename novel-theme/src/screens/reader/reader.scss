@@ -243,6 +243,12 @@
         }
       }
     }
+
+    .hidden-input {
+      position: absolute;
+      left: -100%;
+      z-index: -1;
+    }
   }
 
   // PC 操作按钮群

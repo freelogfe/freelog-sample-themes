@@ -115,7 +115,12 @@ export const Share = (props: {
               );
             })}
           </div>
-          <div className="cancel-btn"onClick={() => setShareShow && setShareShow(false)}>取消</div>
+          <div
+            className="cancel-btn"
+            onClick={() => setShareShow && setShareShow(false)}
+          >
+            取消
+          </div>
         </div>
       </div>
     </CSSTransition>

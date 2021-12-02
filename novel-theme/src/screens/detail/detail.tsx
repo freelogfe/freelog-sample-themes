@@ -14,6 +14,7 @@ import { BreadCrumbs } from "../../components/breadcrumbs/breadcrumbs";
 import { LoginBtn } from "../../components/login-btn/login-btn";
 import { globalContext } from "../../router";
 import { Directory } from "../../components/directory/directory";
+import { showToast } from "../../components/toast/toast";
 
 const detailContext = React.createContext<any>({});
 
@@ -79,10 +80,26 @@ const BookBody = () => {
   const introContent = useRef<any>();
   const [introState, setIntroState] = useState(0);
   const [shareShow, setShareShow] = useState(false);
+  const [href, setHref] = useState("");
   const directory = Array.from(
     { length: 12 },
     () => book?.presentableTitle || "目录名称"
   );
+
+  const share = () => {
+    // 复制链接
+    const input: any = document.getElementById("href");
+    input.select();
+    document.execCommand("Copy");
+    showToast("链接复制成功～");
+  };
+
+  useEffect(() => {
+    setHref(
+      "http://freelognovel.testfreelog.com/?dev=http://localhost:3000/$_$freelog-60ef9c4ea11650002e840fcd=" +
+        window.location.href
+    );
+  }, []);
 
   useEffect(() => {
     const introHeight = introContent.current?.clientHeight;
@@ -121,12 +138,13 @@ const BookBody = () => {
 
             <div className="content-bottom">
               <div className="sign-count">{book?.signCount}人签约</div>
-              <div className="share-btn" onClick={() => setShareShow(true)}>
+              <div className="share-btn" onClick={() => share()}>
                 <span className="share-btn-text">
                   <i className="freelog fl-icon-fenxiang"></i>
                   分享给更多人
                 </span>
               </div>
+              <input id="href" className="hidden-input" value={href} readOnly />
             </div>
           </div>
         </div>
