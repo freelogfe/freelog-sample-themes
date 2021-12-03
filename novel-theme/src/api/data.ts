@@ -23,6 +23,17 @@ export const bookTypeList = [
   "外国文学",
 ];
 
+// header背景色选项
+export const headerBgColorList: any = {
+  酷黑: "linear-gradient(135deg, #222222, #353535)",
+  炫丽: "linear-gradient(135deg, #C127FF, #35A3C5)",
+  活力: "linear-gradient(135deg, #F08840, #F0C23F)",
+  灰度: "linear-gradient(135deg, #2C3E50, #BDC3C7)",
+  蜜桃: "linear-gradient(135deg, #E7949F, #E2C1A3)",
+  清新: "linear-gradient(135deg, #5D9191, #A2D5C5)",
+  沉静: "linear-gradient(315deg, #2C5364, #0F2027)",
+};
+
 // 主题选项
 export const themeList: ThemeItem[] = [
   { bookColor: "#ffffff", bgColor: "#efefef", type: 0 },

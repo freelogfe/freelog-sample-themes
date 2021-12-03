@@ -2,7 +2,7 @@ import "./header.scss";
 import { useState, useEffect, useCallback, useContext } from "react";
 import { useMyHistory } from "../../utils/hooks";
 import { callLogin, callLoginOut } from "../../api/freelog";
-import { bookTypeList } from "../../api/data";
+import { bookTypeList, headerBgColorList } from "../../api/data";
 import { globalContext } from "../../router";
 import CSSTransition from "react-transition-group/CSSTransition";
 
@@ -194,7 +194,7 @@ export const Header = (props: {
     // PC
     <div
       className="header-wrapper"
-      style={{ background: selfConfig.headerBgColor }}
+      style={{ background: headerBgColorList[selfConfig.headerBgColor] }}
     >
       {/* header顶部 */}
       <div className="header-top">
