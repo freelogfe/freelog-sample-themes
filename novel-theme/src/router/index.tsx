@@ -5,7 +5,7 @@ import { HomeScreen } from "../screens/home/home";
 import { ShelfScreen } from "../screens/shelf/shelf";
 import { DetailScreen } from "../screens/detail/detail";
 import { ReaderScreen } from "../screens/reader/reader";
-import { getSelfConfig, getUser } from "../api/freelog";
+import { getSelfConfig, getCurrentUser } from "../api/freelog";
 import { judgeDevice } from "../utils/common";
 
 interface global {
@@ -33,7 +33,7 @@ export const globalContext = React.createContext<global>(globalData);
 
 const RouterView = () => {
   const initGlobalData = async () => {
-    globalData.userData = await getUser();
+    globalData.userData = await getCurrentUser();
     globalData.selfConfig = await getSelfConfig();
     globalData.inMobile = judgeDevice();
   };

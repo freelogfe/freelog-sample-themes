@@ -1,35 +1,16 @@
 // 展品
 export interface ExhibitItem {
-  presentableId: string;
+  exhibitId: string;
+  exhibitName: string;
   coverImages: string[];
-  presentableTitle: string;
   tags: string[];
-  resourceInfo: { resourceName: string };
-  username: string;
+  articleInfo: { articleOwnerName: string };
+  versionInfo: { exhibitProperty: { intro: string } };
   intro: string;
   createDate: string;
   updateDate: string;
   signCount: number;
-}
-
-// 资源
-export interface ResourceItem {
-  presentableId: string;
-  resourceId: string;
-  coverImages: string[];
-  resourceName: string;
-  tags: string[];
-  username: string;
-  intro: string;
-  createDate: string;
-  updateDate: string;
-}
-
-// 目录
-export interface DirectoryItem {
-  id: string;
-  title: string;
-  open: boolean;
+  isAuth: boolean;
 }
 
 // 主题

@@ -16,16 +16,56 @@
     animation: fade-in 0.3s ease-out;
     transition: background-color 0.2s linear;
 
-    .paragraph {
-      word-break: break-all;
-    }
-
     &.dark {
       color: #999;
     }
 
     &.light {
       color: #222;
+    }
+
+    .paragraph {
+      word-break: break-all;
+    }
+
+    .lock-box {
+      width: 100%;
+      padding: 110px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .lock {
+        width: 48px;
+        height: 48px;
+      }
+
+      .lock-tip {
+        font-size: 16px;
+        color: #999999;
+        line-height: 22px;
+        margin-top: 30px;
+      }
+
+      .get-btn {
+        padding: 9px 20px;
+        border-radius: 4px;
+        font-size: 14px;
+        line-height: 20px;
+        font-weight: bold;
+        background-color: #2784ff;
+        color: #fff;
+        margin-top: 30px;
+        cursor: pointer;
+
+        &:hover {
+          background-color: #529dff;
+        }
+
+        &:active {
+          background-color: #2376e5;
+        }
+      }
     }
   }
 
@@ -44,16 +84,56 @@
       animation: fade-in 0.3s ease-out;
       transition: all 0.2s linear;
 
-      .paragraph {
-        word-break: break-all;
-      }
-
       &.dark {
         color: #999;
       }
 
       &.light {
         color: #222;
+      }
+
+      .paragraph {
+        word-break: break-all;
+      }
+
+      .lock-box {
+        width: 100%;
+        padding: 110px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .lock {
+          width: 48px;
+          height: 48px;
+        }
+
+        .lock-tip {
+          font-size: 16px;
+          color: #999999;
+          line-height: 22px;
+          margin-top: 30px;
+        }
+
+        .get-btn {
+          padding: 9px 20px;
+          border-radius: 4px;
+          font-size: 14px;
+          line-height: 20px;
+          font-weight: bold;
+          background-color: #2784ff;
+          color: #fff;
+          margin-top: 30px;
+          cursor: pointer;
+
+          &:hover {
+            background-color: #529dff;
+          }
+
+          &:active {
+            background-color: #2376e5;
+          }
+        }
       }
     }
 

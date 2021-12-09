@@ -221,12 +221,10 @@
         color: #999;
         margin-top: 55px;
 
-        &.shelf-tip {
+        &.shelf-tip,
+        &.no-more {
           font-size: 14px;
           line-height: 20px;
-        }
-
-        &.no-more {
           margin-top: 30px;
         }
       }

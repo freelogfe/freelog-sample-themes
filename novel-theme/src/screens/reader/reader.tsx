@@ -1,9 +1,10 @@
 import React, { useContext } from "react";
 import "./reader.scss";
+import Lock from "../../assets/images/lock.png";
 import { useState, useEffect, useCallback } from "react";
-import { ExhibitItem, ThemeItem } from "../../utils/interface";
-import { getExhibitsInfo, getInfo } from "../../api/freelog";
-import { themeList } from "../../api/data";
+import { ExhibitItem, ThemeItem } from "../../api/interface";
+import { addAuth, getExhibitAuthStatus, getExhibitFileStream, getExhibitInfo } from "../../api/freelog";
+import { readerThemeList } from "../../api/data";
 import { BackTop } from "../../components/back-top/back-top";
 import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
 import { Header } from "../../components/header/header";
@@ -21,7 +22,7 @@ export const ReaderScreen = (props: any) => {
   const myTheme = JSON.parse(localStorage.getItem("theme") || "null");
   const [book, setBook] = useState<ExhibitItem | null>(null);
   const [fontSize, setFontSize] = useState(myFontSize || 22);
-  const [theme, setTheme] = useState<ThemeItem>(myTheme || themeList[0]);
+  const [theme, setTheme] = useState<ThemeItem>(myTheme || readerThemeList[0]);
   const [sharePopupShow, setSharePopupShow] = useState(false);
   const [fontSizePopupShow, setFontSizePopupShow] = useState(false);
   const [themePopupShow, setThemePopupShow] = useState(false);
@@ -46,12 +47,7 @@ export const ReaderScreen = (props: any) => {
   };
 
   const getBookInfo = useCallback(async () => {
-    const exhibitInfo = await getExhibitsInfo(id, {
-      isLoadVersionProperty: 1,
-      isLoadCustomPropertyDescriptors: 1,
-      isLoadResourceDetailInfo: 1,
-      isLoadResourceVersionInfo: 1,
-    });
+    const exhibitInfo = await getExhibitInfo(id, { isLoadVersionProperty: 1 });
     setBook(exhibitInfo.data.data);
   }, [id]);
 
@@ -70,22 +66,14 @@ export const ReaderScreen = (props: any) => {
 
   return (
     <readerContext.Provider value={context}>
-      <div
-        className="reader-wrapper"
-        style={{ backgroundColor: theme?.bgColor }}
-        onClick={() => clickPage()}
-      >
-        <Header currentPage={book?.presentableTitle} />
+      <div className="reader-wrapper" style={{ backgroundColor: theme?.bgColor }} onClick={() => clickPage()}>
+        <Header currentPage={book?.exhibitName} />
 
         <Body />
 
         <Operater />
 
-        <Directory
-          book={book}
-          directoryShow={directoryShow}
-          setDirectoryShow={setDirectoryShow}
-        />
+        <Directory book={book} directoryShow={directoryShow} setDirectoryShow={setDirectoryShow} />
       </div>
     </readerContext.Provider>
   );
@@ -96,16 +84,29 @@ const Body = () => {
   const { book, id, fontSize, theme } = useContext(readerContext);
   const { inMobile } = useContext(globalContext);
   const [content, setContent] = useState<string[]>([]);
+  const [isAuth, setIsAuth] = useState<boolean | null>(null);
 
   const getContent = useCallback(async () => {
-    const info: any = await getInfo("getFileStreamById", [id], () => {
-      history.back();
-    });
-    if (!info) return;
+    const statusInfo = await getExhibitAuthStatus(id);
+    const isAuth = statusInfo.data.data ? statusInfo.data.data[0].isAuth : false;
+    setIsAuth(isAuth);
+    if (isAuth) {
+      const info: any = await getExhibitFileStream(id);
+      if (!info) return;
+      const content = info.data.split(/\n/g).filter((item: string) => !!item);
+      setContent(content);
+    } else {
+      const authResult = await addAuth(id);
+      const { status } = authResult;
+      if (status === 0) getContent();
+    }
+  }, [id]);
 
-    const content = info.data.split(/\s/g).filter((item: string) => !!item);
-    setContent(content);
-  }, [id, history]);
+  const getAuth = async () => {
+    const authResult = await addAuth(id);
+    const { status } = authResult;
+    if (status === 0) getContent();
+  };
 
   useEffect(() => {
     getContent();
@@ -122,18 +123,28 @@ const Body = () => {
         lineHeight: fontSize + 14 + "px",
       }}
     >
-      {content.map((item, index) => {
-        return (
-          <p className="paragraph" key={item + index}>
-            {item}
-          </p>
-        );
-      })}
+      {isAuth === true &&
+        content.map((item, index) => {
+          return (
+            <p className="paragraph" key={item + index}>
+              {item}
+            </p>
+          );
+        })}
+      {isAuth === false && (
+        <div className="lock-box">
+          <img className="lock" src={Lock} alt="未授权" />
+          <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+          <div className="get-btn" onClick={() => getAuth()}>
+            签约
+          </div>
+        </div>
+      )}
     </div>
   ) : (
     // PC
     <div className="body-wrapper">
-      <BreadCrumbs title={book?.presentableTitle} dark={theme?.type === 1} />
+      <BreadCrumbs title={book?.exhibitName} dark={theme?.type === 1} />
 
       <div
         className={`content ${theme?.type === 1 ? "dark" : "light"}`}
@@ -143,23 +154,30 @@ const Body = () => {
           lineHeight: fontSize + 14 + "px",
         }}
       >
-        {content.map((item, index) => {
-          return (
-            <p className="paragraph" key={item + index}>
-              {item}
-            </p>
-          );
-        })}
+        {isAuth === true &&
+          content.map((item, index) => {
+            return (
+              <p className="paragraph" key={item + index}>
+                {item}
+              </p>
+            );
+          })}
+        {isAuth === false && (
+          <div className="lock-box">
+            <img className="lock" src={Lock} alt="未授权" />
+            <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+            <div className="get-btn" onClick={() => getAuth()}>
+              签约
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="footer-bar" style={{ backgroundColor: theme?.bookColor }}>
         <div className={`footer-btn`} onClick={() => console.log(123)}>
           上一章
         </div>
-        <div
-          className="footer-btn"
-          onClick={() => history.switchPage("/detail/" + id)}
-        >
+        <div className="footer-btn" onClick={() => history.switchPage("/detail/" + id)}>
           书籍详情
         </div>
         <div className={`footer-btn`} onClick={() => console.log(123)}>
@@ -187,7 +205,7 @@ const Operater = () => {
     setDirectoryShow,
   } = useContext(readerContext);
   const { inMobile } = useContext(globalContext);
-  const { isCollected, operateShelf } = useMyShelf(book?.presentableId);
+  const { isCollected, operateShelf } = useMyShelf(book?.exhibitId);
   const [href, setHref] = useState("");
 
   const changeFontSize = (type: number) => {
@@ -232,9 +250,7 @@ const Operater = () => {
 
   useEffect(() => {
     document.body.style.overflowY =
-      (sharePopupShow || fontSizePopupShow || themePopupShow) && inMobile
-        ? "hidden"
-        : "auto";
+      (sharePopupShow || fontSizePopupShow || themePopupShow) && inMobile ? "hidden" : "auto";
   }, [sharePopupShow, fontSizePopupShow, themePopupShow, inMobile]);
 
   return inMobile ? (
@@ -309,10 +325,7 @@ const Operater = () => {
       </div>
 
       {fontSizePopupShow && (
-        <div
-          className="operater-popup"
-          onClick={() => setFontSizePopupShow(false)}
-        >
+        <div className="operater-popup" onClick={() => setFontSizePopupShow(false)}>
           <div className="fontsize-popup" onClick={(e) => e.stopPropagation()}>
             <div className="fontsize-label" onClick={() => changeFontSize(0)}>
               A-
@@ -326,17 +339,12 @@ const Operater = () => {
       )}
 
       {themePopupShow && (
-        <div
-          className="operater-popup"
-          onClick={() => setThemePopupShow(false)}
-        >
+        <div className="operater-popup" onClick={() => setThemePopupShow(false)}>
           <div className="theme-popup" onClick={(e) => e.stopPropagation()}>
-            {themeList.map((item) => {
+            {readerThemeList.map((item) => {
               return (
                 <div
-                  className={`theme-btn ${
-                    theme.bookColor === item.bookColor && "active"
-                  }`}
+                  className={`theme-btn ${theme.bookColor === item.bookColor && "active"}`}
                   key={item.bookColor}
                   style={{ backgroundColor: item.bookColor }}
                   onClick={() => {
@@ -352,12 +360,8 @@ const Operater = () => {
         </div>
       )}
 
-      <Share
-        show={sharePopupShow}
-        setShareShow={setSharePopupShow}
-        exhibit={book}
-      />
-      
+      <Share show={sharePopupShow} setShareShow={setSharePopupShow} exhibit={book} />
+
       <input id="href" className="hidden-input" value={href} readOnly />
     </div>
   ) : (
@@ -407,9 +411,7 @@ const Operater = () => {
           }}
           slot={
             <div
-              className={`operater-popup ${
-                theme?.type === 1 ? "dark" : "light"
-              }`}
+              className={`operater-popup ${theme?.type === 1 ? "dark" : "light"}`}
               style={{ width: fontSizePopupShow ? "162px" : "0" }}
             >
               <div className="fontsize-label" onClick={() => changeFontSize(0)}>
@@ -430,16 +432,11 @@ const Operater = () => {
             setThemePopupShow(true);
           }}
           slot={
-            <div
-              className="operater-popup"
-              style={{ width: themePopupShow ? "228px" : "0" }}
-            >
-              {themeList.map((item) => {
+            <div className="operater-popup" style={{ width: themePopupShow ? "228px" : "0" }}>
+              {readerThemeList.map((item) => {
                 return (
                   <div
-                    className={`theme-btn ${
-                      theme.bookColor === item.bookColor && "active"
-                    }`}
+                    className={`theme-btn ${theme.bookColor === item.bookColor && "active"}`}
                     key={item.bookColor}
                     style={{ backgroundColor: item.bookColor }}
                     onClick={() => {
@@ -465,12 +462,7 @@ const Operater = () => {
   );
 };
 
-const OperateBtn = (props: {
-  icon?: string;
-  text?: string;
-  slot?: any;
-  onClick?: (e: any) => void;
-}) => {
+const OperateBtn = (props: { icon?: string; text?: string; slot?: any; onClick?: (e: any) => void }) => {
   const { icon, text, slot, onClick } = props;
   const { theme } = useContext(readerContext);
 

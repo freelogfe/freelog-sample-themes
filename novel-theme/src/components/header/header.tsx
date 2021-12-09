@@ -1,8 +1,10 @@
 import "./header.scss";
+import MyLogo from "../../assets/images/logo.png";
+import BackArrow from "../../assets/images/arrow.png";
 import { useState, useEffect, useCallback, useContext } from "react";
 import { useMyHistory } from "../../utils/hooks";
 import { callLogin, callLoginOut } from "../../api/freelog";
-import { bookTypeList, headerBgColorList } from "../../api/data";
+import { bookTypeList, themeList } from "../../api/data";
 import { globalContext } from "../../router";
 import CSSTransition from "react-transition-group/CSSTransition";
 
@@ -42,8 +44,7 @@ export const Header = (props: {
   }, [search]);
 
   useEffect(() => {
-    document.body.style.overflowY =
-      (userBoxShow || searchPopupShow) && inMobile ? "hidden" : "auto";
+    document.body.style.overflowY = (userBoxShow || searchPopupShow) && inMobile ? "hidden" : "auto";
   }, [userBoxShow, searchPopupShow, inMobile]);
 
   useEffect(() => {
@@ -54,33 +55,27 @@ export const Header = (props: {
     // mobile
     <div
       className={`mobile-header-wrapper ${props.homeHeader && "in-home"}`}
-      style={{ background: selfConfig.headerBgColor }}
+      style={{ background: themeList[selfConfig.theme]?.headerBg }}
     >
       {/* header顶部 */}
       <div className={`header-top ${userData && "logon"}`}>
         {props.homeHeader ? (
           // logo
-          // <img className="logo" src={myLogo} onClick={() => history.replace(`/`)} />
-          <div className="logo" onClick={() => history.switchPage(`/`)}>
-            <i className="freelog fl-icon-a-featherlogo5"></i>· 读书
-          </div>
+          <img
+            className="logo"
+            src={selfConfig.logoImage || MyLogo}
+            alt="logo"
+            onClick={() => history.switchPage(`/`)}
+          />
         ) : (
-          <div className="header-top-left">
-            <i
-              className="freelog fl-icon-zhankaigengduo"
-              onClick={() => history.back()}
-            ></i>
-            <div className="current-page">{props.currentPage}</div>
+          <div className="header-top-left" onClick={() => history.back()}>
+            <img className="back-arrow" src={BackArrow} alt="" />
+            <div className="back-label">返回</div>
           </div>
         )}
 
         <div className="header-top-right">
-          {!props.homeHeader && (
-            <i
-              className="freelog fl-icon-content"
-              onClick={() => setSearchPopupShow(true)}
-            ></i>
-          )}
+          {!props.homeHeader && <i className="freelog fl-icon-content" onClick={() => setSearchPopupShow(true)}></i>}
 
           {userData && (
             <img
@@ -100,31 +95,13 @@ export const Header = (props: {
         </div>
       )}
 
-      <CSSTransition
-        in={userBoxShow}
-        classNames="fade"
-        timeout={200}
-        unmountOnExit
-      >
-        <div
-          id="modal"
-          className="modal"
-          onClick={() => setUserBoxShow(false)}
-        ></div>
+      <CSSTransition in={userBoxShow} classNames="fade" timeout={200} unmountOnExit>
+        <div id="modal" className="modal" onClick={() => setUserBoxShow(false)}></div>
       </CSSTransition>
 
-      <CSSTransition
-        in={userBoxShow}
-        classNames="slide-right"
-        timeout={200}
-        unmountOnExit
-      >
-        <div id="user-box" className="user-box-body">
-          <img
-            className="avatar"
-            src={userData?.headImage}
-            alt={userData?.username}
-          />
+      <CSSTransition in={userBoxShow} classNames="slide-right" timeout={200} unmountOnExit>
+        <div className="user-box-body">
+          <img className="avatar" src={userData?.headImage} alt={userData?.username} />
           <div className="username">{userData?.username}</div>
           <div className="btns">
             <div className="btn" onClick={() => history.switchPage("/")}>
@@ -140,12 +117,7 @@ export const Header = (props: {
         </div>
       </CSSTransition>
 
-      <CSSTransition
-        in={searchPopupShow}
-        classNames="fade"
-        timeout={200}
-        unmountOnExit
-      >
+      <CSSTransition in={searchPopupShow} classNames="fade" timeout={200} unmountOnExit>
         <div className="search-page">
           <div className="search-page-header">
             <div className="search-page-box">
@@ -162,10 +134,7 @@ export const Header = (props: {
               <i className="freelog fl-icon-content"></i>
             </div>
 
-            <div
-              className="cancel-btn"
-              onClick={() => setSearchPopupShow(false)}
-            >
+            <div className="cancel-btn" onClick={() => setSearchPopupShow(false)}>
               取消
             </div>
           </div>
@@ -192,18 +161,17 @@ export const Header = (props: {
     </div>
   ) : (
     // PC
-    <div
-      className="header-wrapper"
-      style={{ background: headerBgColorList[selfConfig.headerBgColor] }}
-    >
+    <div className="header-wrapper" style={{ background: themeList[selfConfig.theme]?.headerBg }}>
       {/* header顶部 */}
       <div className="header-top">
         <div className="header-top-left">
           {/* logo */}
-          {/* <img className="logo" src={myLogo} onClick={() => history.replace(`/`)} /> */}
-          <div className="logo" onClick={() => history.switchPage(`/`)}>
-            <i className="freelog fl-icon-a-featherlogo5"></i>· 读书
-          </div>
+          <img
+            className="logo"
+            src={selfConfig.logoImage || MyLogo}
+            alt="logo"
+            onClick={() => history.switchPage(`/`)}
+          />
 
           {/* 搜索框 */}
           {!props.homeHeader && (
@@ -229,31 +197,15 @@ export const Header = (props: {
             onMouseLeave={() => setUserBoxShow(false)}
           >
             <div className="username">{userData.username}</div>
-            <img
-              className="avatar"
-              src={userData.headImage}
-              alt={userData.username}
-            />
+            <img className="avatar" src={userData.headImage} alt={userData.username} />
 
-            <CSSTransition
-              in={userBoxShow}
-              classNames="slide-down-scale"
-              timeout={200}
-              unmountOnExit
-            >
+            <CSSTransition in={userBoxShow} classNames="slide-down-scale" timeout={200} unmountOnExit>
               <div className="user-box">
                 <div className="user-box-body">
-                  <img
-                    className="avatar"
-                    src={userData.headImage}
-                    alt={userData.username}
-                  />
+                  <img className="avatar" src={userData.headImage} alt={userData.username} />
                   <div className="username">{userData.username}</div>
                   <div className="mobile">{userData.mobile}</div>
-                  <div
-                    className="btn"
-                    onClick={() => history.switchPage("/shelf")}
-                  >
+                  <div className="btn" onClick={() => history.switchPage("/shelf")}>
                     我的书架
                   </div>
                   <div className="btn" onClick={() => callLoginOut()}>
@@ -268,10 +220,7 @@ export const Header = (props: {
             <div className="btn login-btn" onClick={() => callLogin()}>
               登录
             </div>
-            <div
-              className="btn register-btn"
-              onClick={() => window.open("http://user.testfreelog.com/logon")}
-            >
+            <div className="btn register-btn" onClick={() => window.open("http://user.testfreelog.com/logon")}>
               注册
             </div>
           </div>
@@ -306,20 +255,13 @@ export const Header = (props: {
       {/* 筛选栏 */}
       {props.homeHeader && (
         <div className="filter-bar">
-          <div
-            className={`category-btn ${tag === "全部" && "active"}`}
-            onClick={() => selectTag("全部")}
-          >
+          <div className={`category-btn ${tag === "全部" && "active"}`} onClick={() => selectTag("全部")}>
             全部
           </div>
 
           {bookTypeList.map((item) => {
             return (
-              <div
-                className={`category-btn ${tag === item && "active"}`}
-                key={item}
-                onClick={() => selectTag(item)}
-              >
+              <div className={`category-btn ${tag === item && "active"}`} key={item} onClick={() => selectTag(item)}>
                 {item}
               </div>
             );

@@ -2,7 +2,7 @@ import { useContext, useEffect } from "react";
 import { globalContext } from "../../router";
 import CSSTransition from "react-transition-group/CSSTransition";
 import "./directory.scss";
-import { ExhibitItem } from "../../utils/interface";
+import { ExhibitItem } from "../../api/interface";
 
 export const Directory = (props: {
   book: ExhibitItem | null;
@@ -13,7 +13,7 @@ export const Directory = (props: {
   const { inMobile } = useContext(globalContext);
   const directoryList = Array.from(
     { length: 12 },
-    () => book?.presentableTitle || "章节名称"
+    () => book?.exhibitName || "章节名称"
   );
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export const Directory = (props: {
       >
         <div className="mobile-directory-wrapper">
           <div className="directory-header">
-            <div className="directory-title">{book?.presentableTitle}</div>
+            <div className="directory-title">{book?.exhibitName}</div>
             <i
               className="close-btn freelog fl-icon-guanbi"
               onClick={() => setDirectoryShow(false)}
@@ -80,7 +80,7 @@ export const Directory = (props: {
       >
         <div className="directory-popup" onClick={(e) => e.stopPropagation()}>
           <div className="directory-header">
-            <div className="directory-title">{book?.presentableTitle}</div>
+            <div className="directory-title">{book?.exhibitName}</div>
             <i
               className="close-btn freelog fl-icon-guanbi"
               onClick={() => setDirectoryShow(false)}

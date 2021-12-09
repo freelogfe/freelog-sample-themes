@@ -4,11 +4,11 @@ import { globalContext } from "../../router";
 import "./login-btn.scss";
 
 export const LoginBtn = () => {
-  const { userData } = useContext(globalContext);
+  const { userData, inMobile } = useContext(globalContext);
 
   return (
     <div
-      className={`login-btn-wrapper ${userData && "hidden"}`}
+      className={`login-btn-wrapper ${(userData || !inMobile) && "hidden"}`}
       onClick={() => callLogin()}
     >
       登录 / 注册

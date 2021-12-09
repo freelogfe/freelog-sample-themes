@@ -2,13 +2,14 @@ import { useState, useEffect, useCallback, useContext } from "react";
 import { useHistory } from "react-router";
 import {
   getUserData,
-  searchExhibits,
-  SearchExhibitsParams,
+  getExhibitListById,
+  GetExhibitListByIdParams,
   setUserData,
+  getExhibitAuthStatus,
 } from "../api/freelog";
 import { showToast } from "../components/toast/toast";
 import { globalContext } from "../router";
-import { ExhibitItem } from "./interface";
+import { ExhibitItem } from "../api/interface";
 
 /**
  * 我的书架hook
@@ -27,42 +28,52 @@ export const useMyShelf = (id?: string) => {
     if (!userData) return;
 
     const ids = await getUserData("shelf");
-    setShelfIds(ids);
+    setShelfIds(ids || []);
 
     if (!ids || ids.length === 0) {
       setMyShelf([]);
       return;
     }
 
-    const presentableIds = ids.join(",");
-    const queryParams: SearchExhibitsParams = { presentableIds };
-    const list = await searchExhibits(queryParams);
+    const exhibitIds = ids.join(",");
+    const queryParams: GetExhibitListByIdParams = { exhibitIds };
+    const list = await getExhibitListById(queryParams);
+    if (list.data.data.length !== 0) {
+      const idList: string[] = [];
+      list.data.data.forEach((item: ExhibitItem) => {
+        idList.push(item.exhibitId);
+      });
+      const ids = idList.join(",");
+      const statusInfo = await getExhibitAuthStatus(ids);
+      if (statusInfo.data.data) {
+        statusInfo.data.data.forEach((item: { exhibitId: string; isAuth: boolean }) => {
+          const index = list.data.data.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.exhibitId);
+          list.data.data[index].isAuth = item.isAuth;
+        });
+      }
+    }
     setMyShelf(list.data.data);
   };
 
   // 判断当前资源是否已被收藏
-  const ifExistInShelf = (presentableId: string) => {
-    const isThisCollected = shelfIds.includes(presentableId);
+  const ifExistInShelf = (exhibitId: string) => {
+    const isThisCollected = shelfIds.includes(exhibitId);
     return isThisCollected;
   };
 
   // 操作收藏（如未收藏则收藏，反之取消收藏）
   const operateShelf = async (exhibit: ExhibitItem) => {
-    const isThisCollected = ifExistInShelf(exhibit.presentableId);
+    const isThisCollected = ifExistInShelf(exhibit.exhibitId);
 
     if (isThisCollected) {
-      const index = shelfIds.findIndex(
-        (item) => item === exhibit.presentableId
-      );
+      const index = shelfIds.findIndex((item) => item === exhibit.exhibitId);
       shelfIds.splice(index, 1);
     } else {
-      shelfIds.push(exhibit.presentableId);
+      shelfIds.push(exhibit.exhibitId);
     }
     const res = await setUserData("shelf", shelfIds);
     if (res.data.msg === "success") {
-      showToast(
-        isThisCollected ? `已将书籍从书架中移除～` : `已将书籍加入书架～`
-      );
+      showToast(isThisCollected ? `已将书籍从书架中移除～` : `已将书籍加入书架～`);
       getMyShelf();
     } else {
       showToast("收藏失败");
@@ -96,12 +107,8 @@ export const useMyScroll = () => {
 
   const scroll = useCallback(() => {
     setScrollTop(document.documentElement.scrollTop || document.body.scrollTop);
-    setClientHeight(
-      document.documentElement.clientHeight || document.body.clientHeight
-    );
-    setScrollHeight(
-      document.documentElement.scrollHeight || document.body.scrollHeight
-    );
+    setClientHeight(document.documentElement.clientHeight || document.body.clientHeight);
+    setScrollHeight(document.documentElement.scrollHeight || document.body.scrollHeight);
   }, [setScrollTop, setClientHeight, setScrollHeight]);
 
   useEffect(() => {
@@ -134,6 +141,7 @@ export const useMyHistory = () => {
       history.push(path);
     }
     locationHistory.push(path);
+    console.error(locationHistory);
   };
 
   const back = () => {
@@ -143,8 +151,7 @@ export const useMyHistory = () => {
 
   useEffect(() => {
     const { pathname } = history.location;
-    if (pathname !== "/home/全部" && locationHistory.length === 1)
-      locationHistory.push(pathname);
+    if (!pathname.startsWith("/home") && locationHistory.length === 1) locationHistory.push(pathname);
   }, [locationHistory, history.location]);
 
   return { switchPage, back, locationHistory };

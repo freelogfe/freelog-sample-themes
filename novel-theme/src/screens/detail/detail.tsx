@@ -2,9 +2,9 @@ import React, { useContext, useRef } from "react";
 import "./detail.scss";
 import { useState, useEffect, useCallback } from "react";
 import { Header } from "../../components/header/header";
-import { ExhibitItem } from "../../utils/interface";
-import { getExhibitsInfo, getExhibitsSignCount } from "../../api/freelog";
-import { formatDate, getResourceName } from "../../utils/common";
+import { ExhibitItem } from "../../api/interface";
+import { getExhibitInfo, getExhibitSignCount } from "../../api/freelog";
+import { formatDate } from "../../utils/common";
 import { Tags } from "../../components/tags/tags";
 import { useMyHistory, useMyShelf } from "../../utils/hooks";
 import { Footer } from "../../components/footer/footer";
@@ -24,27 +24,19 @@ export const DetailScreen = (props: any) => {
   const [directoryShow, setDirectoryShow] = useState(false);
 
   const getBookInfo = useCallback(async () => {
-    const exhibitInfo = await getExhibitsInfo(id, {
-      isLoadResourceDetailInfo: 1,
-      isLoadResourceVersionInfo: 1,
-    });
-    const signCountData = await getExhibitsSignCount(id);
-    const { presentableTitle, resourceVersionInfo, resourceInfo } =
-      exhibitInfo.data.data;
-    const username = getResourceName(resourceInfo.resourceName, 0);
-    const intro =
-      resourceVersionInfo.description ||
-      resourceInfo.intro ||
-      `${presentableTitle}-${username}`;
+    const exhibitInfo = await getExhibitInfo(id, { isLoadVersionProperty: 1 });
+    const signCountData = await getExhibitSignCount(id);
+
     setBook({
       ...exhibitInfo.data.data,
-      intro,
-      username,
       signCount: signCountData?.data.data[0]?.count,
     });
   }, [id]);
 
   useEffect(() => {
+    document.documentElement.scroll({ top: 0 });
+    document.body.scroll({ top: 0 });
+
     getBookInfo();
     // eslint-disable-next-line
   }, []);
@@ -62,11 +54,7 @@ export const DetailScreen = (props: any) => {
 
         <ThemeEntrance />
 
-        <Directory
-          book={book}
-          directoryShow={directoryShow}
-          setDirectoryShow={setDirectoryShow}
-        />
+        <Directory book={book} directoryShow={directoryShow} setDirectoryShow={setDirectoryShow} />
       </div>
     </detailContext.Provider>
   );
@@ -75,16 +63,13 @@ export const DetailScreen = (props: any) => {
 const BookBody = () => {
   const { inMobile } = useContext(globalContext);
   const { book, setDirectoryShow } = useContext(detailContext);
-  const { isCollected, operateShelf } = useMyShelf(book?.presentableId);
+  const { isCollected, operateShelf } = useMyShelf(book?.exhibitId);
   const history = useMyHistory();
   const introContent = useRef<any>();
   const [introState, setIntroState] = useState(0);
   const [shareShow, setShareShow] = useState(false);
   const [href, setHref] = useState("");
-  const directory = Array.from(
-    { length: 12 },
-    () => book?.presentableTitle || "目录名称"
-  );
+  const directory = Array.from({ length: 12 }, () => book?.exhibitName || "目录名称");
 
   const share = () => {
     // 复制链接
@@ -118,18 +103,14 @@ const BookBody = () => {
       <div className="book-info">
         <div className="book-base-info">
           <div className="book-cover">
-            <img
-              className="book-cover-image"
-              src={book?.coverImages[0]}
-              alt={book?.presentableTitle}
-            />
+            <img className="book-cover-image" src={book?.coverImages[0]} alt={book?.exhibitName} />
           </div>
 
           <div className="book-content">
             <div className="content-top">
-              <div className="book-name">{book?.presentableTitle}</div>
+              <div className="book-name">{book?.exhibitName}</div>
 
-              <div className="book-author">{book?.username}</div>
+              <div className="book-author">{book?.articleInfo.articleOwnerName}</div>
 
               <div className="tags">
                 <Tags data={book?.tags || []} />
@@ -150,20 +131,13 @@ const BookBody = () => {
         </div>
 
         <div className="book-date-info">
-          <div className="date-info">
-            创建时间：{formatDate(book?.createDate)}
-          </div>
+          <div className="date-info">创建时间：{formatDate(book?.createDate)}</div>
 
-          <div className="date-info">
-            最近更新：{formatDate(book?.updateDate)}
-          </div>
+          <div className="date-info">最近更新：{formatDate(book?.updateDate)}</div>
         </div>
 
         <div className="operate-btns">
-          <div
-            className="btn read-btn"
-            onClick={() => history.switchPage(`/reader/${book?.presentableId}`)}
-          >
+          <div className="btn read-btn" onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}>
             立即阅读
           </div>
 
@@ -183,10 +157,10 @@ const BookBody = () => {
       <div className="book-intro">
         <div className="intro-title">内容简介</div>
 
-        {(book?.intro || book?.presentableTitle) && (
+        {(book?.intro || book?.exhibitName) && (
           <div className={`intro ${introState === 1 ? "fold" : "unfold"}`}>
             <div className="intro-content" ref={introContent}>
-              {book?.intro || `${book?.presentableTitle}-${book?.username}`}
+              {book?.intro || `${book?.exhibitName}-${book?.username}`}
             </div>
 
             {introState === 1 && (
@@ -236,53 +210,34 @@ const BookBody = () => {
           {/* 书籍信息 */}
           <div className="book-info">
             <div className="book-cover">
-              <img
-                className="book-cover-image"
-                src={book?.coverImages[0]}
-                alt={book?.presentableTitle}
-              />
+              <img className="book-cover-image" src={book?.coverImages[0]} alt={book?.exhibitName} />
             </div>
 
             <div className="book-content">
-              <div className="book-name">{book?.presentableTitle}</div>
+              <div className="book-name">{book?.exhibitName}</div>
 
-              <div className="book-author">{book?.username}</div>
+              <div className="book-author">{book?.articleInfo.articleOwnerName}</div>
 
               <div className="tags">
                 <Tags data={book?.tags || []} />
               </div>
 
-              <div className="create-date">
-                创建时间：{formatDate(book?.createDate)}
-              </div>
+              <div className="create-date">创建时间：{formatDate(book?.createDate)}</div>
 
-              <div className="update-date">
-                最近更新：{formatDate(book?.updateDate)}
-              </div>
+              <div className="update-date">最近更新：{formatDate(book?.updateDate)}</div>
 
               <div className="btns-box">
                 <div className="operate-btns">
-                  <div
-                    className="btn read-btn"
-                    onClick={() =>
-                      history.switchPage(`/reader/${book?.presentableId}`)
-                    }
-                  >
+                  <div className="btn read-btn" onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}>
                     立即阅读
                   </div>
 
                   {isCollected ? (
-                    <div
-                      className="btn delete-btn"
-                      onClick={() => operateShelf(book)}
-                    >
+                    <div className="btn delete-btn" onClick={() => operateShelf(book)}>
                       移出书架
                     </div>
                   ) : (
-                    <div
-                      className="btn collect-btn"
-                      onClick={() => operateShelf(book)}
-                    >
+                    <div className="btn collect-btn" onClick={() => operateShelf(book)}>
                       加入书架
                     </div>
                   )}
@@ -311,17 +266,14 @@ const BookBody = () => {
           <div className="book-intro">
             <div className="intro-title">内容简介</div>
 
-            {(book?.intro || book?.presentableTitle) && (
+            {(book?.intro || book?.exhibitName) && (
               <div className={`intro ${introState === 1 ? "fold" : "unfold"}`}>
                 <div className="intro-content" ref={introContent}>
-                  {book?.intro || `${book?.presentableTitle}-${book?.username}`}
+                  {book?.versionInfo.exhibitProperty.intro}
                 </div>
 
                 {introState === 1 && (
-                  <div
-                    className="view-all-btn"
-                    onClick={() => setIntroState(3)}
-                  >
+                  <div className="view-all-btn" onClick={() => setIntroState(3)}>
                     ...查看全部
                   </div>
                 )}

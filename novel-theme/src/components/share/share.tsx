@@ -1,7 +1,7 @@
 import "./share.scss";
 import CSSTransition from "react-transition-group/CSSTransition";
 import { useContext, useEffect, useState } from "react";
-import { ExhibitItem, shareBtnItem } from "../../utils/interface";
+import { ExhibitItem, shareBtnItem } from "../../api/interface";
 import { shareBtns } from "../../api/data";
 import { showToast } from "../toast/toast";
 import { globalContext } from "../../router";
@@ -24,7 +24,7 @@ export const Share = (props: {
 
   const share = (item: { id: string; name: string }) => {
     const url = href;
-    const title = exhibit?.presentableTitle;
+    const title = exhibit?.exhibitName;
     const summary = ``;
     const image = exhibit?.coverImages[0];
 
@@ -35,7 +35,7 @@ export const Share = (props: {
       window.open(shareWeb);
     } else if (item.id === "weibo") {
       // 微博
-      const weiboTitle = `我在freelog发现一个不错的小说：${exhibit?.presentableTitle}`;
+      const weiboTitle = `我在freelog发现一个不错的小说：${exhibit?.exhibitName}`;
       window.open(
         `https://service.weibo.com/share/share.php?url=${url}&title=${weiboTitle}&pic=${image}`
       );
@@ -64,9 +64,9 @@ export const Share = (props: {
         window.location.href
     );
     setShareText(
-      `我在freelog发现一个不错的小说：${exhibit?.presentableTitle} ${window.location.href}`
+      `我在freelog发现一个不错的小说：${exhibit?.exhibitName} ${window.location.href}`
     );
-  }, [exhibit?.presentableTitle]);
+  }, [exhibit?.exhibitName]);
 
   useEffect(() => {
     if (!show) setQrcodeShow(false);
@@ -84,12 +84,12 @@ export const Share = (props: {
             <img
               className="book-cover"
               src={exhibit?.coverImages[0]}
-              alt={exhibit?.presentableTitle}
+              alt={exhibit?.exhibitName}
             />
           </div>
 
-          <div className="book-name" title={exhibit?.presentableTitle}>
-            {exhibit?.presentableTitle}
+          <div className="book-name" title={exhibit?.exhibitName}>
+            {exhibit?.exhibitName}
           </div>
         </div>
 

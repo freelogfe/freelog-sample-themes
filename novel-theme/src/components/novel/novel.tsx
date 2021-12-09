@@ -1,7 +1,7 @@
 import "./novel.scss";
-import { ExhibitItem } from "../../utils/interface";
+import Lock from "../../assets/images/mini-lock.png";
+import { ExhibitItem } from "../../api/interface";
 import { useMyHistory } from "../../utils/hooks";
-import { getResourceName } from "../../utils/common";
 import { Tags } from "../tags/tags";
 import LazyLoad from "react-lazyload";
 import { useContext } from "react";
@@ -18,53 +18,39 @@ export const Novel = (props: {
 
   return inMobileShelf ? (
     // 移动端书架小说组件
-    <div
-      className="mobile-shelf-novel-wrapper"
-      onClick={() => history.switchPage("/detail/" + data.presentableId)}
-    >
+    <div className="mobile-shelf-novel-wrapper" onClick={() => history.switchPage("/detail/" + data.exhibitId)}>
       <LazyLoad offset={100} once>
         <div className="book-cover-box">
-          <img
-            className="book-cover"
-            src={data.coverImages[0]}
-            alt={data.presentableTitle}
-          />
+          <img className="book-cover" src={data.coverImages[0]} alt={data.exhibitName} />
         </div>
       </LazyLoad>
 
-      <div className="book-name" title={data.presentableTitle}>
-        {data.presentableTitle}
+      <div className="book-name" title={data.exhibitName}>
+        {data.exhibitName}
       </div>
 
-      <div className="book-author">
-        {getResourceName(data.resourceInfo.resourceName, 0)}
-      </div>
+      <div className="book-author">{data.articleInfo.articleOwnerName}</div>
     </div>
   ) : (
     // 普通小说组件
     <div
       className={`novel-wrapper ${inMobile ? "in-mobile" : "in-pc"}`}
-      onClick={() => history.switchPage("/detail/" + data.presentableId)}
+      onClick={() => history.switchPage("/detail/" + data.exhibitId)}
     >
       <div className="novel-content">
         <LazyLoad offset={100} once>
           <div className="book-cover-box">
-            <img
-              className="book-cover"
-              src={data.coverImages[0]}
-              alt={data.presentableTitle}
-            />
+            <img className="book-cover" src={data.coverImages[0]} alt={data.exhibitName} />
           </div>
         </LazyLoad>
 
         <div className="book-info">
-          <div className="book-name" title={data.presentableTitle}>
-            {data.presentableTitle}
+          <div className="book-name" title={data.exhibitName}>
+            {!data.isAuth && <img className="lock" src={Lock} alt="未授权" />}
+            {data.exhibitName}
           </div>
 
-          <div className="book-author">
-            {getResourceName(data.resourceInfo.resourceName, 0)}
-          </div>
+          <div className="book-author">{data.articleInfo.articleOwnerName}</div>
 
           <div className="tags">
             <Tags data={data.tags} />
@@ -78,7 +64,7 @@ export const Novel = (props: {
             className="read-btn btn"
             onClick={(e) => {
               e.stopPropagation();
-              history.switchPage(`/reader/${data?.presentableId}`);
+              history.switchPage(`/reader/${data?.exhibitId}`);
             }}
           >
             立即阅读

@@ -1,6 +1,6 @@
 import "./shelf.scss";
 import { Header } from "../../components/header/header";
-import { ExhibitItem } from "../../utils/interface";
+import { ExhibitItem } from "../../api/interface";
 import { Novel } from "../../components/novel/novel";
 import { useMyHistory, useMyShelf } from "../../utils/hooks";
 import { Footer } from "../../components/footer/footer";
@@ -26,10 +26,7 @@ export const ShelfScreen = () => {
   );
 };
 
-const ShelfBody = (props: {
-  shelfList: ExhibitItem[];
-  operateShelf: (data: ExhibitItem) => void;
-}) => {
+const ShelfBody = (props: { shelfList: ExhibitItem[]; operateShelf: (data: ExhibitItem) => void }) => {
   const { shelfList, operateShelf } = props;
   const history = useMyHistory();
 
@@ -39,15 +36,13 @@ const ShelfBody = (props: {
 
       {shelfList.map((item) => {
         return (
-          <div className="book-box">
-            <Novel data={item} operateShelf={operateShelf}  key={item.presentableId} />
+          <div className="book-box" key={item.exhibitId}>
+            <Novel data={item} operateShelf={operateShelf} />
           </div>
         );
       })}
 
-      {shelfList.length === 0 && (
-        <div className="tip">暂无数据，快去收藏书籍到书架吧～</div>
-      )}
+      {shelfList.length === 0 && <div className="tip">暂无数据，快去收藏书籍到书架吧～</div>}
 
       <div className="add-book-box">
         <div className="add-book-btn" onClick={() => history.switchPage(`/`)}>

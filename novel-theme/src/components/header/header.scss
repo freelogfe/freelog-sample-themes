@@ -9,24 +9,29 @@
   z-index: 100;
 
   &.in-home {
-    padding: 24px 20px 22px;
+    padding: 22px 20px;
+
+    .header-top {
+      justify-content: center;
+
+      &.logon {
+        justify-content: space-between;
+
+        .header-top-right {
+          flex: 1;
+        }
+      }
+    }
   }
 
   .header-top {
+    height: 28px;
     display: flex;
-    justify-content: center;
-
-    &.logon {
-      justify-content: space-between;
-    }
+    align-items: center;
+    justify-content: space-between;
 
     .logo {
-      font-size: 18px;
-      font-weight: 600;
-      color: #ffffff;
-      line-height: 24px;
-      display: flex;
-      align-items: flex-end;
+      height: 24px;
 
       .freelog {
         height: 24px;
@@ -40,29 +45,18 @@
     }
 
     .header-top-left {
-      flex: 1;
-      width: 0;
       display: flex;
       align-items: center;
 
-      .fl-icon-zhankaigengduo {
-        width: 6px;
+      .back-arrow {
+        width: 7px;
         height: 12px;
-        color: #666666;
-        font-size: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transform: rotate(180deg);
       }
 
-      .current-page {
+      .back-label {
         font-size: 16px;
         color: #ffffff;
         margin-left: 10px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
       }
     }
 
@@ -80,13 +74,13 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-right: 20px;
       }
 
       .avatar {
         width: 28px;
         height: 28px;
         border-radius: 50%;
+        margin-left: 20px;
       }
     }
   }
@@ -327,12 +321,7 @@
       align-items: center;
 
       .logo {
-        font-size: 18px;
-        font-weight: 600;
-        color: #ffffff;
-        line-height: 24px;
-        display: flex;
-        align-items: flex-end;
+        height: 24px;
         cursor: pointer;
 
         .freelog {
@@ -416,6 +405,7 @@
         right: 0;
         top: 100%;
         padding-top: 10px;
+        cursor: default;
 
         .user-box-body {
           width: 240px;
@@ -461,6 +451,7 @@
             padding-left: 20px;
             box-sizing: border-box;
             border-top: 1px solid rgba(0, 0, 0, 0.05);
+            cursor: pointer;
 
             &:hover {
               color: #fff;
