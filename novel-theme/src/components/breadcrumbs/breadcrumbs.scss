@@ -11,21 +11,8 @@
       margin-left: 10px;
     }
 
-    .item-title {
-      cursor: pointer;
-      transition: color 0.2s linear;
-
-      &.current {
-        pointer-events: none;
-      }
-
-      &:hover {
-        color: #539dff;
-      }
-
-      &:active {
-        color: #2376e5;
-      }
+    .second-text-btn.current {
+      pointer-events: none;
     }
 
     .arrow {
@@ -70,7 +57,7 @@
   &.in-dark .breadcrumbs-item {
     color: #444444;
 
-    .item-title.current {
+    .second-text-btn.current {
       color: #999999;
     }
   }

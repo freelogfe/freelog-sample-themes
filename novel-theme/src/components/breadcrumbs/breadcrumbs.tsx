@@ -27,24 +27,20 @@ export const BreadCrumbs = (props: { title?: string; dark?: boolean }) => {
 
   return (
     <div
-      className={`breadcrumbs-wrapper ${props.title ? "in-reader" : "normal"} ${
-        props.dark && "in-dark"
-      } ${inMobile && "in-mobile"}`}
+      className={`breadcrumbs-wrapper ${props.title ? "in-reader" : "normal"} ${props.dark && "in-dark"} ${
+        inMobile && "in-mobile"
+      }`}
     >
       {breadcrumbsList.map((item, index) => {
         return (
           <div className="breadcrumbs-item" key={item.name}>
             <div
-              className={`item-title ${
-                index === breadcrumbsList.length - 1 && "current"
-              }`}
+              className={`second-text-btn ${index === breadcrumbsList.length - 1 && "current"}`}
               onClick={() => switchPage(item.path)}
             >
               {item.name || props.title}
             </div>
-            {index !== breadcrumbsList.length - 1 && (
-              <div className="arrow">{">"}</div>
-            )}
+            {index !== breadcrumbsList.length - 1 && <div className="arrow">{">"}</div>}
           </div>
         );
       })}

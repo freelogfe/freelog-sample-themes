@@ -61,7 +61,7 @@ export const Novel = (props: {
 
         {operateShelf && (
           <div
-            className="read-btn btn"
+            className="main-btn btn"
             onClick={(e) => {
               e.stopPropagation();
               history.switchPage(`/reader/${data?.exhibitId}`);
@@ -73,7 +73,7 @@ export const Novel = (props: {
 
         {operateShelf && (
           <div
-            className="delete-btn btn"
+            className="assist-btn btn"
             onClick={(e) => {
               e.stopPropagation();
               operateShelf(data);

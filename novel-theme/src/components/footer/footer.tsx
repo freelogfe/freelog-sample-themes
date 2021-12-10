@@ -13,7 +13,7 @@ export const Footer = () => {
         .filter((_, entrancesIndex) => entrancesIndex < 2)
         .map((item, index) => (
           <div
-            className="footer-btn"
+            className="second-text-btn mobile"
             key={item.label}
             onClick={() => window.open(item.url)}
           >
@@ -30,7 +30,7 @@ export const Footer = () => {
     <div className="footer-wrapper">
       {freelogEntrances.map((item, index) => (
         <div
-          className="footer-btn"
+          className="second-text-btn"
           key={item.label}
           onClick={() => window.open(item.url)}
         >

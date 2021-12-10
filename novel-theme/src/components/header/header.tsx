@@ -131,7 +131,7 @@ export const Header = (props: {
               <i className="freelog fl-icon-content"></i>
             </div>
 
-            <div className="cancel-btn" onClick={() => setSearchPopupShow(false)}>
+            <div className="text-btn mobile" onClick={() => setSearchPopupShow(false)}>
               取消
             </div>
           </div>

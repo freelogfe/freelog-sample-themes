@@ -1,47 +1,3 @@
-import { ResourceItem } from "./interface";
-
-/**
- * 纵向滚动元素
- * @returns 滚动条距离元素底部的高度
- */
-export const scrollDom = (event: any) => {
-  const { srcElement } = event;
-  if (!srcElement) return;
-
-  // 处理向上使劲滚动的时候scrollTop为undefined
-  if (!event.srcElement.scrollTop) return;
-
-  // 滚动高度
-  const scrollTop =
-    event.srcElement.scrollTop ||
-    window.pageYOffset ||
-    event.srcElement.body.scrollTop;
-  // 元素视窗高度
-  const clientHeight =
-    event.srcElement.clientHeight || document.body.clientHeight;
-  // 元素滚动高度
-  const scrollHeight =
-    event.srcElement.scrollHeight || document.body.scrollHeight;
-  // 滚动条距离元素底部的高度
-  const height = scrollHeight - scrollTop - clientHeight;
-
-  return height;
-};
-
-/**
- * 获取作者名/资源名
- * @param resourceName 接口返回的资源名称：作者/资源名
- * @returns 作者名/资源名
- */
-export const getResourceName = (
-  resourceName: string | undefined,
-  type: number
-) => {
-  if (!resourceName) return "";
-  const author = resourceName.split("/")[type];
-  return author;
-};
-
 /**
  * 格式化日期
  * @param time 时间戳、字符串日期等等
@@ -72,18 +28,10 @@ export const formatDate = (
   return result;
 };
 
-/**
- * 整理目录（现阶段暂时不分章节，目录就一章，章节名为资源名）
- * @param data 资源数据
- */
-export const getDirectoryList = (data: ResourceItem) => {
-  const resourceName = getResourceName(data.resourceName, 1);
-  const directoryList = [
-    {
-      id: 1,
-      title: resourceName,
-      open: true,
-    },
-  ];
-  return directoryList;
+// 判断设备
+export const judgeDevice = () => {
+  const mobile =
+    /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i;
+  const inMobile = navigator.userAgent.match(mobile);
+  return !!inMobile;
 };

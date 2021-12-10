@@ -137,10 +137,10 @@ const BookBody = () => {
         </div>
 
         <div className="operate-btns">
-          <div className="btn main-btn" onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}>
+          <div className="btn main-btn mobile" onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}>
             立即阅读
           </div>
-          <div className="btn assist-btn" onClick={() => operateShelf(book)}>
+          <div className="btn assist-btn mobile" onClick={() => operateShelf(book)}>
             {isCollected ? "移出书架" : "加入书架"}
           </div>
         </div>

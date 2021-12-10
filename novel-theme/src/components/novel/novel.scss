@@ -176,35 +176,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
 
-      &.read-btn {
-        color: #fff;
-        background-color: #2784ff;
-
-        &:hover {
-          background-color: #529dff;
-        }
-
-        &:active {
-          background-color: #2376e5;
-        }
-      }
-
-      &.delete-btn {
-        color: #ee4040;
-        background-color: #fdebeb;
+      &.assist-btn {
         margin-left: 15px;
-
-        &:hover {
-          color: #f86363;
-          background-color: #fef2f2;
-        }
-
-        &:active {
-          color: #eb3737;
-          background-color: #fee6e6;
-        }
       }
     }
   }

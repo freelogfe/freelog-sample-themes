@@ -10,13 +10,13 @@
   align-items: center;
   justify-content: center;
 
-  .footer-btn {
+  .second-text-btn {
     font-size: 14px;
-    color: #999999;
     line-height: 18px;
+    padding: 0 20px;
 
-    &:active {
-      color: #666;
+    & + .second-text-btn {
+      border-left: 1px solid rgba(0, 0, 0, 0.15);
     }
   }
 }
@@ -33,26 +33,12 @@
   align-items: center;
   justify-content: center;
 
-  .footer-btn {
+  .second-text-btn {
     font-size: 12px;
-    color: #999999;
-    cursor: pointer;
+    padding: 0 20px;
 
-    &:hover {
-      color: #529dff;
+    & + .second-text-btn {
+      border-left: 1px solid rgba(0, 0, 0, 0.15);
     }
-
-    &:active {
-      color: #2376e5;
-    }
-  }
-}
-
-.footer-btn {
-  padding: 0 20px;
-  transition: all 0.2s linear;
-
-  & + .footer-btn {
-    border-left: 1px solid rgba(0, 0, 0, 0.15);
   }
 }

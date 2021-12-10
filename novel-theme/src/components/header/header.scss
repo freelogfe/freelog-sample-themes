@@ -70,7 +70,7 @@
       .fl-icon-content {
         width: 20px;
         height: 20px;
-        color: #8e8e93;
+        color: rgba(255, 255, 255, 0.6);
         font-size: 20px;
         display: flex;
         align-items: center;
@@ -103,7 +103,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: rgba(255, 255, 255, 0.3);
+      color: rgba(255, 255, 255, 0.6);
     }
   }
 
@@ -233,23 +233,18 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          color: rgba(255, 255, 255, 0.3);
+          color: rgba(255, 255, 255, 0.6);
           transition: all 0.2s linear;
         }
       }
 
-      .cancel-btn {
+      .text-btn {
         font-size: 16px;
-        color: #2784ff;
         line-height: 22px;
         height: 100%;
         padding: 0 20px;
         display: flex;
         align-items: center;
-
-        &:active {
-          color: #529dff;
-        }
       }
     }
 
@@ -378,7 +373,7 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #8e8e93;
+          color: rgba(255, 255, 255, 0.6);
         }
       }
     }
@@ -527,7 +522,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: rgba(255, 255, 255, 0.3);
+      color: rgba(255, 255, 255, 0.6);
       transition: all 0.2s linear;
     }
 

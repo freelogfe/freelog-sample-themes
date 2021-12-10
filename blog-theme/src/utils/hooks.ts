@@ -1,7 +1,12 @@
-import { GetExhibitsListParams } from "@/api/freelog";
+import {
+  getExhibitAuthStatus,
+  getExhibitListByPaging,
+  GetExhibitListByPagingParams,
+  getExhibitSignCount,
+} from "@/api/freelog";
 import { onUnmounted, reactive, ref, toRefs, watchEffect } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { CollectExhibitItem, ExhibitItem } from "./interface";
+import { ExhibitItem } from "../api/interface";
 
 /**
  * 路由hook
@@ -9,10 +14,10 @@ import { CollectExhibitItem, ExhibitItem } from "./interface";
 export const useMyRouter = () => {
   const router = useRouter();
   const route = useRoute();
-  const params = ref();
+  const query = ref();
 
   watchEffect(() => {
-    params.value = route.query;
+    query.value = route.query;
   });
 
   router.beforeEach((to, from, next) => {
@@ -38,63 +43,13 @@ export const useMyRouter = () => {
     return router.currentRoute.value.fullPath;
   };
 
-  return { params, switchPage, routerBack, getCurrentPath };
-};
-
-/**
- * 我的书架hook
- */
-export const useMyShelf = (id?: string) => {
-  const data = reactive({
-    myShelf: [] as CollectExhibitItem[],
-    isCollected: false,
-  });
-
-  // 获取书架数据
-  const getMyShelf = () => {
-    data.myShelf = JSON.parse(localStorage.getItem("myShelf") || "[]");
-  };
-
-  // 判断当前资源是否已被收藏
-  const ifExistInShelf = (presentableId: string) => {
-    const isCollected = data.myShelf.some((item) => item.presentableId === presentableId);
-    return isCollected;
-  };
-
-  // 更新书架数据以及收藏情况
-  const update = (presentableId: string) => {
-    getMyShelf();
-    data.isCollected = ifExistInShelf(presentableId);
-  };
-
-  // 操作收藏（如未收藏则收藏，反之取消收藏）
-  const operateShelf = (exhibit: ExhibitItem) => {
-    const isCollected = ifExistInShelf(exhibit.presentableId);
-
-    if (isCollected) {
-      const index = data.myShelf.findIndex((item) => item.presentableId === exhibit?.presentableId);
-      data.myShelf.splice(index, 1);
-    } else {
-      const { presentableId, coverImages, presentableTitle } = exhibit;
-      data.myShelf.push({
-        presentableId,
-        presentableTitle,
-        cover: coverImages[0] || "",
-      });
-    }
-    localStorage.setItem("myShelf", JSON.stringify(data.myShelf));
-    update(exhibit.presentableId);
-  };
-
-  update(id || "");
-
-  return { ...toRefs(data), operateShelf };
+  return { query, switchPage, routerBack, getCurrentPath };
 };
 
 /**
  * 获取列表数据hook
  */
-export const useGetList = (request: (params: Partial<GetExhibitsListParams>) => any) => {
+export const useGetList = () => {
   const data = reactive({
     listData: <ExhibitItem[]>[],
     loading: false,
@@ -102,20 +57,39 @@ export const useGetList = (request: (params: Partial<GetExhibitsListParams>) => 
     skip: 0,
   });
 
-  const getList = async (params: Partial<GetExhibitsListParams> = {}, init = false) => {
+  const getList = async (params: Partial<GetExhibitListByPagingParams> = {}, init = false) => {
     if (data.loading) return;
     if (data.total === data.listData.length && !init) return;
 
     data.loading = true;
-    data.skip = init ? 0 : data.skip + 12;
-    const queryParams = {
-      skip: String(data.skip),
-      resourceType: "novel",
-      limit: "12",
+    data.skip = init ? 0 : data.skip + 30;
+    const queryParams: GetExhibitListByPagingParams = {
+      skip: data.skip,
+      articleResourceTypes: "novel",
+      limit: params.limit || 30,
       ...params,
     };
-    const list = await request(queryParams);
+    const list = await getExhibitListByPaging(queryParams);
     const { dataList, totalItem } = list.data.data;
+    if (dataList.length !== 0) {
+      const idList: string[] = [];
+      dataList.forEach((item: ExhibitItem) => {
+        idList.push(item.exhibitId);
+      });
+      const ids = idList.join(",");
+      const signCountData = await getExhibitSignCount(ids);
+      signCountData.data.data.forEach((item: { subjectId: string; count: number }) => {
+        const index = dataList.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.subjectId);
+        dataList[index].signCount = item.count;
+      });
+      const statusInfo = await getExhibitAuthStatus(ids);
+      if (statusInfo.data.data) {
+        statusInfo.data.data.forEach((item: { exhibitId: string; isAuth: boolean }) => {
+          const index = dataList.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.exhibitId);
+          dataList[index].isAuth = item.isAuth;
+        });
+      }
+    }
     data.listData = init ? dataList : [...data.listData, ...dataList];
     data.total = totalItem;
     data.loading = false;
