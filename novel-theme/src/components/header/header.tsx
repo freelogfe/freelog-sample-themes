@@ -4,7 +4,7 @@ import BackArrow from "../../assets/images/arrow.png";
 import { useState, useEffect, useCallback, useContext } from "react";
 import { useMyHistory } from "../../utils/hooks";
 import { callLogin, callLoginOut } from "../../api/freelog";
-import { bookTypeList, themeList } from "../../api/data";
+import { bookTypeList } from "../../api/data";
 import { globalContext } from "../../router";
 import CSSTransition from "react-transition-group/CSSTransition";
 
@@ -53,10 +53,7 @@ export const Header = (props: {
 
   return inMobile ? (
     // mobile
-    <div
-      className={`mobile-header-wrapper ${props.homeHeader && "in-home"}`}
-      style={{ background: themeList[selfConfig.theme]?.headerBg }}
-    >
+    <div className={`mobile-header-wrapper ${props.homeHeader && "in-home"}`}>
       {/* header顶部 */}
       <div className={`header-top ${userData && "logon"}`}>
         {props.homeHeader ? (
@@ -161,7 +158,7 @@ export const Header = (props: {
     </div>
   ) : (
     // PC
-    <div className="header-wrapper" style={{ background: themeList[selfConfig.theme]?.headerBg }}>
+    <div className="header-wrapper">
       {/* header顶部 */}
       <div className="header-top">
         <div className="header-top-left">
@@ -205,10 +202,10 @@ export const Header = (props: {
                   <img className="avatar" src={userData.headImage} alt={userData.username} />
                   <div className="username">{userData.username}</div>
                   <div className="mobile">{userData.mobile}</div>
-                  <div className="btn" onClick={() => history.switchPage("/shelf")}>
+                  <div className="btn user-box-btn" onClick={() => history.switchPage("/shelf")}>
                     我的书架
                   </div>
-                  <div className="btn" onClick={() => callLoginOut()}>
+                  <div className="btn user-box-btn" onClick={() => callLoginOut()}>
                     登出
                   </div>
                 </div>
@@ -217,10 +214,10 @@ export const Header = (props: {
           </div>
         ) : (
           <div className="user-btns">
-            <div className="btn login-btn" onClick={() => callLogin()}>
+            <div className="btn header-login-btn" onClick={() => callLogin()}>
               登录
             </div>
-            <div className="btn register-btn" onClick={() => window.open("http://user.testfreelog.com/logon")}>
+            <div className="btn header-register-btn" onClick={() => window.open("http://user.testfreelog.com/logon")}>
               注册
             </div>
           </div>

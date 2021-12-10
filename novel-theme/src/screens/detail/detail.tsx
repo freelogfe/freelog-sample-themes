@@ -137,19 +137,12 @@ const BookBody = () => {
         </div>
 
         <div className="operate-btns">
-          <div className="btn read-btn" onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}>
+          <div className="btn main-btn" onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}>
             立即阅读
           </div>
-
-          {isCollected ? (
-            <div className="btn delete-btn" onClick={() => operateShelf(book)}>
-              移出书架
-            </div>
-          ) : (
-            <div className="btn collect-btn" onClick={() => operateShelf(book)}>
-              加入书架
-            </div>
-          )}
+          <div className="btn assist-btn" onClick={() => operateShelf(book)}>
+            {isCollected ? "移出书架" : "加入书架"}
+          </div>
         </div>
       </div>
 
@@ -228,19 +221,12 @@ const BookBody = () => {
 
               <div className="btns-box">
                 <div className="operate-btns">
-                  <div className="btn read-btn" onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}>
+                  <div className="btn main-btn" onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}>
                     立即阅读
                   </div>
-
-                  {isCollected ? (
-                    <div className="btn delete-btn" onClick={() => operateShelf(book)}>
-                      移出书架
-                    </div>
-                  ) : (
-                    <div className="btn collect-btn" onClick={() => operateShelf(book)}>
-                      加入书架
-                    </div>
-                  )}
+                  <div className="btn assist-btn" onClick={() => operateShelf(book)}>
+                    {isCollected ? "移出书架" : "加入书架"}
+                  </div>
                 </div>
 
                 <div className="other-btns">

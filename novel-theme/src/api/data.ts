@@ -21,13 +21,13 @@ export const bookTypeList = [
 
 // 节点主题色
 export const themeList: any = {
-  酷黑: { headerBg: "linear-gradient(135deg, #222222, #353535)" },
-  炫丽: { headerBg: "linear-gradient(135deg, #C127FF, #35A3C5)" },
-  活力: { headerBg: "linear-gradient(135deg, #F08840, #F0C23F)" },
-  灰度: { headerBg: "linear-gradient(135deg, #2C3E50, #BDC3C7)" },
-  蜜桃: { headerBg: "linear-gradient(135deg, #E7949F, #E2C1A3)" },
-  清新: { headerBg: "linear-gradient(135deg, #5D9191, #A2D5C5)" },
-  沉静: { headerBg: "linear-gradient(315deg, #2C5364, #0F2027)" },
+  酷黑: { gradientColor: "linear-gradient(135deg, #222222, #353535)", deriveColor: "#222222" },
+  炫丽: { gradientColor: "linear-gradient(135deg, #C127FF, #35A3C5)", deriveColor: "#C127FF" },
+  活力: { gradientColor: "linear-gradient(135deg, #F08840, #F0C23F)", deriveColor: "#F08840" },
+  灰度: { gradientColor: "linear-gradient(135deg, #2C3E50, #BDC3C7)", deriveColor: "#2C3E50" },
+  蜜桃: { gradientColor: "linear-gradient(135deg, #E7949F, #E2C1A3)", deriveColor: "#E7949F" },
+  清新: { gradientColor: "linear-gradient(135deg, #5D9191, #A2D5C5)", deriveColor: "#5D9191" },
+  沉静: { gradientColor: "linear-gradient(315deg, #2C5364, #0F2027)", deriveColor: "#0F2027" },
 };
 
 // 阅读页主题色
@@ -70,5 +70,5 @@ export const routerMappings: any = {
   home: "首页",
   shelf: "我的书架",
   detail: "书籍详情",
-  reader: "",
+  reader: "阅读页",
 };

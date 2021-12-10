@@ -26,28 +26,6 @@
           color: #222222;
           line-height: 40px;
         }
-
-        .more-shelf {
-          font-size: 16px;
-          color: #666666;
-          line-height: 22px;
-          display: flex;
-          align-items: center;
-
-          &:active {
-            color: #222;
-          }
-
-          .fl-icon-zhankaigengduo {
-            width: 6px;
-            height: 12px;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-left: 10px;
-          }
-        }
       }
 
       .book-list-box {
@@ -186,15 +164,8 @@
         }
       }
 
-      .more-shelf {
+      .text-btn {
         font-size: 14px;
-        color: #2784ff;
-        cursor: pointer;
-        transition: all 0.2s linear;
-
-        &:hover {
-          color: #529dff;
-        }
       }
 
       .book-list-box {
@@ -229,15 +200,8 @@
         }
       }
 
-      .view-all-btn {
+      .text-btn {
         margin-left: 10px;
-        color: #2784ff;
-        cursor: pointer;
-        transition: all 0.2s linear;
-
-        &:hover {
-          color: #529dff;
-        }
       }
     }
   }

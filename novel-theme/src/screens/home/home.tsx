@@ -170,7 +170,7 @@ const HomeBody = (props: {
           <div className="shelf-header">
             <div className="box-title">我的书架</div>
             {userData && (
-              <div className="more-shelf" onClick={() => history.switchPage("/shelf")}>
+              <div className="text-btn" onClick={() => history.switchPage("/shelf")}>
                 管理书架
               </div>
             )}
@@ -193,7 +193,7 @@ const HomeBody = (props: {
           {userData && myShelf.length !== 0 && (
             <div className="tip shelf-tip">
               <span>已收藏 {myShelf.length} 本书籍</span>
-              <span className="view-all-btn cur-pointer transition" onClick={() => history.switchPage("/shelf")}>
+              <span className="text-btn" onClick={() => history.switchPage("/shelf")}>
                 查看全部
               </span>
             </div>

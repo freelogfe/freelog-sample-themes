@@ -6,6 +6,7 @@
   width: 100%;
   padding: 16px 20px;
   box-sizing: border-box;
+  background: var(--gradientColor);
   z-index: 100;
 
   &.in-home {
@@ -301,6 +302,7 @@
   top: 0;
   width: 100%;
   padding: 0 140px;
+  background: var(--gradientColor);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -446,17 +448,9 @@
             height: 50px;
             line-height: 50px;
             font-size: 14px;
-            color: #222222;
-            background-color: #fff;
             padding-left: 20px;
             box-sizing: border-box;
             border-top: 1px solid rgba(0, 0, 0, 0.05);
-            cursor: pointer;
-
-            &:hover {
-              color: #fff;
-              background-color: #2784ff;
-            }
 
             &:last-child {
               border-radius: 0 0 4px 4px;
@@ -475,38 +469,15 @@
         box-sizing: border-box;
         border-radius: 4px;
         font-size: 14px;
+        font-weight: bold;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
       }
 
-      .login-btn {
-        background-color: #f7f7f7;
-        color: #666;
-
-        &:hover {
-          background-color: #ededed;
-        }
-
-        &:active {
-          background-color: #e6e6e6;
-        }
-      }
-
-      .register-btn {
-        background-color: #2784ff;
+      .header-register-btn {
         margin-left: 10px;
-        color: #fff;
-        font-weight: bold;
-
-        &:hover {
-          background-color: #529dff;
-        }
-
-        &:active {
-          background-color: #2376e5;
-        }
       }
     }
   }
@@ -611,22 +582,40 @@
   }
 }
 
+// slide-down-scale
+.slide-down-scale-enter {
+  opacity: 0.5;
+  transform: translateY(-30px) scaleY(0.8);
+}
+.slide-down-scale-enter-active {
+  opacity: 1;
+  transform: translateY(0) scaleY(1);
+  transition: all 200ms ease-out;
+}
+.slide-down-scale-exit {
+  opacity: 1;
+  transform: translateY(0) scaleY(1);
+}
+.slide-down-scale-exit-active {
+  opacity: 0;
+  transform: translateY(-30px) scaleY(0.8);
+  transition: all 200ms ease-in;
+}
+
+// slide-right
 .slide-right-enter {
   opacity: 0;
   transform: translateX(-100%);
 }
-
 .slide-right-enter-active {
   opacity: 1;
   transform: translateX(0);
   transition: all 0.2s ease-out;
 }
-
 .slide-right-exit {
   opacity: 1;
   transform: translateX(0);
 }
-
 .slide-right-exit-active {
   opacity: 0;
   transform: translateX(-100%);

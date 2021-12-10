@@ -7,12 +7,14 @@ import { DetailScreen } from "../screens/detail/detail";
 import { ReaderScreen } from "../screens/reader/reader";
 import { getSelfConfig, getCurrentUser } from "../api/freelog";
 import { judgeDevice } from "../utils/common";
+import { themeList } from "../api/data";
 
 interface global {
   userData: userData | null;
   locationHistory: string[];
   selfConfig: any;
   inMobile: boolean;
+  theme: { gradientColor: string; deriveColor: string };
 }
 
 interface userData {
@@ -28,6 +30,7 @@ const globalData: global = {
   locationHistory: ["/home/全部"],
   selfConfig: {},
   inMobile: false,
+  theme: { gradientColor: "", deriveColor: "" },
 };
 export const globalContext = React.createContext<global>(globalData);
 
@@ -36,6 +39,10 @@ const RouterView = () => {
     globalData.userData = await getCurrentUser();
     globalData.selfConfig = await getSelfConfig();
     globalData.inMobile = judgeDevice();
+    globalData.theme = themeList[globalData.selfConfig.theme];
+    const theme = themeList[globalData.selfConfig.theme];
+    const root = document.getElementById("root");
+    root?.setAttribute("style", `--gradientColor: ${theme.gradientColor}; --deriveColor: ${theme.deriveColor}`);
   };
 
   useEffect(() => {

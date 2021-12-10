@@ -141,7 +141,6 @@ export const useMyHistory = () => {
       history.push(path);
     }
     locationHistory.push(path);
-    console.error(locationHistory);
   };
 
   const back = () => {
