@@ -1,8 +1,10 @@
 /* eslint-disable */
 import "./public-path";
 import { createApp } from "vue";
+import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+
 import App from "./App.vue";
-import router from "./router";
+import routes from "./router";
 import store from "./store";
 import lazyPlugin from "vue3-lazy";
 
@@ -13,12 +15,14 @@ myWindow.FREELOG_RESOURCENAME = "ZhuC/blog-theme";
 myWindow.freelogApp.onLogin(() => {
   myWindow.location.reload();
 });
-
 let instance: any = null;
-
+let router = null
 function render(props: any = {}) {
   const { container } = props;
-
+  router = createRouter({
+    history: createWebHistory(process.env.BASE_URL),
+    routes,
+  });
   instance = createApp(App).use(router).use(store).use(lazyPlugin, {
     // loading: require("./assets/image/default-img.jpg"),
     // error: require("./assets/image/default-img.jpg"),
@@ -48,6 +52,7 @@ export async function unmount() {
   instance.unmount();
   instance._container.innerHTML = "";
   instance = null;
+  router = null;
 }
 
 // 插件通信功能暂未测试

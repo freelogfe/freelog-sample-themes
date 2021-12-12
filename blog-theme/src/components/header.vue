@@ -149,7 +149,7 @@
 
       <!-- 登录相关按钮 -->
       <div class="user-btns" v-else>
-        <div class="btn header-login-btn" @click="callLogin()">登录</div>
+        <div class="btn header-login-btn" @click="reload">登录</div>
         <div class="btn header-register-btn" @click="register()">注册</div>
       </div>
     </div>
@@ -227,6 +227,10 @@ export default {
     });
 
     const methods = {
+      reload(){
+        console.log(22222)
+        window.location.reload();  
+      },
       // 搜索
       search() {
         data.searchPopupShow = false;
