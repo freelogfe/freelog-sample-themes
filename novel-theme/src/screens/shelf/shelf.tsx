@@ -15,7 +15,7 @@ export const ShelfScreen = () => {
 
   return (
     <div className={`shelf-wrapper ${inMobile ? "in-mobile" : "in-pc"}`}>
-      <Header currentPage="我的书架"></Header>
+      <Header />
 
       <ShelfBody shelfList={myShelf} operateShelf={operateShelf} />
 

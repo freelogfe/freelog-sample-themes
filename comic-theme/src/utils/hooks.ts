@@ -1,31 +1,46 @@
-import { GetExhibitsListParams, getUserData, setUserData } from "@/api/freelog";
-import { onUnmounted, reactive, ref, toRefs, watchEffect } from "vue";
+import {
+  getExhibitAuthStatus,
+  getExhibitListById,
+  GetExhibitListByIdParams,
+  getExhibitListByPaging,
+  GetExhibitListByPagingParams,
+  getExhibitSignCount,
+  getUserData,
+  setUserData,
+} from "@/api/freelog";
+import { ExhibitItem } from "@/api/interface";
+import { onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { CollectExhibitItem, ExhibitItem } from "./interface";
+import { useStore } from "vuex";
+import { showToast } from "./common";
 
 /**
  * 路由hook
  */
 export const useMyRouter = () => {
+  const store = useStore();
   const router = useRouter();
   const route = useRoute();
-  const params = ref();
+  const query = ref();
 
   watchEffect(() => {
-    params.value = route.query;
-  });
-
-  router.beforeEach((to, from, next) => {
-    if (to.fullPath !== from.fullPath) {
-      next();
-    } else {
-      router.replace("/");
-    }
+    query.value = route.query;
   });
 
   // 路由跳转方法
   const switchPage = (path: string, query: any = {}) => {
-    router.push({ path, query });
+    const { locationHistory } = store.state;
+    const index = locationHistory.findIndex((item: { path: string }) => item.path === path);
+    const IF_HOME_AND_NO_SEARCH = path === "/home" && (!query || Object.keys(query).length === 0);
+    if (index !== -1 || IF_HOME_AND_NO_SEARCH) {
+      locationHistory.splice(index);
+      router.replace({ path, query });
+    } else {
+      router.push({ path, query });
+    }
+    locationHistory.push({ path, query });
+
+    store.commit("setData", { key: "locationHistory", value: locationHistory });
   };
 
   // 路由跳转方法
@@ -38,56 +53,108 @@ export const useMyRouter = () => {
     return router.currentRoute.value.fullPath;
   };
 
-  return { params, switchPage, routerBack, getCurrentPath };
+  // 初始化路由记录
+  const initLocationHistory = () => {
+    const { locationHistory } = store.state;
+    if (locationHistory.length !== 0) return;
+
+    const { path } = router.currentRoute.value;
+    if (path !== "/home" || (path === "/home" && Object.keys(query.value).length !== 0)) {
+      locationHistory.push({ path: "/home" });
+    }
+    const current = { path, query: query.value };
+    locationHistory.push(current);
+    store.commit("setData", { key: "locationHistory", value: locationHistory });
+  };
+  initLocationHistory();
+
+  return { query, switchPage, routerBack, getCurrentPath };
 };
 
 /**
  * 我的书架hook
  */
 export const useMyShelf = (id?: string) => {
+  const store = useStore();
+  const { switchPage, getCurrentPath } = useMyRouter();
+
   const data = reactive({
-    myShelf: [] as CollectExhibitItem[],
+    shelfIds: [] as string[],
+    myShelf: [] as ExhibitItem[],
     isCollected: false,
   });
 
   // 获取书架数据
   const getMyShelf = async () => {
-    const shelf = await getUserData("shelf");
-    data.myShelf = shelf || [];
+    // 用户未登录
+    if (!store.state.userData && getCurrentPath() === "/shelf") {
+      switchPage("/home");
+      return;
+    }
+
+    if (!store.state.userData) return;
+
+    const ids = await getUserData("shelf");
+    data.shelfIds = ids || [];
+
+    if (!ids || ids.length === 0) {
+      data.myShelf = [];
+      return;
+    }
+
+    const exhibitIds = ids.join(",");
+    const queryParams: GetExhibitListByIdParams = { exhibitIds };
+    const list = await getExhibitListById(queryParams);
+    if (list.data.data.length !== 0) {
+      const idList: string[] = [];
+      list.data.data.forEach((item: ExhibitItem) => {
+        idList.push(item.exhibitId);
+      });
+      const ids = idList.join(",");
+      const statusInfo = await getExhibitAuthStatus(ids);
+      if (statusInfo.data.data) {
+        statusInfo.data.data.forEach((item: { exhibitId: string; isAuth: boolean }) => {
+          const index = list.data.data.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.exhibitId);
+          list.data.data[index].isAuth = item.isAuth;
+        });
+      }
+    }
+    data.myShelf = list.data.data;
   };
 
   // 判断当前资源是否已被收藏
-  const ifExistInShelf = (presentableId: string) => {
-    const isCollected = data.myShelf.some((item) => item.presentableId === presentableId);
+  const ifExistInShelf = (exhibitId: string) => {
+    const isCollected = data.shelfIds.includes(exhibitId);
     return isCollected;
-  };
-
-  // 更新书架数据以及收藏情况
-  const update = async (presentableId: string) => {
-    await getMyShelf();
-    data.isCollected = ifExistInShelf(presentableId);
   };
 
   // 操作收藏（如未收藏则收藏，反之取消收藏）
   const operateShelf = async (exhibit: ExhibitItem) => {
-    const isCollected = ifExistInShelf(exhibit.presentableId);
+    const isThisCollected = ifExistInShelf(exhibit.exhibitId);
 
-    if (isCollected) {
-      const index = data.myShelf.findIndex((item) => item.presentableId === exhibit?.presentableId);
-      data.myShelf.splice(index, 1);
+    if (isThisCollected) {
+      const index = data.shelfIds.findIndex((item) => item === exhibit.exhibitId);
+      data.shelfIds.splice(index, 1);
     } else {
-      const { presentableId, coverImages, presentableTitle } = exhibit;
-      data.myShelf.push({
-        presentableId,
-        presentableTitle,
-        cover: coverImages[0] || "",
-      });
+      data.shelfIds.push(exhibit.exhibitId);
     }
-    await setUserData("shelf", data.myShelf);
-    update(exhibit.presentableId);
+    const res = await setUserData("shelf", data.shelfIds);
+    if (res.data.msg === "success") {
+      showToast(isThisCollected ? `已将书籍从书架中移除～` : `已将书籍加入书架～`);
+      getMyShelf();
+    } else {
+      showToast("收藏失败");
+    }
   };
 
-  update(id || "");
+  watch(
+    () => data.myShelf,
+    () => {
+      if (id) data.isCollected = ifExistInShelf(id);
+    }
+  );
+
+  getMyShelf();
 
   return { ...toRefs(data), operateShelf };
 };
@@ -95,7 +162,7 @@ export const useMyShelf = (id?: string) => {
 /**
  * 获取列表数据hook
  */
-export const useGetList = (request: (params: Partial<GetExhibitsListParams>) => any) => {
+export const useGetList = () => {
   const data = reactive({
     listData: <ExhibitItem[]>[],
     loading: false,
@@ -103,27 +170,53 @@ export const useGetList = (request: (params: Partial<GetExhibitsListParams>) => 
     skip: 0,
   });
 
-  const getList = async (params: Partial<GetExhibitsListParams> = {}, init = false) => {
+  const getList = async (params: Partial<GetExhibitListByPagingParams> = {}, init = false) => {
     if (data.loading) return;
     if (data.total === data.listData.length && !init) return;
 
     data.loading = true;
-    data.skip = init ? 0 : data.skip + 10;
-    const queryParams = {
-      skip: String(data.skip),
-      resourceType: "comic",
+    data.skip = init ? 0 : data.skip + 30;
+    const queryParams: GetExhibitListByPagingParams = {
+      skip: data.skip,
+      articleResourceTypes: "comic",
+      limit: params.limit || 30,
       ...params,
     };
-    const list = await request(queryParams);
+    const list = await getExhibitListByPaging(queryParams);
     const { dataList, totalItem } = list.data.data;
+    if (dataList.length !== 0) {
+      const idList: string[] = [];
+      dataList.forEach((item: ExhibitItem) => {
+        idList.push(item.exhibitId);
+      });
+      const ids = idList.join(",");
+      const signCountData = await getExhibitSignCount(ids);
+      signCountData.data.data.forEach((item: { subjectId: string; count: number }) => {
+        const index = dataList.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.subjectId);
+        dataList[index].signCount = item.count;
+      });
+      const statusInfo = await getExhibitAuthStatus(ids);
+      if (statusInfo.data.data) {
+        statusInfo.data.data.forEach((item: { exhibitId: string; isAuth: boolean }) => {
+          const index = dataList.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.exhibitId);
+          dataList[index].isAuth = item.isAuth;
+        });
+      }
+    }
     data.listData = init ? dataList : [...data.listData, ...dataList];
     data.total = totalItem;
     data.loading = false;
   };
 
+  const clearData = () => {
+    data.listData = [];
+    data.total = 0;
+  };
+
   return {
     ...toRefs(data),
     getList,
+    clearData,
   };
 };
 

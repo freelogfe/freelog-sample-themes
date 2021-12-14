@@ -1,141 +1,277 @@
 <template>
-  <div class="detail-wrapper flex-column align-center">
-    <!-- header -->
-    <div class="header-wrapper p-fixed lt-0 w-100p h-72 b-box text-center z-100">
-      <div class="w-100p mw-1200 h-100p flex-row align-center space-between">
-        <i class="iconfont fs-20 fc-white" @click="routerBack()">
-          &#xe699;
-        </i>
+  <div class="detail-wrapper">
+    <my-header />
 
-        <div class="logo fs-22 fw-bold fc-white transition cur-pointer" @click="switchPage('/')">
-          freelog comic
+    <!-- mobile -->
+    <div class="mobile-content" v-if="inMobile">
+      <!-- 书籍信息 -->
+      <div class="comic-info">
+        <div class="comic-base-info">
+          <div class="comic-cover">
+            <img
+              class="comic-cover-image"
+              :src="comicInfo?.coverImages[0]"
+              :alt="comicInfo?.exhibitName"
+              v-if="comicInfo?.coverImages"
+            />
+          </div>
+
+          <div class="comic-content">
+            <div class="content-top">
+              <div class="comic-name">{{ comicInfo?.exhibitName }}</div>
+
+              <div class="comic-author">{{ comicInfo?.articleInfo?.articleOwnerName }}</div>
+
+              <div class="tags">
+                <tags :tags="comicInfo?.tags" />
+              </div>
+            </div>
+
+            <div class="content-bottom">
+              <div class="sign-count">{{ comicInfo?.signCount }}人签约</div>
+              <div class="share-btn" @click="share()">
+                <span class="share-btn-text">
+                  <i class="freelog fl-icon-fenxiang"></i>
+                  分享给更多人
+                </span>
+              </div>
+              <input id="href" class="hidden-input" :value="href" readOnly />
+            </div>
+          </div>
         </div>
 
-        <div class="my-shelf fs-16 fw-bold fc-white fw-medium transition cur-pointer" @click="switchPage('/shelf')">
-          我的漫画
+        <div class="comic-date-info">
+          <div class="date-info">创建时间：{{ formatDate(comicInfo?.createDate) }}</div>
+
+          <div class="date-info">最近更新：{{ formatDate(comicInfo?.updateDate) }}</div>
+        </div>
+
+        <div class="operate-btns">
+          <div class="btn main-btn mobile" @click="switchPage('/reader', { id: comicInfo?.exhibitId })">
+            立即阅读
+          </div>
+          <div class="btn assist-btn mobile" @click="operateShelf(comicInfo)">
+            {{ isCollected ? "取消收藏" : "加入收藏" }}
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="bg-cover-box p-relative w-100p pb-75p over-h">
-      <img class="bg-cover p-absolute lt-0 w-100p" v-lazy="comicInfo.coverImages[0]" v-if="comicInfo.coverImages" />
-    </div>
+      <!-- 书籍简介 -->
+      <div class="comic-intro" v-if="comicInfo?.versionInfo?.exhibitProperty?.intro">
+        <div class="intro-title">内容简介</div>
 
-    <!-- body -->
-    <div class="body-wrapper w-100p b-box text-center z-1">
-      <div class="w-100p mw-1200 pb-30">
-        <!-- 书籍信息 -->
-        <div class="body-info">
-          <div class="book-cover-box brs-6 b-box bg-white">
-            <div class="w-100p h-100p brs-4 over-h text-center">
-              <img class="h-100p" v-lazy="comicInfo.coverImages[0]" v-if="comicInfo.coverImages" />
-            </div>
+        <div class="intro" :class="introState === 1 ? 'fold' : 'unfold'">
+          <div ref="introContent" class="intro-content">
+            {{ comicInfo?.versionInfo?.exhibitProperty?.intro }}
           </div>
 
-          <div class="book-content flex-column">
-            <div class="book-name fw-bold text-ellipsis">
-              {{ comicInfo.presentableTitle }}
-            </div>
+          <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">
+            ...查看全部
+          </div>
+        </div>
+      </div>
 
-            <div class="book-author text-ellipsis mt">
-              {{ comicInfo.username }}
-            </div>
-
-            <tags class="mt" :data="comicInfo.tags" size="large" />
-
-            <div class="pc-btns mt">
-              <div class="main-btn flex-1 mw-200 h-40" @click="switchPage('/reader', { id: comicInfo.presentableId })">
-                <span>立即阅读</span>
-              </div>
-
-              <div
-                class="collect-btn flex-1 mw-200 h-40 brs-4 ml-20 b-box bg-white text-center cur-pointer shrink-0 transition"
-                :class="{ collect: isCollected }"
-                @click="operateShelf(comicInfo)"
-              >
-                <i className="iconfont fs-20 mr-10">{{ isCollected ? "&#xe658;" : "&#xe64c;" }}</i>
-                {{ isCollected ? "已追" : "追漫" }}
-              </div>
-            </div>
+      <!-- 书籍目录 -->
+      <div class="directory-list">
+        <div class="directory-header">
+          <div class="directory-title">目录</div>
+          <div class="view-all-btn" @click="directoryShow = true">
+            全部{{ directory.length }}
+            <i class="freelog fl-icon-zhankaigengduo"></i>
           </div>
         </div>
 
-        <div class="mt-30" v-if="comicInfo.intro || comicInfo.presentableTitle">
-          <span
-            class="book-intro fs-14 lh-25 cur-pointer transition"
-            v-html="comicInfo.intro"
-            @click="modalShow = true"
-          >
-          </span>
-        </div>
-
-        <div class="mobile-btns mt-25">
-          <div class="main-btn flex-1 h-40" @click="switchPage('/reader', { id: comicInfo.presentableId })">
-            <span>立即阅读</span>
-          </div>
-
+        <div class="directory-list-box">
           <div
-            class="collect-btn flex-1 h-40 brs-4 ml-20 b-box bg-white text-center cur-pointer shrink-0 transition"
-            :class="{ collect: isCollected }"
-            @click="operateShelf(comicInfo)"
+            class="directory-item"
+            v-for="(item, index) in directory.filter((_, index) => index < 5)"
+            :key="item + index"
           >
-            <i className="iconfont fs-20 mr-10">{{ isCollected ? "&#xe658;" : "&#xe64c;" }}</i>
-            {{ isCollected ? "已追" : "追漫" }}
+            <div class="item-content">
+              <div class="directory-title">{{ item }}</div>
+              <i class="freelog fl-icon-zhankaigengduo"></i>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <intro-modal v-model:show="modalShow" :data="comicInfo" />
+    <!-- PC -->
+    <div class="content" v-if="!inMobile">
+      <breadcrumbs />
+
+      <div class="content-box">
+        <!-- 书籍信息 -->
+        <div class="comic-info">
+          <div class="comic-cover">
+            <img
+              class="comic-cover-image"
+              :src="comicInfo?.coverImages[0]"
+              :alt="comicInfo?.exhibitName"
+              v-if="comicInfo?.coverImages"
+            />
+          </div>
+
+          <div class="comic-content">
+            <div class="comic-name">{{ comicInfo?.exhibitName }}</div>
+
+            <div class="comic-author">{{ comicInfo?.articleInfo?.articleOwnerName }}</div>
+
+            <div class="tags">
+              <tags :tags="comicInfo?.tags" />
+            </div>
+
+            <div class="create-date">创建时间：{{ formatDate(comicInfo?.createDate) }}</div>
+
+            <div class="update-date">最近更新：{{ formatDate(comicInfo?.updateDate) }}</div>
+
+            <div class="btns-box">
+              <div class="operate-btns">
+                <div class="btn main-btn" @click="switchPage('/reader', { id: comicInfo?.exhibitId })">
+                  立即阅读
+                </div>
+                <div class="btn assist-btn" @click="operateShelf(comicInfo)">
+                  {{ isCollected ? "取消收藏" : "加入收藏" }}
+                </div>
+              </div>
+
+              <div class="other-btns">
+                <div class="sign-count">{{ comicInfo?.signCount }}人签约</div>
+                <div class="share-btn" @mouseover="shareShow = true" @mouseleave="shareShow = false">
+                  <span class="share-btn-text" :class="{ active: shareShow }">
+                    <i class="freelog fl-icon-fenxiang"></i>
+                    分享给更多人
+                  </span>
+
+                  <share :show="shareShow" :exhibit="comicInfo" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 书籍简介 -->
+        <div class="comic-intro" v-if="comicInfo?.versionInfo?.exhibitProperty?.intro">
+          <div class="intro-title">内容简介</div>
+
+          <div class="intro" :class="introState === 1 ? 'fold' : 'unfold'">
+            <div ref="introContent" class="intro-content">
+              {{ comicInfo?.versionInfo?.exhibitProperty?.intro }}
+            </div>
+
+            <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">
+              ...查看全部
+            </div>
+          </div>
+        </div>
+
+        <!-- 书籍目录 -->
+        <div class="directory-list">
+          <div class="directory-title">
+            目录
+            <span class="directory-length">({{ directory.length }}章)</span>
+          </div>
+
+          <div class="directory-list-box">
+            <div class="directory-item" v-for="(item, index) in directory" :key="item + index">
+              <div class="directory-title">{{ item }}</div>
+              <div class="directory-status">已授权</div>
+            </div>
+          </div>
+
+          <div class="no-more">— 已加载全部章节 —</div>
+        </div>
+      </div>
+    </div>
+
+    <my-footer />
+
+    <theme-entrance />
+
+    <directory :show="directoryShow" :comicInfo="comicInfo" @closeDirectory="directoryShow = false" />
   </div>
 </template>
 
 <script lang="ts">
 import { useMyRouter, useMyShelf } from "../utils/hooks";
-import { ExhibitItem } from "../utils/interface";
-import { defineAsyncComponent, reactive, toRefs } from "@vue/runtime-core";
-import { getExhibitsInfo } from "../api/freelog";
-import { getResourceName } from "../utils/common";
+import { defineAsyncComponent, reactive, ref, toRefs, watch } from "@vue/runtime-core";
+import { ExhibitItem } from "@/api/interface";
+import { getExhibitInfo, getExhibitSignCount } from "@/api/freelog";
+import { useStore } from "vuex";
+import { formatDate, showToast } from "@/utils/common";
+import { watchEffect } from "vue";
 
 export default {
   name: "detail",
 
   components: {
+    "my-header": defineAsyncComponent(() => import("../components/header.vue")),
+    "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
+    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
+    breadcrumbs: defineAsyncComponent(() => import("../components/breadcrumbs.vue")),
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
-    "intro-modal": defineAsyncComponent(() => import("../components/intro-modal.vue")),
+    share: defineAsyncComponent(() => import("../components/share.vue")),
+    directory: defineAsyncComponent(() => import("../components/directory.vue")),
   },
 
   setup() {
-    const { params, switchPage, routerBack } = useMyRouter();
-    const { id } = params.value;
+    const store = useStore();
+    const { query, switchPage, routerBack } = useMyRouter();
+    const { id } = query.value;
     const { isCollected, operateShelf } = useMyShelf(id);
+    const introContent = ref<any>();
+
     const data = reactive({
       comicInfo: {} as ExhibitItem,
-      modalShow: false,
+      directoryShow: false,
+      directory: [] as string[],
+      shareShow: false,
+      introState: 0,
+      href: "",
+    });
+
+    const methods = {
+      share() {
+        // 复制链接
+        const input: any = document.getElementById("href");
+        input.select();
+        document.execCommand("Copy");
+        showToast("链接复制成功～");
+      },
+    };
+
+    watchEffect(() => {
+      document.body.style.overflowY = data.directoryShow ? "hidden" : "auto";
     });
 
     const getComicInfo = async (id: string) => {
-      const exhibitInfo = await getExhibitsInfo(id, {
-        isLoadVersionProperty: 1,
-        isLoadCustomPropertyDescriptors: 1,
-        isLoadResourceDetailInfo: 1,
-        isLoadResourceVersionInfo: 1,
-      });
-      const { presentableTitle, resourceVersionInfo, resourceInfo } = exhibitInfo.data.data;
-      const username = getResourceName(resourceInfo.resourceName, 0);
-      const intro = resourceVersionInfo.description || resourceInfo.intro || `${presentableTitle}-${username}`;
-
-      data.comicInfo = { ...exhibitInfo.data.data, intro, username };
+      const exhibitInfo = await getExhibitInfo(id, { isLoadVersionProperty: 1 });
+      const signCountData = await getExhibitSignCount(id);
+      data.comicInfo = { ...exhibitInfo.data.data, signCount: signCountData?.data.data[0]?.count };
+      data.directory = Array.from({ length: 12 }, () => data.comicInfo.exhibitName || "目录名称");
+      data.href = (window.location as any).currentURL;
     };
-
     getComicInfo(id);
 
+    watch(
+      () => introContent.value,
+      () => {
+        const introHeight = introContent.value.clientHeight;
+        const foldHeight = store.state.inMobile ? 120 : 60;
+        if (introHeight > foldHeight) data.introState = 1;
+      }
+    );
+
     return {
-      ...toRefs(data),
+      formatDate,
+      ...store.state,
       switchPage,
       routerBack,
       isCollected,
       operateShelf,
+      introContent,
+      ...toRefs(data),
+      ...methods,
     };
   },
 };
@@ -143,192 +279,546 @@ export default {
 
 <style lang="scss" scoped>
 .detail-wrapper {
+  position: relative;
   min-height: 100vh;
-  background-image: url(../assets/image/bg.png);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
-  .header-wrapper {
-    padding: 0 40px;
-    box-shadow: 0 5px 9px #f9f9f9;
-    background-color: #9ac9ff;
+  // mobile
+  .mobile-content {
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.03);
+    padding-bottom: 98px;
 
-    .iconfont {
-      display: none;
-    }
-
-    .logo {
-      display: block;
-      font-style: italic;
-    }
-
-    .logo,
-    .my-shelf {
-      text-shadow: 2px 2px 4px #6280a1;
-
-      &:hover {
-        text-shadow: 4px 4px 6px #6280a1;
-      }
-    }
-  }
-
-  .bg-cover-box {
-    display: none;
-    border-radius: 0 0 4px 4px;
-
-    &::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 0;
+    .comic-info {
       width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.4);
-    }
+      padding: 20px;
+      box-sizing: border-box;
+      background-color: #fff;
 
-    .bg-cover {
-      filter: blur(3px);
-    }
-  }
+      .comic-base-info {
+        display: flex;
 
-  .body-wrapper {
-    padding: 112px 40px 0;
+        .comic-cover {
+          width: 110px;
+          height: 154px;
+          background-color: #b7b7b7;
+          border-radius: 4px;
+          box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
+          margin-right: 15px;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
 
-    .pc-btns {
-      display: flex;
-    }
-
-    .mobile-btns {
-      display: none;
-    }
-
-    .body-info {
-      display: flex;
-
-      .book-cover-box {
-        width: 400px;
-        height: 300px;
-        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3);
-      }
-
-      .book-content {
-        margin-left: 40px;
-        flex: 1;
-        width: 0;
-        justify-content: center;
-
-        .mt {
-          margin-top: 25px;
+          .comic-cover-image {
+            height: 100%;
+          }
         }
 
-        .book-name {
-          font-size: 30px;
-        }
+        .comic-content {
+          flex: 1;
+          width: 0;
+          display: flex;
+          flex-direction: column;
 
-        .book-author {
-          font-size: 24px;
+          .content-top {
+            flex: 1;
+
+            .comic-name {
+              font-size: 20px;
+              line-height: 26px;
+              color: #222222;
+              font-weight: bold;
+              display: -webkit-box;
+              -webkit-box-orient: vertical;
+              -webkit-line-clamp: 2;
+              overflow: hidden;
+            }
+
+            .comic-author {
+              font-size: 13px;
+              line-height: 18px;
+              color: #666666;
+              margin-top: 10px;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+            }
+
+            .tags {
+              margin-top: 12px;
+            }
+          }
+
+          .content-bottom {
+            display: flex;
+            align-items: center;
+
+            .sign-count {
+              font-size: 14px;
+              line-height: 20px;
+              color: #222222;
+            }
+
+            .share-btn {
+              position: relative;
+              display: flex;
+              align-items: center;
+              margin-left: 20px;
+
+              .share-btn-text {
+                font-size: 14px;
+                line-height: 20px;
+                color: #999999;
+
+                &:active {
+                  color: #666666;
+                }
+
+                .fl-icon-fenxiang {
+                  margin-right: 6px;
+                }
+              }
+            }
+
+            .hidden-input {
+              position: absolute;
+              z-index: -1;
+            }
+          }
+        }
+      }
+
+      .comic-date-info {
+        width: 100%;
+        padding: 10px 0;
+        background-color: rgba(0, 0, 0, 0.02);
+        border-radius: 4px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 20px 0;
+
+        .date-info {
+          font-size: 12px;
+          color: #999999;
+          line-height: 18px;
+
+          & + .date-info {
+            margin-top: 5px;
+          }
+        }
+      }
+
+      .operate-btns {
+        display: flex;
+
+        .btn {
+          flex: 1;
+          height: 48px;
+          border-radius: 4px;
+          font-size: 16px;
+          font-weight: bold;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          &.assist-btn {
+            margin-left: 10px;
+          }
         }
       }
     }
 
-    .book-intro {
-      color: #858c96;
+    .comic-intro {
+      width: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+      background-color: #fff;
+      margin-top: 5px;
 
-      &:hover {
-        color: #333;
-      }
-
-      &::after {
-        content: "更多信息";
-        margin-left: 10px;
-        color: #333;
+      .intro-title {
+        font-size: 16px;
+        line-height: 22px;
+        color: #222222;
         font-weight: bold;
       }
-    }
 
-    .collect-btn {
-      color: #4fa1ff;
-      border: 1px solid #ddd;
+      .intro {
+        position: relative;
+        overflow: hidden;
+        margin-top: 20px;
 
-      &:hover,
-      &.collect {
-        border-color: #4fa1ff;
-      }
-    }
-  }
-}
+        &.fold {
+          height: 120px;
+        }
 
-@media (max-width: 900px) {
-  .book-cover-box {
-    width: 300px !important;
-    height: 225px !important;
-  }
-}
+        &.unfold {
+          height: auto;
+        }
 
-@media (max-width: 700px) {
-  .book-content {
-    justify-content: space-between !important;
+        .intro-content {
+          font-size: 14px;
+          line-height: 24px;
+          color: #222222;
+          text-indent: 28px;
+        }
 
-    .mt {
-      margin-top: 0 !important;
-    }
-  }
+        .view-all-btn {
+          position: absolute;
+          right: 0;
+          bottom: 0;
+          background-color: #fff;
+          line-height: 24px;
+          color: #2784ff;
 
-  .book-cover-box {
-    width: 240px !important;
-    height: 180px !important;
-  }
-}
-
-@media (max-width: 550px) {
-  .detail-wrapper {
-    .header-wrapper {
-      box-shadow: none;
-      background-color: transparent;
-      padding: 0 20px;
-
-      .iconfont {
-        display: block;
-      }
-
-      .logo {
-        display: none;
+          &:active {
+            color: #539dff;
+          }
+        }
       }
     }
 
-    .bg-cover-box {
-      display: block;
-    }
+    .directory-list {
+      width: 100%;
+      padding-bottom: 20px;
+      background-color: #fff;
+      margin-top: 5px;
 
-    .body-wrapper {
-      margin-top: -130px;
-      padding: 0 20px;
-      z-index: 1;
-
-      .pc-btns {
-        display: none;
-      }
-
-      .mobile-btns {
+      .directory-header {
+        width: 100%;
+        padding: 20px;
+        box-sizing: border-box;
         display: flex;
-      }
+        justify-content: space-between;
 
-      .book-cover-box {
-        width: 120px !important;
-        height: 150px !important;
-        box-shadow: 0 0 3px #fff !important;
-        padding: 3px;
-      }
-
-      .book-content {
-        margin-left: 20px !important;
-        color: #fff;
-
-        .book-name {
-          font-size: 22px !important;
+        .directory-title {
+          font-size: 16px;
+          font-weight: bold;
+          color: #222222;
+          line-height: 22px;
         }
 
-        .book-author {
-          font-size: 18px !important;
+        .view-all-btn {
+          font-size: 16px;
+          color: #666666;
+          line-height: 22px;
+          display: flex;
+          align-items: center;
+
+          &:active {
+            color: #222222;
+          }
+
+          .fl-icon-zhankaigengduo {
+            width: 6px;
+            height: 12px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 10px;
+          }
         }
+      }
+
+      .directory-list-box {
+        display: flex;
+        flex-direction: column;
+
+        .directory-item {
+          width: 100%;
+          padding: 0 20px;
+          box-sizing: border-box;
+
+          &:last-child .item-content {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+          }
+
+          &:active {
+            background-color: rgba(0, 0, 0, 0.02);
+          }
+
+          .item-content {
+            width: 100%;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+
+            .directory-title {
+              font-size: 14px;
+              color: #222222;
+              line-height: 20px;
+              flex: 1;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+            }
+
+            .fl-icon-zhankaigengduo {
+              width: 6px;
+              height: 12px;
+              font-size: 12px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin-left: 50px;
+            }
+          }
+        }
+      }
+
+      .no-more {
+        font-size: 14px;
+        color: #999999;
+        line-height: 20px;
+        margin-top: 30px;
+        text-align: center;
+      }
+    }
+  }
+
+  // PC
+  .content {
+    width: 1160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 148px;
+
+    .content-box {
+      width: 920px;
+
+      .comic-info {
+        display: flex;
+        padding-bottom: 30px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+        .comic-cover {
+          width: 140px;
+          height: 196px;
+          background-color: #b7b7b7;
+          border-radius: 4px;
+          margin-right: 20px;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          .comic-cover-image {
+            height: 100%;
+          }
+        }
+
+        .comic-content {
+          flex: 1;
+
+          .comic-name {
+            font-size: 20px;
+            line-height: 26px;
+            color: #222222;
+            font-weight: bold;
+          }
+
+          .comic-author {
+            font-size: 13px;
+            line-height: 18px;
+            color: #666666;
+            margin-top: 10px;
+          }
+
+          .tags {
+            margin-top: 12px;
+          }
+
+          .create-date {
+            font-size: 12px;
+            line-height: 18px;
+            color: #999999;
+            margin-top: 12px;
+          }
+
+          .update-date {
+            font-size: 12px;
+            line-height: 18px;
+            color: #999999;
+            margin-top: 8px;
+          }
+
+          .btns-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 12px;
+
+            .operate-btns {
+              display: flex;
+
+              .btn {
+                padding: 0 20px;
+                height: 38px;
+                border-radius: 4px;
+                font-size: 14px;
+                font-weight: bold;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                &.assist-btn {
+                  margin-left: 15px;
+                }
+              }
+            }
+
+            .other-btns {
+              display: flex;
+              align-items: center;
+
+              .sign-count {
+                font-size: 14px;
+                color: #222222;
+              }
+
+              .share-btn {
+                position: relative;
+                display: flex;
+                align-items: center;
+                margin-left: 30px;
+                cursor: pointer;
+
+                .share-btn-text {
+                  font-size: 14px;
+                  color: #999999;
+                  transition: all 0.2s linear;
+
+                  &:hover,
+                  &.active {
+                    color: #222222;
+                  }
+
+                  .fl-icon-fenxiang {
+                    margin-right: 6px;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .comic-intro {
+      padding: 25px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+      .intro-title {
+        font-size: 16px;
+        line-height: 22px;
+        color: #222222;
+        font-weight: bold;
+      }
+
+      .intro {
+        position: relative;
+        overflow: hidden;
+        margin-top: 25px;
+
+        &.fold {
+          height: 60px;
+        }
+
+        &.unfold {
+          height: auto;
+        }
+
+        .intro-content {
+          font-size: 14px;
+          line-height: 20px;
+          color: #222222;
+          text-indent: 28px;
+        }
+
+        .view-all-btn {
+          position: absolute;
+          right: 0;
+          bottom: 0;
+          background-color: #fff;
+          line-height: 20px;
+          color: #2784ff;
+          cursor: pointer;
+
+          &:hover {
+            color: #539dff;
+          }
+
+          &:active {
+            color: #2376e5;
+          }
+        }
+      }
+    }
+
+    .directory-list {
+      padding-top: 24px;
+
+      .directory-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #222222;
+        line-height: 22px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+
+        .directory-length {
+          font-weight: 400;
+          color: #999999;
+          margin-left: 10px;
+        }
+      }
+
+      .directory-list-box {
+        display: flex;
+        flex-wrap: wrap;
+
+        .directory-item {
+          width: calc((100% - 80px) / 3);
+          padding: 15px 0;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+          display: flex;
+          margin-right: 40px;
+
+          &:nth-child(3n) {
+            margin-right: 0;
+          }
+
+          .directory-title {
+            font-size: 14px;
+            color: #222222;
+            line-height: 20px;
+            cursor: pointer;
+            flex: 1;
+          }
+
+          .directory-status {
+            width: 60px;
+            font-size: 14px;
+            color: #ee4040;
+            line-height: 20px;
+            text-align: right;
+          }
+        }
+      }
+
+      .no-more {
+        font-size: 14px;
+        color: #999999;
+        line-height: 20px;
+        margin-top: 30px;
+        text-align: center;
       }
     }
   }

@@ -31,19 +31,14 @@ export const Share = (props: {
     if (item.id === "qqZone") {
       // QQ空间
       const shareWeb = `https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=${url}&desc=${shareText}&summary=${summary}&title=${title}&pics=${image}`;
-      // const shareWeb = `https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https%3A%2F%2Fwww.bilibili.com%2Fvideo%2FBV1HY411s7gy%3Fshare_source%3Dqzone_web%26share_medium%3Dweb%26share_source%3Dqqzone%26bbid%3DE690CCAC-D0DC-4761-BBFF-0973B0BF2642148825infoc%26ts%3D1638155598816&showcount=3&desc=${summary}&summary=${summary}&title=${title}&site=%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9&pics=${image}&style=500&width=500&height=500`;
       window.open(shareWeb);
     } else if (item.id === "weibo") {
       // 微博
       const weiboTitle = `我在freelog发现一个不错的小说：${exhibit?.exhibitName}`;
-      window.open(
-        `https://service.weibo.com/share/share.php?url=${url}&title=${weiboTitle}&pic=${image}`
-      );
+      window.open(`https://service.weibo.com/share/share.php?url=${url}&title=${weiboTitle}&pic=${image}`);
     } else if (item.id === "douban") {
       // 豆瓣
-      window.open(
-        `https://www.douban.com/share/service?url=${url}&title=${title}&image=${image}`
-      );
+      window.open(`https://www.douban.com/share/service?url=${url}&title=${title}&image=${image}`);
     } else if (["qq", "wechat"].includes(item.id)) {
       // qq、微信
       const qrcodeInfo = { name: item.name, url };
@@ -59,13 +54,9 @@ export const Share = (props: {
   };
 
   useEffect(() => {
-    setHref(
-      "http://freelognovel.testfreelog.com/?dev=http://localhost:3000/$_$freelog-60ef9c4ea11650002e840fcd=" +
-        window.location.href
-    );
-    setShareText(
-      `我在freelog发现一个不错的小说：${exhibit?.exhibitName} ${window.location.href}`
-    );
+    const url = (window.location as any).currentURL;
+    setHref(url);
+    setShareText(`我在freelog发现一个不错的小说：${exhibit?.exhibitName} ${url}`);
   }, [exhibit?.exhibitName]);
 
   useEffect(() => {
@@ -75,17 +66,10 @@ export const Share = (props: {
   return inMobile ? (
     // mobile
     <CSSTransition in={show} classNames="fade" timeout={200} unmountOnExit>
-      <div
-        className="mobile-share-wrapper"
-        onClick={() => setShareShow && setShareShow(false)}
-      >
+      <div className="mobile-share-wrapper" onClick={() => setShareShow && setShareShow(false)}>
         <div className="exihibit-info" onClick={(e) => e.stopPropagation()}>
           <div className="book-cover-box">
-            <img
-              className="book-cover"
-              src={exhibit?.coverImages[0]}
-              alt={exhibit?.exhibitName}
-            />
+            <img className="book-cover" src={exhibit?.coverImages[0]} alt={exhibit?.exhibitName} />
           </div>
 
           <div className="book-name" title={exhibit?.exhibitName}>
@@ -98,15 +82,8 @@ export const Share = (props: {
           <div className="btns-list">
             {shareBtns.map((item: shareBtnItem, index: number) => {
               return (
-                <div
-                  className="share-btn-item"
-                  key={item.id}
-                  onClick={() => share(item)}
-                >
-                  <div
-                    className="share-btn-icon"
-                    style={{ backgroundColor: item.bgColor }}
-                  >
+                <div className="share-btn-item" key={item.id} onClick={() => share(item)}>
+                  <div className="share-btn-icon" style={{ backgroundColor: item.bgColor }}>
                     <i className={`freelog ${item.icon}`}></i>
                   </div>
 
@@ -115,10 +92,7 @@ export const Share = (props: {
               );
             })}
           </div>
-          <div
-            className="cancel-btn"
-            onClick={() => setShareShow && setShareShow(false)}
-          >
+          <div className="cancel-btn" onClick={() => setShareShow && setShareShow(false)}>
             取消
           </div>
         </div>
@@ -133,11 +107,7 @@ export const Share = (props: {
 
           <input id="href" className="hidden-input" value={href} readOnly />
 
-          <textarea
-            className="textarea"
-            value={shareText}
-            onChange={(e) => setShareText(e.target.value)}
-          ></textarea>
+          <textarea className="textarea" value={shareText} onChange={(e) => setShareText(e.target.value)}></textarea>
 
           <div className="btns-box">
             <div className="share-btns">
@@ -156,10 +126,7 @@ export const Share = (props: {
               })}
             </div>
 
-            <div
-              className="copy-btn"
-              onClick={() => share({ id: "copy", name: "" })}
-            >
+            <div className="copy-btn" onClick={() => share({ id: "copy", name: "" })}>
               复制链接
             </div>
 
@@ -176,25 +143,14 @@ export const Share = (props: {
   );
 };
 
-const QrcodePopup = (props: {
-  show: boolean;
-  name: string;
-  value: string;
-  setQrcodeShow: (show: boolean) => void;
-}) => {
+const QrcodePopup = (props: { show: boolean; name: string; value: string; setQrcodeShow: (show: boolean) => void }) => {
   const { show, name, value, setQrcodeShow } = props;
 
   return (
     <CSSTransition in={show} classNames="fade" timeout={200} unmountOnExit>
-      <div
-        className="qrcode-popup-wrapper"
-        onClick={() => setQrcodeShow(false)}
-      >
+      <div className="qrcode-popup-wrapper" onClick={() => setQrcodeShow(false)}>
         <div className="qrcode-popup" onClick={(e) => e.stopPropagation()}>
-          <i
-            className="close-btn freelog fl-icon-guanbi"
-            onClick={() => setQrcodeShow(false)}
-          ></i>
+          <i className="close-btn freelog fl-icon-guanbi" onClick={() => setQrcodeShow(false)}></i>
           <div className="qrcode-text">分享到{name}</div>
           <QRCode value={value} size={220} />
           <div className="qrcode-text">使用{name}扫一扫完成分享</div>

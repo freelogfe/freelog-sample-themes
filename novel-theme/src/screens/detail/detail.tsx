@@ -44,7 +44,7 @@ export const DetailScreen = (props: any) => {
   return (
     <detailContext.Provider value={{ book, setDirectoryShow }}>
       <div className="detail-wrapper">
-        <Header currentPage="书籍详情" />
+        <Header />
 
         <BookBody />
 
@@ -147,13 +147,13 @@ const BookBody = () => {
       </div>
 
       {/* 书籍简介 */}
-      <div className="book-intro">
-        <div className="intro-title">内容简介</div>
+      {book?.versionInfo?.exhibitProperty?.intro && (
+        <div className="book-intro">
+          <div className="intro-title">内容简介</div>
 
-        {(book?.intro || book?.exhibitName) && (
           <div className={`intro ${introState === 1 ? "fold" : "unfold"}`}>
             <div className="intro-content" ref={introContent}>
-              {book?.intro || `${book?.exhibitName}-${book?.username}`}
+              {book?.versionInfo?.exhibitProperty?.intro}
             </div>
 
             {introState === 1 && (
@@ -162,8 +162,8 @@ const BookBody = () => {
               </div>
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* 书籍目录 */}
       <div className="directory-list">
@@ -190,8 +190,6 @@ const BookBody = () => {
             })}
         </div>
       </div>
-
-      <Share show={shareShow} setShareShow={setShareShow} exhibit={book} />
     </div>
   ) : (
     // PC
@@ -249,13 +247,13 @@ const BookBody = () => {
           </div>
 
           {/* 书籍简介 */}
-          <div className="book-intro">
-            <div className="intro-title">内容简介</div>
+          {book?.versionInfo?.exhibitProperty?.intro && (
+            <div className="book-intro">
+              <div className="intro-title">内容简介</div>
 
-            {(book?.intro || book?.exhibitName) && (
               <div className={`intro ${introState === 1 ? "fold" : "unfold"}`}>
                 <div className="intro-content" ref={introContent}>
-                  {book?.versionInfo.exhibitProperty.intro}
+                  {book?.versionInfo?.exhibitProperty?.intro}
                 </div>
 
                 {introState === 1 && (
@@ -264,8 +262,8 @@ const BookBody = () => {
                   </div>
                 )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* 书籍目录 */}
           <div className="directory-list">

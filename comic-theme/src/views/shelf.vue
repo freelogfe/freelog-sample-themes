@@ -1,68 +1,55 @@
 <template>
-  <div class="shelf-wrapper flex-column align-center">
-    <my-header :getList="search" />
+  <div class="shelf-wrapper" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
+    <my-header />
 
-    <div class="content w-100p mw-1412 b-box">
-      <div class="fs-24 mt-40 mb-20">我的漫画</div>
+    <div class="content">
+      <breadcrumbs />
 
-      <div class="flex-row flex-wrap">
-        <shelf-comic
-          class="book-box mb-44"
-          :data="item"
-          :operateShelf="operateShelf"
-          v-for="item in shelf"
-          :key="item.presentableId"
-        ></shelf-comic>
+      <div class="comic-box" v-for="item in myShelf" :key="item.exhibitId">
+        <comic :data="item" :operateShelf="operateShelf" />
+      </div>
 
-        <div
-          class="add-book-box p-relative shrink-0 mb-44 brs-4 transition cur-pointer"
-          @click="switchPage('/')"
-          title="去添加漫画"
-        >
-          <div class="w-100p h-0 pb-75p text-center">
-            <img
-              class="p-absolute w-32 h-32 t-50p mt--16"
-              src="https://weread-1258476243.file.myqcloud.com/web/wrwebnjlogic/image/shelf_last_add.fe952d0f.png"
-              alt="加入书架"
-            />
-          </div>
+      <div class="tip" v-if="myShelf.length === 0">暂无数据，快去寻找漫画来收藏吧～</div>
+
+      <div class="add-comic-box">
+        <div class="add-comic-btn" @click="switchPage(`/`)">
+          <i class="freelog fl-icon-tianjia"></i>
+          <span>添加书籍</span>
         </div>
       </div>
     </div>
+
+    <my-footer />
+
+    <theme-entrance />
   </div>
 </template>
 
 <script lang="ts">
-import { computed, defineAsyncComponent, ref } from "@vue/runtime-core";
+import { defineAsyncComponent } from "@vue/runtime-core";
 import { useMyRouter, useMyShelf } from "../utils/hooks";
-import { CollectExhibitItem } from "../utils/interface";
+import { useStore } from 'vuex';
 
 export default {
   name: "shelf",
 
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
-    "shelf-comic": defineAsyncComponent(() => import("../components/shelf-comic.vue")),
+    "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
+    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
+    breadcrumbs: defineAsyncComponent(() => import("../components/breadcrumbs.vue")),
+    comic: defineAsyncComponent(() => import("../components/comic.vue")),
   },
 
   setup() {
+    const store = useStore();
     const { switchPage } = useMyRouter();
     const { myShelf, operateShelf } = useMyShelf();
-    const searchKey = ref("");
-    const shelf = computed(() => {
-      return myShelf.value.filter((item: CollectExhibitItem) => item.presentableTitle.includes(searchKey.value));
-    });
-
-    const search = (params: { keywords: string }, init: boolean) => {
-      if (!init) return [];
-
-      searchKey.value = params.keywords || "";
-    };
 
     return {
-      shelf,
-      search,
+      ...store.state,
       switchPage,
+      myShelf,
       operateShelf,
     };
   },
@@ -71,47 +58,106 @@ export default {
 
 <style lang="scss" scoped>
 .shelf-wrapper {
+  position: relative;
   min-height: 100vh;
-  background-image: url(../assets/image/bg.png);
 
-  .content {
-    padding: 0 40px;
+  // mobile
+  &.in-mobile {
+    padding-bottom: 98px;
 
-    .book-box {
-      width: 18%;
-      margin-right: 2%;
-    }
+    .content {
+      width: 100%;
 
-    .add-book-box {
-      width: 18%;
-      margin-right: 0 !important;
-      background-color: #edeeef;
+      .comic-box {
+        width: 100%;
+      }
 
-      &:hover {
-        background-color: #e0e0e0;
+      .add-comic-box {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+
+        .add-comic-btn:active {
+          color: #222;
+        }
       }
     }
   }
-}
 
-@media (max-width: 900px) {
-  .content {
-    padding: 0 20px;
+  // PC
+  &.in-pc {
+    padding-bottom: 148px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
-    .book-box,
-    .add-book-box {
-      width: 31% !important;
-      margin-right: 2% !important;
+    .content {
+      width: 1160px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .comic-box {
+        width: 920px;
+
+        & + .comic-box {
+          margin-top: 20px;
+        }
+      }
+
+      .add-comic-box {
+        width: 920px;
+
+        .add-comic-btn {
+          cursor: pointer;
+          transition: all 0.2s linear;
+
+          &:hover {
+            color: #539dff;
+          }
+
+          &:active {
+            color: #2376e5;
+          }
+        }
+      }
     }
   }
-}
 
-@media (max-width: 600px) {
+  .tip {
+    width: 100%;
+    font-size: 16px;
+    line-height: 22px;
+    color: #999;
+    text-align: center;
+    margin-top: 55px;
+  }
+
   .content {
-    .book-box,
-    .add-book-box {
-      width: 46% !important;
-      margin-right: 4% !important;
+    width: 1160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .add-comic-btn {
+      width: fit-content;
+      font-size: 16px;
+      font-weight: bold;
+      color: #666666;
+      line-height: 22px;
+      display: flex;
+      align-items: center;
+      margin-top: 30px;
+
+      .fl-icon-tianjia {
+        width: 16px;
+        height: 16px;
+        margin-right: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
   }
 }

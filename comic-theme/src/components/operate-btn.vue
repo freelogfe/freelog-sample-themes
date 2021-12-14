@@ -1,9 +1,7 @@
 <template>
-  <div
-    class="operate-btn-wrapper mt-self-24 w-48 h-48 brs-50p text-center cur-pointer transition"
-    :class="{ [theme]: true, disabled }"
-  >
-    <i className="iconfont fs-24">{{ icon }}</i>
+  <div class="operate-btn-wrapper" :class="theme">
+    <slot></slot>
+    <i class="iconfont" :class="icon"></i>
   </div>
 </template>
 
@@ -14,31 +12,51 @@ export default {
   props: {
     icon: String,
     theme: String,
-    disabled: Boolean,
-  },
-
-  setup() {
-    return {};
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .operate-btn-wrapper {
-  &.light {
-    color: #9fbee0;
-    background-color: #d2e6ff;
-    box-shadow: 5px 5px 10px #b3c4d9, -5px -5px 10px #f2ffff;
-  }
+  min-width: 48px;
+  height: 48px;
+  border-radius: 48px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s linear;
 
   &.dark {
-    color: #9f9fa3;
-    background-color: #3e3e46;
-    box-shadow: 5px 5px 10px #222227, -5px -5px 10px #5a5a66;
+    color: #999999;
+    background-color: #373737;
+
+    &:hover {
+      box-shadow: 0px 2px 10px 0px rgba(255, 255, 255, 0.4);
+    }
   }
 
-  &:hover {
-    color: #fff;
+  &.light {
+    color: #232f43;
+    background-color: #fff;
+
+    &:hover {
+      box-shadow: 0px 2px 10px 0px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  & + .operate-btn-wrapper {
+    margin-top: 10px;
+  }
+
+  .iconfont {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 </style>

@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+import { RouteRecordRaw } from "vue-router";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -12,7 +12,5 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("../views/content.vue"),
   },
 ];
-
-
 
 export default routes;

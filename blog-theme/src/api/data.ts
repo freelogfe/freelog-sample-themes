@@ -1,4 +1,4 @@
-import { freelogEntranceItem, shareBtnItem } from "./interface";
+import { freelogEntranceItem } from "./interface";
 
 // 节点主题色
 export const themeList: any = {
@@ -20,18 +20,4 @@ export const freelogEntrances: freelogEntranceItem[] = [
     url: "http://console.testfreelog.com/resource/details/617654aae886b0003419469d",
   },
   { label: "浏览更多主题", url: "http://console.testfreelog.com/market" },
-];
-
-// 分享按钮
-export const shareBtns: shareBtnItem[] = [
-  {
-    id: "qqZone",
-    name: "QQ空间",
-    icon: "fl-icon-kongjian",
-    bgColor: "#66d8f7",
-  },
-  { id: "qq", name: "QQ", icon: "fl-icon-QQ", bgColor: "#5382d3" },
-  { id: "weibo", name: "微博", icon: "fl-icon-weibo", bgColor: "#ff6f68" },
-  { id: "wechat", name: "微信", icon: "fl-icon-weixin", bgColor: "#1ec76f" },
-  { id: "douban", name: "豆瓣", icon: "fl-icon-douban", bgColor: "#42a151" },
 ];

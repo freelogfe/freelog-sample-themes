@@ -2,8 +2,8 @@
   <div class="article-wrapper">
     <!-- mobile -->
     <div class="mobile-article-wrapper" @click="switchPage('/content', { id: data.exhibitId })" v-if="inMobile">
-      <div className="article-cover-box" v-if="selfConfig.articleCover === '显示'">
-        <img className="article-cover" :src="data.coverImages[0]" :alt="data.exhibitName" />
+      <div class="article-cover-box" v-if="selfConfig.articleCover === '显示'">
+        <img class="article-cover" :src="data.coverImages[0]" :alt="data.exhibitName" />
       </div>
 
       <div class="article-info">
@@ -20,8 +20,8 @@
 
     <!-- PC -->
     <div class="pc-article-wrapper" v-if="!inMobile">
-      <div className="article-cover-box" v-if="selfConfig.articleCover === '显示'">
-        <img className="article-cover" :src="data.coverImages[0]" :alt="data.exhibitName" />
+      <div class="article-cover-box" v-if="selfConfig.articleCover === '显示'">
+        <img class="article-cover" :src="data.coverImages[0]" :alt="data.exhibitName" />
       </div>
 
       <div class="article-info">

@@ -33,7 +33,6 @@ export const getSelfId = () => {
  * @param query GetExhibitListByPagingParams
  */
 export const getExhibitListByPaging = (query: GetExhibitListByPagingParams) => {
-  console.warn(query)
   return MyWindow.freelogApp.getExhibitListByPaging(query);
 };
 

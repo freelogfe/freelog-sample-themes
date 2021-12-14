@@ -1,6 +1,7 @@
 <template>
   <!-- mobile -->
   <div class="mobile-header-wrapper" :class="{ 'in-home': homeHeader }" v-if="inMobile">
+    <!-- header顶部 -->
     <div class="header-top" :class="{ logon: userData }">
       <img
         class="logo"
@@ -198,7 +199,7 @@
 </template>
 
 <script lang="ts">
-import { reactive, toRefs, SetupContext, watch } from "vue";
+import { reactive, toRefs, watch } from "vue";
 import { useMyRouter } from "../utils/hooks";
 import { callLogin, callLoginOut, getExhibitSignCount, getSelfId } from "@/api/freelog";
 import { useStore } from "vuex";
@@ -213,7 +214,7 @@ export default {
     },
   },
 
-  setup(props: { homeHeader: boolean }, context: SetupContext<Record<string, any>>) {
+  setup(props: { homeHeader: boolean }) {
     const store = useStore();
     let blogTags: string[] = store.state.selfConfig.tags.split(",");
     const { query, switchPage, routerBack } = useMyRouter();

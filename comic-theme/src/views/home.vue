@@ -1,93 +1,136 @@
 <template>
-  <div class="home-wrapper flex-column align-center">
-    <my-header :getList="getList" @search="searching = $event" :defaultTag="params.tag" />
+  <div class="home-wrapper">
+    <my-header :homeHeader="!(inMobile && searching)" />
 
-    <div class="home-body w-100p mw-1412 b-box">
-      <template v-if="!searching">
-        <div class="shelf-title w-100p mt-40 mb-20 flex-row align-center space-between">
-          <div class="fs-24">
-            我的漫画
-            <i class="iconfont fs-20">&#xe6a3;</i>
-          </div>
-          <div class="more-shelf fs-16 lh-24 ml-20 cur-pointer transition" @click="switchPage('/shelf')">
-            查看我的漫画 >
+    <!-- mobile -->
+    <div class="mobile-home-body" v-if="inMobile">
+      <div class="shelf-comic-list" v-if="!searching">
+        <div class="shelf-header">
+          <div class="box-title">我的收藏</div>
+          <div class="more-shelf" @click="switchPage('/shelf')" v-if="userData && myShelf.length !== 0">
+            全部{{ myShelf.length }}
+            <i class="freelog fl-icon-zhankaigengduo"></i>
           </div>
         </div>
 
-        <div className="tip text-center fs-18 my-30" v-if="shelf.length === 0">暂无数据，快去收藏漫画到书架吧</div>
-
-        <div class="w-100p flex-row" v-else>
-          <shelf-comic
-            class="book-box shelf-book"
-            :data="item"
-            :operateShelf="operateShelf"
-            v-for="item in shelf"
-            :key="item.presentableId"
-          ></shelf-comic>
+        <div class="comic-list-box" v-if="myShelf.length !== 0">
+          <div class="comic-box" v-for="item in myShelf" :key="item.exhibitId">
+            <comic :inMobileShelf="true" :data="item" />
+          </div>
         </div>
-      </template>
 
-      <div class="hot-title fs-24 mt-40 mb-20" v-show="!searching">
-        热门漫画
-        <i class="iconfont fs-20">&#xe65a;</i>
+        <div class="tip" v-if="!userData">登录后查看我的收藏</div>
+        <div class="tip" v-if="userData && myShelf.length === 0">暂无数据，快去寻找漫画来收藏吧～</div>
       </div>
 
-      <div class="hot-title fs-24 mt-40 mb-20" v-show="searching">
-        搜索结果
-      </div>
+      <div class="comic-list">
+        <div class="search-title" v-if="searching">
+          <div>
+            “{{ searchData.keywords }}{{ searchData.keywords && searchData.tags && "+"
+            }}{{ searchData.tags || "" }}”的搜索结果
+            <span class="search-comic-total">({{ listData.length }})</span>
+          </div>
+          <div class="clear-search-btn" @click="clearSearch()">清空搜索条件</div>
+        </div>
+        <div class="box-title" v-else>精选漫画</div>
 
-      <div class="w-100p flex-row flex-wrap">
-        <home-comic class="book-box mb-30" :data="item" v-for="item in listData" :key="item.presentableId"></home-comic>
+        <div class="comic-box" v-for="item in listData" :key="item.exhibitId">
+          <comic :data="item" />
+        </div>
+
+        <div class="tip" v-if="listData.length === 0">当前节点暂无任何漫画，请稍后查看</div>
+
+        <div class="tip no-more" v-if="listData.length !== 0 && listData.length === total">— 已加载全部漫画 —</div>
       </div>
     </div>
 
-    <div
-      class="tip text-center fs-18 my-30"
-      :class="{ 'mt-100': searching && total === 0 }"
-      v-if="total === listData.length || total === 0"
-    >
-      {{ total === 0 ? "NO DATA" : "END" }}
+    <!-- PC -->
+    <div class="home-body" v-if="!inMobile">
+      <div class="comic-list" v-if="!searching">
+        <div class="shelf-header">
+          <div class="box-title">我的收藏</div>
+          <div class="text-btn" @click="switchPage('/shelf')" v-if="userData">管理收藏</div>
+        </div>
+
+        <div class="comic-list-box" v-if="myShelf.length !== 0">
+          <div class="comic-box" v-for="item in myShelf.filter((_, index) => index < 6)" :key="item.exhibitId">
+            <comic :data="item" />
+          </div>
+        </div>
+
+        <div class="tip" v-if="!userData">登录后查看我的收藏</div>
+        <div class="tip" v-if="userData && myShelf.length === 0">暂无数据，快去寻找漫画来收藏吧～</div>
+        <div class="tip shelf-tip" v-if="userData && myShelf.length !== 0">
+          <span>已收藏 {{ myShelf.length }} 部漫画</span>
+          <span class="text-btn" @click="switchPage('/shelf')">查看全部</span>
+        </div>
+      </div>
+
+      <div class="comic-list">
+        <div class="box-title">
+          <div class="search-box-title" v-if="searching">
+            “{{ searchData.keywords }}{{ searchData.keywords && searchData.tags && "+"
+            }}{{ searchData.tags || "" }}”的搜索结果
+            <span class="search-comic-total">({{ listData.length }})</span>
+            <div class="clear-search-btn" @click="clearSearch()">清空搜索条件</div>
+          </div>
+          <div v-else>精选漫画</div>
+        </div>
+
+        <div class="comic-list-box">
+          <div class="comic-box" v-for="item in listData" :key="item.exhibitId">
+            <comic :data="item" />
+          </div>
+        </div>
+
+        <div class="tip" v-if="listData.length === 0">当前节点暂无任何漫画，请稍后查看</div>
+
+        <div class="tip no-more" v-if="listData.length !== 0 && listData.length === total">— 已加载全部漫画 —</div>
+      </div>
     </div>
 
-    <about-bar />
+    <my-footer />
 
-    <back-top>
-      <div class="back-top-btn p-fixed w-40 h-40 text-center brs-50p over-h r-20 b-60 cur-pointer transition">
-        <i class="iconfont fs-20 fc-white">&#xe600;</i>
-      </div>
-    </back-top>
+    <theme-entrance />
   </div>
 </template>
 
 <script lang="ts">
 import { computed, defineAsyncComponent, reactive, toRefs, watch } from "vue";
 import { useGetList, useMyRouter, useMyScroll, useMyShelf } from "../utils/hooks";
-import { getExhibitsList, GetExhibitsListParams } from "../api/freelog";
+import { useStore } from "vuex";
 
 export default {
   name: "home",
 
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
-    "shelf-comic": defineAsyncComponent(() => import("../components/shelf-comic.vue")),
-    "home-comic": defineAsyncComponent(() => import("../components/home-comic.vue")),
-    "about-bar": defineAsyncComponent(() => import("../components/about-bar.vue")),
-    "back-top": defineAsyncComponent(() => import("../components/back-top.vue")),
+    "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
+    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
+    comic: defineAsyncComponent(() => import("../components/comic.vue")),
   },
 
   setup() {
-    const { params, switchPage } = useMyRouter();
-    const { myShelf, operateShelf } = useMyShelf();
+    const store = useStore();
+    const { query, switchPage } = useMyRouter();
+    const { myShelf } = useMyShelf();
     const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
-
-    const datasOfGetList = useGetList(getExhibitsList as (query: Partial<GetExhibitsListParams>) => any);
+    const datasOfGetList = useGetList();
 
     const data = reactive({
-      searching: false,
+      searchData: {} as { keywords?: string; tags?: string },
     });
 
-    const shelf = computed(() => {
-      return myShelf.value.filter((_item, index) => index < 6);
+    const methods = {
+      // 清除搜索
+      clearSearch() {
+        data.searchData = {};
+        switchPage("/home");
+      },
+    };
+
+    const searching = computed(() => {
+      return data.searchData.keywords || data.searchData.tags;
     });
 
     watch(
@@ -99,15 +142,29 @@ export default {
       }
     );
 
-    if (!params.value.tag) datasOfGetList.getList({}, true);
+    watch(
+      () => query.value,
+      () => {
+        getData();
+      }
+    );
+
+    // 获取数据
+    const getData = () => {
+      data.searchData = query.value;
+      datasOfGetList.clearData();
+      datasOfGetList.getList(data.searchData, true);
+    };
+    getData();
 
     return {
-      ...toRefs(data),
-      ...datasOfGetList,
-      params,
+      ...store.state,
       switchPage,
-      shelf,
-      operateShelf,
+      myShelf,
+      ...datasOfGetList,
+      ...toRefs(data),
+      ...methods,
+      searching,
     };
   },
 };
@@ -115,113 +172,228 @@ export default {
 
 <style lang="scss" scoped>
 .home-wrapper {
+  position: relative;
   min-height: 100vh;
-  background-image: url(../assets/image/bg.png);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
+  // mobile
+  .mobile-home-body {
+    width: 100%;
+    padding-bottom: 98px;
+
+    .shelf-comic-list {
+      padding: 30px 20px;
+      box-sizing: border-box;
+      border-bottom: 5px solid rgba(0, 0, 0, 0.03);
+
+      .shelf-header {
+        width: 100%;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+
+        .box-title {
+          font-size: 34px;
+          color: #222222;
+          line-height: 40px;
+        }
+
+        .more-shelf {
+          font-size: 16px;
+          color: #666666;
+          line-height: 22px;
+          display: flex;
+          align-items: center;
+
+          .freelog {
+            width: 7px;
+            height: 12px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 9px;
+          }
+        }
+      }
+
+      .comic-list-box {
+        width: calc(100% + 40px);
+        margin-left: -20px;
+        padding: 0 20px;
+        box-sizing: border-box;
+        display: flex;
+        overflow-x: auto;
+        margin-top: 30px;
+
+        &::-webkit-scrollbar {
+          display: none;
+        }
+
+        .comic-box + .comic-box {
+          margin-left: 12px;
+        }
+      }
+
+      .tip {
+        width: 100%;
+        text-align: center;
+        font-size: 16px;
+        line-height: 22px;
+        color: #999;
+        margin-top: 60px;
+        margin-bottom: 30px;
+      }
+    }
+
+    .comic-list {
+      width: 100%;
+      padding: 30px 0;
+      box-sizing: border-box;
+
+      .search-title {
+        font-size: 20px;
+        color: #222222;
+        line-height: 26px;
+        margin-bottom: 15px;
+        padding-left: 20px;
+        box-sizing: border-box;
+
+        .search-comic-total {
+          color: #999999;
+          margin-left: 10px;
+        }
+
+        .clear-search-btn {
+          font-size: 14px;
+          color: #2784ff;
+          line-height: 20px;
+          margin-top: 10px;
+
+          &:active {
+            color: #529dff;
+          }
+        }
+      }
+
+      .box-title {
+        font-size: 34px;
+        color: #222222;
+        line-height: 40px;
+        margin-bottom: 15px;
+        padding-left: 20px;
+        box-sizing: border-box;
+      }
+
+      .comic-box {
+        width: 100%;
+      }
+
+      .tip {
+        width: 100%;
+        text-align: center;
+        font-size: 16px;
+        line-height: 22px;
+        color: #999;
+        margin-top: 60px;
+
+        &.no-more {
+          font-size: 14px;
+          line-height: 20px;
+          margin-top: 30px;
+        }
+      }
+    }
+  }
+
+  // PC
   .home-body {
-    padding: 0 40px;
+    width: 1160px;
+    padding-bottom: 148px;
 
-    .shelf-title .iconfont {
-      color: #9ac9ff;
-    }
+    .comic-list {
+      margin-top: 55px;
 
-    .hot-title .iconfont {
-      color: #fc6e51;
-    }
-
-    .more-shelf {
-      color: #999;
-
-      &:hover {
-        color: #333;
+      .shelf-header {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
       }
-    }
 
-    .book-box {
-      width: 15%;
-      margin-right: 2%;
+      .box-title {
+        font-size: 30px;
+        line-height: 36px;
+        margin-bottom: 10px;
 
-      &:nth-child(6n) {
-        margin-right: 0;
-      }
-    }
-  }
+        .search-box-title {
+          display: flex;
+          align-items: flex-end;
 
-  .tip {
-    color: #ccccd0;
+          .search-comic-total {
+            color: #999999;
+            margin-left: 10px;
+          }
 
-    &::before,
-    &::after {
-      content: " ";
-      height: 1px;
-      width: 60px;
-      background-color: #e6e6e6;
-      margin: 0 30px;
-    }
-  }
+          .clear-search-btn {
+            font-size: 14px;
+            color: #2784ff;
+            line-height: 20px;
+            margin-left: 30px;
+            cursor: pointer;
 
-  .back-top-btn {
-    opacity: 0.6;
-    background-color: #9ac9ff;
+            &:hover {
+              color: #529dff;
+            }
 
-    &:hover {
-      opacity: 1;
-      background-color: #86bfff;
-    }
-  }
-}
-
-@media (max-width: 940px) {
-  .home-wrapper {
-    .home-body {
-      .book-box {
-        width: 22%;
-        margin-right: 4% !important;
-
-        &:nth-child(4n) {
-          margin-right: 0 !important;
+            &:active {
+              color: #2376e5;
+            }
+          }
         }
       }
 
-      .shelf-book:nth-child(5),
-      .shelf-book:nth-child(6) {
-        display: none !important;
+      .text-btn {
+        font-size: 14px;
       }
-    }
-  }
-}
 
-@media (max-width: 600px) {
-  .home-wrapper {
-    .home-body {
-      .book-box {
-        width: 48%;
-        margin-right: 4% !important;
+      .comic-list-box {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
 
-        &:nth-child(2n) {
-          margin-right: 0 !important;
+        .comic-box {
+          width: calc((100% - 50px) / 3);
+          margin-right: 25px;
+          margin-top: 20px;
+
+          &:nth-child(3n) {
+            margin-right: 0;
+          }
         }
       }
 
-      .shelf-book:nth-child(3),
-      .shelf-book:nth-child(4) {
-        display: none !important;
+      .tip {
+        width: 100%;
+        text-align: center;
+        font-size: 16px;
+        line-height: 22px;
+        color: #999;
+        margin-top: 55px;
+
+        &.shelf-tip,
+        &.no-more {
+          font-size: 14px;
+          line-height: 20px;
+          margin-top: 30px;
+        }
       }
-    }
-  }
-}
 
-@media (max-width: 400px) {
-  .home-wrapper {
-    .home-body {
-      padding: 0 14px;
-    }
-
-    ::v-deep .book-box .comic-name {
-      white-space: normal !important;
-      display: -webkit-box;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 2;
+      .text-btn {
+        margin-left: 10px;
+      }
     }
   }
 }

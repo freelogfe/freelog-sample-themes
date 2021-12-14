@@ -1,58 +1,93 @@
 <template>
-  <div class="tags-wrapper w-100p flex-row flex-wrap">
+  <div class="tags-wrapper">
     <div
-      class="tag mb-10 brs-3 py-2 b-box text-center cur-pointer transition"
-      :class="size"
-      v-for="tag in data"
-      :key="tag"
-      :title="`搜索${tag}漫画`"
-      @click="switchPage('/', { tag })"
+      class="tag"
+      :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }"
+      v-for="item in tags"
+      :key="item"
+      :title="`搜索“${item}”`"
+      @click.stop="searchTag(item)"
     >
-      {{ tag }}
+      {{ item }}
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { useMyRouter } from "@/utils/hooks";
+import { useStore } from "vuex";
 
 export default {
   name: "tags",
 
-  props: ["data", "size"],
+  props: {
+    tags: {
+      type: Array,
+      default: () => [],
+    },
+  },
 
   setup() {
+    const store = useStore();
     const { switchPage } = useMyRouter();
-    return { switchPage };
+
+    const methods = {
+      // 搜索标签
+      searchTag(tag: string) {
+        const query: { tags: string } = { tags: tag };
+        switchPage("/home", query);
+      },
+    };
+
+    return {
+      ...store.state,
+      ...methods,
+    };
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.tag {
-  &.large {
-    font-size: 14px;
-    padding: 0 10px;
-    margin-right: 10px;
-    margin-bottom: 10px;
-    background-color: #9bcaff;
-    color: #fff;
+.tags-wrapper {
+  display: flex;
+  flex-wrap: wrap;
 
-    &:hover {
-      background-color: #7cb9ff;
-    }
-  }
-
-  &.small {
+  .tag {
+    box-sizing: border-box;
     font-size: 12px;
-    padding: 0 4px;
-    margin-right: 5px;
-    margin-bottom: 5px;
-    border: 1px solid #ddd;
-    color: #aaa;
+    color: #575e6a;
+    background-color: #ebecf0;
+    height: 24px;
+    padding: 0 8px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
 
-    &:hover {
-      background-color: #fff;
+    // mobile
+    &.in-mobile {
+      & + .tag {
+        margin-left: 8px;
+      }
+
+      &:active {
+        background-color: #a0a5ae;
+        color: #fff;
+      }
+    }
+
+    // PC
+    &.in-pc {
+      cursor: pointer;
+      transition: all 0.2s linear;
+
+      & + .tag {
+        margin-left: 5px;
+      }
+
+      &:hover {
+        background-color: #a0a5ae;
+        color: #fff;
+      }
     }
   }
 }

@@ -67,7 +67,7 @@ export const ReaderScreen = (props: any) => {
   return (
     <readerContext.Provider value={context}>
       <div className="reader-wrapper" style={{ backgroundColor: theme?.bgColor }} onClick={() => clickPage()}>
-        <Header currentPage={book?.exhibitName} />
+        <Header />
 
         <Body />
 
@@ -359,8 +359,6 @@ const Operater = () => {
           </div>
         </div>
       )}
-
-      <Share show={sharePopupShow} setShareShow={setSharePopupShow} exhibit={book} />
 
       <input id="href" className="hidden-input" value={href} readOnly />
     </div>

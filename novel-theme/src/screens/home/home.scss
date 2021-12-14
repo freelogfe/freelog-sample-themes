@@ -26,6 +26,24 @@
           color: #222222;
           line-height: 40px;
         }
+
+        .more-shelf {
+          font-size: 16px;
+          color: #666666;
+          line-height: 22px;
+          display: flex;
+          align-items: center;
+
+          .freelog {
+            width: 7px;
+            height: 12px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 9px;
+          }
+        }
       }
 
       .book-list-box {

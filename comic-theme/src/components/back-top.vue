@@ -1,6 +1,6 @@
 <template>
   <transition name="fade">
-    <div @click.stop="backToTop()" v-show="topBtnShow"><slot></slot></div>
+    <div @click="backToTop()" v-show="topBtnShow"><slot></slot></div>
   </transition>
 </template>
 

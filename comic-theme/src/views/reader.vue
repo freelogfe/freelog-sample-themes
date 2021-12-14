@@ -1,131 +1,201 @@
 <template>
-  <div class="reader-wrapper text-center transition" :class="theme" @click="barShow = !barShow">
-    <!-- header -->
-    <div
-      class="header p-fixed lt-0 w-100p flex-row align-center space-between h-73 px-16 b-box transition z-100"
-      :class="{ hide: !barShow }"
-      @mouseover="barShow = true"
-      @mouseout="barShow = false"
-    >
-      <div class="flex-row align-center">
-        <div class="logo flex-row align-center cur-pointer transition" @click="switchPage(`/`)">
-          <i class="iconfont fs-26 ml-14">
-            &#xe663;
-          </i>
+  <div class="reader-wrapper" :class="theme" @click="closeAllPopup()">
+    <my-header />
 
-          <div class="logo-text fw-bold fs-22 ml-10 mt--3">
-            freelog comic
-          </div>
-        </div>
+    <!-- mobile -->
+    <template v-if="inMobile">
+      <div class="mobile-body-wrapper">
+        <img class="content" :src="content" v-if="isAuth === true && content" />
 
-        <div class="ml-20 fs-16 flex-row">
-          <div class="link cur-pointer transition" @click="switchPage('/detail', { id: comicInfo.presentableId })">
-            {{ comicInfo.presentableTitle }}
-          </div>
+        <div class="lock-box" v-if="isAuth === false">
+          <img class="lock" src="../assets/images/lock.png" alt="未授权" />
+          <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+          <div class="get-btn" @click="getAuth()">签约</div>
         </div>
       </div>
 
-      <div class="link fs-16 cur-pointer mr-56 transition" @click="switchPage(`/shelf`)">
-        我的漫画
-      </div>
-    </div>
-
-    <!-- body -->
-    <div class="content">
-      <img class="w-100p" :src="content" v-if="content" />
-    </div>
-
-    <!-- operater -->
-    <div class="fixed-operater p-fixed" :class="barShow ? 'show' : 'hide'">
-      <back-top class="mb-24">
-        <operate-btn icon="&#xe600;" :theme="theme" />
-      </back-top>
-
-      <operate-btn icon="&#xe6f1;" :theme="theme" @click.stop />
-
-      <operate-btn :icon="isCollected ? '&#xe658;' : '&#xe64c;'" :theme="theme" @click.stop="operateShelf(comicInfo)" />
-
-      <operate-btn
-        :icon="theme === 'light' ? '&#xe65f;' : '&#xe68f;'"
-        :theme="theme"
-        @click.stop="theme = theme === 'light' ? 'dark' : 'light'"
-      />
-    </div>
-
-    <!-- footer -->
-    <transition name="slide-up">
-      <div class="footer p-fixed lb-0 w-100p h-56 text-center z-100 transition" @click.stop v-if="barShow">
-        <div class="flex-1 text-center-column" @click="switchPage('/')">
-          <i class="iconfont fs-20 lh-20">&#xe663;</i>
-          <div class="fs-12 mt-3">首页</div>
+      <div class="mobile-operater-wrapper" @touchmove.prevent>
+        <div class="operater-btn">
+          <i class="iconfont fl-icon-xiaoshuomulu"></i>
+          <div class="operater-btn-label">上一话</div>
         </div>
 
-        <div class="flex-1 text-center-column" @click="switchPage('/detail', { id: comicInfo.presentableId })">
-          <div class="detail-icon p-relative w-20 h-20 brs-4 text-center over-h">
-            <img class="h-100p" v-lazy="comicInfo.coverImages[0]" v-if="comicInfo.coverImages" />
+        <div class="operater-btn" @click="directoryShow = true">
+          <i class="iconfont fl-icon-xiaoshuomulu"></i>
+          <div class="operater-btn-label">目录</div>
+        </div>
+
+        <div class="operater-btn" @click="operateShelf(comicInfo)">
+          <i
+            class="iconfont"
+            :class="isCollected ? 'fl-icon-shoucangxiaoshuoyishoucang' : 'fl-icon-shoucangxiaoshuo'"
+          ></i>
+          <div class="operater-btn-label">{{ isCollected ? "取消收藏" : "加入收藏" }}</div>
+        </div>
+
+        <div class="operater-btn">
+          <i class="iconfont fl-icon-xiaoshuomulu"></i>
+          <div class="operater-btn-label">下一话</div>
+        </div>
+      </div>
+    </template>
+
+    <!-- PC -->
+    <template v-if="!inMobile">
+      <div class="body-wrapper" :class="theme">
+        <breadcrumbs :inReader="true" :title="comicInfo?.exhibitName" :dark="theme === 'dark'" />
+
+        <div class="content-box">
+          <img class="content" :src="content" v-if="isAuth === true && content" />
+
+          <div class="lock-box" v-if="isAuth === false">
+            <img class="lock" src="../assets/images/lock.png" alt="未授权" />
+            <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+            <div class="get-btn" @click="getAuth()">签约</div>
           </div>
-
-          <div class="fs-12 mt-3">详情</div>
         </div>
 
-        <div class="shelf-btn w-200 h-35 brs-40 fs-15 text-center mx-20 transition" @click="switchPage(`/shelf`)">
-          我的漫画
+        <div class="footer-bar">
+          <div class="footer-btn invalid">上一话</div>
+          <div class="footer-btn" @click="switchPage('/detail', { id: comicInfo.exhibitId })">漫画详情</div>
+          <div class="footer-btn invalid">下一话</div>
         </div>
       </div>
-    </transition>
+
+      <div class="operater-wrapper">
+        <div class="operater-btns-box">
+          <operate-btn
+            icon="fl-icon-xiaoshuomulu"
+            :theme="theme"
+            @click="
+              closeAllPopup();
+              directoryShow = true;
+            "
+          />
+
+          <operate-btn
+            :icon="isCollected ? 'fl-icon-shoucangxiaoshuoyishoucang' : 'fl-icon-shoucangxiaoshuo'"
+            :theme="theme"
+            @click="
+              closeAllPopup();
+              operateShelf(comicInfo);
+            "
+          />
+
+          <operate-btn icon="fl-icon-fenxiang" :theme="theme" @click.stop="sharePopupShow = true">
+            <share :show="sharePopupShow" :exhibit="comicInfo" />
+          </operate-btn>
+
+          <operate-btn
+            :icon="theme === 'light' ? 'fl-icon-rijianmoshi' : 'fl-icon-yejianmoshi'"
+            :theme="theme"
+            @click="
+              closeAllPopup();
+              setTheme();
+            "
+          />
+
+          <div class="back-top">
+            <back-top>
+              <operate-btn icon="fl-icon-huidaodingbu" :theme="theme" />
+            </back-top>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <directory :show="directoryShow" :comicInfo="comicInfo" @closeDirectory="directoryShow = false" />
   </div>
 </template>
 
 <script lang="tsx">
 import { toRefs } from "@vue/reactivity";
 import { useMyRouter, useMyShelf } from "../utils/hooks";
-import { defineAsyncComponent, reactive } from "vue";
-import { ExhibitItem } from "../utils/interface";
-import { getResourceName } from "../utils/common";
-import { getExhibitsInfo, getInfo } from "../api/freelog";
+import { defineAsyncComponent, reactive, watchEffect } from "vue";
+import { ExhibitItem } from "@/api/interface";
+import { addAuth, getExhibitAuthStatus, getExhibitFileStream, getExhibitInfo } from "@/api/freelog";
+import { useStore } from "vuex";
 
 export default {
   name: "reader",
 
   components: {
+    "my-header": defineAsyncComponent(() => import("../components/header.vue")),
+    breadcrumbs: defineAsyncComponent(() => import("../components/breadcrumbs.vue")),
     "operate-btn": defineAsyncComponent(() => import("../components/operate-btn.vue")),
     "back-top": defineAsyncComponent(() => import("../components/back-top.vue")),
+    share: defineAsyncComponent(() => import("../components/share.vue")),
+    directory: defineAsyncComponent(() => import("../components/directory.vue")),
   },
 
   setup() {
-    const { params, switchPage } = useMyRouter();
-    const { id } = params.value;
+    const myTheme = localStorage.getItem("theme") || "light";
+    const store = useStore();
+    const { query, switchPage } = useMyRouter();
+    const { id } = query.value;
     const { isCollected, operateShelf } = useMyShelf(id);
+
     const data = reactive({
-      content: "",
-      chapterId: "",
       comicInfo: {} as ExhibitItem,
-      theme: "dark",
-      barShow: false,
+      content: "",
+      isAuth: null as boolean | null,
+      theme: myTheme,
+      sharePopupShow: false,
       directoryShow: false,
-      searchKey: "",
     });
 
-    const getComic = async (id: string) => {
-      const exhibitInfo = await getExhibitsInfo(id, {
-        isLoadVersionProperty: 1,
-        isLoadCustomPropertyDescriptors: 1,
-        isLoadResourceDetailInfo: 1,
-        isLoadResourceVersionInfo: 1,
-      });
-      data.comicInfo = exhibitInfo.data.data;
-      const content: any = await getInfo("getFileStreamById", [id, true]);
-      data.content = content;
+    const methods = {
+      // 关闭所有弹窗
+      closeAllPopup() {
+        data.sharePopupShow = false;
+      },
+
+      // 切换主题模式
+      setTheme() {
+        data.theme = data.theme === "light" ? "dark" : "light";
+        localStorage.setItem("theme", data.theme);
+      },
+
+      async getAuth() {
+        const authResult = await addAuth(id);
+        const { status } = authResult;
+        if (status === 0) getContent();
+      },
     };
 
-    getComic(id);
+    watchEffect(() => {
+      document.body.style.overflowY = data.directoryShow && store.state.inMobile ? "hidden" : "auto";
+    });
+
+    const getComicInfo = async () => {
+      const exhibitInfo = await getExhibitInfo(id, { isLoadVersionProperty: 1 });
+      data.comicInfo = exhibitInfo.data.data;
+      getContent();
+    };
+
+    const getContent = async () => {
+      const statusInfo = await getExhibitAuthStatus(id);
+      data.isAuth = statusInfo.data.data ? statusInfo.data.data[0].isAuth : false;
+      if (data.isAuth) {
+        const info: any = await getExhibitFileStream(id, true);
+        if (!info) return;
+        data.content = info;
+      } else {
+        const authResult = await addAuth(id);
+        const { status } = authResult;
+        if (status === 0) getContent();
+      }
+    };
+
+    getComicInfo();
 
     return {
-      ...toRefs(data),
+      ...store.state,
       switchPage,
       isCollected,
       operateShelf,
-      getResourceName,
+      ...toRefs(data),
+      ...methods,
     };
   },
 };
@@ -134,192 +204,284 @@ export default {
 <style lang="scss" scoped>
 .reader-wrapper {
   min-height: 100vh;
-
-  &.light {
-    background-color: #d2e6ff;
-
-    .header {
-      color: #fff;
-      background-color: rgba(154, 201, 255, 0.9);
-
-      .link {
-        display: block;
-      }
-
-      .logo:hover,
-      .link:hover {
-        color: #fff !important;
-        text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
-      }
-    }
-
-    .next-btn {
-      background-color: #444;
-      color: #ccc;
-    }
-
-    .footer {
-      box-shadow: 0 -1px 10px #ffffff;
-      color: #4fa1ff;
-      background-color: #fff;
-
-      .shelf-btn {
-        background-color: #4fa1ff;
-        color: #fff;
-      }
-    }
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #fafbfc;
+  transition: all 0.2s linear;
 
   &.dark {
-    background-color: #3e3e46;
-
-    .header {
-      color: #9f9fa3;
-      background-color: rgba(31, 31, 31, 0.9);
-
-      .link {
-        display: block;
-      }
-
-      .logo:hover,
-      .link:hover {
-        color: #fff !important;
-      }
-    }
-
-    .next-btn {
-      background-color: #444;
-      color: #ccc;
-    }
-
-    .footer {
-      box-shadow: 0 -1px 20px #1f1f1f;
-      background-color: #3e3e46;
-      color: #9f9fa3;
-
-      .detail-icon::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(159, 159, 163, 0.3);
-      }
-
-      .shelf-btn {
-        background-color: #9f9fa3;
-        color: #1f1f1f;
-      }
-    }
+    background-color: #333333;
   }
 
-  .header {
-    .logo-text {
-      font-style: italic;
-    }
-
-    &.hide {
-      background-color: transparent !important;
-
-      .link {
-        display: none !important;
-      }
-    }
+  &.light {
+    background-color: #fafbfc;
   }
 
-  .content {
-    width: 800px;
+  // mobile 主题内容区
+  .mobile-body-wrapper {
+    width: 100%;
+    flex: 1;
+    padding: 20px 20px 90px;
+    box-sizing: border-box;
+    animation: fade-in 0.3s ease-out;
+    transition: background-color 0.2s linear;
 
-    .body {
-      .next-btn {
-        background-color: #4fa1ff;
-        color: #fff;
-      }
-
-      .no-more {
-        color: #5d646e;
-      }
-    }
-  }
-
-  .fixed-operater {
-    left: 50%;
-    bottom: 48px;
-    margin-left: 450px;
-  }
-
-  .footer {
-    display: none !important;
-    border-radius: 10px 10px 0 0;
-    opacity: 0.9;
-  }
-}
-
-@media (max-width: 1365px) {
-  .reader-wrapper {
-    .content {
-      width: 760px;
+    &.dark {
+      color: #999;
     }
 
-    .fixed-operater {
-      margin-left: 430px;
-    }
-  }
-}
-
-@media (max-width: 1023px) {
-  .reader-wrapper {
-    .content {
-      width: 560px;
-    }
-
-    .fixed-operater {
-      margin-left: 330px;
-    }
-  }
-}
-
-@media (max-width: 767px) {
-  .reader-wrapper {
-    .header {
-      display: none !important;
+    &.light {
+      color: #222;
     }
 
     .content {
       width: 100%;
     }
 
-    .fixed-operater {
-      left: calc(100% - 60px);
-      bottom: 80px;
-      margin-left: 0;
+    .lock-box {
+      width: 100%;
+      padding: 110px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
 
-      ::v-deep .operate-btn-wrapper {
-        box-shadow: 1px 1px 3px #ccc;
-        width: 40px !important;
-        height: 40px !important;
-
-        & + .operate-btn-wrapper {
-          margin-top: 16px !important;
-        }
-
-        .iconfont {
-          font-size: 18px !important;
-        }
+      .lock {
+        width: 48px;
+        height: 48px;
       }
 
-      &.show {
-        display: block;
+      .lock-tip {
+        font-size: 16px;
+        color: #999999;
+        line-height: 22px;
+        margin-top: 30px;
       }
 
-      &.hide {
-        display: none;
+      .get-btn {
+        padding: 9px 20px;
+        border-radius: 4px;
+        font-size: 14px;
+        line-height: 20px;
+        font-weight: bold;
+        background-color: #2784ff;
+        color: #fff;
+        margin-top: 30px;
+        cursor: pointer;
+
+        &:hover {
+          background-color: #529dff;
+        }
+
+        &:active {
+          background-color: #2376e5;
+        }
+      }
+    }
+  }
+
+  // PC 主题内容区
+  .body-wrapper {
+    width: 800px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    &.dark {
+      .content-box {
+        background-color: #373737;
+      }
+
+      .footer-bar {
+        background-color: #373737;
+        background-color: #373737;
+        color: #999;
+
+        .footer-btn.invalid {
+          color: #444;
+          pointer-events: none;
+        }
       }
     }
 
-    .footer {
-      display: flex !important;
+    &.light {
+      .content-box {
+        background-color: #fff;
+      }
+
+      .footer-bar {
+        background-color: #fff;
+        color: #222;
+
+        .footer-btn.invalid {
+          color: #999;
+          pointer-events: none;
+        }
+      }
+    }
+
+    .content-box {
+      flex: 1;
+      width: 100%;
+      padding: 118px 60px;
+      border-radius: 10px;
+      animation: fade-in 0.3s ease-out;
+      transition: all 0.2s linear;
+
+      .content {
+        width: 100%;
+      }
+
+      .lock-box {
+        width: 100%;
+        padding: 110px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .lock {
+          width: 48px;
+          height: 48px;
+        }
+
+        .lock-tip {
+          font-size: 16px;
+          color: #999999;
+          line-height: 22px;
+          margin-top: 30px;
+        }
+
+        .get-btn {
+          padding: 9px 20px;
+          border-radius: 4px;
+          font-size: 14px;
+          line-height: 20px;
+          font-weight: bold;
+          background-color: #2784ff;
+          color: #fff;
+          margin-top: 30px;
+          cursor: pointer;
+
+          &:hover {
+            background-color: #529dff;
+          }
+
+          &:active {
+            background-color: #2376e5;
+          }
+        }
+      }
+    }
+
+    .footer-bar {
+      height: 78px;
+      margin: 30px 0;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s linear;
+
+      .footer-btn {
+        flex: 1;
+        font-size: 16px;
+        line-height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s linear;
+
+        &:hover {
+          color: #529dff;
+        }
+
+        &:active {
+          color: #2376e5;
+        }
+
+        & + .footer-btn {
+          border-left: 1px solid rgba(0, 0, 0, 0.2);
+        }
+      }
+    }
+  }
+
+  // mobile 操作按钮群
+  .mobile-operater-wrapper {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 60px;
+    padding: 0 20px;
+    background-color: var(--deriveColor);
+    display: flex;
+
+    .operater-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.6);
+
+      &:active {
+        color: #fff;
+      }
+
+      .iconfont {
+        width: 18px;
+        height: 18px;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .operater-btn-label {
+        font-size: 10px;
+        color: #ffffff;
+        line-height: 16px;
+        margin-top: 4px;
+      }
+
+      & + .operater-btn {
+        margin-left: 10px;
+      }
+    }
+
+    .hidden-input {
+      position: absolute;
+      left: -100%;
+      z-index: -1;
+    }
+  }
+
+  // PC 操作按钮群
+  .operater-wrapper {
+    position: fixed;
+    bottom: 138px;
+    left: 50%;
+    margin-left: 500px;
+
+    .operater-btns-box {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+
+      .back-top {
+        margin-top: 10px;
+      }
+
+      .share-wrapper {
+        right: 100%;
+        top: 50%;
+        margin-top: -140px;
+        margin-right: 20px;
+      }
     }
   }
 }

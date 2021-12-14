@@ -9,7 +9,6 @@ import { globalContext } from "../../router";
 import CSSTransition from "react-transition-group/CSSTransition";
 
 export const Header = (props: {
-  currentPage?: string;
   homeHeader?: boolean;
   defaultTag?: string;
   defaultSearchKey?: string;

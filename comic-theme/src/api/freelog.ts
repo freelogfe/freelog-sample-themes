@@ -1,113 +1,96 @@
-import router from "@/router";
-
 const MyWindow: any = window;
 
 // 获取展品列表请求参数
-export interface GetExhibitsListParams {
-  skip: string; // 从第几个开始
-  limit: string; // 取多少个
-  resourceType: string; // 资源类型
-  omitResourceType: string; // 过滤资源类型
-  tags: string; // 展品和资源标签，多个使用","隔开
-  projection: string;
-  keywords: string;
-  isLoadVersionProperty: string; // 是否加载版本
+export interface GetExhibitListByPagingParams {
+  skip: number; // 从第几个开始
+  limit: number; // 取多少个
+  articleResourceTypes: string; // 资源类型
+  tags?: string; // 展品和资源标签，多个使用","隔开
+  keywords?: string; // 搜索关键字
+  sort?: string; // 排序
+}
+
+// 搜索展品请求参数
+export interface GetExhibitListByIdParams {
+  exhibitIds: string; // 展品id，多个使用","隔开
+  isLoadVersionProperty?: string; // 是否加载版本信息
 }
 
 // 获取展品信息请求参数
-export interface GetExhibitsInfoParams {
-  projection?: string; // 需要指定哪些字段
+export interface GetExhibitInfoParams {
   isLoadVersionProperty?: 0 | 1; // 是否需要展品版本属性
-  isLoadCustomPropertyDescriptors?: 0 | 1; // 是否加载自定义属性信息
-  isLoadResourceDetailInfo?: 0 | 1; // 是否加载资源详细信息(额外查询了资源的封面,标签,简介等)
-  isLoadResourceVersionInfo?: 0 | 1; // 	是否加载资源版本信息(额外查询了资源版本的描述,创建日期,更新日期等)
 }
 
 /**
- * 获取展品列表
- * @param query Partial<GetExhibitsListParams>
+ * 获取当前主题id
  */
-export const getExhibitsList = (query: Partial<GetExhibitsListParams>) => {
-  return MyWindow.freelogApp.getPresentablesPaging(query);
+export const getSelfId = () => {
+  return MyWindow.freelogApp.getSelfId();
+};
+
+/**
+ * 获取展品列表
+ * @param query GetExhibitListByPagingParams
+ */
+export const getExhibitListByPaging = (query: GetExhibitListByPagingParams) => {
+  return MyWindow.freelogApp.getExhibitListByPaging(query);
+};
+
+/**
+ * 搜索展品
+ * @param query GetExhibitListByIdParams
+ */
+export const getExhibitListById = (query: GetExhibitListByIdParams) => {
+  return MyWindow.freelogApp.getExhibitListById(query);
 };
 
 /**
  * 获取展品信息
  * @param id 展品id
- * @param query 获取展品列表请求参数
+ * @param query GetExhibitInfoParams
  */
-export const getExhibitsInfo = (id: string, query: GetExhibitsInfoParams) => {
-  return MyWindow.freelogApp.getPresentableDetailById(id, query);
+export const getExhibitInfo = (id: string, query: GetExhibitInfoParams = {}) => {
+  return MyWindow.freelogApp.getExhibitInfo(id, query);
 };
 
 /**
- * 获取资源信息
- * @param id 资源id
+ * 获取展品签约数
+ * @param ids 展品id（用英文逗号隔开）
  */
-export const getResourceInfo = async (id: string) => {
-  return await MyWindow.freelogApp.getResourceInfoById(id);
+export const getExhibitSignCount = (ids: string) => {
+  return MyWindow.freelogApp.getExhibitSignCount(ids);
 };
 
 /**
- * 获取资源文件信息
- * @param presentableId 展品id
- * @param returnUrl 是否只返回url，例如img标签图片只需要url
+ * 获取展品资源文件流
+ * @param exhibitId 展品id
+ * @param returnUrl 是否只返回url， 例如img标签图片只需要url
  * @param config axios的config 目前仅支持"onUploadProgress", "onDownloadProgress", "responseType"
  */
-export const getFileInfo = async (presentableId: string, returnUrl?: boolean, config?: any) => {
-  return await MyWindow.freelogApp.getFileStreamById(presentableId, returnUrl, config);
+export const getExhibitFileStream = (exhibitId: string, returnUrl?: boolean, config?: any) => {
+  return MyWindow.freelogApp.getExhibitFileStream(exhibitId, returnUrl, config);
 };
 
 /**
- * 获取信息（展品、资源、文件）
- * @param type 请求的信息类型（对应接口名）
- * @param query 请求参数（按照对应接口的参数顺序，第一位是展品id）
- * @param errorCallback 授权失败回调
+ * 查询展品授权状态
+ * @param exhibitIds 展品id
  */
-export const getInfo = async (type: string, query: any[], errorCallback?: () => void) => {
-  let info = await MyWindow.freelogApp[type](...query);
-  if (typeof info === "string" || info.data.errCode === 0) return info;
-
-  // 提交给运行时处理授权
-  return new Promise((resolve) => {
-    MyWindow.freelogApp.addAuth(
-      query[0],
-      async () => {
-        info = await MyWindow.freelogApp[type](...query);
-        resolve(info);
-      },
-      () => {
-        console.error("授权失败");
-        errorCallback && errorCallback();
-        router.replace("/");
-        resolve({ data: { data: {} } });
-      },
-      { immediate: true }
-    );
-  });
+export const getExhibitAuthStatus = async (exhibitIds: string) => {
+  return MyWindow.freelogApp.getExhibitAuthStatus(exhibitIds);
 };
 
 /**
- * 呼出授权
+ * 唤起授权弹窗
+ * @param exhibitId 展品id
  */
-export const callAuth = () => {
-  // 当addAuth多个未授权展品且没有立刻呼出（或者存在未授权展品且已经addAuth 但用户关闭了，插件想要用户签约时）可以通过callAuth()唤出
-  MyWindow.freelogApp.callAuth();
+export const addAuth = async (exhibitId: string) => {
+  return MyWindow.freelogApp.addAuth(exhibitId, { immediate: true });
 };
 
 /**
- * 监听登录
+ * 获取当前登录的用户信息
  */
-export const watchLogin = () => {
-  MyWindow.freelogApp.onLogin(() => {
-    window.location.reload();
-  });
-};
-
-/**
- * 获取用户信息
- */
-export const getUser = () => {
+export const getCurrentUser = () => {
   return MyWindow.freelogApp.getCurrentUser();
 };
 
@@ -128,6 +111,20 @@ export const setUserData = async (key: string, data: any) => {
 /**
  * 唤起登录弹窗
  */
-export const callLogin = async (callback: () => void) => {
-  return MyWindow.freelogApp.callLogin(callback);
+export const callLogin = async () => {
+  return MyWindow.freelogApp.callLogin();
+};
+
+/**
+ * 唤起登出弹窗
+ */
+export const callLoginOut = async () => {
+  return MyWindow.freelogApp.callLoginOut();
+};
+
+/**
+ * 获取主题自定义选项配置
+ */
+export const getSelfConfig = async () => {
+  return MyWindow.freelogApp.getSelfConfig();
 };

@@ -1,8 +1,7 @@
 /* eslint-disable */
 import "./public-path";
 import { createApp } from "vue";
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-
+import { createRouter, createWebHistory } from "vue-router";
 import App from "./App.vue";
 import routes from "./router";
 import store from "./store";
@@ -12,11 +11,11 @@ let myWindow: any = window;
 
 myWindow.FREELOG_RESOURCENAME = "ZhuC/blog-theme";
 
-myWindow.freelogApp.onLogin(() => {
-  myWindow.location.reload();
-});
+myWindow.freelogApp.onLogin(() => myWindow.location.reload());
+
 let instance: any = null;
-let router = null
+let router = null;
+
 function render(props: any = {}) {
   const { container } = props;
   router = createRouter({
