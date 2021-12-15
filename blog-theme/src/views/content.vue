@@ -15,9 +15,7 @@
           <tags :tags="articleData?.tags" />
         </div>
         <div class="article-content">
-          <template v-if="isAuth === true">
-            <p className="paragraph" v-for="(item, index) in content" :key="item + index">{{ item }}</p>
-          </template>
+          <my-markdown :data="content" v-if="isAuth === true" />
           <div class="lock-box" v-if="isAuth === false">
             <img class="lock" src="../assets/images/lock.png" />
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
@@ -52,9 +50,7 @@
         </div>
         <div class="divider"></div>
         <div class="article-content">
-          <template v-if="isAuth === true">
-            <p className="paragraph" v-for="(item, index) in content" :key="item + index">{{ item }}</p>
-          </template>
+          <my-markdown :data="content" v-if="isAuth === true" />
           <div class="lock-box" v-if="isAuth === false">
             <img class="lock" src="../assets/images/lock.png" />
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
@@ -85,6 +81,7 @@ import { ExhibitItem } from "@/api/interface";
 import {
   addAuth,
   getExhibitAuthStatus,
+  getExhibitDepFileStream,
   getExhibitFileStream,
   getExhibitInfo,
   getExhibitSignCount,
@@ -100,6 +97,7 @@ export default {
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
     "my-article": defineAsyncComponent(() => import("../components/article.vue")),
+    "my-markdown": defineAsyncComponent(() => import("../components/markdown.vue")),
   },
 
   setup() {
@@ -110,7 +108,7 @@ export default {
     const data = reactive({
       isAuth: null as boolean | null,
       articleData: null as ExhibitItem | null,
-      content: [] as string[],
+      content: "",
       recommendList: [] as ExhibitItem[],
     });
 
@@ -129,7 +127,7 @@ export default {
         document.documentElement.scroll({ top: 0 });
         data.isAuth = false;
         data.articleData = null;
-        data.content = [];
+        data.content = "";
         data.recommendList = [];
         getData();
       }
@@ -149,7 +147,14 @@ export default {
       if (data.isAuth) {
         const info: any = await getExhibitFileStream(id);
         if (!info) return;
-        data.content = info.data.split(/\n/g).filter((item: string) => !!item);
+
+        const deps = exhibitInfo.data.data.versionInfo.dependencyTree.filter((_: any, index: number) => index !== 0);
+        await deps.forEach(async (dep: any) => {
+          const depUrl: string = await getExhibitDepFileStream(id, dep.parentNid, dep.articleId, true);
+          const reg = new RegExp(dep.articleName, "g");
+          info.data = info.data.replace(reg, depUrl);
+        });
+        data.content = info.data;
       } else {
         methods.getAuth();
       }
@@ -225,10 +230,6 @@ export default {
         border-top: 1px solid rgba(0, 0, 0, 0.1);
         padding-top: 20px;
         margin-top: 20px;
-
-        .paragraph {
-          word-break: break-all;
-        }
 
         .lock-box {
           width: 100%;
@@ -367,10 +368,6 @@ export default {
         font-size: 14px;
         color: #222222;
         line-height: 24px;
-
-        .paragraph {
-          word-break: break-all;
-        }
 
         .lock-box {
           width: 100%;

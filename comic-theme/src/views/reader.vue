@@ -179,6 +179,7 @@ export default {
       if (data.isAuth) {
         const info: any = await getExhibitFileStream(id, true);
         if (!info) return;
+        
         data.content = info;
       } else {
         const authResult = await addAuth(id);

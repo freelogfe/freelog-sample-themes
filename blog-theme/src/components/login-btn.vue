@@ -19,6 +19,8 @@ export default {
   setup() {
     const store = useStore();
 
+    console.error(store.state.userData)
+
     return {
       ...store.state,
       callLogin,

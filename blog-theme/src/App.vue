@@ -24,8 +24,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   font-size: 14px;
   color: #222;
-  user-select: none;
-  touch-action: pan-y;
   text-align: left;
 }
 

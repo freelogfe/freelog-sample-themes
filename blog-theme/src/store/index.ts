@@ -23,17 +23,28 @@ export default createStore({
     selfConfig: {} as any,
     theme: { gradientColor: "", deriveColor: "" } as Theme,
   },
-  mutations: {},
+
+  mutations: {
+    setData(state: any, payload: any) {
+      state[payload.key] = payload.value;
+    },
+  },
+
   actions: {
-    async initData() {
-      this.state.userData = await getCurrentUser();
-      this.state.selfConfig = await getSelfConfig();
-      this.state.inMobile = judgeDevice();
-      const theme = themeList[this.state.selfConfig.theme];
-      this.state.theme = theme;
+    async initData(context) {
+      const userData = await getCurrentUser();
+      const selfConfig = await getSelfConfig();
+      const inMobile = judgeDevice();
+      const theme = themeList[selfConfig.theme];
+      context.commit("setData", { key: "userData", value: userData });
+      context.commit("setData", { key: "selfConfig", value: selfConfig });
+      context.commit("setData", { key: "inMobile", value: inMobile });
+      context.commit("setData", { key: "theme", value: theme });
+
       const app = document.getElementById("app");
       app?.setAttribute("style", `--gradientColor: ${theme.gradientColor}; --deriveColor: ${theme.deriveColor}`);
     },
   },
+
   modules: {},
 });
