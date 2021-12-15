@@ -1,5 +1,12 @@
 @import "~antd/dist/antd.css";
 
+#root {
+  width: 100vh;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 html,
 body,
 #root {

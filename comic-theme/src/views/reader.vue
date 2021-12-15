@@ -16,25 +16,25 @@
 
       <div class="mobile-operater-wrapper" @touchmove.prevent>
         <div class="operater-btn">
-          <i class="iconfont fl-icon-xiaoshuomulu"></i>
+          <i class="freelog fl-icon-zhankaigengduo"></i>
           <div class="operater-btn-label">上一话</div>
         </div>
 
         <div class="operater-btn" @click="directoryShow = true">
-          <i class="iconfont fl-icon-xiaoshuomulu"></i>
+          <i class="freelog fl-icon-xiaoshuomulu"></i>
           <div class="operater-btn-label">目录</div>
         </div>
 
         <div class="operater-btn" @click="operateShelf(comicInfo)">
           <i
-            class="iconfont"
+            class="freelog"
             :class="isCollected ? 'fl-icon-shoucangxiaoshuoyishoucang' : 'fl-icon-shoucangxiaoshuo'"
           ></i>
           <div class="operater-btn-label">{{ isCollected ? "取消收藏" : "加入收藏" }}</div>
         </div>
 
         <div class="operater-btn">
-          <i class="iconfont fl-icon-xiaoshuomulu"></i>
+          <i class="freelog fl-icon-zhankaigengduo"></i>
           <div class="operater-btn-label">下一话</div>
         </div>
       </div>
@@ -179,7 +179,7 @@ export default {
       if (data.isAuth) {
         const info: any = await getExhibitFileStream(id, true);
         if (!info) return;
-        
+
         data.content = info;
       } else {
         const authResult = await addAuth(id);
@@ -325,6 +325,7 @@ export default {
       flex: 1;
       width: 100%;
       padding: 118px 60px;
+      box-sizing: border-box;
       border-radius: 10px;
       animation: fade-in 0.3s ease-out;
       transition: all 0.2s linear;
@@ -430,7 +431,11 @@ export default {
         color: #fff;
       }
 
-      .iconfont {
+      &:first-child .freelog {
+        transform: rotate(180deg);
+      }
+
+      .freelog {
         width: 18px;
         height: 18px;
         font-size: 18px;

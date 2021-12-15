@@ -38,7 +38,7 @@ export const Novel = (props: {
       onClick={() => history.switchPage("/detail/" + data.exhibitId)}
     >
       <div className="novel-content">
-        <LazyLoad offset={100} once>
+        <LazyLoad offset={400} once>
           <div className="book-cover-box">
             <img className="book-cover" src={data.coverImages[0]} alt={data.exhibitName} />
           </div>

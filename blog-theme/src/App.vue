@@ -25,6 +25,10 @@ export default {
   font-size: 14px;
   color: #222;
   text-align: left;
+  width: 100vh;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 html,

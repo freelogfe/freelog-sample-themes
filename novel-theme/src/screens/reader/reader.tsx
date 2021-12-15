@@ -263,7 +263,7 @@ const Operater = () => {
           setDirectoryShow(true);
         }}
       >
-        <i className="iconfont fl-icon-xiaoshuomulu"></i>
+        <i className="freelog fl-icon-xiaoshuomulu"></i>
         <div className="operater-btn-label">目录</div>
       </div>
 
@@ -275,7 +275,7 @@ const Operater = () => {
             operateShelf(book);
           }}
         >
-          <i className="iconfont fl-icon-shoucangxiaoshuoyishoucang"></i>
+          <i className="freelog fl-icon-shoucangxiaoshuoyishoucang"></i>
           <div className="operater-btn-label">移出书架</div>
         </div>
       ) : (
@@ -286,7 +286,7 @@ const Operater = () => {
             operateShelf(book);
           }}
         >
-          <i className="iconfont fl-icon-shoucangxiaoshuo"></i>
+          <i className="freelog fl-icon-shoucangxiaoshuo"></i>
           <div className="operater-btn-label">加入书架</div>
         </div>
       )}
@@ -298,7 +298,7 @@ const Operater = () => {
           share();
         }}
       >
-        <i className="iconfont fl-icon-fenxiang"></i>
+        <i className="freelog fl-icon-fenxiang"></i>
         <div className="operater-btn-label">分享</div>
       </div>
 
@@ -309,7 +309,7 @@ const Operater = () => {
           setFontSizePopupShow(true);
         }}
       >
-        <div className="iconfont">A</div>
+        <div className="freelog">A</div>
         <div className="operater-btn-label">字号</div>
       </div>
 
@@ -320,7 +320,7 @@ const Operater = () => {
           setThemePopupShow(true);
         }}
       >
-        <i className="iconfont fl-icon-beijingyanse"></i>
+        <i className="freelog fl-icon-beijingyanse"></i>
         <div className="operater-btn-label">背景色</div>
       </div>
 
@@ -471,9 +471,9 @@ const OperateBtn = (props: { icon?: string; text?: string; slot?: any; onClick?:
       onClick={(e) => e.stopPropagation()}
     >
       {slot}
-      {icon && <i className={`iconfont ${icon}`} onClick={onClick}></i>}
+      {icon && <i className={`freelog ${icon}`} onClick={onClick}></i>}
       {text && (
-        <span className="iconfont" onClick={onClick}>
+        <span className="freelog" onClick={onClick}>
           {text}
         </span>
       )}

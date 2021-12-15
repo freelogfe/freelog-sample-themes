@@ -291,14 +291,10 @@ export default {
 <style lang="scss" scoped>
 // mobile
 .mobile-header-wrapper {
-  position: sticky;
-  left: 0;
-  top: 0;
   width: 100%;
   padding: 16px 20px;
   box-sizing: border-box;
   background: var(--gradientColor);
-  z-index: 100;
 
   &.in-home {
     padding: 22px 20px 30px;
@@ -626,15 +622,11 @@ export default {
 
 // PC
 .header-wrapper {
-  position: sticky;
   width: 100%;
-  left: 0;
-  top: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   background: var(--gradientColor);
-  z-index: 100;
 
   .header-top {
     width: 920px;

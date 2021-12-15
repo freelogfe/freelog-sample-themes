@@ -22,9 +22,11 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   font-size: 14px;
   color: #222;
-  user-select: none;
-  touch-action: pan-y;
   text-align: left;
+  width: 100vh;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 html,

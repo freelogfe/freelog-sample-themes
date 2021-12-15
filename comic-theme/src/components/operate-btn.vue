@@ -1,7 +1,7 @@
 <template>
   <div class="operate-btn-wrapper" :class="theme">
     <slot></slot>
-    <i class="iconfont" :class="icon"></i>
+    <i class="freelog" :class="icon"></i>
   </div>
 </template>
 
@@ -50,7 +50,7 @@ export default {
     margin-top: 10px;
   }
 
-  .iconfont {
+  .freelog {
     width: 48px;
     height: 48px;
     font-size: 18px;
