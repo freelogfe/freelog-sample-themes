@@ -32,7 +32,7 @@
             <div class="w-100p mw-800 flex-row align-center space-between">
               <div>
                 <div class="fs-16 lh-24 fw-bold">
-                  {{ listData.find((item) => item.presentableId === currentId).presentableTitle }}
+                  {{ listData.find((item) => item.exhibitId === currentId).presentableTitle }}
                 </div>
                 <div class="author lh-17 mt-6">{{ imageInfo?.username }}</div>
               </div>
@@ -45,7 +45,7 @@
             <img
               class="w-100p mw-800 brs-8 mt-40"
               :src="imageInfo?.content"
-              :alt="listData.find((item) => item.presentableId === currentId).presentableTitle"
+              :alt="listData.find((item) => item.exhibitId === currentId).presentableTitle"
               v-if="imageInfo.type === 'image'"
             />
             <video
@@ -60,7 +60,7 @@
             <div class="w-100p mw-800 mt-50 flex-row">
               <div
                 class="tag ml-self-8 p-10 fs-12 brs-2 cur-pointer transition"
-                v-for="tag in listData.find((item) => item.presentableId === currentId).tags"
+                v-for="tag in listData.find((item) => item.exhibitId === currentId).tags"
                 :key="tag"
                 @click="search(tag)"
               >
@@ -77,8 +77,8 @@
                 <div
                   class="p-relative w-100p pt-75p"
                   v-for="item in more"
-                  :key="item.presentableId"
-                  @click="viewImage(item.presentableId)"
+                  :key="item.exhibitId"
+                  @click="viewImage(item.exhibitId)"
                 >
                   <frame class="frame-box lt-0 w-100p h-100p" :data="item" />
                 </div>
@@ -112,10 +112,9 @@
 
 <script lang="ts">
 import { computed, defineAsyncComponent, reactive, ref, SetupContext, toRefs, watch } from "vue";
-import { getInfo, GetExhibitsListParams, getExhibitsInfo } from "../api/freelog";
-import { ExhibitItem } from "../utils/interface";
-import { getResourceName } from "../../../comic-theme/src/utils/common";
+import { ExhibitItem } from "../api/interface";
 import { useMyRouter } from "../utils/hooks";
+import { getExhibitInfo } from "@/api/freelog";
 
 interface imageInfo extends ExhibitItem {
   type: string;
@@ -136,7 +135,7 @@ export default {
     props: {
       id: string;
       listData: ExhibitItem[];
-      getList: (params: Partial<GetExhibitsListParams>, init?: boolean) => void;
+      getList: (...params: any) => void;
     },
     context: SetupContext<Record<string, any>>
   ) {
@@ -147,7 +146,7 @@ export default {
       currentId: "",
       contentShow: false,
       more: computed(() => {
-        const index = props.listData.findIndex((item) => item.presentableId === data.currentId);
+        const index = props.listData.findIndex((item) => item.exhibitId === data.currentId);
         let moreImages = props.listData.slice(index + 1).filter((item, index) => index < 4);
         const { length } = moreImages;
         if (length !== 4) moreImages.push(...props.listData.slice(0, 4 - length));
@@ -163,11 +162,11 @@ export default {
 
       // 搜索标签
       search(tag: string) {
-        const params: { tags?: string } = {};
-        params.tags = tag;
-        context.emit("search", params.tags);
+        const query: { tags?: string } = {};
+        query.tags = tag;
+        context.emit("search", query.tags);
         this.closePopup();
-        props.getList(params, true);
+        props.getList(query, true);
       },
 
       closePopup() {
@@ -179,32 +178,21 @@ export default {
     const getImageInfo = async (id: string) => {
       data.contentShow = false;
 
-      const exhibitInfo = await getExhibitsInfo(id, {
-        isLoadVersionProperty: 1,
-        isLoadCustomPropertyDescriptors: 1,
-        isLoadResourceDetailInfo: 1,
-        isLoadResourceVersionInfo: 1,
-      });
+      const exhibitInfo = await getExhibitInfo(id, { isLoadVersionProperty: 1 });
       const { resourceVersionInfo, resourceInfo } = exhibitInfo.data.data;
       const intro = resourceVersionInfo.description || resourceInfo.intro;
-      const username = getResourceName(resourceInfo.resourceName, 0);
 
-      await getInfo("getResourceInfoById", [id], () => {
-        methods.closePopup();
-      });
-
-      const content: string = await getInfo("getFileStreamById", [id, true]);
-      data.imageInfo = { intro, username, content, type: resourceInfo.resourceType };
+      data.imageInfo = { intro, type: resourceInfo.resourceType };
       contentArea.value.scrollTop = 0;
       data.contentShow = true;
     };
 
     const keyup = (e: KeyboardEvent) => {
       if (e.key === "Escape") methods.closePopup();
-      const currentIndex = props.listData.findIndex((item) => item.presentableId === data.currentId);
-      if (e.key === "ArrowLeft" && currentIndex !== 0) data.currentId = props.listData[currentIndex - 1].presentableId;
+      const currentIndex = props.listData.findIndex((item) => item.exhibitId === data.currentId);
+      if (e.key === "ArrowLeft" && currentIndex !== 0) data.currentId = props.listData[currentIndex - 1].exhibitId;
       if (e.key === "ArrowRight" && currentIndex !== props.listData.length - 1)
-        data.currentId = props.listData[currentIndex + 1].presentableId;
+        data.currentId = props.listData[currentIndex + 1].exhibitId;
     };
 
     watch(
@@ -323,5 +311,3 @@ export default {
   }
 }
 </style>
-
-function useRef(initialValue: any) { throw new Error('Function not implemented.'); }

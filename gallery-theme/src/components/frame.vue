@@ -1,19 +1,19 @@
 <template>
   <div
-    class="frame-wrapper p-relative w-100p brs-8 over-h cur-pointer"
+    class="frame-wrapper"
     @mouseover="modalShow = true"
     @mouseleave="modalShow = false"
   >
-    <img class="w-100p" :style="{ height: data.height + 'px' }" v-lazy="data.coverImages[0]" v-if="data.isAuth" />
+    <img class="image" :style="{ height: data.height + 'px' }" v-lazy="data.coverImages[0]" v-if="data.isAuth" />
     <div
-      class="filter-modal p-relative w-100p"
+      class="filter-modal"
       :style="{ height: data.height + 'px', '--url': 'url(' + data.coverImages[0] + ')' }"
       v-else
     ></div>
 
     <transition name="fade">
-      <div class="modal p-absolute lt-0 w-100p h-100p p-20 b-box" v-if="modalShow">
-        <span class="fc-white fs-16 fw-bold lh-22 text-ellipsis">{{ data.presentableTitle }}</span>
+      <div class="modal" v-if="modalShow">
+        <span class="title">{{ data.exhibitName }}{{data.height}}</span>
       </div>
     </transition>
   </div>
@@ -39,7 +39,19 @@ export default {
 
 <style lang="scss" scoped>
 .frame-wrapper {
+  position: relative;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+
+  .image {
+    width: 100%;
+  }
+
   .filter-modal {
+  position: relative;
+    width: 100%;
     box-shadow: 0 10px 20px rgb(0 0 0 / 50%);
 
     &::before {
@@ -61,6 +73,10 @@ export default {
   }
 
   .modal {
+    position: absolute;
+    inset: 0;
+    padding: 20px;
+    box-sizing: border-box;
     background: linear-gradient(
       180deg,
       transparent 62%,
@@ -82,6 +98,13 @@ export default {
     );
     display: flex;
     align-items: flex-end;
+
+    .title {
+      color: #fff;
+      font-size: 16px;
+      font-weight: bold;
+      line-height: 22px;
+    }
   }
 }
 </style>

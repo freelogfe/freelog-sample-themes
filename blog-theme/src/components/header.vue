@@ -31,11 +31,7 @@
     <template v-if="homeHeader">
       <div class="header-other-info">
         <div class="blogger-avatar">
-          <img
-            src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fww1.sinaimg.cn%2Fmw690%2F0023tf8yly1gw455iolbrj61o01nznpd02.jpg&refer=http%3A%2F%2Fwww.sina.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1641368580&t=f84767185fdb00f5b368b3b34ddad510"
-            alt=""
-            class="avatar-img"
-          />
+          <img :src="selfConfig.bloggerAvatar" alt="博主头像" class="avatar-img" />
         </div>
         <div class="sign-count">总签约量：{{ signCount }}人</div>
       </div>
@@ -159,11 +155,7 @@
       <!-- 博客信息 -->
       <div class="header-blog-info">
         <div class="blogger-avatar">
-          <img
-            src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fww1.sinaimg.cn%2Fmw690%2F0023tf8yly1gw455iolbrj61o01nznpd02.jpg&refer=http%3A%2F%2Fwww.sina.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1641368580&t=f84767185fdb00f5b368b3b34ddad510"
-            alt=""
-            class="avatar-img"
-          />
+          <img :src="selfConfig.bloggerAvatar" alt="博主头像" class="avatar-img" />
         </div>
 
         <div class="info-content">

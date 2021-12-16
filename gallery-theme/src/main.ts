@@ -1,28 +1,36 @@
 /* eslint-disable */
 import "./public-path";
 import { createApp } from "vue";
+import { createRouter, createWebHistory } from "vue-router";
 import App from "./App.vue";
-import router from "./router";
+import routes from "./router";
 import store from "./store";
-import "./assets/css/index.scss";
 import lazyPlugin from "vue3-lazy";
 
+let myWindow: any = window;
+
+myWindow.FREELOG_RESOURCENAME = "ZhuC/gallery-theme";
+
+myWindow.freelogApp.onLogin(() => myWindow.location.reload());
+
 let instance: any = null;
+let router = null;
 
 function render(props: any = {}) {
   const { container } = props;
-
-  instance = createApp(App)
-    .use(router)
-    .use(store)
-    .use(lazyPlugin, {
-      loading: require("@/assets/image/default-img.jpg"),
-      error: require("@/assets/image/default-img.jpg"),
-    });
+  router = createRouter({
+    history: createWebHistory(process.env.BASE_URL),
+    routes,
+  });
+  instance = createApp(App).use(router).use(store).use(lazyPlugin, {
+    // loading: require("./assets/image/default-img.jpg"),
+    // error: require("./assets/image/default-img.jpg"),
+  });
   instance.mount(container ? container.querySelector("#app") : "#app");
+  store.dispatch("initData");
 }
 
-if (!(window as any).__POWERED_BY_FREELOG__) {
+if (!myWindow.__POWERED_BY_FREELOG__) {
   render();
 }
 
@@ -43,6 +51,7 @@ export async function unmount() {
   instance.unmount();
   instance._container.innerHTML = "";
   instance = null;
+  router = null;
 }
 
 // 插件通信功能暂未测试
