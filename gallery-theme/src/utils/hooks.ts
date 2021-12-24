@@ -62,11 +62,11 @@ export const useGetList = () => {
     if (data.total === data.listData.length && !init) return;
 
     data.loading = true;
-    data.skip = init ? 0 : data.skip + 30;
+    data.skip = init ? 0 : data.skip + 40;
     const queryParams: GetExhibitListByPagingParams = {
       skip: data.skip,
       articleResourceTypes: "image,video",
-      limit: params.limit || 30,
+      limit: params.limit || 40,
       ...params,
     };
     const list = await getExhibitListByPaging(queryParams);

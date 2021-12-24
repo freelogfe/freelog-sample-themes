@@ -6,7 +6,7 @@
       <img
         class="logo"
         :src="selfConfig.logoImage || require('../assets/images/logo.png')"
-        @click="switchPage('/')"
+        @click="switchPage('/home')"
         v-if="homeHeader"
       />
       <div class="header-top-left" @click="routerBack()" v-else>
@@ -15,7 +15,7 @@
       </div>
 
       <div class="header-top-right">
-        <i class="freelog fl-icon-content" @click="searchPopupShow = true"></i>
+        <i class="freelog fl-icon-content" @click="searchPopupShow = true" v-if="!homeHeader"></i>
 
         <img
           class="avatar"
@@ -27,47 +27,25 @@
       </div>
     </div>
 
-    <!-- 博客信息 -->
-    <template v-if="homeHeader">
-      <div class="header-other-info">
-        <div class="blogger-avatar">
-          <img :src="selfConfig.bloggerAvatar" alt="博主头像" class="avatar-img" />
-        </div>
-        <div class="sign-count">总签约量：{{ signCount }}人</div>
-      </div>
+    <!-- 搜索框 -->
+    <div class="search-box" @click="searchPopupShow = true" v-if="homeHeader">
+      <i class="freelog fl-icon-content"></i>
+    </div>
 
-      <div class="header-blog-info">
-        <div class="blog-title">
-          {{ selfConfig.blogTitle }}
-        </div>
-        <div class="blog-desc">
-          {{ selfConfig.blogIntro }}
-        </div>
-        <div class="tags">
-          <div
-            class="tag"
-            :class="{ active: tags === item }"
-            v-for="item in blogTags"
-            :key="item"
-            @click="selectTag(item)"
-          >
-            {{ item }}
-          </div>
-        </div>
-      </div>
-    </template>
-
+    <!-- 用户弹窗 -->
     <transition name="fade">
-      <div id="modal" class="modal" @click="userBoxShow = false" @touchmove.prevent v-if="userBoxShow"></div>
+      <div id="modal" class="modal" @click="userBoxShow = false" v-if="userBoxShow"></div>
     </transition>
-
     <transition name="slide-right">
-      <div class="user-box-body" @touchmove.prevent v-if="userBoxShow">
+      <div class="user-box-body" v-if="userBoxShow">
         <img class="avatar" :src="userData?.headImage" :alt="userData?.username" />
         <div class="username">{{ userData?.username }}</div>
         <div class="btns">
-          <div class="btn" @click="switchPage('/')">
+          <div class="btn" @click="switchPage('/home')">
             <div class="btn-content">首页</div>
+          </div>
+          <div class="btn" @click="switchPage('/shelf')">
+            <div class="btn-content">我的收藏</div>
           </div>
           <div class="btn" @click="callLoginOut()">
             <div class="btn-content">退出登录</div>
@@ -76,6 +54,7 @@
       </div>
     </transition>
 
+    <!-- 搜索页 -->
     <transition name="fade">
       <div class="search-page" v-if="searchPopupShow">
         <div class="search-page-header">
@@ -90,13 +69,17 @@
             <i class="freelog fl-icon-content"></i>
           </div>
 
-          <div class="text-btn mobile" @click="searchPopupShow = false">取消</div>
+          <div class="text-btn mobile" @click="searchPopupShow = false">
+            取消
+          </div>
         </div>
 
         <div class="recommend-tags">
           <div class="recommend-tags-title">推荐标签</div>
           <div class="recommend-tags-list">
-            <div class="tag" v-for="item in blogTags" :key="item" @click="selectTag(item)">{{ item }}</div>
+            <div class="tag" v-for="item in tagsList" :key="item" @click="selectTag(item)">
+              {{ item }}
+            </div>
           </div>
         </div>
       </div>
@@ -105,20 +88,20 @@
 
   <!-- PC -->
   <div class="header-wrapper" v-if="!inMobile">
+    <!-- header顶部 -->
     <div class="header-top">
       <div class="header-top-left">
         <!-- logo -->
         <img
           class="logo"
           :src="selfConfig.logoImage || require('../assets/images/logo.png')"
-          @click="switchPage('/')"
+          @click="switchPage('/home')"
         />
 
         <!-- 搜索框 -->
-        <div class="search-box">
+        <div class="small-search-box" v-if="!homeHeader">
           <input
-            class="search-input"
-            type="text"
+            class="search-input input-none"
             v-model="searchKey"
             @keyup.enter="search()"
             @keyup.esc="searchKey = ''"
@@ -127,74 +110,71 @@
         </div>
       </div>
 
-      <!-- 已登录用户信息 -->
       <div class="user-avatar" @mouseover="userBoxShow = true" @mouseleave="userBoxShow = false" v-if="userData">
         <div class="username">{{ userData.username }}</div>
         <img class="avatar" :src="userData.headImage" :alt="userData.username" />
 
         <transition name="slide-down-scale">
-          <div class="user-box" v-show="userBoxShow">
+          <div class="user-box" v-if="userBoxShow">
             <div class="user-box-body">
               <img class="avatar" :src="userData.headImage" :alt="userData.username" />
               <div class="username">{{ userData.username }}</div>
               <div class="mobile">{{ userData.mobile }}</div>
-              <div class="user-box-btn" @click="callLoginOut()">登出</div>
+              <div class="btn user-box-btn" @click="switchPage('/shelf')">
+                我的收藏
+              </div>
+              <div class="btn user-box-btn" @click="callLoginOut()">
+                登出
+              </div>
             </div>
           </div>
         </transition>
       </div>
 
-      <!-- 登录相关按钮 -->
       <div class="user-btns" v-else>
         <div class="btn header-login-btn" @click="callLogin()">登录</div>
         <div class="btn header-register-btn" @click="register()">注册</div>
       </div>
     </div>
 
-    <template v-if="homeHeader">
-      <!-- 博客信息 -->
-      <div class="header-blog-info">
-        <div class="blogger-avatar">
-          <img :src="selfConfig.bloggerAvatar" alt="博主头像" class="avatar-img" />
-        </div>
+    <!-- 搜索框 -->
+    <div class="search-box" v-if="homeHeader">
+      <input
+        class="search-input input-none"
+        :class="{ 'in-focus': searchKey }"
+        v-model="searchKey"
+        @keyup.enter="search()"
+        @keyup.esc="searchKey = ''"
+      />
+      <i class="freelog fl-icon-content"></i>
+      <i class="freelog fl-icon-guanbi" @click="searchKey = ''" v-show="searchKey"></i>
+    </div>
 
-        <div class="info-content">
-          <div class="blog-title">
-            {{ selfConfig.blogTitle }}
-          </div>
-          <div class="blog-desc">
-            {{ selfConfig.blogIntro }}
-          </div>
-        </div>
+    <!-- 筛选栏 -->
+    <div class="filter-bar" v-if="homeHeader">
+      <div class="category-btn" :class="{ active: !tags }" @click="selectTag()">
+        全部
       </div>
 
-      <!-- 其他信息 -->
-      <div class="other-info">
-        <div class="sign-count">总签约量：{{ signCount }}人</div>
-        <div class="blog-tags">
-          <div class="tags-label">兴趣领域：</div>
-          <div class="tags">
-            <div
-              class="tag"
-              :class="{ active: tags === item }"
-              v-for="item in blogTags"
-              :key="item"
-              @click="selectTag(item)"
-            >
-              {{ item }}
-            </div>
-          </div>
-        </div>
+      <div
+        class="category-btn"
+        :class="{ active: tags === item }"
+        v-for="item in tagsList"
+        :key="item"
+        @click="selectTag(item)"
+      >
+        {{ item }}
       </div>
-    </template>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { reactive, toRefs, watch } from "vue";
 import { useMyRouter } from "../utils/hooks";
-import { callLogin, callLoginOut, getExhibitSignCount, getSelfId } from "@/api/freelog";
+import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
+import { tagsList } from "@/api/data";
 
 export default {
   name: "my-header",
@@ -208,11 +188,9 @@ export default {
 
   setup(props: { homeHeader: boolean }) {
     const store = useStore();
-    let blogTags: string[] = store.state.selfConfig.tags.split(",");
     const { query, switchPage, routerBack } = useMyRouter();
 
     const data = reactive({
-      signCount: 0,
       searchKey: "",
       tags: "",
       userBoxShow: false,
@@ -227,12 +205,12 @@ export default {
         const query: { keywords?: string; tags?: string } = {};
         if (searchKey) query.keywords = searchKey;
         if (tags) query.tags = data.tags;
-        switchPage("/", query);
+        switchPage("/home", query);
       },
 
       // 筛选标签
       selectTag(tag: string) {
-        data.tags = tag;
+        data.tags = tag || "";
         this.search();
       },
 
@@ -249,14 +227,6 @@ export default {
       }
     );
 
-    // 获取主题签约数
-    const getSignCount = async () => {
-      const themeId = await getSelfId();
-      const signCountInfo = await getExhibitSignCount(themeId);
-      data.signCount = signCountInfo.data.data[0].count;
-    };
-    getSignCount();
-
     // 初始化头部搜索相关数据
     const initHeaderSearch = () => {
       const { keywords, tags } = query.value;
@@ -272,7 +242,7 @@ export default {
       switchPage,
       routerBack,
       ...store.state,
-      blogTags,
+      tagsList,
       ...toRefs(data),
       ...methods,
     };
@@ -289,7 +259,19 @@ export default {
   background: var(--gradientColor);
 
   &.in-home {
-    padding: 22px 20px 30px;
+    padding: 22px 20px;
+
+    .header-top {
+      justify-content: center;
+
+      &.logon {
+        justify-content: space-between;
+
+        .header-top-right {
+          flex: 1;
+        }
+      }
+    }
   }
 
   .header-top {
@@ -329,7 +311,6 @@ export default {
     }
 
     .header-top-right {
-      flex: 1;
       display: flex;
       align-items: center;
       justify-content: flex-end;
@@ -354,78 +335,24 @@ export default {
     }
   }
 
-  .header-other-info {
+  .search-box {
+    width: 100%;
+    height: 42px;
+    border-radius: 42px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-top: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    margin-top: 36px;
 
-    .blogger-avatar {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
+    .fl-icon-content {
+      width: 14px;
+      height: 14px;
+      font-size: 14px;
+      margin-left: 15px;
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
-
-      .avatar-img {
-        height: 100%;
-      }
-    }
-
-    .sign-count {
-      padding: 5px 12px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 4px;
-      font-size: 12px;
       color: rgba(255, 255, 255, 0.6);
-      line-height: 18px;
-    }
-  }
-
-  .header-blog-info {
-    margin-top: 20px;
-
-    .blog-title {
-      font-size: 20px;
-      font-weight: 600;
-      color: #ffffff;
-      line-height: 26px;
-    }
-
-    .blog-desc {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.6);
-      line-height: 20px;
-      margin-top: 10px;
-    }
-
-    .tags {
-      width: calc(100% + 8px);
-      display: flex;
-      flex-wrap: wrap;
-      margin-left: -4px;
-      margin-top: 15px;
-
-      .tag {
-        height: 24px;
-        padding: 0 8px;
-        font-size: 12px;
-        color: rgba(255, 255, 255, 0.6);
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 24px;
-        display: flex;
-        align-items: center;
-        margin: 0 4px 10px;
-        transition: all 0.2s linear;
-
-        &:active,
-        &.active {
-          background: rgba(255, 255, 255, 0.3);
-          color: rgba(255, 255, 255, 0.8);
-        }
-      }
     }
   }
 
@@ -615,13 +542,15 @@ export default {
 // PC
 .header-wrapper {
   width: 100%;
+  padding: 0 140px;
+  background: var(--gradientColor);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: var(--gradientColor);
 
   .header-top {
-    width: 920px;
+    width: 1230px;
     height: 70px;
     padding: 19px 0;
     box-sizing: border-box;
@@ -648,7 +577,7 @@ export default {
         }
       }
 
-      .search-box {
+      .small-search-box {
         position: relative;
         width: 240px;
         height: 32px;
@@ -690,7 +619,6 @@ export default {
           align-items: center;
           justify-content: center;
           color: rgba(255, 255, 255, 0.6);
-          transition: all 0.2s linear;
         }
       }
     }
@@ -720,6 +648,7 @@ export default {
         top: 100%;
         padding-top: 10px;
         cursor: default;
+        z-index: 100;
 
         .user-box-body {
           width: 240px;
@@ -755,7 +684,7 @@ export default {
             margin-bottom: 16px;
           }
 
-          .user-box-btn {
+          .btn {
             width: 100%;
             height: 50px;
             line-height: 50px;
@@ -763,7 +692,10 @@ export default {
             padding-left: 20px;
             box-sizing: border-box;
             border-top: 1px solid rgba(0, 0, 0, 0.05);
-            border-radius: 0 0 4px 4px;
+
+            &:last-child {
+              border-radius: 0 0 4px 4px;
+            }
           }
         }
       }
@@ -791,104 +723,109 @@ export default {
     }
   }
 
-  .header-blog-info {
-    width: 920px;
+  .search-box {
+    position: relative;
+    width: 100%;
+    max-width: 700px;
+    height: 38px;
+    border-radius: 38px;
     display: flex;
     align-items: center;
-    margin-top: 35px;
+    overflow: hidden;
+    flex-shrink: 0;
+    margin-top: 16px;
+    margin-bottom: 25px;
 
-    .blogger-avatar {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
+    .search-input {
+      height: 100%;
+      flex: 1;
+      font-size: 14px;
+      color: #222;
+      background-color: rgba(255, 255, 255, 0.1) !important;
+      padding: 0 39px !important;
+      transition: all 0.2s linear;
 
-      .avatar-img {
-        height: 100%;
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.18) !important;
+      }
+
+      &:focus,
+      &.in-focus {
+        background-color: #fff !important;
+
+        & ~ .fl-icon-content {
+          color: #8e8e93;
+        }
       }
     }
 
-    .info-content {
-      flex: 1;
-      width: 0;
-      margin-left: 30px;
+    .fl-icon-content {
+      position: absolute;
+      left: 15px;
+      width: 14px;
+      height: 14px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.6);
+      transition: all 0.2s linear;
+    }
 
-      .blog-title {
-        font-size: 24px;
-        font-weight: 600;
-        color: #ffffff;
-        line-height: 30px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-      }
+    .fl-icon-guanbi {
+      position: absolute;
+      right: 15px;
+      width: 14px;
+      height: 14px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #8e8e93;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s linear;
 
-      .blog-desc {
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.6);
-        line-height: 20px;
-        margin-top: 10px;
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-        overflow: hidden;
+      &:hover {
+        color: #a9a9ad;
       }
     }
   }
 
-  .other-info {
-    width: 920px;
-    padding-left: 130px;
-    box-sizing: border-box;
-    margin-top: 14px;
-    margin-bottom: 30px;
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 27px;
 
-    .sign-count {
+    .category-btn {
       font-size: 14px;
-      color: rgba(255, 255, 255, 0.6);
+      color: rgba(255, 255, 255, 0.5);
       line-height: 20px;
-    }
+      padding: 2px 5px;
+      border-radius: 2px;
+      background-color: transparent;
+      cursor: pointer;
+      transition: all 0.2s linear;
 
-    .blog-tags {
-      display: flex;
-      margin-top: 15px;
-
-      .tags-label {
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.6);
-        line-height: 38px;
-        margin-right: 5px;
+      &:hover {
+        color: rgba(255, 255, 255, 0.8);
       }
 
-      .tags {
-        flex: 1;
-        display: flex;
-        flex-wrap: wrap;
+      &.active {
+        background-color: #ffffff;
+        color: #666;
+      }
 
-        .tag {
-          height: 38px;
-          padding: 0 15px;
-          font-size: 14px;
-          color: rgba(255, 255, 255, 0.6);
-          background: rgba(255, 255, 255, 0.08);
-          border-radius: 38px;
-          display: flex;
-          align-items: center;
-          margin: 0 5px 10px;
-          cursor: pointer;
-          transition: all 0.2s linear;
-
-          &:hover,
-          &.active {
-            background: rgba(255, 255, 255, 0.3);
-            color: rgba(255, 255, 255, 0.8);
-          }
-        }
+      & + .category-btn {
+        margin-left: 10px;
       }
     }
+  }
+}
+
+@media (min-width: 1600px) {
+  .header-top {
+    width: 1540px !important;
   }
 }
 </style>

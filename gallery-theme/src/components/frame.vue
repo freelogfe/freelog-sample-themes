@@ -1,19 +1,16 @@
 <template>
   <div
     class="frame-wrapper"
+    :style="{ height: data.height + 'px' }"
     @mouseover="modalShow = true"
     @mouseleave="modalShow = false"
   >
-    <img class="image" :style="{ height: data.height + 'px' }" v-lazy="data.coverImages[0]" v-if="data.isAuth" />
-    <div
-      class="filter-modal"
-      :style="{ height: data.height + 'px', '--url': 'url(' + data.coverImages[0] + ')' }"
-      v-else
-    ></div>
+    <img class="image" v-lazy="data.coverImages[0]" v-if="data.isAuth" />
+    <div class="filter-modal" :style="{ '--url': 'url(' + data.coverImages[0] + ')' }" v-else></div>
 
     <transition name="fade">
       <div class="modal" v-if="modalShow">
-        <span class="title">{{ data.exhibitName }}{{data.height}}</span>
+        <span class="title">{{ data.exhibitName }}</span>
       </div>
     </transition>
   </div>
@@ -41,7 +38,8 @@ export default {
 .frame-wrapper {
   position: relative;
   width: 100%;
-  border-radius: 8px;
+  box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
 
@@ -50,8 +48,9 @@ export default {
   }
 
   .filter-modal {
-  position: relative;
+    position: relative;
     width: 100%;
+    height: 100%;
     box-shadow: 0 10px 20px rgb(0 0 0 / 50%);
 
     &::before {

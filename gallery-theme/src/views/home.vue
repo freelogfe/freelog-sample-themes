@@ -4,56 +4,29 @@
 
     <!-- mobile -->
     <div class="mobile-home-body" v-if="inMobile">
-      <div class="header">
-        <div class="sort" v-if="!searchData.keywords && !searchData.tags">
-          最新
-          <i class="freelog fl-icon-zhankaigengduo"></i>
+      <div class="header" v-if="searchData.keywords || searchData.tags">
+        <div class="search-title">
+          “{{
+            `${searchData.keywords || ""}${searchData.keywords && searchData.tags ? "+" : ""}${searchData.tags || ""}`
+          }}”的搜索结果
+          <span className="search-total">({{ total }})</span>
         </div>
 
-        <template v-if="searchData.keywords || searchData.tags">
-          <div class="search-title">
-            “{{
-              `${searchData.keywords || ""}${searchData.keywords && searchData.tags ? "+" : ""}${
-                searchData.tags || ""
-              }`
-            }}”的搜索结果
-            <span className="search-total">({{ total }})</span>
-          </div>
-
-          <div className="clear-search-btn" @click="clearSearch()">清空搜索条件</div>
-        </template>
+        <div className="clear-search-btn" @click="clearSearch()">清空搜索条件</div>
       </div>
 
-      <div class="article-list">
+      <div class="frame-list">
         <my-frame :data="item" v-for="item in listData" :key="item.exhibitId" />
       </div>
 
-      <div className="tip" v-show="total === 0">当前节点暂无任何书籍，请稍后查看</div>
-      <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部书籍 —</div>
+      <div className="tip" v-show="total === 0">当前节点暂无数据，请稍后查看</div>
+      <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部 —</div>
     </div>
 
     <!-- PC -->
     <div class="home-body" v-if="!inMobile">
-      <div class="header">
-        <div
-          class="sort"
-          @mouseover="sortPopupShow = true"
-          @mouseleave="sortPopupShow = false"
-          v-if="!searchData.keywords && !searchData.tags"
-        >
-          {{ createDateSortType === "-1" ? "最新" : "最早" }} <i class="freelog fl-icon-zhankaigengduo"></i>
-
-          <transition name="slide-down-scale">
-            <div class="sort-popup" v-show="sortPopupShow">
-              <div class="sort-popup-body">
-                <div class="user-box-btn" @click="sort('-1')">最新</div>
-                <div class="user-box-btn" @click="sort('1')">最早</div>
-              </div>
-            </div>
-          </transition>
-        </div>
-
-        <div class="search-title" v-if="searchData.keywords || searchData.tags">
+      <div class="header" v-if="searchData.keywords || searchData.tags">
+        <div class="search-title">
           “{{
             `${searchData.keywords || ""}${searchData.keywords && searchData.tags ? "+" : ""}${searchData.tags || ""}`
           }}”的搜索结果
@@ -62,12 +35,14 @@
         </div>
       </div>
 
-      <div class="article-list">
-        <my-frame :data="item" v-for="item in listData" :key="item.exhibitId" />
+      <div class="frame-list">
+        <div class="waterfall" v-for="list in listNumber" :key="list">
+          <my-frame :data="item" v-for="item in waterfall[waterfallList[list - 1]]" :key="item.exhibitId" />
+        </div>
       </div>
 
-      <div className="tip" v-show="total === 0">当前节点暂无任何书籍，请稍后查看</div>
-      <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部书籍 —</div>
+      <div className="tip" v-show="total === 0">当前节点暂无数据，请稍后查看</div>
+      <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部 —</div>
     </div>
 
     <my-footer />
@@ -75,7 +50,7 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, onUnmounted, reactive, toRefs, watch } from "vue";
+import { defineAsyncComponent, reactive, toRefs, watch } from "vue";
 import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
 import { useStore } from "vuex";
 import { ExhibitItem } from "@/api/interface";
@@ -97,24 +72,13 @@ export default {
     let heightList: number[] = [];
 
     const data = reactive({
-      sortPopupShow: false,
-      createDateSortType: "-1",
-      searchData: {} as { keywords?: string; tags?: string; sort?: string },
-      waterfall: {} as any,
+      searchData: {} as { keywords?: string; tags?: string },
       listNumber: 0,
-      waterfallList: ["waterfallFirst", "waterfallSecond", "waterfallThird", "waterfallFourth"],
+      waterfall: {} as any,
+      waterfallList: ["waterfallFirst", "waterfallSecond", "waterfallThird", "waterfallFourth", "waterfallFifth"],
     });
 
     const methods = {
-      // 排序
-      sort(sortType: string) {
-        if (data.createDateSortType === sortType) return;
-
-        data.createDateSortType = sortType;
-        data.searchData.sort = `createDate:${sortType}`;
-        datasOfGetList.getList(data.searchData, true);
-      },
-
       // 清除搜索
       clearSearch() {
         data.searchData = {};
@@ -123,21 +87,34 @@ export default {
     };
 
     watch(
+      () => query.value,
+      () => {
+        getData();
+      }
+    );
+
+    watch(
+      () => scrollTop.value,
+      (cur) => {
+        if (cur + clientHeight.value === scrollHeight.value) {
+          datasOfGetList.getList();
+        }
+      }
+    );
+
+    watch(
       () => datasOfGetList.listData.value,
-      async (cur, pre) => {
+      async (cur) => {
         if (datasOfGetList.skip.value === 0) initWaterfall();
 
-        const dom: any = document.getElementsByClassName("waterfall")[0];
-
-        const index = datasOfGetList.skip.value === 0 ? 0 : pre?.length || 0;
+        const index = datasOfGetList.skip.value;
 
         for (let i = index; i < cur.length; i++) {
           const img = new Image();
           img.src = cur[i].coverImages[0];
           img.onload = () => {
-            img.height = Math.random() * 1400;
-            const height = (dom.offsetWidth / img.width) * img.height;
-            (cur[i] as any).height = height / 2 > 200 ? height / 2 : 200;
+            const height = (300 / img.width) * img.height;
+            (cur[i] as any).height = height;
 
             if (i === cur.length - 1) setWaterFall(index);
           };
@@ -145,18 +122,28 @@ export default {
       }
     );
 
-    watch(
-      () => data.listNumber,
-      () => {
-        setWaterFall();
-      }
-    );
+    // 根据屏幕宽度判断瀑布流列数
+    const getListNumber = () => {
+      const { clientWidth } = document.body;
+      // 屏幕宽度小于等于 1600 时，显示 4 列，否则显示 5 列
+      data.listNumber = clientWidth <= 1600 ? 4 : 5;
+    };
 
+    // 初始化瀑布流数据
+    const initWaterfall = () => {
+      heightList = [];
+      data.waterfall = {};
+      for (let i = 0; i < data.listNumber; i++) {
+        data.waterfall[data.waterfallList[i]] = [] as ExhibitItem[] | { height: number }[];
+      }
+    };
+
+    // 整理瀑布流数据
     const setWaterFall = (startIndex = 0) => {
-      const GAP_HEIGHT = 36;
+      const GAP_HEIGHT = 10;
       for (let i = startIndex; i < datasOfGetList.listData.value.length; i++) {
         let minHeightItemIndex = 0;
-        if (heightList.length < data.listNumber && heightList.length !== 0) {
+        if (heightList.length && heightList.length < data.listNumber) {
           minHeightItemIndex = heightList.length;
         } else if (heightList.length === data.listNumber) {
           const minHeight = Math.min(...heightList);
@@ -169,60 +156,14 @@ export default {
       }
     };
 
-    const getListNumber = () => {
-      let currentNumber = 0;
-      const { clientWidth } = document.body;
-      if (clientWidth <= 615) {
-        currentNumber = 1;
-      } else if (clientWidth <= 945) {
-        currentNumber = 2;
-      } else if (clientWidth <= 1331) {
-        currentNumber = 3;
-      } else {
-        currentNumber = 4;
-      }
-      if (currentNumber === data.listNumber) return;
-
-      data.listNumber = currentNumber;
-      initWaterfall();
-    };
-
-    const initWaterfall = () => {
-      heightList = [];
-      data.waterfall = {};
-      for (let i = 0; i < data.listNumber; i++) {
-        data.waterfall[data.waterfallList[i]] = [] as ExhibitItem[] | { height: number }[];
-      }
-    };
-
-    watch(
-      () => scrollTop.value,
-      (cur) => {
-        if (cur + clientHeight.value === scrollHeight.value) {
-          datasOfGetList.getList();
-        }
-      }
-    );
-
-    watch(
-      () => query.value,
-      () => {
-        getData();
-      }
-    );
-
     // 获取数据
     const getData = () => {
       data.searchData = { ...data.searchData, ...query.value };
       datasOfGetList.getList(data.searchData, true);
     };
+
     getListNumber();
     getData();
-
-    window.addEventListener("resize", getListNumber);
-    onUnmounted(() => {
-      window.removeEventListener("resize", getListNumber);
-    });
 
     return {
       ...store.state,
@@ -252,24 +193,6 @@ export default {
 
     .header {
       margin: 30px 0 15px;
-
-      .sort {
-        font-size: 34px;
-        line-height: 40px;
-        display: flex;
-        align-items: center;
-
-        .freelog {
-          font-size: 12px;
-          width: 12px;
-          height: 7px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-left: 10px;
-          transform: rotate(90deg);
-        }
-      }
 
       .search-title {
         font-size: 20px;
@@ -313,58 +236,14 @@ export default {
 
   // PC
   .home-body {
-    width: 920px;
-    padding-top: 55px;
+    width: 1230px;
+    padding-top: 60px;
     padding-bottom: 148px;
 
     .header {
       font-size: 30px;
       line-height: 36px;
       margin-bottom: 30px;
-
-      .sort {
-        position: relative;
-        width: fit-content;
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-
-        .freelog {
-          font-size: 12px;
-          width: 12px;
-          height: 7px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-left: 10px;
-          transform: rotate(90deg);
-        }
-
-        .sort-popup {
-          position: absolute;
-          left: 0;
-          top: 100%;
-          padding-top: 5px;
-          z-index: 1;
-
-          .sort-popup-body {
-            width: 118px;
-            background: #ffffff;
-            box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
-            padding: 10px 0;
-
-            .user-box-btn {
-              width: 100%;
-              height: 40px;
-              padding: 0 20px;
-              box-sizing: border-box;
-              font-size: 14px;
-              line-height: 40px;
-              cursor: pointer;
-            }
-          }
-        }
-      }
 
       .search-title {
         display: flex;
@@ -393,9 +272,20 @@ export default {
       }
     }
 
-    .article-list {
+    .frame-list {
       display: flex;
-      flex-wrap: wrap;
+
+      .waterfall {
+        width: 300px;
+
+        & + .waterfall {
+          margin-left: 10px;
+        }
+
+        .frame-wrapper + .frame-wrapper {
+          margin-top: 10px;
+        }
+      }
     }
 
     .tip {
@@ -412,6 +302,12 @@ export default {
         margin-top: 30px;
       }
     }
+  }
+}
+
+@media (min-width: 1600px) {
+  .home-body {
+    width: 1540px !important;
   }
 }
 </style>

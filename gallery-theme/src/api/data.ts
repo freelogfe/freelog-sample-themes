@@ -1,5 +1,8 @@
 import { freelogEntranceItem } from "./interface";
 
+// 搜索类型
+export const tagsList = ["植物", "动物", "人物", "猫咪", "狗狗", "建筑", "风景", "美食", "体育", "海洋世界", "视频"];
+
 // 节点主题色
 export const themeList: any = {
   酷黑: { gradientColor: "linear-gradient(135deg, #222222, #353535)", deriveColor: "#222222" },

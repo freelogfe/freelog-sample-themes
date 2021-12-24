@@ -19,7 +19,10 @@ export default {
       () => props.data,
       () => {
         const converter = new showdown.Converter();
-        content.value = converter.makeHtml(props.data);
+        let html = converter.makeHtml(props.data);
+        // 使所有的超链接都打开新窗口
+        html = html.replace(/<a /g, "<a target='_blank' ");
+        content.value = html;
       }
     );
 
@@ -116,19 +119,26 @@ export default {
     line-height: 1.7;
   }
 
-  li {
-    display: list-item;
-    text-align: -webkit-match-parent;
+  ol {
+    list-style-type: decimal;
+  }
+
+  ul {
+    list-style-type: disc;
   }
 
   pre {
-    color: #333;
     padding: 16px;
     overflow-x: auto;
     font-size: 85%;
     line-height: 1.45;
-    background-color: #f6f8fa;
+    background-color: #282c34;
     border-radius: 3px;
+
+    code {
+      background-color: transparent;
+      color: #fff;
+    }
   }
 
   code {
@@ -144,7 +154,8 @@ export default {
     text-decoration: none;
   }
 
-  img, video {
+  img,
+  video {
     max-width: 100%;
     margin-left: 50%;
     transform: translateX(-50%);
