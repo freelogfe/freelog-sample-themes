@@ -135,7 +135,8 @@ export default {
 
     // 获取数据
     const getData = () => {
-      data.searchData = { ...data.searchData, ...query.value };
+      data.searchData = query.value;
+      datasOfGetList.clearData();
       datasOfGetList.getList(data.searchData, true);
     };
     getData();

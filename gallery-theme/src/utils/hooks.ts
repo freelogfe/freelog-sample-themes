@@ -1,9 +1,4 @@
-import {
-  getExhibitAuthStatus,
-  getExhibitListByPaging,
-  GetExhibitListByPagingParams,
-  getExhibitSignCount,
-} from "@/api/freelog";
+import { getExhibitAuthStatus, getExhibitListByPaging, GetExhibitListByPagingParams, getExhibitSignCount } from "@/api/freelog";
 import { onUnmounted, reactive, ref, toRefs, watchEffect } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { ExhibitItem } from "../api/interface";
@@ -28,9 +23,14 @@ export const useMyRouter = () => {
     }
   });
 
-  // 路由跳转方法
-  const switchPage = (path: string, query: any = {}, mode = "push") => {
-    (router as any)[mode]({ path, query });
+  /**
+   * 路由跳转方法
+   * @param path 路由
+   * @param query 参数
+   * @param mode 路由修改模式 0-全部替换参数 1-保留原有参数的基础上修改参数
+   */
+  const switchPage = (path: string, query: any = {}, mode = 0) => {
+    router.push({ path, query: mode === 0 ? query : { ...router.currentRoute.value.query, ...query } });
   };
 
   // 路由跳转方法
@@ -95,9 +95,15 @@ export const useGetList = () => {
     data.loading = false;
   };
 
+  const clearData = () => {
+    data.listData = [];
+    data.total = 0;
+  };
+
   return {
     ...toRefs(data),
     getList,
+    clearData,
   };
 };
 

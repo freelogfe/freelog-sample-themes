@@ -6,7 +6,7 @@
       v-for="item in tags"
       :key="item"
       :title="`搜索“${item}”`"
-      @click="searchTag(item)"
+      @click.stop="searchTag(item)"
     >
       {{ item }}
     </div>
@@ -16,6 +16,7 @@
 <script lang="ts">
 import { useMyRouter } from "@/utils/hooks";
 import { useStore } from "vuex";
+import { SetupContext } from "vue";
 
 export default {
   name: "tags",
@@ -27,7 +28,7 @@ export default {
     },
   },
 
-  setup() {
+  setup(props: { tags: any[] }, context: SetupContext<Record<string, any>>) {
     const store = useStore();
     const { switchPage } = useMyRouter();
 
@@ -35,7 +36,8 @@ export default {
       // 搜索标签
       searchTag(tag: string) {
         const query: { tags: string } = { tags: tag };
-        switchPage("/", query);
+        switchPage("/home", query);
+        context.emit("search");
       },
     };
 

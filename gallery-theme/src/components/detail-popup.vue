@@ -2,206 +2,196 @@
   <teleport to="#modal">
     <transition name="fade">
       <div
-        class="modal p-fixed full lt-0 z-100 cur-pointer"
+        class="modal"
         v-if="currentId"
         @click="closePopup()"
         @touchmove.prevent.passive
         @scroll.stop.prevent
-      ></div>
-    </transition>
-
-    <transition name="fade">
-      <div
-        class="close-btn w-24 h-24 p-fixed rt-8 text-center transition cur-pointer z-102"
-        @click="closePopup()"
-        v-if="currentId"
       >
-        <i class="iconfont fs-16">&#xe685;</i>
+        <div class="close-btn" @click="closePopup()" v-if="currentId">
+          <i class="freelog fl-icon-guanbi"></i>
+        </div>
       </div>
     </transition>
 
     <transition name="slide-up">
-      <div
-        ref="contentArea"
-        class="content-area p-fixed w-100p lb-0 bg-white flex-column align-center b-box y-auto z-101"
-        @click.stop
-        v-if="currentId"
-      >
-        <transition name="slide-down">
-          <div class="w-100p mw-1172 flex-column align-center" v-if="contentShow">
-            <div class="w-100p mw-800 flex-row align-center space-between">
-              <div>
-                <div class="fs-16 lh-24 fw-bold">
-                  {{ listData.find((item) => item.exhibitId === currentId).presentableTitle }}
-                </div>
-                <div class="author lh-17 mt-6">{{ imageInfo?.username }}</div>
-              </div>
-
-              <div class="share-btn w-40 h-40 brs-8 text-center cur-pointer transition">
-                <i class="iconfont fs-20">&#xe6b0;</i>
-              </div>
-            </div>
-
+      <div class="content-card" @click.stop v-if="currentId">
+        <div class="content-area">
+          <div class="title">{{ exhibitInfo?.exhibitName }}</div>
+          <div class="exhibit-info">
             <img
-              class="w-100p mw-800 brs-8 mt-40"
-              :src="imageInfo?.content"
-              :alt="listData.find((item) => item.exhibitId === currentId).presentableTitle"
-              v-if="imageInfo.type === 'image'"
+              class="author-avatar"
+              :src="getAvatarUrl(exhibitInfo?.userId)"
+              v-if="exhibitInfo?.userId"
             />
-            <video
-              class="w-100p mw-800 brs-8 mt-40"
-              :src="imageInfo?.content"
-              controls
-              v-if="imageInfo.type === 'video'"
-            ></video>
-
-            <div class="w-100p mw-800 fs-20 lh-32 mt-56">{{ imageInfo?.intro }}</div>
-
-            <div class="w-100p mw-800 mt-50 flex-row">
-              <div
-                class="tag ml-self-8 p-10 fs-12 brs-2 cur-pointer transition"
-                v-for="tag in listData.find((item) => item.exhibitId === currentId).tags"
-                :key="tag"
-                @click="search(tag)"
-              >
-                {{ tag }}
-              </div>
+            <div class="author-name">
+              {{ exhibitInfo?.articleInfo.articleOwnerName }}
             </div>
+            <tags
+              :tags="exhibitInfo?.tags"
+              @search="closePopup()"
+              v-if="exhibitInfo?.tags.length"
+            />
+          </div>
 
-            <template v-if="more.length">
-              <div class="w-100p h-0 bb-1 my-80"></div>
-
-              <div class="w-100p fs-16 fw-bold">more</div>
-
-              <div class="more-images w-100p mt-16">
-                <div
-                  class="p-relative w-100p pt-75p"
-                  v-for="item in more"
-                  :key="item.exhibitId"
-                  @click="viewImage(item.exhibitId)"
-                >
-                  <frame class="frame-box lt-0 w-100p h-100p" :data="item" />
-                </div>
-              </div>
+          <div ref="contentArea" class="main-area">
+            <template v-if="isAuth === true">
+              <img
+                :class="contentMode === 1 ? 'width-full' : 'height-full'"
+                :src="content"
+                :alt="exhibitInfo?.exhibitName"
+                v-if="exhibitInfo?.articleInfo.resourceType === 'image'"
+              />
+              <video
+                :class="contentMode === 1 ? 'width-full' : 'height-full'"
+                :src="content"
+                controls
+                v-if="exhibitInfo?.articleInfo.resourceType === 'video'"
+              ></video>
             </template>
 
-            <div class="key-tip w-100p mw-400 flex-row space-between mt-66">
-              <div class="flex-row align-center">
-                <div class="key w-22 h-22 brs-4 text-center b-box">
-                  <i class="iconfont fs-12">&#xe612;</i>
-                </div>
-                <span class="fs-12 ml-12">Previous shot</span>
-                <div class="key w-22 h-22 brs-4 text-center b-box ml-25">
-                  <i class="iconfont fs-12">&#xe602;</i>
-                </div>
-                <span class="fs-12 ml-12">Next shot</span>
+            <div class="lock-box" v-if="isAuth === false">
+              <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
+              <div class="lock-tip">
+                展品未开放授权，继续浏览请签约并获取授权
               </div>
-              <div class="flex-row align-center">
-                <div class="key w-25 h-22 brs-4 text-center b-box">
-                  <i class="iconfont fs-22">&#xe634;</i>
-                </div>
-                <span class="fs-12 ml-12">Close</span>
-              </div>
+              <div class="get-btn" @click="getAuth()">签约</div>
+            </div>
+
+            <div
+              class="switch-btn previous"
+              @click="switchExhibit('ArrowLeft')"
+            >
+              <i class="freelog fl-icon-zhankaigengduo"></i>
+            </div>
+            <div class="switch-btn next" @click="switchExhibit('ArrowRight')">
+              <i class="freelog fl-icon-zhankaigengduo"></i>
             </div>
           </div>
-        </transition>
+        </div>
+
+        <div class="recommend-area">
+          <div class="recommend-box">
+            <div class="title">相关推荐</div>
+
+            <div class="recommend-list">
+              <div class="waterfall" v-for="list in listNumber" :key="list">
+                <my-frame
+                  :data="item"
+                  v-for="item in waterfall[waterfallList[list - 1]]"
+                  :key="item.exhibitId"
+                  @click="currentId = item.exhibitId"
+                />
+              </div>
+            </div>
+
+            <div class="text-btn" @click="closePopup()">浏览更多>></div>
+          </div>
+        </div>
       </div>
     </transition>
   </teleport>
 </template>
 
 <script lang="ts">
-import { computed, defineAsyncComponent, reactive, ref, SetupContext, toRefs, watch } from "vue";
+import {
+  defineAsyncComponent,
+  reactive,
+  ref,
+  SetupContext,
+  toRefs,
+  watch,
+} from "vue";
 import { ExhibitItem } from "../api/interface";
-import { useMyRouter } from "../utils/hooks";
-import { getExhibitInfo } from "@/api/freelog";
-
-interface imageInfo extends ExhibitItem {
-  type: string;
-}
+import { useGetList, useMyRouter } from "../utils/hooks";
+import {
+  addAuth,
+  getExhibitAuthStatus,
+  getExhibitFileStream,
+  getExhibitInfo,
+} from "@/api/freelog";
 
 export default {
   name: "detail-popup",
 
-  props: ["listData", "id", "getList"],
+  props: ["id", "listData"],
 
   emits: ["update:id", "search"],
 
   components: {
-    frame: defineAsyncComponent(() => import("../components/frame.vue")),
+    tags: defineAsyncComponent(() => import("../components/tags.vue")),
+    "my-frame": defineAsyncComponent(() => import("../components/frame.vue")),
   },
 
   setup(
-    props: {
-      id: string;
-      listData: ExhibitItem[];
-      getList: (...params: any) => void;
-    },
+    props: { id: string; listData: ExhibitItem[] },
     context: SetupContext<Record<string, any>>
   ) {
     const { switchPage } = useMyRouter();
+    const datasOfGetList = useGetList();
     const contentArea = ref<any>(null);
+    let heightList: number[] = [];
+
     const data = reactive({
-      imageInfo: {} as Partial<imageInfo>,
       currentId: "",
-      contentShow: false,
-      more: computed(() => {
-        const index = props.listData.findIndex((item) => item.exhibitId === data.currentId);
-        let moreImages = props.listData.slice(index + 1).filter((item, index) => index < 4);
-        const { length } = moreImages;
-        if (length !== 4) moreImages.push(...props.listData.slice(0, 4 - length));
-        return moreImages;
-      }),
+      exhibitInfo: null as ExhibitItem | null,
+      isAuth: null as boolean | null,
+      content: "",
+      contentMode: null as null | number, // 显示模式 1-宽撑满，高自适应 2-高撑满，宽自适应
+      listNumber: 0,
+      waterfall: {} as any,
+      waterfallList: ["first", "second", "third", "fourth", "fifth"],
     });
 
     const methods = {
+      // 获取头像
+      getAvatarUrl(id: any) {
+        return `https://image.freelog.com/headImage/${id}`;
+      },
+
       // 切换图片
-      viewImage(id: string) {
-        data.currentId = id;
+      switchExhibit(type: string) {
+        const currentIndex = props.listData.findIndex(
+          (item) => item.exhibitId === data.currentId
+        );
+        if (type === "ArrowLeft" && currentIndex !== 0)
+          data.currentId = props.listData[currentIndex - 1].exhibitId;
+        if (type === "ArrowRight" && currentIndex !== props.listData.length - 1)
+          data.currentId = props.listData[currentIndex + 1].exhibitId;
       },
 
       // 搜索标签
       search(tag: string) {
-        const query: { tags?: string } = {};
-        query.tags = tag;
-        context.emit("search", query.tags);
-        this.closePopup();
-        props.getList(query, true);
+        const query: { tags?: string } = { tags: tag };
+        switchPage("/home", query);
       },
 
       closePopup() {
         data.currentId = "";
         context.emit("update:id", "");
+        switchPage("/home", { id: "" }, 1);
       },
-    };
 
-    const getImageInfo = async (id: string) => {
-      data.contentShow = false;
-
-      const exhibitInfo = await getExhibitInfo(id, { isLoadVersionProperty: 1 });
-      const { resourceVersionInfo, resourceInfo } = exhibitInfo.data.data;
-      const intro = resourceVersionInfo.description || resourceInfo.intro;
-
-      data.imageInfo = { intro, type: resourceInfo.resourceType };
-      contentArea.value.scrollTop = 0;
-      data.contentShow = true;
-    };
-
-    const keyup = (e: KeyboardEvent) => {
-      if (e.key === "Escape") methods.closePopup();
-      const currentIndex = props.listData.findIndex((item) => item.exhibitId === data.currentId);
-      if (e.key === "ArrowLeft" && currentIndex !== 0) data.currentId = props.listData[currentIndex - 1].exhibitId;
-      if (e.key === "ArrowRight" && currentIndex !== props.listData.length - 1)
-        data.currentId = props.listData[currentIndex + 1].exhibitId;
+      // 授权
+      async getAuth() {
+        const authResult = await addAuth(data.currentId);
+        const { status } = authResult;
+        if (status === 0) getData();
+      },
     };
 
     watch(
       () => props.id,
       (cur) => {
+        data.currentId = cur;
         if (cur) {
-          data.currentId = cur;
+          document.documentElement.scroll({ top: 0 });
+          data.exhibitInfo = null;
+          data.isAuth = false;
+          data.content = "";
+          data.waterfall = {};
           window.addEventListener("keyup", keyup);
-          switchPage("/", { id: data.currentId }, "replace");
+          switchPage("/home", { id: data.currentId }, 1);
         } else {
           window.removeEventListener("keyup", keyup);
         }
@@ -211,9 +201,133 @@ export default {
     watch(
       () => data.currentId,
       (cur) => {
-        if (cur) getImageInfo(cur);
+        if (!cur) return;
+
+        getListNumber();
+        getData();
       }
     );
+
+    watch(
+      () => datasOfGetList.listData.value,
+      async (cur: ExhibitItem[]) => {
+        initWaterfall();
+        for (let i = 0; i < cur.length; i++) {
+          const img = new Image();
+          img.src = cur[i].coverImages[0];
+          img.onload = () => {
+            const height = (300 / img.width) * img.height;
+            cur[i].height = height;
+
+            if (i === cur.length - 1) setWaterFall();
+          };
+        }
+      }
+    );
+
+    const keyup = (e: KeyboardEvent) => {
+      if (e.key === "Escape") methods.closePopup();
+      if (["ArrowLeft", "ArrowRight"].includes(e.key)) {
+        methods.switchExhibit(e.key);
+      }
+    };
+
+    // 根据屏幕宽度判断瀑布流列数
+    const getListNumber = () => {
+      const { clientWidth } = document.body;
+      // 屏幕宽度小于等于 1600 时，显示 4 列，否则显示 5 列
+      data.listNumber = clientWidth <= 1600 ? 4 : 5;
+    };
+
+    // 初始化瀑布流数据
+    const initWaterfall = () => {
+      heightList = [];
+      data.waterfall = {};
+      for (let i = 0; i < data.listNumber; i++) {
+        data.waterfall[data.waterfallList[i]] = [] as ExhibitItem[];
+      }
+    };
+
+    // 整理瀑布流数据
+    const setWaterFall = () => {
+      const GAP_HEIGHT = 10;
+      for (let i = 0; i < datasOfGetList.listData.value.length; i++) {
+        if (
+          datasOfGetList.listData.value[i].exhibitId ===
+          data.exhibitInfo?.exhibitId
+        )
+          continue;
+
+        let minHeightItemIndex = 0;
+        if (heightList.length && heightList.length < data.listNumber) {
+          minHeightItemIndex = heightList.length;
+        } else if (heightList.length === data.listNumber) {
+          const minHeight = Math.min(...heightList);
+          minHeightItemIndex = heightList.findIndex(
+            (item) => item === minHeight
+          );
+        }
+
+        data.waterfall[data.waterfallList[minHeightItemIndex]].push(
+          datasOfGetList.listData.value[i]
+        );
+        heightList[minHeightItemIndex] =
+          (heightList[minHeightItemIndex] || 0) +
+          ((datasOfGetList.listData.value[i] as any).height || 0) +
+          GAP_HEIGHT;
+      }
+    };
+
+    // 获取资源内容
+    const getData = async () => {
+      const exhibitInfo = await getExhibitInfo(data.currentId, {
+        isLoadVersionProperty: 1,
+      });
+      data.exhibitInfo = exhibitInfo.data.data;
+
+      const statusInfo = await getExhibitAuthStatus(data.currentId);
+      data.isAuth = statusInfo.data.data
+        ? statusInfo.data.data[0].isAuth
+        : false;
+      if (data.isAuth) {
+        const info: any = await getExhibitFileStream(data.currentId, true);
+        if (!info) return;
+
+        const resourceType = data.exhibitInfo?.articleInfo.resourceType;
+        if (resourceType === "image") {
+          const img = new Image();
+          img.src = info;
+          img.onload = () => {
+            const { width, height } = img;
+            const ratio = width / height;
+            judgeContentMode(ratio, info);
+          };
+        } else if (resourceType === "video") {
+          const video: HTMLVideoElement = document.createElement("video");
+          video.src = info;
+          video.onloadeddata = () => {
+            const { videoWidth, videoHeight } = video;
+            const ratio = videoWidth / videoHeight;
+            judgeContentMode(ratio, info);
+          };
+        }
+      } else {
+        methods.getAuth();
+      }
+
+      datasOfGetList.getList(
+        { tags: data.exhibitInfo?.tags.join(","), limit: 20 },
+        true
+      );
+    };
+
+    // 根据资源宽高比决定显示模式
+    const judgeContentMode = (ratio: number, info: string) => {
+      const { clientWidth, clientHeight } = contentArea.value;
+      const areaRatio = clientWidth / clientHeight;
+      data.contentMode = ratio > areaRatio ? 1 : 2;
+      data.content = info;
+    };
 
     return {
       ...toRefs(data),
@@ -226,88 +340,267 @@ export default {
 
 <style lang="scss" scoped>
 .modal {
-  background-color: rgba(0, 0, 0, 0.8);
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 100;
+
+  .close-btn {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 102;
+
+    .freelog {
+      font-size: 12px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
 }
 
-.close-btn {
-  color: #dbdbde;
+.content-card {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(100vh - 50px);
+  border-radius: 20px 20px 0 0;
+  background-color: #fff;
+  overflow-y: auto;
+  z-index: 101;
 
-  &:hover {
-    color: #fff;
-  }
-}
+  .content-area {
+    padding: 30px 0 55px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
-.content-area {
-  padding: 64px 120px;
-  border-radius: 12px 12px 0 0;
-  height: calc(100vh - 40px);
+    .title {
+      width: 1230px;
+      font-size: 24px;
+      font-weight: 600;
+      color: #222222;
+      line-height: 30px;
+    }
 
-  .author {
-    color: #9e9ea7;
-  }
+    .exhibit-info {
+      width: 1230px;
+      display: flex;
+      align-items: center;
+      margin-top: 15px;
 
-  .share-btn {
-    color: #0d0c22;
-    box-shadow: 0px 0px 0px 1px #e7e7e9 inset;
+      .author-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+      }
 
-    &:hover {
-      box-shadow: 0px 0px 0px 1px #dbdbde inset;
+      .author-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: #222222;
+        line-height: 20px;
+        margin-left: 10px;
+      }
+
+      .tags-wrapper {
+        margin-left: 30px;
+      }
+    }
+
+    .main-area {
+      position: relative;
+      width: 1230px;
+      min-height: 600px;
+      max-height: 750px;
+      height: calc(100vh - 300px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #fafbfc;
+      border-radius: 10px;
+      margin-top: 30px;
+
+      .width-full {
+        width: 100%;
+      }
+
+      .height-full {
+        height: 100%;
+      }
+
+      .lock-box {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .lock {
+          width: 48px;
+          height: 48px;
+          font-size: 48px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #9aa7bb;
+        }
+
+        .lock-tip {
+          font-size: 20px;
+          color: #222;
+          line-height: 28px;
+          margin-top: 40px;
+        }
+
+        .get-btn {
+          padding: 9px 20px;
+          border-radius: 4px;
+          font-size: 14px;
+          line-height: 20px;
+          font-weight: bold;
+          background-color: #2784ff;
+          color: #fff;
+          margin-top: 40px;
+          cursor: pointer;
+
+          &:hover {
+            background-color: #529dff;
+          }
+
+          &:active {
+            background-color: #2376e5;
+          }
+        }
+      }
+
+      .switch-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 60px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        cursor: pointer;
+        opacity: 0;
+        transition: all 0.2s linear;
+
+        &:hover {
+          background: rgba(0, 0, 0, 0.4);
+        }
+
+        .freelog {
+          width: 12px;
+          height: 26px;
+          font-size: 26px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        &.previous {
+          left: 15px;
+
+          .freelog {
+            transform: rotate(180deg);
+          }
+        }
+
+        &.next {
+          right: 15px;
+        }
+      }
+
+      &:hover .switch-btn {
+        opacity: 1;
+      }
     }
   }
 
-  .tag {
-    background-color: #f2f2f2;
-    color: #6b6b6b;
-    letter-spacing: 1px;
+  .recommend-area {
+    width: 100%;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 0 0 100px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
 
-    &:hover {
-      background-color: #dddddd;
-    }
-  }
+    .recommend-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
 
-  .more-images {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(204px, 1fr));
-    grid-gap: 40px;
+      .title {
+        width: 100%;
+        font-size: 30px;
+        font-weight: 400;
+        color: #222222;
+        line-height: 100px;
+      }
 
-    .frame-box {
-      position: absolute !important;
-    }
-  }
+      .recommend-list {
+        display: flex;
 
-  .key-tip {
-    color: #6e6d7a;
+        .waterfall {
+          width: 300px;
 
-    .key {
-      border: 1px solid #ccc;
-      box-shadow: 0 2px 0 #ccc;
+          & + .waterfall {
+            margin-left: 10px;
+          }
 
-      .iconfont {
-        color: #ccc;
+          .frame-wrapper + .frame-wrapper {
+            margin-top: 10px;
+          }
+        }
+      }
+
+      .text-btn {
+        font-size: 14px;
+        color: #999999;
+        line-height: 20px;
+        margin-top: 30px;
       }
     }
   }
 }
 
-@media (max-width: 1200px) {
-  .more-images {
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+@media (min-width: 1440px) {
+  .content-area {
+    padding: 30px 105px 55px !important;
+
+    .title,
+    .exhibit-info,
+    .main-area {
+      width: 100% !important;
+    }
   }
 }
 
-@media (max-width: 919px) {
-  .close-btn {
-    color: #3d3d4e;
-
-    &:hover {
-      color: #0d0c22;
-    }
-  }
-
+@media (min-width: 1650px) {
   .content-area {
-    padding: 32px 16px;
-    border-radius: 0;
-    height: 100vh;
+    padding: 30px 0 55px !important;
+
+    .title,
+    .exhibit-info,
+    .main-area {
+      width: 1540px !important;
+    }
   }
 }
 </style>

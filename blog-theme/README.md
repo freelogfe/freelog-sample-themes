@@ -6,5 +6,5 @@
 - bloggerAvatar: 博主头像网络路径
 - blogTitle: 博客标题
 - blogIntro: 博客简介
-- tags: 博客标签 (玄幻,仙侠,随笔,文集,悬疑,推理,设计,编程)
+- tags: 博客标签
 - articleCover: 文章封面图显示 (显示,隐藏)

@@ -95,9 +95,15 @@ export const useGetList = () => {
     data.loading = false;
   };
 
+  const clearData = () => {
+    data.listData = [];
+    data.total = 0;
+  };
+
   return {
     ...toRefs(data),
     getList,
+    clearData,
   };
 };
 

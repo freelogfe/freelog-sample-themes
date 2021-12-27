@@ -231,6 +231,16 @@ input:focus {
   opacity: 0;
 }
 
+/* slide-up */
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.2s ease;
+}
+.slide-up-enter-from,
+.slide-up-leave-to {
+  transform: translateY(100%);
+}
+
 /* slide-right */
 .slide-right-enter-active,
 .slide-right-leave-active {

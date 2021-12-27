@@ -1,6 +1,10 @@
 <template>
   <!-- mobile -->
-  <div class="mobile-header-wrapper" :class="{ 'in-home': homeHeader }" v-if="inMobile">
+  <div
+    class="mobile-header-wrapper"
+    :class="{ 'in-home': homeHeader }"
+    v-if="inMobile"
+  >
     <!-- header顶部 -->
     <div class="header-top" :class="{ logon: userData }">
       <img
@@ -15,7 +19,11 @@
       </div>
 
       <div class="header-top-right">
-        <i class="freelog fl-icon-content" @click="searchPopupShow = true" v-if="!homeHeader"></i>
+        <i
+          class="freelog fl-icon-content"
+          @click="searchPopupShow = true"
+          v-if="!homeHeader"
+        ></i>
 
         <img
           class="avatar"
@@ -34,19 +42,22 @@
 
     <!-- 用户弹窗 -->
     <transition name="fade">
-      <div id="modal" class="modal" @click="userBoxShow = false" v-if="userBoxShow"></div>
+      <div
+        id="modal"
+        class="modal"
+        @click="userBoxShow = false"
+        v-if="userBoxShow"
+      ></div>
     </transition>
     <transition name="slide-right">
       <div class="user-box-body" v-if="userBoxShow">
-        <img class="avatar" :src="userData?.headImage" :alt="userData?.username" />
+        <img
+          class="avatar"
+          :src="userData?.headImage"
+          :alt="userData?.username"
+        />
         <div class="username">{{ userData?.username }}</div>
         <div class="btns">
-          <div class="btn" @click="switchPage('/home')">
-            <div class="btn-content">首页</div>
-          </div>
-          <div class="btn" @click="switchPage('/shelf')">
-            <div class="btn-content">我的收藏</div>
-          </div>
           <div class="btn" @click="callLoginOut()">
             <div class="btn-content">退出登录</div>
           </div>
@@ -77,7 +88,12 @@
         <div class="recommend-tags">
           <div class="recommend-tags-title">推荐标签</div>
           <div class="recommend-tags-list">
-            <div class="tag" v-for="item in tagsList" :key="item" @click="selectTag(item)">
+            <div
+              class="tag"
+              v-for="item in galleryTags"
+              :key="item"
+              @click="selectTag(item)"
+            >
               {{ item }}
             </div>
           </div>
@@ -110,22 +126,30 @@
         </div>
       </div>
 
-      <div class="user-avatar" @mouseover="userBoxShow = true" @mouseleave="userBoxShow = false" v-if="userData">
+      <div
+        class="user-avatar"
+        @mouseover="userBoxShow = true"
+        @mouseleave="userBoxShow = false"
+        v-if="userData"
+      >
         <div class="username">{{ userData.username }}</div>
-        <img class="avatar" :src="userData.headImage" :alt="userData.username" />
+        <img
+          class="avatar"
+          :src="userData.headImage"
+          :alt="userData.username"
+        />
 
         <transition name="slide-down-scale">
           <div class="user-box" v-if="userBoxShow">
             <div class="user-box-body">
-              <img class="avatar" :src="userData.headImage" :alt="userData.username" />
+              <img
+                class="avatar"
+                :src="userData.headImage"
+                :alt="userData.username"
+              />
               <div class="username">{{ userData.username }}</div>
               <div class="mobile">{{ userData.mobile }}</div>
-              <div class="btn user-box-btn" @click="switchPage('/shelf')">
-                我的收藏
-              </div>
-              <div class="btn user-box-btn" @click="callLoginOut()">
-                登出
-              </div>
+              <div class="btn user-box-btn" @click="callLoginOut()">登出</div>
             </div>
           </div>
         </transition>
@@ -147,7 +171,11 @@
         @keyup.esc="searchKey = ''"
       />
       <i class="freelog fl-icon-content"></i>
-      <i class="freelog fl-icon-guanbi" @click="searchKey = ''" v-show="searchKey"></i>
+      <i
+        class="freelog fl-icon-guanbi"
+        @click="searchKey = ''"
+        v-show="searchKey"
+      ></i>
     </div>
 
     <!-- 筛选栏 -->
@@ -159,7 +187,7 @@
       <div
         class="category-btn"
         :class="{ active: tags === item }"
-        v-for="item in tagsList"
+        v-for="item in galleryTags"
         :key="item"
         @click="selectTag(item)"
       >
@@ -174,7 +202,6 @@ import { reactive, toRefs, watch } from "vue";
 import { useMyRouter } from "../utils/hooks";
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
-import { tagsList } from "@/api/data";
 
 export default {
   name: "my-header",
@@ -188,6 +215,7 @@ export default {
 
   setup(props: { homeHeader: boolean }) {
     const store = useStore();
+    let galleryTags: string[] = store.state.selfConfig.tags.split(",");
     const { query, switchPage, routerBack } = useMyRouter();
 
     const data = reactive({
@@ -242,7 +270,7 @@ export default {
       switchPage,
       routerBack,
       ...store.state,
-      tagsList,
+      galleryTags,
       ...toRefs(data),
       ...methods,
     };

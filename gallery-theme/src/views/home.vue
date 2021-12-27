@@ -7,20 +7,31 @@
       <div class="header" v-if="searchData.keywords || searchData.tags">
         <div class="search-title">
           “{{
-            `${searchData.keywords || ""}${searchData.keywords && searchData.tags ? "+" : ""}${searchData.tags || ""}`
+            `${searchData.keywords || ""}${
+              searchData.keywords && searchData.tags ? "+" : ""
+            }${searchData.tags || ""}`
           }}”的搜索结果
           <span className="search-total">({{ total }})</span>
         </div>
 
-        <div className="clear-search-btn" @click="clearSearch()">清空搜索条件</div>
+        <div className="clear-search-btn" @click="clearSearch()">
+          清空搜索条件
+        </div>
       </div>
 
       <div class="frame-list">
         <my-frame :data="item" v-for="item in listData" :key="item.exhibitId" />
       </div>
 
-      <div className="tip" v-show="total === 0">当前节点暂无数据，请稍后查看</div>
-      <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部 —</div>
+      <div className="tip" v-show="total === 0">
+        当前节点暂无数据，请稍后查看
+      </div>
+      <div
+        className="tip no-more"
+        v-show="listData.length !== 0 && listData.length === total"
+      >
+        — 已加载全部 —
+      </div>
     </div>
 
     <!-- PC -->
@@ -28,24 +39,42 @@
       <div class="header" v-if="searchData.keywords || searchData.tags">
         <div class="search-title">
           “{{
-            `${searchData.keywords || ""}${searchData.keywords && searchData.tags ? "+" : ""}${searchData.tags || ""}`
+            `${searchData.keywords || ""}${
+              searchData.keywords && searchData.tags ? "+" : ""
+            }${searchData.tags || ""}`
           }}”的搜索结果
           <span className="search-total">({{ total }})</span>
-          <div className="clear-search-btn" @click="clearSearch()">清空搜索条件</div>
+          <div className="clear-search-btn" @click="clearSearch()">
+            清空搜索条件
+          </div>
         </div>
       </div>
 
       <div class="frame-list">
         <div class="waterfall" v-for="list in listNumber" :key="list">
-          <my-frame :data="item" v-for="item in waterfall[waterfallList[list - 1]]" :key="item.exhibitId" />
+          <my-frame
+            :data="item"
+            v-for="item in waterfall[waterfallList[list - 1]]"
+            :key="item.exhibitId"
+            @click="currentId = item.exhibitId"
+          />
         </div>
       </div>
 
-      <div className="tip" v-show="total === 0">当前节点暂无数据，请稍后查看</div>
-      <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部 —</div>
+      <div className="tip" v-show="total === 0">
+        当前节点暂无数据，请稍后查看
+      </div>
+      <div
+        className="tip no-more"
+        v-show="listData.length !== 0 && listData.length === total"
+      >
+        — 已加载全部 —
+      </div>
     </div>
 
     <my-footer />
+
+    <detail-popup v-model:id="currentId" :listData="listData" />
   </div>
 </template>
 
@@ -62,6 +91,9 @@ export default {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     "my-frame": defineAsyncComponent(() => import("../components/frame.vue")),
+    "detail-popup": defineAsyncComponent(
+      () => import("../components/detail-popup.vue")
+    ),
   },
 
   setup() {
@@ -72,24 +104,29 @@ export default {
     let heightList: number[] = [];
 
     const data = reactive({
-      searchData: {} as { keywords?: string; tags?: string },
+      searchData: {} as {
+        keywords?: string;
+        tags?: string;
+        id?: string;
+      },
       listNumber: 0,
       waterfall: {} as any,
-      waterfallList: ["waterfallFirst", "waterfallSecond", "waterfallThird", "waterfallFourth", "waterfallFifth"],
+      waterfallList: ["first", "second", "third", "fourth", "fifth"],
+      currentId: null as null | string,
     });
 
     const methods = {
       // 清除搜索
       clearSearch() {
         data.searchData = {};
-        switchPage("/");
+        switchPage("/home");
       },
     };
 
     watch(
       () => query.value,
-      () => {
-        getData();
+      (cur, pre) => {
+        if (cur.keywords !== pre.keywords || cur.tags !== pre.tags) getData();
       }
     );
 
@@ -104,7 +141,7 @@ export default {
 
     watch(
       () => datasOfGetList.listData.value,
-      async (cur) => {
+      async (cur: ExhibitItem[]) => {
         if (datasOfGetList.skip.value === 0) initWaterfall();
 
         const index = datasOfGetList.skip.value;
@@ -114,7 +151,7 @@ export default {
           img.src = cur[i].coverImages[0];
           img.onload = () => {
             const height = (300 / img.width) * img.height;
-            (cur[i] as any).height = height;
+            cur[i].height = height;
 
             if (i === cur.length - 1) setWaterFall(index);
           };
@@ -134,7 +171,7 @@ export default {
       heightList = [];
       data.waterfall = {};
       for (let i = 0; i < data.listNumber; i++) {
-        data.waterfall[data.waterfallList[i]] = [] as ExhibitItem[] | { height: number }[];
+        data.waterfall[data.waterfallList[i]] = [] as ExhibitItem[];
       }
     };
 
@@ -147,18 +184,29 @@ export default {
           minHeightItemIndex = heightList.length;
         } else if (heightList.length === data.listNumber) {
           const minHeight = Math.min(...heightList);
-          minHeightItemIndex = heightList.findIndex((item) => item === minHeight);
+          minHeightItemIndex = heightList.findIndex(
+            (item) => item === minHeight
+          );
         }
 
-        data.waterfall[data.waterfallList[minHeightItemIndex]].push(datasOfGetList.listData.value[i]);
+        data.waterfall[data.waterfallList[minHeightItemIndex]].push(
+          datasOfGetList.listData.value[i]
+        );
         heightList[minHeightItemIndex] =
-          (heightList[minHeightItemIndex] || 0) + ((datasOfGetList.listData.value[i] as any).height || 0) + GAP_HEIGHT;
+          (heightList[minHeightItemIndex] || 0) +
+          ((datasOfGetList.listData.value[i] as any).height || 0) +
+          GAP_HEIGHT;
+      }
+
+      if (data.searchData.id && data.currentId !== data.searchData.id) {
+        data.currentId = data.searchData.id;
       }
     };
 
     // 获取数据
     const getData = () => {
-      data.searchData = { ...data.searchData, ...query.value };
+      data.searchData = query.value;
+      datasOfGetList.clearData();
       datasOfGetList.getList(data.searchData, true);
     };
 

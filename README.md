@@ -8,10 +8,10 @@
 
     comic-theme
 
-## 图库/视频主题 by Vue3
-
-    gallery-theme
-
 ## 博客主题 by Vue3
 
     blog-theme
+
+## 图库/视频主题 by Vue3
+
+    gallery-theme
