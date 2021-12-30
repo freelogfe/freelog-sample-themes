@@ -1,7 +1,7 @@
 <template>
   <div
     class="login-btn-wrapper main-btn mobile"
-    :class="{ hidden: userData || !inMobile }"
+    :class="{ hidden: isLogin || !inMobile }"
     :style="{ boxShadow: `0px 2px 10px 0px ${theme.deriveColor}40` }"
     @click="callLogin()"
   >
@@ -12,15 +12,28 @@
 <script lang="ts">
 import { useStore } from "vuex";
 import { callLogin } from "@/api/freelog";
+import { reactive, toRefs, watch } from "@vue/runtime-core";
 
 export default {
   name: "login-btn",
 
   setup() {
     const store = useStore();
+    const data = reactive({
+      isLogin: false,
+    });
+
+    watch(
+      () => store.state.userData,
+      (cur) => {
+        data.isLogin = !!cur;
+      },
+      { immediate: true }
+    );
 
     return {
       ...store.state,
+      ...toRefs(data),
       callLogin,
     };
   },

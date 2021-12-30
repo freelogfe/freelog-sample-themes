@@ -20,7 +20,15 @@
       </div>
 
       <div class="frame-list">
-        <my-frame :data="item" v-for="item in listData" :key="item.exhibitId" />
+        <div class="waterfall" v-for="list in listNumber" :key="list">
+          <my-frame
+            class="frame"
+            :data="item"
+            v-for="item in waterfall[waterfallList[list - 1]]"
+            :key="item.exhibitId"
+            @click="switchPage('/detail', { id: item.exhibitId })"
+          />
+        </div>
       </div>
 
       <div className="tip" v-show="total === 0">
@@ -53,6 +61,7 @@
       <div class="frame-list">
         <div class="waterfall" v-for="list in listNumber" :key="list">
           <my-frame
+            class="frame"
             :data="item"
             v-for="item in waterfall[waterfallList[list - 1]]"
             :key="item.exhibitId"
@@ -74,7 +83,9 @@
 
     <my-footer />
 
-    <detail-popup v-model:id="currentId" :listData="listData" />
+    <login-btn />
+
+    <detail v-model:id="currentId" :listData="listData" v-if="!inMobile" />
   </div>
 </template>
 
@@ -91,8 +102,9 @@ export default {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     "my-frame": defineAsyncComponent(() => import("../components/frame.vue")),
-    "detail-popup": defineAsyncComponent(
-      () => import("../components/detail-popup.vue")
+    detail: defineAsyncComponent(() => import("../views/detail.vue")),
+    "login-btn": defineAsyncComponent(
+      () => import("../components/login-btn.vue")
     ),
   },
 
@@ -100,7 +112,7 @@ export default {
     const store = useStore();
     const { query, switchPage } = useMyRouter();
     const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
-    const datasOfGetList = useGetList();
+    const datasOfGetList = useGetList(true);
     let heightList: number[] = [];
 
     const data = reactive({
@@ -132,28 +144,36 @@ export default {
 
     watch(
       () => scrollTop.value,
-      (cur) => {
-        if (cur + clientHeight.value === scrollHeight.value) {
-          datasOfGetList.getList();
-        }
+      () => {
+        getMoreData();
       }
     );
 
     watch(
       () => datasOfGetList.listData.value,
-      async (cur: ExhibitItem[]) => {
+      async (cur: ExhibitItem[], pre: ExhibitItem[]) => {
         if (datasOfGetList.skip.value === 0) initWaterfall();
 
         const index = datasOfGetList.skip.value;
+        const { inMobile } = store.state;
+        let num = 0;
+        let frameWidth = 0;
+
+        if (inMobile) {
+          frameWidth = (document.body.clientWidth - 40) / 2;
+        } else {
+          frameWidth = 300;
+        }
 
         for (let i = index; i < cur.length; i++) {
           const img = new Image();
           img.src = cur[i].coverImages[0];
           img.onload = () => {
-            const height = (300 / img.width) * img.height;
+            const height = (frameWidth / img.width) * img.height;
             cur[i].height = height;
+            num++;
 
-            if (i === cur.length - 1) setWaterFall(index);
+            if (num === cur.length - pre.length) setWaterFall(index);
           };
         }
       }
@@ -162,8 +182,13 @@ export default {
     // 根据屏幕宽度判断瀑布流列数
     const getListNumber = () => {
       const { clientWidth } = document.body;
-      // 屏幕宽度小于等于 1600 时，显示 4 列，否则显示 5 列
-      data.listNumber = clientWidth <= 1600 ? 4 : 5;
+      const { inMobile } = store.state;
+      if (inMobile) {
+        data.listNumber = 2;
+      } else {
+        // 屏幕宽度小于等于 1600 时，显示 4 列，否则显示 5 列
+        data.listNumber = clientWidth <= 1600 ? 4 : 5;
+      }
     };
 
     // 初始化瀑布流数据
@@ -177,7 +202,6 @@ export default {
 
     // 整理瀑布流数据
     const setWaterFall = (startIndex = 0) => {
-      const GAP_HEIGHT = 10;
       for (let i = startIndex; i < datasOfGetList.listData.value.length; i++) {
         let minHeightItemIndex = 0;
         if (heightList.length && heightList.length < data.listNumber) {
@@ -194,12 +218,21 @@ export default {
         );
         heightList[minHeightItemIndex] =
           (heightList[minHeightItemIndex] || 0) +
-          ((datasOfGetList.listData.value[i] as any).height || 0) +
-          GAP_HEIGHT;
+          ((datasOfGetList.listData.value[i] as any).height || 0);
       }
 
-      if (data.searchData.id && data.currentId !== data.searchData.id) {
-        data.currentId = data.searchData.id;
+      const { id } = data.searchData;
+      if (id && data.currentId !== id) {
+        if (store.state.inMobile) {
+          // 移动端跳转详情页面
+          switchPage("/home");
+          setTimeout(() => {
+            switchPage("/detail", { id });
+          }, 0);
+        } else {
+          // PC端弹出内容弹窗
+          data.currentId = id;
+        }
       }
     };
 
@@ -210,11 +243,19 @@ export default {
       datasOfGetList.getList(data.searchData, true);
     };
 
+    // 获取更多数据
+    const getMoreData = () => {
+      if (scrollTop.value + clientHeight.value === scrollHeight.value) {
+        datasOfGetList.getList();
+      }
+    };
+
     getListNumber();
     getData();
 
     return {
       ...store.state,
+      switchPage,
       ...datasOfGetList,
       ...toRefs(data),
       ...methods,
@@ -235,7 +276,7 @@ export default {
   // mobile
   .mobile-home-body {
     width: 100%;
-    padding: 0 20px;
+    padding: 15px 15px 0;
     box-sizing: border-box;
     padding-bottom: 98px;
 
@@ -262,6 +303,22 @@ export default {
 
         &:active {
           color: #2376e5;
+        }
+      }
+    }
+
+    .frame-list {
+      display: flex;
+
+      .waterfall {
+        flex: 1;
+
+        & + .waterfall {
+          margin-left: 10px;
+        }
+
+        .frame-wrapper + .frame-wrapper {
+          margin-top: 10px;
         }
       }
     }

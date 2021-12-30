@@ -10,6 +10,11 @@ const routes: Array<RouteRecordRaw> = [
     name: "home",
     component: () => import("../views/home.vue"),
   },
+  {
+    path: "/detail",
+    name: "detail",
+    component: () => import("../views/detail.vue"),
+  },
 ];
 
 export default routes;

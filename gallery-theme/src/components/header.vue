@@ -58,6 +58,9 @@
         />
         <div class="username">{{ userData?.username }}</div>
         <div class="btns">
+          <div class="btn" @click="switchPage('/home')">
+            <div class="btn-content">首页</div>
+          </div>
           <div class="btn" @click="callLoginOut()">
             <div class="btn-content">退出登录</div>
           </div>
@@ -287,7 +290,7 @@ export default {
   background: var(--gradientColor);
 
   &.in-home {
-    padding: 22px 20px;
+    padding: 22px 15px;
 
     .header-top {
       justify-content: center;
@@ -370,7 +373,7 @@ export default {
     display: flex;
     align-items: center;
     background: rgba(255, 255, 255, 0.1);
-    margin-top: 36px;
+    margin-top: 22px;
 
     .fl-icon-content {
       width: 14px;
@@ -391,6 +394,7 @@ export default {
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.4);
+    z-index: 100;
   }
 
   .user-box-body {
@@ -459,15 +463,16 @@ export default {
     right: 0;
     bottom: 0;
     background-color: #fff;
+    z-index: 100;
 
     .search-page-header {
       width: 100%;
       height: 60px;
       display: flex;
       align-items: center;
-      padding-left: 20px;
+      padding-left: 15px;
       box-sizing: border-box;
-      background-color: #333;
+      background: var(--gradientColor);
 
       .search-page-box {
         position: relative;
@@ -519,7 +524,7 @@ export default {
         font-size: 16px;
         line-height: 22px;
         height: 100%;
-        padding: 0 20px;
+        padding: 0 15px;
         display: flex;
         align-items: center;
       }
@@ -538,7 +543,8 @@ export default {
         font-size: 14px;
         color: #999999;
         line-height: 20px;
-        padding-left: 20px;
+        padding-left: 15px;
+        box-sizing: border-box;
       }
 
       .recommend-tags-list {

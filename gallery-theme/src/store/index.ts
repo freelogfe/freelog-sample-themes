@@ -1,5 +1,6 @@
 import { themeList } from "@/api/data";
 import { getSelfConfig, getCurrentUser } from "@/api/freelog";
+import { ExhibitItem } from "@/api/interface";
 import { judgeDevice } from "@/utils/common";
 import { createStore } from "vuex";
 
@@ -16,12 +17,26 @@ interface Theme {
   deriveColor: string;
 }
 
+// 列表数据
+interface List {
+  listData: ExhibitItem[];
+  loading: boolean;
+  total: number;
+  skip: number;
+}
+
 export default createStore({
   state: {
     inMobile: false as boolean,
     userData: null as UserData | null,
     selfConfig: {} as any,
     theme: { gradientColor: "", deriveColor: "" } as Theme,
+    list: {
+      listData: [],
+      loading: false,
+      total: 0,
+      skip: 0,
+    } as List,
   },
 
   mutations: {

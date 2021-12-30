@@ -1,6 +1,7 @@
-import { getExhibitAuthStatus, getExhibitListByPaging, GetExhibitListByPagingParams, getExhibitSignCount } from "@/api/freelog";
+import { getExhibitAuthStatus, getExhibitListByPaging, GetExhibitListByPagingParams } from "@/api/freelog";
 import { onUnmounted, reactive, ref, toRefs, watchEffect } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useStore } from "vuex";
 import { ExhibitItem } from "../api/interface";
 
 /**
@@ -49,7 +50,8 @@ export const useMyRouter = () => {
 /**
  * 获取列表数据hook
  */
-export const useGetList = () => {
+export const useGetList = (inList = false) => {
+  const store = useStore();
   const data = reactive({
     listData: <ExhibitItem[]>[],
     loading: false,
@@ -77,11 +79,11 @@ export const useGetList = () => {
         idList.push(item.exhibitId);
       });
       const ids = idList.join(",");
-      const signCountData = await getExhibitSignCount(ids);
-      signCountData.data.data.forEach((item: { subjectId: string; count: number }) => {
-        const index = dataList.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.subjectId);
-        dataList[index].signCount = item.count;
-      });
+      // const signCountData = await getExhibitSignCount(ids);
+      // signCountData.data.data.forEach((item: { subjectId: string; count: number }) => {
+      //   const index = dataList.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.subjectId);
+      //   dataList[index].signCount = item.count;
+      // });
       const statusInfo = await getExhibitAuthStatus(ids);
       if (statusInfo.data.data) {
         statusInfo.data.data.forEach((item: { exhibitId: string; isAuth: boolean }) => {
@@ -91,6 +93,7 @@ export const useGetList = () => {
       }
     }
     data.listData = init ? dataList : [...data.listData, ...dataList];
+    inList && store.commit("setData", { key: "listData", value: data.listData });
     data.total = totalItem;
     data.loading = false;
   };
@@ -111,6 +114,7 @@ export const useGetList = () => {
  * 获取页面相关信息hook
  */
 export const useMyScroll = () => {
+  const app = document.getElementById("app");
   const data = reactive({
     scrollTop: 0,
     clientHeight: 0,
@@ -118,15 +122,17 @@ export const useMyScroll = () => {
   });
 
   const scroll = () => {
-    data.scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-    data.clientHeight = document.documentElement.clientHeight || document.body.clientHeight;
-    data.scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+    data.scrollTop = app?.scrollTop || 0;
+    data.clientHeight = app?.clientHeight || 0;
+    data.scrollHeight = app?.scrollHeight || 0;
   };
 
-  window.addEventListener("scroll", scroll);
+  app?.addEventListener("scroll", scroll);
   onUnmounted(() => {
-    window.removeEventListener("scroll", scroll);
+    app?.removeEventListener("scroll", scroll);
   });
+
+  scroll();
 
   return {
     ...toRefs(data),
