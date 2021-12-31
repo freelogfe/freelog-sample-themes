@@ -20,7 +20,9 @@
             <div class="content-top">
               <div class="comic-name">{{ comicInfo?.exhibitName }}</div>
 
-              <div class="comic-author">{{ comicInfo?.articleInfo?.articleOwnerName }}</div>
+              <div class="comic-author">
+                {{ comicInfo?.articleInfo?.articleOwnerName }}
+              </div>
 
               <div class="tags">
                 <tags :tags="comicInfo?.tags" />
@@ -41,23 +43,37 @@
         </div>
 
         <div class="comic-date-info">
-          <div class="date-info">创建时间：{{ formatDate(comicInfo?.createDate) }}</div>
+          <div class="date-info">
+            创建时间：{{ formatDate(comicInfo?.createDate) }}
+          </div>
 
-          <div class="date-info">最近更新：{{ formatDate(comicInfo?.updateDate) }}</div>
+          <div class="date-info">
+            最近更新：{{ formatDate(comicInfo?.updateDate) }}
+          </div>
         </div>
 
         <div class="operate-btns">
-          <div class="btn main-btn mobile" @click="switchPage('/reader', { id: comicInfo?.exhibitId })">
+          <div
+            class="btn main-btn mobile"
+            @click="switchPage('/reader', { id: comicInfo?.exhibitId })"
+          >
             立即阅读
           </div>
-          <div class="btn assist-btn mobile" @click="operateShelf(comicInfo)">
+          <div
+            class="btn"
+            :class="isCollected ? 'delete' : 'collect'"
+            @click="operateShelf(comicInfo)"
+          >
             {{ isCollected ? "取消收藏" : "加入收藏" }}
           </div>
         </div>
       </div>
 
       <!-- 书籍简介 -->
-      <div class="comic-intro" v-if="comicInfo?.versionInfo?.exhibitProperty?.intro">
+      <div
+        class="comic-intro"
+        v-if="comicInfo?.versionInfo?.exhibitProperty?.intro"
+      >
         <div class="intro-title">内容简介</div>
 
         <div class="intro" :class="introState === 1 ? 'fold' : 'unfold'">
@@ -65,14 +81,18 @@
             {{ comicInfo?.versionInfo?.exhibitProperty?.intro }}
           </div>
 
-          <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">
+          <div
+            class="view-all-btn"
+            @click="introState = 3"
+            v-if="introState === 1"
+          >
             ...查看全部
           </div>
         </div>
       </div>
 
       <!-- 书籍目录 -->
-      <div class="directory-list">
+      <!-- <div class="directory-list">
         <div class="directory-header">
           <div class="directory-title">目录</div>
           <div class="view-all-btn" @click="directoryShow = true">
@@ -93,7 +113,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
 
     <!-- PC -->
@@ -115,29 +135,46 @@
           <div class="comic-content">
             <div class="comic-name">{{ comicInfo?.exhibitName }}</div>
 
-            <div class="comic-author">{{ comicInfo?.articleInfo?.articleOwnerName }}</div>
+            <div class="comic-author">
+              {{ comicInfo?.articleInfo?.articleOwnerName }}
+            </div>
 
             <div class="tags">
               <tags :tags="comicInfo?.tags" />
             </div>
 
-            <div class="create-date">创建时间：{{ formatDate(comicInfo?.createDate) }}</div>
+            <div class="create-date">
+              创建时间：{{ formatDate(comicInfo?.createDate) }}
+            </div>
 
-            <div class="update-date">最近更新：{{ formatDate(comicInfo?.updateDate) }}</div>
+            <div class="update-date">
+              最近更新：{{ formatDate(comicInfo?.updateDate) }}
+            </div>
 
             <div class="btns-box">
               <div class="operate-btns">
-                <div class="btn main-btn" @click="switchPage('/reader', { id: comicInfo?.exhibitId })">
+                <div
+                  class="btn main-btn"
+                  @click="switchPage('/reader', { id: comicInfo?.exhibitId })"
+                >
                   立即阅读
                 </div>
-                <div class="btn assist-btn" @click="operateShelf(comicInfo)">
+                <div
+                  class="btn"
+                  :class="isCollected ? 'delete' : 'collect'"
+                  @click="operateShelf(comicInfo)"
+                >
                   {{ isCollected ? "取消收藏" : "加入收藏" }}
                 </div>
               </div>
 
               <div class="other-btns">
                 <div class="sign-count">{{ comicInfo?.signCount }}人签约</div>
-                <div class="share-btn" @mouseover="shareShow = true" @mouseleave="shareShow = false">
+                <div
+                  class="share-btn"
+                  @mouseover="shareShow = true"
+                  @mouseleave="shareShow = false"
+                >
                   <span class="share-btn-text" :class="{ active: shareShow }">
                     <i class="freelog fl-icon-fenxiang"></i>
                     分享给更多人
@@ -151,7 +188,10 @@
         </div>
 
         <!-- 书籍简介 -->
-        <div class="comic-intro" v-if="comicInfo?.versionInfo?.exhibitProperty?.intro">
+        <div
+          class="comic-intro"
+          v-if="comicInfo?.versionInfo?.exhibitProperty?.intro"
+        >
           <div class="intro-title">内容简介</div>
 
           <div class="intro" :class="introState === 1 ? 'fold' : 'unfold'">
@@ -159,14 +199,18 @@
               {{ comicInfo?.versionInfo?.exhibitProperty?.intro }}
             </div>
 
-            <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">
+            <div
+              class="view-all-btn"
+              @click="introState = 3"
+              v-if="introState === 1"
+            >
               ...查看全部
             </div>
           </div>
         </div>
 
         <!-- 书籍目录 -->
-        <div class="directory-list">
+        <!-- <div class="directory-list">
           <div class="directory-title">
             目录
             <span class="directory-length">({{ directory.length }}章)</span>
@@ -180,7 +224,7 @@
           </div>
 
           <div class="no-more">— 已加载全部章节 —</div>
-        </div>
+        </div> -->
       </div>
     </div>
 
@@ -188,13 +232,23 @@
 
     <theme-entrance />
 
-    <directory :show="directoryShow" :comicInfo="comicInfo" @closeDirectory="directoryShow = false" />
+    <directory
+      :show="directoryShow"
+      :comicInfo="comicInfo"
+      @closeDirectory="directoryShow = false"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { useMyRouter, useMyShelf } from "../utils/hooks";
-import { defineAsyncComponent, reactive, ref, toRefs, watch } from "@vue/runtime-core";
+import {
+  defineAsyncComponent,
+  reactive,
+  ref,
+  toRefs,
+  watch,
+} from "@vue/runtime-core";
 import { ExhibitItem } from "@/api/interface";
 import { getExhibitInfo, getExhibitSignCount } from "@/api/freelog";
 import { useStore } from "vuex";
@@ -207,11 +261,17 @@ export default {
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
-    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
-    breadcrumbs: defineAsyncComponent(() => import("../components/breadcrumbs.vue")),
+    "theme-entrance": defineAsyncComponent(
+      () => import("../components/theme-entrance.vue")
+    ),
+    breadcrumbs: defineAsyncComponent(
+      () => import("../components/breadcrumbs.vue")
+    ),
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
     share: defineAsyncComponent(() => import("../components/share.vue")),
-    directory: defineAsyncComponent(() => import("../components/directory.vue")),
+    directory: defineAsyncComponent(
+      () => import("../components/directory.vue")
+    ),
   },
 
   setup() {
@@ -245,10 +305,18 @@ export default {
     });
 
     const getComicInfo = async (id: string) => {
-      const exhibitInfo = await getExhibitInfo(id, { isLoadVersionProperty: 1 });
+      const exhibitInfo = await getExhibitInfo(id, {
+        isLoadVersionProperty: 1,
+      });
       const signCountData = await getExhibitSignCount(id);
-      data.comicInfo = { ...exhibitInfo.data.data, signCount: signCountData?.data.data[0]?.count };
-      data.directory = Array.from({ length: 12 }, () => data.comicInfo.exhibitName || "目录名称");
+      data.comicInfo = {
+        ...exhibitInfo.data.data,
+        signCount: signCountData?.data.data[0]?.count,
+      };
+      data.directory = Array.from(
+        { length: 12 },
+        () => data.comicInfo.exhibitName || "目录名称"
+      );
       data.href = (window.location as any).currentURL;
     };
     getComicInfo(id);
@@ -289,7 +357,7 @@ export default {
   .mobile-content {
     width: 100%;
     background-color: rgba(0, 0, 0, 0.03);
-    padding-bottom: 98px;
+    // padding-bottom: 98px;
 
     .comic-info {
       width: 100%;
@@ -425,8 +493,26 @@ export default {
           align-items: center;
           justify-content: center;
 
-          &.assist-btn {
+          & + .btn {
             margin-left: 10px;
+          }
+
+          &.delete {
+            background: #fdebec;
+            color: #ee4040;
+
+            &:active {
+              background: #ffe2e4;
+            }
+          }
+
+          &.collect {
+            background: #edf6ff;
+            color: #2784ff;
+
+            &:active {
+              background: #e1f0ff;
+            }
           }
         }
       }
@@ -667,8 +753,30 @@ export default {
                 align-items: center;
                 justify-content: center;
 
-                &.assist-btn {
-                  margin-left: 15px;
+                & + .btn {
+                  margin-left: 10px;
+                }
+
+                &.delete {
+                  background: #fdebec;
+                  color: #ee4040;
+                  cursor: pointer;
+                  transition: all 0.2s linear;
+
+                  &:hover {
+                    background: #ffe2e4;
+                  }
+                }
+
+                &.collect {
+                  background: #edf6ff;
+                  color: #2784ff;
+                  cursor: pointer;
+                  transition: all 0.2s linear;
+
+                  &:hover {
+                    background: #e1f0ff;
+                  }
                 }
               }
             }

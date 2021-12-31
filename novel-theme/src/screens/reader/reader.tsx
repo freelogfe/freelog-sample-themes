@@ -173,16 +173,16 @@ const Body = () => {
         )}
       </div>
 
-      <div className="footer-bar" style={{ backgroundColor: theme?.bookColor }}>
-        <div className={`footer-btn`} onClick={() => console.log(123)}>
+      <div className="footer-bar" style={{ backgroundColor: theme?.bookColor, color: theme?.type === 1 ? "#999" : "#222" }}>
+        {/* <div className={`footer-btn invalid`} onClick={() => console.log(123)}>
           上一章
-        </div>
+        </div> */}
         <div className="footer-btn" onClick={() => history.switchPage("/detail/" + id)}>
           书籍详情
         </div>
-        <div className={`footer-btn`} onClick={() => console.log(123)}>
+        {/* <div className={`footer-btn invalid`} onClick={() => console.log(123)}>
           下一章
-        </div>
+        </div> */}
       </div>
     </div>
   );
@@ -190,20 +190,7 @@ const Body = () => {
 
 const Operater = () => {
   const { scrollTop } = useMyScroll();
-  const {
-    book,
-    fontSize,
-    setFontSize,
-    theme,
-    setTheme,
-    sharePopupShow,
-    setSharePopupShow,
-    fontSizePopupShow,
-    setFontSizePopupShow,
-    themePopupShow,
-    setThemePopupShow,
-    setDirectoryShow,
-  } = useContext(readerContext);
+  const { book, fontSize, setFontSize, theme, setTheme, sharePopupShow, setSharePopupShow, fontSizePopupShow, setFontSizePopupShow, themePopupShow, setThemePopupShow } = useContext(readerContext);
   const { inMobile } = useContext(globalContext);
   const { isCollected, operateShelf } = useMyShelf(book?.exhibitId);
   const [href, setHref] = useState("");
@@ -218,6 +205,7 @@ const Operater = () => {
       result++;
     }
     setFontSize(result);
+    localStorage.setItem("fontSize", result);
   };
 
   const closeAllPopup = () => {
@@ -235,10 +223,7 @@ const Operater = () => {
   };
 
   useEffect(() => {
-    setHref(
-      "http://freelognovel.testfreelog.com/?dev=http://localhost:3000/$_$freelog-60ef9c4ea11650002e840fcd=" +
-        window.location.href
-    );
+    setHref("http://freelognovel.testfreelog.com/?dev=http://localhost:3000/$_$freelog-60ef9c4ea11650002e840fcd=" + window.location.href);
   }, []);
 
   useEffect(() => {
@@ -249,14 +234,13 @@ const Operater = () => {
   }, [scrollTop]);
 
   useEffect(() => {
-    document.body.style.overflowY =
-      (sharePopupShow || fontSizePopupShow || themePopupShow) && inMobile ? "hidden" : "auto";
+    document.body.style.overflowY = (sharePopupShow || fontSizePopupShow || themePopupShow) && inMobile ? "hidden" : "auto";
   }, [sharePopupShow, fontSizePopupShow, themePopupShow, inMobile]);
 
   return inMobile ? (
     // mobile
     <div className="mobile-operater-wrapper">
-      <div
+      {/* <div
         className="operater-btn"
         onClick={() => {
           closeAllPopup();
@@ -265,7 +249,7 @@ const Operater = () => {
       >
         <i className="freelog fl-icon-xiaoshuomulu"></i>
         <div className="operater-btn-label">目录</div>
-      </div>
+      </div> */}
 
       {isCollected ? (
         <div
@@ -366,13 +350,13 @@ const Operater = () => {
     // PC
     <div className="operater-wrapper">
       <div className="operater-btns-box">
-        <OperateBtn
+        {/* <OperateBtn
           icon="fl-icon-xiaoshuomulu"
           onClick={() => {
             closeAllPopup();
             setDirectoryShow(true);
           }}
-        />
+        /> */}
 
         {isCollected ? (
           <OperateBtn
@@ -408,10 +392,7 @@ const Operater = () => {
             setFontSizePopupShow(true);
           }}
           slot={
-            <div
-              className={`operater-popup ${theme?.type === 1 ? "dark" : "light"}`}
-              style={{ width: fontSizePopupShow ? "162px" : "0" }}
-            >
+            <div className={`operater-popup ${theme?.type === 1 ? "dark" : "light"}`} style={{ width: fontSizePopupShow ? "162px" : "0" }}>
               <div className="fontsize-label" onClick={() => changeFontSize(0)}>
                 A-
               </div>
@@ -465,11 +446,7 @@ const OperateBtn = (props: { icon?: string; text?: string; slot?: any; onClick?:
   const { theme } = useContext(readerContext);
 
   return (
-    <div
-      className={`operate-btn-wrapper ${theme?.type === 1 ? "dark" : "light"}`}
-      style={{ backgroundColor: theme?.bookColor }}
-      onClick={(e) => e.stopPropagation()}
-    >
+    <div className={`operate-btn-wrapper ${theme?.type === 1 ? "dark" : "light"}`} style={{ backgroundColor: theme?.bookColor }} onClick={(e) => e.stopPropagation()}>
       {slot}
       {icon && <i className={`freelog ${icon}`} onClick={onClick}></i>}
       {text && (

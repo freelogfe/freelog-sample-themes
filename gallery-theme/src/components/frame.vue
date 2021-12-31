@@ -1,41 +1,44 @@
 <template>
-  <div class="frame-wrapper">
+  <div
+    class="frame-wrapper"
+    :class="{ 'in-pc': !inMobile }"
+    :style="{
+      '--height': data.height + 'px',
+      '--url': 'url(' + data.coverImages[0] + ')',
+    }"
+  >
     <!-- mobile -->
-    <div class="mobile-frame-wrapper" v-if="inMobile">
-      <!-- 普通图片 -->
-      <img class="image" v-lazy="data.coverImages[0]" v-if="isAuth" />
+    <div
+      class="mobile-frame-wrapper"
+      :class="{ 'min-size': data.height === 120 }"
+      v-if="inMobile"
+    >
+      <div class="cover-box">
+        <!-- 普通图片 -->
+        <img class="image" v-lazy="data.coverImages[0]" v-if="isAuth" />
 
-      <!-- 视频遮罩 -->
-      <div
-        class="video-modal"
-        :style="{
-          height: data.height + 'px',
-        }"
-        v-if="data.articleInfo.resourceType === 'video'"
-      >
-        <img class="video-image" src="../assets/images/video.png" />
-      </div>
+        <!-- 视频遮罩 -->
+        <div
+          class="video-modal"
+          v-if="data.articleInfo.resourceType === 'video'"
+        >
+          <img class="video-image" src="../assets/images/video.png" />
+        </div>
 
-      <!-- 毛玻璃图片（未授权） -->
-      <div
-        class="filter-modal"
-        :style="{
-          height: data.height + 'px',
-          '--url': 'url(' + data.coverImages[0] + ')',
-        }"
-        v-if="!isAuth"
-      >
-        <div class="img-box" v-show="!modalShow">
-          <img
-            class="img"
-            src="../assets/images/video.png"
-            v-if="data.articleInfo.resourceType === 'video'"
-          />
-          <img
-            class="img"
-            src="../assets/images/lock.png"
-            @click.stop="getAuth(data.exhibitId)"
-          />
+        <!-- 毛玻璃图片（未授权） -->
+        <div class="filter-modal" v-if="!isAuth">
+          <div class="img-box" v-show="!modalShow">
+            <img
+              class="img"
+              src="../assets/images/video.png"
+              v-if="data.articleInfo.resourceType === 'video'"
+            />
+            <img
+              class="img"
+              src="../assets/images/lock.png"
+              @click.stop="getAuth(data.exhibitId)"
+            />
+          </div>
         </div>
       </div>
 
@@ -44,7 +47,10 @@
         <div class="title">{{ data.exhibitName }}</div>
         <tags :tags="data.tags" v-if="data.tags.length" />
         <div class="author-info">
-          <img class="avatar" :src="getAvatarUrl(data.userId)" />
+          <img
+            class="avatar"
+            :src="getAvatarUrl(data.articleInfo.articleOwnerId)"
+          />
           {{ data.articleInfo.articleOwnerName }}
         </div>
       </div>
@@ -53,7 +59,7 @@
     <!-- PC -->
     <div
       class="pc-frame-wrapper"
-      :style="{ height: data.height + 'px' }"
+      :class="{ 'min-size': data.height === 230 }"
       @mouseover="modalShow = true"
       @mouseleave="modalShow = false"
       v-if="!inMobile"
@@ -72,11 +78,7 @@
       </transition>
 
       <!-- 毛玻璃图片（未授权） -->
-      <div
-        class="filter-modal"
-        :style="{ '--url': 'url(' + data.coverImages[0] + ')' }"
-        v-if="!isAuth"
-      >
+      <div class="filter-modal" v-if="!isAuth">
         <transition name="fade">
           <div class="img-box" v-show="!modalShow">
             <img
@@ -170,68 +172,92 @@ export default {
 .frame-wrapper {
   position: relative;
   width: 100%;
+  border-radius: 10px;
   overflow: hidden;
+
+  &.in-pc {
+    cursor: pointer;
+    transition: all 0.2s linear;
+
+    &:hover {
+      box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.3);
+    }
+  }
 
   // mobile
   .mobile-frame-wrapper {
     width: 100%;
     background-color: #fff;
-    overflow: hidden;
 
-    .image {
-      width: 100%;
-      border-radius: 10px;
-    }
-
-    .video-modal {
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      background: rgba(0, 0, 0, 0.1);
+    &.min-size {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      border-radius: 10px;
 
-      .video-image {
-        width: 48px;
-        height: 48px;
+      .image {
+        width: auto;
+        height: 120px;
       }
     }
 
-    .filter-modal {
+    .cover-box {
       position: relative;
       width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      height: var(--height);
       border-radius: 10px;
       overflow: hidden;
 
-      &::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        filter: blur(10px);
-        background-image: var(--url);
-        background-size: cover;
+      .image {
+        width: 100%;
       }
 
-      .img-box {
+      .video-modal {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.1);
         display: flex;
-        z-index: 1;
+        align-items: center;
+        justify-content: center;
 
-        .img {
+        .video-image {
           width: 48px;
           height: 48px;
+        }
+      }
 
-          & + .img {
-            margin-left: 10px;
+      .filter-modal {
+        position: relative;
+        width: 100%;
+        height: var(--height);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          filter: blur(10px);
+          background-image: var(--url);
+          background-size: cover;
+        }
+
+        .img-box {
+          position: absolute;
+          inset: 0;
+          background-color: rgba(0, 0, 0, 0.25);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1;
+
+          .img {
+            width: 48px;
+            height: 48px;
+
+            & + .img {
+              margin-left: 10px;
+            }
           }
         }
       }
@@ -270,6 +296,7 @@ export default {
           height: 24px;
           border-radius: 50%;
           margin-right: 5px;
+          border: 1px solid #ebecf0;
         }
       }
     }
@@ -278,14 +305,17 @@ export default {
   // PC
   .pc-frame-wrapper {
     width: 100%;
+    height: var(--height);
     background-color: #fff;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s linear;
-    overflow: hidden;
 
-    &:hover {
-      box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.3);
+    &.min-size {
+      display: flex;
+      justify-content: center;
+
+      .image {
+        width: auto;
+        height: 100%;
+      }
     }
 
     .image {
@@ -299,7 +329,6 @@ export default {
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 10px;
 
       .video-image {
         width: 64px;
@@ -318,17 +347,19 @@ export default {
       &::before {
         content: "";
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        inset: 0;
         filter: blur(10px);
         background-image: var(--url);
         background-size: cover;
       }
 
       .img-box {
+        position: absolute;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.25);
         display: flex;
+        align-items: center;
+        justify-content: center;
         z-index: 1;
 
         .img {
@@ -346,7 +377,6 @@ export default {
       position: absolute;
       inset: 0;
       background: rgba(0, 0, 0, 0.4);
-      border-radius: 10px;
     }
 
     .modal-content {

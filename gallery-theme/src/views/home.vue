@@ -11,10 +11,10 @@
               searchData.keywords && searchData.tags ? "+" : ""
             }${searchData.tags || ""}`
           }}”的搜索结果
-          <span className="search-total">({{ total }})</span>
+          <span className="search-total" v-if="!loading">({{ total }})</span>
         </div>
 
-        <div className="clear-search-btn" @click="clearSearch()">
+        <div className="text-btn mobile" @click="clearSearch()">
           清空搜索条件
         </div>
       </div>
@@ -31,12 +31,12 @@
         </div>
       </div>
 
-      <div className="tip" v-show="total === 0">
+      <div className="tip" v-show="!loading && total === 0">
         当前节点暂无数据，请稍后查看
       </div>
       <div
         className="tip no-more"
-        v-show="listData.length !== 0 && listData.length === total"
+        v-show="!loading && listData.length !== 0 && listData.length === total"
       >
         — 已加载全部 —
       </div>
@@ -51,10 +51,8 @@
               searchData.keywords && searchData.tags ? "+" : ""
             }${searchData.tags || ""}`
           }}”的搜索结果
-          <span className="search-total">({{ total }})</span>
-          <div className="clear-search-btn" @click="clearSearch()">
-            清空搜索条件
-          </div>
+          <span className="search-total" v-if="!loading">({{ total }})</span>
+          <div className="text-btn" @click="clearSearch()">清空搜索条件</div>
         </div>
       </div>
 
@@ -70,12 +68,12 @@
         </div>
       </div>
 
-      <div className="tip" v-show="total === 0">
+      <div className="tip" v-show="!loading && total === 0">
         当前节点暂无数据，请稍后查看
       </div>
       <div
         className="tip no-more"
-        v-show="listData.length !== 0 && listData.length === total"
+        v-show="!loading && listData.length !== 0 && listData.length === total"
       >
         — 已加载全部 —
       </div>
@@ -90,7 +88,13 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, reactive, toRefs, watch } from "vue";
+import {
+  defineAsyncComponent,
+  onUnmounted,
+  reactive,
+  toRefs,
+  watch,
+} from "vue";
 import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
 import { useStore } from "vuex";
 import { ExhibitItem } from "@/api/interface";
@@ -135,50 +139,6 @@ export default {
       },
     };
 
-    watch(
-      () => query.value,
-      (cur, pre) => {
-        if (cur.keywords !== pre.keywords || cur.tags !== pre.tags) getData();
-      }
-    );
-
-    watch(
-      () => scrollTop.value,
-      () => {
-        getMoreData();
-      }
-    );
-
-    watch(
-      () => datasOfGetList.listData.value,
-      async (cur: ExhibitItem[], pre: ExhibitItem[]) => {
-        if (datasOfGetList.skip.value === 0) initWaterfall();
-
-        const index = datasOfGetList.skip.value;
-        const { inMobile } = store.state;
-        let num = 0;
-        let frameWidth = 0;
-
-        if (inMobile) {
-          frameWidth = (document.body.clientWidth - 40) / 2;
-        } else {
-          frameWidth = 300;
-        }
-
-        for (let i = index; i < cur.length; i++) {
-          const img = new Image();
-          img.src = cur[i].coverImages[0];
-          img.onload = () => {
-            const height = (frameWidth / img.width) * img.height;
-            cur[i].height = height;
-            num++;
-
-            if (num === cur.length - pre.length) setWaterFall(index);
-          };
-        }
-      }
-    );
-
     // 根据屏幕宽度判断瀑布流列数
     const getListNumber = () => {
       const { clientWidth } = document.body;
@@ -187,7 +147,8 @@ export default {
         data.listNumber = 2;
       } else {
         // 屏幕宽度小于等于 1600 时，显示 4 列，否则显示 5 列
-        data.listNumber = clientWidth <= 1600 ? 4 : 5;
+        const listNumber = clientWidth <= 1600 ? 4 : 5;
+        if (data.listNumber !== listNumber) data.listNumber = listNumber;
       }
     };
 
@@ -250,6 +211,65 @@ export default {
       }
     };
 
+    // 屏幕尺寸变化切换瀑布流列数
+    const waterfallResize = () => {
+      getListNumber();
+      initWaterfall();
+      setWaterFall();
+    };
+
+    watch(
+      () => query.value,
+      (cur, pre) => {
+        if (cur.keywords !== pre.keywords || cur.tags !== pre.tags) getData();
+      }
+    );
+
+    watch(
+      () => scrollTop.value,
+      () => {
+        getMoreData();
+      }
+    );
+
+    watch(
+      () => datasOfGetList.listData.value,
+      async (cur: ExhibitItem[], pre: ExhibitItem[]) => {
+        if (datasOfGetList.skip.value === 0) initWaterfall();
+
+        const index = datasOfGetList.skip.value;
+        const { inMobile } = store.state;
+        let num = 0;
+        let frameWidth = 0;
+        let minHeight = 0;
+
+        if (inMobile) {
+          frameWidth = (document.body.clientWidth - 40) / 2;
+          minHeight = 120;
+        } else {
+          frameWidth = 300;
+          minHeight = 230;
+        }
+
+        for (let i = index; i < cur.length; i++) {
+          const img = new Image();
+          img.src = cur[i].coverImages[0];
+          img.onload = () => {
+            const height = (frameWidth / img.width) * img.height;
+            cur[i].height = height < minHeight ? minHeight : height;
+            num++;
+
+            if (num === cur.length - pre.length) setWaterFall(index);
+          };
+        }
+      }
+    );
+
+    window.addEventListener("resize", waterfallResize);
+    onUnmounted(() => {
+      window.removeEventListener("resize", waterfallResize);
+    });
+
     getListNumber();
     getData();
 
@@ -295,15 +315,12 @@ export default {
         }
       }
 
-      .clear-search-btn {
+      .text-btn {
+        width: fit-content;
         font-size: 14px;
         color: #2784ff;
         line-height: 20px;
         margin-top: 10px;
-
-        &:active {
-          color: #2376e5;
-        }
       }
     }
 
@@ -359,20 +376,10 @@ export default {
           margin-left: 10px;
         }
 
-        .clear-search-btn {
+        .text-btn {
           font-size: 14px;
-          color: #2784ff;
           line-height: 20px;
           margin-left: 30px;
-          cursor: pointer;
-
-          &:hover {
-            color: #529dff;
-          }
-
-          &:active {
-            color: #2376e5;
-          }
         }
       }
     }

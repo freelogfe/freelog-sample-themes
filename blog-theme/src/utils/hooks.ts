@@ -1,9 +1,4 @@
-import {
-  getExhibitAuthStatus,
-  getExhibitListByPaging,
-  GetExhibitListByPagingParams,
-  getExhibitSignCount,
-} from "@/api/freelog";
+import { getExhibitAuthStatus, getExhibitListByPaging, GetExhibitListByPagingParams, getExhibitSignCount } from "@/api/freelog";
 import { onUnmounted, reactive, ref, toRefs, watchEffect } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { ExhibitItem } from "../api/interface";
@@ -111,6 +106,7 @@ export const useGetList = () => {
  * 获取页面相关信息hook
  */
 export const useMyScroll = () => {
+  const app = document.getElementById("app");
   const data = reactive({
     scrollTop: 0,
     clientHeight: 0,
@@ -118,14 +114,14 @@ export const useMyScroll = () => {
   });
 
   const scroll = () => {
-    data.scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-    data.clientHeight = document.documentElement.clientHeight || document.body.clientHeight;
-    data.scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+    data.scrollTop = app?.scrollTop || 0;
+    data.clientHeight = app?.clientHeight || 0;
+    data.scrollHeight = app?.scrollHeight || 0;
   };
 
-  window.addEventListener("scroll", scroll);
+  app?.addEventListener("scroll", scroll);
   onUnmounted(() => {
-    window.removeEventListener("scroll", scroll);
+    app?.removeEventListener("scroll", scroll);
   });
 
   return {

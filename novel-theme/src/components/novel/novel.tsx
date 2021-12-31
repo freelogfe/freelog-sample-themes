@@ -7,11 +7,7 @@ import LazyLoad from "react-lazyload";
 import { useContext } from "react";
 import { globalContext } from "../../router";
 
-export const Novel = (props: {
-  inMobileShelf?: boolean;
-  data: ExhibitItem;
-  operateShelf?: (data: ExhibitItem) => void;
-}) => {
+export const Novel = (props: { inMobileShelf?: boolean; data: ExhibitItem; operateShelf?: (data: ExhibitItem) => void }) => {
   const { inMobileShelf, data, operateShelf } = props;
   const { inMobile } = useContext(globalContext);
   const history = useMyHistory();
@@ -19,7 +15,7 @@ export const Novel = (props: {
   return inMobileShelf ? (
     // 移动端书架小说组件
     <div className="mobile-shelf-novel-wrapper" onClick={() => history.switchPage("/detail/" + data.exhibitId)}>
-      <LazyLoad offset={100} once>
+      <LazyLoad offset={300} once>
         <div className="book-cover-box">
           <img className="book-cover" src={data.coverImages[0]} alt={data.exhibitName} />
         </div>
@@ -33,10 +29,7 @@ export const Novel = (props: {
     </div>
   ) : (
     // 普通小说组件
-    <div
-      className={`novel-wrapper ${inMobile ? "in-mobile" : "in-pc"}`}
-      onClick={() => history.switchPage("/detail/" + data.exhibitId)}
-    >
+    <div className={`novel-wrapper ${inMobile ? "in-mobile" : "in-pc"}`} onClick={() => history.switchPage("/detail/" + data.exhibitId)}>
       <div className="novel-content">
         <LazyLoad offset={400} once>
           <div className="book-cover-box">

@@ -3,7 +3,7 @@
     <my-header />
 
     <transition name="fade">
-      <div class="cards-box" v-if="!content">
+      <div class="cards-box" v-if="!content && isAuth === null">
         <div class="cards">
           <span v-for="item in 8" :key="item" />
         </div>
@@ -11,7 +11,7 @@
     </transition>
 
     <transition-group name="fade">
-      <template v-if="content">
+      <template v-if="content || isAuth === false">
         <div class="main-area" key="mainArea">
           <template v-if="isAuth === true">
             <img
@@ -64,6 +64,7 @@
                   :data="item"
                   v-for="item in waterfall[waterfallList[list - 1]]"
                   :key="item.exhibitId"
+                  @click="switchPage('/detail', { id: item.exhibitId })"
                 />
               </div>
             </div>
@@ -71,10 +72,10 @@
             <div class="text-btn mobile" @click="closePopup()">浏览更多>></div>
           </div>
         </div>
-
-        <my-footer />
       </template>
     </transition-group>
+
+    <my-footer />
   </div>
 
   <!-- PC -->
@@ -94,7 +95,7 @@
     </transition>
 
     <transition name="slide-up">
-      <div ref="contentCard" class="content-card" @click.stop v-if="currentId">
+      <div ref="scrollArea" class="content-card" @click.stop v-if="currentId">
         <div class="content-area">
           <div class="title">{{ exhibitInfo?.exhibitName }}</div>
           <div class="exhibit-info">
@@ -184,6 +185,7 @@
 <script lang="ts">
 import {
   defineAsyncComponent,
+  onUnmounted,
   reactive,
   ref,
   SetupContext,
@@ -218,7 +220,7 @@ export default {
     const store = useStore();
     const { query, switchPage } = useMyRouter();
     const datasOfGetList = useGetList();
-    const contentCard = ref<any>(null);
+    const scrollArea = ref<any>(null);
     const contentArea = ref<any>(null);
     let heightList: number[] = [];
 
@@ -374,15 +376,19 @@ export default {
 
     // 根据资源宽高比决定显示模式
     const judgeContentMode = (ratio: number, info: string) => {
-      if (store.state.inMobile) {
-        if (data.exhibitInfo)
-          data.exhibitInfo.height = document.body.clientWidth / ratio;
-      } else {
+      if (!store.state.inMobile) {
         const { clientWidth, clientHeight } = contentArea.value;
         const areaRatio = clientWidth / clientHeight;
         data.contentMode = ratio > areaRatio ? 1 : 2;
       }
       data.content = info;
+    };
+
+    // 屏幕尺寸变化切换瀑布流列数
+    const waterfallResize = () => {
+      getListNumber();
+      initWaterfall();
+      setWaterFall();
     };
 
     watch(
@@ -418,7 +424,11 @@ export default {
           }
 
           setTimeout(() => {
-            if (contentCard.value) contentCard.value.scrollTop = 0;
+            if (store.state.inMobile) {
+              const app = document.getElementById("app");
+              (app as any).scrollTop = 0;
+            }
+            if (scrollArea.value) scrollArea.value.scrollTop = 0;
           }, 0);
         } else {
           window.removeEventListener("keyup", keyup);
@@ -435,11 +445,14 @@ export default {
         const { inMobile } = store.state;
         let num = 0;
         let frameWidth = 0;
+        let minHeight = 0;
 
         if (inMobile) {
           frameWidth = (document.body.clientWidth - 40) / 2;
+          minHeight = 120;
         } else {
           frameWidth = 300;
+          minHeight = 230;
         }
 
         for (let i = 0; i < cur.length; i++) {
@@ -447,7 +460,7 @@ export default {
           img.src = cur[i].coverImages[0];
           img.onload = () => {
             const height = (frameWidth / img.width) * img.height;
-            cur[i].height = height;
+            cur[i].height = height < minHeight ? minHeight : height;
             num++;
 
             if (num === cur.length) setWaterFall();
@@ -456,11 +469,17 @@ export default {
       }
     );
 
+    window.addEventListener("resize", waterfallResize);
+    onUnmounted(() => {
+      window.removeEventListener("resize", waterfallResize);
+    });
+
     return {
       ...store.state,
+      switchPage,
       ...toRefs(data),
       ...methods,
-      contentCard,
+      scrollArea,
       contentArea,
     };
   },
@@ -691,6 +710,7 @@ export default {
           width: 24px;
           height: 24px;
           border-radius: 50%;
+          border: 1px solid #ebecf0;
         }
 
         .author-name {
@@ -814,6 +834,7 @@ export default {
         width: 34px;
         height: 34px;
         border-radius: 50%;
+        border: 1px solid #ebecf0;
       }
 
       .author-name {
@@ -981,7 +1002,6 @@ export default {
 
       .text-btn {
         font-size: 14px;
-        color: #999999;
         line-height: 20px;
         margin-top: 30px;
       }

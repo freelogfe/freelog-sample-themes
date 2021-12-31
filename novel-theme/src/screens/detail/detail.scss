@@ -9,7 +9,7 @@
   .mobile-content {
     width: 100%;
     background-color: rgba(0, 0, 0, 0.03);
-    padding-bottom: 98px;
+    // padding-bottom: 98px;
 
     .book-info {
       width: 100%;
@@ -145,8 +145,26 @@
           align-items: center;
           justify-content: center;
 
-          &.assist-btn {
+          & + .btn {
             margin-left: 10px;
+          }
+
+          &.delete {
+            background: #fdebec;
+            color: #ee4040;
+
+            &:active {
+              background: #ffe2e4;
+            }
+          }
+
+          &.collect {
+            background: #edf6ff;
+            color: #2784ff;
+
+            &:active {
+              background: #e1f0ff;
+            }
           }
         }
       }
@@ -387,8 +405,30 @@
                 align-items: center;
                 justify-content: center;
 
-                &.assist-btn {
-                  margin-left: 15px;
+                & + .btn {
+                  margin-left: 10px;
+                }
+
+                &.delete {
+                  background: #fdebec;
+                  color: #ee4040;
+                  cursor: pointer;
+                  transition: all 0.2s linear;
+
+                  &:hover {
+                    background: #ffe2e4;
+                  }
+                }
+
+                &.collect {
+                  background: #edf6ff;
+                  color: #2784ff;
+                  cursor: pointer;
+                  transition: all 0.2s linear;
+
+                  &:hover {
+                    background: #e1f0ff;
+                  }
                 }
               }
             }

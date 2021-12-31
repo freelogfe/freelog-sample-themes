@@ -3,11 +3,15 @@
     <my-header :homeHeader="!(inMobile && searching)" />
 
     <!-- mobile -->
-    <div class="mobile-home-body" v-if="inMobile">
+    <div class="mobile-home-body" v-if="inMobile && !loading">
       <div class="shelf-comic-list" v-if="!searching">
         <div class="shelf-header">
           <div class="box-title">我的收藏</div>
-          <div class="more-shelf" @click="switchPage('/shelf')" v-if="userData && myShelf.length !== 0">
+          <div
+            class="more-shelf"
+            @click="switchPage('/shelf')"
+            v-if="userData && myShelf.length !== 0"
+          >
             全部{{ myShelf.length }}
             <i class="freelog fl-icon-zhankaigengduo"></i>
           </div>
@@ -20,17 +24,20 @@
         </div>
 
         <div class="tip" v-if="!userData">登录后查看我的收藏</div>
-        <div class="tip" v-if="userData && myShelf.length === 0">暂无数据，快去寻找漫画来收藏吧～</div>
+        <div class="tip" v-if="userData && myShelf.length === 0">
+          暂无数据，快去寻找漫画来收藏吧～
+        </div>
       </div>
 
       <div class="comic-list">
         <div class="search-title" v-if="searching">
           <div>
-            “{{ searchData.keywords }}{{ searchData.keywords && searchData.tags && "+"
+            “{{ searchData.keywords
+            }}{{ searchData.keywords && searchData.tags && "+"
             }}{{ searchData.tags || "" }}”的搜索结果
-            <span class="search-comic-total">({{ listData.length }})</span>
+            <span class="search-comic-total"> ({{ listData.length }}) </span>
           </div>
-          <div class="clear-search-btn" @click="clearSearch()">清空搜索条件</div>
+          <div class="text-btn mobile" @click="clearSearch()">清空搜索条件</div>
         </div>
         <div class="box-title" v-else>精选漫画</div>
 
@@ -38,28 +45,43 @@
           <comic :data="item" />
         </div>
 
-        <div class="tip" v-if="listData.length === 0">当前节点暂无任何漫画，请稍后查看</div>
+        <div class="tip" v-if="listData.length === 0">
+          当前节点暂无任何漫画，请稍后查看
+        </div>
 
-        <div class="tip no-more" v-if="listData.length !== 0 && listData.length === total">— 已加载全部漫画 —</div>
+        <div
+          class="tip no-more"
+          v-if="listData.length !== 0 && listData.length === total"
+        >
+          — 已加载全部漫画 —
+        </div>
       </div>
     </div>
 
     <!-- PC -->
-    <div class="home-body" v-if="!inMobile">
+    <div class="home-body" v-if="!inMobile && !loading">
       <div class="comic-list" v-if="!searching">
         <div class="shelf-header">
           <div class="box-title">我的收藏</div>
-          <div class="text-btn" @click="switchPage('/shelf')" v-if="userData">管理收藏</div>
+          <div class="text-btn" @click="switchPage('/shelf')" v-if="userData">
+            管理收藏
+          </div>
         </div>
 
         <div class="comic-list-box" v-if="myShelf.length !== 0">
-          <div class="comic-box" v-for="item in myShelf.filter((_, index) => index < 6)" :key="item.exhibitId">
+          <div
+            class="comic-box"
+            v-for="item in myShelf.filter((_, index) => index < 6)"
+            :key="item.exhibitId"
+          >
             <comic :data="item" />
           </div>
         </div>
 
         <div class="tip" v-if="!userData">登录后查看我的收藏</div>
-        <div class="tip" v-if="userData && myShelf.length === 0">暂无数据，快去寻找漫画来收藏吧～</div>
+        <div class="tip" v-if="userData && myShelf.length === 0">
+          暂无数据，快去寻找漫画来收藏吧～
+        </div>
         <div class="tip shelf-tip" v-if="userData && myShelf.length !== 0">
           <span>已收藏 {{ myShelf.length }} 部漫画</span>
           <span class="text-btn" @click="switchPage('/shelf')">查看全部</span>
@@ -69,10 +91,11 @@
       <div class="comic-list">
         <div class="box-title">
           <div class="search-box-title" v-if="searching">
-            “{{ searchData.keywords }}{{ searchData.keywords && searchData.tags && "+"
+            “{{ searchData.keywords
+            }}{{ searchData.keywords && searchData.tags && "+"
             }}{{ searchData.tags || "" }}”的搜索结果
             <span class="search-comic-total">({{ listData.length }})</span>
-            <div class="clear-search-btn" @click="clearSearch()">清空搜索条件</div>
+            <div class="text-btn" @click="clearSearch()">清空搜索条件</div>
           </div>
           <div v-else>精选漫画</div>
         </div>
@@ -83,9 +106,16 @@
           </div>
         </div>
 
-        <div class="tip" v-if="listData.length === 0">当前节点暂无任何漫画，请稍后查看</div>
+        <div class="tip" v-if="listData.length === 0">
+          当前节点暂无任何漫画，请稍后查看
+        </div>
 
-        <div class="tip no-more" v-if="listData.length !== 0 && listData.length === total">— 已加载全部漫画 —</div>
+        <div
+          class="tip no-more"
+          v-if="listData.length !== 0 && listData.length === total"
+        >
+          — 已加载全部漫画 —
+        </div>
       </div>
     </div>
 
@@ -97,7 +127,12 @@
 
 <script lang="ts">
 import { computed, defineAsyncComponent, reactive, toRefs, watch } from "vue";
-import { useGetList, useMyRouter, useMyScroll, useMyShelf } from "../utils/hooks";
+import {
+  useGetList,
+  useMyRouter,
+  useMyScroll,
+  useMyShelf,
+} from "../utils/hooks";
 import { useStore } from "vuex";
 
 export default {
@@ -106,7 +141,9 @@ export default {
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
-    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
+    "theme-entrance": defineAsyncComponent(
+      () => import("../components/theme-entrance.vue")
+    ),
     comic: defineAsyncComponent(() => import("../components/comic.vue")),
   },
 
@@ -214,7 +251,8 @@ export default {
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-left: 9px;
+            margin-left: 10px;
+            margin-top: 2px;
           }
         }
       }
@@ -266,15 +304,11 @@ export default {
           margin-left: 10px;
         }
 
-        .clear-search-btn {
+        .text-btn {
+          width: fit-content;
           font-size: 14px;
-          color: #2784ff;
           line-height: 20px;
           margin-top: 10px;
-
-          &:active {
-            color: #529dff;
-          }
         }
       }
 
@@ -337,20 +371,10 @@ export default {
             margin-left: 10px;
           }
 
-          .clear-search-btn {
+          .text-btn {
             font-size: 14px;
-            color: #2784ff;
             line-height: 20px;
             margin-left: 30px;
-            cursor: pointer;
-
-            &:hover {
-              color: #529dff;
-            }
-
-            &:active {
-              color: #2376e5;
-            }
           }
         }
       }

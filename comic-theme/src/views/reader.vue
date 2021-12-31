@@ -14,7 +14,7 @@
         </div>
       </div>
 
-      <div class="mobile-operater-wrapper" @touchmove.prevent>
+      <!-- <div class="mobile-operater-wrapper" @touchmove.prevent>
         <div class="operater-btn">
           <i class="freelog fl-icon-zhankaigengduo"></i>
           <div class="operater-btn-label">上一话</div>
@@ -37,16 +37,24 @@
           <i class="freelog fl-icon-zhankaigengduo"></i>
           <div class="operater-btn-label">下一话</div>
         </div>
-      </div>
+      </div> -->
     </template>
 
     <!-- PC -->
     <template v-if="!inMobile">
       <div class="body-wrapper" :class="theme">
-        <breadcrumbs :inReader="true" :title="comicInfo?.exhibitName" :dark="theme === 'dark'" />
+        <breadcrumbs
+          :inReader="true"
+          :title="comicInfo?.exhibitName"
+          :dark="theme === 'dark'"
+        />
 
         <div class="content-box">
-          <img class="content" :src="content" v-if="isAuth === true && content" />
+          <img
+            class="content"
+            :src="content"
+            v-if="isAuth === true && content"
+          />
 
           <div class="lock-box" v-if="isAuth === false">
             <img class="lock" src="../assets/images/lock.png" alt="未授权" />
@@ -57,24 +65,33 @@
 
         <div class="footer-bar">
           <div class="footer-btn invalid">上一话</div>
-          <div class="footer-btn" @click="switchPage('/detail', { id: comicInfo.exhibitId })">漫画详情</div>
+          <div
+            class="footer-btn"
+            @click="switchPage('/detail', { id: comicInfo.exhibitId })"
+          >
+            漫画详情
+          </div>
           <div class="footer-btn invalid">下一话</div>
         </div>
       </div>
 
       <div class="operater-wrapper">
         <div class="operater-btns-box">
-          <operate-btn
+          <!-- <operate-btn
             icon="fl-icon-xiaoshuomulu"
             :theme="theme"
             @click="
               closeAllPopup();
               directoryShow = true;
             "
-          />
+          /> -->
 
           <operate-btn
-            :icon="isCollected ? 'fl-icon-shoucangxiaoshuoyishoucang' : 'fl-icon-shoucangxiaoshuo'"
+            :icon="
+              isCollected
+                ? 'fl-icon-shoucangxiaoshuoyishoucang'
+                : 'fl-icon-shoucangxiaoshuo'
+            "
             :theme="theme"
             @click="
               closeAllPopup();
@@ -82,12 +99,18 @@
             "
           />
 
-          <operate-btn icon="fl-icon-fenxiang" :theme="theme" @click.stop="sharePopupShow = true">
+          <operate-btn
+            icon="fl-icon-fenxiang"
+            :theme="theme"
+            @click.stop="sharePopupShow = true"
+          >
             <share :show="sharePopupShow" :exhibit="comicInfo" />
           </operate-btn>
 
           <operate-btn
-            :icon="theme === 'light' ? 'fl-icon-rijianmoshi' : 'fl-icon-yejianmoshi'"
+            :icon="
+              theme === 'light' ? 'fl-icon-rijianmoshi' : 'fl-icon-yejianmoshi'
+            "
             :theme="theme"
             @click="
               closeAllPopup();
@@ -104,7 +127,11 @@
       </div>
     </template>
 
-    <directory :show="directoryShow" :comicInfo="comicInfo" @closeDirectory="directoryShow = false" />
+    <directory
+      :show="directoryShow"
+      :comicInfo="comicInfo"
+      @closeDirectory="directoryShow = false"
+    />
   </div>
 </template>
 
@@ -295,11 +322,10 @@ export default {
 
       .footer-bar {
         background-color: #373737;
-        background-color: #373737;
         color: #999;
 
         .footer-btn.invalid {
-          color: #444;
+          opacity: 0.4;
           pointer-events: none;
         }
       }
@@ -315,7 +341,7 @@ export default {
         color: #222;
 
         .footer-btn.invalid {
-          color: #999;
+          opacity: 0.4;
           pointer-events: none;
         }
       }

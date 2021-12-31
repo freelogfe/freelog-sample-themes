@@ -1,6 +1,10 @@
 <template>
   <!-- mobile -->
-  <div class="mobile-header-wrapper" :class="{ 'in-home': homeHeader }" v-if="inMobile">
+  <div
+    class="mobile-header-wrapper"
+    :class="{ 'in-home': homeHeader }"
+    v-if="inMobile"
+  >
     <!-- header顶部 -->
     <div class="header-top" :class="{ logon: userData }">
       <img
@@ -15,7 +19,11 @@
       </div>
 
       <div class="header-top-right">
-        <i class="freelog fl-icon-content" @click="searchPopupShow = true" v-if="!homeHeader"></i>
+        <i
+          class="freelog fl-icon-content"
+          @click="searchPopupShow = true"
+          v-if="!homeHeader"
+        ></i>
 
         <img
           class="avatar"
@@ -34,11 +42,20 @@
 
     <!-- 用户弹窗 -->
     <transition name="fade">
-      <div id="modal" class="modal" @click="userBoxShow = false" v-if="userBoxShow"></div>
+      <div
+        id="modal"
+        class="modal"
+        @click="userBoxShow = false"
+        v-if="userBoxShow"
+      ></div>
     </transition>
     <transition name="slide-right">
       <div class="user-box-body" v-if="userBoxShow">
-        <img class="avatar" :src="userData?.headImage" :alt="userData?.username" />
+        <img
+          class="avatar"
+          :src="userData?.headImage"
+          :alt="userData?.username"
+        />
         <div class="username">{{ userData?.username }}</div>
         <div class="btns">
           <div class="btn" @click="switchPage('/home')">
@@ -69,15 +86,18 @@
             <i class="freelog fl-icon-content"></i>
           </div>
 
-          <div class="text-btn mobile" @click="searchPopupShow = false">
-            取消
-          </div>
+          <div class="cancel-btn" @click="searchPopupShow = false">取消</div>
         </div>
 
         <div class="recommend-tags">
           <div class="recommend-tags-title">推荐标签</div>
           <div class="recommend-tags-list">
-            <div class="tag" v-for="item in tagsList" :key="item" @click="selectTag(item)">
+            <div
+              class="tag"
+              v-for="item in tagsList"
+              :key="item"
+              @click="selectTag(item)"
+            >
               {{ item }}
             </div>
           </div>
@@ -110,22 +130,33 @@
         </div>
       </div>
 
-      <div class="user-avatar" @mouseover="userBoxShow = true" @mouseleave="userBoxShow = false" v-if="userData">
+      <div
+        class="user-avatar"
+        @mouseover="userBoxShow = true"
+        @mouseleave="userBoxShow = false"
+        v-if="userData"
+      >
         <div class="username">{{ userData.username }}</div>
-        <img class="avatar" :src="userData.headImage" :alt="userData.username" />
+        <img
+          class="avatar"
+          :src="userData.headImage"
+          :alt="userData.username"
+        />
 
         <transition name="slide-down-scale">
           <div class="user-box" v-if="userBoxShow">
             <div class="user-box-body">
-              <img class="avatar" :src="userData.headImage" :alt="userData.username" />
+              <img
+                class="avatar"
+                :src="userData.headImage"
+                :alt="userData.username"
+              />
               <div class="username">{{ userData.username }}</div>
               <div class="mobile">{{ userData.mobile }}</div>
               <div class="btn user-box-btn" @click="switchPage('/shelf')">
                 我的收藏
               </div>
-              <div class="btn user-box-btn" @click="callLoginOut()">
-                登出
-              </div>
+              <div class="btn user-box-btn" @click="callLoginOut()">登出</div>
             </div>
           </div>
         </transition>
@@ -147,7 +178,11 @@
         @keyup.esc="searchKey = ''"
       />
       <i class="freelog fl-icon-content"></i>
-      <i class="freelog fl-icon-guanbi" @click="searchKey = ''" v-show="searchKey"></i>
+      <i
+        class="freelog fl-icon-guanbi"
+        @click="searchKey = ''"
+        v-show="searchKey"
+      ></i>
     </div>
 
     <!-- 筛选栏 -->
@@ -431,6 +466,7 @@ export default {
     right: 0;
     bottom: 0;
     background-color: #fff;
+    z-index: 1;
 
     .search-page-header {
       width: 100%;
@@ -439,7 +475,7 @@ export default {
       align-items: center;
       padding-left: 20px;
       box-sizing: border-box;
-      background-color: #333;
+      background: var(--gradientColor);
 
       .search-page-box {
         position: relative;
@@ -487,13 +523,18 @@ export default {
         }
       }
 
-      .text-btn {
+      .cancel-btn {
         font-size: 16px;
         line-height: 22px;
         height: 100%;
         padding: 0 20px;
         display: flex;
         align-items: center;
+        color: #fff;
+
+        &:active {
+          opacity: 0.6;
+        }
       }
     }
 
@@ -798,11 +839,12 @@ export default {
     margin-bottom: 27px;
 
     .category-btn {
+      height: 24px;
+      line-height: 24px;
+      border-radius: 24px;
       font-size: 14px;
       color: rgba(255, 255, 255, 0.5);
-      line-height: 20px;
-      padding: 2px 5px;
-      border-radius: 2px;
+      padding: 0 8px;
       background-color: transparent;
       cursor: pointer;
       transition: all 0.2s linear;
@@ -817,7 +859,7 @@ export default {
       }
 
       & + .category-btn {
-        margin-left: 10px;
+        margin-left: 4px;
       }
     }
   }

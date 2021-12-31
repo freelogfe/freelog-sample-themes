@@ -62,14 +62,14 @@ export const DetailScreen = (props: any) => {
 
 const BookBody = () => {
   const { inMobile } = useContext(globalContext);
-  const { book, setDirectoryShow } = useContext(detailContext);
+  const { book } = useContext(detailContext);
   const { isCollected, operateShelf } = useMyShelf(book?.exhibitId);
   const history = useMyHistory();
   const introContent = useRef<any>();
   const [introState, setIntroState] = useState(0);
   const [shareShow, setShareShow] = useState(false);
   const [href, setHref] = useState("");
-  const directory = Array.from({ length: 12 }, () => book?.exhibitName || "目录名称");
+  // const directory = Array.from({ length: 12 }, () => book?.exhibitName || "目录名称");
 
   const share = () => {
     // 复制链接
@@ -80,10 +80,7 @@ const BookBody = () => {
   };
 
   useEffect(() => {
-    setHref(
-      "http://freelognovel.testfreelog.com/?dev=http://localhost:3000/$_$freelog-60ef9c4ea11650002e840fcd=" +
-        window.location.href
-    );
+    setHref("http://freelognovel.testfreelog.com/?dev=http://localhost:3000/$_$freelog-60ef9c4ea11650002e840fcd=" + window.location.href);
   }, []);
 
   useEffect(() => {
@@ -140,7 +137,7 @@ const BookBody = () => {
           <div className="btn main-btn mobile" onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}>
             立即阅读
           </div>
-          <div className="btn assist-btn mobile" onClick={() => operateShelf(book)}>
+          <div className={`btn ${isCollected ? "delete" : "collect"}`} onClick={() => operateShelf(book)}>
             {isCollected ? "移出书架" : "加入书架"}
           </div>
         </div>
@@ -166,7 +163,7 @@ const BookBody = () => {
       )}
 
       {/* 书籍目录 */}
-      <div className="directory-list">
+      {/* <div className="directory-list">
         <div className="directory-header">
           <div className="directory-title">目录</div>
           <div className="view-all-btn" onClick={() => setDirectoryShow(true)}>
@@ -189,7 +186,7 @@ const BookBody = () => {
               );
             })}
         </div>
-      </div>
+      </div> */}
     </div>
   ) : (
     // PC
@@ -222,18 +219,14 @@ const BookBody = () => {
                   <div className="btn main-btn" onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}>
                     立即阅读
                   </div>
-                  <div className="btn assist-btn" onClick={() => operateShelf(book)}>
+                  <div className={`btn ${isCollected ? "delete" : "collect"}`} onClick={() => operateShelf(book)}>
                     {isCollected ? "移出书架" : "加入书架"}
                   </div>
                 </div>
 
                 <div className="other-btns">
                   <div className="sign-count">{book?.signCount}人签约</div>
-                  <div
-                    className="share-btn"
-                    onMouseOver={() => setShareShow(true)}
-                    onMouseLeave={() => setShareShow(false)}
-                  >
+                  <div className="share-btn" onMouseOver={() => setShareShow(true)} onMouseLeave={() => setShareShow(false)}>
                     <span className={`share-btn-text ${shareShow && "active"}`}>
                       <i className="freelog fl-icon-fenxiang"></i>
                       分享给更多人
@@ -266,7 +259,7 @@ const BookBody = () => {
           )}
 
           {/* 书籍目录 */}
-          <div className="directory-list">
+          {/* <div className="directory-list">
             <div className="directory-title">
               目录
               <span className="directory-length">({directory.length}章)</span>
@@ -284,7 +277,7 @@ const BookBody = () => {
             </div>
 
             <div className="no-more">— 已加载全部章节 —</div>
-          </div>
+          </div> */}
         </div>
       )}
     </div>

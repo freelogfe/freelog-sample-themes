@@ -186,7 +186,7 @@
       align-items: center;
       padding-left: 20px;
       box-sizing: border-box;
-      background-color: #333;
+      background: var(--gradientColor);
 
       .search-page-box {
         position: relative;
@@ -234,13 +234,18 @@
         }
       }
 
-      .text-btn {
+      .cancel-btn {
         font-size: 16px;
         line-height: 22px;
         height: 100%;
         padding: 0 20px;
         display: flex;
         align-items: center;
+        color: #fff;
+
+        &:active {
+          opacity: 0.6;
+        }
       }
     }
 
@@ -395,6 +400,7 @@
         top: 100%;
         padding-top: 10px;
         cursor: default;
+        z-index: 1;
 
         .user-box-body {
           width: 240px;
@@ -544,11 +550,12 @@
     margin-bottom: 27px;
 
     .category-btn {
+      height: 24px;
+      line-height: 24px;
+      border-radius: 24px;
       font-size: 14px;
       color: rgba(255, 255, 255, 0.5);
-      line-height: 20px;
-      padding: 2px 5px;
-      border-radius: 2px;
+      padding: 0 8px;
       background-color: transparent;
       cursor: pointer;
       transition: all 0.2s linear;
@@ -563,7 +570,7 @@
       }
 
       & + .category-btn {
-        margin-left: 10px;
+        margin-left: 4px;
       }
     }
   }

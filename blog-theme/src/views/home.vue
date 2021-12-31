@@ -13,23 +13,36 @@
         <template v-if="searchData.keywords || searchData.tags">
           <div class="search-title">
             “{{
-              `${searchData.keywords || ""}${searchData.keywords && searchData.tags ? "+" : ""}${
-                searchData.tags || ""
-              }`
+              `${searchData.keywords || ""}${
+                searchData.keywords && searchData.tags ? "+" : ""
+              }${searchData.tags || ""}`
             }}”的搜索结果
-            <span className="search-total">({{ total }})</span>
+            <span className="search-total" v-if="!loading">({{ total }})</span>
           </div>
 
-          <div className="clear-search-btn" @click="clearSearch()">清空搜索条件</div>
+          <div className="text-btn mobile" @click="clearSearch()">
+            清空搜索条件
+          </div>
         </template>
       </div>
 
       <div class="article-list">
-        <my-article :data="item" v-for="item in listData" :key="item.presentableId" />
+        <my-article
+          :data="item"
+          v-for="item in listData"
+          :key="item.presentableId"
+        />
       </div>
 
-      <div className="tip" v-show="total === 0">当前节点暂无任何书籍，请稍后查看</div>
-      <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部书籍 —</div>
+      <div className="tip" v-show="!loading && total === 0">
+        当前节点暂无任何书籍，请稍后查看
+      </div>
+      <div
+        className="tip no-more"
+        v-show="!loading && listData.length !== 0 && listData.length === total"
+      >
+        — 已加载全部书籍 —
+      </div>
     </div>
 
     <!-- PC -->
@@ -41,7 +54,8 @@
           @mouseleave="sortPopupShow = false"
           v-if="!searchData.keywords && !searchData.tags"
         >
-          {{ createDateSortType === "-1" ? "最新" : "最早" }} <i class="freelog fl-icon-zhankaigengduo"></i>
+          {{ createDateSortType === "-1" ? "最新" : "最早" }}
+          <i class="freelog fl-icon-zhankaigengduo"></i>
 
           <transition name="slide-down-scale">
             <div class="sort-popup" v-show="sortPopupShow">
@@ -55,19 +69,32 @@
 
         <div class="search-title" v-if="searchData.keywords || searchData.tags">
           “{{
-            `${searchData.keywords || ""}${searchData.keywords && searchData.tags ? "+" : ""}${searchData.tags || ""}`
+            `${searchData.keywords || ""}${
+              searchData.keywords && searchData.tags ? "+" : ""
+            }${searchData.tags || ""}`
           }}”的搜索结果
-          <span className="search-total">({{ total }})</span>
-          <div className="clear-search-btn" @click="clearSearch()">清空搜索条件</div>
+          <span className="search-total" v-if="!loading">({{ total }})</span>
+          <div className="text-btn" @click="clearSearch()">清空搜索条件</div>
         </div>
       </div>
 
       <div class="article-list">
-        <my-article :data="item" v-for="item in listData" :key="item.presentableId" />
+        <my-article
+          :data="item"
+          v-for="item in listData"
+          :key="item.presentableId"
+        />
       </div>
 
-      <div className="tip" v-show="total === 0">当前节点暂无任何书籍，请稍后查看</div>
-      <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部书籍 —</div>
+      <div className="tip" v-show="!loading && total === 0">
+        当前节点暂无任何书籍，请稍后查看
+      </div>
+      <div
+        className="tip no-more"
+        v-show="!loading && listData.length !== 0 && listData.length === total"
+      >
+        — 已加载全部书籍 —
+      </div>
     </div>
 
     <my-footer />
@@ -85,7 +112,9 @@ export default {
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
-    "my-article": defineAsyncComponent(() => import("../components/article.vue")),
+    "my-article": defineAsyncComponent(
+      () => import("../components/article.vue")
+    ),
   },
 
   setup() {
@@ -104,7 +133,7 @@ export default {
       // 排序
       sort(sortType: string) {
         if (data.createDateSortType === sortType) return;
-        
+
         data.createDateSortType = sortType;
         data.searchData.sort = `createDate:${sortType}`;
         datasOfGetList.getList(data.searchData, true);
@@ -200,15 +229,11 @@ export default {
         }
       }
 
-      .clear-search-btn {
+      .text-btn {
+        width: fit-content;
         font-size: 14px;
-        color: #2784ff;
         line-height: 20px;
         margin-top: 10px;
-
-        &:active {
-          color: #2376e5;
-        }
       }
     }
 
@@ -292,20 +317,10 @@ export default {
           margin-left: 10px;
         }
 
-        .clear-search-btn {
+        .text-btn {
           font-size: 14px;
-          color: #2784ff;
           line-height: 20px;
           margin-left: 30px;
-          cursor: pointer;
-
-          &:hover {
-            color: #529dff;
-          }
-
-          &:active {
-            color: #2376e5;
-          }
         }
       }
     }

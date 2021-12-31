@@ -1,6 +1,6 @@
 <template>
   <transition name="fade">
-    <div @click="backToTop()" v-show="topBtnShow"><slot></slot></div>
+    <div @click="scrollToTop()" v-show="topBtnShow"><slot></slot></div>
   </transition>
 </template>
 
@@ -12,13 +12,8 @@ export default {
   name: "back-top",
 
   setup() {
-    const { scrollTop } = useMyScroll();
+    const { scrollTop, scrollToTop } = useMyScroll();
     const topBtnShow = ref(false);
-
-    const backToTop = () => {
-      document.documentElement.scroll({ top: 0, behavior: "smooth" });
-      document.body.scroll({ top: 0, behavior: "smooth" });
-    };
 
     watch(
       () => scrollTop.value,
@@ -29,7 +24,7 @@ export default {
 
     return {
       topBtnShow,
-      backToTop,
+      scrollToTop,
     };
   },
 };

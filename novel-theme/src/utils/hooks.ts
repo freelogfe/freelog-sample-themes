@@ -1,12 +1,6 @@
 import { useState, useEffect, useCallback, useContext } from "react";
 import { useHistory } from "react-router";
-import {
-  getUserData,
-  getExhibitListById,
-  GetExhibitListByIdParams,
-  setUserData,
-  getExhibitAuthStatus,
-} from "../api/freelog";
+import { getUserData, getExhibitListById, GetExhibitListByIdParams, setUserData, getExhibitAuthStatus } from "../api/freelog";
 import { showToast } from "../components/toast/toast";
 import { globalContext } from "../router";
 import { ExhibitItem } from "../api/interface";
@@ -101,25 +95,31 @@ export const useMyShelf = (id?: string) => {
  * 页面滚动相关hook
  */
 export const useMyScroll = () => {
+  const app = document.getElementById("root");
   const [scrollTop, setScrollTop] = useState(0);
   const [clientHeight, setClientHeight] = useState(0);
   const [scrollHeight, setScrollHeight] = useState(0);
 
   const scroll = useCallback(() => {
-    setScrollTop(document.documentElement.scrollTop || document.body.scrollTop);
-    setClientHeight(document.documentElement.clientHeight || document.body.clientHeight);
-    setScrollHeight(document.documentElement.scrollHeight || document.body.scrollHeight);
-  }, [setScrollTop, setClientHeight, setScrollHeight]);
+    setScrollTop(app?.scrollTop || 0);
+    setClientHeight(app?.clientHeight || 0);
+    setScrollHeight(app?.scrollHeight || 0);
+  }, [setScrollTop, setClientHeight, setScrollHeight, app]);
+
+  const scrollToTop = () => {
+    app?.scroll({ top: 0, behavior: "smooth" });
+  };
 
   useEffect(() => {
-    window.addEventListener("scroll", scroll);
-    return () => window.removeEventListener("scroll", scroll);
-  }, [scroll]);
+    app?.addEventListener("scroll", scroll);
+    return () => app?.removeEventListener("scroll", scroll);
+  }, [scroll, app]);
 
   return {
     scrollTop,
     clientHeight,
     scrollHeight,
+    scrollToTop,
   };
 };
 

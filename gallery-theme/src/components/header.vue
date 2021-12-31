@@ -83,9 +83,7 @@
             <i class="freelog fl-icon-content"></i>
           </div>
 
-          <div class="text-btn mobile" @click="searchPopupShow = false">
-            取消
-          </div>
+          <div class="cancel-btn" @click="searchPopupShow = false">取消</div>
         </div>
 
         <div class="recommend-tags">
@@ -520,13 +518,18 @@ export default {
         }
       }
 
-      .text-btn {
+      .cancel-btn {
         font-size: 16px;
         line-height: 22px;
         height: 100%;
         padding: 0 15px;
         display: flex;
         align-items: center;
+        color: #fff;
+
+        &:active {
+          opacity: 0.6;
+        }
       }
     }
 
@@ -832,11 +835,12 @@ export default {
     margin-bottom: 27px;
 
     .category-btn {
+      height: 24px;
+      line-height: 24px;
+      border-radius: 24px;
       font-size: 14px;
       color: rgba(255, 255, 255, 0.5);
-      line-height: 20px;
-      padding: 2px 5px;
-      border-radius: 2px;
+      padding: 0 8px;
       background-color: transparent;
       cursor: pointer;
       transition: all 0.2s linear;
@@ -851,7 +855,7 @@ export default {
       }
 
       & + .category-btn {
-        margin-left: 10px;
+        margin-left: 4px;
       }
     }
   }

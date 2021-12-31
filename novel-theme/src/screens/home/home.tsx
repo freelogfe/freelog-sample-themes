@@ -88,13 +88,7 @@ export const HomeScreen = (props: any) => {
   );
 };
 
-const HomeBody = (props: {
-  bookList: ExhibitItem[];
-  searching: boolean;
-  total: number | null;
-  tags: string;
-  keywords: string;
-}) => {
+const HomeBody = (props: { bookList: ExhibitItem[]; searching: boolean; total: number | null; tags: string; keywords: string }) => {
   const { bookList, searching, total, tags, keywords } = props;
   const { inMobile, userData } = useContext(globalContext);
   const { myShelf } = useMyShelf();
@@ -141,7 +135,7 @@ const HomeBody = (props: {
               {tags !== "全部" ? tags : ""}”的搜索结果
               <span className="search-book-total">({bookList.length})</span>
             </div>
-            <div className="clear-search-btn" onClick={() => history.switchPage("/")}>
+            <div className="text-btn mobile" onClick={() => history.switchPage("/")}>
               清空搜索条件
             </div>
           </div>
@@ -209,7 +203,7 @@ const HomeBody = (props: {
               {keywords && tags !== "全部" && "+"}
               {tags !== "全部" ? tags : ""}”的搜索结果
               <span className="search-book-total">({bookList.length})</span>
-              <div className="clear-search-btn" onClick={() => history.switchPage("/")}>
+              <div className="text-btn" onClick={() => history.switchPage("/")}>
                 清空搜索条件
               </div>
             </div>

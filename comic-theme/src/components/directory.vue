@@ -138,7 +138,7 @@ export default {
       padding: 0 20px;
       box-sizing: border-box;
 
-      &:nth-child(2) .item-content {
+      &:first-child .item-content {
         border-top: 1px solid rgba(0, 0, 0, 0.1);
       }
 

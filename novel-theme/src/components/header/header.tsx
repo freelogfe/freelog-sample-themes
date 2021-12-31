@@ -8,11 +8,7 @@ import { bookTypeList } from "../../api/data";
 import { globalContext } from "../../router";
 import CSSTransition from "react-transition-group/CSSTransition";
 
-export const Header = (props: {
-  homeHeader?: boolean;
-  defaultTag?: string;
-  defaultSearchKey?: string;
-}) => {
+export const Header = (props: { homeHeader?: boolean; defaultTag?: string; defaultSearchKey?: string }) => {
   const history = useMyHistory();
   const { inMobile, userData, selfConfig } = useContext(globalContext);
   const [tag, setTag] = useState("全部");
@@ -57,12 +53,7 @@ export const Header = (props: {
       <div className={`header-top ${userData && "logon"}`}>
         {props.homeHeader ? (
           // logo
-          <img
-            className="logo"
-            src={selfConfig.logoImage || MyLogo}
-            alt="logo"
-            onClick={() => history.switchPage(`/`)}
-          />
+          <img className="logo" src={selfConfig.logoImage || MyLogo} alt="logo" onClick={() => history.switchPage(`/`)} />
         ) : (
           <div className="header-top-left" onClick={() => history.back()}>
             <img className="back-arrow" src={BackArrow} alt="" />
@@ -73,14 +64,7 @@ export const Header = (props: {
         <div className="header-top-right">
           {!props.homeHeader && <i className="freelog fl-icon-content" onClick={() => setSearchPopupShow(true)}></i>}
 
-          {userData && (
-            <img
-              className="avatar"
-              src={userData.headImage}
-              alt={userData.username}
-              onClick={() => setUserBoxShow(true)}
-            />
-          )}
+          {userData && <img className="avatar" src={userData.headImage} alt={userData.username} onClick={() => setUserBoxShow(true)} />}
         </div>
       </div>
 
@@ -130,7 +114,7 @@ export const Header = (props: {
               <i className="freelog fl-icon-content"></i>
             </div>
 
-            <div className="text-btn mobile" onClick={() => setSearchPopupShow(false)}>
+            <div className="cancel-btn" onClick={() => setSearchPopupShow(false)}>
               取消
             </div>
           </div>
@@ -162,12 +146,7 @@ export const Header = (props: {
       <div className="header-top">
         <div className="header-top-left">
           {/* logo */}
-          <img
-            className="logo"
-            src={selfConfig.logoImage || MyLogo}
-            alt="logo"
-            onClick={() => history.switchPage(`/`)}
-          />
+          <img className="logo" src={selfConfig.logoImage || MyLogo} alt="logo" onClick={() => history.switchPage(`/`)} />
 
           {/* 搜索框 */}
           {!props.homeHeader && (
@@ -187,11 +166,7 @@ export const Header = (props: {
         </div>
 
         {userData ? (
-          <div
-            className="user-avatar"
-            onMouseOver={() => setUserBoxShow(true)}
-            onMouseLeave={() => setUserBoxShow(false)}
-          >
+          <div className="user-avatar" onMouseOver={() => setUserBoxShow(true)} onMouseLeave={() => setUserBoxShow(false)}>
             <div className="username">{userData.username}</div>
             <img className="avatar" src={userData.headImage} alt={userData.username} />
 

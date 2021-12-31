@@ -56,6 +56,7 @@ export default {
   cursor: pointer;
   transition: all 0.2s linear;
   display: none !important;
+  z-index: 1;
 
   .freelog {
     width: 20px;
