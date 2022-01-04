@@ -60,7 +60,7 @@ export const useGetList = () => {
     data.skip = init ? 0 : data.skip + 30;
     const queryParams: GetExhibitListByPagingParams = {
       skip: data.skip,
-      articleResourceTypes: "markdown",
+      articleResourceTypes: "markdown,novel",
       limit: params.limit || 30,
       ...params,
     };
