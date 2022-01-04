@@ -442,6 +442,10 @@ export default {
             }
           }
         }
+
+        .sign-count {
+          margin-top: 30px;
+        }
       }
     }
 
