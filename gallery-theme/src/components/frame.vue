@@ -23,22 +23,36 @@
           v-if="data.articleInfo.resourceType === 'video'"
         >
           <img class="video-image" src="../assets/images/video.png" />
+
+          <div class="sign-count">
+            签约量：{{ getSignCount(data.signCount) }}
+          </div>
         </div>
 
         <!-- 毛玻璃图片（未授权） -->
         <div class="filter-modal" v-if="!isAuth">
-          <div class="img-box" v-show="!modalShow">
-            <img
-              class="img"
-              src="../assets/images/video.png"
-              v-if="data.articleInfo.resourceType === 'video'"
-            />
-            <img
-              class="img"
-              src="../assets/images/lock.png"
-              @click.stop="getAuth(data.exhibitId)"
-            />
+          <div class="filter-modal-body" v-show="!modalShow">
+            <div class="img-box">
+              <img
+                class="img"
+                src="../assets/images/video.png"
+                v-if="data.articleInfo.resourceType === 'video'"
+              />
+              <img class="img" src="../assets/images/lock.png" />
+            </div>
+
+            <div class="sign-count">
+              签约量：{{ getSignCount(data.signCount) }}
+            </div>
           </div>
+        </div>
+
+        <!-- 默认状态签约量 -->
+        <div
+          class="sign-count single"
+          v-if="isAuth && data.articleInfo.resourceType === 'image'"
+        >
+          签约量：{{ getSignCount(data.signCount) }}
         </div>
       </div>
 
@@ -74,27 +88,49 @@
           v-if="data.articleInfo.resourceType === 'video' && !modalShow"
         >
           <img class="video-image" src="../assets/images/video.png" />
+
+          <div class="sign-count">
+            签约量：{{ getSignCount(data.signCount) }}
+          </div>
         </div>
       </transition>
 
       <!-- 毛玻璃图片（未授权） -->
       <div class="filter-modal" v-if="!isAuth">
         <transition name="fade">
-          <div class="img-box" v-show="!modalShow">
-            <img
-              class="img"
-              src="../assets/images/video.png"
-              v-if="data.articleInfo.resourceType === 'video'"
-            />
-            <img class="img" src="../assets/images/lock.png" />
+          <div class="filter-modal-body" v-show="!modalShow">
+            <div class="img-box">
+              <img
+                class="img"
+                src="../assets/images/video.png"
+                v-if="data.articleInfo.resourceType === 'video'"
+              />
+              <img class="img" src="../assets/images/lock.png" />
+            </div>
+
+            <div class="sign-count">
+              签约量：{{ getSignCount(data.signCount) }}
+            </div>
           </div>
         </transition>
       </div>
 
+      <!-- 默认状态签约量 -->
+      <transition name="fade">
+        <div
+          class="sign-count single"
+          v-if="
+            isAuth && data.articleInfo.resourceType === 'image' && !modalShow
+          "
+        >
+          签约量：{{ getSignCount(data.signCount) }}
+        </div>
+      </transition>
+
+      <!-- 信息层 -->
       <transition name="fade">
         <div class="modal" v-if="modalShow"></div>
       </transition>
-
       <transition name="slide-up">
         <div class="modal-content" v-if="modalShow">
           <div class="img-box">
@@ -112,9 +148,19 @@
           </div>
           <div class="title">{{ data.exhibitName }}</div>
           <tags :tags="data.tags" v-if="data.tags.length" />
-          <div class="author-info">
-            <img class="avatar" :src="getAvatarUrl(data.userId)" />
-            {{ data.articleInfo.articleOwnerName }}
+          <div class="footer-info">
+            <div class="author-info">
+              <img class="avatar" :src="getAvatarUrl(data.userId)" />
+              <div
+                class="author-name"
+                :title="data.articleInfo.articleOwnerName"
+              >
+                {{ data.articleInfo.articleOwnerName }}
+              </div>
+            </div>
+            <div class="sign-count-text">
+              签约量：{{ getSignCount(data.signCount) }}
+            </div>
           </div>
         </div>
       </transition>
@@ -128,6 +174,7 @@ import { defineAsyncComponent } from "vue";
 import { addAuth } from "@/api/freelog";
 import { ExhibitItem } from "@/api/interface";
 import { useStore } from "vuex";
+import { getSignCount } from "@/utils/common";
 
 export default {
   name: "frame",
@@ -160,6 +207,7 @@ export default {
     };
 
     return {
+      getSignCount,
       ...store.state,
       ...toRefs(data),
       ...methods,
@@ -216,12 +264,17 @@ export default {
         inset: 0;
         background: rgba(0, 0, 0, 0.1);
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
 
         .video-image {
           width: 48px;
           height: 48px;
+        }
+
+        .sign-count {
+          margin-top: 15px;
         }
       }
 
@@ -242,22 +295,31 @@ export default {
           background-size: cover;
         }
 
-        .img-box {
+        .filter-modal-body {
           position: absolute;
           inset: 0;
           background-color: rgba(0, 0, 0, 0.25);
           display: flex;
+          flex-direction: column;
           align-items: center;
           justify-content: center;
           z-index: 1;
 
-          .img {
-            width: 48px;
-            height: 48px;
+          .img-box {
+            display: flex;
 
-            & + .img {
-              margin-left: 10px;
+            .img {
+              width: 48px;
+              height: 48px;
+
+              & + .img {
+                margin-left: 10px;
+              }
             }
+          }
+
+          .sign-count {
+            margin-top: 15px;
           }
         }
       }
@@ -327,12 +389,17 @@ export default {
       inset: 0;
       background: rgba(0, 0, 0, 0.1);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
 
       .video-image {
         width: 64px;
         height: 64px;
+      }
+
+      .sign-count {
+        margin-top: 30px;
       }
     }
 
@@ -353,21 +420,26 @@ export default {
         background-size: cover;
       }
 
-      .img-box {
+      .filter-modal-body {
         position: absolute;
         inset: 0;
         background-color: rgba(0, 0, 0, 0.25);
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
         z-index: 1;
 
-        .img {
-          width: 64px;
-          height: 64px;
+        .img-box {
+          display: flex;
 
-          & + .img {
-            margin-left: 20px;
+          .img {
+            width: 64px;
+            height: 64px;
+
+            & + .img {
+              margin-left: 20px;
+            }
           }
         }
       }
@@ -413,20 +485,56 @@ export default {
         margin-top: 10px;
       }
 
-      .author-info {
-        font-size: 14px;
-        line-height: 20px;
-        margin-top: 20px;
+      .footer-info {
         display: flex;
         align-items: center;
+        justify-content: space-between;
+        margin-top: 20px;
 
-        .avatar {
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          margin-right: 10px;
+        .author-info {
+          display: flex;
+          align-items: center;
+
+          .avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+          }
+
+          .author-name {
+            width: 130px;
+            font-size: 14px;
+            line-height: 20px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            margin-left: 10px;
+          }
+        }
+
+        .sign-count-text {
+          font-size: 12px;
+          font-weight: 600;
+          color: #ffffff;
         }
       }
+    }
+  }
+
+  .sign-count {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 18px;
+
+    &.single {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
     }
   }
 }

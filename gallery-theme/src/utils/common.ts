@@ -15,20 +15,24 @@ export const formatDate = (time: string | undefined, format = "YYYY-MM-DD hh:mm:
   const minutes = String(date.getMinutes()).padStart(2, "0");
   const seconds = String(date.getSeconds()).padStart(2, "0");
 
-  const result = format
-    .replace("YYYY", year)
-    .replace("MM", month)
-    .replace("DD", day)
-    .replace("hh", hour)
-    .replace("mm", minutes)
-    .replace("ss", seconds);
+  const result = format.replace("YYYY", year).replace("MM", month).replace("DD", day).replace("hh", hour).replace("mm", minutes).replace("ss", seconds);
   return result;
+};
+
+/**
+ * 签约量显示规则（小于10000显示原数字，等于10000显示1万，大于10000显示1万+）
+ * @param count 签约量
+ */
+export const getSignCount = (count: number) => {
+  if (!count) return 0;
+  if (count < 10000) return count;
+  if (count === 10000) return "1万";
+  if (count > 10000) return "1万+";
 };
 
 // 判断设备
 export const judgeDevice = () => {
-  const mobile =
-    /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i;
+  const mobile = /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i;
   const inMobile = navigator.userAgent.match(mobile);
   return !!inMobile;
 };

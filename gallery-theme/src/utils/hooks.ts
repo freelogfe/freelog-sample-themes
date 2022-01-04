@@ -1,4 +1,4 @@
-import { getExhibitAuthStatus, getExhibitListByPaging, GetExhibitListByPagingParams } from "@/api/freelog";
+import { getExhibitAuthStatus, getExhibitListByPaging, GetExhibitListByPagingParams, getExhibitSignCount } from "@/api/freelog";
 import { onUnmounted, reactive, ref, toRefs, watchEffect } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
@@ -79,11 +79,11 @@ export const useGetList = (inList = false) => {
         idList.push(item.exhibitId);
       });
       const ids = idList.join(",");
-      // const signCountData = await getExhibitSignCount(ids);
-      // signCountData.data.data.forEach((item: { subjectId: string; count: number }) => {
-      //   const index = dataList.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.subjectId);
-      //   dataList[index].signCount = item.count;
-      // });
+      const signCountData = await getExhibitSignCount(ids);
+      signCountData.data.data.forEach((item: { subjectId: string; count: number }) => {
+        const index = dataList.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.subjectId);
+        dataList[index].signCount = item.count;
+      });
       const statusInfo = await getExhibitAuthStatus(ids);
       if (statusInfo.data.data) {
         statusInfo.data.data.forEach((item: { exhibitId: string; isAuth: boolean }) => {
