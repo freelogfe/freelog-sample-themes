@@ -15,7 +15,7 @@
           <tags :tags="articleData?.tags" />
         </div>
         <div class="article-content">
-          <my-markdown :data="content" v-if="isAuth === true" />
+          <my-markdown :data="contentInfo" v-if="isAuth === true" />
           <div class="lock-box" v-if="isAuth === false">
             <img class="lock" src="../assets/images/lock.png" />
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
@@ -50,7 +50,7 @@
         </div>
         <div class="divider"></div>
         <div class="article-content">
-          <my-markdown :data="content" v-if="isAuth === true" />
+          <my-markdown :data="contentInfo" v-if="isAuth === true" />
           <div class="lock-box" v-if="isAuth === false">
             <img class="lock" src="../assets/images/lock.png" />
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
@@ -81,7 +81,6 @@ import { ExhibitItem } from "@/api/interface";
 import {
   addAuth,
   getExhibitAuthStatus,
-  getExhibitDepFileStream,
   getExhibitFileStream,
   getExhibitInfo,
   getExhibitSignCount,
@@ -108,7 +107,7 @@ export default {
     const data = reactive({
       isAuth: null as boolean | null,
       articleData: null as ExhibitItem | null,
-      content: "",
+      contentInfo: null as { content: string; exhibitInfo: ExhibitItem } | null,
       recommendList: [] as ExhibitItem[],
     });
 
@@ -127,7 +126,7 @@ export default {
         document.documentElement.scroll({ top: 0 });
         data.isAuth = false;
         data.articleData = null;
-        data.content = "";
+        data.contentInfo = null;
         data.recommendList = [];
         getData();
       }
@@ -147,14 +146,7 @@ export default {
       if (data.isAuth) {
         const info: any = await getExhibitFileStream(id);
         if (!info) return;
-
-        const deps = exhibitInfo.data.data.versionInfo.dependencyTree.filter((_: any, index: number) => index !== 0);
-        await deps.forEach(async (dep: any) => {
-          const depUrl: string = await getExhibitDepFileStream(id, dep.parentNid, dep.articleId, true);
-          const reg = new RegExp(dep.articleName, "g");
-          info.data = info.data.replace(reg, depUrl);
-        });
-        data.content = info.data;
+        data.contentInfo = { content: info.data, exhibitInfo: exhibitInfo.data.data };
       } else {
         methods.getAuth();
       }

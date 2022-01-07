@@ -1,6 +1,5 @@
 .reader-wrapper {
   min-height: 100vh;
-  background-image: url(../../assets/images/reader-bg.png);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -12,7 +11,6 @@
     flex: 1;
     padding: 20px 20px 90px;
     box-sizing: border-box;
-    background-image: url(../../assets/images/reader-bg.png);
     animation: fade-in 0.3s ease-out;
     transition: background-color 0.2s linear;
 
@@ -80,7 +78,6 @@
       flex: 1;
       padding: 50px 60px;
       border-radius: 10px;
-      background-image: url(../../assets/images/reader-bg.png);
       animation: fade-in 0.3s ease-out;
       transition: all 0.2s linear;
 
@@ -141,7 +138,6 @@
       height: 78px;
       margin: 30px 0;
       border-radius: 10px;
-      background-image: url(../../assets/images/reader-bg.png);
       display: flex;
       align-items: center;
       transition: all 0.2s linear;

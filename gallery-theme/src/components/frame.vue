@@ -1,7 +1,9 @@
 <template>
   <div
     class="frame-wrapper"
-    :class="{ 'in-pc': !inMobile }"
+    :class="{
+      'in-pc': !inMobile,
+    }"
     :style="{
       '--height': data.height + 'px',
       '--url': 'url(' + data.coverImages[0] + ')',
@@ -10,7 +12,9 @@
     <!-- mobile -->
     <div
       class="mobile-frame-wrapper"
-      :class="{ 'min-size': data.height === 120 }"
+      :class="{
+        'min-size': data.height === 120,
+      }"
       v-if="inMobile"
     >
       <div class="cover-box">
@@ -18,53 +22,38 @@
         <img class="image" v-lazy="data.coverImages[0]" v-if="isAuth" />
 
         <!-- 视频遮罩 -->
-        <div
-          class="video-modal"
-          v-if="data.articleInfo.resourceType === 'video'"
-        >
+        <div class="video-modal" v-if="data.articleInfo.resourceType === 'video' && isAuth">
           <img class="video-image" src="../assets/images/video.png" />
 
-          <div class="sign-count">
-            签约量：{{ getSignCount(data.signCount) }}
-          </div>
+          <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
         </div>
 
         <!-- 毛玻璃图片（未授权） -->
         <div class="filter-modal" v-if="!isAuth">
-          <div class="filter-modal-body" v-show="!modalShow">
+          <div class="filter-modal-body">
             <div class="img-box">
-              <img
-                class="img"
-                src="../assets/images/video.png"
-                v-if="data.articleInfo.resourceType === 'video'"
-              />
+              <img class="img" src="../assets/images/video.png" v-if="data.articleInfo.resourceType === 'video'" />
               <img class="img" src="../assets/images/lock.png" />
             </div>
 
-            <div class="sign-count">
-              签约量：{{ getSignCount(data.signCount) }}
-            </div>
+            <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
           </div>
         </div>
 
         <!-- 默认状态签约量 -->
-        <div
-          class="sign-count single"
-          v-if="isAuth && data.articleInfo.resourceType === 'image'"
-        >
+        <div class="sign-count single" v-if="isAuth && data.articleInfo.resourceType === 'image'">
           签约量：{{ getSignCount(data.signCount) }}
         </div>
       </div>
 
       <!-- 资源信息 -->
       <div class="frame-info">
-        <div class="title">{{ data.exhibitName }}</div>
+        <div class="title">
+          {{ data.exhibitName }}
+        </div>
         <tags :tags="data.tags" v-if="data.tags.length" />
         <div class="author-info">
-          <img
-            class="avatar"
-            :src="getAvatarUrl(data.articleInfo.articleOwnerId)"
-          />
+          <img class="avatar" :src="getAvatarUrl(data.articleInfo.articleOwnerId)" />
           {{ data.articleInfo.articleOwnerName }}
         </div>
       </div>
@@ -73,7 +62,9 @@
     <!-- PC -->
     <div
       class="pc-frame-wrapper"
-      :class="{ 'min-size': data.height === 230 }"
+      :class="{
+        'min-size': data.height === 230,
+      }"
       @mouseover="modalShow = true"
       @mouseleave="modalShow = false"
       v-if="!inMobile"
@@ -83,15 +74,10 @@
 
       <!-- 视频遮罩 -->
       <transition name="fade">
-        <div
-          class="video-modal"
-          v-if="data.articleInfo.resourceType === 'video' && !modalShow"
-        >
+        <div class="video-modal" v-if="data.articleInfo.resourceType === 'video' && isAuth && !modalShow">
           <img class="video-image" src="../assets/images/video.png" />
 
-          <div class="sign-count">
-            签约量：{{ getSignCount(data.signCount) }}
-          </div>
+          <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
         </div>
       </transition>
 
@@ -100,29 +86,18 @@
         <transition name="fade">
           <div class="filter-modal-body" v-show="!modalShow">
             <div class="img-box">
-              <img
-                class="img"
-                src="../assets/images/video.png"
-                v-if="data.articleInfo.resourceType === 'video'"
-              />
+              <img class="img" src="../assets/images/video.png" v-if="data.articleInfo.resourceType === 'video'" />
               <img class="img" src="../assets/images/lock.png" />
             </div>
 
-            <div class="sign-count">
-              签约量：{{ getSignCount(data.signCount) }}
-            </div>
+            <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
           </div>
         </transition>
       </div>
 
       <!-- 默认状态签约量 -->
       <transition name="fade">
-        <div
-          class="sign-count single"
-          v-if="
-            isAuth && data.articleInfo.resourceType === 'image' && !modalShow
-          "
-        >
+        <div class="sign-count single" v-if="isAuth && data.articleInfo.resourceType === 'image' && !modalShow">
           签约量：{{ getSignCount(data.signCount) }}
         </div>
       </transition>
@@ -134,33 +109,21 @@
       <transition name="slide-up">
         <div class="modal-content" v-if="modalShow">
           <div class="img-box">
-            <img
-              class="img"
-              src="../assets/images/video.png"
-              v-if="data.articleInfo.resourceType === 'video'"
-            />
-            <img
-              class="img"
-              src="../assets/images/lock.png"
-              @click.stop="getAuth(data.exhibitId)"
-              v-if="!isAuth"
-            />
+            <img class="img" src="../assets/images/video.png" v-if="data.articleInfo.resourceType === 'video'" />
+            <img class="img" src="../assets/images/lock.png" @click.stop="getAuth(data.exhibitId)" v-if="!isAuth" />
           </div>
-          <div class="title">{{ data.exhibitName }}</div>
+          <div class="title">
+            {{ data.exhibitName }}
+          </div>
           <tags :tags="data.tags" v-if="data.tags.length" />
           <div class="footer-info">
             <div class="author-info">
               <img class="avatar" :src="getAvatarUrl(data.userId)" />
-              <div
-                class="author-name"
-                :title="data.articleInfo.articleOwnerName"
-              >
+              <div class="author-name" :title="data.articleInfo.articleOwnerName">
                 {{ data.articleInfo.articleOwnerName }}
               </div>
             </div>
-            <div class="sign-count-text">
-              签约量：{{ getSignCount(data.signCount) }}
-            </div>
+            <div class="sign-count-text">签约量：{{ getSignCount(data.signCount) }}</div>
           </div>
         </div>
       </transition>
@@ -189,7 +152,7 @@ export default {
     const store = useStore();
     const data = reactive({
       modalShow: false,
-      isAuth: props.data.isAuth,
+      isAuth: props.data.isAuth || false,
     });
 
     const methods = {
@@ -208,7 +171,7 @@ export default {
 
     return {
       getSignCount,
-      ...store.state,
+      ...toRefs(store.state),
       ...toRefs(data),
       ...methods,
     };
@@ -261,7 +224,10 @@ export default {
 
       .video-modal {
         position: absolute;
-        inset: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: 0;
         background: rgba(0, 0, 0, 0.1);
         display: flex;
         flex-direction: column;
@@ -285,11 +251,16 @@ export default {
         display: flex;
         align-items: center;
         justify-content: center;
+        border-radius: 10px;
+        overflow: hidden;
 
         &::before {
           content: "";
           position: absolute;
-          inset: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          top: 0;
           filter: blur(10px);
           background-image: var(--url);
           background-size: cover;
@@ -297,7 +268,10 @@ export default {
 
         .filter-modal-body {
           position: absolute;
-          inset: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          top: 0;
           background-color: rgba(0, 0, 0, 0.25);
           display: flex;
           flex-direction: column;

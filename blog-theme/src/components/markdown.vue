@@ -6,25 +6,56 @@
 import showdown from "showdown";
 import { ref } from "@vue/reactivity";
 import { watch } from "@vue/runtime-core";
+import { ExhibitItem } from "@/api/interface";
+import { getExhibitDepFileStream } from "@/api/freelog";
 
 export default {
   name: "my-markdown",
 
   props: ["data"],
 
-  setup(props: { data: string }) {
+  setup(props: { data: { content: string; exhibitInfo: ExhibitItem } }) {
     const content = ref("");
+    showdown.setOption("tables", true);
+    showdown.setOption("tasklists", true);
+    showdown.setOption("simplifiedAutoLink", true);
+    showdown.setOption("openLinksInNewWindow", true);
+    showdown.setOption("backslashEscapesHTMLTags", true);
+    showdown.setOption("emoji", true);
 
     watch(
       () => props.data,
       () => {
-        const converter = new showdown.Converter();
-        let html = converter.makeHtml(props.data);
-        // 使所有的超链接都打开新窗口
-        html = html.replace(/<a /g, "<a target='_blank' ");
-        content.value = html;
+        getContent();
       }
     );
+
+    const getContent = async () => {
+      let html = "";
+      const { exhibitProperty, dependencyTree } = props.data.exhibitInfo.versionInfo;
+      if (exhibitProperty.mime === "text/markdown") {
+        // markdown 文件，以 markdown 解析
+        const converter = new showdown.Converter();
+        html = converter.makeHtml(props.data.content);
+      } else {
+        html = props.data.content;
+        html = html.replace(/\n/g, "<br/>");
+      }
+
+      const deps = dependencyTree.filter((_: any, index: number) => index !== 0);
+      await deps.forEach(async (dep: any) => {
+        const depUrl: string = await getExhibitDepFileStream(
+          props.data.exhibitInfo.exhibitId,
+          dep.parentNid,
+          dep.articleId,
+          true
+        );
+        const reg = new RegExp("src=['\"]" + `freelog://${dep.articleName}` + "['\"]", "g");
+        html = html.replace(reg, `src="${depUrl}"`);
+      });
+
+      content.value = html;
+    };
 
     return {
       content,
@@ -155,10 +186,15 @@ export default {
   }
 
   img,
-  video {
+  video,
+  audio {
     max-width: 100%;
     margin-left: 50%;
     transform: translateX(-50%);
+  }
+
+  video {
+    width: 100%;
   }
 
   table {

@@ -7,16 +7,12 @@
       <div class="header" v-if="searchData.keywords || searchData.tags">
         <div class="search-title">
           “{{
-            `${searchData.keywords || ""}${
-              searchData.keywords && searchData.tags ? "+" : ""
-            }${searchData.tags || ""}`
+            `${searchData.keywords || ""}${searchData.keywords && searchData.tags ? "+" : ""}${searchData.tags || ""}`
           }}”的搜索结果
           <span className="search-total" v-if="!loading">({{ total }})</span>
         </div>
 
-        <div className="text-btn mobile" @click="clearSearch()">
-          清空搜索条件
-        </div>
+        <div className="text-btn mobile" @click="clearSearch()">清空搜索条件</div>
       </div>
 
       <div class="frame-list">
@@ -31,13 +27,8 @@
         </div>
       </div>
 
-      <div className="tip" v-show="!loading && total === 0">
-        当前节点暂无数据，请稍后查看
-      </div>
-      <div
-        className="tip no-more"
-        v-show="!loading && listData.length !== 0 && listData.length === total"
-      >
+      <div className="tip" v-show="!loading && total === 0">当前节点暂无数据，请稍后查看</div>
+      <div className="tip no-more" v-show="!loading && listData.length !== 0 && listData.length === total">
         — 已加载全部 —
       </div>
     </div>
@@ -47,16 +38,14 @@
       <div class="header" v-if="searchData.keywords || searchData.tags">
         <div class="search-title">
           “{{
-            `${searchData.keywords || ""}${
-              searchData.keywords && searchData.tags ? "+" : ""
-            }${searchData.tags || ""}`
+            `${searchData.keywords || ""}${searchData.keywords && searchData.tags ? "+" : ""}${searchData.tags || ""}`
           }}”的搜索结果
           <span className="search-total" v-if="!loading">({{ total }})</span>
           <div className="text-btn" @click="clearSearch()">清空搜索条件</div>
         </div>
       </div>
 
-      <div class="frame-list">
+      <div ref="frameList" class="frame-list">
         <div class="waterfall" v-for="list in listNumber" :key="list">
           <my-frame
             class="frame"
@@ -68,13 +57,8 @@
         </div>
       </div>
 
-      <div className="tip" v-show="!loading && total === 0">
-        当前节点暂无数据，请稍后查看
-      </div>
-      <div
-        className="tip no-more"
-        v-show="!loading && listData.length !== 0 && listData.length === total"
-      >
+      <div className="tip" v-show="!loading && total === 0">当前节点暂无数据，请稍后查看</div>
+      <div className="tip no-more" v-show="!loading && listData.length !== 0 && listData.length === total">
         — 已加载全部 —
       </div>
     </div>
@@ -83,18 +67,12 @@
 
     <login-btn />
 
-    <detail v-model:id="currentId" :listData="listData" v-if="!inMobile" />
+    <detail v-model:id="currentId" v-if="!inMobile" />
   </div>
 </template>
 
 <script lang="ts">
-import {
-  defineAsyncComponent,
-  onUnmounted,
-  reactive,
-  toRefs,
-  watch,
-} from "vue";
+import { defineAsyncComponent, onUnmounted, reactive, toRefs, watch } from "vue";
 import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
 import { useStore } from "vuex";
 import { ExhibitItem } from "@/api/interface";
@@ -107,9 +85,7 @@ export default {
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     "my-frame": defineAsyncComponent(() => import("../components/frame.vue")),
     detail: defineAsyncComponent(() => import("../views/detail.vue")),
-    "login-btn": defineAsyncComponent(
-      () => import("../components/login-btn.vue")
-    ),
+    "login-btn": defineAsyncComponent(() => import("../components/login-btn.vue")),
   },
 
   setup() {
@@ -169,17 +145,12 @@ export default {
           minHeightItemIndex = heightList.length;
         } else if (heightList.length === data.listNumber) {
           const minHeight = Math.min(...heightList);
-          minHeightItemIndex = heightList.findIndex(
-            (item) => item === minHeight
-          );
+          minHeightItemIndex = heightList.findIndex((item) => item === minHeight);
         }
 
-        data.waterfall[data.waterfallList[minHeightItemIndex]].push(
-          datasOfGetList.listData.value[i]
-        );
+        data.waterfall[data.waterfallList[minHeightItemIndex]].push(datasOfGetList.listData.value[i]);
         heightList[minHeightItemIndex] =
-          (heightList[minHeightItemIndex] || 0) +
-          ((datasOfGetList.listData.value[i] as any).height || 0);
+          (heightList[minHeightItemIndex] || 0) + ((datasOfGetList.listData.value[i] as any).height || 0);
       }
 
       const { id } = data.searchData;
@@ -274,7 +245,7 @@ export default {
     getData();
 
     return {
-      ...store.state,
+      ...toRefs(store.state),
       switchPage,
       ...datasOfGetList,
       ...toRefs(data),

@@ -366,6 +366,7 @@ export default {
         height: 28px;
         border-radius: 50%;
         margin-left: 20px;
+        border: 1px solid #d1d1d1;
       }
     }
   }
@@ -681,6 +682,7 @@ export default {
         height: 32px;
         margin-left: 10px;
         border-radius: 50%;
+        border: 1px solid #d1d1d1;
       }
 
       .user-box {

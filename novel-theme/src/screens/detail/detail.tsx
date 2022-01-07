@@ -80,7 +80,7 @@ const BookBody = () => {
   };
 
   useEffect(() => {
-    setHref("http://freelognovel.testfreelog.com/?dev=http://localhost:3000/$_$freelog-60ef9c4ea11650002e840fcd=" + window.location.href);
+    setHref((window.location as any).currentURL);
   }, []);
 
   useEffect(() => {
@@ -226,7 +226,11 @@ const BookBody = () => {
 
                 <div className="other-btns">
                   <div className="sign-count">{book?.signCount}人签约</div>
-                  <div className="share-btn" onMouseOver={() => setShareShow(true)} onMouseLeave={() => setShareShow(false)}>
+                  <div
+                    className="share-btn"
+                    onMouseOver={() => setShareShow(true)}
+                    onMouseLeave={() => setShareShow(false)}
+                  >
                     <span className={`share-btn-text ${shareShow && "active"}`}>
                       <i className="freelog fl-icon-fenxiang"></i>
                       分享给更多人

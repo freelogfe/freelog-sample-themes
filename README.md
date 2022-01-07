@@ -15,3 +15,7 @@
 ## 图库/视频主题 by Vue3
 
     gallery-theme
+
+## 文档主题 by Vue3
+
+    document-theme

@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import "./reader.scss";
 import Lock from "../../assets/images/lock.png";
+import BgImage from "../../assets/images/reader-bg.png";
 import { useState, useEffect, useCallback } from "react";
 import { ExhibitItem, ThemeItem } from "../../api/interface";
 import { addAuth, getExhibitAuthStatus, getExhibitFileStream, getExhibitInfo } from "../../api/freelog";
@@ -66,7 +67,11 @@ export const ReaderScreen = (props: any) => {
 
   return (
     <readerContext.Provider value={context}>
-      <div className="reader-wrapper" style={{ backgroundColor: theme?.bgColor }} onClick={() => clickPage()}>
+      <div
+        className="reader-wrapper"
+        style={{ backgroundImage: `url(${BgImage})`, backgroundColor: theme?.bgColor }}
+        onClick={() => clickPage()}
+      >
         <Header />
 
         <Body />
@@ -118,6 +123,7 @@ const Body = () => {
     <div
       className={`mobile-body-wrapper ${theme?.type === 1 ? "dark" : "light"}`}
       style={{
+        backgroundImage: `url(${BgImage})`,
         backgroundColor: theme?.bookColor,
         fontSize: fontSize + "px",
         lineHeight: fontSize + 14 + "px",
@@ -149,6 +155,7 @@ const Body = () => {
       <div
         className={`content ${theme?.type === 1 ? "dark" : "light"}`}
         style={{
+          backgroundImage: `url(${BgImage})`,
           backgroundColor: theme?.bookColor,
           fontSize: fontSize + "px",
           lineHeight: fontSize + 14 + "px",
@@ -173,7 +180,14 @@ const Body = () => {
         )}
       </div>
 
-      <div className="footer-bar" style={{ backgroundColor: theme?.bookColor, color: theme?.type === 1 ? "#999" : "#222" }}>
+      <div
+        className="footer-bar"
+        style={{
+          backgroundImage: `url(${BgImage})`,
+          backgroundColor: theme?.bookColor,
+          color: theme?.type === 1 ? "#999" : "#222",
+        }}
+      >
         {/* <div className={`footer-btn invalid`} onClick={() => console.log(123)}>
           上一章
         </div> */}
@@ -190,7 +204,19 @@ const Body = () => {
 
 const Operater = () => {
   const { scrollTop } = useMyScroll();
-  const { book, fontSize, setFontSize, theme, setTheme, sharePopupShow, setSharePopupShow, fontSizePopupShow, setFontSizePopupShow, themePopupShow, setThemePopupShow } = useContext(readerContext);
+  const {
+    book,
+    fontSize,
+    setFontSize,
+    theme,
+    setTheme,
+    sharePopupShow,
+    setSharePopupShow,
+    fontSizePopupShow,
+    setFontSizePopupShow,
+    themePopupShow,
+    setThemePopupShow,
+  } = useContext(readerContext);
   const { inMobile } = useContext(globalContext);
   const { isCollected, operateShelf } = useMyShelf(book?.exhibitId);
   const [href, setHref] = useState("");
@@ -223,7 +249,7 @@ const Operater = () => {
   };
 
   useEffect(() => {
-    setHref("http://freelognovel.testfreelog.com/?dev=http://localhost:3000/$_$freelog-60ef9c4ea11650002e840fcd=" + window.location.href);
+    setHref((window.location as any).currentURL);
   }, []);
 
   useEffect(() => {
@@ -234,7 +260,8 @@ const Operater = () => {
   }, [scrollTop]);
 
   useEffect(() => {
-    document.body.style.overflowY = (sharePopupShow || fontSizePopupShow || themePopupShow) && inMobile ? "hidden" : "auto";
+    document.body.style.overflowY =
+      (sharePopupShow || fontSizePopupShow || themePopupShow) && inMobile ? "hidden" : "auto";
   }, [sharePopupShow, fontSizePopupShow, themePopupShow, inMobile]);
 
   return inMobile ? (
@@ -392,7 +419,10 @@ const Operater = () => {
             setFontSizePopupShow(true);
           }}
           slot={
-            <div className={`operater-popup ${theme?.type === 1 ? "dark" : "light"}`} style={{ width: fontSizePopupShow ? "162px" : "0" }}>
+            <div
+              className={`operater-popup ${theme?.type === 1 ? "dark" : "light"}`}
+              style={{ width: fontSizePopupShow ? "162px" : "0" }}
+            >
               <div className="fontsize-label" onClick={() => changeFontSize(0)}>
                 A-
               </div>
@@ -446,7 +476,11 @@ const OperateBtn = (props: { icon?: string; text?: string; slot?: any; onClick?:
   const { theme } = useContext(readerContext);
 
   return (
-    <div className={`operate-btn-wrapper ${theme?.type === 1 ? "dark" : "light"}`} style={{ backgroundColor: theme?.bookColor }} onClick={(e) => e.stopPropagation()}>
+    <div
+      className={`operate-btn-wrapper ${theme?.type === 1 ? "dark" : "light"}`}
+      style={{ backgroundColor: theme?.bookColor }}
+      onClick={(e) => e.stopPropagation()}
+    >
       {slot}
       {icon && <i className={`freelog ${icon}`} onClick={onClick}></i>}
       {text && (

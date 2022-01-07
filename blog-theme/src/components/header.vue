@@ -1,10 +1,6 @@
 <template>
   <!-- mobile -->
-  <div
-    class="mobile-header-wrapper"
-    :class="{ 'in-home': homeHeader }"
-    v-if="inMobile"
-  >
+  <div class="mobile-header-wrapper" :class="{ 'in-home': homeHeader }" v-if="inMobile">
     <!-- header顶部 -->
     <div class="header-top" :class="{ logon: userData }">
       <img
@@ -35,11 +31,7 @@
     <template v-if="homeHeader">
       <div class="header-other-info">
         <div class="blogger-avatar">
-          <img
-            :src="selfConfig.bloggerAvatar"
-            alt="博主头像"
-            class="avatar-img"
-          />
+          <img :src="selfConfig.bloggerAvatar" alt="博主头像" class="avatar-img" />
         </div>
         <div class="sign-count">总签约量：{{ signCount }}人</div>
       </div>
@@ -66,22 +58,12 @@
     </template>
 
     <transition name="fade">
-      <div
-        id="modal"
-        class="modal"
-        @click="userBoxShow = false"
-        @touchmove.prevent
-        v-if="userBoxShow"
-      ></div>
+      <div id="modal" class="modal" @click="userBoxShow = false" @touchmove.prevent v-if="userBoxShow"></div>
     </transition>
 
     <transition name="slide-right">
       <div class="user-box-body" @touchmove.prevent v-if="userBoxShow">
-        <img
-          class="avatar"
-          :src="userData?.headImage"
-          :alt="userData?.username"
-        />
+        <img class="avatar" :src="userData?.headImage" :alt="userData?.username" />
         <div class="username">{{ userData?.username }}</div>
         <div class="btns">
           <div class="btn" @click="switchPage('/')">
@@ -114,12 +96,7 @@
         <div class="recommend-tags">
           <div class="recommend-tags-title">推荐标签</div>
           <div class="recommend-tags-list">
-            <div
-              class="tag"
-              v-for="item in blogTags"
-              :key="item"
-              @click="selectTag(item)"
-            >
+            <div class="tag" v-for="item in blogTags" :key="item" @click="selectTag(item)">
               {{ item }}
             </div>
           </div>
@@ -153,27 +130,14 @@
       </div>
 
       <!-- 已登录用户信息 -->
-      <div
-        class="user-avatar"
-        @mouseover="userBoxShow = true"
-        @mouseleave="userBoxShow = false"
-        v-if="userData"
-      >
+      <div class="user-avatar" @mouseover="userBoxShow = true" @mouseleave="userBoxShow = false" v-if="userData">
         <div class="username">{{ userData.username }}</div>
-        <img
-          class="avatar"
-          :src="userData.headImage"
-          :alt="userData.username"
-        />
+        <img class="avatar" :src="userData.headImage" :alt="userData.username" />
 
         <transition name="slide-down-scale">
           <div class="user-box" v-show="userBoxShow">
             <div class="user-box-body">
-              <img
-                class="avatar"
-                :src="userData.headImage"
-                :alt="userData.username"
-              />
+              <img class="avatar" :src="userData.headImage" :alt="userData.username" />
               <div class="username">{{ userData.username }}</div>
               <div class="mobile">{{ userData.mobile }}</div>
               <div class="user-box-btn" @click="callLoginOut()">登出</div>
@@ -193,11 +157,7 @@
       <!-- 博客信息 -->
       <div class="header-blog-info">
         <div class="blogger-avatar">
-          <img
-            :src="selfConfig.bloggerAvatar"
-            alt="博主头像"
-            class="avatar-img"
-          />
+          <img :src="selfConfig.bloggerAvatar" alt="博主头像" class="avatar-img" />
         </div>
 
         <div class="info-content">
@@ -235,12 +195,7 @@
 <script lang="ts">
 import { reactive, toRefs, watch } from "vue";
 import { useMyRouter } from "../utils/hooks";
-import {
-  callLogin,
-  callLoginOut,
-  getExhibitSignCount,
-  getSelfId,
-} from "@/api/freelog";
+import { callLogin, callLoginOut, getExhibitSignCount, getSelfId } from "@/api/freelog";
 import { useStore } from "vuex";
 
 export default {
@@ -397,6 +352,7 @@ export default {
         height: 28px;
         border-radius: 50%;
         margin-left: 20px;
+        border: 1px solid #d1d1d1;
       }
     }
   }
@@ -411,6 +367,7 @@ export default {
       width: 80px;
       height: 80px;
       border-radius: 50%;
+      border: 1px solid #d1d1d1;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -764,6 +721,7 @@ export default {
         height: 32px;
         margin-left: 10px;
         border-radius: 50%;
+        border: 1px solid #d1d1d1;
       }
 
       .user-box {
@@ -853,6 +811,7 @@ export default {
       width: 100px;
       height: 100px;
       border-radius: 50%;
+      border: 1px solid #d1d1d1;
       display: flex;
       align-items: center;
       justify-content: center;

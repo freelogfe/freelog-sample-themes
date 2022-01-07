@@ -1,10 +1,6 @@
 <template>
   <!-- mobile -->
-  <div
-    class="mobile-header-wrapper"
-    :class="{ 'in-home': homeHeader }"
-    v-if="inMobile"
-  >
+  <div class="mobile-header-wrapper" :class="{ 'in-home': homeHeader }" v-if="inMobile">
     <!-- header顶部 -->
     <div class="header-top" :class="{ logon: userData }">
       <img
@@ -19,11 +15,7 @@
       </div>
 
       <div class="header-top-right">
-        <i
-          class="freelog fl-icon-content"
-          @click="searchPopupShow = true"
-          v-if="!homeHeader"
-        ></i>
+        <i class="freelog fl-icon-content" @click="searchPopupShow = true" v-if="!homeHeader"></i>
 
         <img
           class="avatar"
@@ -42,20 +34,11 @@
 
     <!-- 用户弹窗 -->
     <transition name="fade">
-      <div
-        id="modal"
-        class="modal"
-        @click="userBoxShow = false"
-        v-if="userBoxShow"
-      ></div>
+      <div id="modal" class="modal" @click="userBoxShow = false" v-if="userBoxShow"></div>
     </transition>
     <transition name="slide-right">
       <div class="user-box-body" v-if="userBoxShow">
-        <img
-          class="avatar"
-          :src="userData?.headImage"
-          :alt="userData?.username"
-        />
+        <img class="avatar" :src="userData?.headImage" :alt="userData?.username" />
         <div class="username">{{ userData?.username }}</div>
         <div class="btns">
           <div class="btn" @click="switchPage('/home')">
@@ -89,12 +72,7 @@
         <div class="recommend-tags">
           <div class="recommend-tags-title">推荐标签</div>
           <div class="recommend-tags-list">
-            <div
-              class="tag"
-              v-for="item in galleryTags"
-              :key="item"
-              @click="selectTag(item)"
-            >
+            <div class="tag" v-for="item in galleryTags" :key="item" @click="selectTag(item)">
               {{ item }}
             </div>
           </div>
@@ -127,27 +105,14 @@
         </div>
       </div>
 
-      <div
-        class="user-avatar"
-        @mouseover="userBoxShow = true"
-        @mouseleave="userBoxShow = false"
-        v-if="userData"
-      >
+      <div class="user-avatar" @mouseover="userBoxShow = true" @mouseleave="userBoxShow = false" v-if="userData">
         <div class="username">{{ userData.username }}</div>
-        <img
-          class="avatar"
-          :src="userData.headImage"
-          :alt="userData.username"
-        />
+        <img class="avatar" :src="userData.headImage" :alt="userData.username" />
 
         <transition name="slide-down-scale">
           <div class="user-box" v-if="userBoxShow">
             <div class="user-box-body">
-              <img
-                class="avatar"
-                :src="userData.headImage"
-                :alt="userData.username"
-              />
+              <img class="avatar" :src="userData.headImage" :alt="userData.username" />
               <div class="username">{{ userData.username }}</div>
               <div class="mobile">{{ userData.mobile }}</div>
               <div class="btn user-box-btn" @click="callLoginOut()">登出</div>
@@ -172,18 +137,12 @@
         @keyup.esc="searchKey = ''"
       />
       <i class="freelog fl-icon-content"></i>
-      <i
-        class="freelog fl-icon-guanbi"
-        @click="searchKey = ''"
-        v-show="searchKey"
-      ></i>
+      <i class="freelog fl-icon-guanbi" @click="searchKey = ''" v-show="searchKey"></i>
     </div>
 
     <!-- 筛选栏 -->
     <div class="filter-bar" v-if="homeHeader">
-      <div class="category-btn" :class="{ active: !tags }" @click="selectTag()">
-        全部
-      </div>
+      <div class="category-btn" :class="{ active: !tags }" @click="selectTag()">全部</div>
 
       <div
         class="category-btn"
@@ -270,7 +229,7 @@ export default {
       callLoginOut,
       switchPage,
       routerBack,
-      ...store.state,
+      ...toRefs(store.state),
       galleryTags,
       ...toRefs(data),
       ...methods,
@@ -360,6 +319,7 @@ export default {
         height: 28px;
         border-radius: 50%;
         margin-left: 20px;
+        border: 1px solid #d1d1d1;
       }
     }
   }
@@ -677,6 +637,7 @@ export default {
         height: 32px;
         margin-left: 10px;
         border-radius: 50%;
+        border: 1px solid #d1d1d1;
       }
 
       .user-box {

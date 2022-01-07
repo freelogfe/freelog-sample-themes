@@ -5,7 +5,7 @@ export interface ExhibitItem {
   coverImages: string[];
   tags: string[];
   articleInfo: { articleOwnerName: string };
-  versionInfo: { exhibitProperty: { intro: string } };
+  versionInfo: { exhibitProperty: { mime: string }, dependencyTree: any[] };
   intro: string;
   createDate: string;
   updateDate: string;

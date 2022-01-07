@@ -250,8 +250,6 @@ export default {
   .mobile-body-wrapper {
     width: 100%;
     flex: 1;
-    padding: 20px 20px 90px;
-    box-sizing: border-box;
     animation: fade-in 0.3s ease-out;
     transition: background-color 0.2s linear;
 

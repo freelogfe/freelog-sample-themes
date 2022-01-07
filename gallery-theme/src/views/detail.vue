@@ -14,13 +14,14 @@
       <template v-if="content || isAuth === false">
         <div class="main-area" key="mainArea">
           <template v-if="isAuth === true">
-            <img
-              :src="content"
-              v-if="exhibitInfo?.articleInfo.resourceType === 'image'"
-            />
+            <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType === 'image'" />
             <video
               :src="content"
               controls
+              muted
+              autoplay
+              webkit-playsinline
+              playsinline
               v-if="exhibitInfo?.articleInfo.resourceType === 'video'"
             ></video>
           </template>
@@ -31,12 +32,22 @@
             <div class="get-btn" @click="getAuth()">签约</div>
           </div>
 
-          <div class="switch-btn previous" @click="switchExhibit('ArrowLeft')">
-            <i class="freelog fl-icon-zhankaigengduo"></i>
-          </div>
-          <div class="switch-btn next" @click="switchExhibit('ArrowRight')">
-            <i class="freelog fl-icon-zhankaigengduo"></i>
-          </div>
+          <template v-if="listData.length > 1">
+            <div
+              class="switch-btn previous"
+              @click="switchExhibit('ArrowLeft')"
+              v-if="listData.length && exhibitInfo?.exhibitId !== listData[0].exhibitId"
+            >
+              <i class="freelog fl-icon-zhankaigengduo"></i>
+            </div>
+            <div
+              class="switch-btn next"
+              @click="switchExhibit('ArrowRight')"
+              v-if="listData.length && exhibitInfo?.exhibitId !== listData[listData.length - 1].exhibitId"
+            >
+              <i class="freelog fl-icon-zhankaigengduo"></i>
+            </div>
+          </template>
         </div>
 
         <div class="other-area" key="otherArea">
@@ -44,11 +55,7 @@
             <div class="title">{{ exhibitInfo?.exhibitName }}</div>
             <tags :tags="exhibitInfo?.tags" v-if="exhibitInfo?.tags.length" />
             <div class="author-info">
-              <img
-                class="author-avatar"
-                :src="getAvatarUrl(exhibitInfo?.userId)"
-                v-if="exhibitInfo?.userId"
-              />
+              <img class="author-avatar" :src="getAvatarUrl(exhibitInfo?.userId)" v-if="exhibitInfo?.userId" />
               <div class="author-name">
                 {{ exhibitInfo?.articleInfo.articleOwnerName }}
               </div>
@@ -81,13 +88,7 @@
   <!-- PC -->
   <teleport to="#modal" v-if="!inMobile">
     <transition name="fade">
-      <div
-        class="modal"
-        v-if="currentId"
-        @click="closePopup()"
-        @touchmove.prevent.passive
-        @scroll.stop.prevent
-      >
+      <div class="modal" v-if="currentId" @click="closePopup()" @touchmove.prevent.passive @scroll.stop.prevent>
         <div class="close-btn" @click="closePopup()" v-if="currentId">
           <i class="freelog fl-icon-guanbi"></i>
         </div>
@@ -99,19 +100,11 @@
         <div class="content-area">
           <div class="title">{{ exhibitInfo?.exhibitName }}</div>
           <div class="exhibit-info">
-            <img
-              class="author-avatar"
-              :src="getAvatarUrl(exhibitInfo?.userId)"
-              v-if="exhibitInfo?.userId"
-            />
+            <img class="author-avatar" :src="getAvatarUrl(exhibitInfo?.userId)" v-if="exhibitInfo?.userId" />
             <div class="author-name">
               {{ exhibitInfo?.articleInfo.articleOwnerName }}
             </div>
-            <tags
-              :tags="exhibitInfo?.tags"
-              @search="closePopup()"
-              v-if="exhibitInfo?.tags.length"
-            />
+            <tags :tags="exhibitInfo?.tags" @search="closePopup()" v-if="exhibitInfo?.tags.length" />
           </div>
 
           <div ref="contentArea" class="main-area">
@@ -140,9 +133,7 @@
             <transition name="fade">
               <div class="lock-box" v-if="isAuth === false">
                 <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
-                <div class="lock-tip">
-                  展品未开放授权，继续浏览请签约并获取授权
-                </div>
+                <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
                 <div class="get-btn" @click="getAuth()">签约</div>
               </div>
             </transition>
@@ -150,10 +141,15 @@
             <div
               class="switch-btn previous"
               @click="switchExhibit('ArrowLeft')"
+              v-if="listData.length && exhibitInfo?.exhibitId !== listData[0].exhibitId"
             >
               <i class="freelog fl-icon-zhankaigengduo"></i>
             </div>
-            <div class="switch-btn next" @click="switchExhibit('ArrowRight')">
+            <div
+              class="switch-btn next"
+              @click="switchExhibit('ArrowRight')"
+              v-if="listData.length && exhibitInfo?.exhibitId !== listData[listData.length - 1].exhibitId"
+            >
               <i class="freelog fl-icon-zhankaigengduo"></i>
             </div>
           </div>
@@ -183,29 +179,16 @@
 </template>
 
 <script lang="ts">
-import {
-  defineAsyncComponent,
-  onUnmounted,
-  reactive,
-  ref,
-  SetupContext,
-  toRefs,
-  watch,
-} from "vue";
+import { defineAsyncComponent, onUnmounted, reactive, ref, SetupContext, toRefs, watch } from "vue";
 import { ExhibitItem } from "../api/interface";
 import { useGetList, useMyRouter } from "../utils/hooks";
-import {
-  addAuth,
-  getExhibitAuthStatus,
-  getExhibitFileStream,
-  getExhibitInfo,
-} from "@/api/freelog";
+import { addAuth, getExhibitAuthStatus, getExhibitFileStream, getExhibitInfo } from "@/api/freelog";
 import { useStore } from "vuex";
 
 export default {
   name: "detail",
 
-  props: ["id", "listData"],
+  props: ["id"],
 
   emits: ["update:id", "search"],
 
@@ -243,15 +226,10 @@ export default {
 
       // 切换图片
       switchExhibit(type: string) {
-        const currentIndex = store.state.listData.findIndex(
-          (item: ExhibitItem) => item.exhibitId === data.currentId
-        );
+        const currentIndex = store.state.listData.findIndex((item: ExhibitItem) => item.exhibitId === data.currentId);
         if (type === "ArrowLeft" && currentIndex !== 0)
           data.currentId = store.state.listData[currentIndex - 1].exhibitId;
-        if (
-          type === "ArrowRight" &&
-          currentIndex !== store.state.listData.length - 1
-        )
+        if (type === "ArrowRight" && currentIndex !== store.state.listData.length - 1)
           data.currentId = store.state.listData[currentIndex + 1].exhibitId;
       },
 
@@ -306,28 +284,19 @@ export default {
     // 整理瀑布流数据
     const setWaterFall = () => {
       for (let i = 0; i < datasOfGetList.listData.value.length; i++) {
-        if (
-          datasOfGetList.listData.value[i].exhibitId ===
-          data.exhibitInfo?.exhibitId
-        )
-          continue;
+        if (datasOfGetList.listData.value[i].exhibitId === data.exhibitInfo?.exhibitId) continue;
 
         let minHeightItemIndex = 0;
         if (heightList.length && heightList.length < data.listNumber) {
           minHeightItemIndex = heightList.length;
         } else if (heightList.length === data.listNumber) {
           const minHeight = Math.min(...heightList);
-          minHeightItemIndex = heightList.findIndex(
-            (item) => item === minHeight
-          );
+          minHeightItemIndex = heightList.findIndex((item) => item === minHeight);
         }
 
-        data.waterfall[data.waterfallList[minHeightItemIndex]].push(
-          datasOfGetList.listData.value[i]
-        );
+        data.waterfall[data.waterfallList[minHeightItemIndex]].push(datasOfGetList.listData.value[i]);
         heightList[minHeightItemIndex] =
-          (heightList[minHeightItemIndex] || 0) +
-          ((datasOfGetList.listData.value[i] as any).height || 0);
+          (heightList[minHeightItemIndex] || 0) + ((datasOfGetList.listData.value[i] as any).height || 0);
       }
     };
 
@@ -339,9 +308,7 @@ export default {
       data.exhibitInfo = exhibitInfo.data.data;
 
       const statusInfo = await getExhibitAuthStatus(data.currentId);
-      data.isAuth = statusInfo.data.data
-        ? statusInfo.data.data[0].isAuth
-        : false;
+      data.isAuth = statusInfo.data.data ? statusInfo.data.data[0].isAuth : false;
       if (data.isAuth) {
         const info: any = await getExhibitFileStream(data.currentId, true);
         if (!info) return;
@@ -353,35 +320,33 @@ export default {
           img.onload = () => {
             const { width, height } = img;
             const ratio = width / height;
-            judgeContentMode(ratio, info);
+            judgeContentMode(ratio);
+            data.content = info;
           };
         } else if (resourceType === "video") {
+          data.content = info;
           const video: HTMLVideoElement = document.createElement("video");
           video.src = info;
           video.onloadeddata = () => {
             const { videoWidth, videoHeight } = video;
             const ratio = videoWidth / videoHeight;
-            judgeContentMode(ratio, info);
+            judgeContentMode(ratio);
           };
         }
       } else {
         methods.getAuth();
       }
 
-      datasOfGetList.getList(
-        { tags: data.exhibitInfo?.tags.join(","), limit: 20 },
-        true
-      );
+      datasOfGetList.getList({ tags: data.exhibitInfo?.tags.join(","), limit: 20 }, true);
     };
 
     // 根据资源宽高比决定显示模式
-    const judgeContentMode = (ratio: number, info: string) => {
+    const judgeContentMode = (ratio: number) => {
       if (!store.state.inMobile) {
         const { clientWidth, clientHeight } = contentArea.value;
         const areaRatio = clientWidth / clientHeight;
         data.contentMode = ratio > areaRatio ? 1 : 2;
       }
-      data.content = info;
     };
 
     // 屏幕尺寸变化切换瀑布流列数
@@ -475,7 +440,7 @@ export default {
     });
 
     return {
-      ...store.state,
+      ...toRefs(store.state),
       switchPage,
       ...toRefs(data),
       ...methods,

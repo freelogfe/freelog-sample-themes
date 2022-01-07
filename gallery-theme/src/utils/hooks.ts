@@ -1,4 +1,9 @@
-import { getExhibitAuthStatus, getExhibitListByPaging, GetExhibitListByPagingParams, getExhibitSignCount } from "@/api/freelog";
+import {
+  getExhibitAuthStatus,
+  getExhibitListByPaging,
+  GetExhibitListByPagingParams,
+  getExhibitSignCount,
+} from "@/api/freelog";
 import { onUnmounted, reactive, ref, toRefs, watchEffect } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
