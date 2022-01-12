@@ -4,8 +4,8 @@ export interface ExhibitItem {
   exhibitName: string;
   coverImages: string[];
   tags: string[];
-  articleInfo: { articleOwnerName: string, resourceType: string };
-  versionInfo: { exhibitProperty: { mime: string }, dependencyTree: any[] };
+  articleInfo: { articleOwnerName: string; resourceType: string };
+  versionInfo: { exhibitProperty: { mime: string }; dependencyTree: any[] };
   intro: string;
   createDate: string;
   updateDate: string;
@@ -19,4 +19,12 @@ export interface ExhibitItem {
 export interface freelogEntranceItem {
   label: string;
   url: string;
+}
+
+// 分享按钮
+export interface shareBtnItem {
+  id: string;
+  name: string;
+  icon: string;
+  bgColor: string;
 }

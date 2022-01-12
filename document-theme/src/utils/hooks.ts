@@ -1,9 +1,4 @@
-import {
-  getExhibitAuthStatus,
-  getExhibitListByPaging,
-  GetExhibitListByPagingParams,
-  getExhibitSignCount,
-} from "@/api/freelog";
+import { getExhibitAuthStatus, getExhibitListByPaging, GetExhibitListByPagingParams } from "@/api/freelog";
 import { onUnmounted, reactive, ref, toRefs, watchEffect } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
@@ -69,11 +64,11 @@ export const useGetList = (inList = false) => {
     if (data.total === data.listData.length && !init) return;
 
     data.loading = true;
-    data.skip = init ? 0 : data.skip + 40;
+    data.skip = init ? 0 : data.skip + 100;
     const queryParams: GetExhibitListByPagingParams = {
       skip: data.skip,
       articleResourceTypes: "markdown",
-      limit: params.limit || 40,
+      limit: params.limit || 100,
       ...params,
       isLoadVersionProperty: 1,
     };
@@ -85,11 +80,6 @@ export const useGetList = (inList = false) => {
         idList.push(item.exhibitId);
       });
       const ids = idList.join(",");
-      const signCountData = await getExhibitSignCount(ids);
-      signCountData.data.data.forEach((item: { subjectId: string; count: number }) => {
-        const index = dataList.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.subjectId);
-        dataList[index].signCount = item.count;
-      });
       const statusInfo = await getExhibitAuthStatus(ids);
       if (statusInfo.data.data) {
         statusInfo.data.data.forEach((item: { exhibitId: string; isAuth: boolean }) => {
@@ -133,6 +123,10 @@ export const useMyScroll = () => {
     data.scrollHeight = app?.scrollHeight || 0;
   };
 
+  const scrollTo = (top: number, behavior: ScrollBehavior = "smooth") => {
+    app?.scroll({ top, behavior });
+  };
+
   const scrollToTop = (behavior: ScrollBehavior = "smooth") => {
     app?.scroll({ top: 0, behavior });
   };
@@ -146,6 +140,7 @@ export const useMyScroll = () => {
 
   return {
     ...toRefs(data),
+    scrollTo,
     scrollToTop,
   };
 };

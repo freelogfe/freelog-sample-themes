@@ -1,21 +1,25 @@
 <template>
-  <div class="markdown-wrapper" v-html="content"></div>
+  <div ref="contentBody" class="markdown-wrapper" v-html="content"></div>
 </template>
 
 <script lang="ts">
 import showdown from "showdown";
 import { ref } from "@vue/reactivity";
-import { watch } from "@vue/runtime-core";
+import { nextTick, watch } from "@vue/runtime-core";
 import { ExhibitItem } from "@/api/interface";
 import { getExhibitDepFileStream } from "@/api/freelog";
+import { SetupContext } from "vue";
 
 export default {
   name: "my-markdown",
 
   props: ["data"],
 
-  setup(props: { data: ExhibitItem }) {
+  emits: ["getDirectory"],
+
+  setup(props: { data: ExhibitItem }, context: SetupContext) {
     const content = ref("");
+    const contentBody = ref<any>(null);
     showdown.setOption("tables", true);
     showdown.setOption("tasklists", true);
     showdown.setOption("simplifiedAutoLink", true);
@@ -43,6 +47,12 @@ export default {
       });
 
       content.value = html;
+
+      nextTick(() => {
+        const elements = [...contentBody.value.children];
+        const titles = elements.filter((item: HTMLElement) => ["H1", "H2", "H3"].includes(item.nodeName));
+        context.emit("getDirectory", titles);
+      });
     };
 
     watch(
@@ -56,6 +66,7 @@ export default {
 
     return {
       content,
+      contentBody,
     };
   },
 };
@@ -64,7 +75,6 @@ export default {
 <style lang="scss" scoped>
 ::v-deep.markdown-wrapper {
   width: 100%;
-  overflow-x: hidden;
   font-size: 16px;
   color: #222;
 

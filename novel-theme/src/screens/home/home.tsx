@@ -30,7 +30,6 @@ export const HomeScreen = (props: any) => {
       skip.current = init ? 0 : skip.current + 30;
       const queryParams: GetExhibitListByPagingParams = {
         skip: skip.current,
-        articleResourceTypes: "novel",
         limit: 30,
       };
       if (tags !== "全部") queryParams.tags = tags;
@@ -88,7 +87,13 @@ export const HomeScreen = (props: any) => {
   );
 };
 
-const HomeBody = (props: { bookList: ExhibitItem[]; searching: boolean; total: number | null; tags: string; keywords: string }) => {
+const HomeBody = (props: {
+  bookList: ExhibitItem[];
+  searching: boolean;
+  total: number | null;
+  tags: string;
+  keywords: string;
+}) => {
   const { bookList, searching, total, tags, keywords } = props;
   const { inMobile, userData } = useContext(globalContext);
   const { myShelf } = useMyShelf();
@@ -97,11 +102,11 @@ const HomeBody = (props: { bookList: ExhibitItem[]; searching: boolean; total: n
   return inMobile ? (
     // mobile
     <div className="mobile-home-body">
-      {!searching && (
+      {!searching && userData && (
         <div className="shelf-book-list">
           <div className="shelf-header">
             <div className="box-title">我的书架</div>
-            {userData && myShelf.length !== 0 && (
+            {myShelf.length !== 0 && (
               <div className="more-shelf" onClick={() => history.switchPage("/shelf")}>
                 全部{myShelf.length}
                 <i className="freelog fl-icon-zhankaigengduo"></i>
@@ -121,8 +126,7 @@ const HomeBody = (props: { bookList: ExhibitItem[]; searching: boolean; total: n
             </div>
           )}
 
-          {!userData && <div className="tip">登录后查看我的书架</div>}
-          {userData && myShelf.length === 0 && <div className="tip">暂无数据，快去收藏书籍到书架吧～</div>}
+          {myShelf.length === 0 && <div className="tip">暂无数据，快去收藏书籍到书架吧～</div>}
         </div>
       )}
 
@@ -159,15 +163,13 @@ const HomeBody = (props: { bookList: ExhibitItem[]; searching: boolean; total: n
   ) : (
     // PC
     <div className="home-body">
-      {!searching && (
+      {!searching && userData && (
         <div className="book-list">
           <div className="shelf-header">
             <div className="box-title">我的书架</div>
-            {userData && (
-              <div className="text-btn" onClick={() => history.switchPage("/shelf")}>
-                管理书架
-              </div>
-            )}
+            <div className="text-btn" onClick={() => history.switchPage("/shelf")}>
+              管理书架
+            </div>
           </div>
 
           {myShelf.length !== 0 && (
@@ -182,9 +184,8 @@ const HomeBody = (props: { bookList: ExhibitItem[]; searching: boolean; total: n
             </div>
           )}
 
-          {!userData && <div className="tip">登录后查看我的书架</div>}
-          {userData && myShelf.length === 0 && <div className="tip">暂无数据，快去收藏书籍到书架吧～</div>}
-          {userData && myShelf.length !== 0 && (
+          {myShelf.length === 0 && <div className="tip">暂无数据，快去收藏书籍到书架吧～</div>}
+          {myShelf.length !== 0 && (
             <div className="tip shelf-tip">
               <span>已收藏 {myShelf.length} 本书籍</span>
               <span className="text-btn" onClick={() => history.switchPage("/shelf")}>

@@ -81,7 +81,7 @@ export default {
           window.open(shareWeb);
         } else if (item.id === "weibo") {
           // 微博
-          const weiboTitle = `我在freelog发现一个不错的漫画：${props.exhibit?.exhibitName}`;
+          const weiboTitle = `我在freelog发现一个不错的文档：${props.exhibit?.exhibitName}`;
           window.open(`https://service.weibo.com/share/share.php?url=${url}&title=${weiboTitle}&pic=${image}`);
         } else if (item.id === "douban") {
           // 豆瓣
@@ -103,7 +103,7 @@ export default {
     const initShare = () => {
       const url = (window.location as any).currentURL;
       data.href = url;
-      data.shareText = `我在freelog发现一个不错的漫画：${props.exhibit?.exhibitName} ${url}`;
+      data.shareText = `我在freelog发现一个不错的文档：${props.exhibit?.exhibitName} ${url}`;
       if (!props.show) data.qrcodeShow = false;
     };
 
@@ -113,8 +113,6 @@ export default {
         initShare();
       }
     );
-    
-    initShare();
 
     return {
       shareBtns,
@@ -130,8 +128,7 @@ export default {
 .share-wrapper {
   position: absolute;
   right: 0;
-  top: 100%;
-  padding-top: 10px;
+  bottom: 120%;
   z-index: 1;
   cursor: default;
 
@@ -140,7 +137,7 @@ export default {
     padding: 17px 30px 20px;
     box-sizing: border-box;
     background-color: #ffffff;
-    box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.4);
     border-radius: 6px;
 
     .share-title {

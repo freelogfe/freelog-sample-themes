@@ -2,7 +2,7 @@
   <!-- mobile -->
   <div class="mobile-footer-wrapper" v-if="inMobile">
     <div
-      class="second-text-btn mobile"
+      class="text-btn"
       v-for="(item, index) in freelogEntrances.filter((_, entrancesIndex) => entrancesIndex < 2)"
       :key="item.label"
       @click="toPage(item.url)"
@@ -61,9 +61,15 @@ export default {
   align-items: center;
   justify-content: center;
 
-  .second-text-btn {
+  .text-btn {
+    padding: 0 20px;
     font-size: 14px;
     line-height: 18px;
+    color: #999999;
+
+    & + .text-btn {
+      border-left: 1px solid rgba(0, 0, 0, 0.15);
+    }
   }
 }
 
@@ -79,16 +85,16 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-}
 
-.text-btn {
-  padding: 0 20px;
-  font-size: 12px;
-  color: #999999;
-  cursor: pointer;
+  .text-btn {
+    padding: 0 20px;
+    font-size: 12px;
+    color: #999999;
+    cursor: pointer;
 
-  & + .text-btn {
-    border-left: 1px solid rgba(0, 0, 0, 0.15);
+    & + .text-btn {
+      border-left: 1px solid rgba(0, 0, 0, 0.15);
+    }
   }
 }
 </style>
