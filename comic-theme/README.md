@@ -1,5 +1,11 @@
-# 自定义配置项
+## 自定义配置项
 
-- theme: 节点主题色 (酷黑,炫丽,活力,灰度,蜜桃,清新,沉静)
-- entranceShow: 主题入口按钮显示 (显示,隐藏)
-- logoImage: logo 网络路径
+格式为【key: 属性说明】
+
+- theme: 主题色
+- entranceShow: 主题入口按钮显示
+- logoImage: logo 图片网络地址 【注：默认 Logo 尺寸为 167x24，推荐 logo 尺寸高为 24，宽度不大于 220】
+
+## 支持资源类型
+
+image

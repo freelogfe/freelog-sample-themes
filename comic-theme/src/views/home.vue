@@ -4,22 +4,20 @@
 
     <!-- mobile -->
     <div class="mobile-home-body" v-if="inMobile && !loading">
-      <div class="shelf-comic-list" v-if="!searching && userData">
+      <div class="shelf-comic-list" v-if="!searching && userData && myShelf.length !== 0">
         <div class="shelf-header">
           <div class="box-title">我的收藏</div>
-          <div class="more-shelf" @click="switchPage('/shelf')" v-if="myShelf.length !== 0">
+          <div class="more-shelf" @click="switchPage('/shelf')">
             全部{{ myShelf.length }}
             <i class="freelog fl-icon-zhankaigengduo"></i>
           </div>
         </div>
 
-        <div class="comic-list-box" v-if="myShelf.length !== 0">
+        <div class="comic-list-box">
           <div class="comic-box" v-for="item in myShelf" :key="item.exhibitId">
             <comic :inMobileShelf="true" :data="item" />
           </div>
         </div>
-
-        <div class="tip" v-if="myShelf.length === 0">暂无数据，快去寻找漫画来收藏吧～</div>
       </div>
 
       <div class="comic-list">
@@ -47,22 +45,19 @@
 
     <!-- PC -->
     <div class="home-body" v-if="!inMobile && !loading">
-      <div class="comic-list" v-if="!searching && userData">
+      <div class="comic-list" v-if="!searching && userData && myShelf.length !== 0">
         <div class="shelf-header">
           <div class="box-title">我的收藏</div>
           <div class="text-btn" @click="switchPage('/shelf')">管理收藏</div>
         </div>
 
-        <div class="comic-list-box" v-if="myShelf.length !== 0">
+        <div class="comic-list-box">
           <div class="comic-box" v-for="item in myShelf.filter((_, index) => index < 6)" :key="item.exhibitId">
             <comic :data="item" />
           </div>
         </div>
 
-        <div class="tip" v-if="myShelf.length === 0">
-          暂无数据，快去寻找漫画来收藏吧～
-        </div>
-        <div class="tip shelf-tip" v-if="myShelf.length !== 0">
+        <div class="tip shelf-tip">
           <span>已收藏 {{ myShelf.length }} 部漫画</span>
           <span class="text-btn" @click="switchPage('/shelf')">查看全部</span>
         </div>

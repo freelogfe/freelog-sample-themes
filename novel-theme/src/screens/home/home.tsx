@@ -102,31 +102,25 @@ const HomeBody = (props: {
   return inMobile ? (
     // mobile
     <div className="mobile-home-body">
-      {!searching && userData && (
+      {!searching && userData && myShelf.length !== 0 && (
         <div className="shelf-book-list">
           <div className="shelf-header">
             <div className="box-title">我的书架</div>
-            {myShelf.length !== 0 && (
-              <div className="more-shelf" onClick={() => history.switchPage("/shelf")}>
-                全部{myShelf.length}
-                <i className="freelog fl-icon-zhankaigengduo"></i>
-              </div>
-            )}
+            <div className="more-shelf" onClick={() => history.switchPage("/shelf")}>
+              全部{myShelf.length}
+              <i className="freelog fl-icon-zhankaigengduo"></i>
+            </div>
           </div>
 
-          {myShelf.length !== 0 && (
-            <div className="book-list-box">
-              {myShelf.map((item) => {
-                return (
-                  <div className="book-box" key={item.exhibitId}>
-                    <Novel inMobileShelf={true} data={item}></Novel>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {myShelf.length === 0 && <div className="tip">暂无数据，快去收藏书籍到书架吧～</div>}
+          <div className="book-list-box">
+            {myShelf.map((item) => {
+              return (
+                <div className="book-box" key={item.exhibitId}>
+                  <Novel inMobileShelf={true} data={item}></Novel>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -163,7 +157,7 @@ const HomeBody = (props: {
   ) : (
     // PC
     <div className="home-body">
-      {!searching && userData && (
+      {!searching && userData && myShelf.length !== 0 && (
         <div className="book-list">
           <div className="shelf-header">
             <div className="box-title">我的书架</div>
@@ -172,27 +166,22 @@ const HomeBody = (props: {
             </div>
           </div>
 
-          {myShelf.length !== 0 && (
-            <div className="book-list-box">
-              {myShelf.map((item) => {
-                return (
-                  <div className="book-box" key={item.exhibitId}>
-                    <Novel data={item}></Novel>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          <div className="book-list-box">
+            {myShelf.map((item) => {
+              return (
+                <div className="book-box" key={item.exhibitId}>
+                  <Novel data={item}></Novel>
+                </div>
+              );
+            })}
+          </div>
 
-          {myShelf.length === 0 && <div className="tip">暂无数据，快去收藏书籍到书架吧～</div>}
-          {myShelf.length !== 0 && (
-            <div className="tip shelf-tip">
-              <span>已收藏 {myShelf.length} 本书籍</span>
-              <span className="text-btn" onClick={() => history.switchPage("/shelf")}>
-                查看全部
-              </span>
-            </div>
-          )}
+          <div className="tip shelf-tip">
+            <span>已收藏 {myShelf.length} 本书籍</span>
+            <span className="text-btn" onClick={() => history.switchPage("/shelf")}>
+              查看全部
+            </span>
+          </div>
         </div>
       )}
 
