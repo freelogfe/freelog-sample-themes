@@ -13,7 +13,7 @@ export const Directory = (props: {
   const { inMobile } = useContext(globalContext);
   const directoryList = Array.from(
     { length: 12 },
-    () => book?.exhibitName || "章节名称"
+    () => book?.exhibitTitle || "章节名称"
   );
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export const Directory = (props: {
       >
         <div className="mobile-directory-wrapper">
           <div className="directory-header">
-            <div className="directory-title">{book?.exhibitName}</div>
+            <div className="directory-title">{book?.exhibitTitle}</div>
             <i
               className="close-btn freelog fl-icon-guanbi"
               onClick={() => setDirectoryShow(false)}
@@ -80,7 +80,7 @@ export const Directory = (props: {
       >
         <div className="directory-popup" onClick={(e) => e.stopPropagation()}>
           <div className="directory-header">
-            <div className="directory-title">{book?.exhibitName}</div>
+            <div className="directory-title">{book?.exhibitTitle}</div>
             <i
               className="close-btn freelog fl-icon-guanbi"
               onClick={() => setDirectoryShow(false)}

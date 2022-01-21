@@ -64,11 +64,3 @@ export const shareBtns: shareBtnItem[] = [
   { id: "wechat", name: "微信", icon: "fl-icon-weixin", bgColor: "#1ec76f" },
   { id: "douban", name: "豆瓣", icon: "fl-icon-douban", bgColor: "#42a151" },
 ];
-
-// 路由映射
-export const routerMappings: any = {
-  home: "首页",
-  shelf: "我的书架",
-  detail: "书籍详情",
-  reader: "阅读页",
-};

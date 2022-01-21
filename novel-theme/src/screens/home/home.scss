@@ -64,16 +64,6 @@
           margin-left: 12px;
         }
       }
-
-      .tip {
-        width: 100%;
-        text-align: center;
-        font-size: 16px;
-        line-height: 22px;
-        color: #999;
-        margin-top: 60px;
-        margin-bottom: 30px;
-      }
     }
 
     .book-list {
@@ -81,34 +71,55 @@
       padding: 30px 0;
       box-sizing: border-box;
 
-      .search-title {
-        font-size: 20px;
-        color: #222222;
-        line-height: 26px;
-        margin-bottom: 15px;
-        padding-left: 20px;
+      .search-box-title {
+        width: calc(100% - 40px);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         box-sizing: border-box;
+        margin-left: 20px;
+        padding-bottom: 30px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 
-        .search-book-total {
+        .box-title {
+          font-size: 16px;
           color: #999999;
-          margin-left: 10px;
-        }
-
-        .text-btn {
-          width: fit-content;
-          font-size: 14px;
-          line-height: 20px;
-          margin-top: 10px;
+          line-height: 22px;
         }
       }
 
-      .box-title {
-        font-size: 34px;
-        color: #222222;
-        line-height: 40px;
-        margin-bottom: 15px;
-        padding-left: 20px;
+      .box-header {
+        width: 100%;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        padding: 0 20px;
         box-sizing: border-box;
+        margin-bottom: 15px;
+
+        .box-title {
+          font-size: 34px;
+          color: #222222;
+          line-height: 40px;
+          box-sizing: border-box;
+        }
+      }
+
+      .filter-btn {
+        display: flex;
+        align-items: center;
+
+        .filter-img {
+          width: 18px;
+          height: 18px;
+        }
+
+        .filter-label {
+          font-size: 16px;
+          color: #5d9191;
+          line-height: 22px;
+          margin-left: 5px;
+        }
       }
 
       .book-box {
@@ -121,12 +132,106 @@
         font-size: 16px;
         line-height: 22px;
         color: #999;
-        margin-top: 60px;
+        margin-top: 100px;
 
         &.no-more {
           font-size: 14px;
           line-height: 20px;
           margin-top: 30px;
+        }
+      }
+    }
+
+    .modal {
+      position: fixed;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.4);
+      z-index: 101;
+    }
+
+    .filter-box-body {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 340px;
+      background: #ffffff;
+      border-radius: 0px 10px 10px 0px;
+      padding: 0 20px;
+      box-sizing: border-box;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      z-index: 101;
+
+      .filter-box-header {
+        position: relative;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 26px;
+
+        .header-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #222222;
+          line-height: 22px;
+        }
+
+        .close-btn {
+          width: 22px;
+          height: 22px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 6px;
+
+          .freelog {
+            font-size: 12px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+      }
+
+      .tags-box {
+        width: 100%;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin-top: 30px;
+        padding-left: 12px;
+        box-sizing: border-box;
+
+        .tags-box-list {
+          width: 100%;
+          display: flex;
+          flex-wrap: wrap;
+          margin-top: 15px;
+        }
+
+        .tag {
+          width: fit-content;
+          height: 38px;
+          border-radius: 38px;
+          padding: 9px 15px;
+          background: #ebecf0;
+          font-size: 14px;
+          color: #575e6a;
+          line-height: 20px;
+          margin: 0 5px 15px;
+          cursor: pointer;
+
+          &.active {
+            background: #6ea29e;
+            color: #fff;
+          }
         }
       }
     }
@@ -145,32 +250,87 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+
+        .shelf-header-right {
+          display: flex;
+          margin-right: 20px;
+          line-height: 20px;
+
+          .shelf-length {
+            font-size: 14px;
+            color: #999999;
+          }
+
+          .text-btn {
+            font-size: 14px;
+            margin-left: 10px;
+          }
+        }
+      }
+
+      .search-box-title {
+        font-size: 14px;
+        color: #999999;
+        line-height: 20px;
+        margin-top: -25px;
+        margin-bottom: 30px;
       }
 
       .box-title {
         font-size: 30px;
         line-height: 36px;
         margin-bottom: 10px;
-
-        .search-box-title {
-          display: flex;
-          align-items: flex-end;
-
-          .search-book-total {
-            color: #999999;
-            margin-left: 10px;
-          }
-
-          .text-btn {
-            font-size: 14px;
-            line-height: 20px;
-            margin-left: 30px;
-          }
-        }
       }
 
-      .text-btn {
-        font-size: 14px;
+      .filter-bar {
+        position: relative;
+        width: 100%;
+        height: 64px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        margin-top: 20px;
+        margin-bottom: 10px;
+
+        .filter-bar-bg {
+          position: absolute;
+          inset: 0;
+          background-color: var(--deriveColor);
+          opacity: 0.08;
+          z-index: -1;
+        }
+
+        .category-btn {
+          height: 24px;
+          padding: 2px 8px;
+          box-sizing: border-box;
+          font-size: 14px;
+          color: #666;
+          line-height: 20px;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.2s linear;
+
+          &:hover {
+            color: var(--deriveColor);
+          }
+
+          &:active {
+            color: var(--deriveColor);
+            opacity: 0.8;
+          }
+
+          &.active {
+            background-color: var(--deriveColor);
+            color: #fff;
+          }
+
+          & + .category-btn {
+            margin-left: 4px;
+          }
+        }
       }
 
       .book-list-box {
@@ -195,18 +355,13 @@
         font-size: 16px;
         line-height: 22px;
         color: #999;
-        margin-top: 55px;
+        margin-top: 100px;
 
-        &.shelf-tip,
         &.no-more {
           font-size: 14px;
           line-height: 20px;
           margin-top: 30px;
         }
-      }
-
-      .text-btn {
-        margin-left: 10px;
       }
     }
   }

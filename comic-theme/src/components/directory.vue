@@ -6,7 +6,7 @@
   <transition name="slide-right">
     <div class="mobile-directory-wrapper" v-if="inMobile && show">
       <div class="directory-header">
-        <div class="directory-title">{{ comicInfo?.exhibitName }}</div>
+        <div class="directory-title">{{ comicInfo?.exhibitTitle }}</div>
         <i class="close-btn freelog fl-icon-guanbi" @click="closeDirectory()"></i>
       </div>
 
@@ -30,7 +30,7 @@
     <div class="directory-wrapper" @click="closeDirectory()" v-if="!inMobile && show">
       <div class="directory-popup" @click.stop>
         <div class="directory-header">
-          <div class="directory-title">{{ comicInfo?.exhibitName }}</div>
+          <div class="directory-title">{{ comicInfo?.exhibitTitle }}</div>
           <i class="close-btn freelog fl-icon-guanbi" @click="closeDirectory()"></i>
         </div>
 
@@ -57,7 +57,7 @@ export default {
 
   setup(props: any, context: any) {
     const store = useStore();
-    const directoryList = Array.from({ length: 12 }, () => props.comicInfo?.exhibitName || "章节名称");
+    const directoryList = Array.from({ length: 12 }, () => props.comicInfo?.exhibitTitle || "章节名称");
 
     const methods = {
       closeDirectory() {

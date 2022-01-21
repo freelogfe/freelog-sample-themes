@@ -49,7 +49,7 @@
       <!-- 资源信息 -->
       <div class="frame-info">
         <div class="title">
-          {{ data.exhibitName }}
+          {{ data.exhibitTitle }}
         </div>
         <tags :tags="data.tags" v-if="data.tags.length" />
         <div class="author-info">
@@ -113,7 +113,7 @@
             <img class="img" src="../assets/images/lock.png" @click.stop="getAuth(data.exhibitId)" v-if="!isAuth" />
           </div>
           <div class="title">
-            {{ data.exhibitName }}
+            {{ data.exhibitTitle }}
           </div>
           <tags :tags="data.tags" v-if="data.tags.length" />
           <div class="footer-info">

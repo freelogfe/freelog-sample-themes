@@ -3,10 +3,10 @@
     <my-header />
 
     <div class="content">
-      <breadcrumbs />
+      <div class="shelf-title">我的漫画</div>
 
       <div class="comic-box" v-for="item in myShelf" :key="item.exhibitId">
-        <comic :data="item" :operateShelf="operateShelf" />
+        <comic :mode="2" :data="item" :operateShelf="operateShelf" />
       </div>
 
       <div class="tip" v-if="myShelf.length === 0">暂无数据，快去寻找漫画来收藏吧～</div>
@@ -14,7 +14,7 @@
       <div class="add-comic-box">
         <div class="add-comic-btn" @click="switchPage(`/`)">
           <i class="freelog fl-icon-tianjia"></i>
-          <span>添加书籍</span>
+          <span>添加漫画</span>
         </div>
       </div>
     </div>
@@ -28,7 +28,7 @@
 <script lang="ts">
 import { defineAsyncComponent } from "@vue/runtime-core";
 import { useMyRouter, useMyShelf } from "../utils/hooks";
-import { useStore } from 'vuex';
+import { useStore } from "vuex";
 
 export default {
   name: "shelf",
@@ -37,7 +37,6 @@ export default {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
-    breadcrumbs: defineAsyncComponent(() => import("../components/breadcrumbs.vue")),
     comic: defineAsyncComponent(() => import("../components/comic.vue")),
   },
 
@@ -64,6 +63,10 @@ export default {
   // mobile
   &.in-mobile {
     padding-bottom: 98px;
+
+    .shelf-title {
+      display: none;
+    }
 
     .content {
       width: 100%;
@@ -98,6 +101,14 @@ export default {
       flex-direction: column;
       align-items: center;
 
+      .shelf-title {
+        width: 920px;
+        font-size: 30px;
+        color: #222222;
+        line-height: 36px;
+        margin: 40px 0;
+      }
+
       .comic-box {
         width: 920px;
 
@@ -108,6 +119,8 @@ export default {
 
       .add-comic-box {
         width: 920px;
+        display: flex;
+        justify-content: center;
 
         .add-comic-btn {
           cursor: pointer;
@@ -131,7 +144,7 @@ export default {
     line-height: 22px;
     color: #999;
     text-align: center;
-    margin-top: 55px;
+    margin-top: 100px;
   }
 
   .content {

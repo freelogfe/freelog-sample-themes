@@ -15,20 +15,13 @@
 
         <div class="comic-list-box">
           <div class="comic-box" v-for="item in myShelf" :key="item.exhibitId">
-            <comic :inMobileShelf="true" :data="item" />
+            <comic :mode="4" :data="item" />
           </div>
         </div>
       </div>
 
       <div class="comic-list">
-        <div class="search-title" v-if="searching">
-          <div>
-            “{{ searchData.keywords }}{{ searchData.keywords && searchData.tags && "+"
-            }}{{ searchData.tags || "" }}”的搜索结果
-            <span class="search-comic-total"> ({{ listData.length }}) </span>
-          </div>
-          <div class="text-btn mobile" @click="clearSearch()">清空搜索条件</div>
-        </div>
+        <div class="search-box-title" v-if="searching">查询到{{ listData.length }}个相关结果</div>
         <div class="box-title" v-else>精选漫画</div>
 
         <div class="comic-box" v-for="item in listData" :key="item.exhibitId">
@@ -48,7 +41,10 @@
       <div class="comic-list" v-if="!searching && userData && myShelf.length !== 0">
         <div class="shelf-header">
           <div class="box-title">我的收藏</div>
-          <div class="text-btn" @click="switchPage('/shelf')">管理收藏</div>
+          <div class="shelf-header-right">
+            <div class="shelf-length">全部{{ myShelf.length }}</div>
+            <div class="text-btn" @click="switchPage('/shelf')">管理收藏</div>
+          </div>
         </div>
 
         <div class="comic-list-box">
@@ -56,23 +52,11 @@
             <comic :data="item" />
           </div>
         </div>
-
-        <div class="tip shelf-tip">
-          <span>已收藏 {{ myShelf.length }} 部漫画</span>
-          <span class="text-btn" @click="switchPage('/shelf')">查看全部</span>
-        </div>
       </div>
 
       <div class="comic-list">
-        <div class="box-title">
-          <div class="search-box-title" v-if="searching">
-            “{{ searchData.keywords }}{{ searchData.keywords && searchData.tags && "+"
-            }}{{ searchData.tags || "" }}”的搜索结果
-            <span class="search-comic-total">({{ listData.length }})</span>
-            <div class="text-btn" @click="clearSearch()">清空搜索条件</div>
-          </div>
-          <div v-else>精选漫画</div>
-        </div>
+        <div class="search-box-title" v-if="searching">查询到{{ listData.length }}个相关结果</div>
+        <div class="box-title" v-else>精选小说</div>
 
         <div class="comic-list-box">
           <div class="comic-box" v-for="item in listData" :key="item.exhibitId">
@@ -93,7 +77,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineAsyncComponent, reactive, toRefs, watch } from "vue";
+import { computed, defineAsyncComponent, onActivated, onDeactivated, reactive, toRefs, watch } from "vue";
 import { useGetList, useMyRouter, useMyScroll, useMyShelf } from "../utils/hooks";
 import { useStore } from "vuex";
 
@@ -109,9 +93,9 @@ export default {
 
   setup() {
     const store = useStore();
-    const { query, switchPage } = useMyRouter();
+    const { query, route, switchPage } = useMyRouter();
     const { myShelf } = useMyShelf();
-    const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
+    const { scrollTop, clientHeight, scrollHeight, scrollTo } = useMyScroll();
     const datasOfGetList = useGetList();
 
     const data = reactive({
@@ -130,28 +114,42 @@ export default {
       return data.searchData.keywords || data.searchData.tags;
     });
 
-    watch(
-      () => scrollTop.value,
-      (cur) => {
-        if (cur + clientHeight.value === scrollHeight.value) {
-          datasOfGetList.getList();
-        }
-      }
-    );
-
-    watch(
-      () => query.value,
-      () => {
-        getData();
-      }
-    );
-
     // 获取数据
     const getData = () => {
       data.searchData = query.value;
       datasOfGetList.clearData();
       datasOfGetList.getList(data.searchData, true);
     };
+
+    watch(
+      () => scrollTop.value,
+      (cur) => {
+        if (route.path !== "/home") return;
+        if (cur + clientHeight.value !== scrollHeight.value) return;
+
+        datasOfGetList.getList();
+      }
+    );
+
+    watch(
+      () => query.value,
+      () => {
+        if (route.path !== "/home") return;
+        if (data.searchData.keywords === query.value.keywords && data.searchData.tags === query.value.tags) return;
+
+        getData();
+      }
+    );
+
+    onActivated(() => {
+      const homeScrollTop = sessionStorage.getItem("homeScroll");
+      scrollTo(Number(homeScrollTop), "auto");
+    });
+
+    onDeactivated(() => {
+      sessionStorage.setItem("homeScroll", String(scrollTop.value));
+    });
+
     getData();
 
     return {
@@ -234,16 +232,6 @@ export default {
           margin-left: 12px;
         }
       }
-
-      .tip {
-        width: 100%;
-        text-align: center;
-        font-size: 16px;
-        line-height: 22px;
-        color: #999;
-        margin-top: 60px;
-        margin-bottom: 30px;
-      }
     }
 
     .comic-list {
@@ -251,25 +239,13 @@ export default {
       padding: 30px 0;
       box-sizing: border-box;
 
-      .search-title {
-        font-size: 20px;
-        color: #222222;
-        line-height: 26px;
+      .search-box-title {
+        display: flex;
+        justify-content: center;
         margin-bottom: 15px;
-        padding-left: 20px;
-        box-sizing: border-box;
-
-        .search-comic-total {
-          color: #999999;
-          margin-left: 10px;
-        }
-
-        .text-btn {
-          width: fit-content;
-          font-size: 14px;
-          line-height: 20px;
-          margin-top: 10px;
-        }
+        font-size: 14px;
+        color: #999999;
+        line-height: 20px;
       }
 
       .box-title {
@@ -291,7 +267,7 @@ export default {
         font-size: 16px;
         line-height: 22px;
         color: #999;
-        margin-top: 60px;
+        margin-top: 100px;
 
         &.no-more {
           font-size: 14px;
@@ -315,28 +291,33 @@ export default {
         display: flex;
         align-items: center;
         justify-content: space-between;
+
+        .shelf-header-right {
+          display: flex;
+          margin-right: 20px;
+          line-height: 20px;
+
+          .shelf-length {
+            font-size: 14px;
+            color: #999999;
+          }
+        }
+      }
+
+      .search-box-title {
+        font-size: 14px;
+        color: #999999;
+        line-height: 20px;
+        margin-top: -15px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
       }
 
       .box-title {
         font-size: 30px;
         line-height: 36px;
         margin-bottom: 10px;
-
-        .search-box-title {
-          display: flex;
-          align-items: flex-end;
-
-          .search-comic-total {
-            color: #999999;
-            margin-left: 10px;
-          }
-
-          .text-btn {
-            font-size: 14px;
-            line-height: 20px;
-            margin-left: 30px;
-          }
-        }
       }
 
       .text-btn {
@@ -365,9 +346,8 @@ export default {
         font-size: 16px;
         line-height: 22px;
         color: #999;
-        margin-top: 55px;
+        margin-top: 100px;
 
-        &.shelf-tip,
         &.no-more {
           font-size: 14px;
           line-height: 20px;

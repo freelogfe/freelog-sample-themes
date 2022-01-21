@@ -5,7 +5,7 @@
     <!-- mobile -->
     <div class="mobile-content-body" v-if="inMobile">
       <div class="article-info">
-        <div class="article-title">{{ articleData?.exhibitName }}</div>
+        <div class="article-title">{{ articleData?.exhibitTitle }}</div>
         <div class="other-info">
           <div class="info">{{ formatDate(articleData?.createDate) }}</div>
           <div class="divider"></div>
@@ -41,7 +41,7 @@
       </div>
 
       <div class="article-card">
-        <div class="article-title">{{ articleData?.exhibitName }}</div>
+        <div class="article-title">{{ articleData?.exhibitTitle }}</div>
         <div class="other-info">
           <div class="info">{{ formatDate(articleData?.createDate) }}</div>
           <div class="divider"></div>

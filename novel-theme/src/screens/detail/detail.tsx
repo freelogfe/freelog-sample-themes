@@ -10,7 +10,6 @@ import { useMyHistory, useMyShelf } from "../../utils/hooks";
 import { Footer } from "../../components/footer/footer";
 import { ThemeEntrance } from "../../components/theme-entrance/theme-entrance";
 import { Share } from "../../components/share/share";
-import { BreadCrumbs } from "../../components/breadcrumbs/breadcrumbs";
 import { LoginBtn } from "../../components/login-btn/login-btn";
 import { globalContext } from "../../router";
 import { Directory } from "../../components/directory/directory";
@@ -69,7 +68,7 @@ const BookBody = () => {
   const [introState, setIntroState] = useState(0);
   const [shareShow, setShareShow] = useState(false);
   const [href, setHref] = useState("");
-  // const directory = Array.from({ length: 12 }, () => book?.exhibitName || "目录名称");
+  // const directory = Array.from({ length: 12 }, () => book?.exhibitTitle || "目录名称");
 
   const share = () => {
     // 复制链接
@@ -100,12 +99,12 @@ const BookBody = () => {
       <div className="book-info">
         <div className="book-base-info">
           <div className="book-cover">
-            <img className="book-cover-image" src={book?.coverImages[0]} alt={book?.exhibitName} />
+            <img className="book-cover-image" src={book?.coverImages[0]} alt={book?.exhibitTitle} />
           </div>
 
           <div className="book-content">
             <div className="content-top">
-              <div className="book-name">{book?.exhibitName}</div>
+              <div className="book-name">{book?.exhibitTitle}</div>
 
               <div className="book-author">{book?.articleInfo.articleOwnerName}</div>
 
@@ -142,12 +141,11 @@ const BookBody = () => {
           </div>
         </div>
       </div>
-
       {/* 书籍简介 */}
-      {book?.versionInfo?.exhibitProperty?.intro && (
-        <div className="book-intro">
-          <div className="intro-title">内容简介</div>
+      <div className="book-intro">
+        <div className="intro-title">内容简介</div>
 
+        {book?.versionInfo?.exhibitProperty?.intro ? (
           <div className={`intro ${introState === 1 ? "fold" : "unfold"}`}>
             <div className="intro-content" ref={introContent}>
               {book?.versionInfo?.exhibitProperty?.intro}
@@ -159,8 +157,10 @@ const BookBody = () => {
               </div>
             )}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="no-intro-tip">暂无简介</div>
+        )}
+      </div>
 
       {/* 书籍目录 */}
       {/* <div className="directory-list">
@@ -191,18 +191,16 @@ const BookBody = () => {
   ) : (
     // PC
     <div className="content">
-      <BreadCrumbs />
-
       {book && (
         <div className="content-box">
           {/* 书籍信息 */}
           <div className="book-info">
             <div className="book-cover">
-              <img className="book-cover-image" src={book?.coverImages[0]} alt={book?.exhibitName} />
+              <img className="book-cover-image" src={book?.coverImages[0]} alt={book?.exhibitTitle} />
             </div>
 
             <div className="book-content">
-              <div className="book-name">{book?.exhibitName}</div>
+              <div className="book-name">{book?.exhibitTitle}</div>
 
               <div className="book-author">{book?.articleInfo.articleOwnerName}</div>
 
@@ -219,7 +217,7 @@ const BookBody = () => {
                   <div className="btn main-btn" onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}>
                     立即阅读
                   </div>
-                  <div className={`btn ${isCollected ? "delete" : "collect"}`} onClick={() => operateShelf(book)}>
+                  <div className={`btn ${isCollected ? "warning-btn" : "collect"}`} onClick={() => operateShelf(book)}>
                     {isCollected ? "移出书架" : "加入书架"}
                   </div>
                 </div>
@@ -244,10 +242,10 @@ const BookBody = () => {
           </div>
 
           {/* 书籍简介 */}
-          {book?.versionInfo?.exhibitProperty?.intro && (
-            <div className="book-intro">
-              <div className="intro-title">内容简介</div>
+          <div className="book-intro">
+            <div className="intro-title">内容简介</div>
 
+            {book?.versionInfo?.exhibitProperty?.intro ? (
               <div className={`intro ${introState === 1 ? "fold" : "unfold"}`}>
                 <div className="intro-content" ref={introContent}>
                   {book?.versionInfo?.exhibitProperty?.intro}
@@ -259,8 +257,10 @@ const BookBody = () => {
                   </div>
                 )}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="no-intro-tip">暂无简介</div>
+            )}
+          </div>
 
           {/* 书籍目录 */}
           {/* <div className="directory-list">

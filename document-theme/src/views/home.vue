@@ -26,27 +26,27 @@
             <div
               class="switch-btn pre"
               :class="{ invalid: !currentIndex }"
-              :title="currentIndex ? listData[currentIndex - 1].exhibitName : ''"
+              :title="currentIndex ? listData[currentIndex - 1].exhibitTitle : ''"
               @click="switchPage('/home', { id: listData[currentIndex - 1].exhibitId })"
             >
               <i class="freelog fl-icon-fangxiang"></i>
               <div class="btn-info">
                 <div class="btn-title">上一篇</div>
                 <div class="document-title">
-                  {{ currentIndex ? listData[currentIndex - 1].exhibitName : "当前为第一篇" }}
+                  {{ currentIndex ? listData[currentIndex - 1].exhibitTitle : "当前为第一篇" }}
                 </div>
               </div>
             </div>
             <div
               class="switch-btn next"
               :class="{ invalid: currentIndex === listData.length - 1 }"
-              :title="currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitName : ''"
+              :title="currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : ''"
               @click="switchPage('/home', { id: listData[currentIndex + 1].exhibitId })"
             >
               <div class="btn-info">
                 <div class="btn-title">下一篇</div>
                 <div class="document-title">
-                  {{ currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitName : "当前为最后一篇" }}
+                  {{ currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : "当前为最后一篇" }}
                 </div>
               </div>
               <i class="freelog fl-icon-fangxiang"></i>
@@ -99,8 +99,8 @@
               directoryShow = false;
             "
           >
-            <div class="item-title" :title="item.exhibitName">
-              {{ item.exhibitName }}
+            <div class="item-title" :title="item.exhibitTitle">
+              {{ item.exhibitTitle }}
             </div>
             <img
               class="item-lock"
@@ -152,8 +152,8 @@
           :key="item.exhibitId"
           @click="switchPage('/home', { id: item.exhibitId })"
         >
-          <div class="item-title" :title="item.exhibitName">
-            {{ item.exhibitName }}
+          <div class="item-title" :title="item.exhibitTitle">
+            {{ item.exhibitTitle }}
           </div>
           <img
             class="item-lock"
@@ -188,28 +188,28 @@
               <div
                 class="switch-btn pre"
                 :class="{ invalid: !currentIndex }"
-                :title="currentIndex ? listData[currentIndex - 1].exhibitName : ''"
+                :title="currentIndex ? listData[currentIndex - 1].exhibitTitle : ''"
                 @click="switchPage('/home', { id: listData[currentIndex - 1].exhibitId })"
               >
                 <i class="freelog fl-icon-fangxiang"></i>
                 <div class="btn-info">
                   <div class="btn-title">上一篇</div>
                   <div class="document-title">
-                    {{ currentIndex ? listData[currentIndex - 1].exhibitName : "当前为第一篇" }}
+                    {{ currentIndex ? listData[currentIndex - 1].exhibitTitle : "当前为第一篇" }}
                   </div>
                 </div>
               </div>
               <div
                 class="switch-btn next"
                 :class="{ invalid: currentIndex === listData.length - 1 }"
-                :title="currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitName : ''"
+                :title="currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : ''"
                 @click="switchPage('/home', { id: listData[currentIndex + 1].exhibitId })"
               >
                 <div class="btn-info">
                   <div class="btn-title">下一篇</div>
                   <div class="document-title">
                     {{
-                      currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitName : "当前为最后一篇"
+                      currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : "当前为最后一篇"
                     }}
                   </div>
                 </div>

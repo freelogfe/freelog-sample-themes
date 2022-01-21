@@ -1,6 +1,10 @@
 <template>
-  <div class="reader-wrapper" :class="theme" @click="closeAllPopup()">
-    <my-header />
+  <div
+    class="reader-wrapper"
+    :class="{ 'in-mobile': inMobile, light: theme === 'light', dark: theme === 'dark' }"
+    @click="clickPage()"
+  >
+    <my-header :readerHeader="true" v-if="(inMobile && mobileBarShow) || !inMobile" />
 
     <!-- mobile -->
     <template v-if="inMobile">
@@ -14,47 +18,54 @@
         </div>
       </div>
 
-      <!-- <div class="mobile-operater-wrapper" @touchmove.prevent>
-        <div class="operater-btn">
-          <i class="freelog fl-icon-zhankaigengduo"></i>
-          <div class="operater-btn-label">上一话</div>
-        </div>
+      <!-- <transition name="fade-down">
+        <div class="mobile-operater-wrapper" @touchmove.prevent v-if="mobileBarShow">
+          <div class="operater-btn">
+            <i class="freelog fl-icon-zhankaigengduo"></i>
+            <div class="operater-btn-label">上一话</div>
+          </div>
 
-        <div class="operater-btn" @click="directoryShow = true">
-          <i class="freelog fl-icon-xiaoshuomulu"></i>
-          <div class="operater-btn-label">目录</div>
-        </div>
+          <div class="operater-btn" @click="directoryShow = true">
+            <i class="freelog fl-icon-xiaoshuomulu"></i>
+            <div class="operater-btn-label">目录</div>
+          </div>
 
-        <div class="operater-btn" @click="operateShelf(comicInfo)">
-          <i
-            class="freelog"
-            :class="isCollected ? 'fl-icon-shoucangxiaoshuoyishoucang' : 'fl-icon-shoucangxiaoshuo'"
-          ></i>
-          <div class="operater-btn-label">{{ isCollected ? "取消收藏" : "加入收藏" }}</div>
-        </div>
+          <div class="operater-btn" @click="operateShelf(comicInfo)">
+            <i
+              class="freelog"
+              :class="isCollected ? 'fl-icon-shoucangxiaoshuoyishoucang' : 'fl-icon-shoucangxiaoshuo'"
+            ></i>
+            <div class="operater-btn-label">{{ isCollected ? "取消收藏" : "加入收藏" }}</div>
+          </div>
 
-        <div class="operater-btn">
-          <i class="freelog fl-icon-zhankaigengduo"></i>
-          <div class="operater-btn-label">下一话</div>
+          <div class="operater-btn">
+            <i class="freelog fl-icon-zhankaigengduo"></i>
+            <div class="operater-btn-label">下一话</div>
+          </div>
         </div>
-      </div> -->
+      </transition> -->
     </template>
 
     <!-- PC -->
     <template v-if="!inMobile">
       <div class="body-wrapper" :class="theme">
-        <breadcrumbs
-          :inReader="true"
-          :title="comicInfo?.exhibitName"
-          :dark="theme === 'dark'"
-        />
+        <div class="breadcrumbs-wrapper">
+          <div class="breadcrumbs-item">
+            <div class="second-text-btn" @click="switchPage('/detail', { id: comicInfo.exhibitId })">
+              {{ comicInfo.exhibitTitle }}
+              <!-- {{comicInfo.exhibitTitle}} > -->
+            </div>
+          </div>
+
+          <!-- <div class="breadcrumbs-item">
+            <div class="current-page">
+              {{ comicInfo.exhibitTitle }}
+            </div>
+          </div> -->
+        </div>
 
         <div class="content-box">
-          <img
-            class="content"
-            :src="content"
-            v-if="isAuth === true && content"
-          />
+          <img class="content" :src="content" v-if="isAuth === true && content" />
 
           <div class="lock-box" v-if="isAuth === false">
             <img class="lock" src="../assets/images/lock.png" alt="未授权" />
@@ -65,10 +76,7 @@
 
         <div class="footer-bar">
           <div class="footer-btn invalid">上一话</div>
-          <div
-            class="footer-btn"
-            @click="switchPage('/detail', { id: comicInfo.exhibitId })"
-          >
+          <div class="footer-btn" @click="switchPage('/detail', { id: comicInfo.exhibitId })">
             漫画详情
           </div>
           <div class="footer-btn invalid">下一话</div>
@@ -81,39 +89,29 @@
             icon="fl-icon-xiaoshuomulu"
             :theme="theme"
             @click="
-              closeAllPopup();
+              clickPage();
               directoryShow = true;
             "
           /> -->
 
           <operate-btn
-            :icon="
-              isCollected
-                ? 'fl-icon-shoucangxiaoshuoyishoucang'
-                : 'fl-icon-shoucangxiaoshuo'
-            "
+            :icon="isCollected ? 'fl-icon-shoucangxiaoshuoyishoucang' : 'fl-icon-shoucangxiaoshuo'"
             :theme="theme"
             @click="
-              closeAllPopup();
+              clickPage();
               operateShelf(comicInfo);
             "
           />
 
-          <operate-btn
-            icon="fl-icon-fenxiang"
-            :theme="theme"
-            @click.stop="sharePopupShow = true"
-          >
+          <operate-btn icon="fl-icon-fenxiang" :theme="theme" @click.stop="sharePopupShow = true">
             <share :show="sharePopupShow" :exhibit="comicInfo" />
           </operate-btn>
 
           <operate-btn
-            :icon="
-              theme === 'light' ? 'fl-icon-rijianmoshi' : 'fl-icon-yejianmoshi'
-            "
+            :icon="theme === 'light' ? 'fl-icon-rijianmoshi' : 'fl-icon-yejianmoshi'"
             :theme="theme"
             @click="
-              closeAllPopup();
+              clickPage();
               setTheme();
             "
           />
@@ -127,18 +125,14 @@
       </div>
     </template>
 
-    <directory
-      :show="directoryShow"
-      :comicInfo="comicInfo"
-      @closeDirectory="directoryShow = false"
-    />
+    <directory :show="directoryShow" :comicInfo="comicInfo" @closeDirectory="directoryShow = false" />
   </div>
 </template>
 
 <script lang="tsx">
 import { toRefs } from "@vue/reactivity";
-import { useMyRouter, useMyShelf } from "../utils/hooks";
-import { defineAsyncComponent, reactive, watchEffect } from "vue";
+import { useMyRouter, useMyScroll, useMyShelf } from "../utils/hooks";
+import { defineAsyncComponent, reactive, watch, watchEffect } from "vue";
 import { ExhibitItem } from "@/api/interface";
 import { addAuth, getExhibitAuthStatus, getExhibitFileStream, getExhibitInfo } from "@/api/freelog";
 import { useStore } from "vuex";
@@ -148,7 +142,6 @@ export default {
 
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
-    breadcrumbs: defineAsyncComponent(() => import("../components/breadcrumbs.vue")),
     "operate-btn": defineAsyncComponent(() => import("../components/operate-btn.vue")),
     "back-top": defineAsyncComponent(() => import("../components/back-top.vue")),
     share: defineAsyncComponent(() => import("../components/share.vue")),
@@ -161,6 +154,7 @@ export default {
     const { query, switchPage } = useMyRouter();
     const { id } = query.value;
     const { isCollected, operateShelf } = useMyShelf(id);
+    const { scrollTop } = useMyScroll();
 
     const data = reactive({
       comicInfo: {} as ExhibitItem,
@@ -169,12 +163,14 @@ export default {
       theme: myTheme,
       sharePopupShow: false,
       directoryShow: false,
+      mobileBarShow: true,
     });
 
     const methods = {
-      // 关闭所有弹窗
-      closeAllPopup() {
-        data.sharePopupShow = false;
+      // 点击页面
+      clickPage() {
+        if (data.sharePopupShow) data.sharePopupShow = false;
+        if (store.state.inMobile && !data.mobileBarShow) data.mobileBarShow = true;
       },
 
       // 切换主题模式
@@ -189,10 +185,6 @@ export default {
         if (status === 0) getContent();
       },
     };
-
-    watchEffect(() => {
-      document.body.style.overflowY = data.directoryShow && store.state.inMobile ? "hidden" : "auto";
-    });
 
     const getComicInfo = async () => {
       const exhibitInfo = await getExhibitInfo(id, { isLoadVersionProperty: 1 });
@@ -214,6 +206,18 @@ export default {
         if (status === 0) getContent();
       }
     };
+
+    watchEffect(() => {
+      document.body.style.overflowY = data.directoryShow && store.state.inMobile ? "hidden" : "auto";
+    });
+
+    watch(
+      () => scrollTop.value,
+      (cur) => {
+        if (cur === 0 && !data.mobileBarShow) data.mobileBarShow = true;
+        if (cur !== 0 && data.mobileBarShow) data.mobileBarShow = false;
+      }
+    );
 
     getComicInfo();
 
@@ -238,6 +242,12 @@ export default {
   background-color: #fafbfc;
   transition: all 0.2s linear;
 
+  &.in-mobile ::v-deep .mobile-header-wrapper {
+    position: fixed;
+    top: 0;
+    z-index: 1;
+  }
+
   &.dark {
     background-color: #333333;
   }
@@ -250,6 +260,7 @@ export default {
   .mobile-body-wrapper {
     width: 100%;
     flex: 1;
+    padding-top: 60px;
     animation: fade-in 0.3s ease-out;
     transition: background-color 0.2s linear;
 
@@ -312,6 +323,24 @@ export default {
     flex: 1;
     display: flex;
     flex-direction: column;
+
+    .breadcrumbs-wrapper {
+      display: flex;
+      align-items: center;
+      margin: 24px 0;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 22px;
+
+      .breadcrumbs-item {
+        color: #999999;
+      }
+
+      .current-page {
+        color: #222;
+        margin-left: 10px;
+      }
+    }
 
     &.dark {
       .content-box {
@@ -514,5 +543,27 @@ export default {
       }
     }
   }
+}
+
+/* fade-up */
+.fade-up-enter-active,
+.fade-up-leave-active {
+  transition: all 0.1s ease;
+}
+.fade-up-enter-from,
+.fade-up-leave-to {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+/* fade-down */
+.fade-down-enter-active,
+.fade-down-leave-active {
+  transition: all 0.1s ease;
+}
+.fade-down-enter-from,
+.fade-down-leave-to {
+  opacity: 0;
+  transform: translateY(100%);
 }
 </style>

@@ -5,11 +5,17 @@
   align-items: center;
   transition: all 0.2s linear;
 
+  &.in-mobile .mobile-header-wrapper {
+    position: fixed;
+    top: 0;
+    z-index: 1;
+  }
+
   // mobile 主题内容区
   .mobile-body-wrapper {
     width: 100%;
     flex: 1;
-    padding: 20px 20px 90px;
+    padding: 80px 20px 90px;
     box-sizing: border-box;
     animation: fade-in 0.3s ease-out;
     transition: background-color 0.2s linear;
@@ -74,9 +80,28 @@
     display: flex;
     flex-direction: column;
 
+    .breadcrumbs-wrapper {
+      display: flex;
+      align-items: center;
+      margin: 24px 0;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 22px;
+
+      .breadcrumbs-item {
+        color: #999999;
+      }
+
+      .current-page {
+        color: #222;
+        margin-left: 10px;
+      }
+    }
+
     .content {
       flex: 1;
       padding: 50px 60px;
+      margin-bottom: 70px;
       border-radius: 10px;
       animation: fade-in 0.3s ease-out;
       transition: all 0.2s linear;
@@ -179,7 +204,7 @@
     right: 0;
     bottom: 0;
     height: 60px;
-    background-color: #333;
+    background-color: var(--deriveColor);
     padding: 0 20px;
     display: flex;
 
@@ -329,7 +354,8 @@
   // PC 操作按钮群
   .operater-wrapper {
     position: fixed;
-    bottom: 138px;
+    // bottom: 138px;
+    bottom: 70px;
     left: 50%;
     margin-left: 500px;
 
@@ -454,4 +480,44 @@
       }
     }
   }
+}
+
+// slide-up
+.slide-up-enter {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+.slide-up-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.1s ease-out;
+}
+.slide-up-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+.slide-up-exit-active {
+  opacity: 0;
+  transform: translateY(-100%);
+  transition: all 0.1s ease-in;
+}
+
+// slide-down
+.slide-down-enter {
+  opacity: 0;
+  transform: translateY(100%);
+}
+.slide-down-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.1s ease-out;
+}
+.slide-down-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+.slide-down-exit-active {
+  opacity: 0;
+  transform: translateY(100%);
+  transition: all 0.1s ease-in;
 }

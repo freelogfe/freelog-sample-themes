@@ -1,21 +1,31 @@
 import "./header.scss";
 import MyLogo from "../../assets/images/logo.png";
+import MyMenu from "../../assets/images/menu.png";
+import DefaultAvatar from "../../assets/images/default-avatar.png";
 import BackArrow from "../../assets/images/arrow.png";
 import { useState, useEffect, useCallback, useContext } from "react";
-import { useMyHistory } from "../../utils/hooks";
+import { useMyHistory, useSearchHistory } from "../../utils/hooks";
 import { callLogin, callLoginOut } from "../../api/freelog";
-import { bookTypeList } from "../../api/data";
 import { globalContext } from "../../router";
 import CSSTransition from "react-transition-group/CSSTransition";
 
-export const Header = (props: { homeHeader?: boolean; defaultTag?: string; defaultSearchKey?: string }) => {
+export const Header = (props: {
+  homeHeader?: boolean;
+  readerHeader?: boolean;
+  mobileSearching?: boolean;
+  defaultTag?: string;
+  defaultSearchKey?: string;
+}) => {
   const history = useMyHistory();
   const { inMobile, userData, selfConfig } = useContext(globalContext);
+  const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
   const [tag, setTag] = useState("全部");
   const [searchKey, setSearchKey] = useState("");
   const [search, setSearch] = useState(0);
   const [userBoxShow, setUserBoxShow] = useState(false);
   const [searchPopupShow, setSearchPopupShow] = useState(false);
+  const [searchHistoryShow, setSearchHistoryShow] = useState(false);
+  const [searchWordCatch, setSearchWordCatch] = useState<number | null>(null);
 
   const searchList = useCallback(() => {
     let url = `/home/${tag}`;
@@ -23,17 +33,53 @@ export const Header = (props: { homeHeader?: boolean; defaultTag?: string; defau
     history.switchPage(url);
   }, [history, searchKey, tag]);
 
-  const selectTag = (value: string) => {
-    setTag(value);
-    setSearch((pre) => pre + 1);
+  const inputKeyUp = (keycode: number) => {
+    switch (keycode) {
+      case 13:
+        // 回车
+        if (searchWordCatch !== null) setSearchKey(searchHistory[searchWordCatch]);
+        setSearchWordCatch(null);
+        setSearchHistoryShow(false);
+        setSearch((pre) => pre + 1);
+        break;
+      case 27:
+        // esc
+        setSearchKey("");
+        setSearchWordCatch(null);
+        setSearchHistoryShow(true);
+        break;
+      case 38:
+        // 上
+        if (searchWordCatch === null || searchWordCatch === 0) {
+          setSearchWordCatch(null);
+        } else {
+          setSearchWordCatch(searchWordCatch - 1);
+        }
+        break;
+      case 40:
+        // 下
+        setSearchHistoryShow(true);
+        if (searchWordCatch === null) {
+          setSearchWordCatch(0);
+        } else if (searchWordCatch !== 9) {
+          setSearchWordCatch(searchWordCatch + 1);
+        }
+        break;
+      default:
+        break;
+    }
   };
 
   useEffect(() => {
-    if (props.defaultTag) setTag(props.defaultTag);
+    if (!props.defaultTag) return;
+
+    setTag(props.defaultTag);
+    // eslint-disable-next-line
   }, [props.defaultTag]);
 
   useEffect(() => {
     if (search === 0) return;
+    searchWord(searchKey);
     searchList();
     // eslint-disable-next-line
   }, [search]);
@@ -46,199 +92,324 @@ export const Header = (props: { homeHeader?: boolean; defaultTag?: string; defau
     setSearchKey(props.defaultSearchKey || "");
   }, [props.defaultSearchKey]);
 
-  return inMobile ? (
-    // mobile
-    <div className={`mobile-header-wrapper ${props.homeHeader && "in-home"}`}>
-      {/* header顶部 */}
-      <div className={`header-top ${userData && "logon"}`}>
-        {props.homeHeader ? (
-          // logo
-          <img className="logo" src={selfConfig.logoImage || MyLogo} alt="logo" onClick={() => history.switchPage(`/`)} />
-        ) : (
-          <div className="header-top-left" onClick={() => history.back()}>
-            <img className="back-arrow" src={BackArrow} alt="" />
-            <div className="back-label">返回</div>
-          </div>
-        )}
-
-        <div className="header-top-right">
-          {!props.homeHeader && <i className="freelog fl-icon-content" onClick={() => setSearchPopupShow(true)}></i>}
-
-          {userData && <img className="avatar" src={userData.headImage} alt={userData.username} onClick={() => setUserBoxShow(true)} />}
-        </div>
-      </div>
-
-      {/* 搜索框 */}
-      {props.homeHeader && (
-        <div className="search-box" onClick={() => setSearchPopupShow(true)}>
-          <i className="freelog fl-icon-content"></i>
-        </div>
-      )}
-
-      <CSSTransition in={userBoxShow} classNames="fade" timeout={200} unmountOnExit>
-        <div id="modal" className="modal" onClick={() => setUserBoxShow(false)}></div>
-      </CSSTransition>
-
-      <CSSTransition in={userBoxShow} classNames="slide-right" timeout={200} unmountOnExit>
-        <div className="user-box-body">
-          <img className="avatar" src={userData?.headImage} alt={userData?.username} />
-          <div className="username">{userData?.username}</div>
-          <div className="btns">
-            <div className="btn" onClick={() => history.switchPage("/")}>
-              <div className="btn-content">首页</div>
-            </div>
-            <div className="btn" onClick={() => history.switchPage("/shelf")}>
-              <div className="btn-content">我的书架</div>
-            </div>
-            <div className="btn" onClick={() => callLoginOut()}>
-              <div className="btn-content">退出登录</div>
-            </div>
-          </div>
-        </div>
-      </CSSTransition>
-
-      <CSSTransition in={searchPopupShow} classNames="fade" timeout={200} unmountOnExit>
-        <div className="search-page">
-          <div className="search-page-header">
-            <div className="search-page-box">
-              <input
-                className={`search-input input-none ${searchKey && "in-focus"}`}
-                value={searchKey}
-                onChange={(e) => setSearchKey(e.target.value)}
-                onKeyUp={(e: { keyCode: number }) => {
-                  e.keyCode === 13 && setSearchPopupShow(false);
-                  e.keyCode === 13 && setSearch((pre) => pre + 1);
-                  e.keyCode === 27 && setSearchKey("");
-                }}
-              />
-              <i className="freelog fl-icon-content"></i>
-            </div>
-
-            <div className="cancel-btn" onClick={() => setSearchPopupShow(false)}>
-              取消
-            </div>
-          </div>
-
-          <div className="recommend-tags">
-            <div className="recommend-tags-title">推荐标签</div>
-            <div className="recommend-tags-list">
-              {bookTypeList.map((item) => (
-                <div
-                  className="tag"
-                  key={item}
-                  onClick={() => {
-                    setSearchPopupShow(false);
-                    selectTag(item);
-                  }}
-                >
-                  {item}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </CSSTransition>
-    </div>
-  ) : (
-    // PC
-    <div className="header-wrapper">
-      {/* header顶部 */}
-      <div className="header-top">
-        <div className="header-top-left">
-          {/* logo */}
-          <img className="logo" src={selfConfig.logoImage || MyLogo} alt="logo" onClick={() => history.switchPage(`/`)} />
-
-          {/* 搜索框 */}
-          {!props.homeHeader && (
-            <div className="small-search-box">
-              <input
-                className="search-input input-none"
-                value={searchKey}
-                onChange={(e) => setSearchKey(e.target.value)}
-                onKeyUp={(e: { keyCode: number }) => {
-                  e.keyCode === 13 && setSearch((pre) => pre + 1);
-                  e.keyCode === 27 && setSearchKey("");
-                }}
-              />
-              <i className="freelog fl-icon-content"></i>
+  if (inMobile === true && !props.mobileSearching) {
+    // 移动端头部
+    return (
+      <div className={`mobile-header-wrapper ${props.homeHeader && "in-home"}`}>
+        {/* header顶部 */}
+        <div className={`header-top ${userData && "logon"}`}>
+          {props.homeHeader ? (
+            // logo
+            <img
+              className="logo"
+              src={selfConfig.logoImage || MyLogo}
+              alt="logo"
+              onClick={() => history.switchPage("/home/全部")}
+            />
+          ) : (
+            <div
+              className="header-top-left"
+              onClick={() => (history.locationHistory.length <= 1 ? history.switchPage("/home/全部") : history.back())}
+            >
+              <img className="back-arrow" src={BackArrow} alt="" />
+              {history.locationHistory.length <= 1 ? (
+                <div className="back-label">首页</div>
+              ) : (
+                <div className="back-label">返回</div>
+              )}
             </div>
           )}
+
+          <div className="header-top-right">
+            {!props.homeHeader && !props.readerHeader && (
+              <i className="freelog fl-icon-content" onClick={() => setSearchPopupShow(true)}></i>
+            )}
+
+            <img className="menu" src={MyMenu} alt="菜单" onClick={() => setUserBoxShow(true)} />
+          </div>
         </div>
 
-        {userData ? (
-          <div className="user-avatar" onMouseOver={() => setUserBoxShow(true)} onMouseLeave={() => setUserBoxShow(false)}>
-            <div className="username">{userData.username}</div>
-            <img className="avatar" src={userData.headImage} alt={userData.username} />
-
-            <CSSTransition in={userBoxShow} classNames="slide-down-scale" timeout={200} unmountOnExit>
-              <div className="user-box">
-                <div className="user-box-body">
-                  <img className="avatar" src={userData.headImage} alt={userData.username} />
-                  <div className="username">{userData.username}</div>
-                  <div className="mobile">{userData.mobile}</div>
-                  <div className="btn user-box-btn" onClick={() => history.switchPage("/shelf")}>
-                    我的书架
-                  </div>
-                  <div className="btn user-box-btn" onClick={() => callLoginOut()}>
-                    登出
-                  </div>
-                </div>
-              </div>
-            </CSSTransition>
-          </div>
-        ) : (
-          <div className="user-btns">
-            <div className="btn header-login-btn" onClick={() => callLogin()}>
-              登录
-            </div>
-            <div className="btn header-register-btn" onClick={() => window.open("http://user.testfreelog.com/logon")}>
-              注册
-            </div>
+        {/* 搜索框 */}
+        {props.homeHeader && (
+          <div className="search-box" onClick={() => setSearchPopupShow(true)}>
+            <i className="freelog fl-icon-content"></i>
           </div>
         )}
-      </div>
 
-      {/* 搜索框 */}
-      {props.homeHeader && (
-        <div className="search-box">
+        <CSSTransition in={userBoxShow} classNames="fade" timeout={200} unmountOnExit>
+          <div id="modal" className="modal" onClick={() => setUserBoxShow(false)}></div>
+        </CSSTransition>
+
+        <CSSTransition in={userBoxShow} classNames="slide-right" timeout={200} unmountOnExit>
+          <div className="user-box-body">
+            <div className="user-box-top" onClick={() => !userData && callLogin()}>
+              <img className="avatar" src={userData?.headImage || DefaultAvatar} alt={userData?.username || "未登录"} />
+              <div className="username">{userData?.username || "未登录"}</div>
+              <div className="close-btn" onClick={() => setUserBoxShow(false)}>
+                <i className="freelog fl-icon-guanbi"></i>
+              </div>
+            </div>
+            <div className="btns">
+              <div className="menu-btns">
+                <div
+                  className={`btn ${history.pathname.startsWith("/home") && "active"}`}
+                  onClick={() => !history.pathname.startsWith("/home") && history.switchPage("/home/全部")}
+                >
+                  <i className="freelog fl-icon-shouye"></i>
+                  <div className="btn-label">首页</div>
+                </div>
+                {userData && (
+                  <div
+                    className={`btn ${history.pathname.startsWith("/shelf") && "active"}`}
+                    onClick={() => history.switchPage("/shelf")}
+                  >
+                    <i className="freelog fl-icon-shujia"></i>
+                    <div className="btn-label">我的书架</div>
+                  </div>
+                )}
+                {userData && (
+                  <div
+                    className={`btn ${history.pathname.startsWith("/signedList") && "active"}`}
+                    onClick={() => history.switchPage("/signedList")}
+                  >
+                    <i className="freelog fl-icon-lishi"></i>
+                    <div className="btn-label">已签约书籍</div>
+                  </div>
+                )}
+              </div>
+              {userData && (
+                <div className="footer-btn" onClick={() => callLoginOut()}>
+                  <i className="freelog fl-icon-tuichu1"></i>
+                  <div className="btn-label">退出登录</div>
+                </div>
+              )}
+              {!userData && (
+                <div className="footer-btn">
+                  <div className="main-btn mobile" onClick={() => callLogin()}>
+                    立即登录
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </CSSTransition>
+
+        <CSSTransition in={searchPopupShow} classNames="fade" timeout={200} unmountOnExit>
+          <div className="search-page">
+            <div className="search-page-header">
+              <div className="search-page-box">
+                <input
+                  className={`search-input input-none ${searchKey && "in-focus"}`}
+                  value={searchKey}
+                  onChange={(e) => setSearchKey((e.target.value || "").trim())}
+                  onKeyUp={(e: { keyCode: number }) => {
+                    e.keyCode === 13 && setSearchPopupShow(false);
+                    e.keyCode === 13 && setSearch((pre) => pre + 1);
+                    e.keyCode === 27 && setSearchKey("");
+                  }}
+                />
+                <i className="freelog fl-icon-content"></i>
+              </div>
+
+              <div className="cancel-btn" onClick={() => setSearchPopupShow(false)}>
+                取消
+              </div>
+            </div>
+
+            {searchHistory.length !== 0 && (
+              <div className="tags-box">
+                <div className="tags-box-title">
+                  <div className="title">搜索记录</div>
+                  <div className="text-btn" onClick={() => clearHistory()}>
+                    清空
+                  </div>
+                </div>
+                <div className="tags-box-list">
+                  {searchHistory.map((item) => (
+                    <div
+                      className="tag"
+                      key={item}
+                      onClick={() => {
+                        setSearchPopupShow(false);
+                        setSearchKey(item);
+                        setSearch((pre) => pre + 1);
+                      }}
+                    >
+                      {item}
+                      <i
+                        className="freelog fl-icon-guanbi"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteWord(item);
+                        }}
+                      ></i>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </CSSTransition>
+      </div>
+    );
+  } else if (inMobile === true && props.homeHeader && props.mobileSearching) {
+    // 移动端首页搜索头部
+    return (
+      <div className="mobile-search-header-wrapper">
+        <div className="search-page-box">
           <input
             className={`search-input input-none ${searchKey && "in-focus"}`}
             value={searchKey}
-            onChange={(e) => setSearchKey(e.target.value)}
+            onChange={(e) => {
+              setSearchKey((e.target.value || "").trim());
+              !e.target.value && history.switchPage("/home/全部");
+              !e.target.value && setSearchPopupShow(true);
+            }}
             onKeyUp={(e: { keyCode: number }) => {
+              e.keyCode === 13 && setTag("全部");
               e.keyCode === 13 && setSearch((pre) => pre + 1);
-              e.keyCode === 27 && setSearchKey("");
+              e.keyCode === 27 && history.switchPage("/home/全部");
+              e.keyCode === 27 && setSearchPopupShow(true);
             }}
           />
           <i className="freelog fl-icon-content"></i>
-          {searchKey && (
-            <i
-              className="freelog fl-icon-guanbi"
-              onClick={() => {
-                setSearchKey("");
-                setSearch((pre) => pre + 1);
-              }}
-            ></i>
-          )}
         </div>
-      )}
 
-      {/* 筛选栏 */}
-      {props.homeHeader && (
-        <div className="filter-bar">
-          <div className={`category-btn ${tag === "全部" && "active"}`} onClick={() => selectTag("全部")}>
-            全部
+        <div className="cancel-btn" onClick={() => history.switchPage("/home/全部")}>
+          取消
+        </div>
+      </div>
+    );
+  } else if (inMobile === false) {
+    // PC
+    return (
+      <div className="header-wrapper">
+        <div className="header-box">
+          <div className="header-left">
+            {/* logo */}
+            <img
+              className="logo"
+              src={selfConfig.logoImage || MyLogo}
+              alt="logo"
+              onClick={() => history.switchPage("/home/全部")}
+            />
+
+            {/* 搜索框 */}
+            <div className="small-search-box">
+              <input
+                className={`search-input input-none ${searchKey && "in-focus"}`}
+                value={searchKey}
+                onChange={(e) => {
+                  setSearchKey((e.target.value || "").trim());
+                  setSearchHistoryShow(true);
+                  setSearchWordCatch(null);
+                }}
+                onKeyUp={(e: { keyCode: number }) => inputKeyUp(e.keyCode)}
+                onFocus={() => setSearchHistoryShow(true)}
+                onBlur={() => setSearchHistoryShow(false)}
+              />
+              <i className="freelog fl-icon-content"></i>
+              {searchKey && (
+                <i
+                  className="freelog fl-icon-guanbi text-btn"
+                  onClick={() => {
+                    setSearchKey("");
+                    setSearch((pre) => pre + 1);
+                  }}
+                ></i>
+              )}
+
+              <CSSTransition
+                in={searchHistoryShow && searchHistory.length !== 0}
+                classNames="fade-in"
+                timeout={200}
+                unmountOnExit
+              >
+                <div className="search-history">
+                  {searchHistory.map((item, index) => (
+                    <div
+                      className={`history-item ${searchWordCatch === index && "catch"}`}
+                      key={item}
+                      onClick={() => {
+                        setSearchKey(item);
+                        setSearch((pre) => pre + 1);
+                      }}
+                      onMouseOver={() => setSearchWordCatch(index)}
+                    >
+                      <div className="item-word">{item}</div>
+                      <i
+                        className="freelog fl-icon-guanbi"
+                        onClick={(e) => {
+                          setSearchHistoryShow(true);
+                          e.stopPropagation();
+                          deleteWord(item);
+                        }}
+                      ></i>
+                    </div>
+                  ))}
+
+                  <div className="text-btn" onClick={() => clearHistory()}>
+                    清空搜索记录
+                  </div>
+                </div>
+              </CSSTransition>
+            </div>
           </div>
 
-          {bookTypeList.map((item) => {
-            return (
-              <div className={`category-btn ${tag === item && "active"}`} key={item} onClick={() => selectTag(item)}>
-                {item}
+          <div className="header-right">
+            {!props.homeHeader && (
+              <div className="nav-btn" onClick={() => history.switchPage("/home/全部")}>
+                首页
               </div>
-            );
-          })}
+            )}
+            {!props.homeHeader && userData && (
+              <div className="nav-btn" onClick={() => history.switchPage("/shelf")}>
+                我的书架
+              </div>
+            )}
+
+            {userData ? (
+              <div
+                className="user-avatar"
+                onMouseOver={() => setUserBoxShow(true)}
+                onMouseLeave={() => setUserBoxShow(false)}
+              >
+                <img className="avatar" src={userData.headImage} alt={userData.username} />
+
+                <CSSTransition in={userBoxShow} classNames="slide-down-scale" timeout={200} unmountOnExit>
+                  <div className="user-box">
+                    <div className="user-box-body">
+                      <img className="avatar" src={userData.headImage} alt={userData.username} />
+                      <div className="username">{userData.username}</div>
+                      <div className="mobile">{userData.mobile}</div>
+                      <div className="btn user-box-btn" onClick={() => history.switchPage("/signedList")}>
+                        已签约书籍
+                      </div>
+                      <div className="btn user-box-btn" onClick={() => callLoginOut()}>
+                        登出
+                      </div>
+                    </div>
+                  </div>
+                </CSSTransition>
+              </div>
+            ) : (
+              <div className="user-btns">
+                <div className="btn header-login-btn" onClick={() => callLogin()}>
+                  登录
+                </div>
+                <div
+                  className="btn header-register-btn"
+                  onClick={() => window.open("http://user.testfreelog.com/logon")}
+                >
+                  注册
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      )}
-    </div>
-  );
+      </div>
+    );
+  } else {
+    return <div></div>;
+  }
 };

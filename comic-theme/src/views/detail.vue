@@ -11,14 +11,14 @@
             <img
               class="comic-cover-image"
               :src="comicInfo?.coverImages[0]"
-              :alt="comicInfo?.exhibitName"
+              :alt="comicInfo?.exhibitTitle"
               v-if="comicInfo?.coverImages"
             />
           </div>
 
           <div class="comic-content">
             <div class="content-top">
-              <div class="comic-name">{{ comicInfo?.exhibitName }}</div>
+              <div class="comic-name">{{ comicInfo?.exhibitTitle }}</div>
 
               <div class="comic-author">
                 {{ comicInfo?.articleInfo?.articleOwnerName }}
@@ -43,52 +43,37 @@
         </div>
 
         <div class="comic-date-info">
-          <div class="date-info">
-            创建时间：{{ formatDate(comicInfo?.createDate) }}
-          </div>
+          <div class="date-info">创建时间：{{ formatDate(comicInfo?.createDate) }}</div>
 
-          <div class="date-info">
-            最近更新：{{ formatDate(comicInfo?.updateDate) }}
-          </div>
+          <div class="date-info">最近更新：{{ formatDate(comicInfo?.updateDate) }}</div>
         </div>
 
         <div class="operate-btns">
-          <div
-            class="btn main-btn mobile"
-            @click="switchPage('/reader', { id: comicInfo?.exhibitId })"
-          >
+          <div class="btn main-btn mobile" @click="switchPage('/reader', { id: comicInfo?.exhibitId })">
             立即阅读
           </div>
-          <div
-            class="btn"
-            :class="isCollected ? 'delete' : 'collect'"
-            @click="operateShelf(comicInfo)"
-          >
+          <div class="btn" :class="isCollected ? 'delete' : 'collect'" @click="operateShelf(comicInfo)">
             {{ isCollected ? "取消收藏" : "加入收藏" }}
           </div>
         </div>
       </div>
 
+      <div class="divider"></div>
+
       <!-- 书籍简介 -->
-      <div
-        class="comic-intro"
-        v-if="comicInfo?.versionInfo?.exhibitProperty?.intro"
-      >
+      <div class="comic-intro">
         <div class="intro-title">内容简介</div>
 
-        <div class="intro" :class="introState === 1 ? 'fold' : 'unfold'">
+        <div class="intro" :class="introState === 1 ? 'fold' : 'unfold'" v-if="comicInfo?.versionInfo?.exhibitProperty?.intro">
           <div ref="introContent" class="intro-content">
             {{ comicInfo?.versionInfo?.exhibitProperty?.intro }}
           </div>
 
-          <div
-            class="view-all-btn"
-            @click="introState = 3"
-            v-if="introState === 1"
-          >
+          <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">
             ...查看全部
           </div>
         </div>
+          <div class="no-intro-tip" v-else>暂无简介</div>
       </div>
 
       <!-- 书籍目录 -->
@@ -118,8 +103,6 @@
 
     <!-- PC -->
     <div class="content" v-if="!inMobile">
-      <breadcrumbs />
-
       <div class="content-box">
         <!-- 书籍信息 -->
         <div class="comic-info">
@@ -127,13 +110,13 @@
             <img
               class="comic-cover-image"
               :src="comicInfo?.coverImages[0]"
-              :alt="comicInfo?.exhibitName"
+              :alt="comicInfo?.exhibitTitle"
               v-if="comicInfo?.coverImages"
             />
           </div>
 
           <div class="comic-content">
-            <div class="comic-name">{{ comicInfo?.exhibitName }}</div>
+            <div class="comic-name">{{ comicInfo?.exhibitTitle }}</div>
 
             <div class="comic-author">
               {{ comicInfo?.articleInfo?.articleOwnerName }}
@@ -143,38 +126,23 @@
               <tags :tags="comicInfo?.tags" />
             </div>
 
-            <div class="create-date">
-              创建时间：{{ formatDate(comicInfo?.createDate) }}
-            </div>
+            <div class="create-date">创建时间：{{ formatDate(comicInfo?.createDate) }}</div>
 
-            <div class="update-date">
-              最近更新：{{ formatDate(comicInfo?.updateDate) }}
-            </div>
+            <div class="update-date">最近更新：{{ formatDate(comicInfo?.updateDate) }}</div>
 
             <div class="btns-box">
               <div class="operate-btns">
-                <div
-                  class="btn main-btn"
-                  @click="switchPage('/reader', { id: comicInfo?.exhibitId })"
-                >
+                <div class="btn main-btn" @click="switchPage('/reader', { id: comicInfo?.exhibitId })">
                   立即阅读
                 </div>
-                <div
-                  class="btn"
-                  :class="isCollected ? 'delete' : 'collect'"
-                  @click="operateShelf(comicInfo)"
-                >
+                <div class="btn" :class="isCollected ? 'warning-btn' : 'collect'" @click="operateShelf(comicInfo)">
                   {{ isCollected ? "取消收藏" : "加入收藏" }}
                 </div>
               </div>
 
               <div class="other-btns">
                 <div class="sign-count">{{ comicInfo?.signCount }}人签约</div>
-                <div
-                  class="share-btn"
-                  @mouseover="shareShow = true"
-                  @mouseleave="shareShow = false"
-                >
+                <div class="share-btn" @mouseover="shareShow = true" @mouseleave="shareShow = false">
                   <span class="share-btn-text" :class="{ active: shareShow }">
                     <i class="freelog fl-icon-fenxiang"></i>
                     分享给更多人
@@ -188,25 +156,23 @@
         </div>
 
         <!-- 书籍简介 -->
-        <div
-          class="comic-intro"
-          v-if="comicInfo?.versionInfo?.exhibitProperty?.intro"
-        >
+        <div class="comic-intro">
           <div class="intro-title">内容简介</div>
 
-          <div class="intro" :class="introState === 1 ? 'fold' : 'unfold'">
+          <div
+            class="intro"
+            :class="introState === 1 ? 'fold' : 'unfold'"
+            v-if="comicInfo?.versionInfo?.exhibitProperty?.intro"
+          >
             <div ref="introContent" class="intro-content">
               {{ comicInfo?.versionInfo?.exhibitProperty?.intro }}
             </div>
 
-            <div
-              class="view-all-btn"
-              @click="introState = 3"
-              v-if="introState === 1"
-            >
+            <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">
               ...查看全部
             </div>
           </div>
+          <div class="no-intro-tip" v-else>暂无简介</div>
         </div>
 
         <!-- 书籍目录 -->
@@ -232,23 +198,13 @@
 
     <theme-entrance />
 
-    <directory
-      :show="directoryShow"
-      :comicInfo="comicInfo"
-      @closeDirectory="directoryShow = false"
-    />
+    <directory :show="directoryShow" :comicInfo="comicInfo" @closeDirectory="directoryShow = false" />
   </div>
 </template>
 
 <script lang="ts">
 import { useMyRouter, useMyShelf } from "../utils/hooks";
-import {
-  defineAsyncComponent,
-  reactive,
-  ref,
-  toRefs,
-  watch,
-} from "@vue/runtime-core";
+import { defineAsyncComponent, reactive, ref, toRefs, watch } from "@vue/runtime-core";
 import { ExhibitItem } from "@/api/interface";
 import { getExhibitInfo, getExhibitSignCount } from "@/api/freelog";
 import { useStore } from "vuex";
@@ -261,17 +217,10 @@ export default {
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
-    "theme-entrance": defineAsyncComponent(
-      () => import("../components/theme-entrance.vue")
-    ),
-    breadcrumbs: defineAsyncComponent(
-      () => import("../components/breadcrumbs.vue")
-    ),
+    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
     share: defineAsyncComponent(() => import("../components/share.vue")),
-    directory: defineAsyncComponent(
-      () => import("../components/directory.vue")
-    ),
+    directory: defineAsyncComponent(() => import("../components/directory.vue")),
   },
 
   setup() {
@@ -313,10 +262,7 @@ export default {
         ...exhibitInfo.data.data,
         signCount: signCountData?.data.data[0]?.count,
       };
-      data.directory = Array.from(
-        { length: 12 },
-        () => data.comicInfo.exhibitName || "目录名称"
-      );
+      data.directory = Array.from({ length: 12 }, () => data.comicInfo.exhibitTitle || "目录名称");
       data.href = (window.location as any).currentURL;
     };
     getComicInfo(id);
@@ -356,8 +302,7 @@ export default {
   // mobile
   .mobile-content {
     width: 100%;
-    background-color: rgba(0, 0, 0, 0.03);
-    // padding-bottom: 98px;
+    padding-bottom: 98px;
 
     .comic-info {
       width: 100%;
@@ -417,6 +362,8 @@ export default {
 
             .tags {
               margin-top: 12px;
+              height: 24px;
+              overflow: hidden;
             }
           }
 
@@ -518,12 +465,17 @@ export default {
       }
     }
 
+    .divider {
+      width: 100%;
+      height: 5px;
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+
     .comic-intro {
       width: 100%;
       padding: 20px;
       box-sizing: border-box;
       background-color: #fff;
-      margin-top: 5px;
 
       .intro-title {
         font-size: 16px;
@@ -564,6 +516,13 @@ export default {
             color: #539dff;
           }
         }
+      }
+
+      .no-intro-tip {
+        font-size: 14px;
+        color: #999999;
+        line-height: 24px;
+        margin-top: 20px;
       }
     }
 
@@ -673,6 +632,7 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding-top: 40px;
     padding-bottom: 148px;
 
     .content-box {
@@ -687,6 +647,7 @@ export default {
           width: 140px;
           height: 196px;
           background-color: #b7b7b7;
+          box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
           border-radius: 4px;
           margin-right: 20px;
           overflow: hidden;
@@ -703,8 +664,8 @@ export default {
           flex: 1;
 
           .comic-name {
-            font-size: 20px;
-            line-height: 26px;
+            font-size: 24px;
+            line-height: 30px;
             color: #222222;
             font-weight: bold;
           }
@@ -718,6 +679,8 @@ export default {
 
           .tags {
             margin-top: 12px;
+            height: 24px;
+            overflow: hidden;
           }
 
           .create-date {
@@ -731,7 +694,7 @@ export default {
             font-size: 12px;
             line-height: 18px;
             color: #999999;
-            margin-top: 8px;
+            margin-top: 4px;
           }
 
           .btns-box {
@@ -820,7 +783,7 @@ export default {
 
     .comic-intro {
       padding: 25px 0;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      // border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
       .intro-title {
         font-size: 16px;
@@ -866,6 +829,13 @@ export default {
             color: #2376e5;
           }
         }
+      }
+
+      .no-intro-tip {
+        font-size: 14px;
+        color: #999999;
+        line-height: 20px;
+        margin-top: 25px;
       }
     }
 

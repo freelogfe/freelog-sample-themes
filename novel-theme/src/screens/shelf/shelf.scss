@@ -9,6 +9,10 @@
     .content {
       width: 100%;
 
+      .shelf-title {
+        display: none;
+      }
+
       .book-box {
         width: 100%;
       }
@@ -39,6 +43,14 @@
       flex-direction: column;
       align-items: center;
 
+      .shelf-title {
+        width: 920px;
+        font-size: 30px;
+        color: #222222;
+        line-height: 36px;
+        margin: 40px 0;
+      }
+
       .book-box {
         width: 920px;
 
@@ -49,6 +61,8 @@
 
       .add-book-box {
         width: 920px;
+        display: flex;
+        justify-content: center;
 
         .add-book-btn {
           cursor: pointer;
@@ -72,7 +86,7 @@
     line-height: 22px;
     color: #999;
     text-align: center;
-    margin-top: 55px;
+    margin-top: 60px;
   }
 
   .content {

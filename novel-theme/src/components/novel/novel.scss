@@ -3,6 +3,7 @@
   width: 100px;
 
   .book-cover-box {
+    position: relative;
     width: 100px;
     height: 140px;
     border-radius: 4px;
@@ -15,6 +16,22 @@
 
     .book-cover {
       height: 100%;
+    }
+
+    .offline {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 40px;
+      height: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 0px 0px 4px 0px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 
@@ -52,8 +69,10 @@
     align-items: center;
 
     .book-cover-box {
+      position: relative;
       border-radius: 4px;
       background: #b7b7b7;
+      box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -63,21 +82,36 @@
       .book-cover {
         height: 100%;
       }
+
+      .offline {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 40px;
+        height: 20px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 0px 0px 4px 0px;
+        font-size: 10px;
+        font-weight: 600;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
 
     .book-info {
       flex: 1;
       width: 0;
+      margin-right: 20px;
 
-      .book-name {
+      &.auth-book {
+        margin-right: 0;
+      }
+
+      .book-name-box {
         width: 100%;
-        font-size: 16px;
-        color: #222;
-        line-height: 22px;
-        font-weight: bold;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
+        display: flex;
 
         .lock {
           float: left;
@@ -85,6 +119,38 @@
           height: 16px;
           margin-right: 10px;
           margin-top: 3px;
+        }
+
+        .book-name {
+          font-size: 16px;
+          color: #222;
+          line-height: 22px;
+          font-weight: bold;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+
+        .tag {
+          flex-shrink: 0;
+          width: 56px;
+          height: 22px;
+          border-radius: 22px;
+          margin-left: 10px;
+          font-size: 12px;
+          font-weight: 600;
+          color: #ffffff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .is-auth {
+          background: #42c28c;
+        }
+
+        .not-auth {
+          background: #e9a923;
         }
       }
 
@@ -100,6 +166,8 @@
       }
 
       .tags {
+        height: 24px;
+        overflow: hidden;
         margin-top: 12px;
       }
     }
@@ -144,6 +212,28 @@
       .tag + .tag {
         margin-left: 8px;
       }
+
+      .auth-tag {
+        flex-shrink: 0;
+        width: 56px;
+        height: 22px;
+        border-radius: 22px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 18px;
+      }
+
+      .is-auth {
+        background: #42c28c;
+      }
+
+      .not-auth {
+        background: #e9a923;
+      }
     }
   }
 
@@ -178,8 +268,21 @@
       align-items: center;
       justify-content: center;
 
-      &.assist-btn {
+      &.warning-btn {
         margin-left: 15px;
+      }
+
+      &.read-btn {
+        background: rgba(93, 145, 145, 0.1);
+        color: #5d9191;
+
+        &:hover {
+          opacity: 0.8;
+        }
+
+        &:active {
+          opacity: 0.6;
+        }
       }
     }
   }

@@ -4,7 +4,7 @@ const MyWindow: any = window;
 export interface GetExhibitListByPagingParams {
   skip: number; // 从第几个开始
   limit: number; // 取多少个
-  articleResourceTypes?: string; // 资源类型
+  omitArticleResourceType?: string; // 忽略资源类型
   tags?: string; // 展品和资源标签，多个使用","隔开
   keywords?: string; // 搜索关键字
 }
@@ -26,6 +26,13 @@ export interface GetExhibitInfoParams {
  */
 export const getExhibitListByPaging = (query: GetExhibitListByPagingParams) => {
   return MyWindow.freelogApp.getExhibitListByPaging(query);
+};
+
+/**
+ * 获取签约展品列表
+ */
+export const getSignStatistics = () => {
+  return MyWindow.freelogApp.getSignStatistics();
 };
 
 /**

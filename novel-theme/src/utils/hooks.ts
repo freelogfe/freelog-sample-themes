@@ -1,6 +1,13 @@
 import { useState, useEffect, useCallback, useContext } from "react";
 import { useHistory } from "react-router";
-import { getUserData, getExhibitListById, GetExhibitListByIdParams, setUserData, getExhibitAuthStatus } from "../api/freelog";
+import {
+  getUserData,
+  getExhibitListById,
+  GetExhibitListByIdParams,
+  setUserData,
+  getExhibitAuthStatus,
+  callLogin,
+} from "../api/freelog";
 import { showToast } from "../components/toast/toast";
 import { globalContext } from "../router";
 import { ExhibitItem } from "../api/interface";
@@ -13,8 +20,6 @@ export const useMyShelf = (id?: string) => {
   const [shelfIds, setShelfIds] = useState<string[]>([]);
   const [myShelf, setMyShelf] = useState<ExhibitItem[]>([]);
   const [isCollected, setIsCollected] = useState(false);
-  const history = useHistory();
-  const myHistory = useMyHistory();
 
   // 获取书架数据
   const getMyShelf = async () => {
@@ -57,6 +62,11 @@ export const useMyShelf = (id?: string) => {
 
   // 操作收藏（如未收藏则收藏，反之取消收藏）
   const operateShelf = async (exhibit: ExhibitItem) => {
+    if (!userData) {
+      callLogin();
+      return;
+    }
+
     const isThisCollected = ifExistInShelf(exhibit.exhibitId);
 
     if (isThisCollected) {
@@ -75,10 +85,6 @@ export const useMyShelf = (id?: string) => {
   };
 
   useEffect(() => {
-    if (!userData && history.location.pathname === "/shelf") {
-      myHistory.switchPage("/");
-      return;
-    }
     getMyShelf();
     // eslint-disable-next-line
   }, [id, userData]);
@@ -89,6 +95,52 @@ export const useMyShelf = (id?: string) => {
   }, [id, myShelf]);
 
   return { myShelf, isCollected, operateShelf };
+};
+
+/**
+ * 搜索历史hook
+ */
+export const useSearchHistory = () => {
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+
+  // 获取搜索历史
+  const getSearchHistory = async () => {
+    const json = localStorage.getItem("searchHistory") || "[]";
+    setSearchHistory(JSON.parse(json));
+  };
+
+  // 搜索
+  const searchWord = (keywords: string) => {
+    keywords = keywords.trim();
+    if (!keywords) return;
+    const index = searchHistory.findIndex((item) => item === keywords);
+    if (index !== -1) searchHistory.splice(index, 1);
+    if (searchHistory.length === 10) searchHistory.pop();
+    searchHistory.unshift(keywords);
+    localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
+    getSearchHistory();
+  };
+
+  // 删除搜索词
+  const deleteWord = (keywords: string) => {
+    const index = searchHistory.findIndex((item) => item === keywords);
+    if (index === -1) return;
+    searchHistory.splice(index, 1);
+    localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
+    getSearchHistory();
+  };
+
+  // 清空搜索词
+  const clearHistory = () => {
+    localStorage.setItem("searchHistory", "[]");
+    setSearchHistory([]);
+  };
+
+  useEffect(() => {
+    getSearchHistory();
+  }, []);
+
+  return { searchHistory, searchWord, deleteWord, clearHistory };
 };
 
 /**
@@ -131,15 +183,7 @@ export const useMyHistory = () => {
   const history = useHistory();
 
   const switchPage = (path: string) => {
-    if (path === "/") path = "/home/全部";
-    const pathname = path.split("/")[1];
-    const index = locationHistory.findIndex((item) => item.includes(pathname));
-    if (index !== -1) {
-      locationHistory.splice(index);
-      history.replace(path);
-    } else {
-      history.push(path);
-    }
+    history.push(path);
     locationHistory.push(path);
   };
 
@@ -149,9 +193,12 @@ export const useMyHistory = () => {
   };
 
   useEffect(() => {
-    const { pathname } = history.location;
-    if (!pathname.startsWith("/home") && locationHistory.length === 1) locationHistory.push(pathname);
-  }, [locationHistory, history.location]);
+    if (!locationHistory.length) locationHistory.push(history.location.pathname);
+    if (locationHistory.length <= 1 && ["/shelf", "/signedList"].includes(history.location.pathname)) {
+      switchPage("/home/全部");
+    }
+    // eslint-disable-next-line
+  }, []);
 
-  return { switchPage, back, locationHistory };
+  return { switchPage, back, locationHistory, pathname: history.location.pathname };
 };

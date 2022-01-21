@@ -3,13 +3,13 @@
     <!-- mobile -->
     <div class="mobile-article-wrapper" @click="switchPage('/content', { id: data.exhibitId })" v-if="inMobile">
       <div class="article-cover-box" v-if="selfConfig.articleCover === '显示'">
-        <img class="article-cover" :src="data.coverImages[0]" :alt="data.exhibitName" />
+        <img class="article-cover" :src="data.coverImages[0]" :alt="data.exhibitTitle" />
       </div>
 
       <div class="article-info">
         <div class="article-title">
           <img class="lock" src="../assets/images/mini-lock.png" v-if="!data.isAuth" />
-          {{ data.exhibitName }}
+          {{ data.exhibitTitle }}
         </div>
         <div class="other-info">
           <div class="info">{{ formatDate(data.createDate) }}</div>
@@ -21,17 +21,17 @@
     <!-- PC -->
     <div class="pc-article-wrapper" v-if="!inMobile">
       <div class="article-cover-box" v-if="selfConfig.articleCover === '显示'">
-        <img class="article-cover" :src="data.coverImages[0]" :alt="data.exhibitName" />
+        <img class="article-cover" :src="data.coverImages[0]" :alt="data.exhibitTitle" />
       </div>
 
       <div class="article-info">
         <div class="article-title">
           <img class="lock" src="../assets/images/mini-lock.png" v-if="!data.isAuth" />
-          <span :title="data.exhibitName" @click="switchPage('/content', { id: data.exhibitId })">
-            {{ data.exhibitName }}
+          <span :title="data.exhibitTitle" @click="switchPage('/content', { id: data.exhibitId })">
+            {{ data.exhibitTitle }}
           </span>
         </div>
-        <div class="article-intro">{{ data.exhibitName }}</div>
+        <div class="article-intro">{{ data.exhibitTitle }}</div>
         <div class="other-info">
           <div class="info">{{ formatDate(data.createDate) }}</div>
           <div class="divider"></div>

@@ -24,7 +24,7 @@ export const Share = (props: {
 
   const share = (item: { id: string; name: string }) => {
     const url = href;
-    const title = exhibit?.exhibitName;
+    const title = exhibit?.exhibitTitle;
     const summary = ``;
     const image = exhibit?.coverImages[0];
 
@@ -34,7 +34,7 @@ export const Share = (props: {
       window.open(shareWeb);
     } else if (item.id === "weibo") {
       // 微博
-      const weiboTitle = `我在freelog发现一个不错的小说：${exhibit?.exhibitName}`;
+      const weiboTitle = `我在freelog发现一个不错的小说：${exhibit?.exhibitTitle}`;
       window.open(`https://service.weibo.com/share/share.php?url=${url}&title=${weiboTitle}&pic=${image}`);
     } else if (item.id === "douban") {
       // 豆瓣
@@ -56,8 +56,8 @@ export const Share = (props: {
   useEffect(() => {
     const url = (window.location as any).currentURL;
     setHref(url);
-    setShareText(`我在freelog发现一个不错的小说：${exhibit?.exhibitName} ${url}`);
-  }, [exhibit?.exhibitName]);
+    setShareText(`我在freelog发现一个不错的小说：${exhibit?.exhibitTitle} ${url}`);
+  }, [exhibit?.exhibitTitle]);
 
   useEffect(() => {
     if (!show) setQrcodeShow(false);
@@ -69,11 +69,11 @@ export const Share = (props: {
       <div className="mobile-share-wrapper" onClick={() => setShareShow && setShareShow(false)}>
         <div className="exihibit-info" onClick={(e) => e.stopPropagation()}>
           <div className="book-cover-box">
-            <img className="book-cover" src={exhibit?.coverImages[0]} alt={exhibit?.exhibitName} />
+            <img className="book-cover" src={exhibit?.coverImages[0]} alt={exhibit?.exhibitTitle} />
           </div>
 
-          <div className="book-name" title={exhibit?.exhibitName}>
-            {exhibit?.exhibitName}
+          <div className="book-name" title={exhibit?.exhibitTitle}>
+            {exhibit?.exhibitTitle}
           </div>
         </div>
 

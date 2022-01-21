@@ -3,6 +3,7 @@ import { Router, Route, Switch, Redirect } from "react-router-dom";
 import { createBrowserHistory } from "history";
 import { HomeScreen } from "../screens/home/home";
 import { ShelfScreen } from "../screens/shelf/shelf";
+import { SignedListScreen } from "../screens/signed-list/signed-list";
 import { DetailScreen } from "../screens/detail/detail";
 import { ReaderScreen } from "../screens/reader/reader";
 import { getSelfConfig, getCurrentUser } from "../api/freelog";
@@ -13,7 +14,7 @@ interface Global {
   userData: UserData | null;
   locationHistory: string[];
   selfConfig: any;
-  inMobile: boolean;
+  inMobile: boolean | null;
   theme: Theme;
 }
 
@@ -32,9 +33,9 @@ const history = createBrowserHistory();
 
 const globalData: Global = {
   userData: null,
-  locationHistory: ["/home/全部"],
+  locationHistory: [],
   selfConfig: {},
-  inMobile: false,
+  inMobile: null,
   theme: { gradientColor: "", deriveColor: "" },
 };
 export const globalContext = React.createContext<Global>(globalData);
@@ -47,7 +48,10 @@ const RouterView = () => {
     const theme = themeList[globalData.selfConfig.theme];
     globalData.theme = theme;
     const root = document.getElementById("root");
-    root?.setAttribute("style", `--gradientColor: ${globalData.theme.gradientColor}; --deriveColor: ${globalData.theme.deriveColor}`);
+    root?.setAttribute(
+      "style",
+      `--gradientColor: ${globalData.theme.gradientColor}; --deriveColor: ${globalData.theme.deriveColor}`
+    );
   };
 
   useEffect(() => {
@@ -61,6 +65,7 @@ const RouterView = () => {
           <Route path="/" exact render={() => <Redirect to="/home/全部" />} />
           <Route path="/home/:tags/:keywords?" component={HomeScreen}></Route>
           <Route path="/shelf" component={ShelfScreen}></Route>
+          <Route path="/signedList" component={SignedListScreen}></Route>
           <Route path="/detail/:id" component={DetailScreen}></Route>
           <Route path="/reader/:id" component={ReaderScreen}></Route>
         </Switch>

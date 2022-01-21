@@ -1,10 +1,6 @@
 <template>
   <!-- mobile -->
-  <div
-    class="mobile-header-wrapper"
-    :class="{ 'in-home': homeHeader }"
-    v-if="inMobile"
-  >
+  <div class="mobile-header-wrapper" :class="{ 'in-home': homeHeader }" v-if="inMobile">
     <!-- header顶部 -->
     <div class="header-top" :class="{ logon: userData }">
       <img
@@ -19,19 +15,9 @@
       </div>
 
       <div class="header-top-right">
-        <i
-          class="freelog fl-icon-content"
-          @click="searchPopupShow = true"
-          v-if="!homeHeader"
-        ></i>
+        <i class="freelog fl-icon-content" @click="searchPopupShow = true" v-if="!homeHeader && !readerHeader"></i>
 
-        <img
-          class="avatar"
-          :src="userData.headImage"
-          :alt="userData.username"
-          @click="userBoxShow = true"
-          v-if="userData"
-        />
+        <img className="menu" src="../assets/images/menu.png" @click="userBoxShow = true" />
       </div>
     </div>
 
@@ -42,30 +28,54 @@
 
     <!-- 用户弹窗 -->
     <transition name="fade">
-      <div
-        id="modal"
-        class="modal"
-        @click="userBoxShow = false"
-        v-if="userBoxShow"
-      ></div>
+      <div id="modal" class="modal" @click="userBoxShow = false" v-if="userBoxShow"></div>
     </transition>
     <transition name="slide-right">
       <div class="user-box-body" v-if="userBoxShow">
-        <img
-          class="avatar"
-          :src="userData?.headImage"
-          :alt="userData?.username"
-        />
-        <div class="username">{{ userData?.username }}</div>
+        <div class="user-box-top" @click="!userData && callLogin()">
+          <img
+            class="avatar"
+            :src="userData?.headImage || require('../assets/images/default-avatar.png')"
+            :alt="userData?.username || '未登录'"
+          />
+          <div class="username">{{ userData?.username || "未登录" }}</div>
+          <div class="close-btn">
+            <i class="freelog fl-icon-guanbi"></i>
+          </div>
+        </div>
         <div class="btns">
-          <div class="btn" @click="switchPage('/home')">
-            <div class="btn-content">首页</div>
+          <div className="menu-btns">
+            <div
+              class="btn"
+              :class="{ active: route.path === '/home' }"
+              @click="route.path !== '/home' && switchPage('/home')"
+            >
+              <i className="freelog fl-icon-shouye"></i>
+              <div className="btn-label">首页</div>
+            </div>
+            <div class="btn" :class="{ active: route.path === '/shelf' }" @click="switchPage('/shelf')" v-if="userData">
+              <i className="freelog fl-icon-shujia"></i>
+              <div className="btn-label">我的收藏</div>
+            </div>
+            <div
+              class="btn"
+              :class="{ active: route.path === '/signedList' }"
+              @click="switchPage('/signedList')"
+              v-if="userData"
+            >
+              <i className="freelog fl-icon-lishi"></i>
+              <div className="btn-label">已签约漫画</div>
+            </div>
           </div>
-          <div class="btn" @click="switchPage('/shelf')">
-            <div class="btn-content">我的收藏</div>
+
+          <div className="footer-btn" @click="callLoginOut()" v-if="userData">
+            <i className="freelog fl-icon-tuichu1"></i>
+            <div className="btn-label">退出登录</div>
           </div>
-          <div class="btn" @click="callLoginOut()">
-            <div class="btn-content">退出登录</div>
+          <div className="footer-btn" v-if="!userData">
+            <div className="main-btn mobile" @click="callLogin()">
+              立即登录
+            </div>
           </div>
         </div>
       </div>
@@ -92,12 +102,7 @@
         <div class="recommend-tags">
           <div class="recommend-tags-title">推荐标签</div>
           <div class="recommend-tags-list">
-            <div
-              class="tag"
-              v-for="item in tagsList"
-              :key="item"
-              @click="selectTag(item)"
-            >
+            <div class="tag" v-for="item in tagsList" :key="item" @click="selectTag(item)">
               {{ item }}
             </div>
           </div>
@@ -130,41 +135,42 @@
         </div>
       </div>
 
-      <div
-        class="user-avatar"
-        @mouseover="userBoxShow = true"
-        @mouseleave="userBoxShow = false"
-        v-if="userData"
-      >
-        <div class="username">{{ userData.username }}</div>
-        <img
-          class="avatar"
-          :src="userData.headImage"
-          :alt="userData.username"
-        />
+      <div class="header-top-right">
+        <div class="nav-btn" @click="switchPage('/')" v-if="!homeHeader">
+          首页
+        </div>
+        <div class="nav-btn" @click="switchPage('/shelf')" v-if="!homeHeader && userData">
+          我的书架
+        </div>
 
-        <transition name="slide-down-scale">
-          <div class="user-box" v-if="userBoxShow">
-            <div class="user-box-body">
-              <img
-                class="avatar"
-                :src="userData.headImage"
-                :alt="userData.username"
-              />
-              <div class="username">{{ userData.username }}</div>
-              <div class="mobile">{{ userData.mobile }}</div>
-              <div class="btn user-box-btn" @click="switchPage('/shelf')">
-                我的收藏
+        <div class="user-avatar" @mouseover="userBoxShow = true" @mouseleave="userBoxShow = false" v-if="userData">
+          <img class="avatar" :src="userData.headImage" :alt="userData.username" />
+
+          <transition name="slide-down-scale">
+            <div class="user-box" v-if="userBoxShow">
+              <div class="user-box-body">
+                <img class="avatar" :src="userData.headImage" :alt="userData.username" />
+                <div class="username">{{ userData.username }}</div>
+                <div class="mobile">{{ userData.mobile }}</div>
+                <div
+                  class="btn user-box-btn"
+                  @click="
+                    switchPage('/signedList');
+                    userBoxShow = false;
+                  "
+                >
+                  已签约书籍
+                </div>
+                <div class="btn user-box-btn" @click="callLoginOut()">登出</div>
               </div>
-              <div class="btn user-box-btn" @click="callLoginOut()">登出</div>
             </div>
-          </div>
-        </transition>
-      </div>
+          </transition>
+        </div>
 
-      <div class="user-btns" v-else>
-        <div class="btn header-login-btn" @click="callLogin()">登录</div>
-        <div class="btn header-register-btn" @click="register()">注册</div>
+        <div class="user-btns" v-else>
+          <div class="btn header-login-btn" @click="callLogin()">登录</div>
+          <div class="btn header-register-btn" @click="register()">注册</div>
+        </div>
       </div>
     </div>
 
@@ -180,7 +186,10 @@
       <i class="freelog fl-icon-content"></i>
       <i
         class="freelog fl-icon-guanbi"
-        @click="searchKey = ''"
+        @click="
+          searchKey = '';
+          search();
+        "
         v-show="searchKey"
       ></i>
     </div>
@@ -219,11 +228,15 @@ export default {
       type: Boolean,
       default: false,
     },
+    readerHeader: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   setup(props: { homeHeader: boolean }) {
     const store = useStore();
-    const { query, switchPage, routerBack } = useMyRouter();
+    const { query, route, switchPage, routerBack } = useMyRouter();
 
     const data = reactive({
       searchKey: "",
@@ -274,6 +287,7 @@ export default {
       ...props,
       callLogin,
       callLoginOut,
+      route,
       switchPage,
       routerBack,
       ...store.state,
@@ -295,18 +309,6 @@ export default {
 
   &.in-home {
     padding: 22px 20px;
-
-    .header-top {
-      justify-content: center;
-
-      &.logon {
-        justify-content: space-between;
-
-        .header-top-right {
-          flex: 1;
-        }
-      }
-    }
   }
 
   .header-top {
@@ -361,12 +363,10 @@ export default {
         justify-content: center;
       }
 
-      .avatar {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        margin-left: 20px;
-        border: 1px solid #d1d1d1;
+      .menu {
+        width: 42px;
+        height: 32px;
+        margin-left: 30px;
       }
     }
   }
@@ -409,52 +409,126 @@ export default {
     width: 340px;
     background: #ffffff;
     border-radius: 0px 10px 10px 0px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    z-index: 100;
+    z-index: 101;
 
-    .avatar {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      border: 1px solid #d1d1d1;
-      margin-top: 40px;
-    }
+    .user-box-top {
+      position: relative;
+      width: 100%;
+      height: 194px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--gradientColor);
 
-    .username {
-      font-size: 16px;
-      line-height: 22px;
-      color: #222222;
-      font-weight: bold;
-      margin-top: 20px;
-      margin-bottom: 40px;
+      .avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        border: 1px solid #d1d1d1;
+      }
+
+      .username {
+        font-size: 16px;
+        line-height: 22px;
+        color: #fff;
+        font-weight: bold;
+        margin-top: 20px;
+      }
+
+      .close-btn {
+        position: absolute;
+        right: 31px;
+        top: 31px;
+        width: 12px;
+        height: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .freelog {
+          font-size: 12px;
+          color: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
     }
 
     .btns {
       width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 25px 20px 0;
+      box-sizing: border-box;
 
-      .btn {
-        width: 100%;
-        padding: 0 20px;
-        box-sizing: border-box;
+      .menu-btns {
+        flex: 1;
 
-        &:active {
-          background-color: rgba(0, 0, 0, 0.02);
+        .btn {
+          width: 100%;
+          border-radius: 4px;
+          padding: 15px 0;
+          color: #222;
+          background-color: #fff;
+          display: flex;
+          align-items: center;
+
+          &.active,
+          &:active {
+            color: var(--deriveColor);
+            background: rgba(93, 145, 145, 0.05);
+          }
+
+          .freelog {
+            font-size: 16px;
+            margin: 0 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .btn-label {
+            font-size: 16px;
+          }
         }
+      }
 
-        .btn-content {
-          height: 60px;
+      .footer-btn {
+        width: 100%;
+        height: 102px;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        color: #222;
+        display: flex;
+        align-items: center;
+
+        .freelog {
           font-size: 16px;
-          color: #222222;
+          margin: 0 11px;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-top: 1px solid rgba(0, 0, 0, 0.1);
         }
 
-        &:last-child .btn-content {
-          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        .btn-label {
+          font-size: 16px;
+        }
+
+        .main-btn {
+          width: 100%;
+          height: 48px;
+          border-radius: 48px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 16px;
+          font-weight: 600;
+          color: #ffffff;
         }
       }
     }
@@ -665,103 +739,117 @@ export default {
       }
     }
 
-    .user-avatar {
-      position: relative;
+    .header-top-right {
       display: flex;
       align-items: center;
-      cursor: pointer;
 
-      .username {
-        font-size: 14px;
-        line-height: 20px;
-        color: #fff;
+      .nav-btn {
+        padding: 0 25px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #ffffff;
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
+        opacity: 0.8;
+        cursor: pointer;
+        transition: all 0.2s linear;
+
+        &:hover {
+          opacity: 1;
+        }
       }
 
-      .avatar {
-        width: 32px;
-        height: 32px;
-        margin-left: 10px;
-        border-radius: 50%;
-        border: 1px solid #d1d1d1;
-      }
+      .user-avatar {
+        position: relative;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        margin-left: 25px;
 
-      .user-box {
-        position: absolute;
-        right: 0;
-        top: 100%;
-        padding-top: 10px;
-        cursor: default;
-        z-index: 100;
+        .avatar {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          border: 1px solid #d1d1d1;
+        }
 
-        .user-box-body {
-          width: 240px;
-          background: #ffffff;
-          box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
-          border-radius: 4px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
+        .user-box {
+          position: absolute;
+          right: 0;
+          top: 100%;
+          padding-top: 10px;
+          cursor: default;
+          z-index: 100;
 
-          .avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: 1px solid #d1d1d1;
-            margin-top: 20px;
-          }
+          .user-box-body {
+            width: 240px;
+            background: #ffffff;
+            box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
 
-          .username {
-            font-size: 16px;
-            line-height: 22px;
-            color: #222222;
-            font-weight: bold;
-            margin-top: 15px;
-          }
+            .avatar {
+              width: 60px;
+              height: 60px;
+              border-radius: 50%;
+              border: 1px solid #d1d1d1;
+              margin-top: 20px;
+            }
 
-          .mobile {
-            font-size: 14px;
-            color: #222222;
-            font-weight: bold;
-            line-height: 20px;
-            margin-top: 8px;
-            margin-bottom: 16px;
-          }
+            .username {
+              font-size: 16px;
+              line-height: 22px;
+              color: #222222;
+              font-weight: bold;
+              margin-top: 15px;
+            }
 
-          .btn {
-            width: 100%;
-            height: 50px;
-            line-height: 50px;
-            font-size: 14px;
-            padding-left: 20px;
-            box-sizing: border-box;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            .mobile {
+              font-size: 14px;
+              color: #222222;
+              font-weight: bold;
+              line-height: 20px;
+              margin-top: 8px;
+              margin-bottom: 16px;
+            }
 
-            &:last-child {
-              border-radius: 0 0 4px 4px;
+            .btn {
+              width: 100%;
+              height: 50px;
+              line-height: 50px;
+              font-size: 14px;
+              padding-left: 20px;
+              box-sizing: border-box;
+              border-top: 1px solid rgba(0, 0, 0, 0.05);
+
+              &:last-child {
+                border-radius: 0 0 4px 4px;
+              }
             }
           }
         }
       }
-    }
 
-    .user-btns {
-      display: flex;
-
-      .btn {
-        height: 32px;
-        padding: 0 15px;
-        box-sizing: border-box;
-        border-radius: 4px;
-        font-size: 14px;
-        font-weight: bold;
+      .user-btns {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-      }
 
-      .header-register-btn {
-        margin-left: 10px;
+        .btn {
+          height: 32px;
+          padding: 0 15px;
+          box-sizing: border-box;
+          border-radius: 4px;
+          font-size: 14px;
+          font-weight: bold;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+        }
+
+        .header-register-btn {
+          margin-left: 10px;
+        }
       }
     }
   }

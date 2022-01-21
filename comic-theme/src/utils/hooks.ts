@@ -1,4 +1,14 @@
-import { getExhibitAuthStatus, getExhibitListById, GetExhibitListByIdParams, getExhibitListByPaging, GetExhibitListByPagingParams, getExhibitSignCount, getUserData, setUserData } from "@/api/freelog";
+import {
+  callLogin,
+  getExhibitAuthStatus,
+  getExhibitListById,
+  GetExhibitListByIdParams,
+  getExhibitListByPaging,
+  GetExhibitListByPagingParams,
+  getExhibitSignCount,
+  getUserData,
+  setUserData,
+} from "@/api/freelog";
 import { ExhibitItem } from "@/api/interface";
 import { onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
 import { useRouter, useRoute } from "vue-router";
@@ -15,20 +25,13 @@ export const useMyRouter = () => {
   const query = ref();
 
   watchEffect(() => {
-    query.value = route.query;
+    query.value = { ...route.query };
   });
 
   // 路由跳转方法
   const switchPage = (path: string, query: any = {}) => {
     const { locationHistory } = store.state;
-    const index = locationHistory.findIndex((item: { path: string }) => item.path === path);
-    const IF_HOME_AND_NO_SEARCH = path === "/home" && (!query || Object.keys(query).length === 0);
-    if (index !== -1 || IF_HOME_AND_NO_SEARCH) {
-      locationHistory.splice(index);
-      router.replace({ path, query });
-    } else {
-      router.push({ path, query });
-    }
+    router.push({ path, query });
     locationHistory.push({ path, query });
 
     store.commit("setData", { key: "locationHistory", value: locationHistory });
@@ -50,16 +53,13 @@ export const useMyRouter = () => {
     if (locationHistory.length !== 0) return;
 
     const { path } = router.currentRoute.value;
-    if (path !== "/home" || (path === "/home" && Object.keys(query.value).length !== 0)) {
-      locationHistory.push({ path: "/home" });
-    }
-    const current = { path, query: query.value };
-    locationHistory.push(current);
+    locationHistory.push({ path });
     store.commit("setData", { key: "locationHistory", value: locationHistory });
   };
+
   initLocationHistory();
 
-  return { query, switchPage, routerBack, getCurrentPath };
+  return { route, query, switchPage, routerBack, getCurrentPath };
 };
 
 /**
@@ -121,6 +121,11 @@ export const useMyShelf = (id?: string) => {
 
   // 操作收藏（如未收藏则收藏，反之取消收藏）
   const operateShelf = async (exhibit: ExhibitItem) => {
+    if (!store.state.userData) {
+      callLogin();
+      return;
+    }
+
     const isThisCollected = ifExistInShelf(exhibit.exhibitId);
 
     if (isThisCollected) {
@@ -169,7 +174,7 @@ export const useGetList = () => {
     data.skip = init ? 0 : data.skip + 30;
     const queryParams: GetExhibitListByPagingParams = {
       skip: data.skip,
-      articleResourceTypes: "image",
+      articleResourceTypes: "image,comic",
       limit: params.limit || 30,
       ...params,
     };
@@ -228,6 +233,10 @@ export const useMyScroll = () => {
     data.scrollHeight = app?.scrollHeight || 0;
   };
 
+  const scrollTo = (top: number, behavior: ScrollBehavior = "smooth") => {
+    app?.scroll({ top, behavior });
+  };
+
   const scrollToTop = () => {
     app?.scroll({ top: 0, behavior: "smooth" });
   };
@@ -239,6 +248,7 @@ export const useMyScroll = () => {
 
   return {
     ...toRefs(data),
+    scrollTo,
     scrollToTop,
   };
 };

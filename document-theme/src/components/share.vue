@@ -71,7 +71,7 @@ export default {
     const methods = {
       share(item: { id: string; name: string }) {
         const url = data.href;
-        const title = props.exhibit?.exhibitName;
+        const title = props.exhibit?.exhibitTitle;
         const summary = ``;
         const image = props.exhibit?.coverImages[0];
 
@@ -81,7 +81,7 @@ export default {
           window.open(shareWeb);
         } else if (item.id === "weibo") {
           // 微博
-          const weiboTitle = `我在freelog发现一个不错的文档：${props.exhibit?.exhibitName}`;
+          const weiboTitle = `我在freelog发现一个不错的文档：${props.exhibit?.exhibitTitle}`;
           window.open(`https://service.weibo.com/share/share.php?url=${url}&title=${weiboTitle}&pic=${image}`);
         } else if (item.id === "douban") {
           // 豆瓣
@@ -103,7 +103,7 @@ export default {
     const initShare = () => {
       const url = (window.location as any).currentURL;
       data.href = url;
-      data.shareText = `我在freelog发现一个不错的文档：${props.exhibit?.exhibitName} ${url}`;
+      data.shareText = `我在freelog发现一个不错的文档：${props.exhibit?.exhibitTitle} ${url}`;
       if (!props.show) data.qrcodeShow = false;
     };
 

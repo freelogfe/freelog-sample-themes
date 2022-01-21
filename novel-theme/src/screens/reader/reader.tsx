@@ -9,16 +9,17 @@ import { readerThemeList } from "../../api/data";
 import { BackTop } from "../../components/back-top/back-top";
 import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
 import { Header } from "../../components/header/header";
-import { BreadCrumbs } from "../../components/breadcrumbs/breadcrumbs";
 import { Directory } from "../../components/directory/directory";
 import { globalContext } from "../../router";
 import { Share } from "../../components/share/share";
 import { showToast } from "../../components/toast/toast";
+import CSSTransition from "react-transition-group/CSSTransition";
 
 const readerContext = React.createContext<any>({});
 
 export const ReaderScreen = (props: any) => {
   const id = props.match.params.id;
+  const { inMobile } = useContext(globalContext);
   const myFontSize = Number(localStorage.getItem("fontSize"));
   const myTheme = JSON.parse(localStorage.getItem("theme") || "null");
   const [book, setBook] = useState<ExhibitItem | null>(null);
@@ -28,9 +29,11 @@ export const ReaderScreen = (props: any) => {
   const [fontSizePopupShow, setFontSizePopupShow] = useState(false);
   const [themePopupShow, setThemePopupShow] = useState(false);
   const [directoryShow, setDirectoryShow] = useState(false);
+  const [mobileBarShow, setMobileBarShow] = useState(true);
 
   const context = {
     id,
+    inMobile,
     book,
     setBook,
     fontSize,
@@ -45,6 +48,8 @@ export const ReaderScreen = (props: any) => {
     setThemePopupShow,
     directoryShow,
     setDirectoryShow,
+    mobileBarShow,
+    setMobileBarShow,
   };
 
   const getBookInfo = useCallback(async () => {
@@ -58,6 +63,7 @@ export const ReaderScreen = (props: any) => {
       setFontSizePopupShow(false);
       setThemePopupShow(false);
     }
+    if (inMobile) setMobileBarShow(true);
   };
 
   useEffect(() => {
@@ -68,11 +74,13 @@ export const ReaderScreen = (props: any) => {
   return (
     <readerContext.Provider value={context}>
       <div
-        className="reader-wrapper"
+        className={`reader-wrapper ${inMobile && "in-mobile"}`}
         style={{ backgroundImage: `url(${BgImage})`, backgroundColor: theme?.bgColor }}
         onClick={() => clickPage()}
       >
-        <Header />
+        <CSSTransition in={(inMobile && mobileBarShow) || !inMobile} classNames="slide-up" timeout={150} unmountOnExit>
+          <Header readerHeader={true} />
+        </CSSTransition>
 
         <Body />
 
@@ -86,8 +94,7 @@ export const ReaderScreen = (props: any) => {
 
 const Body = () => {
   const history = useMyHistory();
-  const { book, id, fontSize, theme } = useContext(readerContext);
-  const { inMobile } = useContext(globalContext);
+  const { inMobile, book, id, fontSize, theme } = useContext(readerContext);
   const [content, setContent] = useState<string[]>([]);
   const [isAuth, setIsAuth] = useState<boolean | null>(null);
 
@@ -150,7 +157,20 @@ const Body = () => {
   ) : (
     // PC
     <div className="body-wrapper">
-      <BreadCrumbs title={book?.exhibitName} dark={theme?.type === 1} />
+      <div className="breadcrumbs-wrapper">
+        <div className="breadcrumbs-item">
+          <div className="second-text-btn" onClick={() => history.switchPage("/detail/" + id)}>
+            {book?.exhibitTitle}
+            {/* {book?.exhibitTitle} {">"} */}
+          </div>
+        </div>
+
+        {/* <div className="breadcrumbs-item">
+          <div className="current-page">
+            {book?.exhibitTitle}
+          </div>
+        </div> */}
+      </div>
 
       <div
         className={`content ${theme?.type === 1 ? "dark" : "light"}`}
@@ -180,7 +200,7 @@ const Body = () => {
         )}
       </div>
 
-      <div
+      {/* <div
         className="footer-bar"
         style={{
           backgroundImage: `url(${BgImage})`,
@@ -188,16 +208,16 @@ const Body = () => {
           color: theme?.type === 1 ? "#999" : "#222",
         }}
       >
-        {/* <div className={`footer-btn invalid`} onClick={() => console.log(123)}>
+        <div className={`footer-btn invalid`} onClick={() => console.log(123)}>
           上一章
-        </div> */}
+        </div>
         <div className="footer-btn" onClick={() => history.switchPage("/detail/" + id)}>
           书籍详情
         </div>
-        {/* <div className={`footer-btn invalid`} onClick={() => console.log(123)}>
+        <div className={`footer-btn invalid`} onClick={() => console.log(123)}>
           下一章
-        </div> */}
-      </div>
+        </div>
+      </div> */}
     </div>
   );
 };
@@ -205,6 +225,7 @@ const Body = () => {
 const Operater = () => {
   const { scrollTop } = useMyScroll();
   const {
+    inMobile,
     book,
     fontSize,
     setFontSize,
@@ -216,8 +237,9 @@ const Operater = () => {
     setFontSizePopupShow,
     themePopupShow,
     setThemePopupShow,
+    mobileBarShow,
+    setMobileBarShow,
   } = useContext(readerContext);
-  const { inMobile } = useContext(globalContext);
   const { isCollected, operateShelf } = useMyShelf(book?.exhibitId);
   const [href, setHref] = useState("");
 
@@ -256,6 +278,8 @@ const Operater = () => {
     if (sharePopupShow) setSharePopupShow(false);
     if (fontSizePopupShow) setFontSizePopupShow(false);
     if (themePopupShow) setThemePopupShow(false);
+    if (scrollTop === 0 && !mobileBarShow) setMobileBarShow(true);
+    if (scrollTop !== 0 && mobileBarShow) setMobileBarShow(false);
     // eslint-disable-next-line
   }, [scrollTop]);
 
@@ -266,8 +290,9 @@ const Operater = () => {
 
   return inMobile ? (
     // mobile
-    <div className="mobile-operater-wrapper">
-      {/* <div
+    <CSSTransition in={mobileBarShow} classNames="slide-down" timeout={150} unmountOnExit>
+      <div className="mobile-operater-wrapper">
+        {/* <div
         className="operater-btn"
         onClick={() => {
           closeAllPopup();
@@ -278,101 +303,102 @@ const Operater = () => {
         <div className="operater-btn-label">目录</div>
       </div> */}
 
-      {isCollected ? (
+        {isCollected ? (
+          <div
+            className="operater-btn"
+            onClick={() => {
+              closeAllPopup();
+              operateShelf(book);
+            }}
+          >
+            <i className="freelog fl-icon-shoucangxiaoshuoyishoucang"></i>
+            <div className="operater-btn-label">移出书架</div>
+          </div>
+        ) : (
+          <div
+            className="operater-btn"
+            onClick={() => {
+              closeAllPopup();
+              operateShelf(book);
+            }}
+          >
+            <i className="freelog fl-icon-shoucangxiaoshuo"></i>
+            <div className="operater-btn-label">加入书架</div>
+          </div>
+        )}
+
         <div
           className="operater-btn"
           onClick={() => {
             closeAllPopup();
-            operateShelf(book);
+            share();
           }}
         >
-          <i className="freelog fl-icon-shoucangxiaoshuoyishoucang"></i>
-          <div className="operater-btn-label">移出书架</div>
+          <i className="freelog fl-icon-fenxiang"></i>
+          <div className="operater-btn-label">分享</div>
         </div>
-      ) : (
+
         <div
           className="operater-btn"
           onClick={() => {
             closeAllPopup();
-            operateShelf(book);
+            setFontSizePopupShow(true);
           }}
         >
-          <i className="freelog fl-icon-shoucangxiaoshuo"></i>
-          <div className="operater-btn-label">加入书架</div>
+          <div className="freelog">A</div>
+          <div className="operater-btn-label">字号</div>
         </div>
-      )}
 
-      <div
-        className="operater-btn"
-        onClick={() => {
-          closeAllPopup();
-          share();
-        }}
-      >
-        <i className="freelog fl-icon-fenxiang"></i>
-        <div className="operater-btn-label">分享</div>
-      </div>
+        <div
+          className="operater-btn"
+          onClick={() => {
+            closeAllPopup();
+            setThemePopupShow(true);
+          }}
+        >
+          <i className="freelog fl-icon-beijingyanse"></i>
+          <div className="operater-btn-label">背景色</div>
+        </div>
 
-      <div
-        className="operater-btn"
-        onClick={() => {
-          closeAllPopup();
-          setFontSizePopupShow(true);
-        }}
-      >
-        <div className="freelog">A</div>
-        <div className="operater-btn-label">字号</div>
-      </div>
-
-      <div
-        className="operater-btn"
-        onClick={() => {
-          closeAllPopup();
-          setThemePopupShow(true);
-        }}
-      >
-        <i className="freelog fl-icon-beijingyanse"></i>
-        <div className="operater-btn-label">背景色</div>
-      </div>
-
-      {fontSizePopupShow && (
-        <div className="operater-popup" onClick={() => setFontSizePopupShow(false)}>
-          <div className="fontsize-popup" onClick={(e) => e.stopPropagation()}>
-            <div className="fontsize-label" onClick={() => changeFontSize(0)}>
-              A-
-            </div>
-            <div className="fontsize-value">{fontSize}</div>
-            <div className="fontsize-label" onClick={() => changeFontSize(1)}>
-              A+
+        {fontSizePopupShow && (
+          <div className="operater-popup" onClick={() => setFontSizePopupShow(false)}>
+            <div className="fontsize-popup" onClick={(e) => e.stopPropagation()}>
+              <div className="fontsize-label" onClick={() => changeFontSize(0)}>
+                A-
+              </div>
+              <div className="fontsize-value">{fontSize}</div>
+              <div className="fontsize-label" onClick={() => changeFontSize(1)}>
+                A+
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {themePopupShow && (
-        <div className="operater-popup" onClick={() => setThemePopupShow(false)}>
-          <div className="theme-popup" onClick={(e) => e.stopPropagation()}>
-            {readerThemeList.map((item) => {
-              return (
-                <div
-                  className={`theme-btn ${theme.bookColor === item.bookColor && "active"}`}
-                  key={item.bookColor}
-                  style={{ backgroundColor: item.bookColor }}
-                  onClick={() => {
-                    setTheme(item);
-                    localStorage.setItem("theme", JSON.stringify(item));
-                  }}
-                >
-                  <i className="freelog fl-icon-xuanzhong"></i>
-                </div>
-              );
-            })}
+        {themePopupShow && (
+          <div className="operater-popup" onClick={() => setThemePopupShow(false)}>
+            <div className="theme-popup" onClick={(e) => e.stopPropagation()}>
+              {readerThemeList.map((item) => {
+                return (
+                  <div
+                    className={`theme-btn ${theme.bookColor === item.bookColor && "active"}`}
+                    key={item.bookColor}
+                    style={{ backgroundColor: item.bookColor }}
+                    onClick={() => {
+                      setTheme(item);
+                      localStorage.setItem("theme", JSON.stringify(item));
+                    }}
+                  >
+                    <i className="freelog fl-icon-xuanzhong"></i>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <input id="href" className="hidden-input" value={href} readOnly />
-    </div>
+        <input id="href" className="hidden-input" value={href} readOnly />
+      </div>
+    </CSSTransition>
   ) : (
     // PC
     <div className="operater-wrapper">

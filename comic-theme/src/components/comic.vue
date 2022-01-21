@@ -1,12 +1,13 @@
 <template>
   <!-- 移动端收藏漫画组件 -->
-  <div class="mobile-shelf-comic-wrapper" @click="switchPage('/detail', { id: data.exhibitId })" v-if="inMobileShelf">
+  <div class="mobile-shelf-comic-wrapper" @click="switchPage('/detail', { id: data.exhibitId })" v-if="mode === 4">
     <div class="comic-cover-box">
-      <img class="comic-cover" :src="data.coverImages[0]" :alt="data.exhibitName" />
+      <img class="comic-cover" :src="data.coverImages[0]" :alt="data.exhibitTitle" />
+      <div class="offline" v-if="data.onlineStatus === 0">已下架</div>
     </div>
 
-    <div class="comic-name" :title="data.exhibitName">
-      {{ data.exhibitName }}
+    <div class="comic-name" :title="data.exhibitTitle">
+      {{ data.exhibitTitle }}
     </div>
 
     <div class="comic-author">{{ data.articleInfo.articleOwnerName }}</div>
@@ -17,33 +18,44 @@
     class="comic-wrapper"
     :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }"
     @click="switchPage('/detail', { id: data.exhibitId })"
-    v-if="!inMobileShelf"
+    v-if="mode !== 4"
   >
     <div class="comic-content">
       <div class="comic-cover-box">
-        <img class="comic-cover" :src="data.coverImages[0]" :alt="data.exhibitName" />
+        <img class="comic-cover" :src="data.coverImages[0]" :alt="data.exhibitTitle" />
+        <div class="offline" v-if="data.onlineStatus === 0">已下架</div>
       </div>
 
-      <div class="comic-info">
-        <div class="comic-name" :title="data.exhibitName">
-          <img class="lock" src="../assets/images/mini-lock.png" alt="未授权" v-if="!data.isAuth" />
-          {{ data.exhibitName }}
+      <div class="comic-info" :class="{ 'auth-comic': mode === 3 && inMobile }">
+        <div class="comic-name-box" :title="data.exhibitTitle">
+          <img class="lock" src="../assets/images/mini-lock.png" alt="未授权" v-if="mode !== 3 && !data.isAuth" />
+          <div class="comic-name">{{ data.exhibitTitle }}</div>
+          <div class="tag is-auth" v-if="mode === 3 && data.isAuth && !inMobile">已授权</div>
+          <div class="tag not-auth" v-if="mode === 3 && !data.isAuth && !inMobile">未授权</div>
         </div>
 
         <div class="comic-author">{{ data.articleInfo.articleOwnerName }}</div>
 
-        <div class="tags">
+        <div class="tags" v-if="!(mode === 3 && inMobile)">
           <tags :tags="data.tags" />
+        </div>
+
+        <div class="auth-tag" :class="data.isAuth ? 'is-auth' : 'not-auth'" v-if="mode === 3 && inMobile">
+          {{ data.isAuth ? "已授权" : "未授权" }}
         </div>
       </div>
 
-      <i class="freelog fl-icon-zhankaigengduo"></i>
+      <i class="freelog fl-icon-zhankaigengduo" v-if="!(mode === 3 && inMobile)"></i>
 
-      <div class="main-btn btn" @click.stop="switchPage('/reader', { id: data?.exhibitId })" v-if="operateShelf">
+      <div
+        class="main-btn btn"
+        @click.stop="switchPage('/reader', { id: data?.exhibitId })"
+        v-if="[2, 3].includes(mode)"
+      >
         立即阅读
       </div>
 
-      <div class="assist-btn btn" @click.stop="operateShelf(data)" v-if="operateShelf">
+      <div class="warning-btn btn last-btn" @click.stop="operateShelf(data)" v-if="mode === 2">
         取消收藏
       </div>
     </div>
@@ -63,7 +75,8 @@ export default {
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
   },
 
-  props: ["inMobileShelf", "data", "operateShelf"],
+  // mode: 1-默认首页 2-收藏 3-签约记录 4-移动端首页收藏
+  props: ["mode", "data", "operateShelf"],
 
   setup() {
     const store = useStore();
@@ -84,6 +97,7 @@ export default {
   width: 100px;
 
   .comic-cover-box {
+    position: relative;
     width: 100px;
     height: 140px;
     border-radius: 4px;
@@ -96,6 +110,22 @@ export default {
 
     .comic-cover {
       height: 100%;
+    }
+
+    .offline {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 40px;
+      height: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 0px 0px 4px 0px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 
@@ -126,6 +156,7 @@ export default {
 // 普通小说组件
 .comic-wrapper {
   width: 100%;
+  box-sizing: border-box;
 
   .comic-content {
     width: 100%;
@@ -133,8 +164,10 @@ export default {
     align-items: center;
 
     .comic-cover-box {
+      position: relative;
       border-radius: 4px;
       background: #b7b7b7;
+      box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -143,21 +176,36 @@ export default {
       .comic-cover {
         height: 100%;
       }
+
+      .offline {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 40px;
+        height: 20px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 0px 0px 4px 0px;
+        font-size: 10px;
+        font-weight: 600;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
 
     .comic-info {
       flex: 1;
       width: 0;
+      margin-right: 20px;
 
-      .comic-name {
+      &.auth-comic {
+        margin-right: 0;
+      }
+
+      .comic-name-box {
         width: 100%;
-        font-size: 16px;
-        color: #222;
-        line-height: 22px;
-        font-weight: bold;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
+        display: flex;
 
         .lock {
           float: left;
@@ -165,6 +213,38 @@ export default {
           height: 16px;
           margin-right: 10px;
           margin-top: 3px;
+        }
+
+        .comic-name {
+          font-size: 16px;
+          color: #222;
+          line-height: 22px;
+          font-weight: bold;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+
+        .tag {
+          flex-shrink: 0;
+          width: 56px;
+          height: 22px;
+          border-radius: 22px;
+          margin-left: 10px;
+          font-size: 12px;
+          font-weight: 600;
+          color: #ffffff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .is-auth {
+          background: #42c28c;
+        }
+
+        .not-auth {
+          background: #e9a923;
         }
       }
 
@@ -182,6 +262,7 @@ export default {
       .tags {
         margin-top: 12px;
         height: 24px;
+        overflow: hidden;
       }
     }
   }
@@ -216,6 +297,7 @@ export default {
         align-items: center;
         justify-content: center;
         color: #666;
+        margin-left: 20px;
       }
 
       .btn {
@@ -224,6 +306,28 @@ export default {
 
       .tag + .tag {
         margin-left: 8px;
+      }
+
+      .auth-tag {
+        flex-shrink: 0;
+        width: 56px;
+        height: 22px;
+        border-radius: 22px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 18px;
+      }
+
+      .is-auth {
+        background: #42c28c;
+      }
+
+      .not-auth {
+        background: #e9a923;
       }
     }
   }
@@ -258,6 +362,10 @@ export default {
       display: flex;
       align-items: center;
       justify-content: center;
+
+      &.last-btn {
+        margin-left: 15px;
+      }
 
       &.assist-btn {
         margin-left: 15px;

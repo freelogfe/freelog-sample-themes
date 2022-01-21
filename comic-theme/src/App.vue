@@ -1,5 +1,9 @@
 <template>
-  <router-view />
+  <router-view v-slot="{ Component }">
+    <keep-alive include="home">
+      <component :is="Component" />
+    </keep-alive>
+  </router-view>
   <login-btn />
   <div id="modal"></div>
 </template>
@@ -216,6 +220,31 @@ img {
 
   &:active {
     opacity: 0.8 !important;
+  }
+}
+
+.warning-btn {
+  background: #fdebec;
+  border-radius: 4px;
+  color: #ee4040;
+  cursor: pointer;
+  transition: all 0.2s linear;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    opacity: 0.6;
+  }
+
+  &.mobile {
+    cursor: default;
+    transition: none;
+
+    &:hover {
+      opacity: 1;
+    }
   }
 }
 

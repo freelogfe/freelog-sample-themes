@@ -1,7 +1,7 @@
 // 展品
 export interface ExhibitItem {
   exhibitId: string;
-  exhibitName: string;
+  exhibitTitle: string;
   coverImages: string[];
   tags: string[];
   articleInfo: { articleOwnerName: string };
@@ -11,6 +11,7 @@ export interface ExhibitItem {
   updateDate: string;
   signCount: number;
   isAuth: boolean;
+  onlineStatus: number;
 }
 
 // 主题

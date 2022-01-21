@@ -52,7 +52,7 @@
 
         <div class="other-area" key="otherArea">
           <div class="detail-info">
-            <div class="title">{{ exhibitInfo?.exhibitName }}</div>
+            <div class="title">{{ exhibitInfo?.exhibitTitle }}</div>
             <tags :tags="exhibitInfo?.tags" v-if="exhibitInfo?.tags.length" />
             <div class="author-info">
               <img class="author-avatar" :src="getAvatarUrl(exhibitInfo?.userId)" v-if="exhibitInfo?.userId" />
@@ -98,7 +98,7 @@
     <transition name="slide-up">
       <div ref="scrollArea" class="content-card" @click.stop v-if="currentId">
         <div class="content-area">
-          <div class="title">{{ exhibitInfo?.exhibitName }}</div>
+          <div class="title">{{ exhibitInfo?.exhibitTitle }}</div>
           <div class="exhibit-info">
             <img class="author-avatar" :src="getAvatarUrl(exhibitInfo?.userId)" v-if="exhibitInfo?.userId" />
             <div class="author-name">

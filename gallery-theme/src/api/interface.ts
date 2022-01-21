@@ -1,7 +1,7 @@
 // 展品
 export interface ExhibitItem {
   exhibitId: string;
-  exhibitName: string;
+  exhibitTitle: string;
   coverImages: string[];
   tags: string[];
   articleInfo: { articleOwnerName: string, resourceType: string };
