@@ -1,6 +1,10 @@
 <template>
-  <!-- mobile -->
-  <div class="mobile-header-wrapper" :class="{ 'in-home': homeHeader }" v-if="inMobile">
+  <!-- 移动端头部 -->
+  <div
+    class="mobile-header-wrapper"
+    :class="{ 'in-home': homeHeader }"
+    v-if="inMobile && !mobileSearching"
+  >
     <!-- header顶部 -->
     <div class="header-top" :class="{ logon: userData }">
       <img
@@ -15,14 +19,16 @@
       </div>
 
       <div class="header-top-right">
-        <i class="freelog fl-icon-content" @click="searchPopupShow = true"></i>
+        <i
+          class="freelog fl-icon-content"
+          @click="searchPopupShow = true"
+          v-if="!readerHeader"
+        ></i>
 
         <img
-          class="avatar"
-          :src="userData.headImage"
-          :alt="userData.username"
+          class="menu"
+          src="../assets/images/menu.png"
           @click="userBoxShow = true"
-          v-if="userData"
         />
       </div>
     </div>
@@ -31,7 +37,11 @@
     <template v-if="homeHeader">
       <div class="header-other-info">
         <div class="blogger-avatar">
-          <img :src="selfConfig.bloggerAvatar" alt="博主头像" class="avatar-img" />
+          <img
+            :src="selfConfig.bloggerAvatar"
+            alt="博主头像"
+            class="avatar-img"
+          />
         </div>
         <div class="sign-count">总签约量：{{ signCount }}人</div>
       </div>
@@ -43,34 +53,65 @@
         <div class="blog-desc">
           {{ selfConfig.blogIntro }}
         </div>
-        <div class="tags">
-          <div
-            class="tag"
-            :class="{ active: tags === item }"
-            v-for="item in blogTags"
-            :key="item"
-            @click="selectTag(item)"
-          >
-            {{ item }}
-          </div>
-        </div>
       </div>
     </template>
 
     <transition name="fade">
-      <div id="modal" class="modal" @click="userBoxShow = false" @touchmove.prevent v-if="userBoxShow"></div>
+      <div
+        id="modal"
+        class="modal"
+        @click="userBoxShow = false"
+        @touchmove.prevent
+        v-if="userBoxShow"
+      ></div>
     </transition>
 
     <transition name="slide-right">
-      <div class="user-box-body" @touchmove.prevent v-if="userBoxShow">
-        <img class="avatar" :src="userData?.headImage" :alt="userData?.username" />
-        <div class="username">{{ userData?.username }}</div>
-        <div class="btns">
-          <div class="btn" @click="switchPage('/')">
-            <div class="btn-content">首页</div>
+      <div class="user-box-body" v-if="userBoxShow">
+        <div class="user-box-top">
+          <img
+            class="avatar"
+            :src="
+              userData?.headImage ||
+              require('../assets/images/default-avatar.png')
+            "
+            :alt="userData?.username || '未登录'"
+            @click="!userData && callLogin()"
+          />
+          <div class="username" @click="!userData && callLogin()">
+            {{ userData?.username || "未登录" }}
           </div>
-          <div class="btn" @click="callLoginOut()">
-            <div class="btn-content">退出登录</div>
+          <div class="close-btn" @click="userBoxShow = false">
+            <i class="freelog fl-icon-guanbi"></i>
+          </div>
+        </div>
+        <div class="btns">
+          <div class="menu-btns">
+            <div
+              class="btn"
+              :class="{ active: route.path === '/home' }"
+              @click="route.path !== '/home' && switchPage('/home')"
+            >
+              <i class="freelog fl-icon-shouye"></i>
+              <div class="btn-label">首页</div>
+            </div>
+            <div
+              class="btn"
+              :class="{ active: route.path === '/signedList' }"
+              @click="switchPage('/signedList')"
+              v-if="userData"
+            >
+              <i class="freelog fl-icon-lishi"></i>
+              <div class="btn-label">已签约博客</div>
+            </div>
+          </div>
+
+          <div class="footer-btn" @click="callLoginOut()" v-if="userData">
+            <i class="freelog fl-icon-tuichu1"></i>
+            <div class="btn-label">退出登录</div>
+          </div>
+          <div class="footer-btn" v-if="!userData">
+            <div class="main-btn mobile" @click="callLogin()">立即登录</div>
           </div>
         </div>
       </div>
@@ -84,7 +125,12 @@
               class="search-input input-none"
               :class="{ 'in-focus': searchKey }"
               v-model="searchKey"
-              @keyup.enter="search()"
+              :autofocus="true"
+              @input="searchKeyInput()"
+              @keyup.enter="
+                searchWord(searchKey);
+                search();
+              "
               @keyup.esc="searchKey = ''"
             />
             <i class="freelog fl-icon-content"></i>
@@ -93,16 +139,50 @@
           <div class="cancel-btn" @click="searchPopupShow = false">取消</div>
         </div>
 
-        <div class="recommend-tags">
-          <div class="recommend-tags-title">推荐标签</div>
-          <div class="recommend-tags-list">
-            <div class="tag" v-for="item in blogTags" :key="item" @click="selectTag(item)">
+        <div class="search-history-box" v-if="searchHistory.length !== 0">
+          <div class="search-history-box-title">
+            <div class="title">搜索记录</div>
+            <div class="text-btn" @click="clearHistory()">清空</div>
+          </div>
+          <div class="search-history-box-list">
+            <div
+              class="tag"
+              v-for="item in searchHistory"
+              :key="item"
+              @click="selectTag(item)"
+            >
               {{ item }}
+              <i
+                class="freelog fl-icon-guanbi"
+                @click.stop="deleteWord(item)"
+              ></i>
             </div>
           </div>
         </div>
       </div>
     </transition>
+  </div>
+
+  <!-- 移动端首页搜索头部 -->
+  <div
+    class="mobile-search-header-wrapper"
+    v-if="inMobile && homeHeader && mobileSearching"
+  >
+    <div class="search-page-box">
+      <input
+        class="search-input input-none"
+        :class="{ 'in-focus': searchKey }"
+        v-model="searchKey"
+        @input="searchKeyInput(true)"
+        @keyup.enter="
+          searchWord(searchKey);
+          search();
+        "
+      />
+      <i class="freelog fl-icon-content"></i>
+    </div>
+
+    <div class="cancel-btn" @click="switchPage('/home')">取消</div>
   </div>
 
   <!-- PC -->
@@ -119,37 +199,92 @@
         <!-- 搜索框 -->
         <div class="search-box">
           <input
-            class="search-input"
-            type="text"
+            ref="searchInput"
+            class="search-input input-none"
+            :class="{ 'in-focus': searchKey }"
             v-model="searchKey"
-            @keyup.enter="search()"
-            @keyup.esc="searchKey = ''"
+            @input="searchKeyInput()"
+            @keyup="inputKeyUp($event)"
+            @focus="searchHistoryShow = true"
+            @blur="searchHistoryShow = false"
           />
           <i class="freelog fl-icon-content"></i>
+          <i
+            class="freelog fl-icon-guanbi text-btn"
+            @click="
+              searchKey = '';
+              search();
+            "
+            v-show="searchKey"
+          ></i>
+
+          <transition name="fade">
+            <div
+              class="search-history"
+              v-if="searchHistoryShow && mySearchHistory.length !== 0"
+            >
+              <div
+                class="history-item"
+                :class="{ catch: searchWordCatch === index }"
+                v-for="(item, index) in mySearchHistory"
+                :key="item"
+                @click="clickSearchHistory(item)"
+                @mousemove="searchWordCatch = index"
+              >
+                <div class="item-word">{{ item }}</div>
+                <i
+                  class="freelog fl-icon-guanbi"
+                  @click.stop="deleteSearchHistory(item)"
+                ></i>
+              </div>
+
+              <div class="text-btn" @click="clearHistory()">清空搜索记录</div>
+            </div>
+          </transition>
         </div>
       </div>
 
-      <!-- 已登录用户信息 -->
-      <div class="user-avatar" @mouseover="userBoxShow = true" @mouseleave="userBoxShow = false" v-if="userData">
-        <div class="username">{{ userData.username }}</div>
-        <img class="avatar" :src="userData.headImage" :alt="userData.username" />
+      <div class="header-top-right">
+        <div class="nav-btn" @click="switchPage('/')" v-if="!homeHeader">
+          首页
+        </div>
+        <!-- 已登录用户信息 -->
+        <div
+          class="user-avatar"
+          @mouseover="userBoxShow = true"
+          @mouseleave="userBoxShow = false"
+          v-if="userData"
+        >
+          <img
+            class="avatar"
+            :src="userData.headImage"
+            :alt="userData.username"
+          />
 
-        <transition name="slide-down-scale">
-          <div class="user-box" v-show="userBoxShow">
-            <div class="user-box-body">
-              <img class="avatar" :src="userData.headImage" :alt="userData.username" />
-              <div class="username">{{ userData.username }}</div>
-              <div class="mobile">{{ userData.mobile }}</div>
-              <div class="user-box-btn" @click="callLoginOut()">登出</div>
+          <transition name="slide-down-scale">
+            <div class="user-box" v-show="userBoxShow">
+              <div class="user-box-body">
+                <img
+                  class="avatar"
+                  :src="userData.headImage"
+                  :alt="userData.username"
+                />
+                <div class="username">{{ userData.username }}</div>
+                <div class="mobile">{{ userData.mobile }}</div>
+                <div class="user-box-btn" @click="switchPage('/signedList')">
+                  已签约博客
+                </div>
+                <div class="user-box-btn" @click="callLoginOut()">登出</div>
+              </div>
             </div>
-          </div>
-        </transition>
-      </div>
+          </transition>
+        </div>
 
-      <!-- 登录相关按钮 -->
-      <div class="user-btns" v-else>
-        <div class="btn header-login-btn" @click="callLogin()">登录</div>
-        <div class="btn header-register-btn" @click="register()">注册</div>
+        <!-- 登录相关按钮 -->
+        <div class="user-btns" v-else>
+          <div class="btn header-login-btn" @click="callLogin()">登录</div>
+          <div class="btn header-register-btn" @click="register()">注册</div>
+        </div>
       </div>
     </div>
 
@@ -157,34 +292,22 @@
       <!-- 博客信息 -->
       <div class="header-blog-info">
         <div class="blogger-avatar">
-          <img :src="selfConfig.bloggerAvatar" alt="博主头像" class="avatar-img" />
+          <img
+            :src="selfConfig.bloggerAvatar"
+            alt="博主头像"
+            class="avatar-img"
+          />
         </div>
 
         <div class="info-content">
-          <div class="blog-title">
-            {{ selfConfig.blogTitle }}
+          <div class="title-signcount">
+            <div class="blog-title">
+              {{ selfConfig.blogTitle }}
+            </div>
+            <div class="sign-count">总签约量：{{ signCount }}人</div>
           </div>
           <div class="blog-desc">
             {{ selfConfig.blogIntro }}
-          </div>
-        </div>
-      </div>
-
-      <!-- 其他信息 -->
-      <div class="other-info">
-        <div class="sign-count">总签约量：{{ signCount }}人</div>
-        <div class="blog-tags">
-          <div class="tags-label">兴趣领域：</div>
-          <div class="tags">
-            <div
-              class="tag"
-              :class="{ active: tags === item }"
-              v-for="item in blogTags"
-              :key="item"
-              @click="selectTag(item)"
-            >
-              {{ item }}
-            </div>
           </div>
         </div>
       </div>
@@ -193,9 +316,14 @@
 </template>
 
 <script lang="ts">
-import { reactive, toRefs, watch } from "vue";
-import { useMyRouter } from "../utils/hooks";
-import { callLogin, callLoginOut, getExhibitSignCount, getSelfId } from "@/api/freelog";
+import { computed, reactive, ref, toRefs, watch } from "vue";
+import { useMyRouter, useSearchHistory } from "../utils/hooks";
+import {
+  callLogin,
+  callLoginOut,
+  getExhibitSignCount,
+  getSelfId,
+} from "@/api/freelog";
 import { useStore } from "vuex";
 
 export default {
@@ -206,12 +334,26 @@ export default {
       type: Boolean,
       default: false,
     },
+    readerHeader: {
+      type: Boolean,
+      default: false,
+    },
+    mobileSearching: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   setup(props: { homeHeader: boolean }) {
     const store = useStore();
     let blogTags: string[] = store.state.selfConfig.tags.split(",");
-    const { query, switchPage, routerBack } = useMyRouter();
+    const { query, route, switchPage, routerBack } = useMyRouter();
+    const { searchHistory, searchWord, deleteWord, clearHistory } =
+      useSearchHistory();
+    const searchInput = ref();
+    const mySearchHistory = computed(() =>
+      searchHistory.value.filter((item) => item.includes(data.searchKey))
+    );
 
     const data = reactive({
       signCount: 0,
@@ -219,23 +361,91 @@ export default {
       tags: "",
       userBoxShow: false,
       searchPopupShow: false,
+      searchHistoryShow: false,
+      searchWordCatch: null as number | null,
     });
 
     const methods = {
+      // 输入搜索词
+      searchKeyInput(inHomeSearch = false) {
+        data.searchKey = (data.searchKey || "").trim();
+        data.searchHistoryShow = true;
+        data.searchWordCatch = null;
+        if (inHomeSearch) {
+          !data.searchKey && switchPage("/home");
+          data.searchPopupShow = !data.searchKey;
+        }
+      },
+
+      // 点击历史搜索词
+      clickSearchHistory(item: string) {
+        data.searchKey = item;
+        searchWord(data.searchKey);
+        this.search();
+        data.searchHistoryShow = false;
+      },
+
+      // 删除历史搜索词
+      deleteSearchHistory(item: string) {
+        searchInput.value.focus();
+        deleteWord(item);
+      },
+
       // 搜索
       search() {
         data.searchPopupShow = false;
-        const { searchKey, tags } = data;
-        const query: { keywords?: string; tags?: string } = {};
+        const { searchKey } = data;
+        const query: { keywords?: string } = {};
         if (searchKey) query.keywords = searchKey;
-        if (tags) query.tags = data.tags;
-        switchPage("/", query);
+        switchPage("/home", query);
       },
 
       // 筛选标签
-      selectTag(tag: string) {
-        data.tags = tag;
+      selectTag(item: string) {
+        data.searchPopupShow = false;
+        data.searchKey = item;
         this.search();
+      },
+
+      // 搜索框键盘事件
+      inputKeyUp(e: { keyCode: any }) {
+        switch (e.keyCode) {
+          case 13:
+            // 回车
+            if (data.searchWordCatch !== null) {
+              data.searchKey = mySearchHistory.value[data.searchWordCatch];
+            }
+            data.searchWordCatch = null;
+            data.searchHistoryShow = false;
+            searchWord(data.searchKey);
+            this.search();
+            break;
+          case 27:
+            // esc
+            data.searchKey = "";
+            data.searchWordCatch = null;
+            data.searchHistoryShow = true;
+            break;
+          case 38:
+            // 上
+            if (data.searchWordCatch === null || data.searchWordCatch === 0) {
+              data.searchWordCatch = null;
+            } else {
+              data.searchWordCatch = data.searchWordCatch - 1;
+            }
+            break;
+          case 40:
+            // 下
+            data.searchHistoryShow = true;
+            if (data.searchWordCatch === null) {
+              data.searchWordCatch = 0;
+            } else if (data.searchWordCatch !== 9) {
+              data.searchWordCatch = data.searchWordCatch + 1;
+            }
+            break;
+          default:
+            break;
+        }
       },
 
       // 注册
@@ -275,6 +485,13 @@ export default {
       routerBack,
       ...store.state,
       blogTags,
+      route,
+      searchInput,
+      searchHistory,
+      mySearchHistory,
+      searchWord,
+      deleteWord,
+      clearHistory,
       ...toRefs(data),
       ...methods,
     };
@@ -283,7 +500,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// mobile
+// 移动端头部
 .mobile-header-wrapper {
   width: 100%;
   padding: 16px 20px;
@@ -291,27 +508,17 @@ export default {
   background: var(--gradientColor);
 
   &.in-home {
-    padding: 22px 20px 30px;
+    padding: 20px 20px 40px;
   }
 
   .header-top {
-    height: 28px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: space-between;
 
     .logo {
       height: 24px;
-
-      .freelog {
-        height: 24px;
-        font-size: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: normal;
-        margin-right: 5px;
-      }
     }
 
     .header-top-left {
@@ -347,12 +554,10 @@ export default {
         justify-content: center;
       }
 
-      .avatar {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        margin-left: 20px;
-        border: 1px solid #d1d1d1;
+      .menu {
+        width: 42px;
+        height: 32px;
+        margin-left: 30px;
       }
     }
   }
@@ -361,13 +566,14 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 40px;
+    margin-top: 38px;
 
     .blogger-avatar {
       width: 80px;
       height: 80px;
       border-radius: 50%;
       border: 1px solid #d1d1d1;
+      box-sizing: border-box;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -379,8 +585,8 @@ export default {
     }
 
     .sign-count {
-      padding: 5px 12px;
-      background: rgba(255, 255, 255, 0.08);
+      padding: 5px 8px;
+      background: rgba(0, 0, 0, 0.1);
       border-radius: 4px;
       font-size: 12px;
       color: rgba(255, 255, 255, 0.6);
@@ -392,10 +598,10 @@ export default {
     margin-top: 20px;
 
     .blog-title {
-      font-size: 20px;
+      font-size: 24px;
       font-weight: 600;
       color: #ffffff;
-      line-height: 26px;
+      line-height: 30px;
     }
 
     .blog-desc {
@@ -403,33 +609,6 @@ export default {
       color: rgba(255, 255, 255, 0.6);
       line-height: 20px;
       margin-top: 10px;
-    }
-
-    .tags {
-      width: calc(100% + 8px);
-      display: flex;
-      flex-wrap: wrap;
-      margin-left: -4px;
-      margin-top: 15px;
-
-      .tag {
-        height: 24px;
-        padding: 0 8px;
-        font-size: 12px;
-        color: rgba(255, 255, 255, 0.6);
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 24px;
-        display: flex;
-        align-items: center;
-        margin: 0 4px 10px;
-        transition: all 0.2s linear;
-
-        &:active,
-        &.active {
-          background: rgba(255, 255, 255, 0.3);
-          color: rgba(255, 255, 255, 0.8);
-        }
-      }
     }
   }
 
@@ -450,52 +629,126 @@ export default {
     width: 340px;
     background: #ffffff;
     border-radius: 0px 10px 10px 0px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    z-index: 100;
+    z-index: 101;
 
-    .avatar {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      border: 1px solid #d1d1d1;
-      margin-top: 40px;
-    }
+    .user-box-top {
+      position: relative;
+      width: 100%;
+      height: 194px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--gradientColor);
 
-    .username {
-      font-size: 16px;
-      line-height: 22px;
-      color: #222222;
-      font-weight: bold;
-      margin-top: 20px;
-      margin-bottom: 40px;
+      .avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        border: 1px solid #d1d1d1;
+      }
+
+      .username {
+        font-size: 16px;
+        line-height: 22px;
+        color: #fff;
+        font-weight: bold;
+        margin-top: 20px;
+      }
+
+      .close-btn {
+        position: absolute;
+        right: 31px;
+        top: 31px;
+        width: 12px;
+        height: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .freelog {
+          font-size: 12px;
+          color: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
     }
 
     .btns {
       width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 25px 20px 0;
+      box-sizing: border-box;
 
-      .btn {
-        width: 100%;
-        padding: 0 20px;
-        box-sizing: border-box;
+      .menu-btns {
+        flex: 1;
 
-        &:active {
-          background-color: rgba(0, 0, 0, 0.02);
+        .btn {
+          width: 100%;
+          border-radius: 4px;
+          padding: 15px 0;
+          color: #222;
+          background-color: #fff;
+          display: flex;
+          align-items: center;
+
+          &.active,
+          &:active {
+            color: var(--deriveColor);
+            background: rgba(93, 145, 145, 0.05);
+          }
+
+          .freelog {
+            font-size: 16px;
+            margin: 0 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .btn-label {
+            font-size: 16px;
+          }
         }
+      }
 
-        .btn-content {
-          height: 60px;
+      .footer-btn {
+        width: 100%;
+        height: 102px;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        color: #222;
+        display: flex;
+        align-items: center;
+
+        .freelog {
           font-size: 16px;
-          color: #222222;
+          margin: 0 11px;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-top: 1px solid rgba(0, 0, 0, 0.1);
         }
 
-        &:last-child .btn-content {
-          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        .btn-label {
+          font-size: 16px;
+        }
+
+        .main-btn {
+          width: 100%;
+          height: 48px;
+          border-radius: 48px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 16px;
+          font-weight: 600;
+          color: #ffffff;
         }
       }
     }
@@ -508,6 +761,7 @@ export default {
     right: 0;
     bottom: 0;
     background-color: #fff;
+    z-index: 1;
 
     .search-page-header {
       width: 100%;
@@ -517,6 +771,7 @@ export default {
       padding-left: 20px;
       box-sizing: border-box;
       background: var(--gradientColor);
+      margin-bottom: 20px;
 
       .search-page-box {
         position: relative;
@@ -579,23 +834,32 @@ export default {
       }
     }
 
-    .recommend-tags {
+    .search-history-box {
       width: 100%;
-      padding: 20px 0;
-      box-sizing: border-box;
       display: flex;
       flex-direction: column;
       align-items: center;
 
-      .recommend-tags-title {
+      & + .search-history-box {
+        margin-top: 25px;
+      }
+
+      .search-history-box-title {
         width: 100%;
         font-size: 14px;
         color: #999999;
         line-height: 20px;
-        padding-left: 20px;
+        padding: 0 20px;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: space-between;
+
+        .clear-btn {
+          color: #5d9191;
+        }
       }
 
-      .recommend-tags-list {
+      .search-history-box-list {
         width: 340px;
         margin-top: 20px;
         display: flex;
@@ -615,8 +879,87 @@ export default {
           &:active {
             background-color: #dcdee2;
           }
+
+          .freelog {
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 10px;
+          }
         }
       }
+    }
+  }
+}
+
+// 移动端首页搜索头部
+.mobile-search-header-wrapper {
+  width: 100%;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+  box-sizing: border-box;
+  background: var(--gradientColor);
+
+  .search-page-box {
+    position: relative;
+    flex: 1;
+    height: 42px;
+    border-radius: 42px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+
+    .search-input {
+      height: 100%;
+      flex: 1;
+      font-size: 16px;
+      color: #222;
+      background-color: rgba(255, 255, 255, 0.1) !important;
+      padding: 0 44px !important;
+      transition: all 0.2s linear;
+
+      &:active {
+        background-color: rgba(255, 255, 255, 0.18) !important;
+      }
+
+      &:focus,
+      &.in-focus {
+        background-color: #fff !important;
+
+        & ~ .fl-icon-content {
+          color: #8e8e93;
+        }
+      }
+    }
+
+    .fl-icon-content {
+      position: absolute;
+      left: 15px;
+      width: 14px;
+      height: 14px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.6);
+      transition: all 0.2s linear;
+    }
+  }
+
+  .cancel-btn {
+    font-size: 16px;
+    line-height: 22px;
+    height: 100%;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    color: #fff;
+
+    &:active {
+      opacity: 0.6;
     }
   }
 }
@@ -661,14 +1004,13 @@ export default {
         position: relative;
         width: 240px;
         height: 32px;
-        border-radius: 32px;
         display: flex;
         align-items: center;
-        overflow: hidden;
         margin-left: 40px;
 
         .search-input {
-          height: 100%;
+          height: 32px;
+          border-radius: 32px;
           flex: 1;
           font-size: 14px;
           color: #222;
@@ -680,7 +1022,8 @@ export default {
             background-color: rgba(255, 255, 255, 0.18) !important;
           }
 
-          &:focus {
+          &:focus,
+          &.in-focus {
             background-color: #fff !important;
 
             & ~ .fl-icon-content {
@@ -692,111 +1035,213 @@ export default {
         .fl-icon-content {
           position: absolute;
           left: 10px;
-          width: 14px;
-          height: 14px;
           font-size: 14px;
           display: flex;
           align-items: center;
           justify-content: center;
           color: rgba(255, 255, 255, 0.6);
-          transition: all 0.2s linear;
         }
-      }
-    }
 
-    .user-avatar {
-      position: relative;
-      display: flex;
-      align-items: center;
-      cursor: pointer;
+        .fl-icon-guanbi {
+          position: absolute;
+          right: 10px;
+          font-size: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-top: 2px;
+        }
 
-      .username {
-        font-size: 14px;
-        line-height: 20px;
-        color: #fff;
-      }
-
-      .avatar {
-        width: 32px;
-        height: 32px;
-        margin-left: 10px;
-        border-radius: 50%;
-        border: 1px solid #d1d1d1;
-      }
-
-      .user-box {
-        position: absolute;
-        right: 0;
-        top: 100%;
-        padding-top: 10px;
-        cursor: default;
-
-        .user-box-body {
-          width: 240px;
+        .search-history {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 100%;
+          margin-top: 5px;
+          min-height: 170px;
+          background-color: #fff;
           background: #ffffff;
           box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
           border-radius: 4px;
+          padding: 4px;
+          padding-bottom: 50px;
+          box-sizing: border-box;
           display: flex;
           flex-direction: column;
           align-items: center;
+          z-index: 2;
 
-          .avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: 1px solid #d1d1d1;
-            margin-top: 20px;
-          }
-
-          .username {
-            font-size: 16px;
-            line-height: 22px;
-            color: #222222;
-            font-weight: bold;
-            margin-top: 15px;
-          }
-
-          .mobile {
-            font-size: 14px;
-            color: #222222;
-            font-weight: bold;
-            line-height: 20px;
-            margin-top: 8px;
-            margin-bottom: 16px;
-          }
-
-          .user-box-btn {
+          .history-item {
             width: 100%;
-            height: 50px;
-            line-height: 50px;
-            font-size: 14px;
-            padding-left: 20px;
+            height: 34px;
+            border-radius: 4px;
+            padding: 0 11px;
             box-sizing: border-box;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-            border-radius: 0 0 4px 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s linear;
+
+            &.catch,
+            &:hover {
+              background: rgba(0, 0, 0, 0.03);
+
+              .freelog {
+                opacity: 1;
+              }
+            }
+
+            .item-word {
+              font-size: 12px;
+              color: #222222;
+            }
+
+            .freelog {
+              width: 10px;
+              height: 10px;
+              font-size: 10px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: #999;
+              cursor: pointer;
+              transition: all 0.2s linear;
+              opacity: 0;
+
+              &:hover {
+                color: #a9a9ad;
+              }
+            }
+          }
+
+          .text-btn {
+            position: absolute;
+            bottom: 12px;
+            font-size: 12px;
+            line-height: 18px;
           }
         }
       }
     }
 
-    .user-btns {
+    .header-top-right {
       display: flex;
+      align-items: center;
 
-      .btn {
-        height: 32px;
-        padding: 0 15px;
-        box-sizing: border-box;
-        border-radius: 4px;
-        font-size: 14px;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+      .nav-btn {
+        padding: 0 25px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #ffffff;
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
+        opacity: 0.8;
         cursor: pointer;
+        transition: all 0.2s linear;
+
+        &:hover {
+          opacity: 1;
+        }
       }
 
-      .header-register-btn {
-        margin-left: 10px;
+      .user-avatar {
+        position: relative;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        margin-left: 25px;
+
+        .username {
+          font-size: 14px;
+          line-height: 20px;
+          color: #fff;
+        }
+
+        .avatar {
+          width: 32px;
+          height: 32px;
+          margin-left: 10px;
+          border-radius: 50%;
+          border: 1px solid #d1d1d1;
+          box-sizing: border-box;
+        }
+
+        .user-box {
+          position: absolute;
+          right: 0;
+          top: 100%;
+          padding-top: 10px;
+          cursor: default;
+          z-index: 1;
+
+          .user-box-body {
+            width: 240px;
+            background: #ffffff;
+            box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            .avatar {
+              width: 60px;
+              height: 60px;
+              border-radius: 50%;
+              border: 1px solid #d1d1d1;
+              margin-top: 20px;
+            }
+
+            .username {
+              font-size: 16px;
+              line-height: 22px;
+              color: #222222;
+              font-weight: bold;
+              margin-top: 15px;
+            }
+
+            .mobile {
+              font-size: 14px;
+              color: #222222;
+              font-weight: bold;
+              line-height: 20px;
+              margin-top: 8px;
+              margin-bottom: 16px;
+            }
+
+            .user-box-btn {
+              width: 100%;
+              height: 50px;
+              line-height: 50px;
+              font-size: 14px;
+              padding-left: 20px;
+              box-sizing: border-box;
+              border-top: 1px solid rgba(0, 0, 0, 0.05);
+            }
+          }
+        }
+      }
+
+      .user-btns {
+        display: flex;
+        margin-left: 25px;
+
+        .btn {
+          height: 32px;
+          padding: 0 15px;
+          box-sizing: border-box;
+          border-radius: 4px;
+          font-size: 14px;
+          font-weight: bold;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+        }
+
+        .header-register-btn {
+          margin-left: 10px;
+        }
       }
     }
   }
@@ -805,13 +1250,15 @@ export default {
     width: 920px;
     display: flex;
     align-items: center;
-    margin-top: 35px;
+    margin-top: 50px;
+    margin-bottom: 70px;
 
     .blogger-avatar {
       width: 100px;
       height: 100px;
       border-radius: 50%;
       border: 1px solid #d1d1d1;
+      box-sizing: border-box;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -827,77 +1274,45 @@ export default {
       width: 0;
       margin-left: 30px;
 
-      .blog-title {
-        font-size: 24px;
-        font-weight: 600;
-        color: #ffffff;
-        line-height: 30px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
+      .title-signcount {
+        width: 100%;
+        display: flex;
+        align-items: center;
+
+        .blog-title {
+          max-width: 100%;
+          font-size: 28px;
+          font-weight: 600;
+          color: #ffffff;
+          line-height: 34px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+
+        .sign-count {
+          flex-shrink: 0;
+          height: 28px;
+          line-height: 28px;
+          padding: 0 8px;
+          background: rgba(0, 0, 0, 0.1);
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 600;
+          color: rgba(255, 255, 255, 0.8);
+          margin-left: 15px;
+        }
       }
 
       .blog-desc {
         font-size: 14px;
         color: rgba(255, 255, 255, 0.6);
         line-height: 20px;
-        margin-top: 10px;
+        margin-top: 16px;
         display: -webkit-box;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
         overflow: hidden;
-      }
-    }
-  }
-
-  .other-info {
-    width: 920px;
-    padding-left: 130px;
-    box-sizing: border-box;
-    margin-top: 14px;
-    margin-bottom: 30px;
-
-    .sign-count {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.6);
-      line-height: 20px;
-    }
-
-    .blog-tags {
-      display: flex;
-      margin-top: 15px;
-
-      .tags-label {
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.6);
-        line-height: 38px;
-        margin-right: 5px;
-      }
-
-      .tags {
-        flex: 1;
-        display: flex;
-        flex-wrap: wrap;
-
-        .tag {
-          height: 38px;
-          padding: 0 15px;
-          font-size: 14px;
-          color: rgba(255, 255, 255, 0.6);
-          background: rgba(255, 255, 255, 0.08);
-          border-radius: 38px;
-          display: flex;
-          align-items: center;
-          margin: 0 5px 10px;
-          cursor: pointer;
-          transition: all 0.2s linear;
-
-          &:hover,
-          &.active {
-            background: rgba(255, 255, 255, 0.3);
-            color: rgba(255, 255, 255, 0.8);
-          }
-        }
       }
     }
   }

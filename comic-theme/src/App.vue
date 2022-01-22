@@ -4,19 +4,8 @@
       <component :is="Component" />
     </keep-alive>
   </router-view>
-  <login-btn />
   <div id="modal"></div>
 </template>
-
-<script lang="ts">
-import { defineAsyncComponent } from "vue";
-
-export default {
-  components: {
-    "login-btn": defineAsyncComponent(() => import("./components/login-btn.vue")),
-  },
-};
-</script>
 
 <style lang="scss">
 #app {

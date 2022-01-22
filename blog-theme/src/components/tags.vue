@@ -35,7 +35,7 @@ export default {
       // 搜索标签
       searchTag(tag: string) {
         const query: { tags: string } = { tags: tag };
-        switchPage("/", query);
+        switchPage("/home", query);
       },
     };
 

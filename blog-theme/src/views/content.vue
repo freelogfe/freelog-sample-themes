@@ -1,6 +1,6 @@
 <template>
   <div class="content-wrapper" :class="{ 'in-mobile': inMobile }">
-    <my-header />
+    <my-header readerHeader />
 
     <!-- mobile -->
     <div class="mobile-content-body" v-if="inMobile">
@@ -27,26 +27,40 @@
       <div class="recommend">
         <div class="recommend-title">热门推荐</div>
         <div class="article-list">
-          <my-article :data="item" v-for="item in recommendList" :key="item.presentableId" />
+          <my-article
+            :data="item"
+            v-for="item in recommendList"
+            :key="item.presentableId"
+          />
         </div>
       </div>
     </div>
 
     <!-- PC -->
     <div class="content-body" v-if="!inMobile">
-      <div class="bread-crumbs">
-        <div class="text-btn" @click="switchPage('/')">首页</div>
-        <div class="arrow">></div>
-        <div class="current-page">内容</div>
-      </div>
-
       <div class="article-card">
-        <div class="article-title">{{ articleData?.exhibitTitle }}</div>
+        <div class="title-share">
+          <div class="article-title">{{ articleData?.exhibitTitle }}</div>
+          <div
+            class="share-btn"
+            @mouseover="shareShow = true"
+            @mouseleave="shareShow = false"
+          >
+            <span class="share-btn-text" :class="{ active: shareShow }">
+              <i class="freelog fl-icon-fenxiang"></i>
+              分享
+            </span>
+
+            <share :show="shareShow" :exhibit="articleData" />
+          </div>
+        </div>
         <div class="other-info">
           <div class="info">{{ formatDate(articleData?.createDate) }}</div>
           <div class="divider"></div>
           <div class="info">{{ articleData?.signCount || 0 }}人已签约</div>
-          <tags :tags="articleData?.tags" />
+          <div class="tags">
+            <tags :tags="articleData?.tags" />
+          </div>
         </div>
         <div class="divider"></div>
         <div class="article-content">
@@ -65,7 +79,11 @@
           <div class="text-btn" @click="switchPage('/')">更多>></div>
         </div>
         <div class="article-list">
-          <my-article :data="item" v-for="item in recommendList" :key="item.presentableId" />
+          <my-article
+            :data="item"
+            v-for="item in recommendList"
+            :key="item.presentableId"
+          />
         </div>
       </div>
     </div>
@@ -94,9 +112,14 @@ export default {
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
+    share: defineAsyncComponent(() => import("../components/share.vue")),
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
-    "my-article": defineAsyncComponent(() => import("../components/article.vue")),
-    "my-markdown": defineAsyncComponent(() => import("../components/markdown.vue")),
+    "my-article": defineAsyncComponent(
+      () => import("../components/article.vue")
+    ),
+    "my-markdown": defineAsyncComponent(
+      () => import("../components/markdown.vue")
+    ),
   },
 
   setup() {
@@ -109,6 +132,7 @@ export default {
       articleData: null as ExhibitItem | null,
       contentInfo: null as { content: string; exhibitInfo: ExhibitItem } | null,
       recommendList: [] as ExhibitItem[],
+      shareShow: false,
     });
 
     const methods = {
@@ -134,26 +158,47 @@ export default {
 
     const getData = async () => {
       const { id } = query.value;
-      const exhibitInfo = await getExhibitInfo(id, { isLoadVersionProperty: 1 });
+      const exhibitInfo = await getExhibitInfo(id, {
+        isLoadVersionProperty: 1,
+      });
       const signCountData = await getExhibitSignCount(id);
       await datasOfGetList.getList({ limit: 4 }, true);
-      data.articleData = { ...exhibitInfo.data.data, signCount: signCountData.data.data[0].count };
-      const recommendList = datasOfGetList.listData.value.filter((item: ExhibitItem) => item.exhibitId !== id);
-      data.recommendList = recommendList.filter((_: any, index: number) => index < 4);
+      data.articleData = {
+        ...exhibitInfo.data.data,
+        signCount: signCountData.data.data[0].count,
+      };
+      const recommendList = datasOfGetList.listData.value.filter(
+        (item: ExhibitItem) => item.exhibitId !== id
+      );
+      data.recommendList = recommendList.filter(
+        (_: any, index: number) => index < 4
+      );
 
       const statusInfo = await getExhibitAuthStatus(id);
-      data.isAuth = statusInfo.data.data ? statusInfo.data.data[0].isAuth : false;
+      data.isAuth = statusInfo.data.data
+        ? statusInfo.data.data[0].isAuth
+        : false;
       if (data.isAuth) {
         const info: any = await getExhibitFileStream(id);
         if (!info) return;
-        data.contentInfo = { content: info.data, exhibitInfo: exhibitInfo.data.data };
+        data.contentInfo = {
+          content: info.data,
+          exhibitInfo: exhibitInfo.data.data,
+        };
       } else {
         methods.getAuth();
       }
     };
     getData();
 
-    return { ...store.state, switchPage, formatDate, ...datasOfGetList, ...toRefs(data), ...methods };
+    return {
+      ...store.state,
+      switchPage,
+      formatDate,
+      ...datasOfGetList,
+      ...toRefs(data),
+      ...methods,
+    };
   },
 };
 </script>
@@ -213,6 +258,8 @@ export default {
 
       .tags {
         margin-top: 12px;
+        height: 24px;
+        overflow: hidden;
       }
 
       .article-content {
@@ -292,24 +339,7 @@ export default {
   // PC
   .content-body {
     width: 920px;
-
-    .bread-crumbs {
-      display: flex;
-      align-items: center;
-      margin: 24px 0;
-      font-size: 16px;
-      color: #999999;
-      line-height: 22px;
-
-      .arrow {
-        margin: 0 10px;
-      }
-
-      .current-page {
-        font-weight: 600;
-        color: #222222;
-      }
-    }
+    padding-top: 30px;
 
     .article-card {
       width: 100%;
@@ -319,20 +349,55 @@ export default {
       padding: 25px 30px;
       box-sizing: border-box;
 
-      .article-title {
-        font-size: 20px;
-        font-weight: 600;
-        color: #222222;
-        line-height: 28px;
+      .title-share {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .article-title {
+          font-size: 24px;
+          font-weight: 600;
+          color: #222222;
+          line-height: 30px;
+        }
+
+        .share-btn {
+          position: relative;
+          display: flex;
+          align-items: center;
+          margin-left: 30px;
+          cursor: pointer;
+
+          .share-btn-text {
+            font-size: 14px;
+            line-height: 20px;
+            color: #222;
+            transition: all 0.2s linear;
+
+            &:hover,
+            &.active {
+              opacity: 0.8;
+            }
+
+            &:active {
+              opacity: 0.6;
+            }
+
+            .fl-icon-fenxiang {
+              margin-right: 6px;
+            }
+          }
+        }
       }
 
       .other-info {
         height: 24px;
-        margin-top: 10px;
+        margin-top: 12px;
         display: flex;
         align-items: center;
 
         .info {
+          flex-shrink: 0;
           font-size: 12px;
           color: #999999;
         }
@@ -344,8 +409,10 @@ export default {
           margin: 0 10px;
         }
 
-        .tags-wrapper {
+        .tags {
           margin-left: 20px;
+          height: 24px;
+          overflow: hidden;
         }
       }
 

@@ -221,6 +221,32 @@ input:focus {
   }
 }
 
+.toast-wrapper {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  color: #fff;
+  font-weight: bold;
+  transform: translate(-50%, -50%);
+  padding: 19px 50px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 6px;
+  font-size: 16px;
+  line-height: 22px;
+  animation: fade-in 0.3s ease-out;
+  white-space: nowrap;
+  z-index: 101;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* fade */
 .fade-enter-active,
 .fade-leave-active {

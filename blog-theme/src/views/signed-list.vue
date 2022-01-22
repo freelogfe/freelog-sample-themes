@@ -1,26 +1,31 @@
 <template>
-  <div class="signed-list-wrapper" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
+  <div
+    class="signed-list-wrapper"
+    :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }"
+  >
     <my-header />
 
     <div class="content">
       <div class="content-header">
-        <div class="signed-list-title">已签约书籍</div>
+        <div class="signed-list-title">已签约博客</div>
 
         <div class="search-box">
           <input
             class="search-input input-none"
             v-model="searchKey"
-            placeholder="支持搜索漫画名称"
+            placeholder="支持搜索博客名称"
             @keyup="search($event)"
           />
           <i class="freelog fl-icon-content"></i>
         </div>
       </div>
 
-      <div class="comic-box" v-for="item in listData" :key="item.exhibitId">
-        <comic :mode="3" :data="item" />
+      <div class="article-box" v-for="item in listData" :key="item.exhibitId">
+        <my-article :inSignedList="true" :data="item" />
       </div>
-      <div class="tip" v-if="listData.length === 0">暂无数据，快去签约书籍吧～</div>
+      <div class="tip" v-if="listData.length === 0">
+        暂无数据，快去签约博客吧～
+      </div>
     </div>
 
     <my-footer />
@@ -40,8 +45,12 @@ export default {
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
-    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
-    comic: defineAsyncComponent(() => import("../components/comic.vue")),
+    "theme-entrance": defineAsyncComponent(
+      () => import("../components/theme-entrance.vue")
+    ),
+    "my-article": defineAsyncComponent(
+      () => import("../components/article.vue")
+    ),
   },
 
   setup() {
@@ -113,10 +122,12 @@ export default {
         }
       }
 
-      .comic-box {
+      .article-box {
         width: 100%;
+        padding: 0 20px;
+        box-sizing: border-box;
 
-        &:last-child ::v-deep .comic-content {
+        &:last-child ::v-deep .article-content {
           border-bottom: none;
         }
       }
@@ -142,6 +153,7 @@ export default {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
         .signed-list-title {
           font-size: 30px;
@@ -181,10 +193,10 @@ export default {
         }
       }
 
-      .comic-box {
+      .article-box {
         width: 920px;
 
-        & + .comic-box {
+        & + .article-box {
           margin-top: 20px;
         }
       }

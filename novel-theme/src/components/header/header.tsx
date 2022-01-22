@@ -119,9 +119,11 @@ export const Header = (props: { homeHeader?: boolean; readerHeader?: boolean; mo
 
         <CSSTransition in={userBoxShow} classNames="slide-right" timeout={200} unmountOnExit>
           <div className="user-box-body">
-            <div className="user-box-top" onClick={() => !userData && callLogin()}>
-              <img className="avatar" src={userData?.headImage || DefaultAvatar} alt={userData?.username || "未登录"} />
-              <div className="username">{userData?.username || "未登录"}</div>
+            <div className="user-box-top">
+              <img className="avatar" src={userData?.headImage || DefaultAvatar} alt={userData?.username || "未登录"} onClick={() => !userData && callLogin()} />
+              <div className="username" onClick={() => !userData && callLogin()}>
+                {userData?.username || "未登录"}
+              </div>
               <div className="close-btn" onClick={() => setUserBoxShow(false)}>
                 <i className="freelog fl-icon-guanbi"></i>
               </div>

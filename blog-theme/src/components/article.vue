@@ -1,42 +1,92 @@
 <template>
   <div class="article-wrapper">
     <!-- mobile -->
-    <div class="mobile-article-wrapper" @click="switchPage('/content', { id: data.exhibitId })" v-if="inMobile">
+    <div
+      class="mobile-article-wrapper"
+      @click="switchPage('/content', { id: data.exhibitId })"
+      v-if="inMobile"
+    >
       <div class="article-cover-box" v-if="selfConfig.articleCover === '显示'">
-        <img class="article-cover" :src="data.coverImages[0]" :alt="data.exhibitTitle" />
+        <img
+          class="article-cover"
+          :src="data.coverImages[0]"
+          :alt="data.exhibitTitle"
+        />
+        <div class="offline" v-if="data.onlineStatus === 0 && inSignedList">
+          已下架
+        </div>
       </div>
 
       <div class="article-info">
-        <div class="article-title">
-          <img class="lock" src="../assets/images/mini-lock.png" v-if="!data.isAuth" />
+        <div class="article-title" :class="{ 'one-line': inSignedList }">
+          <img
+            class="lock"
+            src="../assets/images/mini-lock.png"
+            v-if="!inSignedList && !data.isAuth"
+          />
           {{ data.exhibitTitle }}
         </div>
-        <div class="other-info">
+        <div class="other-info" v-if="!inSignedList">
           <div class="info">{{ formatDate(data.createDate) }}</div>
           <div class="info">{{ data.signCount || 0 }}人已签约</div>
         </div>
+        <template v-if="inSignedList">
+          <div class="time-signcount">
+            <div class="info">{{ formatDate(data.createDate) }}</div>
+            <div class="divider"></div>
+            <div class="info">{{ data.signCount || 0 }}人已签约</div>
+          </div>
+          <div class="tag is-auth" v-if="data.isAuth">已授权</div>
+          <div class="tag not-auth" v-if="!data.isAuth">未授权</div>
+        </template>
       </div>
     </div>
 
     <!-- PC -->
     <div class="pc-article-wrapper" v-if="!inMobile">
-      <div class="article-cover-box" v-if="selfConfig.articleCover === '显示'">
-        <img class="article-cover" :src="data.coverImages[0]" :alt="data.exhibitTitle" />
+      <div
+        class="article-cover-box"
+        @click="switchPage('/content', { id: data.exhibitId })"
+        v-if="selfConfig.articleCover === '显示'"
+      >
+        <img
+          class="article-cover"
+          :src="data.coverImages[0]"
+          :alt="data.exhibitTitle"
+        />
+        <div class="offline" v-if="data.onlineStatus === 0 && inSignedList">
+          已下架
+        </div>
       </div>
 
       <div class="article-info">
         <div class="article-title">
-          <img class="lock" src="../assets/images/mini-lock.png" v-if="!data.isAuth" />
-          <span :title="data.exhibitTitle" @click="switchPage('/content', { id: data.exhibitId })">
+          <img
+            class="lock"
+            src="../assets/images/mini-lock.png"
+            v-if="!inSignedList && !data.isAuth"
+          />
+          <div
+            :title="data.exhibitTitle"
+            @click="switchPage('/content', { id: data.exhibitId })"
+          >
             {{ data.exhibitTitle }}
-          </span>
+          </div>
+          <div class="tag is-auth" v-if="inSignedList && data.isAuth">
+            已授权
+          </div>
+          <div class="tag not-auth" v-if="inSignedList && !data.isAuth">
+            未授权
+          </div>
         </div>
         <div class="article-intro">{{ data.exhibitTitle }}</div>
         <div class="other-info">
           <div class="info">{{ formatDate(data.createDate) }}</div>
           <div class="divider"></div>
           <div class="info">{{ data.signCount || 0 }}人已签约</div>
-          <tags :tags="data.tags" />
+          <div class="tags">
+            <tags :tags="data.tags" />
+          </div>
         </div>
       </div>
     </div>
@@ -56,7 +106,7 @@ export default {
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
   },
 
-  props: ["data"],
+  props: ["data", "inSignedList"],
 
   setup() {
     const store = useStore();
@@ -84,6 +134,7 @@ export default {
     display: flex;
 
     .article-cover-box {
+      position: relative;
       width: 104px;
       height: 78px;
       border-radius: 6px;
@@ -96,6 +147,22 @@ export default {
 
       .article-cover {
         width: 100%;
+      }
+
+      .offline {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 40px;
+        height: 20px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 0px 0px 4px 0px;
+        font-size: 10px;
+        font-weight: 600;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     }
 
@@ -116,6 +183,10 @@ export default {
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
         overflow: hidden;
+
+        &.one-line {
+          -webkit-line-clamp: 1;
+        }
 
         .lock {
           float: left;
@@ -138,6 +209,45 @@ export default {
           line-height: 18px;
         }
       }
+
+      .time-signcount {
+        display: flex;
+        align-items: center;
+
+        .info {
+          font-size: 12px;
+          color: #999999;
+          line-height: 18px;
+        }
+
+        .divider {
+          width: 1px;
+          height: 10px;
+          background: rgba(0, 0, 0, 0.2);
+          margin: 0 10px;
+        }
+      }
+
+      .tag {
+        flex-shrink: 0;
+        width: 56px;
+        height: 22px;
+        border-radius: 22px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .is-auth {
+        background: #42c28c;
+      }
+
+      .not-auth {
+        background: #e9a923;
+      }
     }
   }
 
@@ -153,6 +263,7 @@ export default {
     }
 
     .article-cover-box {
+      position: relative;
       width: 136px;
       height: 102px;
       border-radius: 6px;
@@ -162,9 +273,35 @@ export default {
       align-items: center;
       justify-content: center;
       margin-right: 15px;
+      cursor: pointer;
+      transition: all 0.2s linear;
 
       .article-cover {
         width: 100%;
+      }
+
+      &:hover {
+        opacity: 0.8;
+      }
+
+      &:active {
+        opacity: 0.6;
+      }
+
+      .offline {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 40px;
+        height: 20px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 0px 0px 4px 0px;
+        font-size: 10px;
+        font-weight: 600;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     }
 
@@ -178,11 +315,11 @@ export default {
         font-weight: 600;
         color: #222222;
         line-height: 28px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
+        display: flex;
+        align-items: center;
 
         .lock {
+          flex-shrink: 0;
           float: left;
           width: 16px;
           height: 16px;
@@ -190,16 +327,43 @@ export default {
           margin-top: 6px;
         }
 
-        span {
+        .title {
+          max-width: 100%;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
           cursor: pointer;
+          transition: all 0.2s linear;
 
           &:hover {
-            color: #2784ff;
+            opacity: 0.8;
           }
 
           &:active {
-            color: #2376e5;
+            opacity: 0.6;
           }
+        }
+
+        .tag {
+          flex-shrink: 0;
+          width: 56px;
+          height: 22px;
+          border-radius: 22px;
+          margin-left: 10px;
+          font-size: 12px;
+          font-weight: 600;
+          color: #ffffff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .is-auth {
+          background: #42c28c;
+        }
+
+        .not-auth {
+          background: #e9a923;
         }
       }
 
@@ -220,6 +384,7 @@ export default {
         align-items: center;
 
         .info {
+          flex-shrink: 0;
           font-size: 12px;
           color: #999999;
         }
@@ -231,8 +396,10 @@ export default {
           margin: 0 10px;
         }
 
-        .tags-wrapper {
+        .tags {
           margin-left: 20px;
+          height: 24px;
+          overflow: hidden;
         }
       }
     }

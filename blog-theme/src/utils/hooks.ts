@@ -1,31 +1,29 @@
 import { getExhibitAuthStatus, getExhibitListByPaging, GetExhibitListByPagingParams, getExhibitSignCount } from "@/api/freelog";
 import { onUnmounted, reactive, ref, toRefs, watchEffect } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useStore } from "vuex";
 import { ExhibitItem } from "../api/interface";
 
 /**
  * 路由hook
  */
 export const useMyRouter = () => {
+  const store = useStore();
   const router = useRouter();
   const route = useRoute();
   const query = ref();
 
   watchEffect(() => {
-    query.value = route.query;
-  });
-
-  router.beforeEach((to, from, next) => {
-    if (to.fullPath !== from.fullPath) {
-      next();
-    } else {
-      router.replace("/");
-    }
+    query.value = { ...route.query };
   });
 
   // 路由跳转方法
-  const switchPage = (path: string, query: any = {}, mode = "push") => {
-    (router as any)[mode]({ path, query });
+  const switchPage = (path: string, query: any = {}) => {
+    const { locationHistory } = store.state;
+    router.push({ path, query });
+    locationHistory.push({ path, query });
+
+    store.commit("setData", { key: "locationHistory", value: locationHistory });
   };
 
   // 路由跳转方法
@@ -38,7 +36,63 @@ export const useMyRouter = () => {
     return router.currentRoute.value.fullPath;
   };
 
-  return { query, switchPage, routerBack, getCurrentPath };
+  // 初始化路由记录
+  const initLocationHistory = () => {
+    const { locationHistory } = store.state;
+    if (locationHistory.length !== 0) return;
+
+    const { path } = router.currentRoute.value;
+    locationHistory.push({ path });
+    store.commit("setData", { key: "locationHistory", value: locationHistory });
+  };
+
+  initLocationHistory();
+
+  return { query, route, switchPage, routerBack, getCurrentPath };
+};
+
+/**
+ * 搜索历史hook
+ */
+export const useSearchHistory = () => {
+  const data = reactive({
+    searchHistory: [] as string[],
+  });
+
+  // 获取搜索历史
+  const getSearchHistory = async () => {
+    const json = localStorage.getItem("searchHistory") || "[]";
+    data.searchHistory = JSON.parse(json);
+  };
+
+  // 搜索
+  const searchWord = (keywords: string) => {
+    keywords = keywords.trim();
+    if (!keywords) return;
+    const index = data.searchHistory.findIndex((item) => item === keywords);
+    if (index !== -1) data.searchHistory.splice(index, 1);
+    if (data.searchHistory.length === 10) data.searchHistory.pop();
+    data.searchHistory.unshift(keywords);
+    localStorage.setItem("searchHistory", JSON.stringify(data.searchHistory));
+  };
+
+  // 删除搜索词
+  const deleteWord = (keywords: string) => {
+    const index = data.searchHistory.findIndex((item) => item === keywords);
+    if (index === -1) return;
+    data.searchHistory.splice(index, 1);
+    localStorage.setItem("searchHistory", JSON.stringify(data.searchHistory));
+  };
+
+  // 清空搜索词
+  const clearHistory = () => {
+    localStorage.setItem("searchHistory", "[]");
+    data.searchHistory = [];
+  };
+
+  getSearchHistory();
+
+  return { ...toRefs(data), searchWord, deleteWord, clearHistory };
 };
 
 /**

@@ -2,7 +2,7 @@
   <div class="home-wrapper">
     <my-header
       :homeHeader="true"
-      :mobileSearching="(inMobile && searching) || false"
+      :mobileSearching="!!(inMobile && searching)"
     />
 
     <!-- mobile -->
@@ -102,6 +102,8 @@
           </div>
         </div>
       </transition>
+
+      <login-btn />
     </div>
 
     <!-- PC -->
@@ -207,6 +209,9 @@ export default {
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
+    "login-btn": defineAsyncComponent(
+      () => import("../components/login-btn.vue")
+    ),
     "theme-entrance": defineAsyncComponent(
       () => import("../components/theme-entrance.vue")
     ),

@@ -13,9 +13,17 @@
         @click="switchPage('/home')"
         v-if="homeHeader"
       />
-      <div class="header-top-left" @click="routerBack()" v-else>
+      <div
+        class="header-top-left"
+        @click="
+          locationHistory.length <= 1 ? switchPage('/home') : routerBack()
+        "
+        v-else
+      >
         <img class="back-arrow" src="../assets/images/arrow.png" />
-        <div class="back-label">返回</div>
+        <div class="back-label">
+          {{ locationHistory.length === 1 ? "首页" : "返回" }}
+        </div>
       </div>
 
       <div class="header-top-right">
@@ -49,7 +57,7 @@
     </transition>
     <transition name="slide-right">
       <div class="user-box-body" v-if="userBoxShow">
-        <div class="user-box-top" @click="!userData && callLogin()">
+        <div class="user-box-top">
           <img
             class="avatar"
             :src="
@@ -57,9 +65,12 @@
               require('../assets/images/default-avatar.png')
             "
             :alt="userData?.username || '未登录'"
+            @click="!userData && callLogin()"
           />
-          <div class="username">{{ userData?.username || "未登录" }}</div>
-          <div class="close-btn">
+          <div class="username" @click="!userData && callLogin()">
+            {{ userData?.username || "未登录" }}
+          </div>
+          <div class="close-btn" @click="userBoxShow = false">
             <i class="freelog fl-icon-guanbi"></i>
           </div>
         </div>
@@ -185,7 +196,7 @@
         />
 
         <!-- 搜索框 -->
-        <div class="small-search-box">
+        <div class="search-box">
           <input
             ref="searchInput"
             class="search-input input-none"
@@ -363,7 +374,7 @@ export default {
       search() {
         data.searchPopupShow = false;
         const { searchKey } = data;
-        const query: { keywords?: string; } = {};
+        const query: { keywords?: string } = {};
         if (searchKey) query.keywords = searchKey;
         switchPage("/home", query);
       },
@@ -373,11 +384,6 @@ export default {
         data.searchPopupShow = false;
         data.searchKey = item;
         this.search();
-      },
-
-      // 注册
-      register() {
-        window.open("http://user.testfreelog.com/logon");
       },
 
       // 搜索框键盘事件
@@ -419,6 +425,11 @@ export default {
           default:
             break;
         }
+      },
+
+      // 注册
+      register() {
+        window.open("http://user.testfreelog.com/logon");
       },
     };
 
@@ -478,16 +489,6 @@ export default {
 
     .logo {
       height: 24px;
-
-      .freelog {
-        height: 24px;
-        font-size: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: normal;
-        margin-right: 5px;
-      }
     }
 
     .header-top-left {
@@ -903,7 +904,6 @@ export default {
   }
 }
 
-
 // PC
 .header-wrapper {
   width: 100%;
@@ -940,7 +940,7 @@ export default {
         }
       }
 
-      .small-search-box {
+      .search-box {
         position: relative;
         width: 240px;
         height: 32px;

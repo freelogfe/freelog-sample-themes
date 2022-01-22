@@ -16,12 +16,19 @@ interface Theme {
   deriveColor: string;
 }
 
+// 路由记录
+interface HistoryItem {
+  path: string;
+  query?: any;
+}
+
 export default createStore({
   state: {
     inMobile: false as boolean,
     userData: null as UserData | null,
     selfConfig: {} as any,
     theme: { gradientColor: "", deriveColor: "" } as Theme,
+    locationHistory: [] as HistoryItem[],
   },
 
   mutations: {
@@ -40,6 +47,7 @@ export default createStore({
       context.commit("setData", { key: "selfConfig", value: selfConfig });
       context.commit("setData", { key: "inMobile", value: inMobile });
       context.commit("setData", { key: "theme", value: theme });
+      context.commit("setData", { key: "locationHistory", value: [] });
 
       const app = document.getElementById("app");
       app?.setAttribute("style", `--gradientColor: ${theme.gradientColor}; --deriveColor: ${theme.deriveColor}`);
