@@ -1,13 +1,6 @@
 import { useState, useEffect, useCallback, useContext } from "react";
 import { useHistory } from "react-router";
-import {
-  getUserData,
-  getExhibitListById,
-  GetExhibitListByIdParams,
-  setUserData,
-  getExhibitAuthStatus,
-  callLogin,
-} from "../api/freelog";
+import { getUserData, getExhibitListById, GetExhibitListByIdParams, setUserData, getExhibitAuthStatus, callLogin } from "../api/freelog";
 import { showToast } from "../components/toast/toast";
 import { globalContext } from "../router";
 import { ExhibitItem } from "../api/interface";

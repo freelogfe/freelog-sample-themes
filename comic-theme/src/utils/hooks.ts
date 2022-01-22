@@ -156,6 +156,50 @@ export const useMyShelf = (id?: string) => {
 };
 
 /**
+ * 搜索历史hook
+ */
+export const useSearchHistory = () => {
+  const data = reactive({
+    searchHistory: [] as string[],
+  });
+
+  // 获取搜索历史
+  const getSearchHistory = async () => {
+    const json = localStorage.getItem("searchHistory") || "[]";
+    data.searchHistory = JSON.parse(json);
+  };
+
+  // 搜索
+  const searchWord = (keywords: string) => {
+    keywords = keywords.trim();
+    if (!keywords) return;
+    const index = data.searchHistory.findIndex((item) => item === keywords);
+    if (index !== -1) data.searchHistory.splice(index, 1);
+    if (data.searchHistory.length === 10) data.searchHistory.pop();
+    data.searchHistory.unshift(keywords);
+    localStorage.setItem("searchHistory", JSON.stringify(data.searchHistory));
+  };
+
+  // 删除搜索词
+  const deleteWord = (keywords: string) => {
+    const index = data.searchHistory.findIndex((item) => item === keywords);
+    if (index === -1) return;
+    data.searchHistory.splice(index, 1);
+    localStorage.setItem("searchHistory", JSON.stringify(data.searchHistory));
+  };
+
+  // 清空搜索词
+  const clearHistory = () => {
+    localStorage.setItem("searchHistory", "[]");
+    data.searchHistory = [];
+  };
+
+  getSearchHistory();
+
+  return { ...toRefs(data), searchWord, deleteWord, clearHistory };
+};
+
+/**
  * 获取列表数据hook
  */
 export const useGetList = () => {
@@ -217,7 +261,7 @@ export const useGetList = () => {
 };
 
 /**
- * 获取页面相关信息hook
+ * 获取页面滚动相关信息hook
  */
 export const useMyScroll = () => {
   const app = document.getElementById("app");

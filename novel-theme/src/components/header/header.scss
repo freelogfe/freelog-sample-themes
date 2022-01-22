@@ -315,17 +315,17 @@
       }
     }
 
-    .tags-box {
+    .search-history-box {
       width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
 
-      & + .tags-box {
+      & + .search-history-box {
         margin-top: 25px;
       }
 
-      .tags-box-title {
+      .search-history-box-title {
         width: 100%;
         font-size: 14px;
         color: #999999;
@@ -340,7 +340,7 @@
         }
       }
 
-      .tags-box-list {
+      .search-history-box-list {
         width: 340px;
         margin-top: 20px;
         display: flex;

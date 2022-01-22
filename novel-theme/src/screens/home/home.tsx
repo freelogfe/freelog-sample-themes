@@ -78,7 +78,6 @@ export const HomeScreen = (props: any) => {
       <Header
         homeHeader={true}
         mobileSearching={(inMobile && searching) || false}
-        defaultTag={tags}
         defaultSearchKey={keywords}
       />
 

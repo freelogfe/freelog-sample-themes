@@ -9,35 +9,29 @@ import { callLogin, callLoginOut } from "../../api/freelog";
 import { globalContext } from "../../router";
 import CSSTransition from "react-transition-group/CSSTransition";
 
-export const Header = (props: {
-  homeHeader?: boolean;
-  readerHeader?: boolean;
-  mobileSearching?: boolean;
-  defaultTag?: string;
-  defaultSearchKey?: string;
-}) => {
+export const Header = (props: { homeHeader?: boolean; readerHeader?: boolean; mobileSearching?: boolean; defaultSearchKey?: string }) => {
   const history = useMyHistory();
   const { inMobile, userData, selfConfig } = useContext(globalContext);
   const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
-  const [tag, setTag] = useState("全部");
   const [searchKey, setSearchKey] = useState("");
   const [search, setSearch] = useState(0);
   const [userBoxShow, setUserBoxShow] = useState(false);
   const [searchPopupShow, setSearchPopupShow] = useState(false);
+  const [mySearchHistory, setMySearchHistory] = useState<string[]>([]);
   const [searchHistoryShow, setSearchHistoryShow] = useState(false);
   const [searchWordCatch, setSearchWordCatch] = useState<number | null>(null);
 
   const searchList = useCallback(() => {
-    let url = `/home/${tag}`;
+    let url = `/home/全部`;
     if (searchKey) url += `/${searchKey}`;
     history.switchPage(url);
-  }, [history, searchKey, tag]);
+  }, [history, searchKey]);
 
   const inputKeyUp = (keycode: number) => {
     switch (keycode) {
       case 13:
         // 回车
-        if (searchWordCatch !== null) setSearchKey(searchHistory[searchWordCatch]);
+        if (searchWordCatch !== null) setSearchKey(mySearchHistory[searchWordCatch]);
         setSearchWordCatch(null);
         setSearchHistoryShow(false);
         setSearch((pre) => pre + 1);
@@ -71,13 +65,6 @@ export const Header = (props: {
   };
 
   useEffect(() => {
-    if (!props.defaultTag) return;
-
-    setTag(props.defaultTag);
-    // eslint-disable-next-line
-  }, [props.defaultTag]);
-
-  useEffect(() => {
     if (search === 0) return;
     searchWord(searchKey);
     searchList();
@@ -87,6 +74,10 @@ export const Header = (props: {
   useEffect(() => {
     document.body.style.overflowY = (userBoxShow || searchPopupShow) && inMobile ? "hidden" : "auto";
   }, [userBoxShow, searchPopupShow, inMobile]);
+
+  useEffect(() => {
+    setMySearchHistory(searchHistory.filter((item) => item.includes(searchKey)));
+  }, [searchHistory, searchKey]);
 
   useEffect(() => {
     setSearchKey(props.defaultSearchKey || "");
@@ -100,30 +91,16 @@ export const Header = (props: {
         <div className={`header-top ${userData && "logon"}`}>
           {props.homeHeader ? (
             // logo
-            <img
-              className="logo"
-              src={selfConfig.logoImage || MyLogo}
-              alt="logo"
-              onClick={() => history.switchPage("/home/全部")}
-            />
+            <img className="logo" src={selfConfig.logoImage || MyLogo} alt="logo" onClick={() => history.switchPage("/home/全部")} />
           ) : (
-            <div
-              className="header-top-left"
-              onClick={() => (history.locationHistory.length <= 1 ? history.switchPage("/home/全部") : history.back())}
-            >
+            <div className="header-top-left" onClick={() => (history.locationHistory.length <= 1 ? history.switchPage("/home/全部") : history.back())}>
               <img className="back-arrow" src={BackArrow} alt="" />
-              {history.locationHistory.length <= 1 ? (
-                <div className="back-label">首页</div>
-              ) : (
-                <div className="back-label">返回</div>
-              )}
+              {history.locationHistory.length <= 1 ? <div className="back-label">首页</div> : <div className="back-label">返回</div>}
             </div>
           )}
 
           <div className="header-top-right">
-            {!props.homeHeader && !props.readerHeader && (
-              <i className="freelog fl-icon-content" onClick={() => setSearchPopupShow(true)}></i>
-            )}
+            {!props.homeHeader && !props.readerHeader && <i className="freelog fl-icon-content" onClick={() => setSearchPopupShow(true)}></i>}
 
             <img className="menu" src={MyMenu} alt="菜单" onClick={() => setUserBoxShow(true)} />
           </div>
@@ -151,27 +128,18 @@ export const Header = (props: {
             </div>
             <div className="btns">
               <div className="menu-btns">
-                <div
-                  className={`btn ${history.pathname.startsWith("/home") && "active"}`}
-                  onClick={() => !history.pathname.startsWith("/home") && history.switchPage("/home/全部")}
-                >
+                <div className={`btn ${history.pathname.startsWith("/home") && "active"}`} onClick={() => !history.pathname.startsWith("/home") && history.switchPage("/home/全部")}>
                   <i className="freelog fl-icon-shouye"></i>
                   <div className="btn-label">首页</div>
                 </div>
                 {userData && (
-                  <div
-                    className={`btn ${history.pathname.startsWith("/shelf") && "active"}`}
-                    onClick={() => history.switchPage("/shelf")}
-                  >
+                  <div className={`btn ${history.pathname.startsWith("/shelf") && "active"}`} onClick={() => history.switchPage("/shelf")}>
                     <i className="freelog fl-icon-shujia"></i>
                     <div className="btn-label">我的书架</div>
                   </div>
                 )}
                 {userData && (
-                  <div
-                    className={`btn ${history.pathname.startsWith("/signedList") && "active"}`}
-                    onClick={() => history.switchPage("/signedList")}
-                  >
+                  <div className={`btn ${history.pathname.startsWith("/signedList") && "active"}`} onClick={() => history.switchPage("/signedList")}>
                     <i className="freelog fl-icon-lishi"></i>
                     <div className="btn-label">已签约书籍</div>
                   </div>
@@ -201,6 +169,7 @@ export const Header = (props: {
                 <input
                   className={`search-input input-none ${searchKey && "in-focus"}`}
                   value={searchKey}
+                  autoFocus={true}
                   onChange={(e) => setSearchKey((e.target.value || "").trim())}
                   onKeyUp={(e: { keyCode: number }) => {
                     e.keyCode === 13 && setSearchPopupShow(false);
@@ -217,14 +186,14 @@ export const Header = (props: {
             </div>
 
             {searchHistory.length !== 0 && (
-              <div className="tags-box">
-                <div className="tags-box-title">
+              <div className="search-history-box">
+                <div className="search-history-box-title">
                   <div className="title">搜索记录</div>
                   <div className="text-btn" onClick={() => clearHistory()}>
                     清空
                   </div>
                 </div>
-                <div className="tags-box-list">
+                <div className="search-history-box-list">
                   {searchHistory.map((item) => (
                     <div
                       className="tag"
@@ -266,10 +235,7 @@ export const Header = (props: {
               !e.target.value && setSearchPopupShow(true);
             }}
             onKeyUp={(e: { keyCode: number }) => {
-              e.keyCode === 13 && setTag("全部");
               e.keyCode === 13 && setSearch((pre) => pre + 1);
-              e.keyCode === 27 && history.switchPage("/home/全部");
-              e.keyCode === 27 && setSearchPopupShow(true);
             }}
           />
           <i className="freelog fl-icon-content"></i>
@@ -287,12 +253,7 @@ export const Header = (props: {
         <div className="header-box">
           <div className="header-left">
             {/* logo */}
-            <img
-              className="logo"
-              src={selfConfig.logoImage || MyLogo}
-              alt="logo"
-              onClick={() => history.switchPage("/home/全部")}
-            />
+            <img className="logo" src={selfConfig.logoImage || MyLogo} alt="logo" onClick={() => history.switchPage("/home/全部")} />
 
             {/* 搜索框 */}
             <div className="small-search-box">
@@ -319,14 +280,9 @@ export const Header = (props: {
                 ></i>
               )}
 
-              <CSSTransition
-                in={searchHistoryShow && searchHistory.length !== 0}
-                classNames="fade-in"
-                timeout={200}
-                unmountOnExit
-              >
+              <CSSTransition in={searchHistoryShow && mySearchHistory.length !== 0} classNames="fade-in" timeout={200} unmountOnExit>
                 <div className="search-history">
-                  {searchHistory.map((item, index) => (
+                  {mySearchHistory.map((item, index) => (
                     <div
                       className={`history-item ${searchWordCatch === index && "catch"}`}
                       key={item}
@@ -369,11 +325,7 @@ export const Header = (props: {
             )}
 
             {userData ? (
-              <div
-                className="user-avatar"
-                onMouseOver={() => setUserBoxShow(true)}
-                onMouseLeave={() => setUserBoxShow(false)}
-              >
+              <div className="user-avatar" onMouseOver={() => setUserBoxShow(true)} onMouseLeave={() => setUserBoxShow(false)}>
                 <img className="avatar" src={userData.headImage} alt={userData.username} />
 
                 <CSSTransition in={userBoxShow} classNames="slide-down-scale" timeout={200} unmountOnExit>
@@ -397,10 +349,7 @@ export const Header = (props: {
                 <div className="btn header-login-btn" onClick={() => callLogin()}>
                   登录
                 </div>
-                <div
-                  className="btn header-register-btn"
-                  onClick={() => window.open("http://user.testfreelog.com/logon")}
-                >
+                <div className="btn header-register-btn" onClick={() => window.open("http://user.testfreelog.com/logon")}>
                   注册
                 </div>
               </div>

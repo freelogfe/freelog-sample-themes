@@ -1,10 +1,16 @@
 <template>
   <div class="home-wrapper">
-    <my-header :homeHeader="!(inMobile && searching)" />
+    <my-header
+      :homeHeader="true"
+      :mobileSearching="(inMobile && searching) || false"
+    />
 
     <!-- mobile -->
-    <div class="mobile-home-body" v-if="inMobile && !loading">
-      <div class="shelf-comic-list" v-if="!searching && userData && myShelf.length !== 0">
+    <div class="mobile-home-body" v-if="inMobile">
+      <div
+        class="shelf-comic-list"
+        v-if="!searching && userData && myShelf.length !== 0"
+      >
         <div class="shelf-header">
           <div class="box-title">我的收藏</div>
           <div class="more-shelf" @click="switchPage('/shelf')">
@@ -21,24 +27,89 @@
       </div>
 
       <div class="comic-list">
-        <div class="search-box-title" v-if="searching">查询到{{ listData.length }}个相关结果</div>
-        <div class="box-title" v-else>精选漫画</div>
+        <div class="search-box-title" v-if="searching">
+          <div class="box-title">查询到{{ listData.length }}个相关结果</div>
+          <div class="filter-btn" @click="filterBoxShow = true">
+            <img class="filter-img" src="../assets/images/filter.png" />
+            <div class="filter-label">筛选</div>
+          </div>
+        </div>
+        <div class="box-header" v-else>
+          <div class="box-title">精选漫画</div>
+          <div class="filter-btn" @click="filterBoxShow = true">
+            <img class="filter-img" src="../assets/images/filter.png" />
+            <div class="filter-label">筛选</div>
+          </div>
+        </div>
 
         <div class="comic-box" v-for="item in listData" :key="item.exhibitId">
           <comic :data="item" />
         </div>
 
-        <div class="tip" v-if="listData.length === 0">当前节点暂无任何漫画，请稍后查看</div>
+        <div class="tip" v-if="listData.length === 0">
+          当前节点暂无任何漫画，请稍后查看
+        </div>
 
-        <div class="tip no-more" v-if="listData.length !== 0 && listData.length === total">
+        <div
+          class="tip no-more"
+          v-if="listData.length !== 0 && listData.length === total"
+        >
           — 已加载全部漫画 —
         </div>
       </div>
+
+      <transition name="fade">
+        <div
+          id="modal"
+          class="modal"
+          v-if="filterBoxShow"
+          @click="filterBoxShow = false"
+        ></div>
+      </transition>
+      <transition name="slide-right">
+        <div class="filter-box-body" v-if="filterBoxShow">
+          <div class="filter-box-header">
+            <div class="header-title">按标签筛选</div>
+            <div class="close-btn" @click="filterBoxShow = false">
+              <i class="freelog fl-icon-guanbi"></i>
+            </div>
+          </div>
+          <div class="tags-box">
+            <div
+              class="tag"
+              :class="{ active: !searchData.tags }"
+              @click="
+                filterBoxShow = false;
+                selectTag();
+              "
+            >
+              全部
+            </div>
+            <div class="tags-box-list">
+              <div
+                class="tag"
+                :class="{ active: searchData.tags === item }"
+                v-for="item in tagsList"
+                :key="item"
+                @click="
+                  filterBoxShow = false;
+                  selectTag(item);
+                "
+              >
+                {{ item }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </transition>
     </div>
 
     <!-- PC -->
-    <div class="home-body" v-if="!inMobile && !loading">
-      <div class="comic-list" v-if="!searching && userData && myShelf.length !== 0">
+    <div class="home-body" v-if="!inMobile">
+      <div
+        class="comic-list"
+        v-if="!searching && userData && myShelf.length !== 0"
+      >
         <div class="shelf-header">
           <div class="box-title">我的收藏</div>
           <div class="shelf-header-right">
@@ -48,15 +119,43 @@
         </div>
 
         <div class="comic-list-box">
-          <div class="comic-box" v-for="item in myShelf.filter((_, index) => index < 6)" :key="item.exhibitId">
+          <div
+            class="comic-box"
+            v-for="item in myShelf.filter((_, index) => index < 6)"
+            :key="item.exhibitId"
+          >
             <comic :data="item" />
           </div>
         </div>
       </div>
 
       <div class="comic-list">
-        <div class="search-box-title" v-if="searching">查询到{{ listData.length }}个相关结果</div>
+        <div class="search-box-title" v-if="searching">
+          查询到{{ listData.length }}个相关结果
+        </div>
         <div class="box-title" v-else>精选小说</div>
+
+        <div class="filter-bar">
+          <div class="filter-bar-bg"></div>
+
+          <div
+            class="category-btn"
+            :class="{ active: !searchData.tags }"
+            @click="selectTag()"
+          >
+            全部
+          </div>
+
+          <div
+            class="category-btn"
+            :class="{ active: searchData.tags === item }"
+            v-for="item in tagsList"
+            :key="item"
+            @click="selectTag(item)"
+          >
+            {{ item }}
+          </div>
+        </div>
 
         <div class="comic-list-box">
           <div class="comic-box" v-for="item in listData" :key="item.exhibitId">
@@ -64,9 +163,16 @@
           </div>
         </div>
 
-        <div class="tip" v-if="listData.length === 0">当前节点暂无任何漫画，请稍后查看</div>
+        <div class="tip" v-if="listData.length === 0">
+          当前节点暂无任何漫画，请稍后查看
+        </div>
 
-        <div class="tip no-more" v-if="listData.length !== 0 && listData.length === total">— 已加载全部漫画 —</div>
+        <div
+          class="tip no-more"
+          v-if="listData.length !== 0 && listData.length === total"
+        >
+          — 已加载全部漫画 —
+        </div>
       </div>
     </div>
 
@@ -77,9 +183,23 @@
 </template>
 
 <script lang="ts">
-import { computed, defineAsyncComponent, onActivated, onDeactivated, reactive, toRefs, watch } from "vue";
-import { useGetList, useMyRouter, useMyScroll, useMyShelf } from "../utils/hooks";
+import {
+  computed,
+  defineAsyncComponent,
+  onActivated,
+  onDeactivated,
+  reactive,
+  toRefs,
+  watch,
+} from "vue";
+import {
+  useGetList,
+  useMyRouter,
+  useMyScroll,
+  useMyShelf,
+} from "../utils/hooks";
 import { useStore } from "vuex";
+import { tagsList } from "@/api/data";
 
 export default {
   name: "home",
@@ -87,7 +207,9 @@ export default {
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
-    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
+    "theme-entrance": defineAsyncComponent(
+      () => import("../components/theme-entrance.vue")
+    ),
     comic: defineAsyncComponent(() => import("../components/comic.vue")),
   },
 
@@ -100,6 +222,7 @@ export default {
 
     const data = reactive({
       searchData: {} as { keywords?: string; tags?: string },
+      filterBoxShow: false,
     });
 
     const methods = {
@@ -108,10 +231,19 @@ export default {
         data.searchData = {};
         switchPage("/home");
       },
+
+      // 筛选标签
+      selectTag(tag: string) {
+        const { keywords } = data.searchData;
+        const query: { keywords?: string; tags?: string } = {};
+        if (tag) query.tags = tag;
+        if (keywords) query.keywords = keywords;
+        switchPage("/home", query);
+      },
     };
 
     const searching = computed(() => {
-      return data.searchData.keywords || data.searchData.tags;
+      return !!data.searchData.keywords;
     });
 
     // 获取数据
@@ -135,7 +267,11 @@ export default {
       () => query.value,
       () => {
         if (route.path !== "/home") return;
-        if (data.searchData.keywords === query.value.keywords && data.searchData.tags === query.value.tags) return;
+        if (
+          data.searchData.keywords === query.value.keywords &&
+          data.searchData.tags === query.value.tags
+        )
+          return;
 
         getData();
       }
@@ -153,6 +289,7 @@ export default {
     getData();
 
     return {
+      tagsList,
       ...store.state,
       switchPage,
       myShelf,
@@ -240,21 +377,54 @@ export default {
       box-sizing: border-box;
 
       .search-box-title {
+        width: calc(100% - 40px);
         display: flex;
-        justify-content: center;
-        margin-bottom: 15px;
-        font-size: 14px;
-        color: #999999;
-        line-height: 20px;
+        align-items: center;
+        justify-content: space-between;
+        box-sizing: border-box;
+        margin-left: 20px;
+        padding-bottom: 30px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+
+        .box-title {
+          font-size: 16px;
+          color: #999999;
+          line-height: 22px;
+        }
       }
 
-      .box-title {
-        font-size: 34px;
-        color: #222222;
-        line-height: 40px;
-        margin-bottom: 15px;
-        padding-left: 20px;
+      .box-header {
+        width: 100%;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        padding: 0 20px;
         box-sizing: border-box;
+        margin-bottom: 15px;
+
+        .box-title {
+          font-size: 34px;
+          color: #222222;
+          line-height: 40px;
+          box-sizing: border-box;
+        }
+      }
+
+      .filter-btn {
+        display: flex;
+        align-items: center;
+
+        .filter-img {
+          width: 18px;
+          height: 18px;
+        }
+
+        .filter-label {
+          font-size: 16px;
+          color: #5d9191;
+          line-height: 22px;
+          margin-left: 5px;
+        }
       }
 
       .comic-box {
@@ -273,6 +443,101 @@ export default {
           font-size: 14px;
           line-height: 20px;
           margin-top: 30px;
+        }
+      }
+    }
+
+    .modal {
+      position: fixed;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.4);
+      z-index: 101;
+    }
+
+    .filter-box-body {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 340px;
+      background: #ffffff;
+      border-radius: 0px 10px 10px 0px;
+      padding: 0 20px;
+      box-sizing: border-box;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      z-index: 101;
+
+      .filter-box-header {
+        position: relative;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 26px;
+
+        .header-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #222222;
+          line-height: 22px;
+        }
+
+        .close-btn {
+          width: 22px;
+          height: 22px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 6px;
+
+          .freelog {
+            font-size: 12px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+      }
+
+      .tags-box {
+        width: 100%;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin-top: 30px;
+        padding-left: 12px;
+        box-sizing: border-box;
+
+        .tags-box-list {
+          width: 100%;
+          display: flex;
+          flex-wrap: wrap;
+          margin-top: 15px;
+        }
+
+        .tag {
+          width: fit-content;
+          height: 38px;
+          border-radius: 38px;
+          padding: 9px 15px;
+          box-sizing: border-box;
+          background: #ebecf0;
+          font-size: 14px;
+          color: #575e6a;
+          line-height: 20px;
+          margin: 0 5px 15px;
+          cursor: pointer;
+
+          &.active {
+            background: #6ea29e;
+            color: #fff;
+          }
         }
       }
     }
@@ -301,6 +566,11 @@ export default {
             font-size: 14px;
             color: #999999;
           }
+
+          .text-btn {
+            font-size: 14px;
+            margin-left: 10px;
+          }
         }
       }
 
@@ -308,10 +578,8 @@ export default {
         font-size: 14px;
         color: #999999;
         line-height: 20px;
-        margin-top: -15px;
-        margin-bottom: 20px;
-        display: flex;
-        justify-content: center;
+        margin-top: -25px;
+        margin-bottom: 30px;
       }
 
       .box-title {
@@ -320,8 +588,56 @@ export default {
         margin-bottom: 10px;
       }
 
-      .text-btn {
-        font-size: 14px;
+      .filter-bar {
+        position: relative;
+        width: 100%;
+        height: 64px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        margin-top: 20px;
+        margin-bottom: 10px;
+
+        .filter-bar-bg {
+          position: absolute;
+          inset: 0;
+          background-color: var(--deriveColor);
+          opacity: 0.08;
+        }
+
+        .category-btn {
+          position: relative;
+          height: 24px;
+          padding: 2px 8px;
+          box-sizing: border-box;
+          font-size: 14px;
+          color: #666;
+          line-height: 20px;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.2s linear;
+          z-index: 1;
+
+          &:hover {
+            color: var(--deriveColor);
+          }
+
+          &:active {
+            color: var(--deriveColor);
+            opacity: 0.8;
+          }
+
+          &.active {
+            background-color: var(--deriveColor);
+            color: #fff;
+          }
+
+          & + .category-btn {
+            margin-left: 4px;
+          }
+        }
       }
 
       .comic-list-box {
@@ -353,10 +669,6 @@ export default {
           line-height: 20px;
           margin-top: 30px;
         }
-      }
-
-      .text-btn {
-        margin-left: 10px;
       }
     }
   }

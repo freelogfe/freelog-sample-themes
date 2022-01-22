@@ -1,6 +1,10 @@
 <template>
-  <!-- mobile -->
-  <div class="mobile-header-wrapper" :class="{ 'in-home': homeHeader }" v-if="inMobile">
+  <!-- 移动端头部 -->
+  <div
+    class="mobile-header-wrapper"
+    :class="{ 'in-home': homeHeader }"
+    v-if="inMobile && !mobileSearching"
+  >
     <!-- header顶部 -->
     <div class="header-top" :class="{ logon: userData }">
       <img
@@ -15,9 +19,17 @@
       </div>
 
       <div class="header-top-right">
-        <i class="freelog fl-icon-content" @click="searchPopupShow = true" v-if="!homeHeader && !readerHeader"></i>
+        <i
+          class="freelog fl-icon-content"
+          @click="searchPopupShow = true"
+          v-if="!homeHeader && !readerHeader"
+        ></i>
 
-        <img className="menu" src="../assets/images/menu.png" @click="userBoxShow = true" />
+        <img
+          class="menu"
+          src="../assets/images/menu.png"
+          @click="userBoxShow = true"
+        />
       </div>
     </div>
 
@@ -28,14 +40,22 @@
 
     <!-- 用户弹窗 -->
     <transition name="fade">
-      <div id="modal" class="modal" @click="userBoxShow = false" v-if="userBoxShow"></div>
+      <div
+        id="modal"
+        class="modal"
+        @click="userBoxShow = false"
+        v-if="userBoxShow"
+      ></div>
     </transition>
     <transition name="slide-right">
       <div class="user-box-body" v-if="userBoxShow">
         <div class="user-box-top" @click="!userData && callLogin()">
           <img
             class="avatar"
-            :src="userData?.headImage || require('../assets/images/default-avatar.png')"
+            :src="
+              userData?.headImage ||
+              require('../assets/images/default-avatar.png')
+            "
             :alt="userData?.username || '未登录'"
           />
           <div class="username">{{ userData?.username || "未登录" }}</div>
@@ -44,18 +64,23 @@
           </div>
         </div>
         <div class="btns">
-          <div className="menu-btns">
+          <div class="menu-btns">
             <div
               class="btn"
               :class="{ active: route.path === '/home' }"
               @click="route.path !== '/home' && switchPage('/home')"
             >
-              <i className="freelog fl-icon-shouye"></i>
-              <div className="btn-label">首页</div>
+              <i class="freelog fl-icon-shouye"></i>
+              <div class="btn-label">首页</div>
             </div>
-            <div class="btn" :class="{ active: route.path === '/shelf' }" @click="switchPage('/shelf')" v-if="userData">
-              <i className="freelog fl-icon-shujia"></i>
-              <div className="btn-label">我的收藏</div>
+            <div
+              class="btn"
+              :class="{ active: route.path === '/shelf' }"
+              @click="switchPage('/shelf')"
+              v-if="userData"
+            >
+              <i class="freelog fl-icon-shujia"></i>
+              <div class="btn-label">我的收藏</div>
             </div>
             <div
               class="btn"
@@ -63,19 +88,17 @@
               @click="switchPage('/signedList')"
               v-if="userData"
             >
-              <i className="freelog fl-icon-lishi"></i>
-              <div className="btn-label">已签约漫画</div>
+              <i class="freelog fl-icon-lishi"></i>
+              <div class="btn-label">已签约漫画</div>
             </div>
           </div>
 
-          <div className="footer-btn" @click="callLoginOut()" v-if="userData">
-            <i className="freelog fl-icon-tuichu1"></i>
-            <div className="btn-label">退出登录</div>
+          <div class="footer-btn" @click="callLoginOut()" v-if="userData">
+            <i class="freelog fl-icon-tuichu1"></i>
+            <div class="btn-label">退出登录</div>
           </div>
-          <div className="footer-btn" v-if="!userData">
-            <div className="main-btn mobile" @click="callLogin()">
-              立即登录
-            </div>
+          <div class="footer-btn" v-if="!userData">
+            <div class="main-btn mobile" @click="callLogin()">立即登录</div>
           </div>
         </div>
       </div>
@@ -90,7 +113,12 @@
               class="search-input input-none"
               :class="{ 'in-focus': searchKey }"
               v-model="searchKey"
-              @keyup.enter="search()"
+              :autofocus="true"
+              @input="searchKeyInput()"
+              @keyup.enter="
+                searchWord(searchKey);
+                search();
+              "
               @keyup.esc="searchKey = ''"
             />
             <i class="freelog fl-icon-content"></i>
@@ -99,11 +127,23 @@
           <div class="cancel-btn" @click="searchPopupShow = false">取消</div>
         </div>
 
-        <div class="recommend-tags">
-          <div class="recommend-tags-title">推荐标签</div>
-          <div class="recommend-tags-list">
-            <div class="tag" v-for="item in tagsList" :key="item" @click="selectTag(item)">
+        <div class="search-history-box" v-if="searchHistory.length !== 0">
+          <div class="search-history-box-title">
+            <div class="title">搜索记录</div>
+            <div class="text-btn" @click="clearHistory()">清空</div>
+          </div>
+          <div class="search-history-box-list">
+            <div
+              class="tag"
+              v-for="item in searchHistory"
+              :key="item"
+              @click="selectTag(item)"
+            >
               {{ item }}
+              <i
+                class="freelog fl-icon-guanbi"
+                @click.stop="deleteWord(item)"
+              ></i>
             </div>
           </div>
         </div>
@@ -111,11 +151,32 @@
     </transition>
   </div>
 
+  <!-- 移动端首页搜索头部 -->
+  <div
+    class="mobile-search-header-wrapper"
+    v-if="inMobile && homeHeader && mobileSearching"
+  >
+    <div class="search-page-box">
+      <input
+        class="search-input input-none"
+        :class="{ 'in-focus': searchKey }"
+        v-model="searchKey"
+        @input="searchKeyInput(true)"
+        @keyup.enter="
+          searchWord(searchKey);
+          search();
+        "
+      />
+      <i class="freelog fl-icon-content"></i>
+    </div>
+
+    <div class="cancel-btn" @click="switchPage('/home')">取消</div>
+  </div>
+
   <!-- PC -->
   <div class="header-wrapper" v-if="!inMobile">
-    <!-- header顶部 -->
-    <div class="header-top">
-      <div class="header-top-left">
+    <div class="header-box">
+      <div class="header-left">
         <!-- logo -->
         <img
           class="logo"
@@ -124,32 +185,85 @@
         />
 
         <!-- 搜索框 -->
-        <div class="small-search-box" v-if="!homeHeader">
+        <div class="small-search-box">
           <input
+            ref="searchInput"
             class="search-input input-none"
+            :class="{ 'in-focus': searchKey }"
             v-model="searchKey"
-            @keyup.enter="search()"
-            @keyup.esc="searchKey = ''"
+            @input="searchKeyInput()"
+            @keyup="inputKeyUp($event)"
+            @focus="searchHistoryShow = true"
+            @blur="searchHistoryShow = false"
           />
           <i class="freelog fl-icon-content"></i>
+          <i
+            class="freelog fl-icon-guanbi text-btn"
+            @click="
+              searchKey = '';
+              search();
+            "
+            v-show="searchKey"
+          ></i>
+
+          <transition name="fade">
+            <div
+              class="search-history"
+              v-if="searchHistoryShow && mySearchHistory.length !== 0"
+            >
+              <div
+                class="history-item"
+                :class="{ catch: searchWordCatch === index }"
+                v-for="(item, index) in mySearchHistory"
+                :key="item"
+                @click="clickSearchHistory(item)"
+                @mousemove="searchWordCatch = index"
+              >
+                <div class="item-word">{{ item }}</div>
+                <i
+                  class="freelog fl-icon-guanbi"
+                  @click.stop="deleteSearchHistory(item)"
+                ></i>
+              </div>
+
+              <div class="text-btn" @click="clearHistory()">清空搜索记录</div>
+            </div>
+          </transition>
         </div>
       </div>
 
-      <div class="header-top-right">
+      <div class="header-right">
         <div class="nav-btn" @click="switchPage('/')" v-if="!homeHeader">
           首页
         </div>
-        <div class="nav-btn" @click="switchPage('/shelf')" v-if="!homeHeader && userData">
+        <div
+          class="nav-btn"
+          @click="switchPage('/shelf')"
+          v-if="!homeHeader && userData"
+        >
           我的书架
         </div>
 
-        <div class="user-avatar" @mouseover="userBoxShow = true" @mouseleave="userBoxShow = false" v-if="userData">
-          <img class="avatar" :src="userData.headImage" :alt="userData.username" />
+        <div
+          class="user-avatar"
+          @mouseover="userBoxShow = true"
+          @mouseleave="userBoxShow = false"
+          v-if="userData"
+        >
+          <img
+            class="avatar"
+            :src="userData.headImage"
+            :alt="userData.username"
+          />
 
           <transition name="slide-down-scale">
             <div class="user-box" v-if="userBoxShow">
               <div class="user-box-body">
-                <img class="avatar" :src="userData.headImage" :alt="userData.username" />
+                <img
+                  class="avatar"
+                  :src="userData.headImage"
+                  :alt="userData.username"
+                />
                 <div class="username">{{ userData.username }}</div>
                 <div class="mobile">{{ userData.mobile }}</div>
                 <div
@@ -173,49 +287,12 @@
         </div>
       </div>
     </div>
-
-    <!-- 搜索框 -->
-    <div class="search-box" v-if="homeHeader">
-      <input
-        class="search-input input-none"
-        :class="{ 'in-focus': searchKey }"
-        v-model="searchKey"
-        @keyup.enter="search()"
-        @keyup.esc="searchKey = ''"
-      />
-      <i class="freelog fl-icon-content"></i>
-      <i
-        class="freelog fl-icon-guanbi"
-        @click="
-          searchKey = '';
-          search();
-        "
-        v-show="searchKey"
-      ></i>
-    </div>
-
-    <!-- 筛选栏 -->
-    <div class="filter-bar" v-if="homeHeader">
-      <div class="category-btn" :class="{ active: !tags }" @click="selectTag()">
-        全部
-      </div>
-
-      <div
-        class="category-btn"
-        :class="{ active: tags === item }"
-        v-for="item in tagsList"
-        :key="item"
-        @click="selectTag(item)"
-      >
-        {{ item }}
-      </div>
-    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { reactive, toRefs, watch } from "vue";
-import { useMyRouter } from "../utils/hooks";
+import { computed, reactive, ref, toRefs, watch } from "vue";
+import { useMyRouter, useSearchHistory } from "../utils/hooks";
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
 import { tagsList } from "@/api/data";
@@ -232,39 +309,116 @@ export default {
       type: Boolean,
       default: false,
     },
+    mobileSearching: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   setup(props: { homeHeader: boolean }) {
     const store = useStore();
     const { query, route, switchPage, routerBack } = useMyRouter();
+    const { searchHistory, searchWord, deleteWord, clearHistory } =
+      useSearchHistory();
+    const searchInput = ref();
+    const mySearchHistory = computed(() =>
+      searchHistory.value.filter((item) => item.includes(data.searchKey))
+    );
 
     const data = reactive({
       searchKey: "",
-      tags: "",
       userBoxShow: false,
       searchPopupShow: false,
+      searchHistoryShow: false,
+      searchWordCatch: null as number | null,
     });
 
     const methods = {
+      // 输入搜索词
+      searchKeyInput(inHomeSearch = false) {
+        data.searchKey = (data.searchKey || "").trim();
+        data.searchHistoryShow = true;
+        data.searchWordCatch = null;
+        if (inHomeSearch) {
+          !data.searchKey && switchPage("/home");
+          data.searchPopupShow = !data.searchKey;
+        }
+      },
+
+      // 点击历史搜索词
+      clickSearchHistory(item: string) {
+        data.searchKey = item;
+        searchWord(data.searchKey);
+        this.search();
+        data.searchHistoryShow = false;
+      },
+
+      // 删除历史搜索词
+      deleteSearchHistory(item: string) {
+        searchInput.value.focus();
+        deleteWord(item);
+      },
+
       // 搜索
       search() {
         data.searchPopupShow = false;
-        const { searchKey, tags } = data;
-        const query: { keywords?: string; tags?: string } = {};
+        const { searchKey } = data;
+        const query: { keywords?: string; } = {};
         if (searchKey) query.keywords = searchKey;
-        if (tags) query.tags = data.tags;
         switchPage("/home", query);
       },
 
-      // 筛选标签
-      selectTag(tag: string) {
-        data.tags = tag || "";
+      // 搜索历史关键词
+      selectTag(item: string) {
+        data.searchPopupShow = false;
+        data.searchKey = item;
         this.search();
       },
 
       // 注册
       register() {
         window.open("http://user.testfreelog.com/logon");
+      },
+
+      // 搜索框键盘事件
+      inputKeyUp(e: { keyCode: any }) {
+        switch (e.keyCode) {
+          case 13:
+            // 回车
+            if (data.searchWordCatch !== null) {
+              data.searchKey = mySearchHistory.value[data.searchWordCatch];
+            }
+            data.searchWordCatch = null;
+            data.searchHistoryShow = false;
+            searchWord(data.searchKey);
+            this.search();
+            break;
+          case 27:
+            // esc
+            data.searchKey = "";
+            data.searchWordCatch = null;
+            data.searchHistoryShow = true;
+            break;
+          case 38:
+            // 上
+            if (data.searchWordCatch === null || data.searchWordCatch === 0) {
+              data.searchWordCatch = null;
+            } else {
+              data.searchWordCatch = data.searchWordCatch - 1;
+            }
+            break;
+          case 40:
+            // 下
+            data.searchHistoryShow = true;
+            if (data.searchWordCatch === null) {
+              data.searchWordCatch = 0;
+            } else if (data.searchWordCatch !== 9) {
+              data.searchWordCatch = data.searchWordCatch + 1;
+            }
+            break;
+          default:
+            break;
+        }
       },
     };
 
@@ -277,9 +431,8 @@ export default {
 
     // 初始化头部搜索相关数据
     const initHeaderSearch = () => {
-      const { keywords, tags } = query.value;
+      const { keywords } = query.value;
       data.searchKey = keywords || "";
-      data.tags = tags || "";
     };
     initHeaderSearch();
 
@@ -292,6 +445,12 @@ export default {
       routerBack,
       ...store.state,
       tagsList,
+      searchInput,
+      searchHistory,
+      mySearchHistory,
+      searchWord,
+      deleteWord,
+      clearHistory,
       ...toRefs(data),
       ...methods,
     };
@@ -300,7 +459,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// mobile
+// 移动端头部
 .mobile-header-wrapper {
   width: 100%;
   padding: 16px 20px;
@@ -551,6 +710,7 @@ export default {
       padding-left: 20px;
       box-sizing: border-box;
       background: var(--gradientColor);
+      margin-bottom: 20px;
 
       .search-page-box {
         position: relative;
@@ -613,23 +773,32 @@ export default {
       }
     }
 
-    .recommend-tags {
+    .search-history-box {
       width: 100%;
-      padding: 20px 0;
-      box-sizing: border-box;
       display: flex;
       flex-direction: column;
       align-items: center;
 
-      .recommend-tags-title {
+      & + .search-history-box {
+        margin-top: 25px;
+      }
+
+      .search-history-box-title {
         width: 100%;
         font-size: 14px;
         color: #999999;
         line-height: 20px;
-        padding-left: 20px;
+        padding: 0 20px;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: space-between;
+
+        .clear-btn {
+          color: #5d9191;
+        }
       }
 
-      .recommend-tags-list {
+      .search-history-box-list {
         width: 340px;
         margin-top: 20px;
         display: flex;
@@ -649,11 +818,91 @@ export default {
           &:active {
             background-color: #dcdee2;
           }
+
+          .freelog {
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 10px;
+          }
         }
       }
     }
   }
 }
+
+// 移动端首页搜索头部
+.mobile-search-header-wrapper {
+  width: 100%;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+  box-sizing: border-box;
+  background: var(--gradientColor);
+
+  .search-page-box {
+    position: relative;
+    flex: 1;
+    height: 42px;
+    border-radius: 42px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+
+    .search-input {
+      height: 100%;
+      flex: 1;
+      font-size: 16px;
+      color: #222;
+      background-color: rgba(255, 255, 255, 0.1) !important;
+      padding: 0 44px !important;
+      transition: all 0.2s linear;
+
+      &:active {
+        background-color: rgba(255, 255, 255, 0.18) !important;
+      }
+
+      &:focus,
+      &.in-focus {
+        background-color: #fff !important;
+
+        & ~ .fl-icon-content {
+          color: #8e8e93;
+        }
+      }
+    }
+
+    .fl-icon-content {
+      position: absolute;
+      left: 15px;
+      width: 14px;
+      height: 14px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.6);
+      transition: all 0.2s linear;
+    }
+  }
+
+  .cancel-btn {
+    font-size: 16px;
+    line-height: 22px;
+    height: 100%;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    color: #fff;
+
+    &:active {
+      opacity: 0.6;
+    }
+  }
+}
+
 
 // PC
 .header-wrapper {
@@ -665,16 +914,14 @@ export default {
   flex-direction: column;
   align-items: center;
 
-  .header-top {
+  .header-box {
     width: 1160px;
     height: 70px;
-    padding: 19px 0;
-    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    .header-top-left {
+    .header-left {
       display: flex;
       align-items: center;
 
@@ -697,14 +944,13 @@ export default {
         position: relative;
         width: 240px;
         height: 32px;
-        border-radius: 32px;
         display: flex;
         align-items: center;
-        overflow: hidden;
         margin-left: 40px;
 
         .search-input {
-          height: 100%;
+          height: 32px;
+          border-radius: 32px;
           flex: 1;
           font-size: 14px;
           color: #222;
@@ -716,7 +962,8 @@ export default {
             background-color: rgba(255, 255, 255, 0.18) !important;
           }
 
-          &:focus {
+          &:focus,
+          &.in-focus {
             background-color: #fff !important;
 
             & ~ .fl-icon-content {
@@ -728,18 +975,97 @@ export default {
         .fl-icon-content {
           position: absolute;
           left: 10px;
-          width: 14px;
-          height: 14px;
           font-size: 14px;
           display: flex;
           align-items: center;
           justify-content: center;
           color: rgba(255, 255, 255, 0.6);
         }
+
+        .fl-icon-guanbi {
+          position: absolute;
+          right: 10px;
+          font-size: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-top: 2px;
+        }
+
+        .search-history {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 100%;
+          margin-top: 5px;
+          min-height: 170px;
+          background-color: #fff;
+          background: #ffffff;
+          box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
+          border-radius: 4px;
+          padding: 4px;
+          padding-bottom: 50px;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          z-index: 2;
+
+          .history-item {
+            width: 100%;
+            height: 34px;
+            border-radius: 4px;
+            padding: 0 11px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s linear;
+
+            &.catch,
+            &:hover {
+              background: rgba(0, 0, 0, 0.03);
+
+              .freelog {
+                opacity: 1;
+              }
+            }
+
+            .item-word {
+              font-size: 12px;
+              color: #222222;
+            }
+
+            .freelog {
+              width: 10px;
+              height: 10px;
+              font-size: 10px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: #999;
+              cursor: pointer;
+              transition: all 0.2s linear;
+              opacity: 0;
+
+              &:hover {
+                color: #a9a9ad;
+              }
+            }
+          }
+
+          .text-btn {
+            position: absolute;
+            bottom: 12px;
+            font-size: 12px;
+            line-height: 18px;
+          }
+        }
       }
     }
 
-    .header-top-right {
+    .header-right {
       display: flex;
       align-items: center;
 
@@ -833,6 +1159,7 @@ export default {
 
       .user-btns {
         display: flex;
+        margin-left: 25px;
 
         .btn {
           height: 32px;
@@ -850,106 +1177,6 @@ export default {
         .header-register-btn {
           margin-left: 10px;
         }
-      }
-    }
-  }
-
-  .search-box {
-    position: relative;
-    width: 100%;
-    max-width: 700px;
-    height: 38px;
-    border-radius: 38px;
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-    flex-shrink: 0;
-    margin-top: 16px;
-    margin-bottom: 25px;
-
-    .search-input {
-      height: 100%;
-      flex: 1;
-      font-size: 14px;
-      color: #222;
-      background-color: rgba(255, 255, 255, 0.1) !important;
-      padding: 0 39px !important;
-      transition: all 0.2s linear;
-
-      &:hover {
-        background-color: rgba(255, 255, 255, 0.18) !important;
-      }
-
-      &:focus,
-      &.in-focus {
-        background-color: #fff !important;
-
-        & ~ .fl-icon-content {
-          color: #8e8e93;
-        }
-      }
-    }
-
-    .fl-icon-content {
-      position: absolute;
-      left: 15px;
-      width: 14px;
-      height: 14px;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: rgba(255, 255, 255, 0.6);
-      transition: all 0.2s linear;
-    }
-
-    .fl-icon-guanbi {
-      position: absolute;
-      right: 15px;
-      width: 14px;
-      height: 14px;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #8e8e93;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s linear;
-
-      &:hover {
-        color: #a9a9ad;
-      }
-    }
-  }
-
-  .filter-bar {
-    display: flex;
-    flex-wrap: wrap;
-    margin-bottom: 27px;
-
-    .category-btn {
-      height: 24px;
-      line-height: 24px;
-      border-radius: 24px;
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.5);
-      padding: 0 8px;
-      background-color: transparent;
-      cursor: pointer;
-      transition: all 0.2s linear;
-
-      &:hover {
-        color: rgba(255, 255, 255, 0.8);
-      }
-
-      &.active {
-        background-color: #ffffff;
-        color: #666;
-      }
-
-      & + .category-btn {
-        margin-left: 4px;
       }
     }
   }
