@@ -6,6 +6,7 @@ import {
   getExhibitListByPaging,
   GetExhibitListByPagingParams,
   getExhibitSignCount,
+  getSignStatistics,
   getUserData,
   setUserData,
 } from "@/api/freelog";
@@ -257,6 +258,57 @@ export const useGetList = () => {
     ...toRefs(data),
     getList,
     clearData,
+  };
+};
+
+/**
+ * 我的已签约展品hook
+ */
+export const useMySignedList = () => {
+  interface SignedItem {
+    subjectId: string;
+    isAuth: boolean;
+  }
+
+  const store = useStore();
+  const data = reactive({
+    mySignedList: <ExhibitItem[]>[],
+    loading: false,
+  });
+
+  // 获取已签约展品数据
+  const getMySignedList = async (keywords = "") => {
+    // 用户未登录
+    if (!store.state.userData) return;
+
+    const signedList: any = await getSignStatistics({ keywords });
+    const ids: string[] = [];
+    signedList.data.data.forEach((item: SignedItem) => {
+      ids.push(item.subjectId);
+    });
+
+    if (ids.length === 0) {
+      data.mySignedList = [];
+      return;
+    }
+
+    const exhibitIds = ids.join(",");
+    const queryParams: GetExhibitListByIdParams = { exhibitIds };
+    const list = await getExhibitListById(queryParams);
+    if (list.data.data.length !== 0) {
+      list.data.data.forEach((item: ExhibitItem) => {
+        const signedItem = signedList.data.data.find((listItem: SignedItem) => listItem.subjectId === item.exhibitId);
+        item.isAuth = signedItem.isAuth;
+      });
+    }
+    data.mySignedList = list.data.data.filter((item: ExhibitItem) => item.articleInfo.resourceType !== "theme");
+  };
+
+  getMySignedList();
+
+  return {
+    ...toRefs(data),
+    getMySignedList,
   };
 };
 

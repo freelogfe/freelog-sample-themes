@@ -10,12 +10,19 @@ interface UserData {
   mobile: string;
 }
 
+// 路由记录
+interface HistoryItem {
+  path: string;
+  query?: any;
+}
+
 export default createStore({
   state: {
     inMobile: false as boolean,
     userData: null as UserData | null,
     selfConfig: {} as any,
     listData: [] as ExhibitItem[],
+    locationHistory: [] as HistoryItem[],
   },
 
   mutations: {
@@ -32,6 +39,7 @@ export default createStore({
       context.commit("setData", { key: "userData", value: userData });
       context.commit("setData", { key: "selfConfig", value: selfConfig });
       context.commit("setData", { key: "inMobile", value: inMobile });
+      context.commit("setData", { key: "locationHistory", value: [] });
     },
   },
 

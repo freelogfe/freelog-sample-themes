@@ -1,12 +1,11 @@
 import "./signed-list.scss";
 import { Header } from "../../components/header/header";
-import { ExhibitItem } from "../../api/interface";
 import { Novel } from "../../components/novel/novel";
 import { Footer } from "../../components/footer/footer";
 import { ThemeEntrance } from "../../components/theme-entrance/theme-entrance";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useState } from "react";
 import { globalContext } from "../../router";
-import { GetExhibitListByPagingParams, getExhibitAuthStatus, getSignStatistics } from "../../api/freelog";
+import { useMySignedList } from "../../utils/hooks";
 
 export const SignedListScreen = () => {
   const { inMobile } = useContext(globalContext);
@@ -25,48 +24,8 @@ export const SignedListScreen = () => {
 };
 
 const SignedListBody = () => {
-  const [signedList, setSignedList] = useState<ExhibitItem[]>([]);
+  const { mySignedList, getMySignedList } = useMySignedList();
   const [searchKey, setSearchKey] = useState("");
-  const [search, setSearch] = useState(0);
-  let loading: any = useRef(false);
-
-  const getBookList = async () => {
-    if (loading.current) return;
-
-    loading.current = true;
-    const queryParams: GetExhibitListByPagingParams = {
-      omitArticleResourceType: "theme",
-      skip: 0,
-      limit: 100,
-    };
-    if (searchKey) queryParams.keywords = searchKey;
-
-    const list = await getSignStatistics();
-    console.error(list)
-    const { dataList } = list.data.data;
-    if (dataList.length !== 0) {
-      const idList: string[] = [];
-      dataList.forEach((item: ExhibitItem) => {
-        idList.push(item.exhibitId);
-      });
-      const ids = idList.join(",");
-      const statusInfo = await getExhibitAuthStatus(ids);
-      if (statusInfo.data.data) {
-        statusInfo.data.data.forEach((item: { exhibitId: string; isAuth: boolean }) => {
-          const index = dataList.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.exhibitId);
-          dataList[index].isAuth = item.isAuth;
-        });
-      }
-    }
-    setSignedList(dataList);
-    loading.current = false;
-    // eslint-disable-next-line
-  };
-
-  useEffect(() => {
-    getBookList();
-    // eslint-disable-next-line
-  }, [search]);
 
   return (
     <div className="content">
@@ -78,9 +37,9 @@ const SignedListBody = () => {
             className="search-input input-none"
             value={searchKey}
             placeholder="支持搜索书籍名称"
-            onChange={(e) => setSearchKey(e.target.value)}
+            onChange={(e) => setSearchKey((e.target.value || "").trim())}
             onKeyUp={(e: { keyCode: number }) => {
-              e.keyCode === 13 && setSearch((pre) => pre + 1);
+              e.keyCode === 13 && getMySignedList(searchKey);
               e.keyCode === 27 && setSearchKey("");
             }}
           />
@@ -88,7 +47,7 @@ const SignedListBody = () => {
         </div>
       </div>
 
-      {signedList.map((item) => {
+      {mySignedList.map((item) => {
         return (
           <div className="book-box" key={item.exhibitId}>
             <Novel mode={3} data={item} />
@@ -96,7 +55,7 @@ const SignedListBody = () => {
         );
       })}
 
-      {signedList.length === 0 && <div className="tip">暂无数据，快去签约书籍吧～</div>}
+      {!mySignedList.length && <div className="tip">暂无数据，快去签约书籍吧～</div>}
     </div>
   );
 };

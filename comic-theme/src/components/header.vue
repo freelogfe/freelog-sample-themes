@@ -1,10 +1,6 @@
 <template>
   <!-- 移动端头部 -->
-  <div
-    class="mobile-header-wrapper"
-    :class="{ 'in-home': homeHeader }"
-    v-if="inMobile && !mobileSearching"
-  >
+  <div class="mobile-header-wrapper" :class="{ 'in-home': homeHeader }" v-if="inMobile && !mobileSearching">
     <!-- header顶部 -->
     <div class="header-top" :class="{ logon: userData }">
       <img
@@ -13,13 +9,7 @@
         @click="switchPage('/home')"
         v-if="homeHeader"
       />
-      <div
-        class="header-top-left"
-        @click="
-          locationHistory.length <= 1 ? switchPage('/home') : routerBack()
-        "
-        v-else
-      >
+      <div class="header-top-left" @click="locationHistory.length <= 1 ? switchPage('/home') : routerBack()" v-else>
         <img class="back-arrow" src="../assets/images/arrow.png" />
         <div class="back-label">
           {{ locationHistory.length === 1 ? "首页" : "返回" }}
@@ -27,17 +17,9 @@
       </div>
 
       <div class="header-top-right">
-        <i
-          class="freelog fl-icon-content"
-          @click="searchPopupShow = true"
-          v-if="!homeHeader && !readerHeader"
-        ></i>
+        <i class="freelog fl-icon-content" @click="searchPopupShow = true" v-if="!homeHeader && !readerHeader"></i>
 
-        <img
-          class="menu"
-          src="../assets/images/menu.png"
-          @click="userBoxShow = true"
-        />
+        <img class="menu" src="../assets/images/menu.png" @click="userBoxShow = true" />
       </div>
     </div>
 
@@ -48,22 +30,14 @@
 
     <!-- 用户弹窗 -->
     <transition name="fade">
-      <div
-        id="modal"
-        class="modal"
-        @click="userBoxShow = false"
-        v-if="userBoxShow"
-      ></div>
+      <div id="modal" class="modal" @click="userBoxShow = false" v-if="userBoxShow"></div>
     </transition>
     <transition name="slide-right">
       <div class="user-box-body" v-if="userBoxShow">
         <div class="user-box-top">
           <img
             class="avatar"
-            :src="
-              userData?.headImage ||
-              require('../assets/images/default-avatar.png')
-            "
+            :src="userData?.headImage || require('../assets/images/default-avatar.png')"
             :alt="userData?.username || '未登录'"
             @click="!userData && callLogin()"
           />
@@ -84,12 +58,7 @@
               <i class="freelog fl-icon-shouye"></i>
               <div class="btn-label">首页</div>
             </div>
-            <div
-              class="btn"
-              :class="{ active: route.path === '/shelf' }"
-              @click="switchPage('/shelf')"
-              v-if="userData"
-            >
+            <div class="btn" :class="{ active: route.path === '/shelf' }" @click="switchPage('/shelf')" v-if="userData">
               <i class="freelog fl-icon-shujia"></i>
               <div class="btn-label">我的收藏</div>
             </div>
@@ -144,17 +113,9 @@
             <div class="text-btn" @click="clearHistory()">清空</div>
           </div>
           <div class="search-history-box-list">
-            <div
-              class="tag"
-              v-for="item in searchHistory"
-              :key="item"
-              @click="selectTag(item)"
-            >
+            <div class="tag" v-for="item in searchHistory" :key="item" @click="selectTag(item)">
               {{ item }}
-              <i
-                class="freelog fl-icon-guanbi"
-                @click.stop="deleteWord(item)"
-              ></i>
+              <i class="freelog fl-icon-guanbi" @click.stop="deleteWord(item)"></i>
             </div>
           </div>
         </div>
@@ -163,10 +124,7 @@
   </div>
 
   <!-- 移动端首页搜索头部 -->
-  <div
-    class="mobile-search-header-wrapper"
-    v-if="inMobile && homeHeader && mobileSearching"
-  >
+  <div class="mobile-search-header-wrapper" v-if="inMobile && homeHeader && mobileSearching">
     <div class="search-page-box">
       <input
         class="search-input input-none"
@@ -218,10 +176,7 @@
           ></i>
 
           <transition name="fade">
-            <div
-              class="search-history"
-              v-if="searchHistoryShow && mySearchHistory.length !== 0"
-            >
+            <div class="search-history" v-if="searchHistoryShow && mySearchHistory.length !== 0">
               <div
                 class="history-item"
                 :class="{ catch: searchWordCatch === index }"
@@ -231,10 +186,7 @@
                 @mousemove="searchWordCatch = index"
               >
                 <div class="item-word">{{ item }}</div>
-                <i
-                  class="freelog fl-icon-guanbi"
-                  @click.stop="deleteSearchHistory(item)"
-                ></i>
+                <i class="freelog fl-icon-guanbi" @click.stop="deleteSearchHistory(item)"></i>
               </div>
 
               <div class="text-btn" @click="clearHistory()">清空搜索记录</div>
@@ -247,34 +199,17 @@
         <div class="nav-btn" @click="switchPage('/')" v-if="!homeHeader">
           首页
         </div>
-        <div
-          class="nav-btn"
-          @click="switchPage('/shelf')"
-          v-if="!homeHeader && userData"
-        >
+        <div class="nav-btn" @click="switchPage('/shelf')" v-if="!homeHeader && userData">
           我的书架
         </div>
 
-        <div
-          class="user-avatar"
-          @mouseover="userBoxShow = true"
-          @mouseleave="userBoxShow = false"
-          v-if="userData"
-        >
-          <img
-            class="avatar"
-            :src="userData.headImage"
-            :alt="userData.username"
-          />
+        <div class="user-avatar" @mouseover="userBoxShow = true" @mouseleave="userBoxShow = false" v-if="userData">
+          <img class="avatar" :src="userData.headImage" :alt="userData.username" />
 
           <transition name="slide-down-scale">
             <div class="user-box" v-if="userBoxShow">
               <div class="user-box-body">
-                <img
-                  class="avatar"
-                  :src="userData.headImage"
-                  :alt="userData.username"
-                />
+                <img class="avatar" :src="userData.headImage" :alt="userData.username" />
                 <div class="username">{{ userData.username }}</div>
                 <div class="mobile">{{ userData.mobile }}</div>
                 <div
@@ -306,7 +241,6 @@ import { computed, reactive, ref, toRefs, watch } from "vue";
 import { useMyRouter, useSearchHistory } from "../utils/hooks";
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
-import { tagsList } from "@/api/data";
 
 export default {
   name: "my-header",
@@ -329,12 +263,9 @@ export default {
   setup(props: { homeHeader: boolean }) {
     const store = useStore();
     const { query, route, switchPage, routerBack } = useMyRouter();
-    const { searchHistory, searchWord, deleteWord, clearHistory } =
-      useSearchHistory();
+    const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
     const searchInput = ref();
-    const mySearchHistory = computed(() =>
-      searchHistory.value.filter((item) => item.includes(data.searchKey))
-    );
+    const mySearchHistory = computed(() => searchHistory.value.filter((item) => item.includes(data.searchKey)));
 
     const data = reactive({
       searchKey: "",
@@ -418,7 +349,7 @@ export default {
             data.searchHistoryShow = true;
             if (data.searchWordCatch === null) {
               data.searchWordCatch = 0;
-            } else if (data.searchWordCatch !== 9) {
+            } else if (data.searchWordCatch !== mySearchHistory.value.length - 1) {
               data.searchWordCatch = data.searchWordCatch + 1;
             }
             break;
@@ -455,7 +386,6 @@ export default {
       switchPage,
       routerBack,
       ...store.state,
-      tagsList,
       searchInput,
       searchHistory,
       mySearchHistory,
@@ -632,8 +562,8 @@ export default {
 
         .btn {
           width: 100%;
+          height: 52px;
           border-radius: 4px;
-          padding: 15px 0;
           color: #222;
           background-color: #fff;
           display: flex;
@@ -643,6 +573,10 @@ export default {
           &:active {
             color: var(--deriveColor);
             background: rgba(93, 145, 145, 0.05);
+          }
+
+          & + .btn {
+            margin-top: 10px;
           }
 
           .freelog {

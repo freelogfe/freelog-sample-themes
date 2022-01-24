@@ -20,19 +20,17 @@ export interface GetExhibitInfoParams {
   isLoadVersionProperty?: 0 | 1; // 是否需要展品版本属性
 }
 
+// 获取签约展品列表请求参数
+export interface GetSignStatisticsParams {
+  keywords: string; // 搜索关键词
+}
+
 /**
  * 获取展品列表
  * @param query GetExhibitListByPagingParams
  */
 export const getExhibitListByPaging = (query: GetExhibitListByPagingParams) => {
   return MyWindow.freelogApp.getExhibitListByPaging(query);
-};
-
-/**
- * 获取签约展品列表
- */
-export const getSignStatistics = () => {
-  return MyWindow.freelogApp.getSignStatistics();
 };
 
 /**
@@ -50,6 +48,14 @@ export const getExhibitListById = (query: GetExhibitListByIdParams) => {
  */
 export const getExhibitInfo = (id: string, query: GetExhibitInfoParams = {}) => {
   return MyWindow.freelogApp.getExhibitInfo(id, query);
+};
+
+/**
+ * 获取签约展品列表
+ * @param query GetSignStatisticsParams
+ */
+export const getSignStatistics = (query: GetSignStatisticsParams) => {
+  return MyWindow.freelogApp.getSignStatistics(query);
 };
 
 /**

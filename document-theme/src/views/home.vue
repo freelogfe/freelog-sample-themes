@@ -46,7 +46,9 @@
               <div class="btn-info">
                 <div class="btn-title">下一篇</div>
                 <div class="document-title">
-                  {{ currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : "当前为最后一篇" }}
+                  {{
+                    currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : "当前为最后一篇"
+                  }}
                 </div>
               </div>
               <i class="freelog fl-icon-fangxiang"></i>
@@ -69,46 +71,70 @@
               <i class="freelog fl-icon-guanbi" @click="directoryShow = false"></i>
             </div>
 
-            <!-- 搜索框 -->
-            <div class="search-box">
-              <div class="input-box">
-                <input
-                  class="search-input"
-                  v-model="searchKey"
-                  placeholder="输入文档名称或关键字"
-                  @keyup.enter="search()"
-                  @keyup.esc="searchKey = ''"
+            <template v-if="!viewOffline">
+              <!-- 搜索框 -->
+              <div class="search-box">
+                <div class="input-box">
+                  <input
+                    class="search-input"
+                    v-model="searchKey"
+                    placeholder="输入文档名称或关键字"
+                    @keyup.enter="search()"
+                    @keyup.esc="searchKey = ''"
+                  />
+                  <i class="freelog fl-icon-content"></i>
+                </div>
+
+                <div class="search-tip" v-show="searching">
+                  <div class="tip">查询到{{ listData.length }}个相关结果</div>
+                  <div class="clear-btn" @click="clearSearch()">清空</div>
+                </div>
+              </div>
+
+              <div
+                class="list-item"
+                :class="{ active: currentId === item.exhibitId }"
+                v-for="item in listData"
+                :key="item.exhibitId"
+                @click="
+                  switchPage('/home', { id: item.exhibitId });
+                  directoryShow = false;
+                "
+              >
+                <div class="item-title-box">
+                  <div class="item-title">{{ item.exhibitTitle }}</div>
+                </div>
+                <img
+                  class="item-lock"
+                  src="../assets/images/mini-lock.png"
+                  title="授权"
+                  @click.stop="getAuth(item)"
+                  v-if="!item.isAuth"
                 />
-                <i class="freelog fl-icon-content"></i>
+              </div>
+            </template>
+
+            <template v-if="viewOffline">
+              <div class="offline-tip">
+                <div class="tip">当前文档已下架，已签约可继续浏览</div>
+                <div class="text-btn mobile" @click="switchPage('/home')">返回列表</div>
               </div>
 
-              <div class="search-tip" v-show="searching">
-                <div class="tip">查询到{{ listData.length }}个相关结果</div>
-                <div class="clear-btn" @click="clearSearch()">清空</div>
-              </div>
-            </div>
-          </div>
+              <div class="list-item active">
+                <div class="item-title-box">
+                  <div class="item-title">{{ documentData.exhibitTitle }}</div>
+                  <div class="offline">已下架</div>
+                </div>
 
-          <div
-            class="list-item"
-            :class="{ active: currentId === item.exhibitId }"
-            v-for="item in listData"
-            :key="item.exhibitId"
-            @click="
-              switchPage('/home', { id: item.exhibitId });
-              directoryShow = false;
-            "
-          >
-            <div class="item-title" :title="item.exhibitTitle">
-              {{ item.exhibitTitle }}
-            </div>
-            <img
-              class="item-lock"
-              src="../assets/images/mini-lock.png"
-              title="授权"
-              @click.stop="getAuth(item)"
-              v-if="!item.isAuth"
-            />
+                <img
+                  class="item-lock"
+                  src="../assets/images/mini-lock.png"
+                  title="授权"
+                  @click.stop="getAuth(documentData)"
+                  v-if="!documentData.isAuth"
+                />
+              </div>
+            </template>
           </div>
         </div>
       </transition>
@@ -126,43 +152,101 @@
     <div class="home-body" @click="sharePopupShow = false" v-if="!inMobile">
       <!-- 列表条 -->
       <div class="list-bar" :class="{ large: !directoryList.length }">
-        <!-- 搜索框 -->
-        <div class="search-box">
-          <div class="input-box">
-            <input
-              class="search-input"
-              v-model="searchKey"
-              placeholder="输入文档名称或关键字"
-              @keyup.enter="search()"
-              @keyup.esc="searchKey = ''"
+        <template v-if="!viewOffline">
+          <!-- 搜索框 -->
+          <div class="search-box">
+            <div class="input-box">
+              <input
+                ref="searchInput"
+                class="search-input input-none"
+                :class="{ 'in-focus': searchKey }"
+                v-model="searchKey"
+                placeholder="输入文档名称或关键字"
+                @input="searchKeyInput()"
+                @keyup="inputKeyUp($event)"
+                @focus="searchHistoryShow = true"
+                @blur="searchHistoryShow = false"
+              />
+              <i class="freelog fl-icon-content"></i>
+              <i
+                class="freelog fl-icon-guanbi text-btn"
+                @click="
+                  searchKey = '';
+                  search();
+                "
+                v-show="searchKey"
+              ></i>
+
+              <transition name="fade">
+                <div class="search-history" v-if="searchHistoryShow && mySearchHistory.length !== 0">
+                  <div
+                    class="history-item"
+                    :class="{ catch: searchWordCatch === index }"
+                    v-for="(item, index) in mySearchHistory"
+                    :key="item"
+                    @click="clickSearchHistory(item)"
+                    @mousemove="searchWordCatch = index"
+                  >
+                    <div class="item-word">{{ item }}</div>
+                    <i class="freelog fl-icon-guanbi" @click.stop="deleteSearchHistory(item)"></i>
+                  </div>
+
+                  <div class="text-btn" @click="clearHistory()">清空搜索记录</div>
+                </div>
+              </transition>
+            </div>
+
+            <div class="search-tip" v-show="searching">
+              <div class="tip">查询到{{ listData.length }}个相关结果</div>
+              <div class="clear-btn" @click="clearSearch()">清空</div>
+            </div>
+          </div>
+
+          <div
+            class="list-item"
+            :class="{ active: currentId === item.exhibitId }"
+            v-for="item in listData"
+            :key="item.exhibitId"
+            @click="switchPage('/home', { id: item.exhibitId })"
+          >
+            <div class="item-title-box">
+              <div class="item-title" :title="documentData.exhibitTitle">
+                {{ item.exhibitTitle }}
+              </div>
+            </div>
+            <img
+              class="item-lock"
+              src="../assets/images/mini-lock.png"
+              title="授权"
+              @click.stop="getAuth(item)"
+              v-if="!item.isAuth"
             />
-            <i class="freelog fl-icon-content"></i>
+          </div>
+        </template>
+
+        <template v-if="viewOffline">
+          <div class="offline-tip">
+            <div class="tip">当前文档已下架，已签约可继续浏览</div>
+            <div class="text-btn" @click="switchPage('/home')">返回列表</div>
           </div>
 
-          <div class="search-tip" v-show="searching">
-            <div class="tip">查询到{{ listData.length }}个相关结果</div>
-            <div class="clear-btn" @click="clearSearch()">清空</div>
-          </div>
-        </div>
+          <div class="list-item active">
+            <div class="item-title-box">
+              <div class="item-title" :title="documentData.exhibitTitle">
+                {{ documentData.exhibitTitle }}
+              </div>
+              <div class="offline">已下架</div>
+            </div>
 
-        <div
-          class="list-item"
-          :class="{ active: currentId === item.exhibitId }"
-          v-for="item in listData"
-          :key="item.exhibitId"
-          @click="switchPage('/home', { id: item.exhibitId })"
-        >
-          <div class="item-title" :title="item.exhibitTitle">
-            {{ item.exhibitTitle }}
+            <img
+              class="item-lock"
+              src="../assets/images/mini-lock.png"
+              title="授权"
+              @click.stop="getAuth(documentData)"
+              v-if="!documentData.isAuth"
+            />
           </div>
-          <img
-            class="item-lock"
-            src="../assets/images/mini-lock.png"
-            title="授权"
-            @click.stop="getAuth(item)"
-            v-if="!item.isAuth"
-          />
-        </div>
+        </template>
       </div>
 
       <!-- 内容区域 -->
@@ -261,12 +345,19 @@
 </template>
 
 <script lang="ts">
-import { computed, defineAsyncComponent, onUnmounted, reactive, toRefs, watch } from "vue";
+import { computed, defineAsyncComponent, onUnmounted, reactive, ref, toRefs, watch } from "vue";
 import { useStore } from "vuex";
 import { useGetList, useMyRouter, useMyScroll } from "@/utils/hooks";
-import { addAuth, getExhibitFileStream, getExhibitSignCount } from "@/api/freelog";
+import {
+  addAuth,
+  getExhibitFileStream,
+  getExhibitSignCount,
+  getExhibitInfo,
+  getExhibitAuthStatus,
+} from "@/api/freelog";
 import { ExhibitItem } from "@/api/interface";
 import { relativeTime } from "@/utils/common";
+import { useSearchHistory } from "../utils/hooks";
 
 export default {
   name: "home",
@@ -283,8 +374,11 @@ export default {
   setup() {
     const store = useStore();
     const { query, switchPage } = useMyRouter();
+    const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
     const { scrollTop, scrollTo, scrollToTop } = useMyScroll();
     const datasOfGetList = useGetList();
+    const searchInput = ref();
+    const mySearchHistory = computed(() => searchHistory.value.filter((item) => item.includes(data.searchKey)));
 
     const data = reactive({
       currentId: "",
@@ -294,7 +388,11 @@ export default {
       sharePopupShow: false,
       searchKey: "",
       searching: false,
+      searchPopupShow: false,
+      searchHistoryShow: false,
+      searchWordCatch: null as number | null,
       directoryShow: false,
+      viewOffline: false,
     });
 
     const currentIndex = computed(() => {
@@ -302,6 +400,78 @@ export default {
     });
 
     const methods = {
+      // 输入搜索词
+      searchKeyInput(inHomeSearch = false) {
+        data.searchKey = (data.searchKey || "").trim();
+        data.searchHistoryShow = true;
+        data.searchWordCatch = null;
+        if (inHomeSearch) {
+          !data.searchKey && switchPage("/home");
+          data.searchPopupShow = !data.searchKey;
+        }
+      },
+
+      // 点击历史搜索词
+      clickSearchHistory(item: string) {
+        data.searchKey = item;
+        searchWord(data.searchKey);
+        this.search();
+        data.searchHistoryShow = false;
+      },
+
+      // 删除历史搜索词
+      deleteSearchHistory(item: string) {
+        searchInput.value.focus();
+        deleteWord(item);
+      },
+
+      // 搜索历史关键词
+      selectTag(item: string) {
+        data.searchPopupShow = false;
+        data.searchKey = item;
+        this.search();
+      },
+
+      // 搜索框键盘事件
+      inputKeyUp(e: { keyCode: any }) {
+        switch (e.keyCode) {
+          case 13:
+            // 回车
+            if (data.searchWordCatch !== null) {
+              data.searchKey = mySearchHistory.value[data.searchWordCatch];
+            }
+            data.searchWordCatch = null;
+            data.searchHistoryShow = false;
+            searchWord(data.searchKey);
+            this.search();
+            break;
+          case 27:
+            // esc
+            data.searchKey = "";
+            data.searchWordCatch = null;
+            data.searchHistoryShow = true;
+            break;
+          case 38:
+            // 上
+            if (data.searchWordCatch === null || data.searchWordCatch === 0) {
+              data.searchWordCatch = null;
+            } else {
+              data.searchWordCatch = data.searchWordCatch - 1;
+            }
+            break;
+          case 40:
+            // 下
+            data.searchHistoryShow = true;
+            if (data.searchWordCatch === null) {
+              data.searchWordCatch = 0;
+            } else if (data.searchWordCatch !== mySearchHistory.value.length - 1) {
+              data.searchWordCatch = data.searchWordCatch + 1;
+            }
+            break;
+          default:
+            break;
+        }
+      },
       // 授权
       async getAuth(item: ExhibitItem) {
         const authResult = await addAuth(item.exhibitId);
@@ -326,7 +496,7 @@ export default {
       // 搜索
       search() {
         const { searchKey } = data;
-        const query: { sort: string; keywords?: string } = { sort: store.state.selfConfig.sort };
+        const query: { keywords?: string } = {};
         if (searchKey) query.keywords = searchKey;
         datasOfGetList.getList(query, true);
       },
@@ -340,15 +510,26 @@ export default {
 
     // 获取列表数据
     const getData = () => {
+      data.viewOffline = false;
+      data.directoryShow = false;
       datasOfGetList.getList({ sort: store.state.selfConfig.sort }, true);
     };
 
     // 获取文档数据
     const getDocumentData = async (id = "") => {
       const exhibitId = id || data.currentId;
-      const documentData = datasOfGetList.listData.value.find((item) => item.exhibitId === exhibitId);
+      let documentData: any = datasOfGetList.listData.value.find((item) => item.exhibitId === exhibitId);
+      data.viewOffline = false;
 
-      if (!documentData) return;
+      if (!documentData) {
+        data.viewOffline = true;
+        const exhibitInfo = await getExhibitInfo(exhibitId, {
+          isLoadVersionProperty: 1,
+        });
+        documentData = exhibitInfo.data.data;
+        const statusInfo = await getExhibitAuthStatus(exhibitId);
+        documentData.isAuth = statusInfo.data.data ? statusInfo.data.data[0].isAuth : false;
+      }
 
       if (!id) {
         const signCountData = await getExhibitSignCount(exhibitId);
@@ -393,10 +574,7 @@ export default {
     watch(
       () => query.value,
       (cur) => {
-        if (cur && cur.id !== data.currentId) {
-          data.currentId = cur.id;
-          getDocumentData();
-        }
+        if (cur.id !== data.currentId) getData();
       }
     );
 
@@ -425,6 +603,12 @@ export default {
       ...store.state,
       ...datasOfGetList,
       switchPage,
+      searchHistory,
+      mySearchHistory,
+      searchWord,
+      deleteWord,
+      clearHistory,
+      searchInput,
       ...toRefs(data),
       currentIndex,
       ...methods,
@@ -732,9 +916,32 @@ export default {
         }
       }
 
+      .offline-tip {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 40px;
+        padding-bottom: 25px;
+
+        .tip {
+          font-size: 14px;
+          font-weight: 400;
+          color: #666666;
+          line-height: 20px;
+        }
+
+        .text-btn {
+          font-size: 14px;
+          line-height: 20px;
+          margin-top: 20px;
+        }
+      }
+
       .list-item {
         width: 100%;
-        padding: 17px 15px;
+        height: 56px;
+        padding: 0 15px;
         box-sizing: border-box;
         background: rgba(0, 0, 0, 0.03);
         border-radius: 8px;
@@ -745,7 +952,7 @@ export default {
           background: rgba(39, 132, 255, 0.05);
 
           .item-title {
-            color: #2784ff;
+            color: #2784ff !important;
           }
         }
 
@@ -753,15 +960,38 @@ export default {
           margin-top: 10px;
         }
 
-        .item-title {
+        .item-title-box {
           flex: 1;
-          font-size: 16px;
-          font-weight: 600;
-          color: #222222;
-          line-height: 22px;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
+          width: 0;
+          display: flex;
+          align-items: center;
+
+          .item-title {
+            max-width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+            color: #999;
+            line-height: 22px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            transition: all 0.2s linear;
+          }
+
+          .offline {
+            flex-shrink: 0;
+            width: 40px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 5px;
+          }
         }
 
         .item-lock {
@@ -819,25 +1049,25 @@ export default {
         .input-box {
           position: relative;
           width: 100%;
-          height: 38px;
           display: flex;
           align-items: center;
 
           .search-input {
-            height: 100%;
             flex: 1;
             width: 0;
+            height: 38px;
+            border-radius: 38px;
             font-size: 14px;
             color: #222;
             font-weight: bold;
             padding: 0 39px;
             box-sizing: border-box;
             transition: all 0.2s linear;
-            border-radius: 38px;
             border: 1px solid #e4e4e4;
 
             &:hover,
-            &:focus {
+            &:focus,
+            &.in-focus {
               border: 1px solid #2784ff;
             }
 
@@ -856,6 +1086,88 @@ export default {
             align-items: center;
             justify-content: center;
             color: #8e8e93;
+          }
+
+          .fl-icon-guanbi {
+            position: absolute;
+            right: 15px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2px;
+            cursor: pointer;
+          }
+
+          .search-history {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 100%;
+            margin-top: 5px;
+            min-height: 170px;
+            background-color: #fff;
+            background: #ffffff;
+            box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            padding: 4px;
+            padding-bottom: 50px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+
+            .history-item {
+              width: 100%;
+              height: 34px;
+              border-radius: 4px;
+              padding: 0 11px;
+              box-sizing: border-box;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              cursor: pointer;
+              transition: all 0.2s linear;
+
+              &.catch,
+              &:hover {
+                background: rgba(0, 0, 0, 0.03);
+
+                .freelog {
+                  opacity: 1;
+                }
+              }
+
+              .item-word {
+                font-size: 12px;
+                color: #222222;
+              }
+
+              .freelog {
+                width: 10px;
+                height: 10px;
+                font-size: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #999;
+                cursor: pointer;
+                transition: all 0.2s linear;
+                opacity: 0;
+
+                &:hover {
+                  color: #a9a9ad;
+                }
+              }
+            }
+
+            .text-btn {
+              position: absolute;
+              bottom: 12px;
+              font-size: 12px;
+              line-height: 18px;
+            }
           }
         }
 
@@ -887,34 +1199,85 @@ export default {
         }
       }
 
+      .offline-tip {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 30px;
+        padding-bottom: 20px;
+
+        .tip {
+          font-size: 12px;
+          font-weight: 400;
+          color: #666666;
+          line-height: 17px;
+        }
+
+        .text-btn {
+          font-size: 12px;
+          line-height: 17px;
+          margin-top: 15px;
+          cursor: pointer;
+        }
+      }
+
       .list-item {
         width: 100%;
+        height: 50px;
         padding: 15px 30px;
         box-sizing: border-box;
         display: flex;
         align-items: center;
         cursor: pointer;
-        transition: all 0.2s linear;
+        transition: background 0.2s linear;
 
         &:hover,
         &.active {
           background: rgba(0, 0, 0, 0.03);
 
           .item-title {
-            color: #222222;
+            color: #222222 !important;
           }
         }
 
-        .item-title {
+        &.active {
+          border-top: 1px solid #e5e5e5;
+          border-bottom: 1px solid #e5e5e5;
+        }
+
+        .item-title-box {
           flex: 1;
-          font-size: 14px;
-          font-weight: 600;
-          color: #999999;
-          line-height: 20px;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          transition: all 0.2s linear;
+          width: 0;
+          display: flex;
+          align-items: center;
+
+          .item-title {
+            max-width: 100%;
+            font-size: 14px;
+            font-weight: 600;
+            color: #999;
+            line-height: 20px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            transition: all 0.2s linear;
+          }
+
+          .offline {
+            flex-shrink: 0;
+            width: 40px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 5px;
+          }
         }
 
         .item-lock {
@@ -1239,10 +1602,13 @@ export default {
       .list-bar {
         .search-box,
         .list-item {
-          width: 280px !important;
+          width: 326px !important;
         }
       }
     }
   }
 }
 </style>
+
+function getExhibitInfo(id: string, arg1: { isLoadVersionProperty: number; }) { throw new Error('Function not
+implemented.'); }

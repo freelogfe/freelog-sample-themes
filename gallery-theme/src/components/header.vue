@@ -72,7 +72,7 @@
         <div class="recommend-tags">
           <div class="recommend-tags-title">推荐标签</div>
           <div class="recommend-tags-list">
-            <div class="tag" v-for="item in galleryTags" :key="item" @click="selectTag(item)">
+            <div class="tag" v-for="item in tagsList" :key="item" @click="selectTag(item)">
               {{ item }}
             </div>
           </div>
@@ -147,7 +147,7 @@
       <div
         class="category-btn"
         :class="{ active: tags === item }"
-        v-for="item in galleryTags"
+        v-for="item in tagsList"
         :key="item"
         @click="selectTag(item)"
       >
@@ -175,7 +175,7 @@ export default {
 
   setup(props: { homeHeader: boolean }) {
     const store = useStore();
-    let galleryTags: string[] = store.state.selfConfig.tags.split(",");
+    let tagsList: string[] = store.state.selfConfig.tags.split(",");
     const { query, switchPage, routerBack } = useMyRouter();
 
     const data = reactive({
@@ -230,7 +230,7 @@ export default {
       switchPage,
       routerBack,
       ...toRefs(store.state),
-      galleryTags,
+      tagsList,
       ...toRefs(data),
       ...methods,
     };

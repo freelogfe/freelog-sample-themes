@@ -1,4 +1,11 @@
-import { getExhibitAuthStatus, getExhibitListByPaging, GetExhibitListByPagingParams } from "@/api/freelog";
+import {
+  getExhibitAuthStatus,
+  getExhibitListById,
+  GetExhibitListByIdParams,
+  getExhibitListByPaging,
+  GetExhibitListByPagingParams,
+  getSignStatistics,
+} from "@/api/freelog";
 import { onUnmounted, reactive, ref, toRefs, watchEffect } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
@@ -8,30 +15,30 @@ import { ExhibitItem } from "../api/interface";
  * 路由hook
  */
 export const useMyRouter = () => {
+  const store = useStore();
   const router = useRouter();
   const route = useRoute();
   const query = ref();
 
   watchEffect(() => {
-    query.value = route.query;
+    query.value = { ...route.query };
   });
 
-  router.beforeEach((to, from, next) => {
-    if (to.fullPath !== from.fullPath) {
-      next();
-    } else {
-      router.replace("/");
-    }
-  });
+  // router.beforeEach((to, from, next) => {
+  //   if (to.fullPath !== from.fullPath) {
+  //     next();
+  //   } else {
+  //     router.replace("/");
+  //   }
+  // });
 
-  /**
-   * 路由跳转方法
-   * @param path 路由
-   * @param query 参数
-   * @param mode 路由修改模式 0-全部替换参数 1-保留原有参数的基础上修改参数
-   */
-  const switchPage = (path: string, query: any = {}, mode = 0) => {
-    router.push({ path, query: mode === 0 ? query : { ...router.currentRoute.value.query, ...query } });
+  // 路由跳转方法
+  const switchPage = (path: string, query: any = {}) => {
+    const { locationHistory } = store.state;
+    router.push({ path, query });
+    locationHistory.push({ path, query });
+
+    store.commit("setData", { key: "locationHistory", value: locationHistory });
   };
 
   // 路由跳转方法
@@ -44,7 +51,7 @@ export const useMyRouter = () => {
     return router.currentRoute.value.fullPath;
   };
 
-  return { query, switchPage, routerBack, getCurrentPath };
+  return { query, route, switchPage, routerBack, getCurrentPath };
 };
 
 /**
@@ -104,6 +111,101 @@ export const useGetList = (inList = false) => {
     getList,
     clearData,
   };
+};
+
+/**
+ * 我的已签约展品hook
+ */
+export const useMySignedList = () => {
+  interface SignedItem {
+    subjectId: string;
+    isAuth: boolean;
+  }
+
+  const store = useStore();
+  const data = reactive({
+    mySignedList: <ExhibitItem[]>[],
+    loading: false,
+  });
+
+  // 获取已签约展品数据
+  const getMySignedList = async (keywords = "") => {
+    // 用户未登录
+    if (!store.state.userData) return;
+
+    const signedList: any = await getSignStatistics({ keywords });
+    const ids: string[] = [];
+    signedList.data.data.forEach((item: SignedItem) => {
+      ids.push(item.subjectId);
+    });
+
+    if (ids.length === 0) {
+      data.mySignedList = [];
+      return;
+    }
+
+    const exhibitIds = ids.join(",");
+    const queryParams: GetExhibitListByIdParams = { exhibitIds };
+    const list = await getExhibitListById(queryParams);
+    if (list.data.data.length !== 0) {
+      list.data.data.forEach((item: ExhibitItem) => {
+        const signedItem = signedList.data.data.find((listItem: SignedItem) => listItem.subjectId === item.exhibitId);
+        item.isAuth = signedItem.isAuth;
+      });
+    }
+    data.mySignedList = list.data.data.filter((item: ExhibitItem) => item.articleInfo.resourceType !== "theme");
+  };
+
+  getMySignedList();
+
+  return {
+    ...toRefs(data),
+    getMySignedList,
+  };
+};
+
+/**
+ * 搜索历史hook
+ */
+export const useSearchHistory = () => {
+  const data = reactive({
+    searchHistory: [] as string[],
+  });
+
+  // 获取搜索历史
+  const getSearchHistory = async () => {
+    const json = localStorage.getItem("searchHistory") || "[]";
+    data.searchHistory = JSON.parse(json);
+  };
+
+  // 搜索
+  const searchWord = (keywords: string) => {
+    keywords = keywords.trim();
+    if (!keywords) return;
+    const index = data.searchHistory.findIndex((item) => item === keywords);
+    if (index !== -1) data.searchHistory.splice(index, 1);
+    if (data.searchHistory.length === 10) data.searchHistory.pop();
+    data.searchHistory.unshift(keywords);
+    localStorage.setItem("searchHistory", JSON.stringify(data.searchHistory));
+  };
+
+  // 删除搜索词
+  const deleteWord = (keywords: string) => {
+    const index = data.searchHistory.findIndex((item) => item === keywords);
+    if (index === -1) return;
+    data.searchHistory.splice(index, 1);
+    localStorage.setItem("searchHistory", JSON.stringify(data.searchHistory));
+  };
+
+  // 清空搜索词
+  const clearHistory = () => {
+    localStorage.setItem("searchHistory", "[]");
+    data.searchHistory = [];
+  };
+
+  getSearchHistory();
+
+  return { ...toRefs(data), searchWord, deleteWord, clearHistory };
 };
 
 /**

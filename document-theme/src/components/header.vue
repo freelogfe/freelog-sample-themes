@@ -1,7 +1,14 @@
 <template>
   <!-- mobile -->
   <div class="mobile-header-wrapper" v-if="inMobile">
-    <i class="freelog fl-icon-xiaoshuomulu" @click="openDirectory()"></i>
+    <i class="freelog fl-icon-xiaoshuomulu" @click="openDirectory()" v-if="route.path === '/home'"></i>
+
+    <div class="back-btn" @click="locationHistory.length <= 1 ? switchPage('/home') : routerBack()" v-else>
+      <img class="back-arrow" src="../assets/images/arrow.png" />
+      <div class="back-label">
+        {{ locationHistory.length === 1 ? "首页" : "返回" }}
+      </div>
+    </div>
 
     <img
       class="avatar"
@@ -19,11 +26,34 @@
     </transition>
     <transition name="slide-right">
       <div class="user-box-body" v-if="userBoxShow">
-        <img class="avatar" :src="userData?.headImage" :alt="userData?.username" />
-        <div class="username">{{ userData?.username }}</div>
+        <div class="user-box-top">
+          <img class="avatar" :src="userData.headImage" :alt="userData.username" />
+          <div class="username">
+            {{ userData.username }}
+          </div>
+          <div class="close-btn" @click="userBoxShow = false">
+            <i class="freelog fl-icon-guanbi"></i>
+          </div>
+        </div>
         <div class="btns">
-          <div class="btn" @click="callLoginOut()">
-            <div class="btn-content">退出登录</div>
+          <div class="menu-btns">
+            <div
+              class="btn"
+              :class="{ active: route.path === '/home' }"
+              @click="route.path !== '/home' && switchPage('/home')"
+            >
+              <i class="freelog fl-icon-shouye"></i>
+              <div class="btn-label">首页</div>
+            </div>
+            <div class="btn" :class="{ active: route.path === '/signedList' }" @click="switchPage('/signedList')">
+              <i class="freelog fl-icon-lishi"></i>
+              <div class="btn-label">已签约文档</div>
+            </div>
+          </div>
+
+          <div class="footer-btn" @click="callLoginOut()">
+            <i class="freelog fl-icon-tuichu1"></i>
+            <div class="btn-label">退出登录</div>
           </div>
         </div>
       </div>
@@ -33,7 +63,11 @@
   <!-- PC -->
   <div class="header-wrapper" v-if="!inMobile">
     <!-- logo -->
-    <img class="logo" :src="selfConfig.logoImage || require('../assets/images/logo.png')" />
+    <img
+      class="logo"
+      :src="selfConfig.logoImage || require('../assets/images/logo.png')"
+      @click="switchPage('/home')"
+    />
 
     <!-- 已登录区域 -->
     <div class="user-avatar" @mouseover="userBoxShow = true" @mouseleave="userBoxShow = false" v-if="userData">
@@ -46,6 +80,7 @@
             <img class="avatar" :src="userData.headImage" :alt="userData.username" />
             <div class="username">{{ userData.username }}</div>
             <div class="mobile">{{ userData.mobile }}</div>
+            <div class="btn" @click="switchPage('/signedList')">已签约文档</div>
             <div class="btn" @click="callLoginOut()">登出</div>
           </div>
         </div>
@@ -64,14 +99,16 @@
 import { reactive, SetupContext, toRefs } from "vue";
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
+import { useMyRouter } from "../utils/hooks";
 
 export default {
   name: "my-header",
 
-  emits: ['openDirectory'],
+  emits: ["openDirectory"],
 
   setup(props: any, context: SetupContext) {
     const store = useStore();
+    const { route, switchPage, routerBack } = useMyRouter();
 
     const data = reactive({
       userBoxShow: false,
@@ -86,14 +123,17 @@ export default {
 
       // 通知父组件打开目录
       openDirectory() {
-        context.emit('openDirectory');
-      }
+        context.emit("openDirectory");
+      },
     };
 
     return {
       callLogin,
       callLoginOut,
       ...toRefs(store.state),
+      route,
+      switchPage,
+      routerBack,
       ...toRefs(data),
       ...methods,
     };
@@ -117,7 +157,7 @@ export default {
   box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.1);
   z-index: 1;
 
-  .freelog {
+  .fl-icon-xiaoshuomulu {
     width: 42px;
     height: 32px;
     font-size: 20px;
@@ -127,6 +167,22 @@ export default {
     color: #222;
     border-radius: 4px;
     border: 1px solid #dfdfdf;
+  }
+
+  .back-btn {
+    display: flex;
+    align-items: center;
+
+    .back-arrow {
+      width: 7px;
+      height: 12px;
+    }
+
+    .back-label {
+      font-size: 16px;
+      color: #222;
+      margin-left: 10px;
+    }
   }
 
   .avatar {
@@ -172,52 +228,130 @@ export default {
     width: 340px;
     background: #ffffff;
     border-radius: 0px 10px 10px 0px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    z-index: 100;
+    z-index: 101;
 
-    .avatar {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      border: 1px solid #d1d1d1;
-      margin-top: 40px;
-    }
+    .user-box-top {
+      position: relative;
+      width: 100%;
+      height: 194px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #2784ff 0%, #42c28c 100%);
 
-    .username {
-      font-size: 16px;
-      line-height: 22px;
-      color: #222222;
-      font-weight: bold;
-      margin-top: 20px;
-      margin-bottom: 40px;
+      .avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        border: 1px solid #d1d1d1;
+      }
+
+      .username {
+        font-size: 16px;
+        line-height: 22px;
+        color: #fff;
+        font-weight: bold;
+        margin-top: 20px;
+      }
+
+      .close-btn {
+        position: absolute;
+        right: 31px;
+        top: 31px;
+        width: 12px;
+        height: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .freelog {
+          font-size: 12px;
+          color: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
     }
 
     .btns {
       width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 25px 20px 0;
+      box-sizing: border-box;
 
-      .btn {
-        width: 100%;
-        padding: 0 20px;
-        box-sizing: border-box;
+      .menu-btns {
+        flex: 1;
 
-        &:active {
-          background-color: rgba(0, 0, 0, 0.02);
+        .btn {
+          width: 100%;
+          height: 52px;
+          border-radius: 4px;
+          color: #222;
+          background-color: #fff;
+          display: flex;
+          align-items: center;
+
+          &.active,
+          &:active {
+            color: #2784ff;
+            background: rgba(39, 132, 255, 0.05);
+          }
+
+          & + .btn {
+            margin-top: 10px;
+          }
+
+          .freelog {
+            font-size: 16px;
+            margin: 0 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .btn-label {
+            font-size: 16px;
+          }
         }
+      }
 
-        .btn-content {
-          height: 60px;
+      .footer-btn {
+        width: 100%;
+        height: 102px;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        color: #222;
+        display: flex;
+        align-items: center;
+
+        .freelog {
           font-size: 16px;
-          color: #222222;
+          margin: 0 11px;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-top: 1px solid rgba(0, 0, 0, 0.1);
         }
 
-        &:last-child .btn-content {
-          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        .btn-label {
+          font-size: 16px;
+        }
+
+        .main-btn {
+          width: 100%;
+          height: 48px;
+          border-radius: 48px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 16px;
+          font-weight: 600;
+          color: #ffffff;
         }
       }
     }

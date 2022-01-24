@@ -1,10 +1,6 @@
 <template>
   <!-- 移动端头部 -->
-  <div
-    class="mobile-header-wrapper"
-    :class="{ 'in-home': homeHeader }"
-    v-if="inMobile && !mobileSearching"
-  >
+  <div class="mobile-header-wrapper" :class="{ 'in-home': homeHeader }" v-if="inMobile && !mobileSearching">
     <!-- header顶部 -->
     <div class="header-top" :class="{ logon: userData }">
       <img
@@ -19,17 +15,9 @@
       </div>
 
       <div class="header-top-right">
-        <i
-          class="freelog fl-icon-content"
-          @click="searchPopupShow = true"
-          v-if="!readerHeader"
-        ></i>
+        <i class="freelog fl-icon-content" @click="searchPopupShow = true" v-if="!readerHeader"></i>
 
-        <img
-          class="menu"
-          src="../assets/images/menu.png"
-          @click="userBoxShow = true"
-        />
+        <img class="menu" src="../assets/images/menu.png" @click="userBoxShow = true" />
       </div>
     </div>
 
@@ -37,11 +25,7 @@
     <template v-if="homeHeader">
       <div class="header-other-info">
         <div class="blogger-avatar">
-          <img
-            :src="selfConfig.bloggerAvatar"
-            alt="博主头像"
-            class="avatar-img"
-          />
+          <img :src="selfConfig.bloggerAvatar" alt="博主头像" class="avatar-img" />
         </div>
         <div class="sign-count">总签约量：{{ signCount }}人</div>
       </div>
@@ -57,13 +41,7 @@
     </template>
 
     <transition name="fade">
-      <div
-        id="modal"
-        class="modal"
-        @click="userBoxShow = false"
-        @touchmove.prevent
-        v-if="userBoxShow"
-      ></div>
+      <div id="modal" class="modal" @click="userBoxShow = false" @touchmove.prevent v-if="userBoxShow"></div>
     </transition>
 
     <transition name="slide-right">
@@ -71,10 +49,7 @@
         <div class="user-box-top">
           <img
             class="avatar"
-            :src="
-              userData?.headImage ||
-              require('../assets/images/default-avatar.png')
-            "
+            :src="userData?.headImage || require('../assets/images/default-avatar.png')"
             :alt="userData?.username || '未登录'"
             @click="!userData && callLogin()"
           />
@@ -145,17 +120,9 @@
             <div class="text-btn" @click="clearHistory()">清空</div>
           </div>
           <div class="search-history-box-list">
-            <div
-              class="tag"
-              v-for="item in searchHistory"
-              :key="item"
-              @click="selectTag(item)"
-            >
+            <div class="tag" v-for="item in searchHistory" :key="item" @click="selectTag(item)">
               {{ item }}
-              <i
-                class="freelog fl-icon-guanbi"
-                @click.stop="deleteWord(item)"
-              ></i>
+              <i class="freelog fl-icon-guanbi" @click.stop="deleteWord(item)"></i>
             </div>
           </div>
         </div>
@@ -164,10 +131,7 @@
   </div>
 
   <!-- 移动端首页搜索头部 -->
-  <div
-    class="mobile-search-header-wrapper"
-    v-if="inMobile && homeHeader && mobileSearching"
-  >
+  <div class="mobile-search-header-wrapper" v-if="inMobile && homeHeader && mobileSearching">
     <div class="search-page-box">
       <input
         class="search-input input-none"
@@ -219,10 +183,7 @@
           ></i>
 
           <transition name="fade">
-            <div
-              class="search-history"
-              v-if="searchHistoryShow && mySearchHistory.length !== 0"
-            >
+            <div class="search-history" v-if="searchHistoryShow && mySearchHistory.length !== 0">
               <div
                 class="history-item"
                 :class="{ catch: searchWordCatch === index }"
@@ -232,10 +193,7 @@
                 @mousemove="searchWordCatch = index"
               >
                 <div class="item-word">{{ item }}</div>
-                <i
-                  class="freelog fl-icon-guanbi"
-                  @click.stop="deleteSearchHistory(item)"
-                ></i>
+                <i class="freelog fl-icon-guanbi" @click.stop="deleteSearchHistory(item)"></i>
               </div>
 
               <div class="text-btn" @click="clearHistory()">清空搜索记录</div>
@@ -245,35 +203,18 @@
       </div>
 
       <div class="header-top-right">
-        <div class="nav-btn" @click="switchPage('/')" v-if="!homeHeader">
-          首页
-        </div>
+        <div class="nav-btn" @click="switchPage('/')" v-if="!homeHeader">首页</div>
         <!-- 已登录用户信息 -->
-        <div
-          class="user-avatar"
-          @mouseover="userBoxShow = true"
-          @mouseleave="userBoxShow = false"
-          v-if="userData"
-        >
-          <img
-            class="avatar"
-            :src="userData.headImage"
-            :alt="userData.username"
-          />
+        <div class="user-avatar" @mouseover="userBoxShow = true" @mouseleave="userBoxShow = false" v-if="userData">
+          <img class="avatar" :src="userData.headImage" :alt="userData.username" />
 
           <transition name="slide-down-scale">
             <div class="user-box" v-show="userBoxShow">
               <div class="user-box-body">
-                <img
-                  class="avatar"
-                  :src="userData.headImage"
-                  :alt="userData.username"
-                />
+                <img class="avatar" :src="userData.headImage" :alt="userData.username" />
                 <div class="username">{{ userData.username }}</div>
                 <div class="mobile">{{ userData.mobile }}</div>
-                <div class="user-box-btn" @click="switchPage('/signedList')">
-                  已签约博客
-                </div>
+                <div class="user-box-btn" @click="switchPage('/signedList')">已签约博客</div>
                 <div class="user-box-btn" @click="callLoginOut()">登出</div>
               </div>
             </div>
@@ -292,11 +233,7 @@
       <!-- 博客信息 -->
       <div class="header-blog-info">
         <div class="blogger-avatar">
-          <img
-            :src="selfConfig.bloggerAvatar"
-            alt="博主头像"
-            class="avatar-img"
-          />
+          <img :src="selfConfig.bloggerAvatar" alt="博主头像" class="avatar-img" />
         </div>
 
         <div class="info-content">
@@ -318,12 +255,7 @@
 <script lang="ts">
 import { computed, reactive, ref, toRefs, watch } from "vue";
 import { useMyRouter, useSearchHistory } from "../utils/hooks";
-import {
-  callLogin,
-  callLoginOut,
-  getExhibitSignCount,
-  getSelfId,
-} from "@/api/freelog";
+import { callLogin, callLoginOut, getExhibitSignCount, getSelfId } from "@/api/freelog";
 import { useStore } from "vuex";
 
 export default {
@@ -348,12 +280,9 @@ export default {
     const store = useStore();
     let blogTags: string[] = store.state.selfConfig.tags.split(",");
     const { query, route, switchPage, routerBack } = useMyRouter();
-    const { searchHistory, searchWord, deleteWord, clearHistory } =
-      useSearchHistory();
+    const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
     const searchInput = ref();
-    const mySearchHistory = computed(() =>
-      searchHistory.value.filter((item) => item.includes(data.searchKey))
-    );
+    const mySearchHistory = computed(() => searchHistory.value.filter((item) => item.includes(data.searchKey)));
 
     const data = reactive({
       signCount: 0,
@@ -439,7 +368,7 @@ export default {
             data.searchHistoryShow = true;
             if (data.searchWordCatch === null) {
               data.searchWordCatch = 0;
-            } else if (data.searchWordCatch !== 9) {
+            } else if (data.searchWordCatch !== mySearchHistory.value.length - 1) {
               data.searchWordCatch = data.searchWordCatch + 1;
             }
             break;

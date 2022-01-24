@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="signed-list-wrapper"
-    :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }"
-  >
+  <div class="signed-list-wrapper" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
     <my-header />
 
     <div class="content">
@@ -20,12 +17,10 @@
         </div>
       </div>
 
-      <div class="article-box" v-for="item in listData" :key="item.exhibitId">
+      <div class="article-box" v-for="item in mySignedList" :key="item.exhibitId">
         <my-article :inSignedList="true" :data="item" />
       </div>
-      <div class="tip" v-if="listData.length === 0">
-        暂无数据，快去签约博客吧～
-      </div>
+      <div class="tip" v-if="mySignedList.length === 0">暂无数据，快去签约博客吧～</div>
     </div>
 
     <my-footer />
@@ -36,7 +31,7 @@
 
 <script lang="ts">
 import { defineAsyncComponent, reactive, toRefs } from "@vue/runtime-core";
-import { useGetList } from "../utils/hooks";
+import { useMySignedList } from "../utils/hooks";
 import { useStore } from "vuex";
 
 export default {
@@ -45,17 +40,13 @@ export default {
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
-    "theme-entrance": defineAsyncComponent(
-      () => import("../components/theme-entrance.vue")
-    ),
-    "my-article": defineAsyncComponent(
-      () => import("../components/article.vue")
-    ),
+    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
+    "my-article": defineAsyncComponent(() => import("../components/article.vue")),
   },
 
   setup() {
     const store = useStore();
-    const datasOfGetList = useGetList();
+    const { mySignedList, getMySignedList } = useMySignedList();
 
     const data = reactive({
       searchKey: "",
@@ -64,26 +55,16 @@ export default {
     const methods = {
       search(e: { keyCode: number }) {
         if (e.keyCode === 13) {
-          getData();
+          getMySignedList(data.searchKey);
         } else if (e.keyCode === 27) {
           data.searchKey = "";
         }
       },
     };
 
-    // 获取数据
-    const getData = () => {
-      const searchData: any = {};
-      if (data.searchKey) searchData.keywords = data.searchKey;
-      datasOfGetList.clearData();
-      datasOfGetList.getList(searchData, true);
-    };
-
-    getData();
-
     return {
       ...store.state,
-      ...datasOfGetList,
+      mySignedList,
       ...toRefs(data),
       ...methods,
     };

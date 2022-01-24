@@ -10,7 +10,6 @@ import { globalContext } from "../../router";
 import { ThemeEntrance } from "../../components/theme-entrance/theme-entrance";
 import { Footer } from "../../components/footer/footer";
 import { LoginBtn } from "../../components/login-btn/login-btn";
-import { bookTypeList } from "../../api/data";
 import CSSTransition from "react-transition-group/CSSTransition";
 
 export const HomeScreen = (props: any) => {
@@ -75,11 +74,7 @@ export const HomeScreen = (props: any) => {
 
   return (
     <div className="home-wrapper">
-      <Header
-        homeHeader={true}
-        mobileSearching={(inMobile && searching) || false}
-        defaultSearchKey={keywords}
-      />
+      <Header homeHeader={true} mobileSearching={(inMobile && searching) || false} defaultSearchKey={keywords} />
 
       <HomeBody bookList={bookList} searching={searching} total={total} tags={tags} keywords={keywords} />
 
@@ -100,7 +95,8 @@ const HomeBody = (props: {
   keywords: string;
 }) => {
   const { bookList, searching, total, tags, keywords } = props;
-  const { inMobile, userData } = useContext(globalContext);
+  const { inMobile, userData, selfConfig } = useContext(globalContext);
+  const tagsList: string[] = selfConfig.tags?.split(",");
   const { myShelf } = useMyShelf();
   const history = useMyHistory();
   const [filterBoxShow, setFilterBoxShow] = useState(false);
@@ -191,7 +187,7 @@ const HomeBody = (props: {
                 全部
               </div>
               <div className="tags-box-list">
-                {bookTypeList.map((item) => (
+                {tagsList.map((item) => (
                   <div
                     className={`tag ${tags === item && "active"}`}
                     key={item}
@@ -251,7 +247,7 @@ const HomeBody = (props: {
               全部
             </div>
 
-            {bookTypeList.map((item) => {
+            {tagsList.map((item) => {
               return (
                 <div className={`category-btn ${tags === item && "active"}`} key={item} onClick={() => selectTag(item)}>
                   {item}

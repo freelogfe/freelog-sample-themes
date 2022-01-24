@@ -1,24 +1,5 @@
 import { freelogEntranceItem, shareBtnItem, ThemeItem } from "./interface";
 
-// 搜索类型
-export const bookTypeList = [
-  "玄幻",
-  "武侠",
-  "科幻",
-  "都市",
-  "言情",
-  "历史",
-  "军事",
-  "游戏",
-  "体育",
-  "灵异",
-  "惊悚",
-  "悬疑",
-  "推理",
-  "名著",
-  "外国文学",
-];
-
 // 节点主题色
 export const themeList: any = {
   酷黑: { gradientColor: "linear-gradient(135deg, #222222, #353535)", deriveColor: "#222222" },

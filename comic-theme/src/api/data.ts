@@ -1,25 +1,5 @@
 import { freelogEntranceItem, shareBtnItem } from "./interface";
 
-// 搜索类型
-export const tagsList = [
-  "恋爱",
-  "武侠",
-  "玄幻",
-  "都市",
-  "穿越",
-  "萌系",
-  "总裁",
-  "游戏",
-  "体育",
-  "灵异",
-  "惊悚",
-  "悬疑",
-  "推理",
-  "大女主",
-  "日漫",
-  "韩漫",
-];
-
 // 节点主题色
 export const themeList: any = {
   酷黑: { gradientColor: "linear-gradient(135deg, #222222, #353535)", deriveColor: "#222222" },

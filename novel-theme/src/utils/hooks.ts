@@ -1,6 +1,14 @@
 import { useState, useEffect, useCallback, useContext } from "react";
 import { useHistory } from "react-router";
-import { getUserData, getExhibitListById, GetExhibitListByIdParams, setUserData, getExhibitAuthStatus, callLogin } from "../api/freelog";
+import {
+  getUserData,
+  getExhibitListById,
+  GetExhibitListByIdParams,
+  setUserData,
+  getExhibitAuthStatus,
+  callLogin,
+  getSignStatistics,
+} from "../api/freelog";
 import { showToast } from "../components/toast/toast";
 import { globalContext } from "../router";
 import { ExhibitItem } from "../api/interface";
@@ -88,6 +96,54 @@ export const useMyShelf = (id?: string) => {
   }, [id, myShelf]);
 
   return { myShelf, isCollected, operateShelf };
+};
+
+/**
+ * 我的已签约展品hook
+ */
+export const useMySignedList = () => {
+  interface SignedItem {
+    subjectId: string;
+    isAuth: boolean;
+  }
+
+  const { userData } = useContext(globalContext);
+  const [mySignedList, setMySignedList] = useState<ExhibitItem[]>([]);
+
+  // 获取已签约展品数据
+  const getMySignedList = async (keywords = "") => {
+    // 用户未登录
+    if (!userData) return;
+
+    const signedList = await getSignStatistics({ keywords });
+    const ids: string[] = [];
+    signedList.data.data.forEach((item: SignedItem) => {
+      ids.push(item.subjectId);
+    });
+
+    if (ids.length === 0) {
+      setMySignedList([]);
+      return;
+    }
+
+    const exhibitIds = ids.join(",");
+    const queryParams: GetExhibitListByIdParams = { exhibitIds };
+    const list = await getExhibitListById(queryParams);
+    if (list.data.data.length !== 0) {
+      list.data.data.forEach((item: ExhibitItem) => {
+        const signedItem = signedList.data.data.find((listItem: SignedItem) => listItem.subjectId === item.exhibitId);
+        item.isAuth = signedItem.isAuth;
+      });
+    }
+    setMySignedList(list.data.data.filter((item: ExhibitItem) => item.articleInfo.resourceType !== "theme"));
+  };
+
+  useEffect(() => {
+    getMySignedList();
+    // eslint-disable-next-line
+  }, []);
+
+  return { mySignedList, getMySignedList };
 };
 
 /**

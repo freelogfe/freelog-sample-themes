@@ -41,6 +41,29 @@ input:focus {
   box-shadow: none;
 }
 
+.text-btn {
+  color: #2784ff;
+  cursor: pointer;
+  transition: all 0.2s linear;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    opacity: 0.6;
+  }
+
+  &.mobile {
+    cursor: default;
+    transition: none;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
 /* fade */
 .fade-enter-active,
 .fade-leave-active {

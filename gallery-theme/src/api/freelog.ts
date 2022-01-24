@@ -22,13 +22,6 @@ export interface GetExhibitInfoParams {
 }
 
 /**
- * 获取当前主题id
- */
-export const getSelfId = () => {
-  return MyWindow.freelogApp.getSelfId();
-};
-
-/**
  * 获取展品列表
  * @param query GetExhibitListByPagingParams
  */

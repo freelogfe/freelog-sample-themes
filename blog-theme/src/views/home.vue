@@ -101,7 +101,7 @@
               <div
                 class="tag"
                 :class="{ active: searchData.tags === item }"
-                v-for="item in blogTags"
+                v-for="item in tagsList"
                 :key="item"
                 @click="
                   filterBoxShow = false;
@@ -137,7 +137,7 @@
           <div
             class="category-btn"
             :class="{ active: searchData.tags === item }"
-            v-for="item in blogTags"
+            v-for="item in tagsList"
             :key="item"
             @click="selectTag(item)"
           >
@@ -206,7 +206,7 @@ export default {
 
   setup() {
     const store = useStore();
-    let blogTags: string[] = store.state.selfConfig.tags.split(",");
+    const tagsList: string[] = store.state.selfConfig.tags.split(",");
     const { query, switchPage } = useMyRouter();
     const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
     const datasOfGetList = useGetList();
@@ -270,7 +270,7 @@ export default {
 
     return {
       ...store.state,
-      blogTags,
+      tagsList,
       ...datasOfGetList,
       ...toRefs(data),
       ...methods,
