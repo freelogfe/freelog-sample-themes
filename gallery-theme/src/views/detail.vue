@@ -52,7 +52,10 @@
 
         <div class="other-area" key="otherArea">
           <div class="detail-info">
-            <div class="title">{{ exhibitInfo?.exhibitTitle }}</div>
+            <div class="title-box">
+              <div class="title">{{ exhibitInfo?.exhibitTitle }}</div>
+              <div class="offline" v-if="exhibitInfo?.onlineStatus === 0">已下架</div>
+            </div>
             <tags :tags="exhibitInfo?.tags" v-if="exhibitInfo?.tags.length" />
             <div class="author-info">
               <img class="author-avatar" :src="getAvatarUrl(exhibitInfo?.userId)" v-if="exhibitInfo?.userId" />
@@ -98,7 +101,10 @@
     <transition name="slide-up">
       <div ref="scrollArea" class="content-card" @click.stop v-if="currentId">
         <div class="content-area">
-          <div class="title">{{ exhibitInfo?.exhibitTitle }}</div>
+          <div class="title-box">
+            <div class="title">{{ exhibitInfo?.exhibitTitle }}</div>
+            <div class="offline" v-if="exhibitInfo?.onlineStatus === 0">已下架</div>
+          </div>
           <div class="exhibit-info">
             <img class="author-avatar" :src="getAvatarUrl(exhibitInfo?.userId)" v-if="exhibitInfo?.userId" />
             <div class="author-name">
@@ -181,7 +187,7 @@
 <script lang="ts">
 import { defineAsyncComponent, onUnmounted, reactive, ref, SetupContext, toRefs, watch } from "vue";
 import { ExhibitItem } from "../api/interface";
-import { useGetList, useMyRouter } from "../utils/hooks";
+import { useGetList, useMyRouter, useMyWaterfall } from "../utils/hooks";
 import { addAuth, getExhibitAuthStatus, getExhibitFileStream, getExhibitInfo } from "@/api/freelog";
 import { useStore } from "vuex";
 
@@ -201,11 +207,11 @@ export default {
 
   setup(props: { id: string }, context: SetupContext<Record<string, any>>) {
     const store = useStore();
-    const { query, switchPage } = useMyRouter();
+    const { route, query, switchPage } = useMyRouter();
     const datasOfGetList = useGetList();
+    const { listNumber, waterfall, waterfallList, getListNumber, initWaterfall, setWaterFall } = useMyWaterfall();
     const scrollArea = ref<any>(null);
     const contentArea = ref<any>(null);
-    let heightList: number[] = [];
 
     const data = reactive({
       currentId: "",
@@ -213,9 +219,6 @@ export default {
       isAuth: null as boolean | null,
       content: "",
       contentMode: null as null | number, // 显示模式 1-宽撑满，高自适应 2-高撑满，宽自适应
-      listNumber: 0,
-      waterfall: {} as any,
-      waterfallList: ["first", "second", "third", "fourth", "fifth"],
     });
 
     const methods = {
@@ -242,7 +245,7 @@ export default {
       closePopup() {
         data.currentId = "";
         context.emit("update:id", "");
-        switchPage("/home", { id: "" }, 1);
+        switchPage(route.path, { id: "" }, "replace");
       },
 
       // 授权
@@ -253,50 +256,10 @@ export default {
       },
     };
 
-    // 根据屏幕宽度判断瀑布流列数
-    const getListNumber = () => {
-      const { clientWidth } = document.body;
-      const { inMobile } = store.state;
-      if (inMobile) {
-        data.listNumber = 2;
-      } else {
-        // 屏幕宽度小于等于 1600 时，显示 4 列，否则显示 5 列
-        data.listNumber = clientWidth <= 1600 ? 4 : 5;
-      }
-    };
-
     const keyup = (e: KeyboardEvent) => {
       if (e.key === "Escape") methods.closePopup();
       if (["ArrowLeft", "ArrowRight"].includes(e.key)) {
         methods.switchExhibit(e.key);
-      }
-    };
-
-    // 初始化瀑布流数据
-    const initWaterfall = () => {
-      heightList = [];
-      data.waterfall = {};
-      for (let i = 0; i < data.listNumber; i++) {
-        data.waterfall[data.waterfallList[i]] = [] as ExhibitItem[];
-      }
-    };
-
-    // 整理瀑布流数据
-    const setWaterFall = () => {
-      for (let i = 0; i < datasOfGetList.listData.value.length; i++) {
-        if (datasOfGetList.listData.value[i].exhibitId === data.exhibitInfo?.exhibitId) continue;
-
-        let minHeightItemIndex = 0;
-        if (heightList.length && heightList.length < data.listNumber) {
-          minHeightItemIndex = heightList.length;
-        } else if (heightList.length === data.listNumber) {
-          const minHeight = Math.min(...heightList);
-          minHeightItemIndex = heightList.findIndex((item) => item === minHeight);
-        }
-
-        data.waterfall[data.waterfallList[minHeightItemIndex]].push(datasOfGetList.listData.value[i]);
-        heightList[minHeightItemIndex] =
-          (heightList[minHeightItemIndex] || 0) + ((datasOfGetList.listData.value[i] as any).height || 0);
       }
     };
 
@@ -353,7 +316,7 @@ export default {
     const waterfallResize = () => {
       getListNumber();
       initWaterfall();
-      setWaterFall();
+      setWaterFall(datasOfGetList.listData.value);
     };
 
     watch(
@@ -378,12 +341,13 @@ export default {
           data.exhibitInfo = null;
           data.isAuth = null;
           data.content = "";
-          data.waterfall = {};
+          // initWaterfall();
           window.addEventListener("keyup", keyup);
           getListNumber();
           getData();
           if (!store.state.inMobile) {
-            switchPage("/home", { id: data.currentId }, 1);
+            const path = route.path === "/detail" ? "/home" : route.path;
+            switchPage(path, { id: data.currentId }, "replace");
           } else {
             switchPage("/detail", { id: data.currentId });
           }
@@ -428,7 +392,7 @@ export default {
             cur[i].height = height < minHeight ? minHeight : height;
             num++;
 
-            if (num === cur.length) setWaterFall();
+            if (num === cur.length) setWaterFall(cur);
           };
         }
       }
@@ -442,6 +406,9 @@ export default {
     return {
       ...toRefs(store.state),
       switchPage,
+      listNumber,
+      waterfall,
+      waterfallList,
       ...toRefs(data),
       ...methods,
       scrollArea,
@@ -655,15 +622,42 @@ export default {
     .detail-info {
       padding: 20px 0;
 
-      .title {
-        font-size: 16px;
-        font-weight: 600;
-        color: #222222;
-        line-height: 22px;
+      .title-box {
+        width: 1230px;
+        display: flex;
+        align-items: center;
+
+        .title {
+          max-width: 100%;
+          font-size: 16px;
+          font-weight: 600;
+          color: #222222;
+          line-height: 22px;
+          height: 22px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+
+        .offline {
+          width: 40px;
+          height: 20px;
+          background: rgba(0, 0, 0, 0.5);
+          border-radius: 4px;
+          font-size: 10px;
+          font-weight: 600;
+          color: #ffffff;
+          margin-left: 5px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
       }
 
       .tags-wrapper {
         margin-top: 10px;
+        height: 24px;
+        overflow: hidden;
       }
 
       .author-info {
@@ -779,13 +773,36 @@ export default {
     flex-direction: column;
     align-items: center;
 
-    .title {
+    .title-box {
       width: 1230px;
-      font-size: 24px;
-      font-weight: 600;
-      color: #222222;
-      line-height: 30px;
-      height: 30px;
+      display: flex;
+      align-items: center;
+
+      .title {
+        max-width: 100%;
+        font-size: 24px;
+        font-weight: 600;
+        color: #222222;
+        line-height: 30px;
+        height: 30px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      .offline {
+        width: 40px;
+        height: 20px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: 600;
+        color: #ffffff;
+        margin-left: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
 
     .exhibit-info {
@@ -812,6 +829,8 @@ export default {
 
       .tags-wrapper {
         margin-left: 30px;
+        height: 24px;
+        overflow: hidden;
       }
     }
 

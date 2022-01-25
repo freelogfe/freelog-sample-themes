@@ -74,7 +74,7 @@ export const HomeScreen = (props: any) => {
 
   return (
     <div className="home-wrapper">
-      <Header homeHeader={true} mobileSearching={(inMobile && searching) || false} defaultSearchKey={keywords} />
+      <Header homeHeader={!searching} mobileSearching={(inMobile && searching) || false} defaultSearchKey={keywords} />
 
       <HomeBody bookList={bookList} searching={searching} total={total} tags={tags} keywords={keywords} />
 

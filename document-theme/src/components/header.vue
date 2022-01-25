@@ -71,7 +71,6 @@
 
     <!-- 已登录区域 -->
     <div class="user-avatar" @mouseover="userBoxShow = true" @mouseleave="userBoxShow = false" v-if="userData">
-      <div class="username">{{ userData.username }}</div>
       <img class="avatar" :src="userData.headImage" :alt="userData.username" />
 
       <transition name="slide-down-scale">
@@ -394,12 +393,6 @@ export default {
     display: flex;
     align-items: center;
     cursor: pointer;
-
-    .username {
-      font-size: 14px;
-      line-height: 20px;
-      color: #222;
-    }
 
     .avatar {
       width: 32px;

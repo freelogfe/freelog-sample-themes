@@ -1,18 +1,16 @@
 <template>
   <div class="home-wrapper">
-    <my-header homeHeader />
+    <my-header :homeHeader="!searchData.keywords" :mobileSearching="!!(inMobile && searchData.keywords)" />
 
     <!-- mobile -->
     <div class="mobile-home-body" v-if="inMobile">
-      <div class="header" v-if="searchData.keywords || searchData.tags">
-        <div class="search-title">
-          “{{
-            `${searchData.keywords || ""}${searchData.keywords && searchData.tags ? "+" : ""}${searchData.tags || ""}`
-          }}”的搜索结果
-          <span className="search-total" v-if="!loading">({{ total }})</span>
-        </div>
+      <div class="header" v-if="searchData.keywords">
+        <div class="box-title">查询到{{ listData.length }}个相关结果</div>
 
-        <div className="text-btn mobile" @click="clearSearch()">清空搜索条件</div>
+        <div class="filter-btn" @click="filterBoxShow = true">
+          <img class="filter-img" src="../assets/images/filter.png" />
+          <div class="filter-label">筛选</div>
+        </div>
       </div>
 
       <div class="frame-list">
@@ -22,7 +20,7 @@
             :data="item"
             v-for="item in waterfall[waterfallList[list - 1]]"
             :key="item.exhibitId"
-            @click="switchPage('/detail', { id: item.exhibitId })"
+            @click="clickFrame(item.exhibitId)"
           />
         </div>
       </div>
@@ -31,28 +29,76 @@
       <div className="tip no-more" v-show="!loading && listData.length !== 0 && listData.length === total">
         — 已加载全部 —
       </div>
+
+      <transition name="fade">
+        <div id="modal" class="modal" v-if="filterBoxShow" @click="filterBoxShow = false"></div>
+      </transition>
+      <transition name="slide-right">
+        <div class="filter-box-body" v-if="filterBoxShow">
+          <div class="filter-box-header">
+            <div class="header-title">按标签筛选</div>
+            <div class="close-btn" @click="filterBoxShow = false">
+              <i class="freelog fl-icon-guanbi"></i>
+            </div>
+          </div>
+          <div class="tags-box">
+            <div
+              class="tag"
+              :class="{ active: !searchData.tags }"
+              @click="
+                filterBoxShow = false;
+                selectTag();
+              "
+            >
+              全部
+            </div>
+            <div class="tags-box-list">
+              <div
+                class="tag"
+                :class="{ active: searchData.tags === item }"
+                v-for="item in tagsList"
+                :key="item"
+                @click="
+                  filterBoxShow = false;
+                  selectTag(item);
+                "
+              >
+                {{ item }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </transition>
     </div>
 
     <!-- PC -->
     <div class="home-body" v-if="!inMobile">
-      <div class="header" v-if="searchData.keywords || searchData.tags">
-        <div class="search-title">
-          “{{
-            `${searchData.keywords || ""}${searchData.keywords && searchData.tags ? "+" : ""}${searchData.tags || ""}`
-          }}”的搜索结果
-          <span className="search-total" v-if="!loading">({{ total }})</span>
-          <div className="text-btn" @click="clearSearch()">清空搜索条件</div>
+      <div class="search-box-title" v-if="searchData.keywords">查询到{{ listData.length }}个相关结果</div>
+
+      <div class="filter-bar">
+        <div class="filter-bar-bg"></div>
+
+        <div class="category-btn" :class="{ active: !searchData.tags }" @click="selectTag()">全部</div>
+
+        <div
+          class="category-btn"
+          :class="{ active: searchData.tags === item }"
+          v-for="item in tagsList"
+          :key="item"
+          @click="selectTag(item)"
+        >
+          {{ item }}
         </div>
       </div>
 
-      <div ref="frameList" class="frame-list">
+      <div class="frame-list">
         <div class="waterfall" v-for="list in listNumber" :key="list">
           <my-frame
             class="frame"
             :data="item"
             v-for="item in waterfall[waterfallList[list - 1]]"
             :key="item.exhibitId"
-            @click="currentId = item.exhibitId"
+            @click="clickFrame(item.exhibitId)"
           />
         </div>
       </div>
@@ -73,7 +119,7 @@
 
 <script lang="ts">
 import { defineAsyncComponent, onUnmounted, reactive, toRefs, watch } from "vue";
-import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
+import { useGetList, useMyRouter, useMyScroll, useMyWaterfall } from "../utils/hooks";
 import { useStore } from "vuex";
 import { ExhibitItem } from "@/api/interface";
 
@@ -90,10 +136,11 @@ export default {
 
   setup() {
     const store = useStore();
+    const tagsList: string[] = store.state.selfConfig.tags?.split(",");
     const { query, switchPage } = useMyRouter();
+    const { listNumber, waterfall, waterfallList, getListNumber, initWaterfall, setWaterFall } = useMyWaterfall();
     const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
-    const datasOfGetList = useGetList(true);
-    let heightList: number[] = [];
+    const datasOfGetList = useGetList();
 
     const data = reactive({
       searchData: {} as {
@@ -101,10 +148,8 @@ export default {
         tags?: string;
         id?: string;
       },
-      listNumber: 0,
-      waterfall: {} as any,
-      waterfallList: ["first", "second", "third", "fourth", "fifth"],
       currentId: null as null | string,
+      filterBoxShow: false,
     });
 
     const methods = {
@@ -113,59 +158,24 @@ export default {
         data.searchData = {};
         switchPage("/home");
       },
-    };
 
-    // 根据屏幕宽度判断瀑布流列数
-    const getListNumber = () => {
-      const { clientWidth } = document.body;
-      const { inMobile } = store.state;
-      if (inMobile) {
-        data.listNumber = 2;
-      } else {
-        // 屏幕宽度小于等于 1600 时，显示 4 列，否则显示 5 列
-        const listNumber = clientWidth <= 1600 ? 4 : 5;
-        if (data.listNumber !== listNumber) data.listNumber = listNumber;
-      }
-    };
+      // 筛选标签
+      selectTag(tag: string) {
+        const { keywords } = data.searchData;
+        const query: { keywords?: string; tags?: string } = {};
+        if (tag) query.tags = tag;
+        if (keywords) query.keywords = keywords;
+        switchPage("/home", query);
+      },
 
-    // 初始化瀑布流数据
-    const initWaterfall = () => {
-      heightList = [];
-      data.waterfall = {};
-      for (let i = 0; i < data.listNumber; i++) {
-        data.waterfall[data.waterfallList[i]] = [] as ExhibitItem[];
-      }
-    };
-
-    // 整理瀑布流数据
-    const setWaterFall = (startIndex = 0) => {
-      for (let i = startIndex; i < datasOfGetList.listData.value.length; i++) {
-        let minHeightItemIndex = 0;
-        if (heightList.length && heightList.length < data.listNumber) {
-          minHeightItemIndex = heightList.length;
-        } else if (heightList.length === data.listNumber) {
-          const minHeight = Math.min(...heightList);
-          minHeightItemIndex = heightList.findIndex((item) => item === minHeight);
-        }
-
-        data.waterfall[data.waterfallList[minHeightItemIndex]].push(datasOfGetList.listData.value[i]);
-        heightList[minHeightItemIndex] =
-          (heightList[minHeightItemIndex] || 0) + ((datasOfGetList.listData.value[i] as any).height || 0);
-      }
-
-      const { id } = data.searchData;
-      if (id && data.currentId !== id) {
+      clickFrame(id: string) {
         if (store.state.inMobile) {
-          // 移动端跳转详情页面
-          switchPage("/home");
-          setTimeout(() => {
-            switchPage("/detail", { id });
-          }, 0);
+          switchPage("/detail", { id });
         } else {
-          // PC端弹出内容弹窗
           data.currentId = id;
         }
-      }
+        store.commit("setData", { key: "listData", value: datasOfGetList.listData.value });
+      },
     };
 
     // 获取数据
@@ -186,7 +196,24 @@ export default {
     const waterfallResize = () => {
       getListNumber();
       initWaterfall();
-      setWaterFall();
+      setWaterFall(datasOfGetList.listData.value);
+    };
+
+    // 根据链接判断是否进入详情页或打开内容弹窗
+    const judgeUrl = () => {
+      const { id } = query.value;
+      if (!id) return;
+
+      if (store.state.inMobile) {
+        // 移动端跳转详情页面
+        switchPage("/home", {}, "replace");
+        setTimeout(() => {
+          switchPage("/detail", { id });
+        }, 0);
+      } else {
+        // PC端弹出内容弹窗
+        data.currentId = id;
+      }
     };
 
     watch(
@@ -230,7 +257,7 @@ export default {
             cur[i].height = height < minHeight ? minHeight : height;
             num++;
 
-            if (num === cur.length - pre.length) setWaterFall(index);
+            if (num === cur.length - pre.length) setWaterFall(cur, index);
           };
         }
       }
@@ -241,12 +268,17 @@ export default {
       window.removeEventListener("resize", waterfallResize);
     });
 
+    judgeUrl();
     getListNumber();
     getData();
 
     return {
       ...toRefs(store.state),
+      tagsList,
       switchPage,
+      listNumber,
+      waterfall,
+      waterfallList,
       ...datasOfGetList,
       ...toRefs(data),
       ...methods,
@@ -272,26 +304,32 @@ export default {
     padding-bottom: 98px;
 
     .header {
-      margin: 30px 0 15px;
+      margin: 15px 0 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
 
-      .search-title {
-        font-size: 20px;
-        color: #222222;
-        line-height: 26px;
-        display: flex;
-
-        .search-total {
-          color: #999999;
-          margin-left: 10px;
-        }
+      .box-title {
+        font-size: 16px;
+        color: #999999;
+        line-height: 22px;
       }
 
-      .text-btn {
-        width: fit-content;
-        font-size: 14px;
-        color: #2784ff;
-        line-height: 20px;
-        margin-top: 10px;
+      .filter-btn {
+        display: flex;
+        align-items: center;
+
+        .filter-img {
+          width: 18px;
+          height: 18px;
+        }
+
+        .filter-label {
+          font-size: 16px;
+          color: #c127ff;
+          line-height: 22px;
+          margin-left: 5px;
+        }
       }
     }
 
@@ -300,6 +338,7 @@ export default {
 
       .waterfall {
         flex: 1;
+        width: 0;
 
         & + .waterfall {
           margin-left: 10px;
@@ -325,32 +364,164 @@ export default {
         margin: 30px 0;
       }
     }
+
+    .modal {
+      position: fixed;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.4);
+      z-index: 101;
+    }
+
+    .filter-box-body {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 340px;
+      background: #ffffff;
+      border-radius: 0px 10px 10px 0px;
+      padding: 0 20px;
+      box-sizing: border-box;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      z-index: 101;
+
+      .filter-box-header {
+        position: relative;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 26px;
+
+        .header-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #222222;
+          line-height: 22px;
+        }
+
+        .close-btn {
+          width: 22px;
+          height: 22px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 6px;
+
+          .freelog {
+            font-size: 12px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+      }
+
+      .tags-box {
+        width: 100%;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin-top: 30px;
+        padding-left: 12px;
+        box-sizing: border-box;
+
+        .tags-box-list {
+          width: 100%;
+          display: flex;
+          flex-wrap: wrap;
+          margin-top: 15px;
+        }
+
+        .tag {
+          width: fit-content;
+          height: 38px;
+          border-radius: 38px;
+          padding: 9px 15px;
+          box-sizing: border-box;
+          background: #ebecf0;
+          font-size: 14px;
+          color: #575e6a;
+          line-height: 20px;
+          margin: 0 5px 15px;
+          cursor: pointer;
+
+          &.active {
+            background: #6ea29e;
+            color: #fff;
+          }
+        }
+      }
+    }
   }
 
   // PC
   .home-body {
     width: 1230px;
-    padding-top: 60px;
+    padding-top: 10px;
     padding-bottom: 148px;
 
-    .header {
-      font-size: 30px;
-      line-height: 36px;
-      margin-bottom: 30px;
+    .search-box-title {
+      font-size: 14px;
+      color: #999999;
+      line-height: 20px;
+      margin-top: 20px;
+    }
 
-      .search-title {
-        display: flex;
-        align-items: flex-end;
+    .filter-bar {
+      position: relative;
+      width: 100%;
+      height: 64px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      margin-top: 30px;
+      margin-bottom: 40px;
 
-        .search-total {
-          color: #999999;
-          margin-left: 10px;
+      .filter-bar-bg {
+        position: absolute;
+        inset: 0;
+        background-color: var(--deriveColor);
+        opacity: 0.08;
+      }
+
+      .category-btn {
+        position: relative;
+        height: 24px;
+        padding: 2px 8px;
+        box-sizing: border-box;
+        font-size: 14px;
+        color: #666;
+        line-height: 20px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s linear;
+        z-index: 1;
+
+        &:hover {
+          color: var(--deriveColor);
         }
 
-        .text-btn {
-          font-size: 14px;
-          line-height: 20px;
-          margin-left: 30px;
+        &:active {
+          color: var(--deriveColor);
+          opacity: 0.8;
+        }
+
+        &.active {
+          background-color: var(--deriveColor);
+          color: #fff;
+        }
+
+        & + .category-btn {
+          margin-left: 4px;
         }
       }
     }

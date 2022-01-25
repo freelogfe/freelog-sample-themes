@@ -1,18 +1,11 @@
 <template>
   <div class="home-wrapper" @click="sortPopupShow = false">
-    <my-header
-      homeHeader
-      :mobileSearching="!!(inMobile && searchData.keywords)"
-    />
+    <my-header homeHeader :mobileSearching="!!(inMobile && searchData.keywords)" />
 
     <!-- mobile -->
     <div class="mobile-home-body" v-if="inMobile">
       <div class="header">
-        <div
-          class="sort"
-          v-if="!searchData.keywords"
-          @click.stop="sortPopupShow = true"
-        >
+        <div class="sort" v-if="!searchData.keywords" @click.stop="sortPopupShow = true">
           {{ createDateSortType === "-1" ? "最新" : "最早" }}
           <i class="freelog fl-icon-zhankaigengduo"></i>
 
@@ -42,9 +35,7 @@
           </transition>
         </div>
 
-        <div class="box-title" v-if="searchData.keywords">
-          查询到{{ listData.length }}个相关结果
-        </div>
+        <div class="box-title" v-if="searchData.keywords">查询到{{ listData.length }}个相关结果</div>
 
         <div class="filter-btn" @click="filterBoxShow = true">
           <img class="filter-img" src="../assets/images/filter.png" />
@@ -53,30 +44,16 @@
       </div>
 
       <div class="article-list">
-        <my-article
-          :data="item"
-          v-for="item in listData"
-          :key="item.presentableId"
-        />
+        <my-article :data="item" v-for="item in listData" :key="item.presentableId" />
       </div>
 
-      <div className="tip" v-show="!loading && total === 0">
-        当前节点暂无任何书籍，请稍后查看
-      </div>
-      <div
-        className="tip no-more"
-        v-show="!loading && listData.length !== 0 && listData.length === total"
-      >
+      <div className="tip" v-show="!loading && total === 0">当前节点暂无任何书籍，请稍后查看</div>
+      <div className="tip no-more" v-show="!loading && listData.length !== 0 && listData.length === total">
         — 已加载全部书籍 —
       </div>
 
       <transition name="fade">
-        <div
-          id="modal"
-          class="modal"
-          v-if="filterBoxShow"
-          @click="filterBoxShow = false"
-        ></div>
+        <div id="modal" class="modal" v-if="filterBoxShow" @click="filterBoxShow = false"></div>
       </transition>
       <transition name="slide-right">
         <div class="filter-box-body" v-if="filterBoxShow">
@@ -119,20 +96,12 @@
     <!-- PC -->
     <div class="home-body" v-if="!inMobile">
       <div class="header">
-        <div class="search-box-title" v-if="searchData.keywords">
-          查询到{{ listData.length }}个相关结果
-        </div>
+        <div class="search-box-title" v-if="searchData.keywords">查询到{{ listData.length }}个相关结果</div>
 
         <div class="filter-bar">
           <div class="filter-bar-bg"></div>
 
-          <div
-            class="category-btn"
-            :class="{ active: !searchData.tags }"
-            @click="selectTag()"
-          >
-            全部
-          </div>
+          <div class="category-btn" :class="{ active: !searchData.tags }" @click="selectTag()">全部</div>
 
           <div
             class="category-btn"
@@ -166,20 +135,11 @@
       </div>
 
       <div class="article-list">
-        <my-article
-          :data="item"
-          v-for="item in listData"
-          :key="item.presentableId"
-        />
+        <my-article :data="item" v-for="item in listData" :key="item.presentableId" />
       </div>
 
-      <div className="tip" v-show="!loading && total === 0">
-        当前节点暂无任何书籍，请稍后查看
-      </div>
-      <div
-        className="tip no-more"
-        v-show="!loading && listData.length !== 0 && listData.length === total"
-      >
+      <div className="tip" v-show="!loading && total === 0">当前节点暂无任何书籍，请稍后查看</div>
+      <div className="tip no-more" v-show="!loading && listData.length !== 0 && listData.length === total">
         — 已加载全部书籍 —
       </div>
     </div>
@@ -199,9 +159,7 @@ export default {
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
-    "my-article": defineAsyncComponent(
-      () => import("../components/article.vue")
-    ),
+    "my-article": defineAsyncComponent(() => import("../components/article.vue")),
   },
 
   setup() {

@@ -131,7 +131,7 @@
   </div>
 
   <!-- 移动端首页搜索头部 -->
-  <div class="mobile-search-header-wrapper" v-if="inMobile && homeHeader && mobileSearching">
+  <div class="mobile-search-header-wrapper" v-if="inMobile && mobileSearching">
     <div class="search-page-box">
       <input
         class="search-input input-none"

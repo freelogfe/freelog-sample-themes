@@ -256,7 +256,7 @@ export const Header = (props: {
         </CSSTransition>
       </div>
     );
-  } else if (inMobile === true && props.homeHeader && props.mobileSearching) {
+  } else if (inMobile === true && props.mobileSearching) {
     // 移动端首页搜索头部
     return (
       <div className="mobile-search-header-wrapper">

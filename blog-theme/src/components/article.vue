@@ -1,29 +1,15 @@
 <template>
   <div class="article-wrapper">
     <!-- mobile -->
-    <div
-      class="mobile-article-wrapper"
-      @click="switchPage('/content', { id: data.exhibitId })"
-      v-if="inMobile"
-    >
+    <div class="mobile-article-wrapper" @click="switchPage('/content', { id: data.exhibitId })" v-if="inMobile">
       <div class="article-cover-box" v-if="selfConfig.articleCover === '显示'">
-        <img
-          class="article-cover"
-          :src="data.coverImages[0]"
-          :alt="data.exhibitTitle"
-        />
-        <div class="offline" v-if="data.onlineStatus === 0 && inSignedList">
-          已下架
-        </div>
+        <img class="article-cover" :src="data.coverImages[0]" :alt="data.exhibitTitle" />
+        <div class="offline" v-if="data.onlineStatus === 0 && inSignedList">已下架</div>
       </div>
 
       <div class="article-info">
         <div class="article-title" :class="{ 'one-line': inSignedList }">
-          <img
-            class="lock"
-            src="../assets/images/mini-lock.png"
-            v-if="!inSignedList && !data.isAuth"
-          />
+          <img class="lock" src="../assets/images/mini-lock.png" v-if="!inSignedList && !data.isAuth" />
           {{ data.exhibitTitle }}
         </div>
         <div class="other-info" v-if="!inSignedList">
@@ -49,35 +35,18 @@
         @click="switchPage('/content', { id: data.exhibitId })"
         v-if="selfConfig.articleCover === '显示'"
       >
-        <img
-          class="article-cover"
-          :src="data.coverImages[0]"
-          :alt="data.exhibitTitle"
-        />
-        <div class="offline" v-if="data.onlineStatus === 0 && inSignedList">
-          已下架
-        </div>
+        <img class="article-cover" :src="data.coverImages[0]" :alt="data.exhibitTitle" />
+        <div class="offline" v-if="data.onlineStatus === 0 && inSignedList">已下架</div>
       </div>
 
       <div class="article-info">
         <div class="article-title">
-          <img
-            class="lock"
-            src="../assets/images/mini-lock.png"
-            v-if="!inSignedList && !data.isAuth"
-          />
-          <div
-            :title="data.exhibitTitle"
-            @click="switchPage('/content', { id: data.exhibitId })"
-          >
+          <img class="lock" src="../assets/images/mini-lock.png" v-if="!inSignedList && !data.isAuth" />
+          <div class="title" :title="data.exhibitTitle" @click="switchPage('/content', { id: data.exhibitId })">
             {{ data.exhibitTitle }}
           </div>
-          <div class="tag is-auth" v-if="inSignedList && data.isAuth">
-            已授权
-          </div>
-          <div class="tag not-auth" v-if="inSignedList && !data.isAuth">
-            未授权
-          </div>
+          <div class="tag is-auth" v-if="inSignedList && data.isAuth">已授权</div>
+          <div class="tag not-auth" v-if="inSignedList && !data.isAuth">未授权</div>
         </div>
         <div class="article-intro">{{ data.exhibitTitle }}</div>
         <div class="other-info">

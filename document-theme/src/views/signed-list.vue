@@ -29,7 +29,7 @@
             {{ item.exhibitTitle }}
           </div>
         </div>
-        <div class="tag is-auth" :class="item.isAuth ? 'is-auth' : 'not-auth'">
+        <div class="tag" :class="item.isAuth ? 'is-auth' : 'not-auth'">
           {{ item.isAuth ? "已授权" : "未授权" }}
         </div>
       </div>

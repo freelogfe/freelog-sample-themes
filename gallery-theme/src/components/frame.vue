@@ -21,11 +21,19 @@
         <!-- 普通图片 -->
         <img class="image" v-lazy="data.coverImages[0]" v-if="isAuth" />
 
+        <!-- 下架标识 -->
+        <div class="offline" v-if="data.onlineStatus === 0">已下架</div>
+
         <!-- 视频遮罩 -->
         <div class="video-modal" v-if="data.articleInfo.resourceType === 'video' && isAuth">
           <img class="video-image" src="../assets/images/video.png" />
 
-          <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
+          <div class="video-bar">
+            <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
+              {{ isAuth ? "已授权" : "未授权" }}
+            </div>
+            <div class="sign-count">签约量 {{ getSignCount(data.signCount) }}</div>
+          </div>
         </div>
 
         <!-- 毛玻璃图片（未授权） -->
@@ -36,13 +44,21 @@
               <img class="img" src="../assets/images/lock.png" />
             </div>
 
-            <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
+            <div class="filter-bar">
+              <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
+                {{ isAuth ? "已授权" : "未授权" }}
+              </div>
+              <div class="sign-count">签约量 {{ getSignCount(data.signCount) }}</div>
+            </div>
           </div>
         </div>
 
         <!-- 默认状态签约量 -->
-        <div class="sign-count single" v-if="isAuth && data.articleInfo.resourceType === 'image'">
-          签约量：{{ getSignCount(data.signCount) }}
+        <div class="normal-bar" v-if="isAuth && data.articleInfo.resourceType === 'image'">
+          <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
+            {{ isAuth ? "已授权" : "未授权" }}
+          </div>
+          <div class="sign-count">签约量 {{ getSignCount(data.signCount) }}</div>
         </div>
       </div>
 
@@ -72,12 +88,20 @@
       <!-- 普通图片 -->
       <img class="image" v-lazy="data.coverImages[0]" v-if="isAuth" />
 
+      <!-- 下架标识 -->
+      <div class="offline" v-if="data.onlineStatus === 0">已下架</div>
+
       <!-- 视频遮罩 -->
       <transition name="fade">
         <div class="video-modal" v-if="data.articleInfo.resourceType === 'video' && isAuth && !modalShow">
           <img class="video-image" src="../assets/images/video.png" />
 
-          <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
+          <div class="video-bar">
+            <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
+              {{ isAuth ? "已授权" : "未授权" }}
+            </div>
+            <div class="sign-count">签约量 {{ getSignCount(data.signCount) }}</div>
+          </div>
         </div>
       </transition>
 
@@ -90,15 +114,23 @@
               <img class="img" src="../assets/images/lock.png" />
             </div>
 
-            <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
+            <div class="filter-bar">
+              <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
+                {{ isAuth ? "已授权" : "未授权" }}
+              </div>
+              <div class="sign-count">签约量 {{ getSignCount(data.signCount) }}</div>
+            </div>
           </div>
         </transition>
       </div>
 
       <!-- 默认状态签约量 -->
       <transition name="fade">
-        <div class="sign-count single" v-if="isAuth && data.articleInfo.resourceType === 'image' && !modalShow">
-          签约量：{{ getSignCount(data.signCount) }}
+        <div class="normal-bar" v-if="isAuth && data.articleInfo.resourceType === 'image' && !modalShow">
+          <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
+            {{ isAuth ? "已授权" : "未授权" }}
+          </div>
+          <div class="sign-count">签约量 {{ getSignCount(data.signCount) }}</div>
         </div>
       </transition>
 
@@ -123,7 +155,7 @@
                 {{ data.articleInfo.articleOwnerName }}
               </div>
             </div>
-            <div class="sign-count-text">签约量：{{ getSignCount(data.signCount) }}</div>
+            <div class="sign-count-text">签约量 {{ getSignCount(data.signCount) }}</div>
           </div>
         </div>
       </transition>
@@ -142,7 +174,7 @@ import { getSignCount } from "@/utils/common";
 export default {
   name: "frame",
 
-  props: ["data"],
+  props: ["data", "inSignedList"],
 
   components: {
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
@@ -222,6 +254,23 @@ export default {
         width: 100%;
       }
 
+      .offline {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 40px;
+        height: 20px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 0px 0px 4px 0px;
+        font-size: 10px;
+        font-weight: 600;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+      }
+
       .video-modal {
         position: absolute;
         left: 0;
@@ -239,8 +288,9 @@ export default {
           height: 48px;
         }
 
-        .sign-count {
+        .video-bar {
           margin-top: 15px;
+          display: flex;
         }
       }
 
@@ -292,8 +342,9 @@ export default {
             }
           }
 
-          .sign-count {
+          .filter-bar {
             margin-top: 15px;
+            display: flex;
           }
         }
       }
@@ -317,6 +368,8 @@ export default {
 
       .tags-wrapper {
         margin-top: 10px;
+        height: 24px;
+        overflow: hidden;
       }
 
       .author-info {
@@ -340,6 +393,7 @@ export default {
 
   // PC
   .pc-frame-wrapper {
+    position: relative;
     width: 100%;
     height: var(--height);
     background-color: #fff;
@@ -358,6 +412,23 @@ export default {
       width: 100%;
     }
 
+    .offline {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 40px;
+      height: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 0px 0px 4px 0px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+
     .video-modal {
       position: absolute;
       inset: 0;
@@ -372,7 +443,8 @@ export default {
         height: 64px;
       }
 
-      .sign-count {
+      .video-bar {
+        display: flex;
         margin-top: 30px;
       }
     }
@@ -417,8 +489,9 @@ export default {
           }
         }
 
-        .sign-count {
+        .filter-bar {
           margin-top: 30px;
+          display: flex;
         }
       }
     }
@@ -461,6 +534,8 @@ export default {
 
       .tags-wrapper {
         margin-top: 10px;
+        height: 24px;
+        overflow: hidden;
       }
 
       .footer-info {
@@ -499,21 +574,47 @@ export default {
     }
   }
 
-  .sign-count {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 12px;
-    padding: 3px 10px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #ffffff;
-    line-height: 18px;
-
-    &.single {
-      position: absolute;
-      bottom: 15px;
-      left: 50%;
-      transform: translateX(-50%);
-    }
+  .normal-bar {
+    position: absolute;
+    bottom: 15px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
   }
+}
+
+.auth-tag {
+  flex-shrink: 0;
+  width: 56px;
+  height: 24px;
+  border-radius: 24px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 5px;
+
+  &.is-auth {
+    background: #42c28c;
+  }
+
+  &.not-auth {
+    background: #e9a923;
+  }
+}
+
+.sign-count {
+  flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.2);
+  height: 24px;
+  line-height: 24px;
+  border-radius: 24px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
 }
 </style>

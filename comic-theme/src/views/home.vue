@@ -1,6 +1,6 @@
 <template>
   <div class="home-wrapper">
-    <my-header :homeHeader="true" :mobileSearching="!!(inMobile && searching)" />
+    <my-header :homeHeader="!searching" :mobileSearching="!!(inMobile && searching)" />
 
     <!-- mobile -->
     <div class="mobile-home-body" v-if="inMobile">

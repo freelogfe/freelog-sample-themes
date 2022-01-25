@@ -55,15 +55,18 @@ export default {
   flex-wrap: wrap;
 
   .tag {
+    max-width: 100%;
     box-sizing: border-box;
     font-size: 12px;
     color: #575e6a;
     background-color: #ebecf0;
     height: 24px;
+    line-height: 24px;
     padding: 0 8px;
     border-radius: 24px;
-    display: flex;
-    align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 
     // mobile
     &.in-mobile {
