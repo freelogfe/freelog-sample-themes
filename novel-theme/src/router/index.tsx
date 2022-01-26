@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Router, Route, Switch, Redirect } from "react-router-dom";
 import { createBrowserHistory } from "history";
 import { HomeScreen } from "../screens/home/home";
@@ -11,17 +11,18 @@ import { judgeDevice } from "../utils/common";
 import { themeList } from "../api/data";
 
 interface Global {
-  userData: UserData | null;
-  locationHistory: string[];
-  selfConfig: any;
   inMobile: boolean | null;
+  userData: UserData | null;
+  selfConfig: any;
   theme: Theme;
+  locationHistory: string[];
 }
 
 interface UserData {
   username: string;
   headImage: string;
   mobile: string;
+  isLogin: boolean;
 }
 
 interface Theme {
@@ -31,27 +32,32 @@ interface Theme {
 
 const history = createBrowserHistory();
 
-const globalData: Global = {
-  userData: null,
-  locationHistory: [],
-  selfConfig: {},
+export const globalContext = React.createContext<Global>({
   inMobile: null,
+  userData: null,
+  selfConfig: {},
   theme: { gradientColor: "", deriveColor: "" },
-};
-export const globalContext = React.createContext<Global>(globalData);
+  locationHistory: [],
+});
 
 const RouterView = () => {
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [inMobile, setInMobile] = useState<boolean | null>(null);
+  const [selfConfig, setSelfConfig] = useState<any>({});
+  const [theme, setTheme] = useState<Theme>({ gradientColor: "", deriveColor: "" });
+  const [locationHistory] = useState<string[]>([]);
+
   const initGlobalData = async () => {
-    globalData.userData = await getCurrentUser();
-    globalData.selfConfig = await getSelfConfig();
-    globalData.inMobile = judgeDevice();
-    const theme = themeList[globalData.selfConfig.theme];
-    globalData.theme = theme;
+    const userData = await getCurrentUser();
+    const selfConfig = await getSelfConfig();
+    const theme = themeList[selfConfig.theme];
+    setUserData(userData ? Object.assign(userData, { isLogin: true }) : { isLogin: false });
+    setSelfConfig(selfConfig);
+    setInMobile(judgeDevice());
+    setTheme(theme);
+
     const root = document.getElementById("root");
-    root?.setAttribute(
-      "style",
-      `--gradientColor: ${globalData.theme.gradientColor}; --deriveColor: ${globalData.theme.deriveColor}`
-    );
+    root?.setAttribute("style", `--gradientColor: ${theme.gradientColor}; --deriveColor: ${theme.deriveColor}`);
   };
 
   useEffect(() => {
@@ -59,7 +65,7 @@ const RouterView = () => {
   }, []);
 
   return (
-    <globalContext.Provider value={globalData}>
+    <globalContext.Provider value={{ inMobile, userData, selfConfig, theme, locationHistory }}>
       <Router history={history}>
         <Switch>
           <Route path="/" exact render={() => <Redirect to="/home/全部" />} />

@@ -2,14 +2,14 @@
   <!-- 移动端头部 -->
   <div class="mobile-header-wrapper" :class="{ 'in-home': homeHeader }" v-if="inMobile && !mobileSearching">
     <!-- header顶部 -->
-    <div class="header-top" :class="{ logon: userData }">
+    <div class="header-top" :class="{ logon: userData.isLogin }">
       <img
         class="logo"
         :src="selfConfig.logoImage || require('../assets/images/logo.png')"
         @click="switchPage('/home')"
         v-if="homeHeader"
       />
-      <div class="header-top-left" @click="locationHistory.length <= 1 ? switchPage('/home') : routerBack()" v-else>
+      <div class="header-top-left" @click="locationHistory.length === 1 ? switchPage('/home') : routerBack()" v-else>
         <img class="back-arrow" src="../assets/images/arrow.png" />
         <div class="back-label">
           {{ locationHistory.length === 1 ? "首页" : "返回" }}
@@ -39,9 +39,9 @@
             class="avatar"
             :src="userData?.headImage || require('../assets/images/default-avatar.png')"
             :alt="userData?.username || '未登录'"
-            @click="!userData && callLogin()"
+            @click="!userData.isLogin && callLogin()"
           />
-          <div class="username" @click="!userData && callLogin()">
+          <div class="username" @click="!userData.isLogin && callLogin()">
             {{ userData?.username || "未登录" }}
           </div>
           <div class="close-btn" @click="userBoxShow = false">
@@ -61,19 +61,22 @@
             <div
               class="btn"
               :class="{ active: route.path === '/signedList' }"
-              @click="switchPage('/signedList')"
-              v-if="userData"
+              @click="
+                switchPage('/signedList');
+                userBoxShow = false;
+              "
+              v-if="userData.isLogin"
             >
               <i class="freelog fl-icon-lishi"></i>
               <div class="btn-label">已签约图片/视频</div>
             </div>
           </div>
 
-          <div class="footer-btn" @click="callLoginOut()" v-if="userData">
+          <div class="footer-btn" @click="callLoginOut()" v-if="userData.isLogin">
             <i class="freelog fl-icon-tuichu1"></i>
             <div class="btn-label">退出登录</div>
           </div>
-          <div class="footer-btn" v-if="!userData">
+          <div class="footer-btn" v-if="!userData.isLogin">
             <div class="main-btn mobile" @click="callLogin()">立即登录</div>
           </div>
         </div>
@@ -192,11 +195,14 @@
       </div>
 
       <div class="header-right">
-        <div class="nav-btn" @click="switchPage('/')" v-if="!homeHeader">
-          首页
-        </div>
+        <div class="nav-btn" @click="switchPage('/')" v-if="!homeHeader">首页</div>
 
-        <div class="user-avatar" @mouseover="userBoxShow = true" @mouseleave="userBoxShow = false" v-if="userData">
+        <div
+          class="user-avatar"
+          @mouseover="userBoxShow = true"
+          @mouseleave="userBoxShow = false"
+          v-if="userData.isLogin"
+        >
           <img class="avatar" :src="userData.headImage" :alt="userData.username" />
 
           <transition name="slide-down-scale">
@@ -231,7 +237,7 @@
 
 <script lang="ts">
 import { computed, reactive, ref, toRefs, watch } from "vue";
-import { useMyRouter, useSearchHistory } from "../utils/hooks";
+import { useMyLocationHistory, useMyRouter, useSearchHistory } from "../utils/hooks";
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
 
@@ -370,6 +376,7 @@ export default {
       data.searchKey = keywords || "";
     };
     initHeaderSearch();
+    useMyLocationHistory();
 
     return {
       ...props,
@@ -378,7 +385,7 @@ export default {
       route,
       switchPage,
       routerBack,
-      ...store.state,
+      ...toRefs(store.state),
       searchInput,
       searchHistory,
       mySearchHistory,
@@ -395,10 +402,12 @@ export default {
 <style lang="scss" scoped>
 // 移动端头部
 .mobile-header-wrapper {
+  position: relative;
   width: 100%;
   padding: 16px 20px;
   box-sizing: border-box;
   background: var(--gradientColor);
+  z-index: 1;
 
   &.in-home {
     padding: 22px 20px;

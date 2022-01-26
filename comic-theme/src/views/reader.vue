@@ -6,8 +6,10 @@
   >
     <my-header :readerHeader="true" v-if="(inMobile && mobileBarShow) || !inMobile" />
 
+    <my-loader v-if="loading" />
+
     <!-- mobile -->
-    <template v-if="inMobile">
+    <template v-if="!loading && inMobile">
       <div class="mobile-body-wrapper">
         <img class="content" :src="content" v-if="isAuth === true && content" />
 
@@ -47,7 +49,7 @@
     </template>
 
     <!-- PC -->
-    <template v-if="!inMobile">
+    <template v-if="!loading && !inMobile">
       <div class="body-wrapper" :class="theme">
         <div class="breadcrumbs-wrapper">
           <div class="breadcrumbs-item">
@@ -143,6 +145,7 @@ export default {
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "operate-btn": defineAsyncComponent(() => import("../components/operate-btn.vue")),
+    "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
     "back-top": defineAsyncComponent(() => import("../components/back-top.vue")),
     share: defineAsyncComponent(() => import("../components/share.vue")),
     directory: defineAsyncComponent(() => import("../components/directory.vue")),
@@ -157,6 +160,7 @@ export default {
     const { scrollTop } = useMyScroll();
 
     const data = reactive({
+      loading: false,
       comicInfo: {} as ExhibitItem,
       content: "",
       isAuth: null as boolean | null,
@@ -193,14 +197,20 @@ export default {
     };
 
     const getContent = async () => {
+      data.loading = true;
       const statusInfo = await getExhibitAuthStatus(id);
       data.isAuth = statusInfo.data.data ? statusInfo.data.data[0].isAuth : false;
       if (data.isAuth) {
         const info: any = await getExhibitFileStream(id, true);
-        if (!info) return;
+        if (!info) {
+          data.loading = false;
+          return;
+        }
 
         data.content = info;
+        data.loading = false;
       } else {
+        data.loading = false;
         const authResult = await addAuth(id);
         const { status } = authResult;
         if (status === 0) getContent();
@@ -222,7 +232,7 @@ export default {
     getComicInfo();
 
     return {
-      ...store.state,
+      ...toRefs(store.state),
       switchPage,
       isCollected,
       operateShelf,

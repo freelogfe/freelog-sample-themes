@@ -2,16 +2,16 @@
   <!-- 移动端头部 -->
   <div class="mobile-header-wrapper" :class="{ 'in-home': homeHeader }" v-if="inMobile && !mobileSearching">
     <!-- header顶部 -->
-    <div class="header-top" :class="{ logon: userData }">
+    <div class="header-top" :class="{ logon: userData.isLogin }">
       <img
         class="logo"
         :src="selfConfig.logoImage || require('../assets/images/logo.png')"
         @click="switchPage('/')"
         v-if="homeHeader"
       />
-      <div class="header-top-left" @click="routerBack()" v-else>
+      <div class="header-top-left" @click="locationHistory.length === 1 ? switchPage('/home') : routerBack()" v-else>
         <img class="back-arrow" src="../assets/images/arrow.png" />
-        <div class="back-label">返回</div>
+        <div class="back-label">{{ locationHistory.length === 1 ? "首页" : "返回" }}</div>
       </div>
 
       <div class="header-top-right">
@@ -51,9 +51,9 @@
             class="avatar"
             :src="userData?.headImage || require('../assets/images/default-avatar.png')"
             :alt="userData?.username || '未登录'"
-            @click="!userData && callLogin()"
+            @click="!userData.isLogin && callLogin()"
           />
-          <div class="username" @click="!userData && callLogin()">
+          <div class="username" @click="!userData.isLogin && callLogin()">
             {{ userData?.username || "未登录" }}
           </div>
           <div class="close-btn" @click="userBoxShow = false">
@@ -73,19 +73,22 @@
             <div
               class="btn"
               :class="{ active: route.path === '/signedList' }"
-              @click="switchPage('/signedList')"
-              v-if="userData"
+              @click="
+                switchPage('/signedList');
+                userBoxShow = false;
+              "
+              v-if="userData.isLogin"
             >
               <i class="freelog fl-icon-lishi"></i>
               <div class="btn-label">已签约博客</div>
             </div>
           </div>
 
-          <div class="footer-btn" @click="callLoginOut()" v-if="userData">
+          <div class="footer-btn" @click="callLoginOut()" v-if="userData.isLogin">
             <i class="freelog fl-icon-tuichu1"></i>
             <div class="btn-label">退出登录</div>
           </div>
-          <div class="footer-btn" v-if="!userData">
+          <div class="footer-btn" v-if="!userData.isLogin">
             <div class="main-btn mobile" @click="callLogin()">立即登录</div>
           </div>
         </div>
@@ -205,7 +208,12 @@
       <div class="header-top-right">
         <div class="nav-btn" @click="switchPage('/')" v-if="!homeHeader">首页</div>
         <!-- 已登录用户信息 -->
-        <div class="user-avatar" @mouseover="userBoxShow = true" @mouseleave="userBoxShow = false" v-if="userData">
+        <div
+          class="user-avatar"
+          @mouseover="userBoxShow = true"
+          @mouseleave="userBoxShow = false"
+          v-if="userData.isLogin"
+        >
           <img class="avatar" :src="userData.headImage" :alt="userData.username" />
 
           <transition name="slide-down-scale">
@@ -214,7 +222,15 @@
                 <img class="avatar" :src="userData.headImage" :alt="userData.username" />
                 <div class="username">{{ userData.username }}</div>
                 <div class="mobile">{{ userData.mobile }}</div>
-                <div class="user-box-btn" @click="switchPage('/signedList')">已签约博客</div>
+                <div
+                  class="user-box-btn"
+                  @click="
+                    switchPage('/signedList');
+                    userBoxShow = false;
+                  "
+                >
+                  已签约博客
+                </div>
                 <div class="user-box-btn" @click="callLoginOut()">登出</div>
               </div>
             </div>
@@ -254,7 +270,7 @@
 
 <script lang="ts">
 import { computed, reactive, ref, toRefs, watch } from "vue";
-import { useMyRouter, useSearchHistory } from "../utils/hooks";
+import { useMyLocationHistory, useMyRouter, useSearchHistory } from "../utils/hooks";
 import { callLogin, callLoginOut, getExhibitSignCount, getSelfId } from "@/api/freelog";
 import { useStore } from "vuex";
 
@@ -278,7 +294,6 @@ export default {
 
   setup(props: { homeHeader: boolean }) {
     const store = useStore();
-    let blogTags: string[] = store.state.selfConfig.tags.split(",");
     const { query, route, switchPage, routerBack } = useMyRouter();
     const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
     const searchInput = ref();
@@ -404,7 +419,9 @@ export default {
       data.searchKey = keywords || "";
       data.tags = tags || "";
     };
+
     initHeaderSearch();
+    useMyLocationHistory();
 
     return {
       ...props,
@@ -412,8 +429,7 @@ export default {
       callLoginOut,
       switchPage,
       routerBack,
-      ...store.state,
-      blogTags,
+      ...toRefs(store.state),
       route,
       searchInput,
       searchHistory,

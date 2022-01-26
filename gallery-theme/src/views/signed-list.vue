@@ -2,7 +2,7 @@
   <div class="signed-list-wrapper" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
     <my-header />
 
-    <div class="content">
+    <div class="content" v-if="userData.isLogin && mySignedList">
       <div class="content-header">
         <div class="signed-list-title">已签约图片/视频</div>
 
@@ -32,6 +32,11 @@
       <div class="tip" v-if="mySignedList.length === 0">暂无数据，快去签约图片/视频吧～</div>
     </div>
 
+    <div class="not-login-content" v-if="userData.isLogin === false">
+      <div class="not-login-tip">此页面需登录浏览，请先登录</div>
+      <div class="main-btn" @click="callLogin()" v-if="!inMobile">登录</div>
+    </div>
+
     <detail v-model:id="currentId" v-if="!inMobile" />
 
     <my-footer />
@@ -45,7 +50,7 @@ import { defineAsyncComponent, reactive, toRefs } from "@vue/runtime-core";
 import { useMyRouter, useMySignedList, useMyWaterfall } from "../utils/hooks";
 import { useStore } from "vuex";
 import { onUnmounted, watch } from "vue";
-import { ExhibitItem } from "../api/interface";
+import { callLogin } from "@/api/freelog";
 
 export default {
   name: "signed-list",
@@ -92,7 +97,7 @@ export default {
     const waterfallResize = () => {
       getListNumber();
       initWaterfall();
-      setWaterFall(mySignedList.value);
+      setWaterFall(mySignedList.value || []);
     };
 
     // 根据链接判断是否进入详情页或打开内容弹窗
@@ -114,7 +119,7 @@ export default {
 
     watch(
       () => mySignedList.value,
-      async (cur: ExhibitItem[]) => {
+      async (cur: any) => {
         initWaterfall();
 
         const { inMobile } = store.state;
@@ -138,7 +143,7 @@ export default {
             cur[i].height = height < minHeight ? minHeight : height;
             num++;
 
-            if (num === cur.length) setWaterFall(cur);
+            if (num === cur.length) setWaterFall(cur || []);
           };
         }
       }
@@ -153,7 +158,8 @@ export default {
     getListNumber();
 
     return {
-      ...store.state,
+      callLogin,
+      ...toRefs(store.state),
       mySignedList,
       listNumber,
       waterfall,
@@ -173,6 +179,7 @@ export default {
   // mobile
   &.in-mobile {
     padding-bottom: 98px;
+    box-sizing: border-box;
 
     .content {
       width: 100%;
@@ -219,6 +226,7 @@ export default {
   // PC
   &.in-pc {
     padding-bottom: 148px;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -305,6 +313,34 @@ export default {
     color: #999;
     text-align: center;
     margin-top: 60px;
+  }
+
+  .not-login-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .not-login-tip {
+      margin-top: 100px;
+      font-size: 16px;
+      color: #999999;
+      line-height: 22px;
+    }
+
+    .main-btn {
+      width: fit-content;
+      height: 32px;
+      padding: 0 15px;
+      box-sizing: border-box;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 30px;
+    }
   }
 }
 </style>

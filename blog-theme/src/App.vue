@@ -1,5 +1,9 @@
 <template>
-  <router-view />
+  <router-view v-slot="{ Component }">
+    <keep-alive include="home">
+      <component :is="Component" />
+    </keep-alive>
+  </router-view>
   <theme-entrance />
   <login-btn />
   <div id="modal"></div>

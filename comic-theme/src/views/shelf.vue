@@ -2,7 +2,7 @@
   <div class="shelf-wrapper" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
     <my-header />
 
-    <div class="content">
+    <div class="content" v-if="userData.isLogin && myShelf">
       <div class="shelf-title">我的漫画</div>
 
       <div class="comic-box" v-for="item in myShelf" :key="item.exhibitId">
@@ -19,16 +19,24 @@
       </div>
     </div>
 
+    <div class="not-login-content" v-if="userData.isLogin === false">
+      <div class="not-login-tip">此页面需登录浏览，请先登录</div>
+      <div class="main-btn" @click="callLogin()" v-if="!inMobile">登录</div>
+    </div>
+
     <my-footer />
+
+    <login-btn />
 
     <theme-entrance />
   </div>
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "@vue/runtime-core";
+import { defineAsyncComponent, toRefs } from "@vue/runtime-core";
 import { useMyRouter, useMyShelf } from "../utils/hooks";
 import { useStore } from "vuex";
+import { callLogin } from "@/api/freelog";
 
 export default {
   name: "shelf",
@@ -36,6 +44,7 @@ export default {
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
+    "login-btn": defineAsyncComponent(() => import("../components/login-btn.vue")),
     "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
     comic: defineAsyncComponent(() => import("../components/comic.vue")),
   },
@@ -43,12 +52,12 @@ export default {
   setup() {
     const store = useStore();
     const { switchPage } = useMyRouter();
-    const { myShelf, operateShelf } = useMyShelf();
+    const { operateShelf } = useMyShelf();
 
     return {
-      ...store.state,
+      callLogin,
+      ...toRefs(store.state),
       switchPage,
-      myShelf,
       operateShelf,
     };
   },
@@ -63,6 +72,7 @@ export default {
   // mobile
   &.in-mobile {
     padding-bottom: 98px;
+    box-sizing: border-box;
 
     .shelf-title {
       display: none;
@@ -91,6 +101,7 @@ export default {
   // PC
   &.in-pc {
     padding-bottom: 148px;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -171,6 +182,34 @@ export default {
         align-items: center;
         justify-content: center;
       }
+    }
+  }
+
+  .not-login-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .not-login-tip {
+      margin-top: 100px;
+      font-size: 16px;
+      color: #999999;
+      line-height: 22px;
+    }
+
+    .main-btn {
+      width: fit-content;
+      height: 32px;
+      padding: 0 15px;
+      box-sizing: border-box;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 30px;
     }
   }
 }

@@ -1,5 +1,6 @@
 import { themeList } from "@/api/data";
 import { getSelfConfig, getCurrentUser } from "@/api/freelog";
+import { ExhibitItem } from "@/api/interface";
 import { judgeDevice } from "@/utils/common";
 import { createStore } from "vuex";
 
@@ -8,6 +9,7 @@ interface UserData {
   username: string;
   headImage: string;
   mobile: string;
+  isLogin: boolean;
 }
 
 // 主题色
@@ -29,6 +31,8 @@ export default createStore({
     selfConfig: {} as any,
     theme: { gradientColor: "", deriveColor: "" } as Theme,
     locationHistory: [] as HistoryItem[],
+    shelfIds: [] as string[],
+    myShelf: null as ExhibitItem[] | null,
   },
 
   mutations: {
@@ -43,7 +47,10 @@ export default createStore({
       const selfConfig = await getSelfConfig();
       const inMobile = judgeDevice();
       const theme = themeList[selfConfig.theme];
-      context.commit("setData", { key: "userData", value: userData });
+      context.commit("setData", {
+        key: "userData",
+        value: userData ? { ...userData, isLogin: true } : { isLogin: false },
+      });
       context.commit("setData", { key: "selfConfig", value: selfConfig });
       context.commit("setData", { key: "inMobile", value: inMobile });
       context.commit("setData", { key: "theme", value: theme });

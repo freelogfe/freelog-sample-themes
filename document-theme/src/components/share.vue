@@ -116,7 +116,7 @@ export default {
 
     return {
       shareBtns,
-      ...store.state,
+      ...toRefs(store.state),
       ...toRefs(data),
       ...methods,
     };

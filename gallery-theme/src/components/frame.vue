@@ -327,7 +327,6 @@ export default {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          z-index: 1;
 
           .img-box {
             display: flex;
@@ -474,7 +473,6 @@ export default {
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        z-index: 1;
 
         .img-box {
           display: flex;

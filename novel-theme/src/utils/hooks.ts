@@ -19,13 +19,13 @@ import { ExhibitItem } from "../api/interface";
 export const useMyShelf = (id?: string) => {
   const { userData } = useContext(globalContext);
   const [shelfIds, setShelfIds] = useState<string[]>([]);
-  const [myShelf, setMyShelf] = useState<ExhibitItem[]>([]);
+  const [myShelf, setMyShelf] = useState<ExhibitItem[] | null>(null);
   const [isCollected, setIsCollected] = useState(false);
 
   // 获取书架数据
   const getMyShelf = async () => {
     // 用户未登录
-    if (!userData) return;
+    if (!userData?.isLogin) return;
 
     const ids = await getUserData("shelf");
     setShelfIds(ids || []);
@@ -63,7 +63,7 @@ export const useMyShelf = (id?: string) => {
 
   // 操作收藏（如未收藏则收藏，反之取消收藏）
   const operateShelf = async (exhibit: ExhibitItem) => {
-    if (!userData) {
+    if (!userData?.isLogin) {
       callLogin();
       return;
     }
@@ -88,7 +88,7 @@ export const useMyShelf = (id?: string) => {
   useEffect(() => {
     getMyShelf();
     // eslint-disable-next-line
-  }, [id, userData]);
+  }, [id, userData?.isLogin]);
 
   useEffect(() => {
     if (id) setIsCollected(ifExistInShelf(id));
@@ -108,12 +108,12 @@ export const useMySignedList = () => {
   }
 
   const { userData } = useContext(globalContext);
-  const [mySignedList, setMySignedList] = useState<ExhibitItem[]>([]);
+  const [mySignedList, setMySignedList] = useState<ExhibitItem[] | null>(null);
 
   // 获取已签约展品数据
   const getMySignedList = async (keywords = "") => {
     // 用户未登录
-    if (!userData) return;
+    if (!userData?.isLogin) return;
 
     const signedList = await getSignStatistics({ keywords });
     const ids: string[] = [];
@@ -141,7 +141,7 @@ export const useMySignedList = () => {
   useEffect(() => {
     getMySignedList();
     // eslint-disable-next-line
-  }, []);
+  }, [userData?.isLogin]);
 
   return { mySignedList, getMySignedList };
 };
@@ -225,29 +225,42 @@ export const useMyScroll = () => {
 };
 
 /**
- * 页面路由记录hook
+ * 路由hook
  */
 export const useMyHistory = () => {
-  const { locationHistory } = useContext(globalContext);
   const history = useHistory();
 
   const switchPage = (path: string) => {
     history.push(path);
-    locationHistory.push(path);
   };
 
   const back = () => {
     history.goBack();
-    locationHistory.pop();
   };
 
+  return { switchPage, back, pathname: history.location.pathname };
+};
+
+/**
+ * 页面路由记录hook
+ */
+export const useMyLocationHistory = () => {
+  const { locationHistory } = useContext(globalContext);
+  const history = useHistory();
+
   useEffect(() => {
-    if (!locationHistory.length) locationHistory.push(history.location.pathname);
-    if (locationHistory.length <= 1 && ["/shelf", "/signedList"].includes(history.location.pathname)) {
-      switchPage("/home/全部");
+    if (!locationHistory.length) {
+      locationHistory.push(history.location.pathname);
+      return;
+    }
+
+    if (history.action === "PUSH") {
+      locationHistory.push(history.location.pathname);
+    } else if (history.action === "POP") {
+      locationHistory.pop();
     }
     // eslint-disable-next-line
-  }, []);
+  }, [history]);
 
-  return { switchPage, back, locationHistory, pathname: history.location.pathname };
+  return { locationHistory };
 };

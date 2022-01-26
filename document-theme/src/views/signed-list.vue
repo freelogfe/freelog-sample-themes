@@ -2,7 +2,7 @@
   <div class="signed-list-wrapper" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
     <my-header />
 
-    <div class="content">
+    <div class="content" v-if="userData.isLogin && mySignedList">
       <div class="content-header">
         <div class="signed-list-title">已签约文档</div>
 
@@ -36,6 +36,11 @@
       <div class="tip" v-if="mySignedList.length === 0">暂无数据，快去签约文档吧～</div>
     </div>
 
+    <div class="not-login-content" v-if="userData.isLogin === false">
+      <div class="not-login-tip">此页面需登录浏览，请先登录</div>
+      <div class="main-btn" @click="callLogin()" v-if="!inMobile">登录</div>
+    </div>
+
     <my-footer />
 
     <theme-entrance />
@@ -46,6 +51,7 @@
 import { defineAsyncComponent, reactive, toRefs } from "@vue/runtime-core";
 import { useMyRouter, useMySignedList } from "../utils/hooks";
 import { useStore } from "vuex";
+import { callLogin } from "@/api/freelog";
 
 export default {
   name: "signed-list",
@@ -75,13 +81,7 @@ export default {
       },
     };
 
-    return {
-      ...store.state,
-      switchPage,
-      mySignedList,
-      ...toRefs(data),
-      ...methods,
-    };
+    return { callLogin, ...toRefs(store.state), switchPage, mySignedList, ...toRefs(data), ...methods };
   },
 };
 </script>
@@ -94,6 +94,7 @@ export default {
   // mobile
   &.in-mobile {
     padding-bottom: 128px;
+    box-sizing: border-box;
 
     .content {
       width: 100%;
@@ -191,6 +192,7 @@ export default {
   // PC
   &.in-pc {
     padding-bottom: 148px;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -339,6 +341,46 @@ export default {
     color: #999;
     text-align: center;
     margin-top: 60px;
+  }
+
+  .not-login-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .not-login-tip {
+      margin-top: 100px;
+      font-size: 16px;
+      color: #999999;
+      line-height: 22px;
+    }
+
+    .main-btn {
+      width: fit-content;
+      height: 32px;
+      padding: 0 15px;
+      box-sizing: border-box;
+      color: #fff;
+      background: #2784ff;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 30px;
+      cursor: pointer;
+      transition: all 0.2s linear;
+
+      &:hover {
+        opacity: 0.8;
+      }
+
+      &:active {
+        opacity: 0.6;
+      }
+    }
   }
 }
 </style>

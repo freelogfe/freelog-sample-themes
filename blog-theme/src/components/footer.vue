@@ -29,6 +29,7 @@
 <script lang="ts">
 import { useStore } from "vuex";
 import { freelogEntrances } from "@/api/data";
+import { toRefs } from 'vue';
 
 export default {
   name: "my-footer",
@@ -45,7 +46,7 @@ export default {
 
     return {
       freelogEntrances,
-      ...store.state,
+      ...toRefs(store.state),
       ...methods,
     };
   },

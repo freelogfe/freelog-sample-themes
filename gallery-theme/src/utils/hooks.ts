@@ -7,7 +7,7 @@ import {
   getExhibitSignCount,
   getSignStatistics,
 } from "@/api/freelog";
-import { onUnmounted, reactive, ref, toRefs, watchEffect } from "vue";
+import { onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { ExhibitItem } from "../api/interface";
@@ -16,7 +16,6 @@ import { ExhibitItem } from "../api/interface";
  * 路由hook
  */
 export const useMyRouter = () => {
-  const store = useStore();
   const router = useRouter();
   const route = useRoute();
   const query = ref();
@@ -27,16 +26,11 @@ export const useMyRouter = () => {
 
   // 路由跳转方法
   const switchPage = (path: string, query: any = {}, mode = "push") => {
-    const { locationHistory } = store.state;
     if (mode === "push") {
       router.push({ path, query });
     } else if (mode === "replace") {
       router.replace({ path, query });
-      locationHistory.pop();
     }
-    locationHistory.push({ path, query });
-
-    store.commit("setData", { key: "locationHistory", value: locationHistory });
   };
 
   // 路由跳转方法
@@ -49,26 +43,42 @@ export const useMyRouter = () => {
     return router.currentRoute.value.fullPath;
   };
 
-  // 初始化路由记录
-  const initLocationHistory = () => {
-    const { locationHistory } = store.state;
-    if (locationHistory.length !== 0) return;
-
-    const { path } = router.currentRoute.value;
-    locationHistory.push({ path });
-    store.commit("setData", { key: "locationHistory", value: locationHistory });
-  };
-
-  initLocationHistory();
-
   return { query, route, switchPage, routerBack, getCurrentPath };
+};
+
+/**
+ * 页面路由记录hook
+ */
+export const useMyLocationHistory = () => {
+  const store = useStore();
+  const router = useRouter();
+
+  watch(
+    () => router,
+    (cur) => {
+      const { current, replaced } = cur.options.history.state;
+      const { locationHistory } = store.state;
+      if (!locationHistory.length) {
+        locationHistory.push(current);
+        store.commit("setData", { key: "locationHistory", value: locationHistory });
+        return;
+      }
+
+      if (!replaced) {
+        locationHistory.push(current);
+      } else {
+        locationHistory.pop();
+      }
+      store.commit("setData", { key: "locationHistory", value: locationHistory });
+    },
+    { immediate: true, deep: true }
+  );
 };
 
 /**
  * 获取列表数据hook
  */
 export const useGetList = () => {
-  const store = useStore();
   const data = reactive({
     listData: <ExhibitItem[]>[],
     loading: false,
@@ -181,14 +191,14 @@ export const useMySignedList = () => {
 
   const store = useStore();
   const data = reactive({
-    mySignedList: <ExhibitItem[]>[],
+    mySignedList: <ExhibitItem[] | null>null,
     loading: false,
   });
 
   // 获取已签约展品数据
   const getMySignedList = async (keywords = "") => {
     // 用户未登录
-    if (!store.state.userData) return;
+    if (!store.state.userData.isLogin) return;
 
     const signedList: any = await getSignStatistics({ keywords });
     const ids: string[] = [];
@@ -296,6 +306,10 @@ export const useMyScroll = () => {
     data.scrollHeight = app?.scrollHeight || 0;
   };
 
+  const scrollTo = (top: number, behavior: ScrollBehavior = "smooth") => {
+    app?.scroll({ top, behavior });
+  };
+
   app?.addEventListener("scroll", scroll);
   onUnmounted(() => {
     app?.removeEventListener("scroll", scroll);
@@ -305,5 +319,6 @@ export const useMyScroll = () => {
 
   return {
     ...toRefs(data),
+    scrollTo,
   };
 };

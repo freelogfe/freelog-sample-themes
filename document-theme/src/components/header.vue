@@ -3,7 +3,7 @@
   <div class="mobile-header-wrapper" v-if="inMobile">
     <i class="freelog fl-icon-xiaoshuomulu" @click="openDirectory()" v-if="route.path === '/home'"></i>
 
-    <div class="back-btn" @click="locationHistory.length <= 1 ? switchPage('/home') : routerBack()" v-else>
+    <div class="back-btn" @click="locationHistory.length === 1 ? switchPage('/home') : routerBack()" v-else>
       <img class="back-arrow" src="../assets/images/arrow.png" />
       <div class="back-label">
         {{ locationHistory.length === 1 ? "首页" : "返回" }}
@@ -15,10 +15,10 @@
       :src="userData.headImage"
       :alt="userData.username"
       @click="userBoxShow = true"
-      v-if="userData"
+      v-if="userData.isLogin"
     />
 
-    <div class="header-login-btn" @click="callLogin()" v-if="!userData">登录</div>
+    <div class="header-login-btn" @click="callLogin()" v-if="!userData.isLogin">登录</div>
 
     <!-- 用户弹窗 -->
     <transition name="fade">
@@ -70,7 +70,7 @@
     />
 
     <!-- 已登录区域 -->
-    <div class="user-avatar" @mouseover="userBoxShow = true" @mouseleave="userBoxShow = false" v-if="userData">
+    <div class="user-avatar" @mouseover="userBoxShow = true" @mouseleave="userBoxShow = false" v-if="userData.isLogin">
       <img class="avatar" :src="userData.headImage" :alt="userData.username" />
 
       <transition name="slide-down-scale">
@@ -98,7 +98,7 @@
 import { reactive, SetupContext, toRefs } from "vue";
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
-import { useMyRouter } from "../utils/hooks";
+import { useMyLocationHistory, useMyRouter } from "../utils/hooks";
 
 export default {
   name: "my-header",
@@ -125,6 +125,8 @@ export default {
         context.emit("openDirectory");
       },
     };
+
+    useMyLocationHistory();
 
     return {
       callLogin,

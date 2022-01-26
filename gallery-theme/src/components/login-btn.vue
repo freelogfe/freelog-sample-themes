@@ -27,7 +27,7 @@ export default {
     watch(
       () => store.state.userData,
       (cur) => {
-        data.show = !cur;
+        data.show = !cur.isLogin;
       },
       { immediate: true }
     );

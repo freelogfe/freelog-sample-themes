@@ -2,7 +2,7 @@
   <div class="signed-list-wrapper" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
     <my-header />
 
-    <div class="content">
+    <div class="content" v-if="userData.isLogin && mySignedList">
       <div class="content-header">
         <div class="signed-list-title">已签约博客</div>
 
@@ -23,6 +23,11 @@
       <div class="tip" v-if="mySignedList.length === 0">暂无数据，快去签约博客吧～</div>
     </div>
 
+    <div class="not-login-content" v-if="userData.isLogin === false">
+      <div class="not-login-tip">此页面需登录浏览，请先登录</div>
+      <div class="main-btn" @click="callLogin()" v-if="!inMobile">登录</div>
+    </div>
+
     <my-footer />
 
     <theme-entrance />
@@ -33,6 +38,7 @@
 import { defineAsyncComponent, reactive, toRefs } from "@vue/runtime-core";
 import { useMySignedList } from "../utils/hooks";
 import { useStore } from "vuex";
+import { callLogin } from "@/api/freelog";
 
 export default {
   name: "signed-list",
@@ -62,12 +68,7 @@ export default {
       },
     };
 
-    return {
-      ...store.state,
-      mySignedList,
-      ...toRefs(data),
-      ...methods,
-    };
+    return { callLogin, ...toRefs(store.state), mySignedList, ...toRefs(data), ...methods };
   },
 };
 </script>
@@ -80,6 +81,7 @@ export default {
   // mobile
   &.in-mobile {
     padding-bottom: 98px;
+    box-sizing: border-box;
 
     .content {
       width: 100%;
@@ -108,7 +110,7 @@ export default {
         padding: 0 20px;
         box-sizing: border-box;
 
-        &:last-child ::v-deep .article-content {
+        &:last-child ::v-deep .article-wrapper {
           border-bottom: none;
         }
       }
@@ -118,6 +120,7 @@ export default {
   // PC
   &.in-pc {
     padding-bottom: 148px;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -193,11 +196,32 @@ export default {
     margin-top: 60px;
   }
 
-  .content {
-    width: 1160px;
+  .not-login-content {
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    .not-login-tip {
+      margin-top: 100px;
+      font-size: 16px;
+      color: #999999;
+      line-height: 22px;
+    }
+
+    .main-btn {
+      width: fit-content;
+      height: 32px;
+      padding: 0 15px;
+      box-sizing: border-box;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 30px;
+    }
   }
 }
 </style>

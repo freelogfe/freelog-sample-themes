@@ -6,7 +6,7 @@ import {
   GetExhibitListByPagingParams,
   getSignStatistics,
 } from "@/api/freelog";
-import { onUnmounted, reactive, ref, toRefs, watchEffect } from "vue";
+import { onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { ExhibitItem } from "../api/interface";
@@ -15,7 +15,6 @@ import { ExhibitItem } from "../api/interface";
  * 路由hook
  */
 export const useMyRouter = () => {
-  const store = useStore();
   const router = useRouter();
   const route = useRoute();
   const query = ref();
@@ -24,21 +23,9 @@ export const useMyRouter = () => {
     query.value = { ...route.query };
   });
 
-  // router.beforeEach((to, from, next) => {
-  //   if (to.fullPath !== from.fullPath) {
-  //     next();
-  //   } else {
-  //     router.replace("/");
-  //   }
-  // });
-
   // 路由跳转方法
   const switchPage = (path: string, query: any = {}) => {
-    const { locationHistory } = store.state;
     router.push({ path, query });
-    locationHistory.push({ path, query });
-
-    store.commit("setData", { key: "locationHistory", value: locationHistory });
   };
 
   // 路由跳转方法
@@ -52,6 +39,35 @@ export const useMyRouter = () => {
   };
 
   return { query, route, switchPage, routerBack, getCurrentPath };
+};
+
+/**
+ * 页面路由记录hook
+ */
+export const useMyLocationHistory = () => {
+  const store = useStore();
+  const router = useRouter();
+
+  watch(
+    () => router,
+    (cur) => {
+      const { current, replaced } = cur.options.history.state;
+      const { locationHistory } = store.state;
+      if (!locationHistory.length) {
+        locationHistory.push(current);
+        store.commit("setData", { key: "locationHistory", value: locationHistory });
+        return;
+      }
+
+      if (!replaced) {
+        locationHistory.push(current);
+      } else {
+        locationHistory.pop();
+      }
+      store.commit("setData", { key: "locationHistory", value: locationHistory });
+    },
+    { immediate: true, deep: true }
+  );
 };
 
 /**
@@ -124,14 +140,14 @@ export const useMySignedList = () => {
 
   const store = useStore();
   const data = reactive({
-    mySignedList: <ExhibitItem[]>[],
+    mySignedList: <ExhibitItem[] | null>null,
     loading: false,
   });
 
   // 获取已签约展品数据
   const getMySignedList = async (keywords = "") => {
     // 用户未登录
-    if (!store.state.userData) return;
+    if (!store.state.userData.isLogin) return;
 
     const signedList: any = await getSignStatistics({ keywords });
     const ids: string[] = [];

@@ -2,8 +2,10 @@
   <div class="home-wrapper" @click="sortPopupShow = false">
     <my-header homeHeader :mobileSearching="!!(inMobile && searchData.keywords)" />
 
+    <my-loader v-if="loading" />
+
     <!-- mobile -->
-    <div class="mobile-home-body" v-if="inMobile">
+    <div class="mobile-home-body" v-if="!loading && inMobile">
       <div class="header">
         <div class="sort" v-if="!searchData.keywords" @click.stop="sortPopupShow = true">
           {{ createDateSortType === "-1" ? "最新" : "最早" }}
@@ -94,7 +96,7 @@
     </div>
 
     <!-- PC -->
-    <div class="home-body" v-if="!inMobile">
+    <div class="home-body" v-if="!loading && !inMobile">
       <div class="header">
         <div class="search-box-title" v-if="searchData.keywords">查询到{{ listData.length }}个相关结果</div>
 
@@ -149,7 +151,7 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, reactive, toRefs, watch } from "vue";
+import { defineAsyncComponent, onActivated, onDeactivated, reactive, toRefs, watch } from "vue";
 import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
 import { useStore } from "vuex";
 
@@ -158,6 +160,7 @@ export default {
 
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
+    "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     "my-article": defineAsyncComponent(() => import("../components/article.vue")),
   },
@@ -165,8 +168,8 @@ export default {
   setup() {
     const store = useStore();
     const tagsList: string[] = store.state.selfConfig.tags.split(",");
-    const { query, switchPage } = useMyRouter();
-    const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
+    const { query, route, switchPage } = useMyRouter();
+    const { scrollTop, clientHeight, scrollHeight, scrollTo } = useMyScroll();
     const datasOfGetList = useGetList();
 
     const data = reactive({
@@ -214,6 +217,14 @@ export default {
     watch(
       () => query.value,
       () => {
+        if (route.path !== "/home") return;
+        if (
+          data.searchData.keywords === query.value.keywords &&
+          data.searchData.tags === query.value.tags &&
+          data.searchData.sort === query.value.sort
+        )
+          return;
+
         getData();
       }
     );
@@ -224,10 +235,20 @@ export default {
       datasOfGetList.clearData();
       datasOfGetList.getList(data.searchData, true);
     };
+
+    onActivated(() => {
+      const homeScrollTop = sessionStorage.getItem("homeScroll");
+      scrollTo(Number(homeScrollTop), "auto");
+    });
+
+    onDeactivated(() => {
+      sessionStorage.setItem("homeScroll", String(scrollTop.value));
+    });
+
     getData();
 
     return {
-      ...store.state,
+      ...toRefs(store.state),
       tagsList,
       ...datasOfGetList,
       ...toRefs(data),

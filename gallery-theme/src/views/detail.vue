@@ -2,88 +2,78 @@
   <div class="mobile-detail-wrapper" v-if="inMobile">
     <my-header />
 
-    <transition name="fade">
-      <div class="cards-box" v-if="!content && isAuth === null">
-        <div class="cards">
-          <span v-for="item in 8" :key="item" />
-        </div>
+    <div class="main-area" key="mainArea">
+      <my-loader v-if="loading" />
+
+      <template v-if="!loading && isAuth === true">
+        <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType === 'image'" />
+        <video
+          :src="content"
+          controls
+          muted
+          autoplay
+          webkit-playsinline
+          playsinline
+          v-if="exhibitInfo?.articleInfo.resourceType === 'video'"
+        ></video>
+      </template>
+
+      <div class="lock-box" v-if="!loading && isAuth === false">
+        <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
+        <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+        <div class="get-btn" @click="getAuth()">签约</div>
       </div>
-    </transition>
 
-    <transition-group name="fade">
-      <template v-if="content || isAuth === false">
-        <div class="main-area" key="mainArea">
-          <template v-if="isAuth === true">
-            <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType === 'image'" />
-            <video
-              :src="content"
-              controls
-              muted
-              autoplay
-              webkit-playsinline
-              playsinline
-              v-if="exhibitInfo?.articleInfo.resourceType === 'video'"
-            ></video>
-          </template>
-
-          <div class="lock-box" v-if="isAuth === false">
-            <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
-            <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-            <div class="get-btn" @click="getAuth()">签约</div>
-          </div>
-
-          <template v-if="listData.length > 1">
-            <div
-              class="switch-btn previous"
-              @click="switchExhibit('ArrowLeft')"
-              v-if="listData.length && exhibitInfo?.exhibitId !== listData[0].exhibitId"
-            >
-              <i class="freelog fl-icon-zhankaigengduo"></i>
-            </div>
-            <div
-              class="switch-btn next"
-              @click="switchExhibit('ArrowRight')"
-              v-if="listData.length && exhibitInfo?.exhibitId !== listData[listData.length - 1].exhibitId"
-            >
-              <i class="freelog fl-icon-zhankaigengduo"></i>
-            </div>
-          </template>
+      <template v-if="listData.length > 1">
+        <div
+          class="switch-btn previous"
+          @click="switchExhibit('ArrowLeft')"
+          v-if="listData.length && exhibitInfo?.exhibitId !== listData[0].exhibitId"
+        >
+          <i class="freelog fl-icon-zhankaigengduo"></i>
         </div>
-
-        <div class="other-area" key="otherArea">
-          <div class="detail-info">
-            <div class="title-box">
-              <div class="title">{{ exhibitInfo?.exhibitTitle }}</div>
-              <div class="offline" v-if="exhibitInfo?.onlineStatus === 0">已下架</div>
-            </div>
-            <tags :tags="exhibitInfo?.tags" v-if="exhibitInfo?.tags.length" />
-            <div class="author-info">
-              <img class="author-avatar" :src="getAvatarUrl(exhibitInfo?.userId)" v-if="exhibitInfo?.userId" />
-              <div class="author-name">
-                {{ exhibitInfo?.articleInfo.articleOwnerName }}
-              </div>
-            </div>
-          </div>
-
-          <div class="recommend-area">
-            <div class="title">相关推荐</div>
-
-            <div class="recommend-list">
-              <div class="waterfall" v-for="list in listNumber" :key="list">
-                <my-frame
-                  :data="item"
-                  v-for="item in waterfall[waterfallList[list - 1]]"
-                  :key="item.exhibitId"
-                  @click="switchPage('/detail', { id: item.exhibitId })"
-                />
-              </div>
-            </div>
-
-            <div class="text-btn mobile" @click="closePopup()">浏览更多>></div>
-          </div>
+        <div
+          class="switch-btn next"
+          @click="switchExhibit('ArrowRight')"
+          v-if="listData.length && exhibitInfo?.exhibitId !== listData[listData.length - 1].exhibitId"
+        >
+          <i class="freelog fl-icon-zhankaigengduo"></i>
         </div>
       </template>
-    </transition-group>
+    </div>
+
+    <div class="other-area" key="otherArea">
+      <div class="detail-info">
+        <div class="title-box">
+          <div class="title">{{ exhibitInfo?.exhibitTitle }}</div>
+          <div class="offline" v-if="exhibitInfo?.onlineStatus === 0">已下架</div>
+        </div>
+        <tags :tags="exhibitInfo?.tags" v-if="exhibitInfo?.tags.length" />
+        <div class="author-info">
+          <img class="author-avatar" :src="getAvatarUrl(exhibitInfo?.userId)" v-if="exhibitInfo?.userId" />
+          <div class="author-name">
+            {{ exhibitInfo?.articleInfo.articleOwnerName }}
+          </div>
+        </div>
+      </div>
+
+      <div class="recommend-area">
+        <div class="title">相关推荐</div>
+
+        <div class="recommend-list">
+          <div class="waterfall" v-for="list in listNumber" :key="list">
+            <my-frame
+              :data="item"
+              v-for="item in waterfall[waterfallList[list - 1]]"
+              :key="item.exhibitId"
+              @click="switchPage('/detail', { id: item.exhibitId })"
+            />
+          </div>
+        </div>
+
+        <div class="text-btn mobile" @click="closePopup()">浏览更多>></div>
+      </div>
+    </div>
 
     <my-footer />
   </div>
@@ -114,8 +104,10 @@
           </div>
 
           <div ref="contentArea" class="main-area">
+            <my-loader v-if="loading" />
+
             <transition-group name="fade">
-              <template v-if="isAuth === true && contentMode">
+              <template v-if="!loading && isAuth === true && contentMode">
                 <img
                   :class="{
                     'width-full': contentMode === 1,
@@ -137,7 +129,7 @@
             </transition-group>
 
             <transition name="fade">
-              <div class="lock-box" v-if="isAuth === false">
+              <div class="lock-box" v-if="!loading && isAuth === false">
                 <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
                 <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
                 <div class="get-btn" @click="getAuth()">签约</div>
@@ -202,6 +194,7 @@ export default {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
     "my-frame": defineAsyncComponent(() => import("../components/frame.vue")),
+    "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
   },
 
@@ -214,6 +207,7 @@ export default {
     const contentArea = ref<any>(null);
 
     const data = reactive({
+      loading: false,
       currentId: "",
       exhibitInfo: null as ExhibitItem | null,
       isAuth: null as boolean | null,
@@ -265,6 +259,7 @@ export default {
 
     // 获取资源内容
     const getData = async () => {
+      data.loading = true;
       const exhibitInfo = await getExhibitInfo(data.currentId, {
         isLoadVersionProperty: 1,
       });
@@ -274,7 +269,10 @@ export default {
       data.isAuth = statusInfo.data.data ? statusInfo.data.data[0].isAuth : false;
       if (data.isAuth) {
         const info: any = await getExhibitFileStream(data.currentId, true);
-        if (!info) return;
+        if (!info) {
+          data.loading = false;
+          return;
+        }
 
         const resourceType = data.exhibitInfo?.articleInfo.resourceType;
         if (resourceType === "image") {
@@ -285,9 +283,11 @@ export default {
             const ratio = width / height;
             judgeContentMode(ratio);
             data.content = info;
+            data.loading = false;
           };
         } else if (resourceType === "video") {
           data.content = info;
+          data.loading = false;
           const video: HTMLVideoElement = document.createElement("video");
           video.src = info;
           video.onloadeddata = () => {
@@ -297,6 +297,7 @@ export default {
           };
         }
       } else {
+        data.loading = false;
         methods.getAuth();
       }
 
@@ -316,7 +317,7 @@ export default {
     const waterfallResize = () => {
       getListNumber();
       initWaterfall();
-      setWaterFall(datasOfGetList.listData.value);
+      setWaterFall(datasOfGetList.listData.value.filter((item) => item.exhibitId !== data.currentId));
     };
 
     watch(
@@ -341,7 +342,6 @@ export default {
           data.exhibitInfo = null;
           data.isAuth = null;
           data.content = "";
-          // initWaterfall();
           window.addEventListener("keyup", keyup);
           getListNumber();
           getData();
@@ -392,7 +392,7 @@ export default {
             cur[i].height = height < minHeight ? minHeight : height;
             num++;
 
-            if (num === cur.length) setWaterFall(cur);
+            if (num === cur.length) setWaterFall(cur.filter((item) => item.exhibitId !== data.currentId));
           };
         }
       }

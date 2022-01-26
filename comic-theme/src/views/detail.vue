@@ -338,7 +338,7 @@ export default {
 
     return {
       formatDate,
-      ...store.state,
+      ...toRefs(store.state),
       switchPage,
       routerBack,
       isCollected,
@@ -726,6 +726,7 @@ export default {
           .comic-name {
             font-size: 24px;
             line-height: 30px;
+            height: 30px;
             color: #222222;
             font-weight: bold;
           }
@@ -733,6 +734,7 @@ export default {
           .comic-author {
             font-size: 13px;
             line-height: 18px;
+            height: 18px;
             color: #666666;
             margin-top: 10px;
           }
@@ -746,6 +748,7 @@ export default {
           .create-date {
             font-size: 12px;
             line-height: 18px;
+            height: 18px;
             color: #999999;
             margin-top: 12px;
           }
@@ -753,6 +756,7 @@ export default {
           .update-date {
             font-size: 12px;
             line-height: 18px;
+            height: 18px;
             color: #999999;
             margin-top: 4px;
           }

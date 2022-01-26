@@ -20,7 +20,6 @@ import { showToast } from "./common";
  * 路由hook
  */
 export const useMyRouter = () => {
-  const store = useStore();
   const router = useRouter();
   const route = useRoute();
   const query = ref();
@@ -31,11 +30,7 @@ export const useMyRouter = () => {
 
   // 路由跳转方法
   const switchPage = (path: string, query: any = {}) => {
-    const { locationHistory } = store.state;
     router.push({ path, query });
-    locationHistory.push({ path, query });
-
-    store.commit("setData", { key: "locationHistory", value: locationHistory });
   };
 
   // 路由跳转方法
@@ -48,19 +43,36 @@ export const useMyRouter = () => {
     return router.currentRoute.value.fullPath;
   };
 
-  // 初始化路由记录
-  const initLocationHistory = () => {
-    const { locationHistory } = store.state;
-    if (locationHistory.length !== 0) return;
-
-    const { path } = router.currentRoute.value;
-    locationHistory.push({ path });
-    store.commit("setData", { key: "locationHistory", value: locationHistory });
-  };
-
-  initLocationHistory();
-
   return { route, query, switchPage, routerBack, getCurrentPath };
+};
+
+/**
+ * 页面路由记录hook
+ */
+export const useMyLocationHistory = () => {
+  const store = useStore();
+  const router = useRouter();
+
+  watch(
+    () => router,
+    (cur) => {
+      const { current, replaced } = cur.options.history.state;
+      const { locationHistory } = store.state;
+      if (!locationHistory.length) {
+        locationHistory.push(current);
+        store.commit("setData", { key: "locationHistory", value: locationHistory });
+        return;
+      }
+
+      if (!replaced) {
+        locationHistory.push(current);
+      } else {
+        locationHistory.pop();
+      }
+      store.commit("setData", { key: "locationHistory", value: locationHistory });
+    },
+    { immediate: true }
+  );
 };
 
 /**
@@ -68,29 +80,36 @@ export const useMyRouter = () => {
  */
 export const useMyShelf = (id?: string) => {
   const store = useStore();
-  const { switchPage, getCurrentPath } = useMyRouter();
 
   const data = reactive({
-    shelfIds: [] as string[],
-    myShelf: [] as ExhibitItem[],
     isCollected: false,
   });
 
   // 获取书架数据
   const getMyShelf = async () => {
-    // 用户未登录
-    if (!store.state.userData && getCurrentPath() === "/shelf") {
-      switchPage("/home");
-      return;
-    }
-
-    if (!store.state.userData) return;
+    if (!store.state.userData.isLogin) return;
 
     const ids = await getUserData("shelf");
-    data.shelfIds = ids || [];
+    const shelfIds = (ids || []).sort();
+    const storeShelfIds = store.state.shelfIds.sort();
+    let change = false;
+    if (shelfIds.length !== storeShelfIds.length) {
+      change = true;
+    } else {
+      for (let i = 0; i < Math.max(shelfIds.length, storeShelfIds.length); i++) {
+        if (shelfIds[i] !== storeShelfIds[i]) {
+          change = true;
+          break;
+        }
+      }
+    }
+
+    if (!change) return;
+
+    store.commit("setData", { key: "shelfIds", value: shelfIds });
 
     if (!ids || ids.length === 0) {
-      data.myShelf = [];
+      store.commit("setData", { key: "myShelf", value: [] });
       return;
     }
 
@@ -111,44 +130,48 @@ export const useMyShelf = (id?: string) => {
         });
       }
     }
-    data.myShelf = list.data.data;
+    store.commit("setData", { key: "myShelf", value: list.data.data });
   };
 
   // 判断当前资源是否已被收藏
   const ifExistInShelf = (exhibitId: string) => {
-    const isCollected = data.shelfIds.includes(exhibitId);
+    const shelfIds = store.state.shelfIds;
+    const isCollected = shelfIds.includes(exhibitId);
     return isCollected;
   };
 
   // 操作收藏（如未收藏则收藏，反之取消收藏）
   const operateShelf = async (exhibit: ExhibitItem) => {
-    if (!store.state.userData) {
+    if (!store.state.userData.isLogin) {
       callLogin();
       return;
     }
 
     const isThisCollected = ifExistInShelf(exhibit.exhibitId);
 
+    const shelfIds = [...store.state.shelfIds];
     if (isThisCollected) {
-      const index = data.shelfIds.findIndex((item) => item === exhibit.exhibitId);
-      data.shelfIds.splice(index, 1);
+      const index = shelfIds.findIndex((item: string) => item === exhibit.exhibitId);
+      shelfIds.splice(index, 1);
     } else {
-      data.shelfIds.push(exhibit.exhibitId);
+      shelfIds.push(exhibit.exhibitId);
     }
-    const res = await setUserData("shelf", data.shelfIds);
+    const res = await setUserData("shelf", shelfIds);
     if (res.data.msg === "success") {
       showToast(isThisCollected ? `已将书籍从书架中移除～` : `已将书籍加入书架～`);
       getMyShelf();
+      if (id) data.isCollected = ifExistInShelf(id);
     } else {
       showToast("收藏失败");
     }
   };
 
   watch(
-    () => data.myShelf,
+    () => store.state.myShelf,
     () => {
       if (id) data.isCollected = ifExistInShelf(id);
-    }
+    },
+    { immediate: true }
   );
 
   getMyShelf();
@@ -272,14 +295,14 @@ export const useMySignedList = () => {
 
   const store = useStore();
   const data = reactive({
-    mySignedList: <ExhibitItem[]>[],
+    mySignedList: <ExhibitItem[] | null>null,
     loading: false,
   });
 
   // 获取已签约展品数据
   const getMySignedList = async (keywords = "") => {
     // 用户未登录
-    if (!store.state.userData) return;
+    if (!store.state.userData.isLogin) return;
 
     const signedList: any = await getSignStatistics({ keywords });
     const ids: string[] = [];

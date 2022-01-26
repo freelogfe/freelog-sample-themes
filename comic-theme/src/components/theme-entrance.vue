@@ -13,6 +13,7 @@
 <script lang="ts">
 import { useStore } from "vuex";
 import { freelogEntrances } from "@/api/data";
+import { toRefs } from 'vue';
 
 export default {
   name: "theme-entrance",
@@ -30,7 +31,7 @@ export default {
 
     return {
       themeEntrance,
-      ...store.state,
+      ...toRefs(store.state),
       ...methods,
     };
   },

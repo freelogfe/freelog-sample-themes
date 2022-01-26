@@ -115,10 +115,31 @@
     margin-top: 60px;
   }
 
-  .content {
-    width: 1160px;
+  .not-login-content {
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    .not-login-tip {
+      margin-top: 100px;
+      font-size: 16px;
+      color: #999999;
+      line-height: 22px;
+    }
+
+    .main-btn {
+      width: fit-content;
+      height: 32px;
+      padding: 0 15px;
+      box-sizing: border-box;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 30px;
+    }
   }
 }

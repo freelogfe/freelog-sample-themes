@@ -16,6 +16,7 @@
 <script lang="ts">
 import { useMyRouter } from "@/utils/hooks";
 import { useStore } from "vuex";
+import { toRefs } from 'vue';
 
 export default {
   name: "tags",
@@ -40,7 +41,7 @@ export default {
     };
 
     return {
-      ...store.state,
+      ...toRefs(store.state),
       ...methods,
     };
   },

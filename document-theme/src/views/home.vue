@@ -6,8 +6,9 @@
     <div class="mobile-home-body" v-if="inMobile">
       <!-- 内容区域 -->
       <div class="content-area">
-        <my-markdown :data="documentData" @getDirectory="getDirectory($event)" v-if="documentData.isAuth === true" />
-        <div class="lock-box" v-if="documentData.isAuth === false">
+        <my-loader v-if="loading" />
+        <my-markdown :data="documentData" @getDirectory="getDirectory($event)" v-if="!loading && documentData.isAuth === true" />
+        <div class="lock-box" v-if="!loading && documentData.isAuth === false">
           <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
           <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
           <div class="get-btn" @click="getAuth(documentData)">签约</div>
@@ -252,8 +253,13 @@
       <!-- 内容区域 -->
       <div class="content-area" :class="{ large: !directoryList.length }">
         <div class="content-body">
-          <my-markdown :data="documentData" @getDirectory="getDirectory($event)" v-if="documentData.isAuth === true" />
-          <div class="lock-box" v-if="documentData.isAuth === false">
+          <my-loader v-if="loading" />
+          <my-markdown
+            :data="documentData"
+            @getDirectory="getDirectory($event)"
+            v-if="!loading && documentData.isAuth === true"
+          />
+          <div class="lock-box" v-if="!loading && documentData.isAuth === false">
             <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
             <div class="get-btn" @click="getAuth(documentData)">签约</div>
@@ -364,6 +370,7 @@ export default {
 
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
+    "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
     "my-markdown": defineAsyncComponent(() => import("../components/markdown.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     share: defineAsyncComponent(() => import("../components/share.vue")),
@@ -381,6 +388,7 @@ export default {
     const mySearchHistory = computed(() => searchHistory.value.filter((item) => item.includes(data.searchKey)));
 
     const data = reactive({
+      myLoading: false,
       currentId: "",
       documentData: {} as ExhibitItem,
       directoryList: [] as HTMLElement[],
@@ -472,6 +480,7 @@ export default {
             break;
         }
       },
+
       // 授权
       async getAuth(item: ExhibitItem) {
         const authResult = await addAuth(item.exhibitId);
@@ -516,8 +525,9 @@ export default {
     };
 
     // 获取文档数据
-    const getDocumentData = async (id = "") => {
-      const exhibitId = id || data.currentId;
+    const getDocumentData = async () => {
+      data.myLoading = true;
+      const exhibitId = data.currentId;
       let documentData: any = datasOfGetList.listData.value.find((item) => item.exhibitId === exhibitId);
       data.viewOffline = false;
 
@@ -531,20 +541,25 @@ export default {
         documentData.isAuth = statusInfo.data.data ? statusInfo.data.data[0].isAuth : false;
       }
 
-      if (!id) {
-        const signCountData = await getExhibitSignCount(exhibitId);
-        documentData.signCount = signCountData.data.data[0].count;
-        data.documentData = documentData;
-        scrollToTop("auto");
-        data.currentTitleIndex = 0;
-        data.directoryList = [];
+      const signCountData = await getExhibitSignCount(exhibitId);
+      documentData.signCount = signCountData.data.data[0].count;
+      data.documentData = documentData;
+      scrollToTop("auto");
+      data.currentTitleIndex = 0;
+      data.directoryList = [];
+
+      if (!documentData.isAuth) {
+        data.myLoading = false;
+        return;
       }
 
-      if (!documentData.isAuth) return;
-
       const info: any = await getExhibitFileStream(exhibitId);
-      if (!info) return;
-      if (!id) data.documentData.content = info.data;
+      if (!info) {
+        data.myLoading = false;
+        return;
+      }
+      data.documentData.content = info.data;
+      data.myLoading = false;
     };
 
     const keyup = (e: KeyboardEvent) => {
@@ -600,7 +615,7 @@ export default {
 
     return {
       relativeTime,
-      ...store.state,
+      ...toRefs(store.state),
       ...datasOfGetList,
       switchPage,
       searchHistory,

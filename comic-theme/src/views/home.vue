@@ -2,9 +2,11 @@
   <div class="home-wrapper">
     <my-header :homeHeader="!searching" :mobileSearching="!!(inMobile && searching)" />
 
+    <my-loader v-if="loading" />
+
     <!-- mobile -->
-    <div class="mobile-home-body" v-if="inMobile">
-      <div class="shelf-comic-list" v-if="!searching && userData && myShelf.length !== 0">
+    <div class="mobile-home-body" v-if="!loading && inMobile">
+      <div class="shelf-comic-list" v-if="!searching && userData.isLogin && myShelf && myShelf.length !== 0">
         <div class="shelf-header">
           <div class="box-title">我的收藏</div>
           <div class="more-shelf" @click="switchPage('/shelf')">
@@ -93,8 +95,8 @@
     </div>
 
     <!-- PC -->
-    <div class="home-body" v-if="!inMobile">
-      <div class="comic-list" v-if="!searching && userData && myShelf.length !== 0">
+    <div class="home-body" v-if="!loading && !inMobile">
+      <div class="comic-list" v-if="!searching && userData.isLogin && myShelf && myShelf.length !== 0">
         <div class="shelf-header">
           <div class="box-title">我的收藏</div>
           <div class="shelf-header-right">
@@ -165,6 +167,7 @@ export default {
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
+    "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
     "login-btn": defineAsyncComponent(() => import("../components/login-btn.vue")),
     "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
     comic: defineAsyncComponent(() => import("../components/comic.vue")),
@@ -174,8 +177,8 @@ export default {
     const store = useStore();
     const tagsList: string[] = store.state.selfConfig.tags?.split(",");
     const { query, route, switchPage } = useMyRouter();
-    const { myShelf } = useMyShelf();
     const { scrollTop, clientHeight, scrollHeight, scrollTo } = useMyScroll();
+    useMyShelf();
     const datasOfGetList = useGetList();
 
     const data = reactive({
@@ -244,9 +247,8 @@ export default {
 
     return {
       tagsList,
-      ...store.state,
+      ...toRefs(store.state),
       switchPage,
-      myShelf,
       ...datasOfGetList,
       ...toRefs(data),
       ...methods,

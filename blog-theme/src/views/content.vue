@@ -27,11 +27,7 @@
       <div class="recommend">
         <div class="recommend-title">热门推荐</div>
         <div class="article-list">
-          <my-article
-            :data="item"
-            v-for="item in recommendList"
-            :key="item.presentableId"
-          />
+          <my-article :data="item" v-for="item in recommendList" :key="item.presentableId" />
         </div>
       </div>
     </div>
@@ -41,11 +37,7 @@
       <div class="article-card">
         <div class="title-share">
           <div class="article-title">{{ articleData?.exhibitTitle }}</div>
-          <div
-            class="share-btn"
-            @mouseover="shareShow = true"
-            @mouseleave="shareShow = false"
-          >
+          <div class="share-btn" @mouseover="shareShow = true" @mouseleave="shareShow = false">
             <span class="share-btn-text" :class="{ active: shareShow }">
               <i class="freelog fl-icon-fenxiang"></i>
               分享
@@ -79,11 +71,7 @@
           <div class="text-btn" @click="switchPage('/')">更多>></div>
         </div>
         <div class="article-list">
-          <my-article
-            :data="item"
-            v-for="item in recommendList"
-            :key="item.presentableId"
-          />
+          <my-article :data="item" v-for="item in recommendList" :key="item.presentableId" />
         </div>
       </div>
     </div>
@@ -114,12 +102,8 @@ export default {
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     share: defineAsyncComponent(() => import("../components/share.vue")),
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
-    "my-article": defineAsyncComponent(
-      () => import("../components/article.vue")
-    ),
-    "my-markdown": defineAsyncComponent(
-      () => import("../components/markdown.vue")
-    ),
+    "my-article": defineAsyncComponent(() => import("../components/article.vue")),
+    "my-markdown": defineAsyncComponent(() => import("../components/markdown.vue")),
   },
 
   setup() {
@@ -148,7 +132,7 @@ export default {
       () => query.value,
       () => {
         document.documentElement.scroll({ top: 0 });
-        data.isAuth = false;
+        data.isAuth = null;
         data.articleData = null;
         data.contentInfo = null;
         data.recommendList = [];
@@ -167,20 +151,15 @@ export default {
         ...exhibitInfo.data.data,
         signCount: signCountData.data.data[0].count,
       };
-      const recommendList = datasOfGetList.listData.value.filter(
-        (item: ExhibitItem) => item.exhibitId !== id
-      );
-      data.recommendList = recommendList.filter(
-        (_: any, index: number) => index < 4
-      );
+      const recommendList = datasOfGetList.listData.value.filter((item: ExhibitItem) => item.exhibitId !== id);
+      data.recommendList = recommendList.filter((_: any, index: number) => index < 4);
 
       const statusInfo = await getExhibitAuthStatus(id);
-      data.isAuth = statusInfo.data.data
-        ? statusInfo.data.data[0].isAuth
-        : false;
+      data.isAuth = statusInfo.data.data ? statusInfo.data.data[0].isAuth : false;
       if (data.isAuth) {
         const info: any = await getExhibitFileStream(id);
         if (!info) return;
+
         data.contentInfo = {
           content: info.data,
           exhibitInfo: exhibitInfo.data.data,
@@ -192,7 +171,7 @@ export default {
     getData();
 
     return {
-      ...store.state,
+      ...toRefs(store.state),
       switchPage,
       formatDate,
       ...datasOfGetList,

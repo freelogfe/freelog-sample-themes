@@ -1,5 +1,9 @@
 <template>
-  <div class="markdown-wrapper" v-html="content"></div>
+  <div class="loader" v-if="loading">
+    <my-loader />
+  </div>
+
+  <div class="markdown-wrapper" v-html="content" v-if="!loading"></div>
 </template>
 
 <script lang="ts">
@@ -8,13 +12,19 @@ import { ref } from "@vue/reactivity";
 import { watch } from "@vue/runtime-core";
 import { ExhibitItem } from "@/api/interface";
 import { getExhibitDepFileStream } from "@/api/freelog";
+import { defineAsyncComponent } from "vue";
 
 export default {
   name: "my-markdown",
 
+  components: {
+    "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
+  },
+
   props: ["data"],
 
   setup(props: { data: { content: string; exhibitInfo: ExhibitItem } }) {
+    const loading = ref(true);
     const content = ref("");
     showdown.setOption("tables", true);
     showdown.setOption("tasklists", true);
@@ -31,6 +41,7 @@ export default {
     );
 
     const getContent = async () => {
+      loading.value = true;
       let html = "";
       const { exhibitProperty, dependencyTree } = props.data.exhibitInfo.versionInfo;
       if (exhibitProperty.mime === "text/markdown") {
@@ -55,11 +66,10 @@ export default {
       });
 
       content.value = html;
+      loading.value = false;
     };
 
-    return {
-      content,
-    };
+    return { loading, content };
   },
 };
 </script>

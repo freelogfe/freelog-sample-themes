@@ -8,6 +8,7 @@ interface UserData {
   username: string;
   headImage: string;
   mobile: string;
+  isLogin: boolean;
 }
 
 // 路由记录
@@ -36,7 +37,10 @@ export default createStore({
       const userData = await getCurrentUser();
       const selfConfig = await getSelfConfig();
       const inMobile = judgeDevice();
-      context.commit("setData", { key: "userData", value: userData });
+      context.commit("setData", {
+        key: "userData",
+        value: userData ? { ...userData, isLogin: true } : { isLogin: false },
+      });
       context.commit("setData", { key: "selfConfig", value: selfConfig });
       context.commit("setData", { key: "inMobile", value: inMobile });
       context.commit("setData", { key: "locationHistory", value: [] });

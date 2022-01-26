@@ -11,6 +11,7 @@ import { ThemeEntrance } from "../../components/theme-entrance/theme-entrance";
 import { Footer } from "../../components/footer/footer";
 import { LoginBtn } from "../../components/login-btn/login-btn";
 import CSSTransition from "react-transition-group/CSSTransition";
+import { Loader } from "../../components/loader/loader";
 
 export const HomeScreen = (props: any) => {
   const { tags, keywords } = props.match.params;
@@ -19,18 +20,18 @@ export const HomeScreen = (props: any) => {
   const [bookList, setBookList] = useState<ExhibitItem[]>([]);
   const [total, setTotal] = useState<number | null>(null);
   const [searching, setSearching] = useState(false);
+  const [loading, setLoading] = useState(false);
   let skip = useRef(0);
-  let loading: any = useRef(false);
 
   const getBookList = useCallback(
     async (init = false) => {
-      if (loading.current) return;
+      if (loading) return;
 
       setSearching(!!keywords);
 
       if (total === bookList.length && !init) return;
 
-      loading.current = true;
+      setLoading(true);
       skip.current = init ? 0 : skip.current + 30;
       const queryParams: GetExhibitListByPagingParams = {
         omitArticleResourceType: "theme",
@@ -58,8 +59,9 @@ export const HomeScreen = (props: any) => {
       }
       setBookList((pre) => (init ? dataList : [...pre, ...dataList]));
       setTotal(totalItem);
-      loading.current = false;
+      setLoading(false);
     },
+    // eslint-disable-next-line
     [bookList.length, total, tags, keywords]
   );
 
@@ -76,7 +78,14 @@ export const HomeScreen = (props: any) => {
     <div className="home-wrapper">
       <Header homeHeader={!searching} mobileSearching={(inMobile && searching) || false} defaultSearchKey={keywords} />
 
-      <HomeBody bookList={bookList} searching={searching} total={total} tags={tags} keywords={keywords} />
+      <HomeBody
+        bookList={bookList}
+        searching={searching}
+        total={total}
+        tags={tags}
+        keywords={keywords}
+        loading={loading}
+      />
 
       <Footer />
 
@@ -93,8 +102,9 @@ const HomeBody = (props: {
   total: number | null;
   tags: string;
   keywords: string;
+  loading: boolean;
 }) => {
-  const { bookList, searching, total, tags, keywords } = props;
+  const { bookList, searching, total, tags, keywords, loading } = props;
   const { inMobile, userData, selfConfig } = useContext(globalContext);
   const tagsList: string[] = selfConfig.tags?.split(",");
   const { myShelf } = useMyShelf();
@@ -107,11 +117,13 @@ const HomeBody = (props: {
     history.switchPage(url);
   };
 
-  if (inMobile === true) {
+  if (loading) {
+    return <Loader />;
+  } else if (inMobile === true) {
     // mobile
     return (
       <div className="mobile-home-body">
-        {!searching && userData && myShelf.length !== 0 && (
+        {!searching && userData?.isLogin && myShelf && myShelf.length !== 0 && (
           <div className="shelf-book-list">
             <div className="shelf-header">
               <div className="box-title">我的书架</div>
@@ -209,7 +221,7 @@ const HomeBody = (props: {
     // PC
     return (
       <div className="home-body">
-        {!searching && userData && myShelf.length !== 0 && (
+        {!searching && userData?.isLogin && myShelf && myShelf.length !== 0 && (
           <div className="book-list">
             <div className="shelf-header">
               <div className="box-title">我的书架</div>

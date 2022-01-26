@@ -4,7 +4,7 @@ import MyMenu from "../../assets/images/menu.png";
 import DefaultAvatar from "../../assets/images/default-avatar.png";
 import BackArrow from "../../assets/images/arrow.png";
 import { useState, useEffect, useCallback, useContext } from "react";
-import { useMyHistory, useSearchHistory } from "../../utils/hooks";
+import { useMyHistory, useMyLocationHistory, useSearchHistory } from "../../utils/hooks";
 import { callLogin, callLoginOut } from "../../api/freelog";
 import { globalContext } from "../../router";
 import CSSTransition from "react-transition-group/CSSTransition";
@@ -16,6 +16,7 @@ export const Header = (props: {
   defaultSearchKey?: string;
 }) => {
   const history = useMyHistory();
+  const { locationHistory } = useMyLocationHistory();
   const { inMobile, userData, selfConfig } = useContext(globalContext);
   const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
   const [searchKey, setSearchKey] = useState("");
@@ -93,7 +94,7 @@ export const Header = (props: {
     return (
       <div className={`mobile-header-wrapper ${props.homeHeader && "in-home"}`}>
         {/* header顶部 */}
-        <div className={`header-top ${userData && "logon"}`}>
+        <div className={`header-top ${userData?.isLogin && "logon"}`}>
           {props.homeHeader ? (
             // logo
             <img
@@ -105,10 +106,10 @@ export const Header = (props: {
           ) : (
             <div
               className="header-top-left"
-              onClick={() => (history.locationHistory.length <= 1 ? history.switchPage("/home/全部") : history.back())}
+              onClick={() => (locationHistory.length === 1 ? history.switchPage("/home/全部") : history.back())}
             >
               <img className="back-arrow" src={BackArrow} alt="" />
-              {history.locationHistory.length <= 1 ? (
+              {locationHistory.length === 1 ? (
                 <div className="back-label">首页</div>
               ) : (
                 <div className="back-label">返回</div>
@@ -143,9 +144,9 @@ export const Header = (props: {
                 className="avatar"
                 src={userData?.headImage || DefaultAvatar}
                 alt={userData?.username || "未登录"}
-                onClick={() => !userData && callLogin()}
+                onClick={() => !userData?.isLogin && callLogin()}
               />
-              <div className="username" onClick={() => !userData && callLogin()}>
+              <div className="username" onClick={() => !userData?.isLogin && callLogin()}>
                 {userData?.username || "未登录"}
               </div>
               <div className="close-btn" onClick={() => setUserBoxShow(false)}>
@@ -161,7 +162,7 @@ export const Header = (props: {
                   <i className="freelog fl-icon-shouye"></i>
                   <div className="btn-label">首页</div>
                 </div>
-                {userData && (
+                {userData?.isLogin && (
                   <div
                     className={`btn ${history.pathname.startsWith("/shelf") && "active"}`}
                     onClick={() => history.switchPage("/shelf")}
@@ -170,7 +171,7 @@ export const Header = (props: {
                     <div className="btn-label">我的书架</div>
                   </div>
                 )}
-                {userData && (
+                {userData?.isLogin && (
                   <div
                     className={`btn ${history.pathname.startsWith("/signedList") && "active"}`}
                     onClick={() => history.switchPage("/signedList")}
@@ -180,13 +181,13 @@ export const Header = (props: {
                   </div>
                 )}
               </div>
-              {userData && (
+              {userData?.isLogin && (
                 <div className="footer-btn" onClick={() => callLoginOut()}>
                   <i className="freelog fl-icon-tuichu1"></i>
                   <div className="btn-label">退出登录</div>
                 </div>
               )}
-              {!userData && (
+              {!userData?.isLogin && (
                 <div className="footer-btn">
                   <div className="main-btn mobile" onClick={() => callLogin()}>
                     立即登录
@@ -363,13 +364,13 @@ export const Header = (props: {
                 首页
               </div>
             )}
-            {!props.homeHeader && userData && (
+            {!props.homeHeader && userData?.isLogin && (
               <div className="nav-btn" onClick={() => history.switchPage("/shelf")}>
                 我的书架
               </div>
             )}
 
-            {userData ? (
+            {userData?.isLogin ? (
               <div
                 className="user-avatar"
                 onMouseOver={() => setUserBoxShow(true)}

@@ -14,6 +14,7 @@ import { globalContext } from "../../router";
 import { Share } from "../../components/share/share";
 import { showToast } from "../../components/toast/toast";
 import CSSTransition from "react-transition-group/CSSTransition";
+import { Loader } from "../../components/loader/loader";
 
 const readerContext = React.createContext<any>({});
 
@@ -97,17 +98,24 @@ const Body = () => {
   const { inMobile, book, id, fontSize, theme } = useContext(readerContext);
   const [content, setContent] = useState<string[]>([]);
   const [isAuth, setIsAuth] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const getContent = useCallback(async () => {
+    setLoading(true);
     const statusInfo = await getExhibitAuthStatus(id);
     const isAuth = statusInfo.data.data ? statusInfo.data.data[0].isAuth : false;
     setIsAuth(isAuth);
     if (isAuth) {
       const info: any = await getExhibitFileStream(id);
-      if (!info) return;
+      if (!info) {
+        setLoading(false);
+        return;
+      }
       const content = info.data.split(/\n/g).filter((item: string) => !!item);
       setContent(content);
+      setLoading(false);
     } else {
+      setLoading(false);
       const authResult = await addAuth(id);
       const { status } = authResult;
       if (status === 0) getContent();
@@ -125,55 +133,13 @@ const Body = () => {
     // eslint-disable-next-line
   }, [id]);
 
-  return inMobile ? (
+  if (loading) {
+    return <Loader />;
+  } else if (inMobile === true) {
     // mobile
-    <div
-      className={`mobile-body-wrapper ${theme?.type === 1 ? "dark" : "light"}`}
-      style={{
-        backgroundImage: `url(${BgImage})`,
-        backgroundColor: theme?.bookColor,
-        fontSize: fontSize + "px",
-        lineHeight: fontSize + 14 + "px",
-      }}
-    >
-      {isAuth === true &&
-        content.map((item, index) => {
-          return (
-            <p className="paragraph" key={item + index}>
-              {item}
-            </p>
-          );
-        })}
-      {isAuth === false && (
-        <div className="lock-box">
-          <img className="lock" src={Lock} alt="未授权" />
-          <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-          <div className="get-btn" onClick={() => getAuth()}>
-            签约
-          </div>
-        </div>
-      )}
-    </div>
-  ) : (
-    // PC
-    <div className="body-wrapper">
-      <div className="breadcrumbs-wrapper">
-        <div className="breadcrumbs-item">
-          <div className="second-text-btn" onClick={() => history.switchPage("/detail/" + id)}>
-            {book?.exhibitTitle}
-            {/* {book?.exhibitTitle} {">"} */}
-          </div>
-        </div>
-
-        {/* <div className="breadcrumbs-item">
-          <div className="current-page">
-            {book?.exhibitTitle}
-          </div>
-        </div> */}
-      </div>
-
+    return (
       <div
-        className={`content ${theme?.type === 1 ? "dark" : "light"}`}
+        className={`mobile-body-wrapper ${theme?.type === 1 ? "dark" : "light"}`}
         style={{
           backgroundImage: `url(${BgImage})`,
           backgroundColor: theme?.bookColor,
@@ -199,8 +165,55 @@ const Body = () => {
           </div>
         )}
       </div>
+    );
+  } else if (inMobile === false) {
+    // PC
+    return (
+      <div className="body-wrapper">
+        <div className="breadcrumbs-wrapper">
+          <div className="breadcrumbs-item">
+            <div className="second-text-btn" onClick={() => history.switchPage("/detail/" + id)}>
+              {book?.exhibitTitle}
+              {/* {book?.exhibitTitle} {">"} */}
+            </div>
+          </div>
 
-      {/* <div
+          {/* <div className="breadcrumbs-item">
+          <div className="current-page">
+            {book?.exhibitTitle}
+          </div>
+        </div> */}
+        </div>
+
+        <div
+          className={`content ${theme?.type === 1 ? "dark" : "light"}`}
+          style={{
+            backgroundImage: `url(${BgImage})`,
+            backgroundColor: theme?.bookColor,
+            fontSize: fontSize + "px",
+            lineHeight: fontSize + 14 + "px",
+          }}
+        >
+          {isAuth === true &&
+            content.map((item, index) => {
+              return (
+                <p className="paragraph" key={item + index}>
+                  {item}
+                </p>
+              );
+            })}
+          {isAuth === false && (
+            <div className="lock-box">
+              <img className="lock" src={Lock} alt="未授权" />
+              <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+              <div className="get-btn" onClick={() => getAuth()}>
+                签约
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* <div
         className="footer-bar"
         style={{
           backgroundImage: `url(${BgImage})`,
@@ -218,8 +231,11 @@ const Body = () => {
           下一章
         </div>
       </div> */}
-    </div>
-  );
+      </div>
+    );
+  } else {
+    return <div></div>;
+  }
 };
 
 const Operater = () => {

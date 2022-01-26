@@ -47,6 +47,7 @@
 
 <script lang="ts">
 import { useStore } from "vuex";
+import { toRefs } from 'vue';
 
 export default {
   name: "directory",
@@ -66,7 +67,7 @@ export default {
     };
 
     return {
-      ...store.state,
+      ...toRefs(store.state),
       directoryList,
       ...methods,
     };

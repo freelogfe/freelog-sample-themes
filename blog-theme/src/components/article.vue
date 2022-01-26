@@ -64,7 +64,7 @@
 
 <script lang="ts">
 import { formatDate } from "@/utils/common";
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, toRefs } from "vue";
 import { useMyRouter } from "@/utils/hooks";
 import { useStore } from "vuex";
 
@@ -82,7 +82,7 @@ export default {
     const { switchPage } = useMyRouter();
 
     return {
-      ...store.state,
+      ...toRefs(store.state),
       switchPage,
       formatDate,
     };
