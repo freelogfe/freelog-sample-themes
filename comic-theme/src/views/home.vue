@@ -2,10 +2,8 @@
   <div class="home-wrapper">
     <my-header :homeHeader="!searching" :mobileSearching="!!(inMobile && searching)" />
 
-    <my-loader v-if="loading" />
-
     <!-- mobile -->
-    <div class="mobile-home-body" v-if="!loading && inMobile">
+    <div class="mobile-home-body" v-if="inMobile">
       <div class="shelf-comic-list" v-if="!searching && userData.isLogin && myShelf && myShelf.length !== 0">
         <div class="shelf-header">
           <div class="box-title">我的收藏</div>
@@ -38,17 +36,21 @@
           </div>
         </div>
 
-        <div class="comic-box" v-for="item in listData" :key="item.exhibitId">
-          <comic :data="item" />
-        </div>
+        <my-loader v-if="loading" />
 
-        <div class="tip" v-if="listData.length === 0">
-          当前节点暂无任何漫画，请稍后查看
-        </div>
+        <template v-if="!loading">
+          <div class="comic-box" v-for="item in listData" :key="item.exhibitId">
+            <comic :data="item" />
+          </div>
 
-        <div class="tip no-more" v-if="listData.length !== 0 && listData.length === total">
-          — 已加载全部漫画 —
-        </div>
+          <div class="tip" v-if="listData.length === 0">
+            当前节点暂无任何漫画，请稍后查看
+          </div>
+
+          <div class="tip no-more" v-if="listData.length !== 0 && listData.length === total">
+            — 已加载全部漫画 —
+          </div>
+        </template>
       </div>
 
       <transition name="fade">
@@ -95,7 +97,7 @@
     </div>
 
     <!-- PC -->
-    <div class="home-body" v-if="!loading && !inMobile">
+    <div class="home-body" v-if="!inMobile">
       <div class="comic-list" v-if="!searching && userData.isLogin && myShelf && myShelf.length !== 0">
         <div class="shelf-header">
           <div class="box-title">我的收藏</div>
@@ -134,19 +136,23 @@
           </div>
         </div>
 
-        <div class="comic-list-box">
-          <div class="comic-box" v-for="item in listData" :key="item.exhibitId">
-            <comic :data="item" />
+        <my-loader v-if="loading" />
+
+        <template v-if="!loading">
+          <div class="comic-list-box">
+            <div class="comic-box" v-for="item in listData" :key="item.exhibitId">
+              <comic :data="item" />
+            </div>
           </div>
-        </div>
 
-        <div class="tip" v-if="listData.length === 0">
-          当前节点暂无任何漫画，请稍后查看
-        </div>
+          <div class="tip" v-if="listData.length === 0">
+            当前节点暂无任何漫画，请稍后查看
+          </div>
 
-        <div class="tip no-more" v-if="listData.length !== 0 && listData.length === total">
-          — 已加载全部漫画 —
-        </div>
+          <div class="tip no-more" v-if="listData.length !== 0 && listData.length === total">
+            — 已加载全部漫画 —
+          </div>
+        </template>
       </div>
     </div>
 

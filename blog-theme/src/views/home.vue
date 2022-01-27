@@ -2,10 +2,8 @@
   <div class="home-wrapper" @click="sortPopupShow = false">
     <my-header homeHeader :mobileSearching="!!(inMobile && searchData.keywords)" />
 
-    <my-loader v-if="loading" />
-
     <!-- mobile -->
-    <div class="mobile-home-body" v-if="!loading && inMobile">
+    <div class="mobile-home-body" v-if="inMobile">
       <div class="header">
         <div class="sort" v-if="!searchData.keywords" @click.stop="sortPopupShow = true">
           {{ createDateSortType === "-1" ? "最新" : "最早" }}
@@ -45,14 +43,18 @@
         </div>
       </div>
 
-      <div class="article-list">
-        <my-article :data="item" v-for="item in listData" :key="item.presentableId" />
-      </div>
+      <my-loader v-if="loading" />
 
-      <div className="tip" v-show="!loading && total === 0">当前节点暂无任何书籍，请稍后查看</div>
-      <div className="tip no-more" v-show="!loading && listData.length !== 0 && listData.length === total">
-        — 已加载全部书籍 —
-      </div>
+      <template v-if="!loading">
+        <div class="article-list">
+          <my-article :data="item" v-for="item in listData" :key="item.presentableId" />
+        </div>
+
+        <div className="tip" v-show="total === 0">当前节点暂无任何书籍，请稍后查看</div>
+        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">
+          — 已加载全部书籍 —
+        </div>
+      </template>
 
       <transition name="fade">
         <div id="modal" class="modal" v-if="filterBoxShow" @click="filterBoxShow = false"></div>
@@ -96,7 +98,7 @@
     </div>
 
     <!-- PC -->
-    <div class="home-body" v-if="!loading && !inMobile">
+    <div class="home-body" v-if="!inMobile">
       <div class="header">
         <div class="search-box-title" v-if="searchData.keywords">查询到{{ listData.length }}个相关结果</div>
 
@@ -136,14 +138,18 @@
         </div>
       </div>
 
-      <div class="article-list">
-        <my-article :data="item" v-for="item in listData" :key="item.presentableId" />
-      </div>
+      <my-loader v-if="loading" />
 
-      <div className="tip" v-show="!loading && total === 0">当前节点暂无任何书籍，请稍后查看</div>
-      <div className="tip no-more" v-show="!loading && listData.length !== 0 && listData.length === total">
-        — 已加载全部书籍 —
-      </div>
+      <template v-if="!loading">
+        <div class="article-list">
+          <my-article :data="item" v-for="item in listData" :key="item.presentableId" />
+        </div>
+
+        <div className="tip" v-show="total === 0">当前节点暂无任何书籍，请稍后查看</div>
+        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">
+          — 已加载全部书籍 —
+        </div>
+      </template>
     </div>
 
     <my-footer />

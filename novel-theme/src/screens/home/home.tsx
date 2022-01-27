@@ -22,16 +22,18 @@ export const HomeScreen = (props: any) => {
   const [searching, setSearching] = useState(false);
   const [loading, setLoading] = useState(false);
   let skip = useRef(0);
+  let myLoading = useRef(false);
 
   const getBookList = useCallback(
     async (init = false) => {
-      if (loading) return;
+      if (myLoading.current) return;
 
       setSearching(!!keywords);
 
       if (total === bookList.length && !init) return;
 
-      setLoading(true);
+      if (init) setLoading(true);
+      myLoading.current = true;
       skip.current = init ? 0 : skip.current + 30;
       const queryParams: GetExhibitListByPagingParams = {
         omitArticleResourceType: "theme",
@@ -59,20 +61,22 @@ export const HomeScreen = (props: any) => {
       }
       setBookList((pre) => (init ? dataList : [...pre, ...dataList]));
       setTotal(totalItem);
-      setLoading(false);
+      if (init) setLoading(false);
+      myLoading.current = false;
     },
     // eslint-disable-next-line
     [bookList.length, total, tags, keywords]
   );
 
   useEffect(() => {
-    if (scrollTop + clientHeight === scrollHeight && scrollTop) getBookList();
-  }, [scrollTop, clientHeight, scrollHeight, getBookList]);
-
-  useEffect(() => {
     getBookList(true);
     // eslint-disable-next-line
   }, [tags, keywords]);
+
+  useEffect(() => {
+    if (scrollTop + clientHeight === scrollHeight) getBookList();
+    // eslint-disable-next-line
+  }, [scrollTop, clientHeight, scrollHeight]);
 
   return (
     <div className="home-wrapper">
@@ -117,9 +121,7 @@ const HomeBody = (props: {
     history.switchPage(url);
   };
 
-  if (loading) {
-    return <Loader />;
-  } else if (inMobile === true) {
+  if (inMobile === true) {
     // mobile
     return (
       <div className="mobile-home-body">
@@ -164,17 +166,22 @@ const HomeBody = (props: {
             </div>
           )}
 
-          {bookList.map((item) => {
-            return (
-              <div key={item.exhibitId} className="book-box">
-                <Novel data={item}></Novel>
-              </div>
-            );
-          })}
+          {loading && <Loader />}
 
-          {bookList.length === 0 && <div className="tip">当前节点暂无任何书籍，请稍后查看</div>}
+          {!loading &&
+            bookList.map((item) => {
+              return (
+                <div key={item.exhibitId} className="book-box">
+                  <Novel data={item}></Novel>
+                </div>
+              );
+            })}
 
-          {bookList.length !== 0 && bookList.length === total && <div className="tip no-more">— 已加载全部书籍 —</div>}
+          {!loading && bookList.length === 0 && <div className="tip">当前节点暂无任何书籍，请稍后查看</div>}
+
+          {!loading && bookList.length !== 0 && bookList.length === total && (
+            <div className="tip no-more">— 已加载全部书籍 —</div>
+          )}
         </div>
 
         <CSSTransition in={filterBoxShow} classNames="fade" timeout={200} unmountOnExit>
@@ -251,7 +258,6 @@ const HomeBody = (props: {
           ) : (
             <div className="box-title">精选小说</div>
           )}
-
           <div className="filter-bar">
             <div className="filter-bar-bg"></div>
 
@@ -268,19 +274,23 @@ const HomeBody = (props: {
             })}
           </div>
 
-          <div className="book-list-box">
-            {bookList.map((item) => {
-              return (
-                <div key={item.exhibitId} className="book-box">
-                  <Novel data={item}></Novel>
-                </div>
-              );
-            })}
-          </div>
+          {loading && <Loader />}
 
-          {bookList.length === 0 && <div className="tip">当前节点暂无任何书籍，请稍后查看</div>}
-
-          {bookList.length !== 0 && bookList.length === total && <div className="tip no-more">— 已加载全部书籍 —</div>}
+          {!loading && (
+            <div className="book-list-box">
+              {bookList.map((item) => {
+                return (
+                  <div key={item.exhibitId} className="book-box">
+                    <Novel data={item}></Novel>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {!loading && bookList.length === 0 && <div className="tip">当前节点暂无任何书籍，请稍后查看</div>}
+          {!loading && bookList.length !== 0 && bookList.length === total && (
+            <div className="tip no-more">— 已加载全部书籍 —</div>
+          )}
         </div>
       </div>
     );

@@ -82,15 +82,17 @@ export const useGetList = () => {
   const data = reactive({
     listData: <ExhibitItem[]>[],
     loading: false,
+    myLoading: false,
     total: 0,
     skip: 0,
   });
 
   const getList = async (params: Partial<GetExhibitListByPagingParams> = {}, init = false) => {
-    if (data.loading) return;
+    if (data.myLoading) return;
     if (data.total === data.listData.length && !init) return;
 
-    data.loading = true;
+    if (init) data.loading = true;
+    data.myLoading = true;
     data.skip = init ? 0 : data.skip + 40;
     const queryParams: GetExhibitListByPagingParams = {
       skip: data.skip,
@@ -121,7 +123,8 @@ export const useGetList = () => {
     }
     data.listData = init ? dataList : [...data.listData, ...dataList];
     data.total = totalItem;
-    data.loading = false;
+    if (init) data.loading = false;
+    data.myLoading = false;
   };
 
   const clearData = () => {

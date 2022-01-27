@@ -2,10 +2,8 @@
   <div class="home-wrapper">
     <my-header :homeHeader="!searchData.keywords" :mobileSearching="!!(inMobile && searchData.keywords)" />
 
-    <my-loader v-if="loading" />
-
     <!-- mobile -->
-    <div class="mobile-home-body" v-if="!loading && inMobile">
+    <div class="mobile-home-body" v-if="inMobile">
       <div class="header" v-if="searchData.keywords">
         <div class="box-title">查询到{{ listData.length }}个相关结果</div>
 
@@ -15,22 +13,24 @@
         </div>
       </div>
 
-      <div class="frame-list">
-        <div class="waterfall" v-for="list in listNumber" :key="list">
-          <my-frame
-            class="frame"
-            :data="item"
-            v-for="item in waterfall[waterfallList[list - 1]]"
-            :key="item.exhibitId"
-            @click="clickFrame(item.exhibitId)"
-          />
-        </div>
-      </div>
+      <my-loader v-if="loading" />
 
-      <div className="tip" v-show="!loading && total === 0">当前节点暂无数据，请稍后查看</div>
-      <div className="tip no-more" v-show="!loading && listData.length !== 0 && listData.length === total">
-        — 已加载全部 —
-      </div>
+      <template v-if="!loading">
+        <div class="frame-list">
+          <div class="waterfall" v-for="list in listNumber" :key="list">
+            <my-frame
+              class="frame"
+              :data="item"
+              v-for="item in waterfall[waterfallList[list - 1]]"
+              :key="item.exhibitId"
+              @click="clickFrame(item.exhibitId)"
+            />
+          </div>
+        </div>
+
+        <div className="tip" v-show="total === 0">当前节点暂无数据，请稍后查看</div>
+        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部 —</div>
+      </template>
 
       <transition name="fade">
         <div id="modal" class="modal" v-if="filterBoxShow" @click="filterBoxShow = false"></div>
@@ -74,7 +74,7 @@
     </div>
 
     <!-- PC -->
-    <div class="home-body" v-if="!loading && !inMobile">
+    <div class="home-body" v-if="!inMobile">
       <div class="search-box-title" v-if="searchData.keywords">查询到{{ listData.length }}个相关结果</div>
 
       <div class="filter-bar">
@@ -93,20 +93,24 @@
         </div>
       </div>
 
-      <div class="frame-list">
-        <div class="waterfall" v-for="list in listNumber" :key="list">
-          <my-frame
-            class="frame"
-            :data="item"
-            v-for="item in waterfall[waterfallList[list - 1]]"
-            :key="item.exhibitId"
-            @click="clickFrame(item.exhibitId)"
-          />
-        </div>
-      </div>
+      <my-loader v-if="loading" />
 
-      <div className="tip" v-show="total === 0">当前节点暂无数据，请稍后查看</div>
-      <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部 —</div>
+      <template v-if="!loading">
+        <div class="frame-list">
+          <div class="waterfall" v-for="list in listNumber" :key="list">
+            <my-frame
+              class="frame"
+              :data="item"
+              v-for="item in waterfall[waterfallList[list - 1]]"
+              :key="item.exhibitId"
+              @click="clickFrame(item.exhibitId)"
+            />
+          </div>
+        </div>
+
+        <div className="tip" v-show="total === 0">当前节点暂无数据，请稍后查看</div>
+        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部 —</div>
+      </template>
     </div>
 
     <my-footer />

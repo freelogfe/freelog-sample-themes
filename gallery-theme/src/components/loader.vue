@@ -21,23 +21,16 @@
     height: 138px;
     font-size: 60px;
     background: radial-gradient(circle at 68px 42px, black 4.8px, darkgray 4.8px, darkgray 6px, transparent 6px),
-      radial-gradient(circle at 21.6px 42px, tomato 6px, darkgray 6px, darkgray 7.2px, transparent 7.2px),
       linear-gradient(transparent 108px, #333 108px, #333 117px, transparent 117px) no-repeat center / 80% 100%,
-      linear-gradient(blanchedalmond 60px, wheat 60px, wheat 84px, tan 84px);
+      linear-gradient(
+        rgb(208, 230, 255) 60px,
+        rgb(188, 219, 255) 60px,
+        rgb(181, 204, 255) 84px,
+        rgb(150, 204, 255) 84px
+      );
     border-radius: 12px;
     position: relative;
     transform: translateY(-24px);
-  }
-
-  .camera::before {
-    content: "";
-    position: absolute;
-    width: 27px;
-    height: 12px;
-    background-color: #333;
-    border-radius: 3px;
-    top: 9px;
-    left: 9px;
   }
 
   .camera::after {
