@@ -20,9 +20,9 @@
         </div>
       </div>
 
-      <!-- <transition name="fade-down">
+      <transition name="fade-down">
         <div class="mobile-operater-wrapper" @touchmove.prevent v-if="mobileBarShow">
-          <div class="operater-btn">
+          <!-- <div class="operater-btn">
             <i class="freelog fl-icon-zhankaigengduo"></i>
             <div class="operater-btn-label">上一话</div>
           </div>
@@ -43,9 +43,17 @@
           <div class="operater-btn">
             <i class="freelog fl-icon-zhankaigengduo"></i>
             <div class="operater-btn-label">下一话</div>
+          </div> -->
+
+          <div class="single-btn" @click="operateShelf(comicInfo)">
+            <i
+              class="freelog"
+              :class="isCollected ? 'fl-icon-shoucangxiaoshuoyishoucang' : 'fl-icon-shoucangxiaoshuo'"
+            ></i>
+            <div class="operater-btn-label">{{ isCollected ? "取消收藏" : "加入收藏" }}</div>
           </div>
         </div>
-      </transition> -->
+      </transition>
     </template>
 
     <!-- PC -->
@@ -495,9 +503,38 @@ export default {
     right: 0;
     bottom: 0;
     height: 60px;
-    padding: 0 20px;
+    // padding: 0 20px;
     background-color: var(--deriveColor);
     display: flex;
+
+    .single-btn {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.6);
+
+      &:active {
+        color: #fff;
+      }
+
+      .freelog {
+        width: 18px;
+        height: 18px;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .operater-btn-label {
+        font-size: 14px;
+        color: #ffffff;
+        margin-left: 5px;
+        margin-top: 2px;
+      }
+    }
 
     .operater-btn {
       flex: 1;

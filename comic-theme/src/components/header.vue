@@ -1024,7 +1024,8 @@ export default {
 
       .nav-btn {
         padding: 0 25px;
-        font-size: 16px;
+        font-size: 14px;
+        line-height: 16px;
         font-weight: 600;
         color: #ffffff;
         border-right: 1px solid rgba(255, 255, 255, 0.2);

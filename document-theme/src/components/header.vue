@@ -460,7 +460,7 @@ export default {
 
           &:hover {
             color: #fff;
-            background: #c127ff;
+            background: #2784ff;
           }
 
           &:active {

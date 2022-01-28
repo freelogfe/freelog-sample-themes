@@ -25,7 +25,11 @@
     <template v-if="homeHeader">
       <div class="header-other-info">
         <div class="blogger-avatar">
-          <img :src="selfConfig.bloggerAvatar" alt="博主头像" class="avatar-img" />
+          <img
+            :src="selfConfig.bloggerAvatar || require('../assets/images/default-avatar.png')"
+            alt="博主头像"
+            class="avatar-img"
+          />
         </div>
         <div class="sign-count">总签约量：{{ signCount }}人</div>
       </div>
@@ -249,7 +253,11 @@
       <!-- 博客信息 -->
       <div class="header-blog-info">
         <div class="blogger-avatar">
-          <img :src="selfConfig.bloggerAvatar" alt="博主头像" class="avatar-img" />
+          <img
+            :src="selfConfig.bloggerAvatar || require('../assets/images/default-avatar.png')"
+            alt="博主头像"
+            class="avatar-img"
+          />
         </div>
 
         <div class="info-content">
@@ -637,8 +645,8 @@ export default {
 
         .btn {
           width: 100%;
+          height: 52px;
           border-radius: 4px;
-          padding: 15px 0;
           color: #222;
           background-color: #fff;
           display: flex;
@@ -648,6 +656,10 @@ export default {
           &:active {
             color: var(--deriveColor);
             background: rgba(93, 145, 145, 0.05);
+          }
+
+          & + .btn {
+            margin-top: 10px;
           }
 
           .freelog {
@@ -1078,7 +1090,8 @@ export default {
 
       .nav-btn {
         padding: 0 25px;
-        font-size: 16px;
+        font-size: 14px;
+        line-height: 16px;
         font-weight: 600;
         color: #ffffff;
         border-right: 1px solid rgba(255, 255, 255, 0.2);
@@ -1098,16 +1111,9 @@ export default {
         cursor: pointer;
         margin-left: 25px;
 
-        .username {
-          font-size: 14px;
-          line-height: 20px;
-          color: #fff;
-        }
-
         .avatar {
           width: 32px;
           height: 32px;
-          margin-left: 10px;
           border-radius: 50%;
           border: 1px solid rgba(255, 255, 255, 0.4);
           box-sizing: border-box;

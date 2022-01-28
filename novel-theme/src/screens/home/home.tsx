@@ -232,7 +232,6 @@ const HomeBody = (props: {
             <div className="shelf-header">
               <div className="box-title">我的书架</div>
               <div className="shelf-header-right">
-                <div className="shelf-length">全部</div>
                 <div className="text-btn" onClick={() => history.switchPage("/shelf")}>
                   管理书架
                 </div>

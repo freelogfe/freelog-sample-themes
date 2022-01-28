@@ -102,7 +102,6 @@
         <div class="shelf-header">
           <div class="box-title">我的收藏</div>
           <div class="shelf-header-right">
-            <div class="shelf-length">全部</div>
             <div class="text-btn" @click="switchPage('/shelf')">管理收藏</div>
           </div>
         </div>
@@ -530,11 +529,6 @@ export default {
           display: flex;
           margin-right: 20px;
           line-height: 20px;
-
-          .shelf-length {
-            font-size: 14px;
-            color: #999999;
-          }
 
           .text-btn {
             font-size: 14px;

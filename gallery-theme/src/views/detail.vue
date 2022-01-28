@@ -244,7 +244,9 @@ export default {
 
       // 授权
       async getAuth() {
+        window.removeEventListener("keyup", keyup);
         const authResult = await addAuth(data.currentId);
+        window.addEventListener("keyup", keyup);
         const { status } = authResult;
         if (status === 0) {
           getData();
@@ -330,7 +332,7 @@ export default {
         authIds.push(data.exhibitInfo?.exhibitId);
         store.commit("setData", { key: "authIds", value: authIds });
       } else {
-        context.emit('refreshAuth');
+        context.emit("refreshAuth");
       }
     };
 

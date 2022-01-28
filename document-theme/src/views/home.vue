@@ -1615,6 +1615,7 @@ export default {
 
     @media (min-width: 1512px) {
       .list-bar {
+        .offline-tip,
         .search-box,
         .list-item {
           width: 326px !important;

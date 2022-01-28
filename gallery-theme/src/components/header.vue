@@ -854,7 +854,7 @@ export default {
   align-items: center;
 
   .header-box {
-    width: 1160px;
+    width: 1230px;
     height: 70px;
     display: flex;
     align-items: center;
@@ -1010,7 +1010,8 @@ export default {
 
       .nav-btn {
         padding: 0 25px;
-        font-size: 16px;
+        font-size: 14px;
+        line-height: 16px;
         font-weight: 600;
         color: #ffffff;
         border-right: 1px solid rgba(255, 255, 255, 0.2);
