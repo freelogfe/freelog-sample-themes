@@ -525,7 +525,7 @@ export default {
     const getData = () => {
       data.viewOffline = false;
       data.documentData = null;
-      datasOfGetList.getList({ sort: store.state.selfConfig.sort }, true);
+      datasOfGetList.getList({}, true);
     };
 
     // 获取文档数据

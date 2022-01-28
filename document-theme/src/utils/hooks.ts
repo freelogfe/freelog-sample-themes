@@ -1,3 +1,4 @@
+import { sortMappings } from "@/api/data";
 import {
   getExhibitAuthStatus,
   getExhibitListById,
@@ -88,12 +89,14 @@ export const useGetList = (inList = false) => {
 
     data.loading = true;
     data.skip = init ? 0 : data.skip + 100;
+    const sort = sortMappings.find((item) => item.label === store.state.selfConfig.sort);
     const queryParams: GetExhibitListByPagingParams = {
       skip: data.skip,
       articleResourceTypes: "markdown",
       limit: params.limit || 100,
-      ...params,
+      sort: sort?.value || "updateDate:-1",
       isLoadVersionProperty: 1,
+      ...params,
     };
     const list = await getExhibitListByPaging(queryParams);
     const { dataList, totalItem } = list.data.data;

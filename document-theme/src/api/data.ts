@@ -11,6 +11,14 @@ export const freelogEntrances: freelogEntranceItem[] = [
   { label: "浏览更多主题", url: "https://console.freelog.com/market" },
 ];
 
+// 展品列表排序映射
+export const sortMappings = [
+  { label: "更新时间倒序", value: "updateDate:-1" },
+  { label: "更新时间正序", value: "updateDate:1" },
+  { label: "发布时间倒序", value: "createDate:-1" },
+  { label: "发布时间正序", value: "createDate:1" },
+];
+
 // 分享按钮
 export const shareBtns: shareBtnItem[] = [
   {
