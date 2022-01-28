@@ -195,7 +195,7 @@
       </div>
 
       <div class="header-right">
-        <div class="nav-btn" @click="switchPage('/')" v-if="!homeHeader">首页</div>
+        <div class="nav-btn" @click="switchPage('/')">首页</div>
 
         <div
           class="user-avatar"
@@ -521,7 +521,7 @@ export default {
         width: 72px;
         height: 72px;
         border-radius: 50%;
-        border: 1px solid #d1d1d1;
+        border: 1px solid rgba(255, 255, 255, 0.4);
       }
 
       .username {
@@ -662,6 +662,7 @@ export default {
         .search-input {
           height: 100%;
           flex: 1;
+          width: 0;
           font-size: 16px;
           color: #222;
           background-color: rgba(255, 255, 255, 0.1) !important;
@@ -792,6 +793,7 @@ export default {
     .search-input {
       height: 100%;
       flex: 1;
+      width: 0;
       font-size: 16px;
       color: #222;
       background-color: rgba(255, 255, 255, 0.1) !important;
@@ -1032,7 +1034,7 @@ export default {
           width: 32px;
           height: 32px;
           border-radius: 50%;
-          border: 1px solid #d1d1d1;
+          border: 1px solid rgba(255, 255, 255, 0.4);
         }
 
         .user-box {
@@ -1116,6 +1118,12 @@ export default {
         }
       }
     }
+  }
+}
+
+@media (min-width: 1600px) {
+  .home-wrapper .header-box {
+    width: 1540px !important;
   }
 }
 </style>

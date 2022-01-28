@@ -32,6 +32,7 @@ export default createStore({
     theme: { gradientColor: "", deriveColor: "" } as Theme,
     listData: [] as ExhibitItem[],
     locationHistory: [] as HistoryItem[],
+    authIds: [] as string[], // 授权集合，用于刷新列表授权状态
   },
 
   mutations: {

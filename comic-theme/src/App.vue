@@ -237,6 +237,45 @@ img {
   }
 }
 
+.collect-btn {
+  position: relative;
+  border-radius: 4px;
+  color: var(--deriveColor);
+  cursor: pointer;
+  transition: all 0.2s linear;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: var(--deriveColor);
+    opacity: 0.1;
+    z-index: 0;
+  }
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    opacity: 0.6;
+  }
+
+  &.mobile {
+    cursor: default;
+    transition: none;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    &:active {
+      opacity: 0.6;
+    }
+  }
+}
+
 .toast-wrapper {
   position: fixed;
   top: 50%;

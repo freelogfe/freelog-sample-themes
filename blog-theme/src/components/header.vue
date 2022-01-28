@@ -206,7 +206,7 @@
       </div>
 
       <div class="header-top-right">
-        <div class="nav-btn" @click="switchPage('/')" v-if="!homeHeader">首页</div>
+        <div class="nav-btn" @click="switchPage('/')">首页</div>
         <!-- 已登录用户信息 -->
         <div
           class="user-avatar"
@@ -517,7 +517,7 @@ export default {
       width: 80px;
       height: 80px;
       border-radius: 50%;
-      border: 1px solid #d1d1d1;
+      border: 1px solid rgba(255, 255, 255, 0.4);
       box-sizing: border-box;
       display: flex;
       align-items: center;
@@ -593,7 +593,7 @@ export default {
         width: 72px;
         height: 72px;
         border-radius: 50%;
-        border: 1px solid #d1d1d1;
+        border: 1px solid rgba(255, 255, 255, 0.4);
       }
 
       .username {
@@ -730,6 +730,7 @@ export default {
         .search-input {
           height: 100%;
           flex: 1;
+          width: 0;
           font-size: 16px;
           color: #222;
           background-color: rgba(255, 255, 255, 0.1) !important;
@@ -860,6 +861,7 @@ export default {
     .search-input {
       height: 100%;
       flex: 1;
+      width: 0;
       font-size: 16px;
       color: #222;
       background-color: rgba(255, 255, 255, 0.1) !important;
@@ -1107,7 +1109,7 @@ export default {
           height: 32px;
           margin-left: 10px;
           border-radius: 50%;
-          border: 1px solid #d1d1d1;
+          border: 1px solid rgba(255, 255, 255, 0.4);
           box-sizing: border-box;
         }
 
@@ -1202,7 +1204,7 @@ export default {
       width: 100px;
       height: 100px;
       border-radius: 50%;
-      border: 1px solid #d1d1d1;
+      border: 1px solid rgba(255, 255, 255, 0.4);
       box-sizing: border-box;
       display: flex;
       align-items: center;

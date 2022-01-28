@@ -7,8 +7,12 @@
       <!-- 内容区域 -->
       <div class="content-area">
         <my-loader v-if="loading" />
-        <my-markdown :data="documentData" @getDirectory="getDirectory($event)" v-if="!loading && documentData.isAuth === true" />
-        <div class="lock-box" v-if="!loading && documentData.isAuth === false">
+        <my-markdown
+          :data="documentData"
+          @getDirectory="getDirectory($event)"
+          v-if="!loading && documentData?.isAuth === true"
+        />
+        <div class="lock-box" v-if="!loading && documentData?.isAuth === false">
           <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
           <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
           <div class="get-btn" @click="getAuth(documentData)">签约</div>
@@ -110,7 +114,7 @@
                   src="../assets/images/mini-lock.png"
                   title="授权"
                   @click.stop="getAuth(item)"
-                  v-if="!item.isAuth"
+                  v-if="!item?.isAuth"
                 />
               </div>
             </template>
@@ -123,7 +127,7 @@
 
               <div class="list-item active">
                 <div class="item-title-box">
-                  <div class="item-title">{{ documentData.exhibitTitle }}</div>
+                  <div class="item-title">{{ documentData?.exhibitTitle }}</div>
                   <div class="offline">已下架</div>
                 </div>
 
@@ -132,7 +136,7 @@
                   src="../assets/images/mini-lock.png"
                   title="授权"
                   @click.stop="getAuth(documentData)"
-                  v-if="!documentData.isAuth"
+                  v-if="!documentData?.isAuth"
                 />
               </div>
             </template>
@@ -211,7 +215,7 @@
             @click="switchPage('/home', { id: item.exhibitId })"
           >
             <div class="item-title-box">
-              <div class="item-title" :title="documentData.exhibitTitle">
+              <div class="item-title" :title="documentData?.exhibitTitle">
                 {{ item.exhibitTitle }}
               </div>
             </div>
@@ -233,8 +237,8 @@
 
           <div class="list-item active">
             <div class="item-title-box">
-              <div class="item-title" :title="documentData.exhibitTitle">
-                {{ documentData.exhibitTitle }}
+              <div class="item-title" :title="documentData?.exhibitTitle">
+                {{ documentData?.exhibitTitle }}
               </div>
               <div class="offline">已下架</div>
             </div>
@@ -244,7 +248,7 @@
               src="../assets/images/mini-lock.png"
               title="授权"
               @click.stop="getAuth(documentData)"
-              v-if="!documentData.isAuth"
+              v-if="!documentData?.isAuth"
             />
           </div>
         </template>
@@ -257,9 +261,9 @@
           <my-markdown
             :data="documentData"
             @getDirectory="getDirectory($event)"
-            v-if="!loading && documentData.isAuth === true"
+            v-if="!loading && documentData?.isAuth === true"
           />
-          <div class="lock-box" v-if="!loading && documentData.isAuth === false">
+          <div class="lock-box" v-if="!loading && documentData?.isAuth === false">
             <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
             <div class="get-btn" @click="getAuth(documentData)">签约</div>
@@ -390,7 +394,7 @@ export default {
     const data = reactive({
       myLoading: false,
       currentId: "",
-      documentData: {} as ExhibitItem,
+      documentData: null as ExhibitItem | null,
       directoryList: [] as HTMLElement[],
       currentTitleIndex: 0,
       sharePopupShow: false,
@@ -520,7 +524,7 @@ export default {
     // 获取列表数据
     const getData = () => {
       data.viewOffline = false;
-      data.directoryShow = false;
+      data.documentData = null;
       datasOfGetList.getList({ sort: store.state.selfConfig.sort }, true);
     };
 
@@ -558,7 +562,7 @@ export default {
         data.myLoading = false;
         return;
       }
-      data.documentData.content = info.data;
+      (data.documentData as ExhibitItem).content = info.data;
       data.myLoading = false;
     };
 
@@ -1257,8 +1261,8 @@ export default {
         }
 
         &.active {
-          border-top: 1px solid #e5e5e5;
-          border-bottom: 1px solid #e5e5e5;
+          border: 1px solid #e5e5e5;
+          border-right: none;
         }
 
         .item-title-box {
@@ -1595,21 +1599,17 @@ export default {
 
     @media (min-width: 1420px) {
       .list-bar {
-        flex: 1;
+        width: calc((100vw - 860px) / 2);
+      }
 
-        &.large {
-          flex: none;
-          width: calc(14 / 71 * 100%);
+      .title-directory {
+        flex: none;
+        width: calc((100vw - 860px) / 2);
+        display: block;
+        .directory-item {
+          width: 250px !important;
+          padding-right: 0;
         }
-      }
-
-      .content-area.large {
-        width: calc(57 / 71 * 100%);
-      }
-
-      .title-directory .directory-item {
-        width: 250px !important;
-        padding-right: 0;
       }
     }
 
@@ -1624,6 +1624,3 @@ export default {
   }
 }
 </style>
-
-function getExhibitInfo(id: string, arg1: { isLoadVersionProperty: number; }) { throw new Error('Function not
-implemented.'); }

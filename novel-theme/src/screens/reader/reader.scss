@@ -435,7 +435,7 @@
             color: #222;
 
             .fontsize-value {
-              border: 1px solid #d1d1d1;
+              border: 1px solid rgba(255, 255, 255, 0.4);
             }
           }
 
@@ -447,7 +447,7 @@
             align-items: center;
             justify-content: center;
             margin-left: 10px;
-            border: 1px solid #d1d1d1;
+            border: 1px solid rgba(255, 255, 255, 0.4);
             cursor: pointer;
 
             &.active {

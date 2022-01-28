@@ -37,8 +37,8 @@
 
         <div class="box-title" v-if="searchData.keywords">查询到{{ listData.length }}个相关结果</div>
 
-        <div class="filter-btn" @click="filterBoxShow = true">
-          <img class="filter-img" src="../assets/images/filter.png" />
+        <div class="text-btn mobile" @click="filterBoxShow = true">
+          <i className="freelog fl-icon-shaixuan"></i>
           <div class="filter-label">筛选</div>
         </div>
       </div>
@@ -245,6 +245,15 @@ export default {
     onActivated(() => {
       const homeScrollTop = sessionStorage.getItem("homeScroll");
       scrollTo(Number(homeScrollTop), "auto");
+      
+      const { authIds } = store.state;
+      if (authIds.length === 0) return;
+
+      authIds.forEach((id: string) => {
+        const index = datasOfGetList.listData.value.findIndex((item) => item.exhibitId === id);
+        if (index !== -1) datasOfGetList.listData.value[index].isAuth = true;
+      });
+      store.commit("setData", { key: "authIds", value: [] });
     });
 
     onDeactivated(() => {
@@ -338,18 +347,16 @@ export default {
         line-height: 22px;
       }
 
-      .filter-btn {
+      .text-btn {
         display: flex;
         align-items: center;
 
-        .filter-img {
-          width: 18px;
-          height: 18px;
+        .freelog {
+          font-size: 18px;
         }
 
         .filter-label {
           font-size: 16px;
-          color: #0f2027;
           line-height: 22px;
           margin-left: 5px;
         }
@@ -459,7 +466,7 @@ export default {
           cursor: pointer;
 
           &.active {
-            background: #6ea29e;
+            background: var(--deriveColor);
             color: #fff;
           }
         }
@@ -487,7 +494,7 @@ export default {
       .filter-bar {
         position: relative;
         width: 100%;
-        height: 64px;
+        height: 50px;
         border-radius: 6px;
         display: flex;
         align-items: center;
@@ -499,7 +506,7 @@ export default {
           position: absolute;
           inset: 0;
           background-color: var(--deriveColor);
-          opacity: 0.08;
+          opacity: 0.04;
         }
 
         .category-btn {

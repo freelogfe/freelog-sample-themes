@@ -1,5 +1,4 @@
 import "./home.scss";
-import MyFilter from "../../assets/images/filter.png";
 import { useState, useEffect, useCallback, useRef, useContext } from "react";
 import { Header } from "../../components/header/header";
 import { getExhibitAuthStatus, getExhibitListByPaging, GetExhibitListByPagingParams } from "../../api/freelog";
@@ -130,7 +129,7 @@ const HomeBody = (props: {
             <div className="shelf-header">
               <div className="box-title">我的书架</div>
               <div className="more-shelf" onClick={() => history.switchPage("/shelf")}>
-                全部{myShelf.length}
+                全部
                 <i className="freelog fl-icon-zhankaigengduo"></i>
               </div>
             </div>
@@ -151,16 +150,16 @@ const HomeBody = (props: {
           {searching ? (
             <div className="search-box-title">
               <div className="box-title">查询到{bookList.length}个相关结果</div>
-              <div className="filter-btn" onClick={() => setFilterBoxShow(true)}>
-                <img className="filter-img" src={MyFilter} alt="" />
+              <div className="text-btn mobile" onClick={() => setFilterBoxShow(true)}>
+                <i className="freelog fl-icon-shaixuan"></i>
                 <div className="filter-label">筛选</div>
               </div>
             </div>
           ) : (
             <div className="box-header">
               <div className="box-title">精选小说</div>
-              <div className="filter-btn" onClick={() => setFilterBoxShow(true)}>
-                <img className="filter-img" src={MyFilter} alt="" />
+              <div className="text-btn mobile" onClick={() => setFilterBoxShow(true)}>
+                <i className="freelog fl-icon-shaixuan"></i>
                 <div className="filter-label">筛选</div>
               </div>
             </div>
@@ -233,7 +232,7 @@ const HomeBody = (props: {
             <div className="shelf-header">
               <div className="box-title">我的书架</div>
               <div className="shelf-header-right">
-                <div className="shelf-length">全部{myShelf.length}</div>
+                <div className="shelf-length">全部</div>
                 <div className="text-btn" onClick={() => history.switchPage("/shelf")}>
                   管理书架
                 </div>

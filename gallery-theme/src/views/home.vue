@@ -7,8 +7,8 @@
       <div class="header" v-if="searchData.keywords">
         <div class="box-title">查询到{{ listData.length }}个相关结果</div>
 
-        <div class="filter-btn" @click="filterBoxShow = true">
-          <img class="filter-img" src="../assets/images/filter.png" />
+        <div class="text-btn mobile" @click="filterBoxShow = true">
+          <i className="freelog fl-icon-shaixuan"></i>
           <div class="filter-label">筛选</div>
         </div>
       </div>
@@ -117,7 +117,7 @@
 
     <login-btn />
 
-    <detail v-model:id="currentId" v-if="!inMobile" />
+    <detail v-model:id="currentId" @refreshAuth="refreshAuth(currentId)" v-if="!inMobile" />
   </div>
 </template>
 
@@ -180,6 +180,16 @@ export default {
           data.currentId = id;
         }
         store.commit("setData", { key: "listData", value: datasOfGetList.listData.value });
+      },
+
+      refreshAuth(id: string) {
+        for (let i = 0; i < waterfallList.value.length; i++) {
+          const index = waterfall.value[waterfallList.value[i]].findIndex((item: ExhibitItem) => item.exhibitId === id);
+          if (index !== -1) {
+            waterfall.value[waterfallList.value[i]][index].isAuth = true;
+            break;
+          }
+        }
       },
     };
 
@@ -272,6 +282,14 @@ export default {
     onActivated(() => {
       const homeScrollTop = sessionStorage.getItem("homeScroll");
       scrollTo(Number(homeScrollTop), "auto");
+
+      const { authIds } = store.state;
+      if (authIds.length === 0) return;
+
+      authIds.forEach((id: string) => {
+        methods.refreshAuth(id);
+      });
+      store.commit("setData", { key: "authIds", value: [] });
     });
 
     onDeactivated(() => {
@@ -330,18 +348,16 @@ export default {
         line-height: 22px;
       }
 
-      .filter-btn {
+      .text-btn {
         display: flex;
         align-items: center;
 
-        .filter-img {
-          width: 18px;
-          height: 18px;
+        .freelog {
+          font-size: 18px;
         }
 
         .filter-label {
           font-size: 16px;
-          color: #c127ff;
           line-height: 22px;
           margin-left: 5px;
         }
@@ -468,7 +484,7 @@ export default {
           cursor: pointer;
 
           &.active {
-            background: #6ea29e;
+            background: var(--deriveColor);
             color: #fff;
           }
         }
@@ -492,7 +508,7 @@ export default {
     .filter-bar {
       position: relative;
       width: 100%;
-      height: 64px;
+      height: 50px;
       border-radius: 6px;
       display: flex;
       align-items: center;
@@ -505,7 +521,7 @@ export default {
         position: absolute;
         inset: 0;
         background-color: var(--deriveColor);
-        opacity: 0.08;
+        opacity: 0.04;
       }
 
       .category-btn {

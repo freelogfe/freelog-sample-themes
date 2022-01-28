@@ -33,6 +33,7 @@ export default createStore({
     locationHistory: [] as HistoryItem[],
     shelfIds: [] as string[],
     myShelf: null as ExhibitItem[] | null,
+    authIds: [] as string[], // 授权集合，用于刷新列表授权状态
   },
 
   mutations: {

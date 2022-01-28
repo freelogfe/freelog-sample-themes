@@ -124,21 +124,12 @@ export default {
         const { id } = query.value;
         const authResult = await addAuth(id);
         const { status } = authResult;
-        if (status === 0) getData();
+        if (status === 0) {
+          getData();
+          refreshAuth();
+        }
       },
     };
-
-    watch(
-      () => query.value,
-      () => {
-        document.documentElement.scroll({ top: 0 });
-        data.isAuth = null;
-        data.articleData = null;
-        data.contentInfo = null;
-        data.recommendList = [];
-        getData();
-      }
-    );
 
     const getData = async () => {
       const { id } = query.value;
@@ -168,6 +159,25 @@ export default {
         methods.getAuth();
       }
     };
+
+    const refreshAuth = () => {
+      const { authIds } = store.state;
+      authIds.push(data.articleData?.exhibitId);
+      store.commit("setData", { key: "authIds", value: authIds });
+    };
+
+    watch(
+      () => query.value,
+      () => {
+        document.documentElement.scroll({ top: 0 });
+        data.isAuth = null;
+        data.articleData = null;
+        data.contentInfo = null;
+        data.recommendList = [];
+        getData();
+      }
+    );
+
     getData();
 
     return {

@@ -165,7 +165,7 @@
 
 <script lang="ts">
 import { reactive, toRefs } from "@vue/reactivity";
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, watch } from "vue";
 import { addAuth } from "@/api/freelog";
 import { ExhibitItem } from "@/api/interface";
 import { useStore } from "vuex";
@@ -201,6 +201,13 @@ export default {
       },
     };
 
+    watch(
+      () => props.data.isAuth,
+      (cur) => {
+        data.isAuth = cur;
+      }
+    );
+
     return {
       getSignCount,
       ...toRefs(store.state),
@@ -217,6 +224,7 @@ export default {
   width: 100%;
   border-radius: 10px;
   overflow: hidden;
+  z-index: 0;
 
   &.in-pc {
     cursor: pointer;

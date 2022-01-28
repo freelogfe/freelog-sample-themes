@@ -43,27 +43,16 @@
         </div>
 
         <div class="comic-date-info">
-          <div class="date-info">
-            创建时间：{{ formatDate(comicInfo?.createDate) }}
-          </div>
+          <div class="date-info">创建时间：{{ formatDate(comicInfo?.createDate) }}</div>
 
-          <div class="date-info">
-            最近更新：{{ formatDate(comicInfo?.updateDate) }}
-          </div>
+          <div class="date-info">最近更新：{{ formatDate(comicInfo?.updateDate) }}</div>
         </div>
 
         <div class="operate-btns">
-          <div
-            class="btn main-btn mobile"
-            @click="switchPage('/reader', { id: comicInfo?.exhibitId })"
-          >
+          <div class="btn main-btn mobile" @click="switchPage('/reader', { id: comicInfo?.exhibitId })">
             立即阅读
           </div>
-          <div
-            class="btn"
-            :class="isCollected ? 'delete' : 'collect'"
-            @click="operateShelf(comicInfo)"
-          >
+          <div class="btn" :class="isCollected ? 'delete' : 'collect-btn mobile'" @click="operateShelf(comicInfo)">
             {{ isCollected ? "取消收藏" : "加入收藏" }}
           </div>
         </div>
@@ -84,11 +73,7 @@
             {{ comicInfo?.versionInfo?.exhibitProperty?.intro }}
           </div>
 
-          <div
-            class="view-all-btn"
-            @click="introState = 3"
-            v-if="introState === 1"
-          >
+          <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">
             ...查看全部
           </div>
         </div>
@@ -147,25 +132,18 @@
               <tags :tags="comicInfo?.tags" />
             </div>
 
-            <div class="create-date">
-              创建时间：{{ formatDate(comicInfo?.createDate) }}
-            </div>
+            <div class="create-date">创建时间：{{ formatDate(comicInfo?.createDate) }}</div>
 
-            <div class="update-date">
-              最近更新：{{ formatDate(comicInfo?.updateDate) }}
-            </div>
+            <div class="update-date">最近更新：{{ formatDate(comicInfo?.updateDate) }}</div>
 
             <div class="btns-box">
               <div class="operate-btns">
-                <div
-                  class="btn main-btn"
-                  @click="switchPage('/reader', { id: comicInfo?.exhibitId })"
-                >
+                <div class="btn main-btn" @click="switchPage('/reader', { id: comicInfo?.exhibitId })">
                   立即阅读
                 </div>
                 <div
                   class="btn"
-                  :class="isCollected ? 'warning-btn' : 'collect'"
+                  :class="isCollected ? 'warning-btn' : 'collect-btn'"
                   @click="operateShelf(comicInfo)"
                 >
                   {{ isCollected ? "取消收藏" : "加入收藏" }}
@@ -174,11 +152,7 @@
 
               <div class="other-btns">
                 <div class="sign-count">{{ comicInfo?.signCount }}人签约</div>
-                <div
-                  class="share-btn"
-                  @mouseover="shareShow = true"
-                  @mouseleave="shareShow = false"
-                >
+                <div class="share-btn" @mouseover="shareShow = true" @mouseleave="shareShow = false">
                   <span class="share-btn-text" :class="{ active: shareShow }">
                     <i class="freelog fl-icon-fenxiang"></i>
                     分享给更多人
@@ -204,11 +178,7 @@
               {{ comicInfo?.versionInfo?.exhibitProperty?.intro }}
             </div>
 
-            <div
-              class="view-all-btn"
-              @click="introState = 3"
-              v-if="introState === 1"
-            >
+            <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">
               ...查看全部
             </div>
           </div>
@@ -238,23 +208,13 @@
 
     <theme-entrance />
 
-    <directory
-      :show="directoryShow"
-      :comicInfo="comicInfo"
-      @closeDirectory="directoryShow = false"
-    />
+    <directory :show="directoryShow" :comicInfo="comicInfo" @closeDirectory="directoryShow = false" />
   </div>
 </template>
 
 <script lang="ts">
 import { useMyRouter, useMyShelf } from "../utils/hooks";
-import {
-  defineAsyncComponent,
-  reactive,
-  ref,
-  toRefs,
-  watch,
-} from "@vue/runtime-core";
+import { defineAsyncComponent, reactive, ref, toRefs, watch } from "@vue/runtime-core";
 import { ExhibitItem } from "@/api/interface";
 import { getExhibitInfo, getExhibitSignCount } from "@/api/freelog";
 import { useStore } from "vuex";
@@ -267,17 +227,11 @@ export default {
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
-    "login-btn": defineAsyncComponent(
-      () => import("../components/login-btn.vue")
-    ),
-    "theme-entrance": defineAsyncComponent(
-      () => import("../components/theme-entrance.vue")
-    ),
+    "login-btn": defineAsyncComponent(() => import("../components/login-btn.vue")),
+    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
     share: defineAsyncComponent(() => import("../components/share.vue")),
-    directory: defineAsyncComponent(
-      () => import("../components/directory.vue")
-    ),
+    directory: defineAsyncComponent(() => import("../components/directory.vue")),
   },
 
   setup() {
@@ -319,10 +273,7 @@ export default {
         ...exhibitInfo.data.data,
         signCount: signCountData?.data.data[0]?.count,
       };
-      data.directory = Array.from(
-        { length: 12 },
-        () => data.comicInfo.exhibitTitle || "目录名称"
-      );
+      data.directory = Array.from({ length: 12 }, () => data.comicInfo.exhibitTitle || "目录名称");
       data.href = (window.location as any).currentURL;
     };
     getComicInfo(id);
@@ -510,15 +461,6 @@ export default {
 
             &:active {
               background: #ffe2e4;
-            }
-          }
-
-          &.collect {
-            background: #edf6ff;
-            color: #2784ff;
-
-            &:active {
-              background: #e1f0ff;
             }
           }
         }
@@ -792,17 +734,6 @@ export default {
 
                   &:hover {
                     background: #ffe2e4;
-                  }
-                }
-
-                &.collect {
-                  background: #edf6ff;
-                  color: #2784ff;
-                  cursor: pointer;
-                  transition: all 0.2s linear;
-
-                  &:hover {
-                    background: #e1f0ff;
                   }
                 }
               }

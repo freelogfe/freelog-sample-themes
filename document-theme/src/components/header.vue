@@ -248,7 +248,7 @@ export default {
         width: 72px;
         height: 72px;
         border-radius: 50%;
-        border: 1px solid #d1d1d1;
+        border: 1px solid rgba(255, 255, 255, 0.4);
       }
 
       .username {

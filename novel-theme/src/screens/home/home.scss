@@ -105,18 +105,16 @@
         }
       }
 
-      .filter-btn {
+      .text-btn {
         display: flex;
         align-items: center;
 
-        .filter-img {
-          width: 18px;
-          height: 18px;
+        .freelog {
+          font-size: 18px;
         }
 
         .filter-label {
           font-size: 16px;
-          color: #5d9191;
           line-height: 22px;
           margin-left: 5px;
         }
@@ -230,7 +228,7 @@
           cursor: pointer;
 
           &.active {
-            background: #6ea29e;
+            background: var(--deriveColor);
             color: #fff;
           }
         }
@@ -286,7 +284,7 @@
       .filter-bar {
         position: relative;
         width: 100%;
-        height: 64px;
+        height: 50px;
         border-radius: 6px;
         display: flex;
         align-items: center;
@@ -299,7 +297,7 @@
           position: absolute;
           inset: 0;
           background-color: var(--deriveColor);
-          opacity: 0.08;
+          opacity: 0.04;
           z-index: -1;
         }
 

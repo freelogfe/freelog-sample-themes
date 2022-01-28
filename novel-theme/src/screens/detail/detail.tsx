@@ -136,7 +136,7 @@ const BookBody = () => {
           <div className="btn main-btn mobile" onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}>
             立即阅读
           </div>
-          <div className={`btn ${isCollected ? "delete" : "collect"}`} onClick={() => operateShelf(book)}>
+          <div className={`btn ${isCollected ? "delete" : "collect-btn mobile"}`} onClick={() => operateShelf(book)}>
             {isCollected ? "移出书架" : "加入书架"}
           </div>
         </div>
@@ -217,7 +217,10 @@ const BookBody = () => {
                   <div className="btn main-btn" onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}>
                     立即阅读
                   </div>
-                  <div className={`btn ${isCollected ? "warning-btn" : "collect"}`} onClick={() => operateShelf(book)}>
+                  <div
+                    className={`btn ${isCollected ? "warning-btn" : "collect-btn"}`}
+                    onClick={() => operateShelf(book)}
+                  >
                     {isCollected ? "移出书架" : "加入书架"}
                   </div>
                 </div>

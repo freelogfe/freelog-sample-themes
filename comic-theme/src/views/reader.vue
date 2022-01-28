@@ -186,7 +186,10 @@ export default {
       async getAuth() {
         const authResult = await addAuth(id);
         const { status } = authResult;
-        if (status === 0) getContent();
+        if (status === 0) {
+          getContent();
+          refreshAuth();
+        }
       },
     };
 
@@ -213,7 +216,21 @@ export default {
         data.loading = false;
         const authResult = await addAuth(id);
         const { status } = authResult;
-        if (status === 0) getContent();
+        if (status === 0) {
+          getContent();
+          refreshAuth();
+        }
+      }
+    };
+
+    const refreshAuth = () => {
+      const { authIds, myShelf } = store.state;
+      authIds.push(id);
+      store.commit("setData", { key: "authIds", value: authIds });
+      const index = myShelf.findIndex((item: ExhibitItem) => item.exhibitId === id);
+      if (index !== -1) {
+        myShelf[index].isAuth = true;
+        store.commit("setData", { key: "myShelf", value: myShelf });
       }
     };
 

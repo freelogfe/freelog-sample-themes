@@ -246,7 +246,10 @@ export default {
       async getAuth() {
         const authResult = await addAuth(data.currentId);
         const { status } = authResult;
-        if (status === 0) getData();
+        if (status === 0) {
+          getData();
+          refreshAuth();
+        }
       },
     };
 
@@ -318,6 +321,17 @@ export default {
       getListNumber();
       initWaterfall();
       setWaterFall(datasOfGetList.listData.value.filter((item) => item.exhibitId !== data.currentId));
+    };
+
+    const refreshAuth = () => {
+      const { inMobile } = store.state;
+      if (inMobile) {
+        const { authIds } = store.state;
+        authIds.push(data.exhibitInfo?.exhibitId);
+        store.commit("setData", { key: "authIds", value: authIds });
+      } else {
+        context.emit('refreshAuth');
+      }
     };
 
     watch(
@@ -623,7 +637,6 @@ export default {
       padding: 20px 0;
 
       .title-box {
-        width: 1230px;
         display: flex;
         align-items: center;
 
@@ -997,7 +1010,7 @@ export default {
   .content-area {
     padding: 30px 105px 55px !important;
 
-    .title,
+    .title-box,
     .exhibit-info,
     .main-area {
       width: 100% !important;
@@ -1009,7 +1022,7 @@ export default {
   .content-area {
     padding: 30px 0 55px !important;
 
-    .title,
+    .title-box,
     .exhibit-info,
     .main-area {
       width: 1540px !important;

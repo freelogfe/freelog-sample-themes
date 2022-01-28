@@ -359,12 +359,10 @@ export const Header = (props: {
           </div>
 
           <div className="header-right">
-            {!props.homeHeader && (
-              <div className="nav-btn" onClick={() => history.switchPage("/home/全部")}>
-                首页
-              </div>
-            )}
-            {!props.homeHeader && userData?.isLogin && (
+            <div className="nav-btn" onClick={() => history.switchPage("/home/全部")}>
+              首页
+            </div>
+            {userData?.isLogin && (
               <div className="nav-btn" onClick={() => history.switchPage("/shelf")}>
                 我的书架
               </div>

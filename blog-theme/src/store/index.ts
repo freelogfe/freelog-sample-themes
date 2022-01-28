@@ -30,6 +30,7 @@ export default createStore({
     selfConfig: {} as any,
     theme: { gradientColor: "", deriveColor: "" } as Theme,
     locationHistory: [] as HistoryItem[],
+    authIds: [] as string[], // 授权集合，用于刷新列表授权状态
   },
 
   mutations: {
