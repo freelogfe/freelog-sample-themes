@@ -84,7 +84,7 @@
               v-if="userData.isLogin"
             >
               <i class="freelog fl-icon-lishi"></i>
-              <div class="btn-label">已签约博客</div>
+              <div class="btn-label">已签约文章</div>
             </div>
           </div>
 
@@ -233,7 +233,7 @@
                     userBoxShow = false;
                   "
                 >
-                  已签约博客
+                  已签约文章
                 </div>
                 <div class="user-box-btn" @click="callLoginOut()">登出</div>
               </div>

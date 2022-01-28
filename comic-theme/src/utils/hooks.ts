@@ -43,7 +43,7 @@ export const useMyRouter = () => {
     return router.currentRoute.value.fullPath;
   };
 
-  return { route, query, switchPage, routerBack, getCurrentPath };
+  return { route, router, query, switchPage, routerBack, getCurrentPath };
 };
 
 /**

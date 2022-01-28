@@ -235,7 +235,7 @@
                     userBoxShow = false;
                   "
                 >
-                  已签约书籍
+                  已签约漫画
                 </div>
                 <div class="btn user-box-btn" @click="callLoginOut()">登出</div>
               </div>

@@ -4,13 +4,13 @@
 
     <div class="content" v-if="userData.isLogin && mySignedList">
       <div class="content-header">
-        <div class="signed-list-title">已签约博客</div>
+        <div class="signed-list-title">已签约文章</div>
 
         <div class="search-box">
           <input
             class="search-input input-none"
             v-model="searchKey"
-            placeholder="支持搜索博客名称"
+            placeholder="搜索"
             @keyup="search($event)"
           />
           <i class="freelog fl-icon-content"></i>

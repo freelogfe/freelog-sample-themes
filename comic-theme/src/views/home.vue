@@ -181,7 +181,7 @@ export default {
   setup() {
     const store = useStore();
     const tagsList: string[] = store.state.selfConfig.tags?.split(",");
-    const { query, route, switchPage } = useMyRouter();
+    const { query, route, router, switchPage } = useMyRouter();
     const { scrollTop, clientHeight, scrollHeight, scrollTo } = useMyScroll();
     useMyShelf();
     const datasOfGetList = useGetList();
@@ -240,17 +240,21 @@ export default {
     );
 
     onActivated(() => {
-      const homeScrollTop = sessionStorage.getItem("homeScroll");
-      scrollTo(Number(homeScrollTop), "auto");
-      
-      const { authIds } = store.state;
-      if (authIds.length === 0) return;
+      if (router.options.history.state.replaced) {
+        const homeScrollTop = sessionStorage.getItem("homeScroll");
+        scrollTo(Number(homeScrollTop), "auto");
 
-      authIds.forEach((id: string) => {
-        const index = datasOfGetList.listData.value.findIndex((item) => item.exhibitId === id);
-        if (index !== -1) datasOfGetList.listData.value[index].isAuth = true;
-      });
-      store.commit("setData", { key: "authIds", value: [] });
+        const { authIds } = store.state;
+        if (authIds.length === 0) return;
+
+        authIds.forEach((id: string) => {
+          const index = datasOfGetList.listData.value.findIndex((item) => item.exhibitId === id);
+          if (index !== -1) datasOfGetList.listData.value[index].isAuth = true;
+        });
+        store.commit("setData", { key: "authIds", value: [] });
+      } else {
+        getData();
+      }
     });
 
     onDeactivated(() => {

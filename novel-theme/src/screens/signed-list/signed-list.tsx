@@ -42,7 +42,7 @@ const SignedListBody = () => {
             <input
               className="search-input input-none"
               value={searchKey}
-              placeholder="支持搜索书籍名称"
+              placeholder="搜索"
               onChange={(e) => setSearchKey((e.target.value || "").trim())}
               onKeyUp={(e: { keyCode: number }) => {
                 e.keyCode === 13 && getMySignedList(searchKey);

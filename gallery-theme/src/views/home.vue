@@ -142,7 +142,7 @@ export default {
   setup() {
     const store = useStore();
     const tagsList: string[] = store.state.selfConfig.tags?.split(",");
-    const { query, route, switchPage } = useMyRouter();
+    const { query, route, router, switchPage } = useMyRouter();
     const { listNumber, waterfall, waterfallList, getListNumber, initWaterfall, setWaterFall } = useMyWaterfall();
     const { scrollTop, clientHeight, scrollHeight, scrollTo } = useMyScroll();
     const datasOfGetList = useGetList();
@@ -280,16 +280,22 @@ export default {
     );
 
     onActivated(() => {
-      const homeScrollTop = sessionStorage.getItem("homeScroll");
-      scrollTo(Number(homeScrollTop), "auto");
+      if (router.options.history.state.replaced) {
+        const homeScrollTop = sessionStorage.getItem("homeScroll");
+        scrollTo(Number(homeScrollTop), "auto");
 
-      const { authIds } = store.state;
-      if (authIds.length === 0) return;
+        const { authIds } = store.state;
+        if (authIds.length === 0) return;
 
-      authIds.forEach((id: string) => {
-        methods.refreshAuth(id);
-      });
-      store.commit("setData", { key: "authIds", value: [] });
+        authIds.forEach((id: string) => {
+          methods.refreshAuth(id);
+        });
+        store.commit("setData", { key: "authIds", value: [] });
+      } else {
+        judgeUrl();
+        getListNumber();
+        getData();
+      }
     });
 
     onDeactivated(() => {

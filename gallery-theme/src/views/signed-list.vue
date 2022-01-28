@@ -10,7 +10,7 @@
           <input
             class="search-input input-none"
             v-model="searchKey"
-            placeholder="支持搜索图片/视频名称"
+            placeholder="搜索"
             @keyup="search($event)"
           />
           <i class="freelog fl-icon-content"></i>
