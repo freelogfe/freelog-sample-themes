@@ -160,7 +160,7 @@ const Body = () => {
             <img className="lock" src={Lock} alt="未授权" />
             <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
             <div className="get-btn" onClick={() => getAuth()}>
-              签约
+              获得授权
             </div>
           </div>
         )}
@@ -207,7 +207,7 @@ const Body = () => {
               <img className="lock" src={Lock} alt="未授权" />
               <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
               <div className="get-btn" onClick={() => getAuth()}>
-                签约
+                获得授权
               </div>
             </div>
           )}
@@ -503,11 +503,9 @@ const Operater = () => {
           }
         />
 
-        <div className="back-top">
-          <BackTop onClick={() => closeAllPopup()}>
-            <OperateBtn icon="fl-icon-huidaodingbu" />
-          </BackTop>
-        </div>
+        <BackTop onClick={() => closeAllPopup()}>
+          <OperateBtn icon="fl-icon-huidaodingbu" />
+        </BackTop>
       </div>
     </div>
   );

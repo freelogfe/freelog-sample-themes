@@ -16,7 +16,7 @@
         <div class="lock-box" v-if="isAuth === false">
           <img class="lock" src="../assets/images/lock.png" alt="未授权" />
           <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-          <div class="get-btn" @click="getAuth()">签约</div>
+          <div class="get-btn" @click="getAuth()">获取授权</div>
         </div>
       </div>
 
@@ -80,17 +80,17 @@
           <div class="lock-box" v-if="isAuth === false">
             <img class="lock" src="../assets/images/lock.png" alt="未授权" />
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-            <div class="get-btn" @click="getAuth()">签约</div>
+            <div class="get-btn" @click="getAuth()">获取授权</div>
           </div>
         </div>
 
-        <div class="footer-bar">
+        <!-- <div class="footer-bar">
           <div class="footer-btn invalid">上一话</div>
           <div class="footer-btn" @click="switchPage('/detail', { id: comicInfo.exhibitId })">
             漫画详情
           </div>
           <div class="footer-btn invalid">下一话</div>
-        </div>
+        </div> -->
       </div>
 
       <div class="operater-wrapper">
@@ -126,11 +126,11 @@
             "
           />
 
-          <div class="back-top">
-            <back-top>
+          <back-top>
+            <div class="back-top">
               <operate-btn icon="fl-icon-huidaodingbu" :theme="theme" />
-            </back-top>
-          </div>
+            </div>
+          </back-top>
         </div>
       </div>
     </template>
@@ -417,6 +417,7 @@ export default {
       border-radius: 10px;
       animation: fade-in 0.3s ease-out;
       transition: all 0.2s linear;
+      margin-bottom: 70px;
 
       .content {
         width: 100%;
@@ -583,7 +584,8 @@ export default {
   // PC 操作按钮群
   .operater-wrapper {
     position: fixed;
-    bottom: 138px;
+    // bottom: 138px;
+    bottom: 70px;
     left: 50%;
     margin-left: 500px;
 

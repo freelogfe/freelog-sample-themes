@@ -15,7 +15,7 @@
         <div class="lock-box" v-if="!loading && documentData?.isAuth === false">
           <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
           <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-          <div class="get-btn" @click="getAuth(documentData)">签约</div>
+          <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
         </div>
 
         <div class="footer-area">
@@ -266,7 +266,7 @@
           <div class="lock-box" v-if="!loading && documentData?.isAuth === false">
             <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-            <div class="get-btn" @click="getAuth(documentData)">签约</div>
+            <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
           </div>
 
           <div class="footer-area">

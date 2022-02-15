@@ -2,27 +2,29 @@
   <div class="mobile-detail-wrapper" v-if="inMobile">
     <my-header />
 
-    <div class="main-area" key="mainArea">
+    <div class="main-area" key="mainArea" :style="{ height: isAuth === false ? '460px' : contentHeight + 'px' }">
       <my-loader v-if="loading" />
 
-      <template v-if="!loading && isAuth === true">
-        <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType === 'image'" />
-        <video
-          :src="content"
-          controls
-          muted
-          autoplay
-          webkit-playsinline
-          playsinline
-          v-if="exhibitInfo?.articleInfo.resourceType === 'video'"
-        ></video>
-      </template>
+      <transition-group name="content-fade">
+        <template v-if="!loading && isAuth === true">
+          <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType === 'image'" />
+          <video
+            :src="content"
+            controls
+            muted
+            autoplay
+            webkit-playsinline
+            playsinline
+            v-if="exhibitInfo?.articleInfo.resourceType === 'video'"
+          ></video>
+        </template>
 
-      <div class="lock-box" v-if="!loading && isAuth === false">
-        <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
-        <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-        <div class="get-btn" @click="getAuth()">签约</div>
-      </div>
+        <div class="lock-box" v-if="!loading && isAuth === false">
+          <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
+          <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+          <div class="get-btn" @click="getAuth()">获取授权</div>
+        </div>
+      </transition-group>
 
       <template v-if="listData.length > 1">
         <div
@@ -57,7 +59,7 @@
         </div>
       </div>
 
-      <div class="recommend-area">
+      <div class="recommend-area" v-if="recommendShow">
         <div class="title">相关推荐</div>
 
         <div class="recommend-list">
@@ -106,35 +108,35 @@
           <div ref="contentArea" class="main-area">
             <my-loader v-if="loading" />
 
-            <transition-group name="fade">
-              <template v-if="!loading && isAuth === true && contentMode">
-                <img
-                  :class="{
-                    'width-full': contentMode === 1,
-                    'height-full': contentMode === 2,
-                  }"
-                  :src="content"
-                  v-if="exhibitInfo?.articleInfo.resourceType === 'image'"
-                />
-                <video
-                  :class="{
-                    'width-full': contentMode === 1,
-                    'height-full': contentMode === 2,
-                  }"
-                  :src="content"
-                  controls
-                  v-if="exhibitInfo?.articleInfo.resourceType === 'video'"
-                ></video>
+            <transition-group name="content-fade">
+              <template v-if="!loading">
+                <template v-if="isAuth === true && contentMode">
+                  <img
+                    :class="{
+                      'width-full': contentMode === 1,
+                      'height-full': contentMode === 2,
+                    }"
+                    :src="content"
+                    v-if="exhibitInfo?.articleInfo.resourceType === 'image'"
+                  />
+                  <video
+                    :class="{
+                      'width-full': contentMode === 1,
+                      'height-full': contentMode === 2,
+                    }"
+                    :src="content"
+                    controls
+                    v-if="exhibitInfo?.articleInfo.resourceType === 'video'"
+                  ></video>
+                </template>
+
+                <div class="lock-box" v-if="isAuth === false">
+                  <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
+                  <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+                  <div class="get-btn" @click="getAuth()">获取授权</div>
+                </div>
               </template>
             </transition-group>
-
-            <transition name="fade">
-              <div class="lock-box" v-if="!loading && isAuth === false">
-                <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
-                <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-                <div class="get-btn" @click="getAuth()">签约</div>
-              </div>
-            </transition>
 
             <div
               class="switch-btn previous"
@@ -153,7 +155,7 @@
           </div>
         </div>
 
-        <div class="recommend-area">
+        <div class="recommend-area" v-if="recommendShow">
           <div class="recommend-box">
             <div class="title">相关推荐</div>
 
@@ -188,7 +190,7 @@ export default {
 
   props: ["id"],
 
-  emits: ["update:id", "search"],
+  emits: ["update:id", "search", "refreshAuth"],
 
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
@@ -213,6 +215,8 @@ export default {
       isAuth: null as boolean | null,
       content: "",
       contentMode: null as null | number, // 显示模式 1-宽撑满，高自适应 2-高撑满，宽自适应
+      contentHeight: 460,
+      recommendShow: false,
     });
 
     const methods = {
@@ -286,19 +290,21 @@ export default {
           img.onload = () => {
             const { width, height } = img;
             const ratio = width / height;
+            judgeContentHeight(ratio);
             judgeContentMode(ratio);
             data.content = info;
             data.loading = false;
           };
         } else if (resourceType === "video") {
-          data.content = info;
-          data.loading = false;
           const video: HTMLVideoElement = document.createElement("video");
           video.src = info;
           video.onloadeddata = () => {
             const { videoWidth, videoHeight } = video;
             const ratio = videoWidth / videoHeight;
+            judgeContentHeight(ratio);
             judgeContentMode(ratio);
+            data.content = info;
+            data.loading = false;
           };
         }
       } else {
@@ -318,11 +324,21 @@ export default {
       }
     };
 
+    // 根据资源宽高比计算实际高度
+    const judgeContentHeight = (ratio: number) => {
+      if (store.state.inMobile) {
+        data.contentHeight = 460;
+        const { clientWidth } = window.document.body;
+        data.contentHeight = clientWidth / ratio;
+      }
+    };
+
     // 屏幕尺寸变化切换瀑布流列数
     const waterfallResize = () => {
       getListNumber();
       initWaterfall();
       setWaterFall(datasOfGetList.listData.value.filter((item) => item.exhibitId !== data.currentId));
+      data.recommendShow = datasOfGetList.listData.value.length !== 0;
     };
 
     const refreshAuth = () => {
@@ -411,6 +427,7 @@ export default {
             if (num === cur.length) setWaterFall(cur.filter((item) => item.exhibitId !== data.currentId));
           };
         }
+        data.recommendShow = cur.length !== 0;
       }
     );
 
@@ -442,99 +459,6 @@ export default {
   min-height: 100vh;
   padding-bottom: 98px;
 
-  .cards-box {
-    width: 100%;
-    height: calc(100vh - 60px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    .cards {
-      width: 40px;
-      height: 40px;
-      position: relative;
-    }
-
-    .cards span {
-      position: absolute;
-      width: 20px;
-      height: 6px;
-      background-color: hsl(calc(360 / 8 * var(--n)), 80%, 70%);
-      top: calc(50% - 6px / 2);
-      border: 0.2px solid dimgray;
-      border-radius: 0.6px 1.6px 1.6px 0.6px;
-      transform-origin: right;
-      animation: rotating 3s linear infinite;
-      animation-delay: calc((var(--n) - 8) * 0.15s);
-    }
-
-    @keyframes rotating {
-      0%,
-      35% {
-        transform: rotate(0deg);
-      }
-
-      90%,
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-
-    .cards span::before {
-      content: "";
-      position: absolute;
-      width: 35%;
-      height: 100%;
-      background-color: white;
-      right: 0;
-      border-radius: 0 1.2px 1.2px 0;
-      border-left: 0.2px solid silver;
-    }
-
-    .cards span::after {
-      content: "";
-      position: absolute;
-      width: 0.8px;
-      height: 4px;
-      background-color: silver;
-      left: 13px;
-      top: 0.2px;
-      box-shadow: 1.4px 0 0 -0.2px silver;
-    }
-
-    .cards span:nth-child(1) {
-      --n: 1;
-    }
-
-    .cards span:nth-child(2) {
-      --n: 2;
-    }
-
-    .cards span:nth-child(3) {
-      --n: 3;
-    }
-
-    .cards span:nth-child(4) {
-      --n: 4;
-    }
-
-    .cards span:nth-child(5) {
-      --n: 5;
-    }
-
-    .cards span:nth-child(6) {
-      --n: 6;
-    }
-
-    .cards span:nth-child(7) {
-      --n: 7;
-    }
-
-    .cards span:nth-child(8) {
-      --n: 8;
-    }
-  }
-
   .main-area {
     position: relative;
     width: 100%;
@@ -542,6 +466,11 @@ export default {
     justify-content: center;
     align-items: center;
     background: #fafbfc;
+
+    .loader-wrapper {
+      position: absolute;
+      transform: scale(0.6);
+    }
 
     img,
     video {
@@ -606,6 +535,7 @@ export default {
       align-items: center;
       justify-content: center;
       color: #fff;
+      z-index: 0;
 
       .freelog {
         width: 12px;
@@ -861,6 +791,12 @@ export default {
       background: #fafbfc;
       border-radius: 10px;
       margin-top: 30px;
+      overflow: hidden;
+
+      .loader-wrapper {
+        position: absolute;
+        inset: 0;
+      }
 
       .width-full {
         width: 100%;
@@ -1030,5 +966,13 @@ export default {
       width: 1540px !important;
     }
   }
+}
+
+/* content-fade */
+.content-fade-enter-active {
+  transition: all 1s ease;
+}
+.content-fade-enter-from {
+  opacity: 0;
 }
 </style>

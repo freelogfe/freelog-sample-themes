@@ -19,7 +19,7 @@
           <div class="lock-box" v-if="isAuth === false">
             <img class="lock" src="../assets/images/lock.png" />
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-            <div class="get-btn" @click="getAuth()">签约</div>
+            <div class="get-btn" @click="getAuth()">获取授权</div>
           </div>
         </div>
       </div>
@@ -60,7 +60,7 @@
           <div class="lock-box" v-if="isAuth === false">
             <img class="lock" src="../assets/images/lock.png" />
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-            <div class="get-btn" @click="getAuth()">签约</div>
+            <div class="get-btn" @click="getAuth()">获取授权</div>
           </div>
         </div>
       </div>

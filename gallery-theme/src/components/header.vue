@@ -402,12 +402,10 @@ export default {
 <style lang="scss" scoped>
 // 移动端头部
 .mobile-header-wrapper {
-  position: relative;
   width: 100%;
   padding: 16px 20px;
   box-sizing: border-box;
   background: var(--gradientColor);
-  z-index: 1;
 
   &.in-home {
     padding: 22px 20px;
