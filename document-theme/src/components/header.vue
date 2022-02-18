@@ -1,24 +1,35 @@
 <template>
   <!-- mobile -->
   <div class="mobile-header-wrapper" v-if="inMobile">
-    <i class="freelog fl-icon-xiaoshuomulu" @click="openDirectory()" v-if="route.path === '/home'"></i>
+    <div class="header-left">
+      <i class="freelog fl-icon-xiaoshuomulu" @click="openDirectory()" v-if="route.path === '/home'"></i>
 
-    <div class="back-btn" @click="locationHistory.length === 1 ? switchPage('/home') : routerBack()" v-else>
-      <img class="back-arrow" src="../assets/images/arrow.png" />
-      <div class="back-label">
-        {{ locationHistory.length === 1 ? "首页" : "返回" }}
+      <div class="back-btn" @click="locationHistory.length === 1 ? switchPage('/home') : routerBack()" v-else>
+        <img class="back-arrow" src="../assets/images/arrow.png" />
+        <div class="back-label">
+          {{ locationHistory.length === 1 ? "首页" : "返回" }}
+        </div>
       </div>
     </div>
 
+    <!-- logo -->
     <img
-      class="avatar"
-      :src="userData.headImage"
-      :alt="userData.username"
-      @click="userBoxShow = true"
-      v-if="userData.isLogin"
+      class="logo"
+      :src="selfConfig.logoImage || require('../assets/images/logo.png')"
+      @click="switchPage('/home')"
     />
 
-    <div class="header-login-btn" @click="callLogin()" v-if="!userData.isLogin">登录</div>
+    <div class="header-right">
+      <img
+        class="avatar"
+        :src="userData.headImage"
+        :alt="userData.username"
+        @click="userBoxShow = true"
+        v-if="userData.isLogin"
+      />
+
+      <div class="header-login-btn" @click="callLogin()" v-if="!userData.isLogin">登录</div>
+    </div>
 
     <!-- 用户弹窗 -->
     <transition name="fade">
@@ -158,56 +169,71 @@ export default {
   box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.1);
   z-index: 1;
 
-  .fl-icon-xiaoshuomulu {
-    width: 42px;
-    height: 32px;
-    font-size: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #222;
-    border-radius: 4px;
-    border: 1px solid #dfdfdf;
-  }
+  .header-left {
+    width: 58px;
 
-  .back-btn {
-    display: flex;
-    align-items: center;
-
-    .back-arrow {
-      width: 7px;
-      height: 12px;
-    }
-
-    .back-label {
-      font-size: 16px;
+    .fl-icon-xiaoshuomulu {
+      width: 42px;
+      height: 32px;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: #222;
-      margin-left: 10px;
+      border-radius: 4px;
+      border: 1px solid #dfdfdf;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+
+      .back-arrow {
+        width: 7px;
+        height: 12px;
+      }
+
+      .back-label {
+        font-size: 16px;
+        color: #222;
+        margin-left: 10px;
+      }
     }
   }
 
-  .avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 1px solid #d1d1d1;
+  .logo {
+    height: 24px;
   }
 
-  .header-login-btn {
-    height: 32px;
-    padding: 0 15px;
-    box-sizing: border-box;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: bold;
-    background: #2784ff;
-    color: #fff;
+  .header-right {
+    width: 58px;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
 
-    &:active {
-      opacity: 0.8;
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid #d1d1d1;
+    }
+
+    .header-login-btn {
+      width: fit-content;
+      height: 32px;
+      padding: 0 15px;
+      box-sizing: border-box;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: bold;
+      background: #2784ff;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:active {
+        opacity: 0.8;
+      }
     }
   }
 
@@ -378,16 +404,6 @@ export default {
   .logo {
     height: 24px;
     cursor: pointer;
-
-    .freelog {
-      height: 24px;
-      font-size: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: normal;
-      margin-right: 5px;
-    }
   }
 
   .user-avatar {

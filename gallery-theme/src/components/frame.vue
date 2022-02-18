@@ -18,26 +18,28 @@
       v-if="inMobile"
     >
       <div class="cover-box">
-        <!-- 普通图片 -->
-        <img class="image" v-lazy="data.coverImages[0]" v-if="isAuth" />
+        <img class="image" v-lazy="data.coverImages[0]" />
 
         <!-- 下架标识 -->
         <div class="offline" v-if="data.onlineStatus === 0">已下架</div>
 
         <!-- 视频遮罩 -->
-        <div class="video-modal" v-if="data.articleInfo.resourceType === 'video' && isAuth">
+        <div class="video-modal" v-if="data.articleInfo.resourceType === 'video'">
           <img class="video-image" src="../assets/images/video.png" />
 
           <div class="video-bar">
             <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
               {{ isAuth ? "已授权" : "未授权" }}
             </div>
-            <div class="sign-count">签约量 {{ getSignCount(data.signCount) }}</div>
+            <div class="lock-circle" v-if="!isAuth">
+              <img class="lock" src="../assets/images/mini-lock.png" />
+            </div>
+            <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
           </div>
         </div>
 
         <!-- 毛玻璃图片（未授权） -->
-        <div class="filter-modal" v-if="!isAuth">
+        <!-- <div class="filter-modal" v-if="!isAuth">
           <div class="filter-modal-body">
             <div class="img-box">
               <img class="img" src="../assets/images/video.png" v-if="data.articleInfo.resourceType === 'video'" />
@@ -48,17 +50,20 @@
               <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
                 {{ isAuth ? "已授权" : "未授权" }}
               </div>
-              <div class="sign-count">签约量 {{ getSignCount(data.signCount) }}</div>
+              <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
             </div>
           </div>
-        </div>
+        </div> -->
 
         <!-- 默认状态签约量 -->
-        <div class="normal-bar" v-if="isAuth && data.articleInfo.resourceType === 'image'">
+        <div class="normal-bar" v-if="data.articleInfo.resourceType === 'image'">
           <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
             {{ isAuth ? "已授权" : "未授权" }}
           </div>
-          <div class="sign-count">签约量 {{ getSignCount(data.signCount) }}</div>
+          <div class="lock-circle" v-if="!isAuth">
+            <img class="lock" src="../assets/images/mini-lock.png" />
+          </div>
+          <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
         </div>
       </div>
 
@@ -85,28 +90,30 @@
       @mouseleave="modalShow = false"
       v-if="!inMobile"
     >
-      <!-- 普通图片 -->
-      <img class="image" v-lazy="data.coverImages[0]" v-if="isAuth" />
+      <img class="image" v-lazy="data.coverImages[0]" />
 
       <!-- 下架标识 -->
       <div class="offline" v-if="data.onlineStatus === 0">已下架</div>
 
       <!-- 视频遮罩 -->
       <transition name="fade">
-        <div class="video-modal" v-if="data.articleInfo.resourceType === 'video' && isAuth && !modalShow">
+        <div class="video-modal" v-if="data.articleInfo.resourceType === 'video' && !modalShow">
           <img class="video-image" src="../assets/images/video.png" />
 
           <div class="video-bar">
             <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
               {{ isAuth ? "已授权" : "未授权" }}
             </div>
-            <div class="sign-count">签约量 {{ getSignCount(data.signCount) }}</div>
+            <div class="lock-circle" v-if="!isAuth">
+              <img class="lock" src="../assets/images/mini-lock.png" />
+            </div>
+            <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
           </div>
         </div>
       </transition>
 
       <!-- 毛玻璃图片（未授权） -->
-      <div class="filter-modal" v-if="!isAuth">
+      <!-- <div class="filter-modal" v-if="!isAuth">
         <transition name="fade">
           <div class="filter-modal-body" v-show="!modalShow">
             <div class="img-box">
@@ -118,19 +125,22 @@
               <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
                 {{ isAuth ? "已授权" : "未授权" }}
               </div>
-              <div class="sign-count">签约量 {{ getSignCount(data.signCount) }}</div>
+              <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
             </div>
           </div>
         </transition>
-      </div>
+      </div> -->
 
       <!-- 默认状态签约量 -->
       <transition name="fade">
-        <div class="normal-bar" v-if="isAuth && data.articleInfo.resourceType === 'image' && !modalShow">
+        <div class="normal-bar" v-if="data.articleInfo.resourceType === 'image' && !modalShow">
           <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
             {{ isAuth ? "已授权" : "未授权" }}
           </div>
-          <div class="sign-count">签约量 {{ getSignCount(data.signCount) }}</div>
+          <div class="lock-circle" v-if="!isAuth">
+            <img class="lock" src="../assets/images/mini-lock.png" />
+          </div>
+          <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
         </div>
       </transition>
 
@@ -142,9 +152,15 @@
         <div class="modal-content" v-if="modalShow">
           <div class="img-box">
             <img class="img" src="../assets/images/video.png" v-if="data.articleInfo.resourceType === 'video'" />
-            <img class="img" src="../assets/images/lock.png" @click.stop="getAuth(data.exhibitId)" v-if="!isAuth" />
+            <!-- <img class="img" src="../assets/images/lock.png" @click.stop="getAuth(data.exhibitId)" v-if="!isAuth" /> -->
           </div>
           <div class="title">
+            <img
+              class="lock"
+              src="../assets/images/mini-lock.png"
+              @click.stop="getAuth(data.exhibitId)"
+              v-if="!isAuth"
+            />
             {{ data.exhibitTitle }}
           </div>
           <tags :tags="data.tags" v-if="data.tags.length" />
@@ -155,7 +171,7 @@
                 {{ data.articleInfo.articleOwnerName }}
               </div>
             </div>
-            <div class="sign-count-text">签约量 {{ getSignCount(data.signCount) }}</div>
+            <div class="sign-count-text">签约量：{{ getSignCount(data.signCount) }}</div>
           </div>
         </div>
       </transition>
@@ -536,6 +552,14 @@ export default {
       .title {
         font-size: 16px;
         line-height: 22px;
+        display: flex;
+        align-items: center;
+
+        .lock {
+          width: 14px;
+          height: 14px;
+          margin-right: 5px;
+        }
       }
 
       .tags-wrapper {
@@ -588,6 +612,23 @@ export default {
     display: flex;
     justify-content: center;
   }
+
+  .lock-circle {
+    width: 24px;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(6px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 5px;
+
+    .lock {
+      width: 12px;
+      height: 12px;
+    }
+  }
 }
 
 .auth-tag {
@@ -622,5 +663,6 @@ export default {
   font-size: 12px;
   font-weight: 600;
   color: #ffffff;
+  backdrop-filter: blur(6px);
 }
 </style>

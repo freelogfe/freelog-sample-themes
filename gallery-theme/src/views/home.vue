@@ -46,7 +46,7 @@
           <div class="tags-box">
             <div
               class="tag"
-              :class="{ active: !searchData.tags }"
+              :class="{ active: !searchData.tags && !searchData.articleResourceTypes }"
               @click="
                 filterBoxShow = false;
                 selectTag();
@@ -67,6 +67,17 @@
               >
                 {{ item }}
               </div>
+
+              <div
+                class="tag"
+                :class="{ active: searchData.articleResourceTypes === 'video' }"
+                @click="
+                  filterBoxShow = false;
+                  filterVideo();
+                "
+              >
+                视频
+              </div>
             </div>
           </div>
         </div>
@@ -80,7 +91,13 @@
       <div class="filter-bar">
         <div class="filter-bar-bg"></div>
 
-        <div class="category-btn" :class="{ active: !searchData.tags }" @click="selectTag()">全部</div>
+        <div
+          class="category-btn"
+          :class="{ active: !searchData.tags && !searchData.articleResourceTypes }"
+          @click="selectTag()"
+        >
+          全部
+        </div>
 
         <div
           class="category-btn"
@@ -90,6 +107,14 @@
           @click="selectTag(item)"
         >
           {{ item }}
+        </div>
+
+        <div
+          class="category-btn"
+          :class="{ active: searchData.articleResourceTypes === 'video' }"
+          @click="filterVideo()"
+        >
+          视频
         </div>
       </div>
 
@@ -152,6 +177,7 @@ export default {
         keywords?: string;
         tags?: string;
         id?: string;
+        articleResourceTypes?: string;
       },
       currentId: null as null | string,
       filterBoxShow: false,
@@ -170,6 +196,14 @@ export default {
         const query: { keywords?: string; tags?: string } = {};
         if (tag) query.tags = tag;
         if (keywords) query.keywords = keywords;
+        switchPage("/home", query);
+      },
+
+      filterVideo() {
+        const { keywords } = data.searchData;
+        const query: { keywords?: string; articleResourceTypes?: string } = {};
+        if (keywords) query.keywords = keywords;
+        query.articleResourceTypes = "video";
         switchPage("/home", query);
       },
 
@@ -235,7 +269,13 @@ export default {
       () => query.value,
       (cur, pre) => {
         if (route.path !== "/home") return;
-        if (cur.keywords !== pre.keywords || cur.tags !== pre.tags) getData();
+        if (
+          cur.keywords !== pre.keywords ||
+          cur.tags !== pre.tags ||
+          cur.articleResourceTypes !== pre.articleResourceTypes
+        ) {
+          getData();
+        }
       }
     );
 
