@@ -13,11 +13,7 @@
     </div>
 
     <!-- logo -->
-    <img
-      class="logo"
-      :src="selfConfig.logoImage || require('../assets/images/logo.png')"
-      @click="switchPage('/home')"
-    />
+    <img class="logo" :src="selfConfig.logoImage || require('../assets/images/logo.png')" />
 
     <div class="header-right">
       <img
@@ -170,7 +166,7 @@ export default {
   z-index: 1;
 
   .header-left {
-    width: 58px;
+    width: 70px;
 
     .fl-icon-xiaoshuomulu {
       width: 42px;
@@ -202,11 +198,11 @@ export default {
   }
 
   .logo {
-    height: 24px;
+    height: 20px;
   }
 
   .header-right {
-    width: 58px;
+    width: 70px;
     display: flex;
     justify-content: flex-end;
 
@@ -220,8 +216,7 @@ export default {
     .header-login-btn {
       width: fit-content;
       height: 32px;
-      padding: 0 15px;
-      box-sizing: border-box;
+      width: 58px;
       border-radius: 4px;
       font-size: 14px;
       font-weight: bold;
