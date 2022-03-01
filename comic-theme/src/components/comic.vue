@@ -1,55 +1,95 @@
 <template>
   <!-- 移动端收藏漫画组件 -->
-  <div class="mobile-shelf-comic-wrapper" @click="switchPage('/detail', { id: data.exhibitId })" v-if="mode === 4">
+  <div class="mobile-shelf-comic-wrapper" @click="toPath('/detail')" v-if="mode === 4">
     <div class="comic-cover-box">
-      <img class="comic-cover" :src="data.coverImages[0]" :alt="data.exhibitTitle" />
+      <img
+        class="comic-cover"
+        :class="{ 'opacity-40p': data.authLinkNormal === false }"
+        :src="data.coverImages[0]"
+        :alt="data.exhibitTitle"
+      />
       <div class="offline" v-if="data.onlineStatus === 0">已下架</div>
     </div>
 
     <div class="comic-name" :title="data.exhibitTitle">
-      {{ data.exhibitTitle }}
+      <img
+        class="auth-link-abnormal"
+        src="../assets/images/auth-link-abnormal.png"
+        v-if="data.authLinkNormal === false"
+      />
+      <div class="name" :class="{ 'opacity-40p': data.authLinkNormal === false }">{{ data.exhibitTitle }}</div>
     </div>
 
-    <div class="comic-author">{{ data.articleInfo.articleOwnerName }}</div>
+    <div class="comic-author" :class="{ 'opacity-40p': data.authLinkNormal === false }">
+      {{ data.articleInfo.articleOwnerName }}
+    </div>
   </div>
 
   <!-- 普通漫画组件 -->
   <div
     class="comic-wrapper"
     :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }"
-    @click="switchPage('/detail', { id: data.exhibitId })"
+    @click="toPath('/detail')"
     v-if="mode !== 4"
   >
     <div class="comic-content">
       <div class="comic-cover-box">
-        <img class="comic-cover" :src="data.coverImages[0]" :alt="data.exhibitTitle" />
+        <img
+          class="comic-cover"
+          :class="{ 'opacity-40p': data.authLinkNormal === false }"
+          :src="data.coverImages[0]"
+          :alt="data.exhibitTitle"
+        />
         <div class="offline" v-if="data.onlineStatus === 0">已下架</div>
       </div>
 
       <div class="comic-info" :class="{ 'auth-comic': mode === 3 && inMobile }">
         <div class="comic-name-box" :title="data.exhibitTitle">
-          <img class="lock" src="../assets/images/mini-lock.png" alt="未授权" v-if="mode !== 3 && !data.isAuth" />
-          <div class="comic-name">{{ data.exhibitTitle }}</div>
-          <div class="tag is-auth" v-if="mode === 3 && data.isAuth && !inMobile">已授权</div>
-          <div class="tag not-auth" v-if="mode === 3 && !data.isAuth && !inMobile">未授权</div>
+          <img
+            class="auth-link-abnormal"
+            src="../assets/images/auth-link-abnormal.png"
+            v-if="data.authLinkNormal === false"
+          />
+          <img
+            class="lock"
+            src="../assets/images/mini-lock.png"
+            alt="未授权"
+            v-if="mode !== 3 && data.authCode === 303"
+          />
+          <div class="comic-name" :class="{ 'opacity-40p': data.authLinkNormal === false }">
+            {{ data.exhibitTitle }}
+          </div>
+          <div class="tag is-auth" v-if="mode === 3 && [200, 301].includes(data.authCode) && !inMobile">已授权</div>
+          <div class="tag not-auth" v-if="mode === 3 && data.authCode === 303 && !inMobile">未授权</div>
         </div>
 
-        <div class="comic-author">{{ data.articleInfo.articleOwnerName }}</div>
+        <div class="comic-author" :class="{ 'opacity-40p': data.authLinkNormal === false }">
+          {{ data.articleInfo.articleOwnerName }}
+        </div>
 
-        <div class="tags" v-if="!(mode === 3 && inMobile)">
+        <div class="tags" :class="{ 'opacity-40p': data.authLinkNormal === false }" v-if="!(mode === 3 && inMobile)">
           <tags :tags="data.tags" />
         </div>
 
-        <div class="auth-tag" :class="data.isAuth ? 'is-auth' : 'not-auth'" v-if="mode === 3 && inMobile">
-          {{ data.isAuth ? "已授权" : "未授权" }}
+        <div
+          class="auth-tag"
+          :class="[200, 301].includes(data.authCode) ? 'is-auth' : 'not-auth'"
+          v-if="mode === 3 && inMobile"
+        >
+          {{ [200, 301].includes(data.authCode) ? "已授权" : "未授权" }}
         </div>
       </div>
 
-      <i class="freelog fl-icon-zhankaigengduo" v-if="!(mode === 3 && inMobile)"></i>
+      <i
+        class="freelog fl-icon-zhankaigengduo"
+        :class="{ 'opacity-40p': data.authLinkNormal === false }"
+        v-if="!(mode === 3 && inMobile)"
+      ></i>
 
       <div
         class="main-btn btn"
-        @click.stop="switchPage('/reader', { id: data?.exhibitId })"
+        :class="{ disabled: data.authLinkNormal === false }"
+        @click.stop="toPath('/reader')"
         v-if="[2, 3].includes(mode)"
       >
         立即阅读
@@ -67,6 +107,8 @@ import { formatDate } from "@/utils/common";
 import { defineAsyncComponent, toRefs } from "vue";
 import { useMyRouter } from "@/utils/hooks";
 import { useStore } from "vuex";
+import { ExhibitItem } from "../../../blog-theme/src/api/interface";
+import { showToast } from "../utils/common";
 
 export default {
   name: "comic",
@@ -78,13 +120,25 @@ export default {
   // mode: 1-默认首页 2-收藏 3-签约记录 4-移动端首页收藏
   props: ["mode", "data", "operateShelf"],
 
-  setup() {
+  setup(props: { data: ExhibitItem }) {
     const store = useStore();
     const { switchPage } = useMyRouter();
+    const methods = {
+      toPath(path: string) {
+        const { exhibitId, authLinkNormal } = props.data;
+
+        if (!authLinkNormal) {
+          showToast("授权链异常，无法查看");
+          return;
+        }
+
+        switchPage(path, { id: exhibitId });
+      },
+    };
 
     return {
       ...toRefs(store.state),
-      switchPage,
+      ...methods,
       formatDate,
     };
   },
@@ -136,9 +190,22 @@ export default {
     color: #222222;
     line-height: 22px;
     margin-top: 10px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+
+    .auth-link-abnormal {
+      width: 16px;
+      height: 16px;
+      margin-right: 5px;
+    }
+
+    .name {
+      flex: 1;
+      width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
   }
 
   .comic-author {
@@ -206,6 +273,14 @@ export default {
       .comic-name-box {
         width: 100%;
         display: flex;
+
+        .auth-link-abnormal {
+          float: left;
+          width: 16px;
+          height: 16px;
+          margin-right: 5px;
+          margin-top: 3px;
+        }
 
         .lock {
           float: left;
@@ -370,7 +445,16 @@ export default {
       &.assist-btn {
         margin-left: 15px;
       }
+
+      &.disabled {
+        opacity: 0.4;
+        pointer-events: none;
+      }
     }
   }
+}
+
+.opacity-40p {
+  opacity: 0.4;
 }
 </style>

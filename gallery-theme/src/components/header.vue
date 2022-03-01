@@ -6,32 +6,48 @@
       <img
         class="logo"
         :src="selfConfig.logoImage || require('../assets/images/logo.png')"
-        @click="switchPage('/home')"
+        @click="switchPage('/')"
         v-if="homeHeader"
       />
       <div class="header-top-left" @click="locationHistory.length === 1 ? switchPage('/home') : routerBack()" v-else>
         <img class="back-arrow" src="../assets/images/arrow.png" />
-        <div class="back-label">
-          {{ locationHistory.length === 1 ? "首页" : "返回" }}
-        </div>
+        <div class="back-label">{{ locationHistory.length === 1 ? "首页" : "返回" }}</div>
       </div>
 
       <div class="header-top-right">
-        <i class="freelog fl-icon-content" @click="searchPopupShow = true" v-if="!homeHeader && !readerHeader"></i>
+        <i class="freelog fl-icon-content" @click="searchPopupShow = true" v-if="!readerHeader"></i>
 
         <img class="menu" src="../assets/images/menu.png" @click="userBoxShow = true" />
       </div>
     </div>
 
-    <!-- 搜索框 -->
-    <div class="search-box" @click="searchPopupShow = true" v-if="homeHeader">
-      <i class="freelog fl-icon-content"></i>
-    </div>
+    <!-- 节点信息 -->
+    <template v-if="homeHeader">
+      <div class="header-other-info">
+        <div class="node-avatar">
+          <img
+            :src="selfConfig.nodeAvatar || require('../assets/images/default-avatar.png')"
+            alt="节点头像"
+            class="avatar-img"
+          />
+        </div>
+        <div class="sign-count">总签约量：{{ signCount }}人</div>
+      </div>
 
-    <!-- 用户弹窗 -->
+      <div class="header-node-info">
+        <div class="node-title">
+          {{ selfConfig.nodeTitle }}
+        </div>
+        <div class="node-desc">
+          {{ selfConfig.nodeIntro }}
+        </div>
+      </div>
+    </template>
+
     <transition name="fade">
-      <div id="modal" class="modal" @click="userBoxShow = false" v-if="userBoxShow"></div>
+      <div id="modal" class="modal" @click="userBoxShow = false" @touchmove.prevent v-if="userBoxShow"></div>
     </transition>
+
     <transition name="slide-right">
       <div class="user-box-body" v-if="userBoxShow">
         <div class="user-box-top">
@@ -83,7 +99,6 @@
       </div>
     </transition>
 
-    <!-- 搜索页 -->
     <transition name="fade">
       <div class="search-page" v-if="searchPopupShow">
         <div class="search-page-header">
@@ -143,13 +158,13 @@
 
   <!-- PC -->
   <div class="header-wrapper" v-if="!inMobile">
-    <div class="header-box">
-      <div class="header-left">
+    <div class="header-top">
+      <div class="header-top-left">
         <!-- logo -->
         <img
           class="logo"
           :src="selfConfig.logoImage || require('../assets/images/logo.png')"
-          @click="switchPage('/home')"
+          @click="switchPage('/')"
         />
 
         <!-- 搜索框 -->
@@ -194,9 +209,9 @@
         </div>
       </div>
 
-      <div class="header-right">
+      <div class="header-top-right">
         <div class="nav-btn" @click="switchPage('/')">首页</div>
-
+        <!-- 已登录用户信息 -->
         <div
           class="user-avatar"
           @mouseover="userBoxShow = true"
@@ -206,13 +221,13 @@
           <img class="avatar" :src="userData.headImage" :alt="userData.username" />
 
           <transition name="slide-down-scale">
-            <div class="user-box" v-if="userBoxShow">
+            <div class="user-box" v-show="userBoxShow">
               <div class="user-box-body">
                 <img class="avatar" :src="userData.headImage" :alt="userData.username" />
                 <div class="username">{{ userData.username }}</div>
                 <div class="mobile">{{ userData.mobile }}</div>
                 <div
-                  class="btn user-box-btn"
+                  class="user-box-btn"
                   @click="
                     switchPage('/signedList');
                     userBoxShow = false;
@@ -220,25 +235,51 @@
                 >
                   已签约图片/视频
                 </div>
-                <div class="btn user-box-btn" @click="callLoginOut()">登出</div>
+                <div class="user-box-btn" @click="callLoginOut()">登出</div>
               </div>
             </div>
           </transition>
         </div>
 
+        <!-- 登录相关按钮 -->
         <div class="user-btns" v-else>
           <div class="btn header-login-btn" @click="callLogin()">登录</div>
           <div class="btn header-register-btn" @click="register()">注册</div>
         </div>
       </div>
     </div>
+
+    <template v-if="homeHeader">
+      <!-- 节点信息 -->
+      <div class="header-node-info">
+        <div class="node-avatar">
+          <img
+            :src="selfConfig.nodeAvatar || require('../assets/images/default-avatar.png')"
+            alt="节点头像"
+            class="avatar-img"
+          />
+        </div>
+
+        <div class="info-content">
+          <div class="title-signcount">
+            <div class="node-title">
+              {{ selfConfig.nodeTitle }}
+            </div>
+            <div class="sign-count">总签约量：{{ signCount }}人</div>
+          </div>
+          <div class="node-desc">
+            {{ selfConfig.nodeIntro }}
+          </div>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
 <script lang="ts">
 import { computed, reactive, ref, toRefs, watch } from "vue";
 import { useMyLocationHistory, useMyRouter, useSearchHistory } from "../utils/hooks";
-import { callLogin, callLoginOut } from "@/api/freelog";
+import { callLogin, callLoginOut, getExhibitSignCount, getSelfId } from "@/api/freelog";
 import { useStore } from "vuex";
 
 export default {
@@ -267,6 +308,7 @@ export default {
     const mySearchHistory = computed(() => searchHistory.value.filter((item) => item.includes(data.searchKey)));
 
     const data = reactive({
+      signCount: 0,
       searchKey: "",
       userBoxShow: false,
       searchPopupShow: false,
@@ -370,6 +412,14 @@ export default {
       }
     );
 
+    // 获取主题签约数
+    const getSignCount = async () => {
+      const themeId = await getSelfId();
+      const signCountInfo = await getExhibitSignCount(themeId);
+      data.signCount = signCountInfo.data.data[0].count;
+    };
+    getSignCount();
+
     // 初始化头部搜索相关数据
     const initHeaderSearch = () => {
       const { keywords } = query.value;
@@ -408,11 +458,11 @@ export default {
   background: var(--gradientColor);
 
   &.in-home {
-    padding: 22px 20px;
+    padding: 20px 20px 40px;
   }
 
   .header-top {
-    height: 28px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -438,6 +488,7 @@ export default {
     }
 
     .header-top-right {
+      flex: 1;
       display: flex;
       align-items: center;
       justify-content: flex-end;
@@ -461,24 +512,53 @@ export default {
     }
   }
 
-  .search-box {
-    width: 100%;
-    height: 42px;
-    border-radius: 42px;
+  .header-other-info {
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.1);
-    margin-top: 36px;
+    justify-content: space-between;
+    margin-top: 38px;
 
-    .fl-icon-content {
-      width: 14px;
-      height: 14px;
-      font-size: 14px;
-      margin-left: 15px;
+    .node-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-sizing: border-box;
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
+
+      .avatar-img {
+        height: 100%;
+      }
+    }
+
+    .sign-count {
+      padding: 5px 8px;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+      font-size: 12px;
       color: rgba(255, 255, 255, 0.6);
+      line-height: 18px;
+    }
+  }
+
+  .header-node-info {
+    margin-top: 20px;
+
+    .node-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #ffffff;
+      line-height: 30px;
+    }
+
+    .node-desc {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 20px;
+      margin-top: 10px;
     }
   }
 
@@ -489,7 +569,6 @@ export default {
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.4);
-    z-index: 101;
   }
 
   .user-box-body {
@@ -636,7 +715,7 @@ export default {
     right: 0;
     bottom: 0;
     background-color: #fff;
-    z-index: 2;
+    z-index: 1;
 
     .search-page-header {
       width: 100%;
@@ -844,21 +923,21 @@ export default {
 // PC
 .header-wrapper {
   width: 100%;
-  padding: 0 140px;
-  background: var(--gradientColor);
-  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
+  background: var(--gradientColor);
 
-  .header-box {
+  .header-top {
     width: 1230px;
     height: 70px;
+    padding: 19px 0;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    .header-left {
+    .header-top-left {
       display: flex;
       align-items: center;
 
@@ -1002,7 +1081,7 @@ export default {
       }
     }
 
-    .header-right {
+    .header-top-right {
       display: flex;
       align-items: center;
 
@@ -1034,6 +1113,7 @@ export default {
           height: 32px;
           border-radius: 50%;
           border: 1px solid rgba(255, 255, 255, 0.4);
+          box-sizing: border-box;
         }
 
         .user-box {
@@ -1042,13 +1122,14 @@ export default {
           top: 100%;
           padding-top: 10px;
           cursor: default;
-          z-index: 100;
+          z-index: 1;
 
           .user-box-body {
             width: 240px;
             background: #ffffff;
             box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
             border-radius: 4px;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1078,7 +1159,7 @@ export default {
               margin-bottom: 16px;
             }
 
-            .btn {
+            .user-box-btn {
               width: 100%;
               height: 50px;
               line-height: 50px;
@@ -1086,10 +1167,6 @@ export default {
               padding-left: 20px;
               box-sizing: border-box;
               border-top: 1px solid rgba(0, 0, 0, 0.05);
-
-              &:last-child {
-                border-radius: 0 0 4px 4px;
-              }
             }
           }
         }
@@ -1118,10 +1195,82 @@ export default {
       }
     }
   }
+
+  .header-node-info {
+    width: 1230px;
+    display: flex;
+    align-items: center;
+    margin-top: 50px;
+    margin-bottom: 70px;
+
+    .node-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+
+      .avatar-img {
+        height: 100%;
+      }
+    }
+
+    .info-content {
+      flex: 1;
+      width: 0;
+      margin-left: 30px;
+
+      .title-signcount {
+        width: 100%;
+        display: flex;
+        align-items: center;
+
+        .node-title {
+          max-width: 100%;
+          font-size: 28px;
+          font-weight: 600;
+          color: #ffffff;
+          line-height: 34px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+
+        .sign-count {
+          flex-shrink: 0;
+          height: 28px;
+          line-height: 28px;
+          padding: 0 8px;
+          background: rgba(0, 0, 0, 0.1);
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 600;
+          color: rgba(255, 255, 255, 0.8);
+          margin-left: 15px;
+        }
+      }
+
+      .node-desc {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 20px;
+        margin-top: 16px;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+      }
+    }
+  }
 }
 
 @media (min-width: 1600px) {
-  .home-wrapper .header-box {
+  .home-wrapper .header-top,
+  .home-wrapper .header-node-info {
     width: 1540px !important;
   }
 }

@@ -11,9 +11,19 @@
     <!-- mobile -->
     <template v-if="!loading && inMobile">
       <div class="mobile-body-wrapper">
-        <img class="content" :src="content" v-if="isAuth === true && content" />
+        <img
+          class="content"
+          :src="content"
+          v-if="[200, 301].includes(comicInfo.authCode) && comicInfo.authLinkNormal && content"
+        />
 
-        <div class="lock-box" v-if="isAuth === false">
+        <div class="auth-box" v-if="comicInfo.authLinkNormal === false">
+          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+          <div class="auth-link-tip">授权链异常，无法查看</div>
+          <div class="home-btn" @click="switchPage('/home')">进入首页</div>
+        </div>
+
+        <div class="lock-box" v-if="comicInfo.authCode === 303 && comicInfo.authLinkNormal">
           <img class="lock" src="../assets/images/lock.png" alt="未授权" />
           <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
           <div class="get-btn" @click="getAuth()">获取授权</div>
@@ -75,9 +85,19 @@
         </div>
 
         <div class="content-box">
-          <img class="content" :src="content" v-if="isAuth === true && content" />
+          <img
+            class="content"
+            :src="content"
+            v-if="[200, 301].includes(comicInfo.authCode) && comicInfo.authLinkNormal && content"
+          />
 
-          <div class="lock-box" v-if="isAuth === false">
+          <div class="auth-box" v-if="comicInfo.authLinkNormal === false">
+            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+            <div class="auth-link-tip">授权链异常，无法查看</div>
+            <div class="home-btn" @click="switchPage('/home')">进入首页</div>
+          </div>
+
+          <div class="lock-box" v-if="comicInfo.authCode === 303 && comicInfo.authLinkNormal">
             <img class="lock" src="../assets/images/lock.png" alt="未授权" />
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
             <div class="get-btn" @click="getAuth()">获取授权</div>
@@ -144,7 +164,13 @@ import { toRefs } from "@vue/reactivity";
 import { useMyRouter, useMyScroll, useMyShelf } from "../utils/hooks";
 import { defineAsyncComponent, reactive, watch, watchEffect } from "vue";
 import { ExhibitItem } from "@/api/interface";
-import { addAuth, getExhibitAuthStatus, getExhibitFileStream, getExhibitInfo } from "@/api/freelog";
+import {
+  addAuth,
+  getExhibitAuthStatus,
+  getExhibitAvailable,
+  getExhibitFileStream,
+  getExhibitInfo,
+} from "@/api/freelog";
 import { useStore } from "vuex";
 
 export default {
@@ -171,7 +197,6 @@ export default {
       loading: false,
       comicInfo: {} as ExhibitItem,
       content: "",
-      isAuth: null as boolean | null,
       theme: myTheme,
       sharePopupShow: false,
       directoryShow: false,
@@ -210,8 +235,15 @@ export default {
     const getContent = async () => {
       data.loading = true;
       const statusInfo = await getExhibitAuthStatus(id);
-      data.isAuth = statusInfo.data.data ? statusInfo.data.data[0].isAuth : false;
-      if (data.isAuth) {
+      if (statusInfo.data.data) data.comicInfo.authCode = statusInfo.data.data[0].authCode;
+      const authLinkStatusInfo = await getExhibitAvailable(id);
+      if (authLinkStatusInfo.data.data) {
+        data.comicInfo.authLinkNormal =
+          data.comicInfo.authCode === 301 ? false : authLinkStatusInfo.data.data[0].isAuth;
+      }
+
+      if ([200, 301].includes(data.comicInfo.authCode) && data.comicInfo.authLinkNormal) {
+        // 已签约并且授权链无异常
         const info: any = await getExhibitFileStream(id, true);
         if (!info) {
           data.loading = false;
@@ -219,16 +251,9 @@ export default {
         }
 
         data.content = info;
-        data.loading = false;
-      } else {
-        data.loading = false;
-        const authResult = await addAuth(id);
-        const { status } = authResult;
-        if (status === 0) {
-          getContent();
-          refreshAuth();
-        }
       }
+
+      data.loading = false;
     };
 
     const refreshAuth = () => {
@@ -237,7 +262,7 @@ export default {
       store.commit("setData", { key: "authIds", value: authIds });
       const index = myShelf.findIndex((item: ExhibitItem) => item.exhibitId === id);
       if (index !== -1) {
-        myShelf[index].isAuth = true;
+        myShelf[index].authCode = 200;
         store.commit("setData", { key: "myShelf", value: myShelf });
       }
     };
@@ -309,6 +334,45 @@ export default {
 
     .content {
       width: 100%;
+    }
+
+    .auth-box {
+      width: 100%;
+      padding: 110px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .auth-link-abnormal {
+        width: 72px;
+        height: 72px;
+      }
+
+      .auth-link-tip {
+        font-size: 16px;
+        color: #222222;
+        line-height: 22px;
+        margin-top: 30px;
+      }
+
+      .home-btn {
+        padding: 9px 20px;
+        border-radius: 4px;
+        font-size: 14px;
+        line-height: 20px;
+        background-color: #f2f2f2;
+        color: #666;
+        margin-top: 30px;
+        cursor: pointer;
+
+        &:hover {
+          opacity: 0.8;
+        }
+
+        &:active {
+          opacity: 0.6;
+        }
+      }
     }
 
     .lock-box {
@@ -421,6 +485,45 @@ export default {
 
       .content {
         width: 100%;
+      }
+
+      .auth-box {
+        width: 100%;
+        padding: 110px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .auth-link-abnormal {
+          width: 72px;
+          height: 72px;
+        }
+
+        .auth-link-tip {
+          font-size: 16px;
+          color: #222222;
+          line-height: 22px;
+          margin-top: 30px;
+        }
+
+        .home-btn {
+          padding: 9px 20px;
+          border-radius: 4px;
+          font-size: 14px;
+          line-height: 20px;
+          background-color: #f2f2f2;
+          color: #666;
+          margin-top: 30px;
+          cursor: pointer;
+
+          &:hover {
+            opacity: 0.8;
+          }
+
+          &:active {
+            opacity: 0.6;
+          }
+        }
       }
 
       .lock-box {

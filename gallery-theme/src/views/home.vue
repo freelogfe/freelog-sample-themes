@@ -1,6 +1,6 @@
 <template>
   <div class="home-wrapper">
-    <my-header :homeHeader="!searchData.keywords" :mobileSearching="!!(inMobile && searchData.keywords)" />
+    <my-header homeHeader :mobileSearching="!!(inMobile && searchData.keywords)" />
 
     <!-- mobile -->
     <div class="mobile-home-body" v-if="inMobile">
@@ -23,7 +23,7 @@
               :data="item"
               v-for="item in waterfall[waterfallList[list - 1]]"
               :key="item.exhibitId"
-              @click="clickFrame(item.exhibitId)"
+              @click="clickFrame(item)"
             />
           </div>
         </div>
@@ -128,7 +128,7 @@
               :data="item"
               v-for="item in waterfall[waterfallList[list - 1]]"
               :key="item.exhibitId"
-              @click="clickFrame(item.exhibitId)"
+              @click="clickFrame(item)"
             />
           </div>
         </div>
@@ -151,6 +151,7 @@ import { defineAsyncComponent, onActivated, onDeactivated, onUnmounted, reactive
 import { useGetList, useMyRouter, useMyScroll, useMyWaterfall } from "../utils/hooks";
 import { useStore } from "vuex";
 import { ExhibitItem } from "@/api/interface";
+import { showToast } from "../../../comic-theme/src/utils/common";
 
 export default {
   name: "home",
@@ -207,11 +208,18 @@ export default {
         switchPage("/home", query);
       },
 
-      clickFrame(id: string) {
+      clickFrame(item: ExhibitItem) {
+        const { exhibitId, authLinkNormal } = item;
+
+        if (!authLinkNormal) {
+          showToast("授权链异常，无法查看");
+          return;
+        }
+
         if (store.state.inMobile) {
-          switchPage("/detail", { id });
+          switchPage("/detail", { id: exhibitId });
         } else {
-          data.currentId = id;
+          data.currentId = exhibitId;
         }
         store.commit("setData", { key: "listData", value: datasOfGetList.listData.value });
       },
@@ -220,7 +228,7 @@ export default {
         for (let i = 0; i < waterfallList.value.length; i++) {
           const index = waterfall.value[waterfallList.value[i]].findIndex((item: ExhibitItem) => item.exhibitId === id);
           if (index !== -1) {
-            waterfall.value[waterfallList.value[i]][index].isAuth = true;
+            waterfall.value[waterfallList.value[i]][index].authCode = 200;
             break;
           }
         }

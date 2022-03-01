@@ -15,8 +15,18 @@
           <tags :tags="articleData?.tags" />
         </div>
         <div class="article-content">
-          <my-markdown :data="contentInfo" v-if="isAuth === true" />
-          <div class="lock-box" v-if="isAuth === false">
+          <my-markdown
+            :data="contentInfo"
+            v-if="[200, 301].includes(articleData?.authCode) && articleData?.authLinkNormal"
+          />
+
+          <div class="auth-box" v-if="articleData?.authLinkNormal === false">
+            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+            <div class="auth-link-tip">授权链异常，无法查看</div>
+            <div class="home-btn" @click="switchPage('/home')">进入首页</div>
+          </div>
+
+          <div class="lock-box" v-if="articleData?.authCode === 303 && articleData?.authLinkNormal">
             <img class="lock" src="../assets/images/lock.png" />
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
             <div class="get-btn" @click="getAuth()">获取授权</div>
@@ -56,8 +66,18 @@
         </div>
         <div class="divider"></div>
         <div class="article-content">
-          <my-markdown :data="contentInfo" v-if="isAuth === true" />
-          <div class="lock-box" v-if="isAuth === false">
+          <my-markdown
+            :data="contentInfo"
+            v-if="[200, 301].includes(articleData?.authCode) && articleData?.authLinkNormal"
+          />
+
+          <div class="auth-box" v-if="articleData?.authLinkNormal === false">
+            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+            <div class="auth-link-tip">授权链异常，无法查看</div>
+            <div class="home-btn" @click="switchPage('/home')">进入首页</div>
+          </div>
+
+          <div class="lock-box" v-if="articleData?.authCode === 303 && articleData?.authLinkNormal">
             <img class="lock" src="../assets/images/lock.png" />
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
             <div class="get-btn" @click="getAuth()">获取授权</div>
@@ -87,6 +107,7 @@ import { ExhibitItem } from "@/api/interface";
 import {
   addAuth,
   getExhibitAuthStatus,
+  getExhibitAvailable,
   getExhibitFileStream,
   getExhibitInfo,
   getExhibitSignCount,
@@ -112,7 +133,6 @@ export default {
     const datasOfGetList = useGetList();
 
     const data = reactive({
-      isAuth: null as boolean | null,
       articleData: null as ExhibitItem | null,
       contentInfo: null as { content: string; exhibitInfo: ExhibitItem } | null,
       recommendList: [] as ExhibitItem[],
@@ -141,13 +161,20 @@ export default {
       data.articleData = {
         ...exhibitInfo.data.data,
         signCount: signCountData.data.data[0].count,
-      };
+      } as ExhibitItem;
       const recommendList = datasOfGetList.listData.value.filter((item: ExhibitItem) => item.exhibitId !== id);
       data.recommendList = recommendList.filter((_: any, index: number) => index < 4);
 
       const statusInfo = await getExhibitAuthStatus(id);
-      data.isAuth = statusInfo.data.data ? statusInfo.data.data[0].isAuth : false;
-      if (data.isAuth) {
+      if (statusInfo.data.data) data.articleData.authCode = statusInfo.data.data[0].authCode;
+      const authLinkStatusInfo = await getExhibitAvailable(id);
+      if (authLinkStatusInfo.data.data) {
+        data.articleData.authLinkNormal =
+          data.articleData.authCode === 301 ? false : authLinkStatusInfo.data.data[0].isAuth;
+      }
+
+      if ([200, 301].includes(data.articleData.authCode) && data.articleData.authLinkNormal) {
+        // 已签约并且授权链无异常
         const info: any = await getExhibitFileStream(id);
         if (!info) return;
 
@@ -155,8 +182,6 @@ export default {
           content: info.data,
           exhibitInfo: exhibitInfo.data.data,
         };
-      } else {
-        methods.getAuth();
       }
     };
 
@@ -170,7 +195,6 @@ export default {
       () => query.value,
       () => {
         document.documentElement.scroll({ top: 0 });
-        data.isAuth = null;
         data.articleData = null;
         data.contentInfo = null;
         data.recommendList = [];
@@ -258,6 +282,45 @@ export default {
         border-top: 1px solid rgba(0, 0, 0, 0.1);
         padding-top: 20px;
         margin-top: 20px;
+
+        .auth-box {
+          width: 100%;
+          padding: 110px 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+
+          .auth-link-abnormal {
+            width: 72px;
+            height: 72px;
+          }
+
+          .auth-link-tip {
+            font-size: 16px;
+            color: #222222;
+            line-height: 22px;
+            margin-top: 30px;
+          }
+
+          .home-btn {
+            padding: 9px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            line-height: 20px;
+            background-color: #f2f2f2;
+            color: #666;
+            margin-top: 30px;
+            cursor: pointer;
+
+            &:hover {
+              opacity: 0.8;
+            }
+
+            &:active {
+              opacity: 0.6;
+            }
+          }
+        }
 
         .lock-box {
           width: 100%;
@@ -416,6 +479,45 @@ export default {
         font-size: 14px;
         color: #222222;
         line-height: 24px;
+
+        .auth-box {
+          width: 100%;
+          padding: 110px 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+
+          .auth-link-abnormal {
+            width: 72px;
+            height: 72px;
+          }
+
+          .auth-link-tip {
+            font-size: 16px;
+            color: #222222;
+            line-height: 22px;
+            margin-top: 30px;
+          }
+
+          .home-btn {
+            padding: 9px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            line-height: 20px;
+            background-color: #f2f2f2;
+            color: #666;
+            margin-top: 30px;
+            cursor: pointer;
+
+            &:hover {
+              opacity: 0.8;
+            }
+
+            &:active {
+              opacity: 0.6;
+            }
+          }
+        }
 
         .lock-box {
           width: 100%;

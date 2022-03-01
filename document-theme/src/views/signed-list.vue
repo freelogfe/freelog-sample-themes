@@ -7,30 +7,26 @@
         <div class="signed-list-title">已签约文档</div>
 
         <div class="search-box">
-          <input
-            class="search-input input-none"
-            v-model="searchKey"
-            placeholder="搜索"
-            @keyup="search($event)"
-          />
+          <input class="search-input input-none" v-model="searchKey" placeholder="搜索" @keyup="search($event)" />
           <i class="freelog fl-icon-content"></i>
         </div>
       </div>
 
-      <div
-        class="document-box"
-        v-for="item in mySignedList"
-        :key="item.exhibitId"
-        @click="switchPage('/home', { id: item.exhibitId })"
-      >
+      <div class="document-box" v-for="item in mySignedList" :key="item.exhibitId">
         <div class="document-title-box">
+          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="!item.authLinkNormal" />
           <div class="offline" v-if="item.onlineStatus === 0">已下架</div>
-          <div class="document-title" :title="item.exhibitTitle">
+          <div
+            class="document-title"
+            :style="{ opacity: item.authLinkNormal ? 1 : 0.4 }"
+            :title="item.exhibitTitle"
+            @click="clickDocument(item)"
+          >
             {{ item.exhibitTitle }}
           </div>
         </div>
-        <div class="tag" :class="item.isAuth ? 'is-auth' : 'not-auth'">
-          {{ item.isAuth ? "已授权" : "未授权" }}
+        <div class="tag" :class="[200, 301].includes(item.authCode) ? 'is-auth' : 'not-auth'">
+          {{ [200, 301].includes(item.authCode) ? "已授权" : "未授权" }}
         </div>
       </div>
       <div class="tip" v-if="mySignedList.length === 0">暂无数据，快去签约文档吧～</div>
@@ -52,6 +48,8 @@ import { defineAsyncComponent, reactive, toRefs } from "@vue/runtime-core";
 import { useMyRouter, useMySignedList } from "../utils/hooks";
 import { useStore } from "vuex";
 import { callLogin } from "@/api/freelog";
+import { ExhibitItem } from "../api/interface";
+import { showToast } from "../../../comic-theme/src/utils/common";
 
 export default {
   name: "signed-list",
@@ -79,9 +77,21 @@ export default {
           data.searchKey = "";
         }
       },
+
+      // 点击文档
+      clickDocument(item: ExhibitItem) {
+        const { exhibitId, authLinkNormal } = item;
+
+        if (!authLinkNormal) {
+          showToast("授权链异常，无法查看");
+          return;
+        }
+
+        switchPage("/home", { id: exhibitId });
+      },
     };
 
-    return { callLogin, ...toRefs(store.state), switchPage, mySignedList, ...toRefs(data), ...methods };
+    return { callLogin, ...toRefs(store.state), mySignedList, ...toRefs(data), ...methods };
   },
 };
 </script>
@@ -136,6 +146,12 @@ export default {
           width: 0;
           display: flex;
           align-items: center;
+
+          .auth-link-abnormal {
+            width: 16px;
+            height: 16px;
+            margin-right: 5px;
+          }
 
           .offline {
             flex-shrink: 0;
@@ -271,6 +287,12 @@ export default {
           width: 0;
           display: flex;
           align-items: center;
+
+          .auth-link-abnormal {
+            width: 16px;
+            height: 16px;
+            margin-right: 5px;
+          }
 
           .offline {
             flex-shrink: 0;

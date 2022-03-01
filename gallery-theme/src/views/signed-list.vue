@@ -7,12 +7,7 @@
         <div class="signed-list-title">已签约图片/视频</div>
 
         <div class="search-box">
-          <input
-            class="search-input input-none"
-            v-model="searchKey"
-            placeholder="搜索"
-            @keyup="search($event)"
-          />
+          <input class="search-input input-none" v-model="searchKey" placeholder="搜索" @keyup="search($event)" />
           <i class="freelog fl-icon-content"></i>
         </div>
       </div>
@@ -25,7 +20,7 @@
             :data="item"
             v-for="item in waterfall[waterfallList[list - 1]]"
             :key="item.exhibitId"
-            @click="clickFrame(item.exhibitId)"
+            @click="clickFrame(item)"
           />
         </div>
       </div>
@@ -51,6 +46,8 @@ import { useMyRouter, useMySignedList, useMyWaterfall } from "../utils/hooks";
 import { useStore } from "vuex";
 import { onUnmounted, watch } from "vue";
 import { callLogin } from "@/api/freelog";
+import { ExhibitItem } from "../api/interface";
+import { showToast } from "../../../comic-theme/src/utils/common";
 
 export default {
   name: "signed-list",
@@ -83,11 +80,18 @@ export default {
         }
       },
 
-      clickFrame(id: string) {
+      clickFrame(item: ExhibitItem) {
+        const { exhibitId, authLinkNormal } = item;
+
+        if (!authLinkNormal) {
+          showToast("授权链异常，无法查看");
+          return;
+        }
+
         if (store.state.inMobile) {
-          switchPage("/detail", { id });
+          switchPage("/detail", { id: exhibitId });
         } else {
-          data.currentId = id;
+          data.currentId = exhibitId;
         }
         store.commit("setData", { key: "listData", value: mySignedList.value });
       },

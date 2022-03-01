@@ -2,11 +2,15 @@
   <div class="mobile-detail-wrapper" v-if="inMobile">
     <my-header />
 
-    <div class="main-area" key="mainArea" :style="{ height: isAuth === false ? '460px' : contentHeight + 'px' }">
+    <div
+      class="main-area"
+      key="mainArea"
+      :style="{ height: exhibitInfo?.authCode === 303 ? '460px' : contentHeight + 'px' }"
+    >
       <my-loader v-if="loading" />
 
       <transition-group name="content-fade">
-        <template v-if="!loading && isAuth === true">
+        <template v-if="!loading && [200, 301].includes(exhibitInfo?.authCode) && exhibitInfo?.authLinkNormal">
           <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType === 'image'" />
           <video
             :src="content"
@@ -19,7 +23,13 @@
           ></video>
         </template>
 
-        <div class="lock-box" v-if="!loading && isAuth === false">
+        <div class="auth-box" v-if="!loading && !exhibitInfo?.authLinkNormal">
+          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+          <div class="auth-link-tip">授权链异常，无法查看</div>
+          <div class="home-btn" @click="switchPage('/home')">进入首页</div>
+        </div>
+
+        <div class="lock-box" v-if="!loading && exhibitInfo?.authCode === 303 && exhibitInfo?.authLinkNormal">
           <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
           <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
           <div class="get-btn" @click="getAuth()">获取授权</div>
@@ -110,7 +120,9 @@
 
             <transition-group name="content-fade">
               <template v-if="!loading">
-                <template v-if="isAuth === true && contentMode">
+                <template
+                  v-if="[200, 301].includes(exhibitInfo?.authCode) && exhibitInfo?.authLinkNormal && contentMode"
+                >
                   <img
                     :class="{
                       'width-full': contentMode === 1,
@@ -130,7 +142,13 @@
                   ></video>
                 </template>
 
-                <div class="lock-box" v-if="isAuth === false">
+                <div class="auth-box" v-if="!exhibitInfo?.authLinkNormal">
+                  <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+                  <div class="auth-link-tip">授权链异常，无法查看</div>
+                  <div class="home-btn" @click="closePopup()">进入首页</div>
+                </div>
+
+                <div class="lock-box" v-if="exhibitInfo?.authCode === 303 && exhibitInfo?.authLinkNormal">
                   <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
                   <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
                   <div class="get-btn" @click="getAuth()">获取授权</div>
@@ -182,7 +200,13 @@
 import { defineAsyncComponent, onUnmounted, reactive, ref, SetupContext, toRefs, watch } from "vue";
 import { ExhibitItem } from "../api/interface";
 import { useGetList, useMyRouter, useMyWaterfall } from "../utils/hooks";
-import { addAuth, getExhibitAuthStatus, getExhibitFileStream, getExhibitInfo } from "@/api/freelog";
+import {
+  addAuth,
+  getExhibitAuthStatus,
+  getExhibitAvailable,
+  getExhibitFileStream,
+  getExhibitInfo,
+} from "@/api/freelog";
 import { useStore } from "vuex";
 
 export default {
@@ -212,7 +236,6 @@ export default {
       loading: false,
       currentId: "",
       exhibitInfo: null as ExhibitItem | null,
-      isAuth: null as boolean | null,
       content: "",
       contentMode: null as null | number, // 显示模式 1-宽撑满，高自适应 2-高撑满，宽自适应
       contentHeight: 460,
@@ -272,18 +295,28 @@ export default {
       const exhibitInfo = await getExhibitInfo(data.currentId, {
         isLoadVersionProperty: 1,
       });
-      data.exhibitInfo = exhibitInfo.data.data;
+      data.exhibitInfo = exhibitInfo.data.data as ExhibitItem;
 
       const statusInfo = await getExhibitAuthStatus(data.currentId);
-      data.isAuth = statusInfo.data.data ? statusInfo.data.data[0].isAuth : false;
-      if (data.isAuth) {
+      if (statusInfo.data.data) data.exhibitInfo.authCode = statusInfo.data.data[0].authCode;
+      const authLinkStatusInfo = await getExhibitAvailable(data.currentId);
+      if (authLinkStatusInfo.data.data) {
+        data.exhibitInfo.authLinkNormal =
+          data.exhibitInfo.authCode === 301 ? false : authLinkStatusInfo.data.data[0].isAuth;
+      }
+
+      if (!data.exhibitInfo.authLinkNormal) {
+        // 授权链异常
+        data.loading = false;
+      } else if ([200, 301].includes(data.exhibitInfo.authCode)) {
+        // 已签约并且授权链无异常
         const info: any = await getExhibitFileStream(data.currentId, true);
         if (!info) {
           data.loading = false;
           return;
         }
 
-        const resourceType = data.exhibitInfo?.articleInfo.resourceType;
+        const resourceType = data.exhibitInfo.articleInfo.resourceType;
         if (resourceType === "image") {
           const img = new Image();
           img.src = info;
@@ -307,12 +340,13 @@ export default {
             data.loading = false;
           };
         }
-      } else {
+      } else if (data.exhibitInfo.authCode === 303) {
+        // 未签约并且授权链无异常
         data.loading = false;
         methods.getAuth();
       }
 
-      datasOfGetList.getList({ tags: data.exhibitInfo?.tags.join(","), limit: 20 }, true);
+      datasOfGetList.getList({ tags: data.exhibitInfo.tags.join(","), limit: 20 }, true);
     };
 
     // 根据资源宽高比决定显示模式
@@ -372,7 +406,6 @@ export default {
       (cur) => {
         if (cur) {
           data.exhibitInfo = null;
-          data.isAuth = null;
           data.content = "";
           window.addEventListener("keyup", keyup);
           getListNumber();
@@ -475,6 +508,46 @@ export default {
     img,
     video {
       width: 100%;
+    }
+
+    .auth-box {
+      width: 100%;
+      height: 460px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      .auth-link-abnormal {
+        width: 72px;
+        height: 72px;
+      }
+
+      .auth-link-tip {
+        font-size: 16px;
+        color: #222222;
+        line-height: 22px;
+        margin-top: 30px;
+      }
+
+      .home-btn {
+        padding: 9px 20px;
+        border-radius: 4px;
+        font-size: 14px;
+        line-height: 20px;
+        background-color: #f2f2f2;
+        color: #666;
+        margin-top: 30px;
+        cursor: pointer;
+
+        &:hover {
+          opacity: 0.8;
+        }
+
+        &:active {
+          opacity: 0.6;
+        }
+      }
     }
 
     .lock-box {
@@ -804,6 +877,44 @@ export default {
 
       .height-full {
         height: 100%;
+      }
+
+      .auth-box {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .auth-link-abnormal {
+          width: 72px;
+          height: 72px;
+        }
+
+        .auth-link-tip {
+          font-size: 16px;
+          color: #222222;
+          line-height: 22px;
+          margin-top: 30px;
+        }
+
+        .home-btn {
+          padding: 9px 20px;
+          border-radius: 4px;
+          font-size: 14px;
+          line-height: 20px;
+          background-color: #f2f2f2;
+          color: #666;
+          margin-top: 30px;
+          cursor: pointer;
+
+          &:hover {
+            opacity: 0.8;
+          }
+
+          &:active {
+            opacity: 0.6;
+          }
+        }
       }
 
       .lock-box {

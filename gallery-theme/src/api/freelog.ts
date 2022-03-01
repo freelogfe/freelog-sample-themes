@@ -27,6 +27,13 @@ export interface GetSignStatisticsParams {
 }
 
 /**
+ * 获取当前主题id
+ */
+export const getSelfId = () => {
+  return MyWindow.freelogApp.getSelfId();
+};
+
+/**
  * 获取展品列表
  * @param query GetExhibitListByPagingParams
  */
@@ -101,6 +108,14 @@ export const getExhibitDepFileStream = (
  */
 export const getExhibitAuthStatus = async (exhibitIds: string) => {
   return MyWindow.freelogApp.getExhibitAuthStatus(exhibitIds);
+};
+
+/**
+ * 查询展品授权链状态
+ * @param exhibitIds 展品id
+ */
+export const getExhibitAvailable = async (exhibitIds: string) => {
+  return MyWindow.freelogApp.getExhibitAvailalbe(exhibitIds);
 };
 
 /**

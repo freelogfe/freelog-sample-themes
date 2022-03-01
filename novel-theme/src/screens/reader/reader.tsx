@@ -2,9 +2,16 @@ import React, { useContext } from "react";
 import "./reader.scss";
 import Lock from "../../assets/images/lock.png";
 import BgImage from "../../assets/images/reader-bg.png";
+import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
 import { useState, useEffect, useCallback } from "react";
 import { ExhibitItem, ThemeItem } from "../../api/interface";
-import { addAuth, getExhibitAuthStatus, getExhibitFileStream, getExhibitInfo } from "../../api/freelog";
+import {
+  addAuth,
+  getExhibitAuthStatus,
+  getExhibitAvailable,
+  getExhibitFileStream,
+  getExhibitInfo,
+} from "../../api/freelog";
 import { readerThemeList } from "../../api/data";
 import { BackTop } from "../../components/back-top/back-top";
 import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
@@ -97,15 +104,23 @@ const Body = () => {
   const history = useMyHistory();
   const { inMobile, book, id, fontSize, theme } = useContext(readerContext);
   const [content, setContent] = useState<string[]>([]);
-  const [isAuth, setIsAuth] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
+  const [authCode, setAuthCode] = useState<number | null>(null);
+  const [authLinkNormal, setAuthLinkNormal] = useState<boolean | null>(null);
 
   const getContent = useCallback(async () => {
     setLoading(true);
+    let code, authLink;
     const statusInfo = await getExhibitAuthStatus(id);
-    const isAuth = statusInfo.data.data ? statusInfo.data.data[0].isAuth : false;
-    setIsAuth(isAuth);
-    if (isAuth) {
+    if (statusInfo.data.data) code = statusInfo.data.data[0].authCode;
+    const authLinkStatusInfo = await getExhibitAvailable(id);
+    if (authLinkStatusInfo.data.data) {
+      authLink = code === 301 ? false : authLinkStatusInfo.data.data[0].isAuth;
+    }
+    setAuthCode(code);
+    setAuthLinkNormal(authLink);
+    if ([200, 301].includes(code) && authLink) {
+      // 已签约并且授权链无异常
       const info: any = await getExhibitFileStream(id);
       if (!info) {
         setLoading(false);
@@ -113,13 +128,9 @@ const Body = () => {
       }
       const content = info.data.split(/\n/g).filter((item: string) => !!item);
       setContent(content);
-      setLoading(false);
-    } else {
-      setLoading(false);
-      const authResult = await addAuth(id);
-      const { status } = authResult;
-      if (status === 0) getContent();
     }
+    setLoading(false);
+    // eslint-disable-next-line
   }, [id]);
 
   const getAuth = async () => {
@@ -147,7 +158,8 @@ const Body = () => {
           lineHeight: fontSize + 14 + "px",
         }}
       >
-        {isAuth === true &&
+        {authCode &&
+          [200, 301].includes(authCode) &&
           content.map((item, index) => {
             return (
               <p className="paragraph" key={item + index}>
@@ -155,7 +167,16 @@ const Body = () => {
               </p>
             );
           })}
-        {isAuth === false && (
+        {authLinkNormal === false && (
+          <div className="auth-box">
+            <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
+            <div className="auth-link-tip">授权链异常，无法查看</div>
+            <div className="home-btn" onClick={() => history.switchPage("/home/全部")}>
+              进入首页
+            </div>
+          </div>
+        )}
+        {authCode === 303 && authLinkNormal === true && (
           <div className="lock-box">
             <img className="lock" src={Lock} alt="未授权" />
             <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
@@ -194,7 +215,8 @@ const Body = () => {
             lineHeight: fontSize + 14 + "px",
           }}
         >
-          {isAuth === true &&
+          {authCode &&
+            [200, 301].includes(authCode) &&
             content.map((item, index) => {
               return (
                 <p className="paragraph" key={item + index}>
@@ -202,7 +224,16 @@ const Body = () => {
                 </p>
               );
             })}
-          {isAuth === false && (
+          {authLinkNormal === false && (
+            <div className="auth-box">
+              <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
+              <div className="auth-link-tip">授权链异常，无法查看</div>
+              <div className="home-btn" onClick={() => history.switchPage("/home/全部")}>
+                进入首页
+              </div>
+            </div>
+          )}
+          {authCode === 303 && authLinkNormal === true && (
             <div className="lock-box">
               <img className="lock" src={Lock} alt="未授权" />
               <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>

@@ -1,9 +1,10 @@
 import React, { useContext, useRef } from "react";
 import "./detail.scss";
+import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
 import { useState, useEffect, useCallback } from "react";
 import { Header } from "../../components/header/header";
 import { ExhibitItem } from "../../api/interface";
-import { getExhibitInfo, getExhibitSignCount } from "../../api/freelog";
+import { getExhibitAuthStatus, getExhibitAvailable, getExhibitInfo, getExhibitSignCount } from "../../api/freelog";
 import { formatDate } from "../../utils/common";
 import { Tags } from "../../components/tags/tags";
 import { useMyHistory, useMyShelf } from "../../utils/hooks";
@@ -23,13 +24,25 @@ export const DetailScreen = (props: any) => {
   const [directoryShow, setDirectoryShow] = useState(false);
 
   const getBookInfo = useCallback(async () => {
+    let bookInfo = {} as ExhibitItem;
     const exhibitInfo = await getExhibitInfo(id, { isLoadVersionProperty: 1 });
     const signCountData = await getExhibitSignCount(id);
-
-    setBook({
+    bookInfo = {
       ...exhibitInfo.data.data,
       signCount: signCountData?.data.data[0]?.count,
-    });
+    };
+    const statusInfo = await getExhibitAuthStatus(id);
+    if (statusInfo.data.data) bookInfo.authCode = statusInfo.data.data[0].authCode;
+    if (bookInfo.authCode === 301) {
+      bookInfo.authLinkNormal = false;
+      return;
+    }
+    const authLinkStatusInfo = await getExhibitAvailable(id);
+    if (authLinkStatusInfo.data.data) {
+      bookInfo.authLinkNormal = bookInfo.authCode === 301 ? false : authLinkStatusInfo.data.data[0].isAuth;
+    }
+
+    setBook(bookInfo);
   }, [id]);
 
   useEffect(() => {
@@ -95,6 +108,13 @@ const BookBody = () => {
   return inMobile ? (
     // mobile
     <div className="mobile-content">
+      {/* 授权链异常提示 */}
+      {book?.authLinkNormal === false && (
+        <div className="auth-link-abnormal-tip">
+          <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
+          <div className="tip-text">授权链异常，无法查看</div>
+        </div>
+      )}
       {/* 书籍信息 */}
       <div className="book-info">
         <div className="book-base-info">
@@ -133,7 +153,10 @@ const BookBody = () => {
         </div>
 
         <div className="operate-btns">
-          <div className="btn main-btn mobile" onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}>
+          <div
+            className={`btn main-btn mobile ${book?.authLinkNormal === false && "disabled"}`}
+            onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}
+          >
             立即阅读
           </div>
           <div className={`btn ${isCollected ? "delete" : "collect-btn mobile"}`} onClick={() => operateShelf(book)}>
@@ -193,6 +216,13 @@ const BookBody = () => {
     <div className="content">
       {book && (
         <div className="content-box">
+          {/* 授权链异常提示 */}
+          {book?.authLinkNormal === false && (
+            <div className="auth-link-abnormal-tip">
+              <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
+              <div className="tip-text">授权链异常，无法查看</div>
+            </div>
+          )}
           {/* 书籍信息 */}
           <div className="book-info">
             <div className="book-cover">
@@ -214,7 +244,10 @@ const BookBody = () => {
 
               <div className="btns-box">
                 <div className="operate-btns">
-                  <div className="btn main-btn" onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}>
+                  <div
+                    className={`btn main-btn ${book?.authLinkNormal === false && "disabled"}`}
+                    onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}
+                  >
                     立即阅读
                   </div>
                   <div

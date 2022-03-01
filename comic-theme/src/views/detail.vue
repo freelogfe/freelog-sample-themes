@@ -4,6 +4,11 @@
 
     <!-- mobile -->
     <div class="mobile-content" v-if="inMobile">
+      <div class="auth-link-abnormal-tip" v-if="comicInfo?.authLinkNormal === false">
+        <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+        <div class="tip-text">授权链异常，无法查看</div>
+      </div>
+
       <!-- 书籍信息 -->
       <div class="comic-info">
         <div class="comic-base-info">
@@ -49,7 +54,11 @@
         </div>
 
         <div class="operate-btns">
-          <div class="btn main-btn mobile" @click="switchPage('/reader', { id: comicInfo?.exhibitId })">
+          <div
+            class="btn main-btn mobile"
+            :class="{ disabled: comicInfo.authLinkNormal === false }"
+            @click="switchPage('/reader', { id: comicInfo?.exhibitId })"
+          >
             立即阅读
           </div>
           <div class="btn" :class="isCollected ? 'delete' : 'collect-btn mobile'" @click="operateShelf(comicInfo)">
@@ -109,6 +118,11 @@
 
     <!-- PC -->
     <div class="content" v-if="!inMobile">
+      <div class="auth-link-abnormal-tip" v-if="comicInfo?.authLinkNormal === false">
+        <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+        <div class="tip-text">授权链异常，无法查看</div>
+      </div>
+
       <div class="content-box">
         <!-- 书籍信息 -->
         <div class="comic-info">
@@ -138,14 +152,14 @@
 
             <div class="btns-box">
               <div class="operate-btns">
-                <div class="btn main-btn" @click="switchPage('/reader', { id: comicInfo?.exhibitId })">
+                <div
+                  class="btn main-btn"
+                  :class="{ disabled: comicInfo.authLinkNormal === false }"
+                  @click="switchPage('/reader', { id: comicInfo?.exhibitId })"
+                >
                   立即阅读
                 </div>
-                <div
-                  class="btn"
-                  :class="isCollected ? 'warning-btn' : 'collect-btn'"
-                  @click="operateShelf(comicInfo)"
-                >
+                <div class="btn" :class="isCollected ? 'warning-btn' : 'collect-btn'" @click="operateShelf(comicInfo)">
                   {{ isCollected ? "取消收藏" : "加入收藏" }}
                 </div>
               </div>
@@ -216,7 +230,7 @@
 import { useMyRouter, useMyShelf } from "../utils/hooks";
 import { defineAsyncComponent, reactive, ref, toRefs, watch } from "@vue/runtime-core";
 import { ExhibitItem } from "@/api/interface";
-import { getExhibitInfo, getExhibitSignCount } from "@/api/freelog";
+import { getExhibitInfo, getExhibitSignCount, getExhibitAuthStatus, getExhibitAvailable } from "@/api/freelog";
 import { useStore } from "vuex";
 import { formatDate, showToast } from "@/utils/common";
 import { watchEffect } from "vue";
@@ -275,6 +289,17 @@ export default {
       };
       data.directory = Array.from({ length: 12 }, () => data.comicInfo.exhibitTitle || "目录名称");
       data.href = (window.location as any).currentURL;
+      const statusInfo = await getExhibitAuthStatus(id);
+      if (statusInfo.data.data) data.comicInfo.authCode = statusInfo.data.data[0].authCode;
+      if (data.comicInfo.authCode === 301) {
+        data.comicInfo.authLinkNormal = false;
+        return;
+      }
+      const authLinkStatusInfo = await getExhibitAvailable(id);
+      if (authLinkStatusInfo.data.data) {
+        data.comicInfo.authLinkNormal =
+          data.comicInfo.authCode === 301 ? false : authLinkStatusInfo.data.data[0].isAuth;
+      }
     };
     getComicInfo(id);
 
@@ -314,6 +339,29 @@ export default {
   .mobile-content {
     width: 100%;
     padding-bottom: 98px;
+
+    .auth-link-abnormal-tip {
+      width: 100%;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      box-sizing: border-box;
+      background: #fbf5ea;
+      border-radius: 4px;
+      animation: fade-in 0.5s linear;
+
+      .auth-link-abnormal {
+        width: 16px;
+        height: 16px;
+      }
+
+      .tip-text {
+        font-size: 14px;
+        color: #e9a923;
+        margin-left: 5px;
+      }
+    }
 
     .comic-info {
       width: 100%;
@@ -462,6 +510,11 @@ export default {
             &:active {
               background: #ffe2e4;
             }
+          }
+
+          &.disabled {
+            opacity: 0.4;
+            pointer-events: none;
           }
         }
       }
@@ -637,6 +690,31 @@ export default {
     padding-top: 40px;
     padding-bottom: 148px;
 
+    .auth-link-abnormal-tip {
+      width: 920px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      box-sizing: border-box;
+      background: #fbf5ea;
+      border-radius: 4px;
+      margin-top: -15px;
+      margin-bottom: 25px;
+      animation: fade-in 0.5s linear;
+
+      .auth-link-abnormal {
+        width: 16px;
+        height: 16px;
+      }
+
+      .tip-text {
+        font-size: 14px;
+        color: #e9a923;
+        margin-left: 5px;
+      }
+    }
+
     .content-box {
       width: 920px;
 
@@ -735,6 +813,11 @@ export default {
                   &:hover {
                     background: #ffe2e4;
                   }
+                }
+
+                &.disabled {
+                  opacity: 0.4;
+                  pointer-events: none;
                 }
               }
             }

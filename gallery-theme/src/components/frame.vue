@@ -18,7 +18,7 @@
       v-if="inMobile"
     >
       <div class="cover-box">
-        <img class="image" v-lazy="data.coverImages[0]" />
+        <img class="image" :style="{ opacity: data.authLinkNormal ? 1 : 0.4 }" v-lazy="data.coverImages[0]" />
 
         <!-- 下架标识 -->
         <div class="offline" v-if="data.onlineStatus === 0">已下架</div>
@@ -26,42 +26,15 @@
         <!-- 视频遮罩 -->
         <div class="video-modal" v-if="data.articleInfo.resourceType === 'video'">
           <img class="video-image" src="../assets/images/video.png" />
-
-          <div class="video-bar">
-            <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
-              {{ isAuth ? "已授权" : "未授权" }}
-            </div>
-            <div class="lock-circle" v-if="!isAuth">
-              <img class="lock" src="../assets/images/mini-lock.png" />
-            </div>
-            <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
-          </div>
         </div>
 
-        <!-- 毛玻璃图片（未授权） -->
-        <!-- <div class="filter-modal" v-if="!isAuth">
-          <div class="filter-modal-body">
-            <div class="img-box">
-              <img class="img" src="../assets/images/video.png" v-if="data.articleInfo.resourceType === 'video'" />
-              <img class="img" src="../assets/images/lock.png" />
-            </div>
-
-            <div class="filter-bar">
-              <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
-                {{ isAuth ? "已授权" : "未授权" }}
-              </div>
-              <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
-            </div>
-          </div>
-        </div> -->
-
-        <!-- 默认状态签约量 -->
-        <div class="normal-bar" v-if="data.articleInfo.resourceType === 'image'">
-          <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
-            {{ isAuth ? "已授权" : "未授权" }}
-          </div>
+        <!-- 签约量 -->
+        <div class="normal-bar">
           <div class="lock-circle" v-if="!isAuth">
             <img class="lock" src="../assets/images/mini-lock.png" />
+          </div>
+          <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
+            {{ isAuth ? "已授权" : "未授权" }}
           </div>
           <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
         </div>
@@ -70,6 +43,7 @@
       <!-- 资源信息 -->
       <div class="frame-info">
         <div class="title">
+          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="!data.authLinkNormal" />
           {{ data.exhibitTitle }}
         </div>
         <tags :tags="data.tags" v-if="data.tags.length" />
@@ -90,7 +64,7 @@
       @mouseleave="modalShow = false"
       v-if="!inMobile"
     >
-      <img class="image" v-lazy="data.coverImages[0]" />
+      <img class="image" :style="{ opacity: data.authLinkNormal ? 1 : 0.4 }" v-lazy="data.coverImages[0]" />
 
       <!-- 下架标识 -->
       <div class="offline" v-if="data.onlineStatus === 0">已下架</div>
@@ -99,46 +73,18 @@
       <transition name="fade">
         <div class="video-modal" v-if="data.articleInfo.resourceType === 'video' && !modalShow">
           <img class="video-image" src="../assets/images/video.png" />
-
-          <div class="video-bar">
-            <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
-              {{ isAuth ? "已授权" : "未授权" }}
-            </div>
-            <div class="lock-circle" v-if="!isAuth">
-              <img class="lock" src="../assets/images/mini-lock.png" />
-            </div>
-            <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
-          </div>
         </div>
       </transition>
 
-      <!-- 毛玻璃图片（未授权） -->
-      <!-- <div class="filter-modal" v-if="!isAuth">
-        <transition name="fade">
-          <div class="filter-modal-body" v-show="!modalShow">
-            <div class="img-box">
-              <img class="img" src="../assets/images/video.png" v-if="data.articleInfo.resourceType === 'video'" />
-              <img class="img" src="../assets/images/lock.png" />
-            </div>
-
-            <div class="filter-bar">
-              <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
-                {{ isAuth ? "已授权" : "未授权" }}
-              </div>
-              <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
-            </div>
-          </div>
-        </transition>
-      </div> -->
-
-      <!-- 默认状态签约量 -->
+      <!-- 签约量 -->
       <transition name="fade">
-        <div class="normal-bar" v-if="data.articleInfo.resourceType === 'image' && !modalShow">
-          <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
-            {{ isAuth ? "已授权" : "未授权" }}
-          </div>
+        <div class="normal-bar" v-if="!modalShow">
+          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="!data.authLinkNormal" />
           <div class="lock-circle" v-if="!isAuth">
             <img class="lock" src="../assets/images/mini-lock.png" />
+          </div>
+          <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
+            {{ isAuth ? "已授权" : "未授权" }}
           </div>
           <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
         </div>
@@ -152,16 +98,16 @@
         <div class="modal-content" v-if="modalShow">
           <div class="img-box">
             <img class="img" src="../assets/images/video.png" v-if="data.articleInfo.resourceType === 'video'" />
-            <!-- <img class="img" src="../assets/images/lock.png" @click.stop="getAuth(data.exhibitId)" v-if="!isAuth" /> -->
           </div>
           <div class="title">
+            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="!data.authLinkNormal" />
             <img
               class="lock"
               src="../assets/images/mini-lock.png"
               @click.stop="getAuth(data.exhibitId)"
               v-if="!isAuth"
             />
-            {{ data.exhibitTitle }}
+            <span>{{ data.exhibitTitle }}</span>
           </div>
           <tags :tags="data.tags" v-if="data.tags.length" />
           <div class="footer-info">
@@ -180,7 +126,7 @@
 </template>
 
 <script lang="ts">
-import { reactive, toRefs } from "@vue/reactivity";
+import { computed, reactive, toRefs } from "@vue/reactivity";
 import { defineAsyncComponent, watch } from "vue";
 import { addAuth } from "@/api/freelog";
 import { ExhibitItem } from "@/api/interface";
@@ -200,8 +146,9 @@ export default {
     const store = useStore();
     const data = reactive({
       modalShow: false,
-      isAuth: props.data.isAuth || false,
+      authCode: props.data.authCode,
     });
+    const isAuth = computed(() => [200, 301].includes(data.authCode));
 
     const methods = {
       // 获取头像
@@ -213,14 +160,14 @@ export default {
       async getAuth(id: string) {
         const authResult = await addAuth(id);
         const { status } = authResult;
-        if (status === 0) data.isAuth = true;
+        if (status === 0) data.authCode = 200;
       },
     };
 
     watch(
-      () => props.data.isAuth,
+      () => props.data.authCode,
       (cur) => {
-        data.isAuth = cur;
+        data.authCode = cur;
       }
     );
 
@@ -228,6 +175,7 @@ export default {
       getSignCount,
       ...toRefs(store.state),
       ...toRefs(data),
+      isAuth,
       ...methods,
     };
   },
@@ -308,67 +256,10 @@ export default {
         justify-content: center;
 
         .video-image {
+          position: sticky;
+          bottom: 54px;
           width: 48px;
           height: 48px;
-        }
-
-        .video-bar {
-          margin-top: 15px;
-          display: flex;
-        }
-      }
-
-      .filter-modal {
-        position: relative;
-        width: 100%;
-        height: var(--height);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 10px;
-        overflow: hidden;
-
-        &::before {
-          content: "";
-          position: absolute;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          top: 0;
-          filter: blur(10px);
-          background-image: var(--url);
-          background-size: cover;
-        }
-
-        .filter-modal-body {
-          position: absolute;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          top: 0;
-          background-color: rgba(0, 0, 0, 0.25);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-
-          .img-box {
-            display: flex;
-
-            .img {
-              width: 48px;
-              height: 48px;
-
-              & + .img {
-                margin-left: 10px;
-              }
-            }
-          }
-
-          .filter-bar {
-            margin-top: 15px;
-            display: flex;
-          }
         }
       }
     }
@@ -387,6 +278,14 @@ export default {
         -webkit-line-clamp: 2;
         overflow: hidden;
         word-break: break-all;
+
+        .auth-link-abnormal {
+          width: 16px;
+          height: 16px;
+          margin-bottom: -2px;
+          margin-right: 5px;
+          display: inline-block;
+        }
       }
 
       .tags-wrapper {
@@ -465,57 +364,6 @@ export default {
         width: 64px;
         height: 64px;
       }
-
-      .video-bar {
-        display: flex;
-        margin-top: 30px;
-      }
-    }
-
-    .filter-modal {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      &::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        filter: blur(10px);
-        background-image: var(--url);
-        background-size: cover;
-      }
-
-      .filter-modal-body {
-        position: absolute;
-        inset: 0;
-        background-color: rgba(0, 0, 0, 0.25);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-
-        .img-box {
-          display: flex;
-
-          .img {
-            width: 64px;
-            height: 64px;
-
-            & + .img {
-              margin-left: 20px;
-            }
-          }
-        }
-
-        .filter-bar {
-          margin-top: 30px;
-          display: flex;
-        }
-      }
     }
 
     .modal {
@@ -552,13 +400,22 @@ export default {
       .title {
         font-size: 16px;
         line-height: 22px;
-        display: flex;
-        align-items: center;
+        word-break: break-all;
+
+        .auth-link-abnormal {
+          width: 16px;
+          height: 16px;
+          margin-right: 5px;
+          display: inline-block;
+          margin-bottom: -2px;
+        }
 
         .lock {
           width: 14px;
           height: 14px;
           margin-right: 5px;
+          display: inline-block;
+          margin-bottom: -1px;
         }
       }
 
@@ -610,23 +467,30 @@ export default {
     left: 0;
     right: 0;
     display: flex;
-    justify-content: center;
-  }
-
-  .lock-circle {
-    width: 24px;
-    height: 24px;
-    background: rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(6px);
-    border-radius: 50%;
-    display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 5px;
 
-    .lock {
-      width: 12px;
-      height: 12px;
+    .auth-link-abnormal {
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
+    }
+
+    .lock-circle {
+      width: 24px;
+      height: 24px;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(6px);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 5px;
+
+      .lock {
+        width: 12px;
+        height: 12px;
+      }
     }
   }
 }

@@ -1,10 +1,12 @@
 import "./novel.scss";
 import Lock from "../../assets/images/mini-lock.png";
+import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
 import { ExhibitItem } from "../../api/interface";
 import { useMyHistory } from "../../utils/hooks";
 import { Tags } from "../tags/tags";
 import { useContext } from "react";
 import { globalContext } from "../../router";
+import { showToast } from "../toast/toast";
 
 export const Novel = (props: {
   mode?: number; // 1-默认首页 2-书架 3-签约记录 4-移动端首页书架
@@ -14,64 +16,89 @@ export const Novel = (props: {
   const { mode = 1, data, operateShelf } = props;
   const { inMobile } = useContext(globalContext);
   const history = useMyHistory();
+  const toPath = (path: string) => {
+    if (!data.authLinkNormal) {
+      showToast("授权链异常，无法查看");
+      return;
+    }
+
+    history.switchPage(path + data.exhibitId);
+  };
 
   return mode === 4 ? (
     // 移动端书架小说组件
-    <div className="mobile-shelf-novel-wrapper" onClick={() => history.switchPage("/detail/" + data.exhibitId)}>
+    <div className="mobile-shelf-novel-wrapper" onClick={() => toPath("/detail/")}>
       <div className="book-cover-box">
-        <img className="book-cover" src={data.coverImages[0]} alt={data.exhibitTitle} />
+        <img
+          className={`book-cover ${data.authLinkNormal === false && "opacity-40p"}`}
+          src={data.coverImages[0]}
+          alt={data.exhibitTitle}
+        />
         {data.onlineStatus === 0 && <div className="offline">已下架</div>}
       </div>
 
       <div className="book-name" title={data.exhibitTitle}>
-        {data.exhibitTitle}
+        {data.authLinkNormal === false && (
+          <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
+        )}
+        <div className={`name ${data.authLinkNormal === false && "opacity-40p"}`}>{data.exhibitTitle}</div>
       </div>
 
-      <div className="book-author">{data.articleInfo.articleOwnerName}</div>
+      <div className={`book-author ${data.authLinkNormal === false && "opacity-40p"}`}>
+        {data.articleInfo.articleOwnerName}
+      </div>
     </div>
   ) : (
     // 普通小说组件
-    <div
-      className={`novel-wrapper ${inMobile ? "in-mobile" : "in-pc"}`}
-      onClick={() => history.switchPage("/detail/" + data.exhibitId)}
-    >
+    <div className={`novel-wrapper ${inMobile ? "in-mobile" : "in-pc"}`} onClick={() => toPath("/detail/")}>
       <div className="novel-content">
         <div className="book-cover-box">
-          <img className="book-cover" src={data.coverImages[0]} alt={data.exhibitTitle} />
+          <img
+            className={`book-cover ${data.authLinkNormal === false && "opacity-40p"}`}
+            src={data.coverImages[0]}
+            alt={data.exhibitTitle}
+          />
           {data.onlineStatus === 0 && <div className="offline">已下架</div>}
         </div>
 
         <div className={`book-info ${mode === 3 && inMobile && "auth-book"}`}>
           <div className="book-name-box" title={data.exhibitTitle}>
-            {mode !== 3 && !data.isAuth && <img className="lock" src={Lock} alt="未授权" />}
-            <div className="book-name">{data.exhibitTitle}</div>
-            {mode === 3 && data.isAuth && !inMobile && <div className="tag is-auth">已授权</div>}
-            {mode === 3 && !data.isAuth && !inMobile && <div className="tag not-auth">未授权</div>}
+            {data.authLinkNormal === false && (
+              <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
+            )}
+            {mode !== 3 && data.authCode === 303 && <img className="lock" src={Lock} alt="未授权" />}
+            <div className={`book-name ${data.authLinkNormal === false && "opacity-40p"}`}>{data.exhibitTitle}</div>
+            {mode === 3 && [200, 301].includes(data.authCode) && !inMobile && <div className="tag is-auth">已授权</div>}
+            {mode === 3 && data.authCode === 303 && !inMobile && <div className="tag not-auth">未授权</div>}
           </div>
 
-          <div className="book-author">{data.articleInfo.articleOwnerName}</div>
+          <div className={`book-author ${data.authLinkNormal === false && "opacity-40p"}`}>
+            {data.articleInfo.articleOwnerName}
+          </div>
 
           {!(mode === 3 && inMobile) && (
-            <div className="tags">
+            <div className={`tags ${data.authLinkNormal === false && "opacity-40p"}`}>
               <Tags data={data.tags} />
             </div>
           )}
 
           {mode === 3 && inMobile && (
-            <div className={`auth-tag ${data.isAuth ? "is-auth" : "not-auth"}`}>
-              {data.isAuth ? "已授权" : "未授权"}
+            <div className={`auth-tag ${[200, 301].includes(data.authCode) ? "is-auth" : "not-auth"}`}>
+              {[200, 301].includes(data.authCode) ? "已授权" : "未授权"}
             </div>
           )}
         </div>
 
-        {!(mode === 3 && inMobile) && <i className="freelog fl-icon-zhankaigengduo"></i>}
+        {!(mode === 3 && inMobile) && (
+          <i className={`freelog fl-icon-zhankaigengduo ${data.authLinkNormal === false && "opacity-40p"}`}></i>
+        )}
 
         {[2, 3].includes(mode) && (
           <div
-            className="main-btn btn"
+            className={`main-btn btn ${data.authLinkNormal === false && "disabled"}`}
             onClick={(e) => {
               e.stopPropagation();
-              history.switchPage(`/reader/${data?.exhibitId}`);
+              toPath("/reader/");
             }}
           >
             立即阅读

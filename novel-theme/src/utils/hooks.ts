@@ -8,6 +8,7 @@ import {
   getExhibitAuthStatus,
   callLogin,
   getSignStatistics,
+  getExhibitAvailable,
 } from "../api/freelog";
 import { showToast } from "../components/toast/toast";
 import { globalContext } from "../router";
@@ -46,9 +47,17 @@ export const useMyShelf = (id?: string) => {
       const ids = idList.join(",");
       const statusInfo = await getExhibitAuthStatus(ids);
       if (statusInfo.data.data) {
-        statusInfo.data.data.forEach((item: { exhibitId: string; isAuth: boolean }) => {
+        statusInfo.data.data.forEach((item: { exhibitId: string; authCode: number }) => {
           const index = list.data.data.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.exhibitId);
-          list.data.data[index].isAuth = item.isAuth;
+          list.data.data[index].authCode = item.authCode;
+        });
+      }
+      const authLinkStatusInfo = await getExhibitAvailable(ids);
+      if (authLinkStatusInfo.data.data) {
+        authLinkStatusInfo.data.data.forEach((item: { exhibitId: string; isAuth: boolean }) => {
+          const index = list.data.data.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.exhibitId);
+          // 全链路授权码为301时，必定是授权链出错
+          list.data.data[index].authLinkNormal = list.data.data[index].authCode === 301 ? false : item.isAuth;
         });
       }
     }
@@ -104,7 +113,6 @@ export const useMyShelf = (id?: string) => {
 export const useMySignedList = () => {
   interface SignedItem {
     subjectId: string;
-    isAuth: boolean;
   }
 
   const { userData } = useContext(globalContext);
@@ -130,10 +138,21 @@ export const useMySignedList = () => {
     const queryParams: GetExhibitListByIdParams = { exhibitIds };
     const list = await getExhibitListById(queryParams);
     if (list.data.data.length !== 0) {
-      list.data.data.forEach((item: ExhibitItem) => {
-        const signedItem = signedList.data.data.find((listItem: SignedItem) => listItem.subjectId === item.exhibitId);
-        item.isAuth = signedItem.isAuth;
-      });
+      const statusInfo = await getExhibitAuthStatus(exhibitIds);
+      if (statusInfo.data.data) {
+        statusInfo.data.data.forEach((item: { exhibitId: string; authCode: number }) => {
+          const index = list.data.data.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.exhibitId);
+          list.data.data[index].authCode = item.authCode;
+        });
+      }
+      const authLinkStatusInfo = await getExhibitAvailable(exhibitIds);
+      if (authLinkStatusInfo.data.data) {
+        authLinkStatusInfo.data.data.forEach((item: { exhibitId: string; isAuth: boolean }) => {
+          const index = list.data.data.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.exhibitId);
+          // 全链路授权码为301时，必定是授权链出错
+          list.data.data[index].authLinkNormal = list.data.data[index].authCode === 301 ? false : item.isAuth;
+        });
+      }
     }
     setMySignedList(list.data.data.filter((item: ExhibitItem) => item.articleInfo.resourceType !== "theme"));
   };

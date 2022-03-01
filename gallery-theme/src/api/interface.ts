@@ -10,6 +10,8 @@ export interface ExhibitItem {
   createDate: string;
   updateDate: string;
   signCount: number;
+  authCode: number;
+  authLinkNormal: boolean;
   isAuth: boolean;
   height: number;
 }

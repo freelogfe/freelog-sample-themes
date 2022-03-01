@@ -1,55 +1,68 @@
 <template>
   <div class="article-wrapper">
     <!-- mobile -->
-    <div class="mobile-article-wrapper" @click="switchPage('/content', { id: data.exhibitId })" v-if="inMobile">
+    <div class="mobile-article-wrapper" @click="clickArticle()" v-if="inMobile">
       <div class="article-cover-box" v-if="selfConfig.articleCover === '显示'">
-        <img class="article-cover" :src="data.coverImages[0]" :alt="data.exhibitTitle" />
+        <img
+          class="article-cover"
+          :class="{ 'opacity-40p': !data.authLinkNormal }"
+          :src="data.coverImages[0]"
+          :alt="data.exhibitTitle"
+        />
         <div class="offline" v-if="data.onlineStatus === 0 && inSignedList">已下架</div>
       </div>
 
       <div class="article-info">
         <div class="article-title" :class="{ 'one-line': inSignedList }">
-          <img class="lock" src="../assets/images/mini-lock.png" v-if="!inSignedList && !data.isAuth" />
-          {{ data.exhibitTitle }}
+          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="!data.authLinkNormal" />
+          <img class="lock" src="../assets/images/mini-lock.png" v-if="!inSignedList && data.authCode === 303" />
+          <span :class="{ 'opacity-40p': !data.authLinkNormal }">{{ data.exhibitTitle }}</span>
         </div>
-        <div class="other-info" v-if="!inSignedList">
+        <div class="other-info" :class="{ 'opacity-40p': !data.authLinkNormal }" v-if="!inSignedList">
           <div class="info">{{ formatDate(data.createDate) }}</div>
           <div class="info">{{ data.signCount || 0 }}人已签约</div>
         </div>
         <template v-if="inSignedList">
-          <div class="time-signcount">
+          <div class="time-signcount" :class="{ 'opacity-40p': !data.authLinkNormal }">
             <div class="info">{{ formatDate(data.createDate) }}</div>
             <div class="divider"></div>
             <div class="info">{{ data.signCount || 0 }}人已签约</div>
           </div>
-          <div class="tag is-auth" v-if="data.isAuth">已授权</div>
-          <div class="tag not-auth" v-if="!data.isAuth">未授权</div>
+          <div class="tag is-auth" v-if="[200, 301].includes(data.authCode)">已授权</div>
+          <div class="tag not-auth" v-if="data.authCode === 303">未授权</div>
         </template>
       </div>
     </div>
 
     <!-- PC -->
     <div class="pc-article-wrapper" v-if="!inMobile">
-      <div
-        class="article-cover-box"
-        @click="switchPage('/content', { id: data.exhibitId })"
-        v-if="selfConfig.articleCover === '显示'"
-      >
-        <img class="article-cover" :src="data.coverImages[0]" :alt="data.exhibitTitle" />
+      <div class="article-cover-box" @click="clickArticle()" v-if="selfConfig.articleCover === '显示'">
+        <img
+          class="article-cover"
+          :class="{ 'opacity-40p': !data.authLinkNormal }"
+          :src="data.coverImages[0]"
+          :alt="data.exhibitTitle"
+        />
         <div class="offline" v-if="data.onlineStatus === 0 && inSignedList">已下架</div>
       </div>
 
       <div class="article-info">
         <div class="article-title">
-          <img class="lock" src="../assets/images/mini-lock.png" v-if="!inSignedList && !data.isAuth" />
-          <div class="title" :title="data.exhibitTitle" @click="switchPage('/content', { id: data.exhibitId })">
+          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="!data.authLinkNormal" />
+          <img class="lock" src="../assets/images/mini-lock.png" v-if="!inSignedList && data.authCode === 303" />
+          <div
+            class="title"
+            :class="{ 'opacity-40p': !data.authLinkNormal }"
+            :title="data.exhibitTitle"
+            @click="clickArticle()"
+          >
             {{ data.exhibitTitle }}
           </div>
-          <div class="tag is-auth" v-if="inSignedList && data.isAuth">已授权</div>
-          <div class="tag not-auth" v-if="inSignedList && !data.isAuth">未授权</div>
+          <div class="tag is-auth" v-if="inSignedList && [200, 301].includes(data.authCode)">已授权</div>
+          <div class="tag not-auth" v-if="inSignedList && data.authCode === 303">未授权</div>
         </div>
-        <div class="article-intro">{{ data.exhibitTitle }}</div>
-        <div class="other-info">
+        <div class="article-intro" :class="{ 'opacity-40p': !data.authLinkNormal }">{{ data.exhibitTitle }}</div>
+        <div class="other-info" :class="{ 'opacity-40p': !data.authLinkNormal }">
           <div class="info">{{ formatDate(data.createDate) }}</div>
           <div class="divider"></div>
           <div class="info">{{ data.signCount || 0 }}人已签约</div>
@@ -67,6 +80,8 @@ import { formatDate } from "@/utils/common";
 import { defineAsyncComponent, toRefs } from "vue";
 import { useMyRouter } from "@/utils/hooks";
 import { useStore } from "vuex";
+import { ExhibitItem } from "../api/interface";
+import { showToast } from "../../../comic-theme/src/utils/common";
 
 export default {
   name: "my-article",
@@ -77,13 +92,23 @@ export default {
 
   props: ["data", "inSignedList"],
 
-  setup() {
+  setup(props: { data: ExhibitItem }) {
     const store = useStore();
     const { switchPage } = useMyRouter();
+    const clickArticle = () => {
+      const { exhibitId, authLinkNormal } = props.data;
+
+      if (!authLinkNormal) {
+        showToast("授权链异常，无法查看");
+        return;
+      }
+
+      switchPage("/content", { id: exhibitId });
+    };
 
     return {
       ...toRefs(store.state),
-      switchPage,
+      clickArticle,
       formatDate,
     };
   },
@@ -155,6 +180,14 @@ export default {
 
         &.one-line {
           -webkit-line-clamp: 1;
+        }
+
+        .auth-link-abnormal {
+          float: left;
+          width: 16px;
+          height: 16px;
+          margin-right: 5px;
+          margin-top: 3px;
         }
 
         .lock {
@@ -287,6 +320,12 @@ export default {
         display: flex;
         align-items: center;
 
+        .auth-link-abnormal {
+          width: 16px;
+          height: 16px;
+          margin-right: 5px;
+        }
+
         .lock {
           flex-shrink: 0;
           float: left;
@@ -372,6 +411,10 @@ export default {
         }
       }
     }
+  }
+
+  .opacity-40p {
+    opacity: 0.4;
   }
 }
 </style>

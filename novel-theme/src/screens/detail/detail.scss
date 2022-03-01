@@ -10,6 +10,29 @@
     width: 100%;
     padding-bottom: 98px;
 
+    .auth-link-abnormal-tip {
+      width: 100%;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      box-sizing: border-box;
+      background: #fbf5ea;
+      border-radius: 4px;
+      animation: fade-in 0.5s linear;
+
+      .auth-link-abnormal {
+        width: 16px;
+        height: 16px;
+      }
+
+      .tip-text {
+        font-size: 14px;
+        color: #e9a923;
+        margin-left: 5px;
+      }
+    }
+
     .book-info {
       width: 100%;
       padding: 20px;
@@ -159,6 +182,11 @@
             &:active {
               background: #ffe2e4;
             }
+          }
+
+          &.disabled {
+            opacity: 0.4;
+            pointer-events: none;
           }
         }
       }
@@ -329,6 +357,31 @@
     padding-top: 40px;
     padding-bottom: 148px;
 
+    .auth-link-abnormal-tip {
+      width: 920px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      box-sizing: border-box;
+      background: #fbf5ea;
+      border-radius: 4px;
+      margin-top: -15px;
+      margin-bottom: 25px;
+      animation: fade-in 0.5s linear;
+
+      .auth-link-abnormal {
+        width: 16px;
+        height: 16px;
+      }
+
+      .tip-text {
+        font-size: 14px;
+        color: #e9a923;
+        margin-left: 5px;
+      }
+    }
+
     .content-box {
       width: 920px;
 
@@ -424,6 +477,11 @@
                   &:hover {
                     background: #e1f0ff;
                   }
+                }
+
+                &.disabled {
+                  opacity: 0.4;
+                  pointer-events: none;
                 }
               }
             }

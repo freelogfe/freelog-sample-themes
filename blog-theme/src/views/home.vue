@@ -252,7 +252,7 @@ export default {
 
         authIds.forEach((id: string) => {
           const index = datasOfGetList.listData.value.findIndex((item) => item.exhibitId === id);
-          if (index !== -1) datasOfGetList.listData.value[index].isAuth = true;
+          if (index !== -1) datasOfGetList.listData.value[index].authCode = 200;
         });
         store.commit("setData", { key: "authIds", value: [] });
       } else {

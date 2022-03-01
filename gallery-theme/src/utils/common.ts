@@ -15,7 +15,13 @@ export const formatDate = (time: string | undefined, format = "YYYY-MM-DD hh:mm:
   const minutes = String(date.getMinutes()).padStart(2, "0");
   const seconds = String(date.getSeconds()).padStart(2, "0");
 
-  const result = format.replace("YYYY", year).replace("MM", month).replace("DD", day).replace("hh", hour).replace("mm", minutes).replace("ss", seconds);
+  const result = format
+    .replace("YYYY", year)
+    .replace("MM", month)
+    .replace("DD", day)
+    .replace("hh", hour)
+    .replace("mm", minutes)
+    .replace("ss", seconds);
   return result;
 };
 
@@ -32,7 +38,26 @@ export const getSignCount = (count: number) => {
 
 // 判断设备
 export const judgeDevice = () => {
-  const mobile = /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i;
+  const mobile =
+    /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i;
   const inMobile = navigator.userAgent.match(mobile);
   return !!inMobile;
+};
+
+// 弹出轻提示
+let timeout: number | null = null;
+export const showToast = (msg: string) => {
+  const toast = document.getElementById("toast-wrapper");
+  if (toast) document.body.removeChild(toast);
+  if (timeout) clearTimeout(timeout);
+
+  const div = document.createElement("div");
+  div.className = "toast-wrapper";
+  div.id = "toast-wrapper";
+  div.innerHTML = msg;
+  document.body.appendChild(div);
+
+  timeout = setTimeout(() => {
+    document.body.removeChild(div);
+  }, 2000);
 };

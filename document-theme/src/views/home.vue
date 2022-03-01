@@ -10,9 +10,13 @@
         <my-markdown
           :data="documentData"
           @getDirectory="getDirectory($event)"
-          v-if="!loading && documentData?.isAuth === true"
+          v-if="!loading && [200, 301].includes(documentData?.authCode) && documentData?.authLinkNormal"
         />
-        <div class="lock-box" v-if="!loading && documentData?.isAuth === false">
+        <div class="auth-box" v-if="!loading && documentData?.authLinkNormal === false">
+          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+          <div class="auth-link-tip">授权链异常，无法查看</div>
+        </div>
+        <div class="lock-box" v-if="!loading && documentData?.authCode === 303 && documentData?.authLinkNormal">
           <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
           <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
           <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
@@ -102,20 +106,30 @@
                 v-for="item in listData"
                 :key="item.exhibitId"
                 @click="
-                  switchPage('/home', { id: item.exhibitId });
+                  clickDocument(item);
                   directoryShow = false;
                 "
               >
                 <div class="item-title-box">
-                  <div class="item-title">{{ item.exhibitTitle }}</div>
+                  <div class="item-title" :style="{ opacity: item.authLinkNormal ? 1 : 0.4 }">
+                    {{ item.exhibitTitle }}
+                  </div>
                 </div>
-                <img
-                  class="item-lock"
-                  src="../assets/images/mini-lock.png"
-                  title="授权"
-                  @click.stop="getAuth(item)"
-                  v-if="!item?.isAuth"
-                />
+
+                <div class="other-box">
+                  <img
+                    class="auth-link-abnormal"
+                    src="../assets/images/auth-link-abnormal.png"
+                    v-if="!item?.authLinkNormal"
+                  />
+                  <img
+                    class="item-lock"
+                    src="../assets/images/mini-lock.png"
+                    title="授权"
+                    @click.stop="getAuth(item)"
+                    v-if="item?.authCode === 303"
+                  />
+                </div>
               </div>
             </template>
 
@@ -125,19 +139,29 @@
                 <div class="text-btn mobile" @click="switchPage('/home')">返回列表</div>
               </div>
 
-              <div class="list-item active">
+              <div class="list-item active" @click="clickDocument(documentData)">
                 <div class="item-title-box">
-                  <div class="item-title">{{ documentData?.exhibitTitle }}</div>
+                  <div class="item-title" :style="{ opacity: documentData?.authLinkNormal ? 1 : 0.4 }">
+                    {{ documentData?.exhibitTitle }}
+                  </div>
                   <div class="offline">已下架</div>
                 </div>
 
-                <img
-                  class="item-lock"
-                  src="../assets/images/mini-lock.png"
-                  title="授权"
-                  @click.stop="getAuth(documentData)"
-                  v-if="!documentData?.isAuth"
-                />
+                <div class="other-box">
+                  <img
+                    class="auth-link-abnormal"
+                    src="../assets/images/auth-link-abnormal.png"
+                    v-if="!documentData?.authLinkNormal"
+                  />
+
+                  <img
+                    class="item-lock"
+                    src="../assets/images/mini-lock.png"
+                    title="授权"
+                    @click.stop="getAuth(documentData)"
+                    v-if="documentData?.authCode === 303"
+                  />
+                </div>
               </div>
             </template>
           </div>
@@ -212,20 +236,27 @@
             :class="{ active: currentId === item.exhibitId }"
             v-for="item in listData"
             :key="item.exhibitId"
-            @click="switchPage('/home', { id: item.exhibitId })"
+            @click="clickDocument(item)"
           >
             <div class="item-title-box">
-              <div class="item-title" :title="documentData?.exhibitTitle">
+              <div class="item-title" :style="{ opacity: item.authLinkNormal ? 1 : 0.4 }" :title="item?.exhibitTitle">
                 {{ item.exhibitTitle }}
               </div>
             </div>
-            <img
-              class="item-lock"
-              src="../assets/images/mini-lock.png"
-              title="授权"
-              @click.stop="getAuth(item)"
-              v-if="!item.isAuth"
-            />
+            <div class="other-box">
+              <img
+                class="auth-link-abnormal"
+                src="../assets/images/auth-link-abnormal.png"
+                v-if="!item.authLinkNormal"
+              />
+              <img
+                class="item-lock"
+                src="../assets/images/mini-lock.png"
+                title="授权"
+                @click.stop="getAuth(item)"
+                v-if="item.authCode === 303"
+              />
+            </div>
           </div>
         </template>
 
@@ -235,21 +266,33 @@
             <div class="text-btn" @click="switchPage('/home')">返回列表</div>
           </div>
 
-          <div class="list-item active">
+          <div class="list-item active" @click="clickDocument(documentData)">
             <div class="item-title-box">
-              <div class="item-title" :title="documentData?.exhibitTitle">
+              <div
+                class="item-title"
+                :style="{ opacity: documentData?.authLinkNormal ? 1 : 0.4 }"
+                :title="documentData?.exhibitTitle"
+              >
                 {{ documentData?.exhibitTitle }}
               </div>
               <div class="offline">已下架</div>
             </div>
 
-            <img
-              class="item-lock"
-              src="../assets/images/mini-lock.png"
-              title="授权"
-              @click.stop="getAuth(documentData)"
-              v-if="!documentData?.isAuth"
-            />
+            <div class="other-box">
+              <img
+                class="auth-link-abnormal"
+                src="../assets/images/auth-link-abnormal.png"
+                v-if="documentData?.authLinkNormal === false"
+              />
+
+              <img
+                class="item-lock"
+                src="../assets/images/mini-lock.png"
+                title="授权"
+                @click.stop="getAuth(documentData)"
+                v-if="documentData?.authCode === 303"
+              />
+            </div>
           </div>
         </template>
       </div>
@@ -261,9 +304,13 @@
           <my-markdown
             :data="documentData"
             @getDirectory="getDirectory($event)"
-            v-if="!loading && documentData?.isAuth === true"
+            v-if="!loading && [200, 301].includes(documentData?.authCode) && documentData?.authLinkNormal"
           />
-          <div class="lock-box" v-if="!loading && documentData?.isAuth === false">
+          <div class="auth-box" v-if="!loading && documentData?.authLinkNormal === false">
+            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+            <div class="auth-link-tip">授权链异常，无法查看</div>
+          </div>
+          <div class="lock-box" v-if="!loading && documentData?.authCode === 303 && documentData?.authLinkNormal">
             <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
             <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
@@ -364,10 +411,12 @@ import {
   getExhibitSignCount,
   getExhibitInfo,
   getExhibitAuthStatus,
+  getExhibitAvailable,
 } from "@/api/freelog";
 import { ExhibitItem } from "@/api/interface";
 import { relativeTime } from "@/utils/common";
 import { useSearchHistory } from "../utils/hooks";
+import { showToast } from "../../../comic-theme/src/utils/common";
 
 export default {
   name: "home",
@@ -490,7 +539,7 @@ export default {
         const authResult = await addAuth(item.exhibitId);
         const { status } = authResult;
         if (status === 0) {
-          item.isAuth = true;
+          item.authCode = 200;
           if (data.currentId === item.exhibitId) getDocumentData();
         }
       },
@@ -519,6 +568,18 @@ export default {
         data.searchKey = "";
         this.search();
       },
+
+      // 点击文档
+      clickDocument(item: ExhibitItem) {
+        const { exhibitId, authLinkNormal } = item;
+
+        if (!authLinkNormal) {
+          showToast("授权链异常，无法查看");
+          return;
+        }
+
+        switchPage("/home", { id: exhibitId });
+      },
     };
 
     // 获取列表数据
@@ -542,7 +603,11 @@ export default {
         });
         documentData = exhibitInfo.data.data;
         const statusInfo = await getExhibitAuthStatus(exhibitId);
-        documentData.isAuth = statusInfo.data.data ? statusInfo.data.data[0].isAuth : false;
+        if (statusInfo.data.data) documentData.authCode = statusInfo.data.data[0].authCode;
+        const authLinkStatusInfo = await getExhibitAvailable(exhibitId);
+        if (authLinkStatusInfo.data.data) {
+          documentData.authLinkNormal = documentData.authCode === 301 ? false : authLinkStatusInfo.data.data[0].isAuth;
+        }
       }
 
       const signCountData = await getExhibitSignCount(exhibitId);
@@ -552,7 +617,7 @@ export default {
       data.currentTitleIndex = 0;
       data.directoryList = [];
 
-      if (!documentData.isAuth) {
+      if (documentData.authCode === 303 || documentData.authLinkNormal === false) {
         data.myLoading = false;
         return;
       }
@@ -661,6 +726,28 @@ export default {
       .markdown-wrapper {
         margin-top: 30px;
         margin-bottom: 417px;
+      }
+
+      .auth-box {
+        width: 100%;
+        height: 454px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 377px;
+
+        .auth-link-abnormal {
+          width: 72px;
+          height: 72px;
+        }
+
+        .auth-link-tip {
+          font-size: 16px;
+          color: #222222;
+          line-height: 22px;
+          margin-top: 30px;
+        }
       }
 
       .lock-box {
@@ -1013,10 +1100,25 @@ export default {
           }
         }
 
-        .item-lock {
-          width: 16px;
-          height: 16px;
-          margin-left: 20px;
+        .other-box {
+          display: flex;
+          justify-content: flex-end;
+
+          .auth-link-abnormal {
+            width: 16px;
+            height: 16px;
+            margin-left: 20px;
+          }
+
+          .item-lock {
+            width: 16px;
+            height: 16px;
+            margin-left: 20px;
+          }
+
+          .auth-link-abnormal + .item-lock {
+            margin-left: 5px;
+          }
         }
       }
     }
@@ -1299,14 +1401,29 @@ export default {
           }
         }
 
-        .item-lock {
-          width: 16px;
-          height: 16px;
-          margin-left: 30px;
-          transition: all 0.1s linear;
+        .other-box {
+          display: flex;
+          justify-content: flex-end;
 
-          &:hover {
-            transform: scale(1.2);
+          .auth-link-abnormal {
+            width: 16px;
+            height: 16px;
+            margin-left: 30px;
+          }
+
+          .item-lock {
+            width: 16px;
+            height: 16px;
+            margin-left: 30px;
+            transition: all 0.1s linear;
+
+            &:hover {
+              transform: scale(1.2);
+            }
+          }
+
+          .auth-link-abnormal + .item-lock {
+            margin-left: 5px;
           }
         }
       }
@@ -1326,6 +1443,27 @@ export default {
 
         .markdown-wrapper {
           margin-top: 30px;
+        }
+
+        .auth-box {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+
+          .auth-link-abnormal {
+            width: 72px;
+            height: 72px;
+          }
+
+          .auth-link-tip {
+            font-size: 16px;
+            color: #222222;
+            line-height: 22px;
+            margin-top: 30px;
+          }
         }
 
         .lock-box {
