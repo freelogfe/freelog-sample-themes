@@ -54,15 +54,32 @@ export default {
       }
 
       const deps = dependencyTree.filter((_: any, index: number) => index !== 0);
-      await deps.forEach(async (dep: any) => {
-        const depUrl: string = await getExhibitDepFileStream(
+      let promiseArr = [] as Promise<any>[];
+      deps.forEach((dep: { resourceType: string; parentNid: any; articleId: any }) => {
+        const isMediaResource = ["image", "video", "audio"].includes(dep.resourceType);
+        const depContent: Promise<any> = getExhibitDepFileStream(
           props.data.exhibitInfo.exhibitId,
           dep.parentNid,
           dep.articleId,
-          true
+          isMediaResource
         );
-        const reg = new RegExp("src=['\"]" + `freelog://${dep.articleName}` + "['\"]", "g");
-        html = html.replace(reg, `src="${depUrl}"`);
+        promiseArr.push(depContent);
+      });
+
+      await Promise.all(promiseArr).then((res) => {
+        res.forEach((dep, index) => {
+          if (dep.data) {
+            // 返回数据是对象，切有data属性，说明该依赖未非媒体资源
+            const reg = new RegExp("{{" + `freelog://${deps[index].articleName}` + "}}", "g");
+            const converter = new showdown.Converter();
+            const data = converter.makeHtml(dep.data);
+            html = html.replace(reg, data);
+          } else {
+            // 媒体资源
+            const reg = new RegExp("src=['\"]" + `freelog://${deps[index].articleName}` + "['\"]", "g");
+            html = html.replace(reg, `src="${dep}"`);
+          }
+        });
       });
 
       content.value = html;
