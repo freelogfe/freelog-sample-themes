@@ -17,16 +17,28 @@
         <div class="article-content">
           <my-markdown
             :data="contentInfo"
-            v-if="[200, 301].includes(articleData?.authCode) && articleData?.authLinkNormal"
+            v-if="
+              [200, 301].includes(articleData?.authCode) &&
+              articleData?.authLinkNormal
+            "
           />
 
           <div class="auth-box" v-if="articleData?.authLinkNormal === false">
-            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+            <img
+              class="auth-link-abnormal"
+              src="../assets/images/auth-link-abnormal.png"
+            />
             <div class="auth-link-tip">授权链异常，无法查看</div>
             <div class="home-btn" @click="switchPage('/home')">进入首页</div>
           </div>
 
-          <div class="lock-box" v-if="articleData?.authCode === 303 && articleData?.authLinkNormal">
+          <div
+            class="lock-box"
+            v-if="
+              (articleData?.authCode === 303 && articleData?.authLinkNormal) ||
+              userData.isLogin === false
+            "
+          >
             <img class="lock" src="../assets/images/lock.png" />
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
             <div class="get-btn" @click="getAuth()">获取授权</div>
@@ -37,7 +49,11 @@
       <div class="recommend">
         <div class="recommend-title">热门推荐</div>
         <div class="article-list">
-          <my-article :data="item" v-for="item in recommendList" :key="item.presentableId" />
+          <my-article
+            :data="item"
+            v-for="item in recommendList"
+            :key="item.presentableId"
+          />
         </div>
       </div>
     </div>
@@ -47,7 +63,11 @@
       <div class="article-card">
         <div class="title-share">
           <div class="article-title">{{ articleData?.exhibitTitle }}</div>
-          <div class="share-btn" @mouseover="shareShow = true" @mouseleave="shareShow = false">
+          <div
+            class="share-btn"
+            @mouseover="shareShow = true"
+            @mouseleave="shareShow = false"
+          >
             <span class="share-btn-text" :class="{ active: shareShow }">
               <i class="freelog fl-icon-fenxiang"></i>
               分享
@@ -68,16 +88,28 @@
         <div class="article-content">
           <my-markdown
             :data="contentInfo"
-            v-if="[200, 301].includes(articleData?.authCode) && articleData?.authLinkNormal"
+            v-if="
+              [200, 301].includes(articleData?.authCode) &&
+              articleData?.authLinkNormal
+            "
           />
 
           <div class="auth-box" v-if="articleData?.authLinkNormal === false">
-            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+            <img
+              class="auth-link-abnormal"
+              src="../assets/images/auth-link-abnormal.png"
+            />
             <div class="auth-link-tip">授权链异常，无法查看</div>
             <div class="home-btn" @click="switchPage('/home')">进入首页</div>
           </div>
 
-          <div class="lock-box" v-if="articleData?.authCode === 303 && articleData?.authLinkNormal">
+          <div
+            class="lock-box"
+            v-if="
+              (articleData?.authCode === 303 && articleData?.authLinkNormal) ||
+              userData.isLogin === false
+            "
+          >
             <img class="lock" src="../assets/images/lock.png" />
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
             <div class="get-btn" @click="getAuth()">获取授权</div>
@@ -91,7 +123,11 @@
           <div class="text-btn" @click="switchPage('/')">更多>></div>
         </div>
         <div class="article-list">
-          <my-article :data="item" v-for="item in recommendList" :key="item.presentableId" />
+          <my-article
+            :data="item"
+            v-for="item in recommendList"
+            :key="item.presentableId"
+          />
         </div>
       </div>
     </div>
@@ -123,8 +159,12 @@ export default {
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     share: defineAsyncComponent(() => import("../components/share.vue")),
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
-    "my-article": defineAsyncComponent(() => import("../components/article.vue")),
-    "my-markdown": defineAsyncComponent(() => import("../components/markdown.vue")),
+    "my-article": defineAsyncComponent(
+      () => import("../components/article.vue")
+    ),
+    "my-markdown": defineAsyncComponent(
+      () => import("../components/markdown.vue")
+    ),
   },
 
   setup() {
@@ -162,18 +202,28 @@ export default {
         ...exhibitInfo.data.data,
         signCount: signCountData.data.data[0].count,
       } as ExhibitItem;
-      const recommendList = datasOfGetList.listData.value.filter((item: ExhibitItem) => item.exhibitId !== id);
-      data.recommendList = recommendList.filter((_: any, index: number) => index < 4);
+      const recommendList = datasOfGetList.listData.value.filter(
+        (item: ExhibitItem) => item.exhibitId !== id
+      );
+      data.recommendList = recommendList.filter(
+        (_: any, index: number) => index < 4
+      );
 
       const statusInfo = await getExhibitAuthStatus(id);
-      if (statusInfo.data.data) data.articleData.authCode = statusInfo.data.data[0].authCode;
+      if (statusInfo.data.data)
+        data.articleData.authCode = statusInfo.data.data[0].authCode;
       const authLinkStatusInfo = await getExhibitAvailable(id);
       if (authLinkStatusInfo.data.data) {
         data.articleData.authLinkNormal =
-          data.articleData.authCode === 301 ? false : authLinkStatusInfo.data.data[0].isAuth;
+          data.articleData.authCode === 301
+            ? false
+            : authLinkStatusInfo.data.data[0].isAuth;
       }
 
-      if ([200, 301].includes(data.articleData.authCode) && data.articleData.authLinkNormal) {
+      if (
+        [200, 301].includes(data.articleData.authCode) &&
+        data.articleData.authLinkNormal
+      ) {
         // 已签约并且授权链无异常
         const info: any = await getExhibitFileStream(id);
         if (!info) return;

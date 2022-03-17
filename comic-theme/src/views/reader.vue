@@ -1,10 +1,17 @@
 <template>
   <div
     class="reader-wrapper"
-    :class="{ 'in-mobile': inMobile, light: theme === 'light', dark: theme === 'dark' }"
+    :class="{
+      'in-mobile': inMobile,
+      light: theme === 'light',
+      dark: theme === 'dark',
+    }"
     @click="clickPage()"
   >
-    <my-header :readerHeader="true" v-if="(inMobile && mobileBarShow) || !inMobile" />
+    <my-header
+      :readerHeader="true"
+      v-if="(inMobile && mobileBarShow) || !inMobile"
+    />
 
     <my-loader v-if="loading" />
 
@@ -14,16 +21,29 @@
         <img
           class="content"
           :src="content"
-          v-if="[200, 301].includes(comicInfo.authCode) && comicInfo.authLinkNormal && content"
+          v-if="
+            [200, 301].includes(comicInfo.authCode) &&
+            comicInfo.authLinkNormal &&
+            content
+          "
         />
 
         <div class="auth-box" v-if="comicInfo.authLinkNormal === false">
-          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+          <img
+            class="auth-link-abnormal"
+            src="../assets/images/auth-link-abnormal.png"
+          />
           <div class="auth-link-tip">授权链异常，无法查看</div>
           <div class="home-btn" @click="switchPage('/home')">进入首页</div>
         </div>
 
-        <div class="lock-box" v-if="comicInfo.authCode === 303 && comicInfo.authLinkNormal">
+        <div
+          class="lock-box"
+          v-if="
+            (comicInfo.authCode === 303 && comicInfo.authLinkNormal) ||
+            userData.isLogin === false
+          "
+        >
           <img class="lock" src="../assets/images/lock.png" alt="未授权" />
           <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
           <div class="get-btn" @click="getAuth()">获取授权</div>
@@ -31,7 +51,11 @@
       </div>
 
       <transition name="fade-down">
-        <div class="mobile-operater-wrapper" @touchmove.prevent v-if="mobileBarShow">
+        <div
+          class="mobile-operater-wrapper"
+          @touchmove.prevent
+          v-if="mobileBarShow"
+        >
           <!-- <div class="operater-btn">
             <i class="freelog fl-icon-zhankaigengduo"></i>
             <div class="operater-btn-label">上一话</div>
@@ -58,9 +82,15 @@
           <div class="single-btn" @click="operateShelf(comicInfo)">
             <i
               class="freelog"
-              :class="isCollected ? 'fl-icon-shoucangxiaoshuoyishoucang' : 'fl-icon-shoucangxiaoshuo'"
+              :class="
+                isCollected
+                  ? 'fl-icon-shoucangxiaoshuoyishoucang'
+                  : 'fl-icon-shoucangxiaoshuo'
+              "
             ></i>
-            <div class="operater-btn-label">{{ isCollected ? "取消收藏" : "加入收藏" }}</div>
+            <div class="operater-btn-label">
+              {{ isCollected ? "取消收藏" : "加入收藏" }}
+            </div>
           </div>
         </div>
       </transition>
@@ -71,7 +101,10 @@
       <div class="body-wrapper" :class="theme">
         <div class="breadcrumbs-wrapper">
           <div class="breadcrumbs-item">
-            <div class="second-text-btn" @click="switchPage('/detail', { id: comicInfo.exhibitId })">
+            <div
+              class="second-text-btn"
+              @click="switchPage('/detail', { id: comicInfo.exhibitId })"
+            >
               {{ comicInfo.exhibitTitle }}
               <!-- {{comicInfo.exhibitTitle}} > -->
             </div>
@@ -88,16 +121,29 @@
           <img
             class="content"
             :src="content"
-            v-if="[200, 301].includes(comicInfo.authCode) && comicInfo.authLinkNormal && content"
+            v-if="
+              [200, 301].includes(comicInfo.authCode) &&
+              comicInfo.authLinkNormal &&
+              content
+            "
           />
 
           <div class="auth-box" v-if="comicInfo.authLinkNormal === false">
-            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+            <img
+              class="auth-link-abnormal"
+              src="../assets/images/auth-link-abnormal.png"
+            />
             <div class="auth-link-tip">授权链异常，无法查看</div>
             <div class="home-btn" @click="switchPage('/home')">进入首页</div>
           </div>
 
-          <div class="lock-box" v-if="comicInfo.authCode === 303 && comicInfo.authLinkNormal">
+          <div
+            class="lock-box"
+            v-if="
+              (comicInfo.authCode === 303 && comicInfo.authLinkNormal) ||
+              userData.isLogin === false
+            "
+          >
             <img class="lock" src="../assets/images/lock.png" alt="未授权" />
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
             <div class="get-btn" @click="getAuth()">获取授权</div>
@@ -125,7 +171,11 @@
           /> -->
 
           <operate-btn
-            :icon="isCollected ? 'fl-icon-shoucangxiaoshuoyishoucang' : 'fl-icon-shoucangxiaoshuo'"
+            :icon="
+              isCollected
+                ? 'fl-icon-shoucangxiaoshuoyishoucang'
+                : 'fl-icon-shoucangxiaoshuo'
+            "
             :theme="theme"
             @click="
               clickPage();
@@ -133,12 +183,18 @@
             "
           />
 
-          <operate-btn icon="fl-icon-fenxiang" :theme="theme" @click.stop="sharePopupShow = true">
+          <operate-btn
+            icon="fl-icon-fenxiang"
+            :theme="theme"
+            @click.stop="sharePopupShow = true"
+          >
             <share :show="sharePopupShow" :exhibit="comicInfo" />
           </operate-btn>
 
           <operate-btn
-            :icon="theme === 'light' ? 'fl-icon-rijianmoshi' : 'fl-icon-yejianmoshi'"
+            :icon="
+              theme === 'light' ? 'fl-icon-rijianmoshi' : 'fl-icon-yejianmoshi'
+            "
             :theme="theme"
             @click="
               clickPage();
@@ -155,7 +211,11 @@
       </div>
     </template>
 
-    <directory :show="directoryShow" :comicInfo="comicInfo" @closeDirectory="directoryShow = false" />
+    <directory
+      :show="directoryShow"
+      :comicInfo="comicInfo"
+      @closeDirectory="directoryShow = false"
+    />
   </div>
 </template>
 

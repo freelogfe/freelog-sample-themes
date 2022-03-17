@@ -5,13 +5,7 @@ import BgImage from "../../assets/images/reader-bg.png";
 import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
 import { useState, useEffect, useCallback } from "react";
 import { ExhibitItem, ThemeItem } from "../../api/interface";
-import {
-  addAuth,
-  getExhibitAuthStatus,
-  getExhibitAvailable,
-  getExhibitFileStream,
-  getExhibitInfo,
-} from "../../api/freelog";
+import { addAuth, getExhibitAuthStatus, getExhibitAvailable, getExhibitFileStream, getExhibitInfo } from "../../api/freelog";
 import { readerThemeList } from "../../api/data";
 import { BackTop } from "../../components/back-top/back-top";
 import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
@@ -81,11 +75,7 @@ export const ReaderScreen = (props: any) => {
 
   return (
     <readerContext.Provider value={context}>
-      <div
-        className={`reader-wrapper ${inMobile && "in-mobile"}`}
-        style={{ backgroundImage: `url(${BgImage})`, backgroundColor: theme?.bgColor }}
-        onClick={() => clickPage()}
-      >
+      <div className={`reader-wrapper ${inMobile && "in-mobile"}`} style={{ backgroundImage: `url(${BgImage})`, backgroundColor: theme?.bgColor }} onClick={() => clickPage()}>
         <CSSTransition in={(inMobile && mobileBarShow) || !inMobile} classNames="slide-up" timeout={150} unmountOnExit>
           <Header readerHeader={true} />
         </CSSTransition>
@@ -102,6 +92,7 @@ export const ReaderScreen = (props: any) => {
 
 const Body = () => {
   const history = useMyHistory();
+  const { userData } = useContext(globalContext);
   const { inMobile, book, id, fontSize, theme } = useContext(readerContext);
   const [content, setContent] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -176,7 +167,7 @@ const Body = () => {
             </div>
           </div>
         )}
-        {authCode === 303 && authLinkNormal === true && (
+        {((authCode === 303 && authLinkNormal === true) || userData?.isLogin === false) && (
           <div className="lock-box">
             <img className="lock" src={Lock} alt="未授权" />
             <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
@@ -233,7 +224,7 @@ const Body = () => {
               </div>
             </div>
           )}
-          {authCode === 303 && authLinkNormal === true && (
+          {((authCode === 303 && authLinkNormal === true) || userData?.isLogin === false) && (
             <div className="lock-box">
               <img className="lock" src={Lock} alt="未授权" />
               <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
@@ -331,8 +322,7 @@ const Operater = () => {
   }, [scrollTop]);
 
   useEffect(() => {
-    document.body.style.overflowY =
-      (sharePopupShow || fontSizePopupShow || themePopupShow) && inMobile ? "hidden" : "auto";
+    document.body.style.overflowY = (sharePopupShow || fontSizePopupShow || themePopupShow) && inMobile ? "hidden" : "auto";
   }, [sharePopupShow, fontSizePopupShow, themePopupShow, inMobile]);
 
   return inMobile ? (
@@ -492,10 +482,7 @@ const Operater = () => {
             setFontSizePopupShow(true);
           }}
           slot={
-            <div
-              className={`operater-popup ${theme?.type === 1 ? "dark" : "light"}`}
-              style={{ width: fontSizePopupShow ? "162px" : "0" }}
-            >
+            <div className={`operater-popup ${theme?.type === 1 ? "dark" : "light"}`} style={{ width: fontSizePopupShow ? "162px" : "0" }}>
               <div className="fontsize-label" onClick={() => changeFontSize(0)}>
                 A-
               </div>
@@ -547,11 +534,7 @@ const OperateBtn = (props: { icon?: string; text?: string; slot?: any; onClick?:
   const { theme } = useContext(readerContext);
 
   return (
-    <div
-      className={`operate-btn-wrapper ${theme?.type === 1 ? "dark" : "light"}`}
-      style={{ backgroundColor: theme?.bookColor }}
-      onClick={(e) => e.stopPropagation()}
-    >
+    <div className={`operate-btn-wrapper ${theme?.type === 1 ? "dark" : "light"}`} style={{ backgroundColor: theme?.bookColor }} onClick={(e) => e.stopPropagation()}>
       {slot}
       {icon && <i className={`freelog ${icon}`} onClick={onClick}></i>}
       {text && (
