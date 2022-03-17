@@ -69,6 +69,9 @@ export default {
       await Promise.all(promiseArr).then((res) => {
         res.forEach((dep, index) => {
           if (dep.data) {
+            // 进一步判断是否为文本文件
+            if (!dep.headers["content-type"].startsWith("text")) return;
+            
             // 返回数据是对象，切有data属性，说明该依赖未非媒体资源
             const reg = new RegExp("{{" + `freelog://${deps[index].articleName}` + "}}", "g");
             const converter = new showdown.Converter();
