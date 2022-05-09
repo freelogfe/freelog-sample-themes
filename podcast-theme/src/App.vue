@@ -1,0 +1,292 @@
+<template>
+  <div id="app">
+    <router-view />
+  </div>
+</template>
+
+<style lang='scss'>
+#app {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Microsoft Yahei, Roboto, Oxygen, Ubuntu, Cantarell,
+    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 14px;
+  color: #222;
+  text-align: left;
+  width: 100vh;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background-color: #fff;
+}
+
+img {
+  display: block;
+}
+
+.input-none {
+  background: none;
+  outline: none;
+  border: none;
+  padding: 0;
+}
+.input-none:focus {
+  border: none;
+  box-shadow: none;
+}
+
+.main-btn {
+  color: #fff;
+  background: var(--deriveColor);
+  cursor: pointer;
+  transition: all 0.2s linear;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    opacity: 0.6 !important;
+  }
+
+  &.mobile {
+    cursor: default;
+    transition: none;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.assist-btn {
+  position: relative;
+  color: var(--deriveColor);
+  cursor: pointer;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--deriveColor);
+    opacity: 0.1;
+    transition: all 0.2s linear;
+  }
+
+  &:hover::before {
+    opacity: 0.08;
+  }
+
+  &:active::before {
+    opacity: 0.06 !important;
+  }
+
+  &.mobile {
+    cursor: default;
+    transition: none;
+
+    &:hover::before {
+      opacity: 0.1;
+    }
+  }
+}
+
+.text-btn {
+  color: var(--deriveColor);
+  cursor: pointer;
+  transition: all 0.2s linear;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    opacity: 0.6 !important;
+  }
+
+  &.mobile {
+    cursor: default;
+    transition: none;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.second-text-btn {
+  color: #999999;
+  cursor: pointer;
+  transition: all 0.2s linear;
+
+  &:hover {
+    color: var(--deriveColor);
+  }
+
+  &:active {
+    opacity: 0.8 !important;
+  }
+
+  &.mobile {
+    cursor: default;
+    transition: none;
+
+    &:hover {
+      color: #999999;
+    }
+  }
+}
+
+.header-login-btn {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.2s linear;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    opacity: 0.6 !important;
+  }
+
+  &.mobile {
+    cursor: default;
+    transition: none;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.header-register-btn {
+  color: var(--deriveColor);
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s linear;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    opacity: 0.6 !important;
+  }
+
+  &.mobile {
+    cursor: default;
+    transition: none;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.user-box-btn {
+  color: #222;
+  cursor: pointer;
+  transition: all 0.2s linear;
+
+  &:hover {
+    color: #fff;
+    background: var(--deriveColor);
+  }
+
+  &:active {
+    opacity: 0.8 !important;
+  }
+}
+
+.warning-btn {
+  background: #fdebec;
+  border-radius: 4px;
+  color: #ee4040;
+  cursor: pointer;
+  transition: all 0.2s linear;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    opacity: 0.6;
+  }
+
+  &.mobile {
+    cursor: default;
+    transition: none;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.collect-btn {
+  position: relative;
+  border-radius: 4px;
+  color: var(--deriveColor);
+  cursor: pointer;
+  transition: all 0.2s linear;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: var(--deriveColor);
+    opacity: 0.1;
+    z-index: 0;
+  }
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    opacity: 0.6;
+  }
+
+  &.mobile {
+    cursor: default;
+    transition: none;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    &:active {
+      opacity: 0.6;
+    }
+  }
+}
+
+.toast-wrapper {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  color: #fff;
+  font-weight: bold;
+  transform: translate(-50%, -50%);
+  padding: 19px 50px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 6px;
+  font-size: 16px;
+  line-height: 22px;
+  animation: fade-in 0.3s ease-out;
+  white-space: nowrap;
+  z-index: 101;
+}
+</style>
