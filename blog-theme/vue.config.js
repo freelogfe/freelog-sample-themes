@@ -5,7 +5,7 @@ function resolve(dir) {
   return path.join(__dirname, dir);
 }
 
-const port = 7107;
+const port = 8104;
 
 module.exports = {
   outputDir: "dist",

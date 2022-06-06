@@ -10,28 +10,16 @@
         <my-markdown
           :data="documentData"
           @getDirectory="getDirectory($event)"
-          v-if="
-            !loading &&
-            [200, 301].includes(documentData?.authCode) &&
-            documentData?.authLinkNormal
-          "
+          v-if="!loading && [200, 301].includes(documentData?.authCode) && documentData?.authLinkNormal"
         />
-        <div
-          class="auth-box"
-          v-if="!loading && documentData?.authLinkNormal === false"
-        >
-          <img
-            class="auth-link-abnormal"
-            src="../assets/images/auth-link-abnormal.png"
-          />
+        <div class="auth-box" v-if="!loading && documentData?.authLinkNormal === false">
+          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
           <div class="auth-link-tip">授权链异常，无法查看</div>
         </div>
         <div
           class="lock-box"
           v-if="
-            !loading &&
-            ((documentData?.authCode === 303 && documentData?.authLinkNormal) ||
-              userData.isLogin === false)
+            !loading && ((documentData?.authCode === 303 && documentData?.authLinkNormal) || userData.isLogin === false)
           "
         >
           <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
@@ -48,16 +36,11 @@
             <div>作者 {{ documentData?.articleInfo?.articleOwnerName }}</div>
           </div>
 
-          <div
-            class="switch-btns"
-            v-if="listData.length && currentIndex !== -1"
-          >
+          <div class="switch-btns" v-if="listData.length && currentIndex !== -1">
             <div
               class="switch-btn pre"
               :class="{ invalid: !currentIndex }"
-              :title="
-                currentIndex ? listData[currentIndex - 1].exhibitTitle : ''
-              "
+              :title="currentIndex ? listData[currentIndex - 1].exhibitTitle : ''"
               @click="
                 switchPage('/home', {
                   id: listData[currentIndex - 1].exhibitId,
@@ -68,22 +51,14 @@
               <div class="btn-info">
                 <div class="btn-title">上一篇</div>
                 <div class="document-title">
-                  {{
-                    currentIndex
-                      ? listData[currentIndex - 1].exhibitTitle
-                      : "当前为第一篇"
-                  }}
+                  {{ currentIndex ? listData[currentIndex - 1].exhibitTitle : "当前为第一篇" }}
                 </div>
               </div>
             </div>
             <div
               class="switch-btn next"
               :class="{ invalid: currentIndex === listData.length - 1 }"
-              :title="
-                currentIndex !== listData.length - 1
-                  ? listData[currentIndex + 1].exhibitTitle
-                  : ''
-              "
+              :title="currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : ''"
               @click="
                 switchPage('/home', {
                   id: listData[currentIndex + 1].exhibitId,
@@ -94,9 +69,7 @@
                 <div class="btn-title">下一篇</div>
                 <div class="document-title">
                   {{
-                    currentIndex !== listData.length - 1
-                      ? listData[currentIndex + 1].exhibitTitle
-                      : "当前为最后一篇"
+                    currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : "当前为最后一篇"
                   }}
                 </div>
               </div>
@@ -110,22 +83,14 @@
 
       <!-- 目录 -->
       <transition name="fade">
-        <div
-          id="modal"
-          class="modal"
-          @click="directoryShow = false"
-          v-if="directoryShow"
-        ></div>
+        <div id="modal" class="modal" @click="directoryShow = false" v-if="directoryShow"></div>
       </transition>
       <transition name="slide-right">
         <div class="directory" v-if="directoryShow">
           <div class="directory-sticky">
             <div class="drawer-header">
               <div class="header-title">文档目录</div>
-              <i
-                class="freelog fl-icon-guanbi"
-                @click="directoryShow = false"
-              ></i>
+              <i class="freelog fl-icon-guanbi" @click="directoryShow = false"></i>
             </div>
 
             <template v-if="!viewOffline">
@@ -159,10 +124,7 @@
                 "
               >
                 <div class="item-title-box">
-                  <div
-                    class="item-title"
-                    :style="{ opacity: item.authLinkNormal ? 1 : 0.4 }"
-                  >
+                  <div class="item-title" :style="{ opacity: item.authLinkNormal ? 1 : 0.4 }">
                     {{ item.exhibitTitle }}
                   </div>
                 </div>
@@ -187,20 +149,12 @@
             <template v-if="viewOffline">
               <div class="offline-tip">
                 <div class="tip">当前文档已下架，已签约可继续浏览</div>
-                <div class="text-btn mobile" @click="switchPage('/home')">
-                  返回列表
-                </div>
+                <div class="text-btn mobile" @click="switchPage('/home')">返回列表</div>
               </div>
 
-              <div
-                class="list-item active"
-                @click="clickDocument(documentData)"
-              >
+              <div class="list-item active" @click="clickDocument(documentData)">
                 <div class="item-title-box">
-                  <div
-                    class="item-title"
-                    :style="{ opacity: documentData?.authLinkNormal ? 1 : 0.4 }"
-                  >
+                  <div class="item-title" :style="{ opacity: documentData?.authLinkNormal ? 1 : 0.4 }">
                     {{ documentData?.exhibitTitle }}
                   </div>
                   <div class="offline">已下架</div>
@@ -266,10 +220,7 @@
               ></i>
 
               <transition name="fade">
-                <div
-                  class="search-history"
-                  v-if="searchHistoryShow && mySearchHistory.length !== 0"
-                >
+                <div class="search-history" v-if="searchHistoryShow && mySearchHistory.length !== 0">
                   <div
                     class="history-item"
                     :class="{ catch: searchWordCatch === index }"
@@ -279,15 +230,10 @@
                     @mousemove="searchWordCatch = index"
                   >
                     <div class="item-word">{{ item }}</div>
-                    <i
-                      class="freelog fl-icon-guanbi"
-                      @click.stop="deleteSearchHistory(item)"
-                    ></i>
+                    <i class="freelog fl-icon-guanbi" @click.stop="deleteSearchHistory(item)"></i>
                   </div>
 
-                  <div class="text-btn" @click="clearHistory()">
-                    清空搜索记录
-                  </div>
+                  <div class="text-btn" @click="clearHistory()">清空搜索记录</div>
                 </div>
               </transition>
             </div>
@@ -306,11 +252,7 @@
             @click="clickDocument(item)"
           >
             <div class="item-title-box">
-              <div
-                class="item-title"
-                :style="{ opacity: item.authLinkNormal ? 1 : 0.4 }"
-                :title="item?.exhibitTitle"
-              >
+              <div class="item-title" :style="{ opacity: item.authLinkNormal ? 1 : 0.4 }" :title="item?.exhibitTitle">
                 {{ item.exhibitTitle }}
               </div>
             </div>
@@ -375,29 +317,17 @@
           <my-markdown
             :data="documentData"
             @getDirectory="getDirectory($event)"
-            v-if="
-              !loading &&
-              [200, 301].includes(documentData?.authCode) &&
-              documentData?.authLinkNormal
-            "
+            v-if="!loading && [200, 301].includes(documentData?.authCode) && documentData?.authLinkNormal"
           />
-          <div
-            class="auth-box"
-            v-if="!loading && documentData?.authLinkNormal === false"
-          >
-            <img
-              class="auth-link-abnormal"
-              src="../assets/images/auth-link-abnormal.png"
-            />
+          <div class="auth-box" v-if="!loading && documentData?.authLinkNormal === false">
+            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
             <div class="auth-link-tip">授权链异常，无法查看</div>
           </div>
           <div
             class="lock-box"
             v-if="
               !loading &&
-              ((documentData?.authCode === 303 &&
-                documentData?.authLinkNormal) ||
-                userData.isLogin === false)
+              ((documentData?.authCode === 303 && documentData?.authLinkNormal) || userData.isLogin === false)
             "
           >
             <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
@@ -414,16 +344,11 @@
               <div>作者 {{ documentData?.articleInfo?.articleOwnerName }}</div>
             </div>
 
-            <div
-              class="switch-btns"
-              v-if="listData.length && currentIndex !== -1"
-            >
+            <div class="switch-btns" v-if="listData.length && currentIndex !== -1">
               <div
                 class="switch-btn pre"
                 :class="{ invalid: !currentIndex }"
-                :title="
-                  currentIndex ? listData[currentIndex - 1].exhibitTitle : ''
-                "
+                :title="currentIndex ? listData[currentIndex - 1].exhibitTitle : ''"
                 @click="
                   switchPage('/home', {
                     id: listData[currentIndex - 1].exhibitId,
@@ -434,22 +359,14 @@
                 <div class="btn-info">
                   <div class="btn-title">上一篇</div>
                   <div class="document-title">
-                    {{
-                      currentIndex
-                        ? listData[currentIndex - 1].exhibitTitle
-                        : "当前为第一篇"
-                    }}
+                    {{ currentIndex ? listData[currentIndex - 1].exhibitTitle : "当前为第一篇" }}
                   </div>
                 </div>
               </div>
               <div
                 class="switch-btn next"
                 :class="{ invalid: currentIndex === listData.length - 1 }"
-                :title="
-                  currentIndex !== listData.length - 1
-                    ? listData[currentIndex + 1].exhibitTitle
-                    : ''
-                "
+                :title="currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : ''"
                 @click="
                   switchPage('/home', {
                     id: listData[currentIndex + 1].exhibitId,
@@ -460,9 +377,7 @@
                   <div class="btn-title">下一篇</div>
                   <div class="document-title">
                     {{
-                      currentIndex !== listData.length - 1
-                        ? listData[currentIndex + 1].exhibitTitle
-                        : "当前为最后一篇"
+                      currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : "当前为最后一篇"
                     }}
                   </div>
                 </div>
@@ -514,17 +429,9 @@
 </template>
 
 <script lang="ts">
-import {
-  computed,
-  defineAsyncComponent,
-  onUnmounted,
-  reactive,
-  ref,
-  toRefs,
-  watch,
-} from "vue";
+import { computed, defineAsyncComponent, onUnmounted, reactive, ref, toRefs, watch } from "vue";
 import { useStore } from "vuex";
-import { useGetList, useMyRouter, useMyScroll } from "@/utils/hooks";
+import { useGetList, useMyRouter, useMyScroll, useSearchHistory } from "../utils/hooks";
 import {
   addAuth,
   getExhibitFileStream,
@@ -535,7 +442,6 @@ import {
 } from "@/api/freelog";
 import { ExhibitItem } from "@/api/interface";
 import { relativeTime } from "@/utils/common";
-import { useSearchHistory } from "../utils/hooks";
 import { showToast } from "../../../comic-theme/src/utils/common";
 
 export default {
@@ -544,30 +450,21 @@ export default {
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
-    "my-markdown": defineAsyncComponent(
-      () => import("../components/markdown.vue")
-    ),
+    "my-markdown": defineAsyncComponent(() => import("../components/markdown.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     share: defineAsyncComponent(() => import("../components/share.vue")),
-    "back-top": defineAsyncComponent(
-      () => import("../components/back-top.vue")
-    ),
-    "theme-entrance": defineAsyncComponent(
-      () => import("../components/theme-entrance.vue")
-    ),
+    "back-top": defineAsyncComponent(() => import("../components/back-top.vue")),
+    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
   },
 
   setup() {
     const store = useStore();
     const { query, switchPage } = useMyRouter();
-    const { searchHistory, searchWord, deleteWord, clearHistory } =
-      useSearchHistory();
+    const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
     const { scrollTop, scrollTo, scrollToTop } = useMyScroll();
     const datasOfGetList = useGetList();
     const searchInput = ref();
-    const mySearchHistory = computed(() =>
-      searchHistory.value.filter((item) => item.includes(data.searchKey))
-    );
+    const mySearchHistory = computed(() => searchHistory.value.filter((item) => item.includes(data.searchKey)));
 
     const data = reactive({
       myLoading: false,
@@ -586,9 +483,7 @@ export default {
     });
 
     const currentIndex = computed(() => {
-      return datasOfGetList.listData.value.findIndex(
-        (item) => item.exhibitId === data.currentId
-      );
+      return datasOfGetList.listData.value.findIndex((item) => item.exhibitId === data.currentId);
     });
 
     const methods = {
@@ -656,10 +551,7 @@ export default {
             data.searchHistoryShow = true;
             if (data.searchWordCatch === null) {
               data.searchWordCatch = 0;
-            } else if (
-              data.searchWordCatch !==
-              mySearchHistory.value.length - 1
-            ) {
+            } else if (data.searchWordCatch !== mySearchHistory.value.length - 1) {
               data.searchWordCatch = data.searchWordCatch + 1;
             }
             break;
@@ -720,6 +612,7 @@ export default {
     const getData = () => {
       data.viewOffline = false;
       data.documentData = null;
+      datasOfGetList.clearData();
       datasOfGetList.getList({}, true);
     };
 
@@ -727,9 +620,7 @@ export default {
     const getDocumentData = async () => {
       data.myLoading = true;
       const exhibitId = data.currentId;
-      let documentData: any = datasOfGetList.listData.value.find(
-        (item) => item.exhibitId === exhibitId
-      );
+      let documentData: any = datasOfGetList.listData.value.find((item) => item.exhibitId === exhibitId);
       data.viewOffline = false;
 
       if (!documentData) {
@@ -739,14 +630,10 @@ export default {
         });
         documentData = exhibitInfo.data.data;
         const statusInfo = await getExhibitAuthStatus(exhibitId);
-        if (statusInfo.data.data)
-          documentData.authCode = statusInfo.data.data[0].authCode;
+        if (statusInfo.data.data) documentData.authCode = statusInfo.data.data[0].authCode;
         const authLinkStatusInfo = await getExhibitAvailable(exhibitId);
         if (authLinkStatusInfo.data.data) {
-          documentData.authLinkNormal =
-            documentData.authCode === 301
-              ? false
-              : authLinkStatusInfo.data.data[0].isAuth;
+          documentData.authLinkNormal = documentData.authCode === 301 ? false : authLinkStatusInfo.data.data[0].isAuth;
         }
       }
 
@@ -757,10 +644,7 @@ export default {
       data.currentTitleIndex = 0;
       data.directoryList = [];
 
-      if (
-        documentData.authCode === 303 ||
-        documentData.authLinkNormal === false
-      ) {
+      if (documentData.authCode === 303 || documentData.authLinkNormal === false) {
         data.myLoading = false;
         return;
       }
@@ -770,6 +654,7 @@ export default {
         data.myLoading = false;
         return;
       }
+
       (data.documentData as ExhibitItem).content = info.data;
       data.myLoading = false;
     };
@@ -781,10 +666,7 @@ export default {
         switchPage("/home", {
           id: datasOfGetList.listData.value[currentIndex.value - 1].exhibitId,
         });
-      if (
-        e.key === "ArrowRight" &&
-        currentIndex.value !== datasOfGetList.listData.value.length - 1
-      )
+      if (e.key === "ArrowRight" && currentIndex.value !== datasOfGetList.listData.value.length - 1)
         switchPage("/home", {
           id: datasOfGetList.listData.value[currentIndex.value + 1].exhibitId,
         });
@@ -794,8 +676,11 @@ export default {
       () => datasOfGetList.listData.value,
       (cur) => {
         data.searching = !!data.searchKey;
-        if (!cur.length) return;
-
+        if (!cur.length) {
+          data.currentId = "";
+          return;
+        }
+        
         if (!query.value.id) {
           switchPage("/home", { id: cur[0].exhibitId });
         } else if (data.currentId !== query.value.id) {
@@ -809,7 +694,8 @@ export default {
       () => query.value,
       (cur) => {
         if (cur.id !== data.currentId) getData();
-      }
+      },
+      { immediate: true }
     );
 
     watch(
@@ -826,7 +712,6 @@ export default {
       }
     );
 
-    getData();
     window.addEventListener("keyup", keyup);
     onUnmounted(() => {
       window.removeEventListener("keyup", keyup);

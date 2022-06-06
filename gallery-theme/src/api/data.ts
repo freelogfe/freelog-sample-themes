@@ -17,7 +17,7 @@ export const freelogEntrances: freelogEntranceItem[] = [
   { label: "关于freelog", url: "" },
   {
     label: "使用此主题",
-    url: "https://console.freelog.com/resource/details/61f251286fe5c1002e2c7b41",
+    url: "https://console.freelog.com/resource/details/61f252fea513d2002f2abc89",
   },
   { label: "浏览更多主题", url: "https://console.freelog.com/market" },
 ];

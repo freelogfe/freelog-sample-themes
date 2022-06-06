@@ -31,7 +31,7 @@
             class="avatar-img"
           />
         </div>
-        <div class="sign-count">总签约量：{{ signCount }}人</div>
+        <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
       </div>
 
       <div class="header-blog-info">
@@ -265,7 +265,7 @@
             <div class="blog-title">
               {{ selfConfig.blogTitle }}
             </div>
-            <div class="sign-count">总签约量：{{ signCount }}人</div>
+            <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
           </div>
           <div class="blog-desc">
             {{ selfConfig.blogIntro }}
@@ -279,7 +279,7 @@
 <script lang="ts">
 import { computed, reactive, ref, toRefs, watch } from "vue";
 import { useMyLocationHistory, useMyRouter, useSearchHistory } from "../utils/hooks";
-import { callLogin, callLoginOut, getExhibitSignCount, getSelfId } from "@/api/freelog";
+import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
 
 export default {
@@ -412,14 +412,6 @@ export default {
         initHeaderSearch();
       }
     );
-
-    // 获取主题签约数
-    const getSignCount = async () => {
-      const themeId = await getSelfId();
-      const signCountInfo = await getExhibitSignCount(themeId);
-      data.signCount = signCountInfo.data.data[0].count;
-    };
-    getSignCount();
 
     // 初始化头部搜索相关数据
     const initHeaderSearch = () => {
