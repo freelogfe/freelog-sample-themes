@@ -680,7 +680,7 @@ export default {
           data.currentId = "";
           return;
         }
-        
+
         if (!query.value.id) {
           switchPage("/home", { id: cur[0].exhibitId });
         } else if (data.currentId !== query.value.id) {
@@ -1383,6 +1383,7 @@ export default {
         height: 50px;
         padding: 15px 30px;
         box-sizing: border-box;
+        flex-shrink: 0;
         display: flex;
         align-items: center;
         cursor: pointer;
@@ -1666,8 +1667,14 @@ export default {
       position: sticky;
       top: 100px;
       height: fit-content;
+      max-height: calc(100vh - 130px);
+      overflow-y: auto;
       margin-top: 30px;
       border-left: 1px solid rgba(0, 0, 0, 0.1);
+
+      &::-webkit-scrollbar {
+        width: 0;
+      }
 
       .directory-item {
         width: 100%;

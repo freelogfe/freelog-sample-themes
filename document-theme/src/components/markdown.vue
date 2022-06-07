@@ -201,6 +201,7 @@ export default {
     code {
       background-color: transparent;
       color: #fff;
+      padding: 0;
     }
   }
 
