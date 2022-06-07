@@ -1,7 +1,7 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
+import Vue from "vue";
+import VueRouter from "vue-router";
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
 const routes = [
   {
@@ -13,12 +13,41 @@ const routes = [
     name: "home",
     component: () => import("../views/home.vue"),
   },
-]
+  {
+    path: "/album-list",
+    name: "album-list",
+    component: () => import("../views/album-list.vue"),
+  },
+  {
+    path: "/voice-list",
+    name: "voice-list",
+    component: () => import("../views/voice-list.vue"),
+  },
+  {
+    path: "/album-detail",
+    name: "album-detail",
+    component: () => import("../views/album-detail.vue"),
+  },
+  {
+    path: "/voice-detail",
+    name: "voice-detail",
+    component: () => import("../views/voice-detail.vue"),
+  },
+  {
+    path: "/signed-list",
+    name: "signed-list",
+    component: () => import("../views/signed-list.vue"),
+  },
+  {
+    path: "/collection-list",
+    name: "collection-list",
+    component: () => import("../views/collection-list.vue"),
+  },
+  {
+    path: "/search-list",
+    name: "search-list",
+    component: () => import("../views/search-list.vue"),
+  },
+];
 
-const router = new VueRouter({
-  mode: 'history',
-  base: process.env.BASE_URL,
-  routes
-})
-
-export default router
+export default routes;

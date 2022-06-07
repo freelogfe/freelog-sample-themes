@@ -1,19 +1,14 @@
-# podcast-theme
+## 自定义配置项
 
-## Project setup
-```
-yarn install
-```
+格式为【key: 属性说明】
 
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
+- entranceShow: 主题入口按钮显示
+- nodeAvatar: 节点头像网络路径 【注：建议正方形图片】
+- nodeTitle: 节点标题【注：建议中文 20 字符或英文 30 字符】
+- nodeIntro1st: 节点简介 1【注：建议中文 68 字符或英文 90 字符】
+- nodeIntro2nd: 节点简介 2【注：建议中文 68 字符或英文 90 字符】
+- nodeIntro3rd: 节点简介 3【注：建议中文 68 字符或英文 90 字符】
 
-### Compiles and minifies for production
-```
-yarn build
-```
+## 支持资源类型
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+audio
