@@ -1,5 +1,5 @@
 <template>
-  <div ref="contentBody" class="markdown-wrapper" v-html="content"></div>
+  <div ref="contentBody" class="markdown-wrapper" v-html="content" v-highlight></div>
 </template>
 
 <script lang="ts">
@@ -57,7 +57,7 @@ export default {
           if (dep.data) {
             // 进一步判断是否为文本文件
             if (!dep.headers["content-type"].startsWith("text")) return;
-            
+
             // 返回数据是对象，切有data属性，说明该依赖未非媒体资源
             const reg = new RegExp("{{" + `freelog://${deps[index].articleName}` + "}}", "g");
             const converter = new showdown.Converter();
@@ -168,7 +168,9 @@ export default {
   blockquote {
     color: #6a737d;
     border-left: 3px solid #dfe2e5;
+    background-color: #fafafa;
     padding: 4px 0 4px 16px;
+    margin-bottom: 10px;
 
     p {
       margin: 4px 0;
@@ -193,10 +195,12 @@ export default {
   pre {
     padding: 16px;
     overflow-x: auto;
-    font-size: 85%;
+    font-size: 14px;
     line-height: 1.45;
-    background-color: #282c34;
+    background-color: #323232;
     border-radius: 3px;
+    font-family: sans-serif;
+    letter-spacing: 0.6px;
 
     code {
       background-color: transparent;
@@ -206,7 +210,7 @@ export default {
   }
 
   code {
-    padding: 2px 4px;
+    padding: 2px 8px;
     color: rgba(0, 0, 0, 0.8);
     background-color: #f7f7f9;
     border-radius: 3px;
