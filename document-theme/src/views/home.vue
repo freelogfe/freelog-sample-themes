@@ -314,26 +314,25 @@
       <div class="content-area" :class="{ large: !directoryList.length }">
         <div class="content-body">
           <my-loader v-if="loading" />
-          <my-markdown
-            :data="documentData"
-            @getDirectory="getDirectory($event)"
-            v-if="!loading && [200, 301].includes(documentData?.authCode) && documentData?.authLinkNormal"
-          />
-          <div class="auth-box" v-if="!loading && documentData?.authLinkNormal === false">
-            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-            <div class="auth-link-tip">授权链异常，无法查看</div>
-          </div>
-          <div
-            class="lock-box"
-            v-if="
-              !loading &&
-              ((documentData?.authCode === 303 && documentData?.authLinkNormal) || userData.isLogin === false)
-            "
-          >
-            <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
-            <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-            <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
-          </div>
+          <template v-else>
+            <my-markdown
+              :data="documentData"
+              @getDirectory="getDirectory($event)"
+              v-if="[200, 301].includes(documentData?.authCode) && documentData?.authLinkNormal"
+            />
+            <div class="auth-box" v-else-if="documentData?.authLinkNormal === false">
+              <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+              <div class="auth-link-tip">授权链异常，无法查看</div>
+            </div>
+            <div
+              class="lock-box"
+              v-else-if="(documentData?.authCode === 303 && documentData?.authLinkNormal) || userData.isLogin === false"
+            >
+              <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
+              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+              <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
+            </div>
+          </template>
 
           <div class="footer-area">
             <div class="footer-bar">
