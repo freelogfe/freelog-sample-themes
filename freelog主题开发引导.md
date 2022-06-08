@@ -12,7 +12,7 @@
 
 ## 主题（Theme）是什么？
 
-> 在 Freelog 平台，主题是指资源类型为主题的**功能性资源**，主题将决定节点的整体外观和设计。在节点激活主题展品即在您的节点上应用该主题。如果激活一个新的主题，只要主题支持的资源类型不变，除了布局之外，节点上的展示的内容型展品也不会发生改变。 —— [《Freelog 帮助文档》-TODO:链接至产品运营帮助文档]()
+> 在 Freelog 平台，主题是指资源类型为主题的**功能性资源**，主题将决定节点的整体外观和设计。在节点激活主题展品即在您的节点上应用该主题。如果激活一个新的主题，只要主题支持的资源类型不变，除了布局之外，节点上的展示的内容型展品也不会发生改变。 —— [《Freelog 运营帮助文档》（TODO:链接至产品运营文档）](xxx)
 
 ## 通俗解释
 
@@ -24,7 +24,7 @@
 
 我们的主要角色是以上例子中的店铺主人，也就是**主题资源作者**，但是与其他内容性资源作者不同，我们需要确保在正常情况下主题能够使节点商正常使用，因此，在整个创作过程中我们有时也需要扮演**节点商**的角色。
 
-本文将会完整地描述使用**Vue 2**开发一个[播客主题-TODO:链接至主题详情页]()的流程，您可以到[播客节点-TODO:名字需要替换成官方节点，链接至节点页面]()查看效果。
+本文将会完整地描述使用**Vue 2**开发一个[播客主题（TODO:链接至主题详情页）](xxx)的流程，您可以到[播客节点（TODO:名字需要替换成官方节点，链接至节点页面）](xxx)查看效果。
 
 ---
 
@@ -275,14 +275,14 @@ module.exports = {
 
 调用运行时 api 即可，无需自己开发 ui 与相关逻辑。
 
-- 登录：[callLogin-TODO:链接至 API 开发文档对应的 API 位置]()，登录成功后默认刷新页面。
+- 登录：[callLogin（TODO:链接至 API 开发文档对应的 API 位置）](xxx)，登录成功后默认刷新页面。
 
 ```js
 // 调起运行时登录弹窗
 window.freelogApp.callLogin();
 ```
 
-- 自定义登录成功后的操作：在入口文件`main.js`中将回调函数传给[onLogin-TODO:链接至 API 开发文档对应的 API 位置]()方法。
+- 自定义登录成功后的操作：在入口文件`main.js`中将回调函数传给[onLogin（TODO:链接至 API 开发文档对应的 API 位置）](xxx)方法。
 
 ```js
 // main.js
@@ -294,14 +294,14 @@ window.freelogApp.onLogin(() => {
 });
 ```
 
-- 登出：[callLoginOut-TODO:链接至 API 开发文档对应的 API 位置]()，登出成功会自动刷新页面。
+- 登出：[callLoginOut（TODO:链接至 API 开发文档对应的 API 位置）](xxx)，登出成功会自动刷新页面。
 
 ```js
 // 调起运行时登出弹窗
 window.freelogApp.callLoginOut();
 ```
 
-- 获取当前登录的用户数据：[getCurrentUser-TODO:链接至 API 开发文档对应的 API 位置]()。
+- 获取当前登录的用户数据：[getCurrentUser（TODO:链接至 API 开发文档对应的 API 位置）](xxx)。
 
 ```js
 const userData = await window.freelogApp.getCurrentUser();
@@ -332,7 +332,7 @@ window.open("https://console.freelog.com/resource/details/61f251286fe5c1002e2c7b
 
 ### 获取主题配置
 
-[getSelfConfig-TODO:链接至 API 开发文档对应的 API 位置]()
+[getSelfConfig（TODO:链接至 API 开发文档对应的 API 位置）](xxx)
 
 ```js
 // 主题配置
@@ -386,7 +386,7 @@ this.logo = nodeAvatar;
 
 ### 展品列表
 
-以声音列表为例，我们需要分页获取展品，调用[getExhibitListByPaging-TODO:链接至 API 开发文档对应的 API 位置]()。
+以声音列表为例，我们需要分页获取展品，调用[getExhibitListByPaging（TODO:链接至 API 开发文档对应的 API 位置）](xxx)。
 
 ```js
 const queryParams = {
@@ -405,7 +405,7 @@ this.total = totalItem;
 
 ### 展品签约量
 
-每个声音的签约量都需要在声音卡片下方显示出来，通过[getExhibitSignCount-TODO:链接至 API 开发文档对应的 API 位置]()可以批量查询对应展品的签约量。
+每个声音的签约量都需要在声音卡片下方显示出来，通过[getExhibitSignCount（TODO:链接至 API 开发文档对应的 API 位置）](xxx)可以批量查询对应展品的签约量。
 
 ```js
 // dataList 是展品列表
@@ -418,7 +418,9 @@ const res = await window.freelogApp.getExhibitSignCount(ids);
 
 在用户播放声音之前，需要对声音展品进行授权。
 
-我们会在展品列表中显示未授权标识，通过[getExhibitAuthStatus-TODO:链接至 API 开发文档对应的 API 位置]()可以批量查询对应展品的授权状态，在播放时，根据授权状态决定是否播放。
+我们会在展品列表中显示未授权标识，通过[getExhibitAuthStatus（TODO:链接至 API 开发文档对应的 API 位置）](xxx)可以批量查询对应展品的授权状态，在播放时，根据授权状态决定是否播放。
+
+也许有顾客提前与音像店签订了一份商品订单，但音像店却因为供应链出现了问题，导致无法兑现顾客的订单，顾客无法正常获得商品，需要音像店老板处理此事。同样地，即使在用户授权了展品之后，也可能因为节点与资源之间的授权链出现了问题，导致用户无法正常获得该展品的内容。因此，除了判断授权状态以外，我们还需要进一步判断其授权链是否异常，如有异常我们会在列表显示异常标识，并在播放时给出提示。
 
 ```js
 // dataList 是展品列表
@@ -427,27 +429,22 @@ const ids = dataList.map((item) => item.exhibitId).join();
 const res = await window.freelogApp.getExhibitAuthStatus(ids);
 ```
 
-> **授权状态码 authCode** 为 **200** 或 **301** 时，代表用户已经对此展品授权。
+通过**授权不通过责任方 defaulterIdentityType**字段可以即可判断授权状态：
 
-### 展品授权链状态
+- 0 - 授权通过
+- 1 - 资源出错
+- 2 - 节点出错
+- 3 - 资源出错、节点出错
+- 4 - 用户未授权
+- 5 - 用户未授权、资源出错
+- 6 - 用户未授权、节点出错
+- 7 - 用户未授权、资源出错、节点出错
 
-也许有顾客提前与音像店签订了一份商品订单，但音像店却因为供应链出现了问题，导致无法兑现顾客的订单，顾客无法正常获得商品，需要音像店老板处理此事。
-同样地，即使在用户授权了展品之后，也可能因为节点与资源之间的授权链出现了问题，导致用户无法正常获得该展品的内容。
-
-因此，除了判断授权状态以外，我们还需要进一步判断其授权链是否异常，通过[getExhibitAvailalbe-TODO:链接至 API 开发文档对应的 API 位置]()可以批量查询对应展品的授权链状态，如有异常我们会在列表显示异常标识，并在播放时给出提示。
-
-```js
-// dataList 是展品列表
-const ids = dataList.map((item) => item.exhibitId).join();
-// 批量返回授权链状态（不以参数顺序返回）
-const res = await window.freelogApp.getExhibitAvailalbe(ids);
-```
-
-> **授权状态码 authCode**为**301**，可以直接表示用户已经授权但授权链异常；否则以**授权链状态 isAuth**代表授权链状态。
+我们可以简单总结出：当`defaulterIdentityType`为 0 时，授权通过；当`defaulterIdentityType`>=4 时，用户未授权，否则代表用户已授权；当`defaulterIdentityType`不为 0 且不为 4 时，代表授权链存在异常。
 
 ### 展品详情
 
-详情页的数据需要通过[getExhibitInfo-TODO:链接至 API 开发文档对应的 API 位置-]()获取。
+详情页的数据需要通过[getExhibitInfo（TODO:链接至 API 开发文档对应的 API 位置）](xxx)获取。
 
 ```js
 // 展品 id
@@ -458,20 +455,20 @@ this.exhibitInfo = res.data.data;
 
 ### 授权
 
-未授权的声音无法播放，可以在播放时通过[addAuth-TODO:链接至 API 开发文档对应的 API 位置]()调起授权弹窗进行授权。
+未授权的声音无法播放，可以在播放时通过[addAuth（TODO:链接至 API 开发文档对应的 API 位置）](xxx)调起授权弹窗进行授权。
 
 ```js
 // 展品 id
 const exhibitId = this.data;
 // immediate: true 立即调起授权弹窗
 const res = await window.freelogApp.addAuth(exhibitId, { immediate: true });
-// 授权成功将状态码更新为 200
-if (res.status === 0) this.data.authCode = 200;
+// 授权成功将 defaulterIdentityType 更新为 0（授权链异常时无法进行授权，如果授权成功，则代表授权链无异常，可以直接使授权通过）
+if (res.status === 0) this.data.defaulterIdentityType = 0;
 ```
 
 ### 内容
 
-播放已授权声音时，通过[getExhibitFileStream-TODO:链接至 API 开发文档对应的 API 位置]()获取音频文件的 url。
+播放已授权声音时，通过[getExhibitFileStream（TODO:链接至 API 开发文档对应的 API 位置）](xxx)获取音频文件的 url。
 
 ```js
 // 展品 id
@@ -481,13 +478,40 @@ const url = await window.freelogApp.getExhibitFileStream(exhibitId, true);
 this.data.url = url;
 ```
 
-### 用户数据
+### 签约记录
+
+类似于购物网站的订单列表，播客主题也需要一份用户的签约记录，通过[getSignStatistics（TODO:链接至 API 开发文档对应的 API 位置）](xxx)获得这份数据。接下来，通过获取到的记录列表并调用[getExhibitListById（TODO:链接至 API 开发文档对应的 API 位置）](xxx)批量获取展品数据。注意：`getExhibitListById` 不会以参数顺序返回数据，因此需要自行处理排序。
+
+> 因为主题也是展品，所以签约记录里包括主题展品，签约列表需要将主题筛选出去。
+
+```js
+const result = [];
+const signedList = await window.freelogApp.getSignStatistics();
+if (!signedList.data.data.length) {
+  this.signedList = [];
+  return;
+}
+
+const idList = signedList.data.data.map((item) => item.subjectId);
+const ids = idList.join();
+const list = await window.freelogApp.getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 });
+// 整理排序
+idList.forEach((id) => {
+  const signedItem = list.data.data.find((item) => item.exhibitId === id);
+  // 留下非主题的展品
+  if (signedItem && signedItem.articleInfo.resourceType !== "theme") result.push(signedItem);
+});
+// 签约数据列表
+this.signedList = result;
+```
+
+## 用户数据
 
 播客主题中的播放列表、收藏等等此类与用户紧密相关的数据，存于用户数据里，以便在不同设备能获取到与用户相对应的数据。
 
 以收藏功能为例：
 
-- 在用户收藏或取消收藏时，调用[setUserData-TODO:链接至 API 开发文档对应的 API 位置]()修改用户的收藏 id 列表。
+- 在用户收藏或取消收藏时，调用[setUserData（TODO:链接至 API 开发文档对应的 API 位置）](xxx)修改用户的收藏 id 列表。
 
 ```js
 // 处理后收藏的 id 列表
@@ -501,73 +525,26 @@ if (res.data.msg === "success") {
 }
 ```
 
-- 通过[getUserData-TODO:链接至 API 开发文档对应的 API 位置]()获取用户收藏 id 列表。接下来，通过获取到的收藏 id 列表并调用[getExhibitListById-TODO:链接至 API 开发文档对应的 API 位置]()批量获取展品数据。注意：`getExhibitListById` 不会以参数顺序返回数据，因此需要自行处理排序。
+- 通过[getUserData（TODO:链接至 API 开发文档对应的 API 位置）](xxx)获取用户收藏 id 列表。接下来，通过获取到的收藏 id 列表并调用[getExhibitListById（TODO:链接至 API 开发文档对应的 API 位置）](xxx)批量获取展品数据。注意：`getExhibitListById` 不会以参数顺序返回数据，因此需要自行处理排序。
 
 ```js
+const result = [];
 // 收藏的 id 列表
 const collectionIdList = await window.freelogApp.getUserData("collectionIdList");
-
 if (!collectionIdList.length) {
   this.collectionList = [];
   return;
 }
 
 const ids = collectionIdList.join();
-const [list, statusInfo, authLinkStatusInfo] = await Promise.all([
-  window.freelogApp.getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
-  window.freelogApp.getExhibitAuthStatus(ids),
-  window.freelogApp.getExhibitAvailalbe(ids),
-]);
-// 处理展品授权状态与授权链状态
-list.data.data.forEach((item) => {
-  const statusItem = statusInfo.data.data.find((listItem) => listItem.exhibitId === item.exhibitId);
-  item.authCode = statusItem.authCode;
-  const authLinkStatusItem = authLinkStatusInfo.data.data.find((listItem) => listItem.exhibitId === item.exhibitId);
-  item.authLinkNormal = item.authCode === 301 ? false : authLinkStatusItem.isAuth;
-});
-const result = [];
+const list = await window.freelogApp.getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 });
 // 整理排序
-store.state.collectionIdList.forEach((idItem) => {
-  const collectionItem = list.data.data.find((item) => item.exhibitId === idItem);
+store.state.collectionIdList.forEach((id) => {
+  const collectionItem = list.data.data.find((item) => item.exhibitId === id);
   if (collectionItem) result.push(collectionItem);
 });
 // 收藏数据列表
 this.collectionList = result;
-```
-
-### 签约记录
-
-类似于购物网站的订单列表，播客主题也需要一份用户的签约记录，通过[getSignStatistics-TODO:链接至 API 开发文档对应的 API 位置-]()获得这份数据，接下来与用户数据一样，获取完整展品数据。
-
-```js
-const signedList = await window.freelogApp.getSignStatistics();
-if (!signedList.data.data.length) {
-  this.signedList = [];
-  return;
-}
-
-const idList = signedList.data.data.map((item) => item.subjectId);
-const ids = idList.join();
-const [list, statusInfo, authLinkStatusInfo] = await Promise.all([
-  window.freelogApp.getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
-  window.freelogApp.getExhibitAuthStatus(ids),
-  window.freelogApp.getExhibitAvailalbe(ids),
-]);
-// 处理展品授权状态与授权链状态
-list.data.data.forEach((item) => {
-  const statusItem = statusInfo.data.data.find((listItem) => listItem.exhibitId === item.exhibitId);
-  item.authCode = statusItem.authCode;
-  const authLinkStatusItem = authLinkStatusInfo.data.data.find((listItem) => listItem.exhibitId === item.exhibitId);
-  item.authLinkNormal = item.authCode === 301 ? false : authLinkStatusItem.isAuth;
-});
-const result = [];
-// 整理排序
-idList.forEach((idItem) => {
-  const signedItem = list.data.data.find((item) => item.exhibitId === idItem);
-  if (signedItem && signedItem.articleInfo.resourceType !== "theme") result.push(signedItem);
-});
-// 签约数据列表
-this.signedList = result;
 ```
 
 ---
@@ -641,6 +618,6 @@ const url = window.location.currentURL;
 
 - 查看[《Freelog 插件开发文档》](https://fedoc.freelog.com)；
 - 查看[《Freelog 插件开发接口文档》](https://fedoc.freelog.com/api/)；
-- 到[Freelog 社区-TODO:链接至社区]()提出问题；
+- 到[Freelog 社区（TODO:链接至社区）](xxx)提出问题；
 - 向 Freelog 官方邮箱 或 Freelog 微信公众号 进行留言；
 - 加入微信群联系客服。
