@@ -1,45 +1,16 @@
 import {
   callLogin,
-  getExhibitAuthStatus,
-  getExhibitAvailable,
-  getExhibitListById,
-  getSignStatistics,
-  setUserData,
   addAuth,
+  setUserData,
+  getExhibitListById,
+  getExhibitSignCount,
+  getExhibitAuthStatus,
+  getSignStatistics,
   getExhibitInfo,
   getExhibitFileStream,
 } from "@/api/freelog";
 import { showToast } from "./common";
 import store from "@/store";
-
-/**
- * 页面路由记录hook
- */
-//   export const useMyLocationHistory = () => {
-//     const store = useStore();
-//     const router = useRouter();
-
-//     watch(
-//       () => router,
-//       (cur) => {
-//         const { current, replaced } = cur.options.history.state;
-//         const { locationHistory } = store.state;
-//         if (!locationHistory.length) {
-//           locationHistory.push(current);
-//           store.commit("setData", { key: "locationHistory", value: locationHistory });
-//           return;
-//         }
-
-//         if (!replaced) {
-//           locationHistory.push(current);
-//         } else {
-//           locationHistory.pop();
-//         }
-//         store.commit("setData", { key: "locationHistory", value: locationHistory });
-//       },
-//       { immediate: true }
-//     );
-//   };
 
 /** 授权 hook */
 export const useMyAuth = {
@@ -48,29 +19,30 @@ export const useMyAuth = {
     // 用户未登录
     if (!store.state.userData.isLogin) return;
 
+    const result = [];
     const signedList = await getSignStatistics();
     const idList = signedList.data.data.map((item) => item.subjectId);
-    const ids = idList.join();
-    if (!ids) {
+    if (!idList.length) {
       store.commit("setData", { key: "signedList", value: [] });
       return;
     }
 
-    const [list, statusInfo, authLinkStatusInfo] = await Promise.all([
+    const ids = idList.join();
+    const [list, countList, statusList] = await Promise.all([
       getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
+      getExhibitSignCount(ids),
       getExhibitAuthStatus(ids),
-      getExhibitAvailable(ids),
     ]);
-    list.data.data.forEach((item) => {
-      const statusItem = statusInfo.data.data.find((listItem) => listItem.exhibitId === item.exhibitId);
-      item.authCode = statusItem.authCode;
-      const authLinkStatusItem = authLinkStatusInfo.data.data.find((listItem) => listItem.exhibitId === item.exhibitId);
-      item.authLinkNormal = item.authCode === 301 ? false : authLinkStatusItem.isAuth;
-    });
-    const result = [];
-    idList.forEach((idItem) => {
-      const signedItem = list.data.data.find((item) => item.exhibitId === idItem);
-      if (signedItem && signedItem.articleInfo.resourceType !== "theme") result.push(signedItem);
+    idList.forEach((id) => {
+      const signedItem = list.data.data.find((item) => item.exhibitId === id);
+      if (!signedItem || signedItem.articleInfo.resourceType === "theme") return;
+      const countItem = countList.data.data.find((item) => item.subjectId === id);
+      const statusItem = statusList.data.data.find((item) => item.exhibitId === id);
+      result.push({
+        ...signedItem,
+        signCount: countItem.count,
+        defaulterIdentityType: statusItem.defaulterIdentityType,
+      });
     });
     store.commit("setData", { key: "signedList", value: result });
   },
@@ -81,15 +53,15 @@ export const useMyAuth = {
     const authResult = await addAuth(exhibitId);
     const { status } = authResult;
     if (status !== 0) return;
-    data.authCode = 200;
+    data.defaulterIdentityType = 0;
 
     // 同步收藏列表、签约列表、播放列表相应展品的授权状态，更新授权列表
     const { collectionList, signedList, playList, authIdList } = store.state;
     signedList.unshift(data);
     const collectionItem = collectionList.find((item) => item.exhibitId === exhibitId);
-    if (collectionItem) collectionItem.authCode = 200;
+    if (collectionItem) collectionItem.defaulterIdentityType = 0;
     const playItem = playList.find((item) => item.exhibitId === exhibitId);
-    if (playItem) playItem.authCode = 200;
+    if (playItem) playItem.defaulterIdentityType = 0;
     authIdList.push(exhibitId);
     store.commit("setData", { key: "collectionList", value: collectionList });
     store.commit("setData", { key: "signedList", value: signedList });
@@ -103,27 +75,31 @@ export const useMyAuth = {
 export const useMyCollection = {
   /** 获取收藏列表 */
   async getCollectionList() {
-    const ids = store.state.collectionIdList.join();
-    if (!ids) {
+    if (!store.state.userData.isLogin) return;
+
+    const result = [];
+    const idList = store.state.collectionIdList;
+    if (!idList.length) {
       store.commit("setData", { key: "collectionList", value: [] });
       return;
     }
 
-    const [list, statusInfo, authLinkStatusInfo] = await Promise.all([
+    const ids = idList.join();
+    const [list, countList, statusList] = await Promise.all([
       getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
+      getExhibitSignCount(ids),
       getExhibitAuthStatus(ids),
-      getExhibitAvailable(ids),
     ]);
-    list.data.data.forEach((item) => {
-      const statusItem = statusInfo.data.data.find((listItem) => listItem.exhibitId === item.exhibitId);
-      item.authCode = statusItem.authCode;
-      const authLinkStatusItem = authLinkStatusInfo.data.data.find((listItem) => listItem.exhibitId === item.exhibitId);
-      item.authLinkNormal = item.authCode === 301 ? false : authLinkStatusItem.isAuth;
-    });
-    const result = [];
-    store.state.collectionIdList.forEach((idItem) => {
-      const collectionItem = list.data.data.find((item) => item.exhibitId === idItem);
-      if (collectionItem) result.push(collectionItem);
+    idList.forEach((id) => {
+      const collectionItem = list.data.data.find((item) => item.exhibitId === id);
+      if (!collectionItem) return;
+      const signCountItem = countList.data.data.find((item) => item.subjectId === id);
+      const statusItem = statusList.data.data.find((item) => item.exhibitId === id);
+      result.push({
+        ...collectionItem,
+        signCount: signCountItem.count,
+        defaulterIdentityType: statusItem.defaulterIdentityType,
+      });
     });
     store.commit("setData", { key: "collectionList", value: result });
   },
@@ -148,7 +124,7 @@ export const useMyCollection = {
       // 取消收藏
       const idIndex = collectionIdList.findIndex((item) => item === exhibitId);
       collectionIdList.splice(idIndex, 1);
-      const index = collectionList.findIndex((item) => item.id === exhibitId);
+      const index = collectionList.findIndex((item) => item.exhibitId === exhibitId);
       collectionList.splice(index, 1);
     } else {
       // 收藏
@@ -169,27 +145,25 @@ export const useMyCollection = {
 export const useMyPlay = {
   /** 获取播放列表数据 */
   async getPlayList() {
-    const ids = store.state.playIdList.join();
-    if (!ids) {
+    if (!store.state.userData.isLogin) return;
+
+    const result = [];
+    const idList = store.state.playIdList;
+    if (!idList.length) {
       store.commit("setData", { key: "playList", value: [] });
       return;
     }
 
-    const [list, statusInfo, authLinkStatusInfo] = await Promise.all([
+    const ids = idList.join();
+    const [list, statusList] = await Promise.all([
       getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
       getExhibitAuthStatus(ids),
-      getExhibitAvailable(ids),
     ]);
-    list.data.data.forEach((item) => {
-      const statusItem = statusInfo.data.data.find((listItem) => listItem.exhibitId === item.exhibitId);
-      item.authCode = statusItem.authCode;
-      const authLinkStatusItem = authLinkStatusInfo.data.data.find((listItem) => listItem.exhibitId === item.exhibitId);
-      item.authLinkNormal = item.authCode === 301 ? false : authLinkStatusItem.isAuth;
-    });
-    const result = [];
-    store.state.playIdList.forEach((idItem) => {
-      const playItem = list.data.data.find((item) => item.exhibitId === idItem);
-      if (playItem) result.push(playItem);
+    idList.forEach((id) => {
+      const playItem = list.data.data.find((item) => item.exhibitId === id);
+      if (!playItem) return;
+      const statusItem = statusList.data.data.find((item) => item.exhibitId === id);
+      result.push({ ...playItem, defaulterIdentityType: statusItem.defaulterIdentityType });
     });
     store.commit("setData", { key: "playList", value: result });
   },
@@ -250,11 +224,12 @@ export const useMyPlay = {
       localStorage.setItem("playIdList", JSON.stringify(playIdList));
 
       const playList = store.state.playList;
-      const index = playList.findIndex((item) => item.id === id);
+      const index = playList.findIndex((item) => item.exhibitId === id);
       playList.splice(index, 1);
 
       store.commit("setData", { key: "playIdList", value: playIdList });
       store.commit("setData", { key: "playList", value: playList });
+      useMyPlay.playOrPause(playList[index]);
     } else {
       // 已登录时取用户数据
       const playIdList = [...store.state.playIdList];
@@ -264,11 +239,12 @@ export const useMyPlay = {
 
       if (res.data.msg === "success") {
         const playList = store.state.playList;
-        const index = playList.findIndex((item) => item.id === id);
+        const index = playList.findIndex((item) => item.exhibitId === id);
         playList.splice(index, 1);
 
         store.commit("setData", { key: "playIdList", value: playIdList });
         store.commit("setData", { key: "playList", value: playList });
+        useMyPlay.playOrPause(playList[index]);
       } else {
         showToast("操作失败");
       }
@@ -282,12 +258,16 @@ export const useMyPlay = {
       localStorage.setItem("playIdList", "[]");
       store.commit("setData", { key: "playIdList", value: [] });
       store.commit("setData", { key: "playList", value: [] });
+      store.commit("setData", { key: "playing", value: false });
+      store.commit("setData", { key: "playingInfo", value: null });
     } else {
       // 已登录时取用户数据
       const res = await setUserData("playIdList", []);
       if (res.data.msg === "success") {
         store.commit("setData", { key: "playIdList", value: [] });
         store.commit("setData", { key: "playList", value: [] });
+        store.commit("setData", { key: "playing", value: false });
+        store.commit("setData", { key: "playingInfo", value: null });
       } else {
         showToast("清空列表失败");
       }
@@ -296,7 +276,13 @@ export const useMyPlay = {
 
   // 播放
   async playOrPause(exhibit, type = "normal") {
-    const { authCode, authLinkNormal, url, exhibitId } = exhibit;
+    if (!exhibit) {
+      store.commit("setData", { key: "playing", value: false });
+      store.commit("setData", { key: "playingInfo", value: null });
+      return;
+    }
+
+    const { defaulterIdentityType, url, exhibitId } = exhibit;
     const { playingInfo, playing } = store.state;
     if (playingInfo) {
       const { exhibitId: id, url } = playingInfo;
@@ -311,7 +297,7 @@ export const useMyPlay = {
       }
     }
 
-    if (!authLinkNormal) {
+    if (![0, 4].includes(defaulterIdentityType)) {
       // 授权链异常
       if (type !== "normal") {
         // 自动按播放列表顺序播放时，直接播放列表中的下一首
@@ -323,7 +309,7 @@ export const useMyPlay = {
       return;
     }
 
-    if (![200, 301].includes(authCode)) {
+    if (defaulterIdentityType >= 4) {
       // 未授权
       useMyAuth.getAuth(exhibit);
       return;
@@ -341,13 +327,11 @@ export const useMyPlay = {
 
   // 获取播放数据
   async getPlayingInfo(id) {
-    const [info, statusInfo, authLinkStatusInfo] = await Promise.all([
+    const [info, statusInfo] = await Promise.all([
       getExhibitInfo(id, { isLoadVersionProperty: 1 }),
       getExhibitAuthStatus(id),
-      getExhibitAvailable(id),
     ]);
-    info.data.data.authCode = statusInfo.data.data[0].authCode;
-    info.data.data.authLinkNormal = info.data.data.authCode === 301 ? false : authLinkStatusInfo.data.data[0].isAuth;
+    info.data.data.defaulterIdentityType = statusInfo.data.data[0].defaulterIdentityType;
     store.commit("setData", { key: "playingInfo", value: info.data.data });
   },
 
@@ -379,40 +363,3 @@ export const useMyPlay = {
     useMyPlay.playOrPause(nextVoiceInfo, "nextVoice");
   },
 };
-
-/**
- * 获取页面滚动相关信息hook
- */
-//   export const useMyScroll = () => {
-//     const app = document.getElementById("app");
-//     const data = reactive({
-//       scrollTop: 0,
-//       clientHeight: 0,
-//       scrollHeight: 0,
-//     });
-
-//     const scroll = () => {
-//       data.scrollTop = app?.scrollTop || 0;
-//       data.clientHeight = app?.clientHeight || 0;
-//       data.scrollHeight = app?.scrollHeight || 0;
-//     };
-
-//     const scrollTo = (top, behavior = "smooth") => {
-//       app?.scroll({ top, behavior });
-//     };
-
-//     const scrollToTop = () => {
-//       app?.scroll({ top: 0, behavior: "smooth" });
-//     };
-
-//     app?.addEventListener("scroll", scroll);
-//     onUnmounted(() => {
-//       app?.removeEventListener("scroll", scroll);
-//     });
-
-//     return {
-//       ...toRefs(data),
-//       scrollTo,
-//       scrollToTop,
-//     };
-//   };

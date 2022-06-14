@@ -3,7 +3,7 @@
   <div class="second-album-wrapper">
     <!-- PC -->
     <div class="pc-second-album-wrapper">
-      <div class="cover-area" @click="$router.push({ path: '/album-detail', query: { id: '123' } })">
+      <div class="cover-area" @click="$router.myPush({ path: '/album-detail', query: { id: '123' } })">
         <img
           class="cover"
           src="https://image.freelog.com/preview-image/1b11038db350bc3d928496cd88ea12f4b90d0576.jpg#x=106&y=0&w=1707&h=1280&width=1920&height=1280"
@@ -19,14 +19,14 @@
         <div class="title-area">
           <!-- <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="!data.authLinkNormal" />
         <img class="lock" src="../assets/images/mini-lock.png" @click.stop="getAuth(data.exhibitId)" v-if="!isAuth" /> -->
-          <div class="tag is-auth" v-if="[200, 301].includes(data.authCode)">已授权</div>
-          <div class="tag not-auth" v-if="data.authCode === 303">未授权</div>
+          <div class="tag is-auth" v-if="data.defaulterIdentityType < 4">已授权</div>
+          <div class="tag not-auth" v-else>未授权</div>
           <div class="type-mark">专辑</div>
           <my-tooltip
             class="title"
             :content="'睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊'"
           >
-            <span @click="$router.push({ path: '/album-detail', query: { id: '123' } })">
+            <span @click="$router.myPush({ path: '/album-detail', query: { id: '123' } })">
               {{
                 "睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊"
               }}
@@ -72,7 +72,7 @@
         <div class="voice-list">
           <second-voice v-for="item in 3" :key="item" />
           <div class="view-all">
-            <div class="text-btn" @click="$router.push('/album-detail')">查看全部（12）</div>
+            <div class="text-btn" @click="$router.myPush('/album-detail')">查看全部（12）</div>
           </div>
         </div>
       </div>

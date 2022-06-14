@@ -10,10 +10,140 @@
     />
 
     <!-- mobile -->
-    <div class="mobile-player-wrapper" v-if="$store.state.inMobile"></div>
+    <div class="mobile-player-wrapper" v-if="$store.state.inMobile">
+      <div class="player" :class="{ show: playerShow }">
+        <div class="cover-area">
+          <img class="cover" :src="playingInfo.coverImages[0]" v-if="playingInfo" />
+          <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
+        </div>
+        <div ref="infoArea" class="info-area">
+          <div
+            class="info-map"
+            :style="{ '--touchMoveX': touchMoveX + 'px' }"
+            @touchstart="touchStart"
+            @touchmove="touchMove"
+            @touchend="touchEnd"
+            v-if="playingInfo"
+          >
+            <div
+              class="info"
+              :style="{ '--infoAreaWidth': infoAreaWidth + 'px' }"
+              v-for="item in playList"
+              :key="item.exhibitId"
+            >
+              <div
+                class="title voice-title"
+                @click="$router.myPush({ path: '/voice-detail', query: { id: item.exhibitId } })"
+              >
+                {{ item.exhibitTitle }}
+              </div>
+              <!-- <div
+              class="title album-title"
+              @click="$router.myPush({ path: '/album-detail', query: { id: item.exhibitId } })"
+            >
+              {{ "这里是专辑标题这里是专辑标题这里是专辑标题这里是专辑标题这里是专辑标题这里是专辑标题" }}
+            </div> -->
+            </div>
+          </div>
+          <div class="no-data-title" v-else>暂无播放的声音</div>
+        </div>
+        <div class="btns-area">
+          <div class="play-btn-area" @click="playOrPause()">
+            <i
+              class="freelog play"
+              :class="playing ? 'fl-icon-zanting-daibiankuang' : 'fl-icon-bofang-daibiankuang'"
+            ></i>
+            <el-progress
+              class="progress"
+              type="circle"
+              :percentage="$store.state.progress && duration ? ($store.state.progress / duration) * 100 : 0"
+              color="white"
+              :width="30"
+              :stroke-width="2"
+              :show-text="false"
+            />
+          </div>
+          <i class="freelog fl-icon-jiarubofangliebiao" @click="openPlayList()"></i>
+        </div>
+        <div @touchstart="slidingProgress = true">
+          <el-slider
+            class="progress"
+            v-model="$store.state.progress"
+            :min="0"
+            :max="duration"
+            :show-tooltip="false"
+            :disabled="!duration"
+            @change="changeProgress"
+          ></el-slider>
+        </div>
+      </div>
+
+      <transition name="fade">
+        <div class="mobile-play-list-modal" @click="closePlayList()" v-if="playListPopupShow"></div>
+      </transition>
+      <div class="mobile-play-list-popup" :class="{ show: playListPopupShow }">
+        <div class="top-area">
+          <div class="popup-title">
+            播放列表<span v-if="playList">（{{ playList.length }}）</span>
+          </div>
+          <div class="clear-btn" @click="confirmDialogShow = true" v-if="playList && playList.length">清空列表</div>
+        </div>
+        <div class="voice-list" v-if="playList">
+          <template v-if="playList.length">
+            <div class="voice-item" v-for="item in playList" :key="item.exhibitId" @click="playOrPauseList(item)">
+              <div class="left-area">
+                <div class="title-area">
+                  <img
+                    class="icon"
+                    src="../assets/images/auth-link-abnormal.png"
+                    v-if="![0, 4].includes(item.defaulterIdentityType)"
+                  />
+                  <img
+                    class="icon lock"
+                    src="../assets/images/mini-lock.png"
+                    @click.stop="getAuth(item)"
+                    v-if="item.defaulterIdentityType >= 4"
+                  />
+                  <div class="voice-title">{{ item.exhibitTitle }}</div>
+                </div>
+
+                <div class="duration-area">
+                  <play-status
+                    :playing="playing"
+                    :desc="`${secondsToHMS($store.state.progress)}/${secondsToHMS(duration)}`"
+                    v-if="playingInfo && playingInfo.exhibitId === item.exhibitId"
+                  />
+                  <div class="duration" v-else>{{ 153 | secondsToHMS }}</div>
+                  <!-- <div class="album-title">
+                    {{ "睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊" }}
+                  </div> -->
+                </div>
+              </div>
+
+              <i class="text-btn mobile freelog fl-icon-guanbi" @click.stop="deleteVoice(item.exhibitId)"></i>
+            </div>
+          </template>
+          <div class="no-data-tip" v-else>暂无任何声音</div>
+        </div>
+        <el-skeleton class="skeleton" :rows="8" animated v-if="!playList" />
+        <div class="close-btn" @click="closePlayList()">关闭</div>
+      </div>
+
+      <transition name="fade">
+        <div class="confirm-dialog-modal" v-if="confirmDialogShow">
+          <div class="confirm-dialog">
+            <div class="desc">清空列表会移除播放列表中的全部声音</div>
+            <div class="btns">
+              <div class="btn cancel" @click="confirmDialogShow = false">取消</div>
+              <div class="btn sure" @click="clearPlayList()">清空</div>
+            </div>
+          </div>
+        </div>
+      </transition>
+    </div>
 
     <!-- PC -->
-    <template v-if="!$store.state.inMobile">
+    <template v-if="$store.state.inMobile === false">
       <transition name="slide-up-fade">
         <div class="pc-player-wrapper" v-if="show">
           <div class="player-wrapper">
@@ -37,7 +167,7 @@
                   <template v-if="playingInfo">
                     <div class="title-area">
                       <my-tooltip class="title voice-title" :content="playingInfo.exhibitTitle">
-                        <span @click="$router.push({ path: '/voice-detail', query: { id: playingInfo.exhibitId } })">
+                        <span @click="$router.myPush({ path: '/voice-detail', query: { id: playingInfo.exhibitId } })">
                           {{ playingInfo.exhibitTitle }}
                         </span>
                       </my-tooltip>
@@ -45,13 +175,13 @@
                       class="title album-title"
                       :content="'这里是专辑标题这里是专辑标题这里是专辑标题这里是专辑标题这里是专辑标题这里是专辑标题'"
                     >
-                      <span @click="$router.push({ path: '/album-detail', query: { id: '123' } })">
+                      <span @click="$router.myPush({ path: '/album-detail', query: { id: '123' } })">
                         {{ "这里是专辑标题这里是专辑标题这里是专辑标题这里是专辑标题这里是专辑标题这里是专辑标题" }}
                       </span>
                     </my-tooltip> -->
                     </div>
-                    <div class="progress-area" v-if="$store.state.duration">
-                      {{ $store.state.progress | secondsToHMS }}/{{ $store.state.duration | secondsToHMS }}
+                    <div class="progress-area" v-if="duration">
+                      {{ $store.state.progress | secondsToHMS }}/{{ duration | secondsToHMS }}
                     </div>
                   </template>
                   <span class="no-data-title" v-else>暂无播放的声音</span>
@@ -61,9 +191,9 @@
                     class="progress"
                     v-model="$store.state.progress"
                     :min="0"
-                    :max="$store.state.duration"
+                    :max="duration"
                     :format-tooltip="() => secondsToHMS($store.state.progress)"
-                    :disabled="!$store.state.duration"
+                    :disabled="!duration"
                     @change="changeProgress"
                   ></el-slider>
                 </div>
@@ -94,35 +224,34 @@
       </transition>
 
       <transition name="scale">
-        <div ref="volumePopup" class="volume-popup" key="volume" v-if="volumePopupShow">
+        <div ref="volumePopup" class="pc-volume-popup" key="volume" v-if="volumePopupShow">
           <el-slider class="progress" v-model="volume" vertical :min="0" :max="100"></el-slider>
         </div>
       </transition>
 
       <transition name="scale">
-        <div ref="playListPopup" class="play-list-popup" key="playList" v-if="playListPopupShow">
+        <div ref="playListPopup" class="pc-play-list-popup" key="playList" v-if="playListPopupShow">
           <div class="top-area">
             <div class="popup-title">播放列表</div>
             <div class="top-right">
-              <div class="text-btn clear-btn" @click="clearPlayList()">清空列表</div>
+              <div class="text-btn clear-btn" @click="clearPlayList()" v-if="playList.length">清空列表</div>
               <i class="text-btn freelog fl-icon-zhankaigengduo" @click="playListPopupShow = false"></i>
             </div>
           </div>
-          <div class="voice-list" v-if="$store.state.playList">
-            <template v-if="$store.state.playList.length">
-              <div
-                class="voice-item"
-                v-for="(item, i) in $store.state.playList"
-                :key="item.exhibitId"
-                @click="playOrPauseList(item)"
-              >
+          <div class="voice-list" v-if="playList">
+            <template v-if="playList.length">
+              <div class="voice-item" v-for="item in playList" :key="item.exhibitId" @click="playOrPauseList(item)">
                 <div class="left-area">
-                  <img class="icon" src="../assets/images/auth-link-abnormal.png" v-if="!item.authLinkNormal" />
+                  <img
+                    class="icon"
+                    src="../assets/images/auth-link-abnormal.png"
+                    v-if="![0, 4].includes(item.defaulterIdentityType)"
+                  />
                   <img
                     class="icon"
                     src="../assets/images/mini-lock.png"
                     @click.stop="getAuth(item)"
-                    v-if="item.authCode === 303"
+                    v-if="item.defaulterIdentityType >= 4"
                   />
                   <div class="title-area">
                     <my-tooltip class="title voice-title" :content="item.exhibitTitle">
@@ -141,18 +270,18 @@
 
                 <div class="right-area">
                   <play-status
-                    :playing="$store.state.playing"
-                    :desc="`${secondsToHMS($store.state.progress)}/${secondsToHMS($store.state.duration)}`"
-                    v-if="$store.state.playingInfo && $store.state.playingInfo.exhibitId === item.exhibitId"
+                    :playing="playing"
+                    :desc="`${secondsToHMS($store.state.progress)}/${secondsToHMS(duration)}`"
+                    v-if="playingInfo && playingInfo.exhibitId === item.exhibitId"
                   />
-                  <div class="duration" v-else>{{ $store.state.duration | secondsToHMS }}</div>
+                  <div class="duration" v-else>{{ 153 | secondsToHMS }}</div>
                   <i class="text-btn freelog fl-icon-guanbi" @click.stop="deleteVoice(item.exhibitId)"></i>
                 </div>
               </div>
             </template>
             <div class="no-data-tip" v-else>暂无任何声音</div>
           </div>
-          <el-skeleton class="skeleton" :rows="8" animated v-if="!$store.state.playList" />
+          <el-skeleton class="skeleton" :rows="8" animated v-if="!playList" />
         </div>
       </transition>
     </template>
@@ -175,33 +304,72 @@ export default {
 
   data() {
     return {
+      playList: null,
       show: false,
-      playing: false,
       volumePopupShow: false,
       volume: null,
+      playerShow: true,
       playListPopupShow: false,
+      confirmDialogShow: false,
       playingInfo: null,
       slidingProgress: false,
+      timeout: null,
+      infoAreaWidth: 0,
+      startTouchX: 0,
+      touchMoveX: 0,
     };
   },
 
   watch: {
+    "$store.state.playList": {
+      handler(cur) {
+        this.playList = cur;
+        if (!cur || !this.$store.state.inMobile) return;
+
+        if (!this.infoAreaWidth) this.infoAreaWidth = this.$refs.infoArea.clientWidth;
+        if (this.playingInfo) {
+          const index = cur.findIndex((item) => item.exhibitId === this.playingInfo.exhibitId);
+          this.touchMoveX = -this.infoAreaWidth * index;
+        }
+      },
+      immediate: true,
+    },
+
     "$store.state.playingInfo": {
       handler(cur) {
         this.$store.commit("setData", { key: "progress", value: 0 });
-        this.$store.commit("setData", { key: "duration", value: null });
+        this.$nextTick(() => {
+          this.$store.commit("setData", { key: "duration", value: null });
+        });
         this.playingInfo = cur;
+
+        if (this.playList && this.$store.state.inMobile) {
+          const index = this.playList.findIndex((item) => item.exhibitId === this.playingInfo.exhibitId);
+          this.touchMoveX = -this.infoAreaWidth * index;
+        }
       },
       deep: true,
     },
 
     "$store.state.playing"(cur) {
-      if (!this.$store.state.playingInfo.url) return;
+      if (!this.$store.state.playingInfo || !this.$store.state.playingInfo.url) return;
 
       if (cur) {
         this.$refs.player.play();
       } else {
         this.$refs.player.pause();
+      }
+    },
+
+    "$store.state.inMobile"(cur) {
+      if (cur) {
+        app.addEventListener("touchend", () => {
+          this.slidingProgress = false;
+        });
+      } else {
+        app.addEventListener("mouseup", () => {
+          this.slidingProgress = false;
+        });
       }
     },
 
@@ -218,12 +386,22 @@ export default {
       return playingInfo ? collectionIdList.includes(playingInfo.exhibitId) : false;
     },
 
+    /** 是否播放中 */
+    playing() {
+      return this.$store.state.playing;
+    },
+
+    /** 播放中的声音时长 */
+    duration() {
+      return this.$store.state.duration;
+    },
+
     /** 左区域按钮群 */
     leftBtnList() {
       return [
         { icon: "fl-icon-shangyishou1", operate: this.preVoice },
         {
-          icon: this.$store.state.playing ? "fl-icon-zanting-daibiankuang" : "fl-icon-bofang-daibiankuang",
+          icon: this.playing ? "fl-icon-zanting-daibiankuang" : "fl-icon-bofang-daibiankuang",
           operate: this.playOrPause,
         },
         { icon: "fl-icon-xiayishou1", operate: this.nextVoice },
@@ -276,6 +454,22 @@ export default {
       this.playListPopupShow = false;
     },
 
+    /** 打开播放列表（移动端） */
+    openPlayList() {
+      this.playerShow = false;
+      setTimeout(() => {
+        this.playListPopupShow = true;
+      }, 700);
+    },
+
+    /** 关闭播放列表（移动端） */
+    closePlayList() {
+      this.playListPopupShow = false;
+      setTimeout(() => {
+        this.playerShow = true;
+      }, 700);
+    },
+
     /** 上一首 */
     preVoice() {
       useMyPlay.preVoice();
@@ -314,6 +508,7 @@ export default {
     /** 清空播放列表 */
     clearPlayList() {
       useMyPlay.clearPlayList();
+      this.confirmDialogShow = false;
     },
 
     /** 授权 */
@@ -324,7 +519,7 @@ export default {
     /** 监听点击区域 */
     clickListener() {
       document.addEventListener("click", (e) => {
-        if (!this.show) return;
+        if (!this.show || this.$store.state.inMobile) return;
 
         if (this.volumePopupShow) {
           const volumePopup = this.$refs.volumePopup;
@@ -348,7 +543,7 @@ export default {
     canplay() {
       const { duration } = this.$refs.player;
       this.$store.commit("setData", { key: "duration", value: duration });
-      if (this.$store.state.playing) this.$refs.player.play();
+      if (this.playing) this.$refs.player.play();
     },
 
     /** 音频播放时间变化 */
@@ -361,8 +556,46 @@ export default {
 
     /** 改变音频进度 */
     changeProgress(e) {
-      this.$refs.player.currentTime = e;
       this.slidingProgress = false;
+      this.$refs.player.currentTime = e;
+    },
+
+    /** 开始划动声音 */
+    touchStart(e) {
+      this.startTouchX = e.changedTouches[0].clientX;
+    },
+
+    /** 划动声音 */
+    touchMove(e) {
+      if (!this.playing) return;
+
+      const index = this.playList.findIndex((item) => item.exhibitId === this.playingInfo.exhibitId);
+      const basicX = -this.infoAreaWidth * index;
+      const offset = e.changedTouches[0].clientX - this.startTouchX;
+      this.touchMoveX = basicX + offset;
+    },
+
+    /** 结束划动声音 */
+    touchEnd() {
+      if (!this.playing) return;
+
+      const index = this.playList.findIndex((item) => item.exhibitId === this.playingInfo.exhibitId);
+      const basicX = -this.infoAreaWidth * index;
+      const areaWidth = this.$refs.infoArea.clientWidth;
+      const offset = basicX - this.touchMoveX;
+      if (Math.abs(offset) < (areaWidth * 2) / 3) {
+        // 不切
+        this.touchMoveX = -this.infoAreaWidth * index;
+        return;
+      }
+
+      if (offset > 0) {
+        // 下一首
+        useMyPlay.nextVoice();
+      } else if (offset < 0) {
+        // 上一首
+        useMyPlay.preVoice();
+      }
     },
   },
 };
@@ -370,6 +603,411 @@ export default {
 
 <style lang="scss" scoped>
 .player-wrapper {
+  // mobile
+  .mobile-player-wrapper {
+    .player {
+      position: fixed;
+      left: 15px;
+      right: 15px;
+      bottom: -60px;
+      height: 60px;
+      background: rgba(0, 0, 0, 0.5);
+      box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
+      border-radius: 18px;
+      padding-left: 10px;
+      padding-right: 20px;
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      z-index: 102;
+      transition: bottom 0.5s ease;
+
+      &.show {
+        bottom: 20px;
+      }
+
+      .cover-area {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background-color: #222;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+
+        .cover {
+          height: 100%;
+        }
+
+        .default-avatar {
+          width: 18px;
+          height: 18px;
+        }
+      }
+
+      .info-area {
+        flex: 1;
+        width: 0;
+        margin-left: 10px;
+        overflow: hidden;
+
+        .info-map {
+          display: flex;
+          transform: translateX(var(--touchMoveX));
+
+          .info {
+            flex-shrink: 0;
+            width: var(--infoAreaWidth);
+
+            .title {
+              max-width: 100%;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+
+              &.voice-title {
+                font-size: 14px;
+                font-weight: 500;
+                color: #ffffff;
+                line-height: 20px;
+              }
+
+              &.album-title {
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.4);
+                line-height: 17px;
+                margin-top: 3px;
+              }
+            }
+          }
+        }
+
+        .no-data-title {
+          font-size: 14px;
+          font-weight: 500;
+          line-height: 20px;
+          color: rgba(255, 255, 255, 0.4);
+        }
+      }
+
+      .btns-area {
+        display: flex;
+        align-items: center;
+        margin-left: 20px;
+
+        .play-btn-area {
+          position: relative;
+
+          ::v-deep .progress {
+            position: absolute;
+            left: 0;
+            top: 0;
+
+            .el-progress-circle__track {
+              stroke: transparent;
+            }
+          }
+        }
+
+        .freelog {
+          color: rgba(255, 255, 255, 0.4);
+
+          &:active {
+            color: rgba(255, 255, 255, 0.2);
+          }
+
+          &.play {
+            font-size: 30px;
+          }
+
+          &.fl-icon-jiarubofangliebiao {
+            font-size: 22px;
+            margin-left: 20px;
+          }
+        }
+      }
+
+      .progress {
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        bottom: 0;
+        height: 2px;
+
+        ::v-deep .el-slider__runway {
+          margin: 0;
+          height: 2px;
+          background-color: transparent;
+
+          .el-slider__bar {
+            height: 2px;
+            opacity: 0.3;
+          }
+
+          .el-slider__button-wrapper {
+            width: 5px;
+            height: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .el-slider__button {
+              width: 5px;
+              height: 5px;
+              border: none;
+            }
+          }
+        }
+      }
+    }
+
+    .mobile-play-list-modal {
+      position: fixed;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.2);
+      z-index: 102;
+    }
+
+    .mobile-play-list-popup {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: calc(180px - 100vh);
+      height: calc(100vh - 180px);
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      z-index: 102;
+      transition: bottom 0.5s ease;
+
+      &.show {
+        bottom: 0;
+      }
+
+      .top-area {
+        width: 100%;
+        height: 60px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 15px;
+        box-sizing: border-box;
+
+        .popup-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: rgba(255, 255, 255, 0.4);
+        }
+
+        .clear-btn {
+          font-size: 14px;
+          color: #2784ff;
+
+          &:active {
+            color: rgba(39, 132, 255, 0.6);
+          }
+        }
+      }
+
+      .voice-list {
+        padding: 0 15px;
+        box-sizing: border-box;
+        flex: 1;
+        overflow-y: auto;
+
+        &::-webkit-scrollbar {
+          width: 5px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          border-radius: 5px;
+          background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .voice-item {
+          width: 100%;
+          height: 60px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          .left-area {
+            flex: 1;
+
+            .title-area {
+              display: flex;
+              align-items: center;
+
+              .icon {
+                width: 14px;
+                height: 14px;
+                margin-right: 5px;
+
+                &.lock {
+                  opacity: 0.8;
+                }
+              }
+
+              .voice-title {
+                flex: 1;
+                width: 0;
+                font-size: 12px;
+                line-height: 18px;
+                font-weight: 600;
+                color: rgba(255, 255, 255, 0.8);
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+              }
+            }
+
+            .duration-area {
+              display: flex;
+              align-items: center;
+              font-size: 12px;
+              color: rgba(255, 255, 255, 0.4);
+              line-height: 18px;
+              margin-top: 4px;
+
+              .album-title {
+                flex: 1;
+                width: 0;
+                margin-left: 10px;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+              }
+            }
+          }
+
+          .freelog {
+            padding: 5px;
+            font-size: 10px;
+            margin-left: 20px;
+            color: rgba(153, 153, 153, 0.4);
+          }
+        }
+
+        .no-data-tip {
+          width: 100%;
+          text-align: center;
+          font-size: 14px;
+          color: rgba(255, 255, 255, 0.2);
+          line-height: 20px;
+          margin-top: 197px;
+        }
+      }
+
+      .skeleton {
+        flex: 1;
+        width: 100%;
+        padding: 15px;
+        box-sizing: border-box;
+
+        ::v-deep .el-skeleton.is-animated .el-skeleton__item {
+          background: linear-gradient(90deg, rgb(70, 70, 70) 25%, rgb(50, 50, 50) 37%, rgb(70, 70, 70) 63%) 0% 0% / 400%
+            100%;
+        }
+      }
+
+      .close-btn {
+        width: 100%;
+        height: 60px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+
+        &:active {
+          color: rgba(255, 255, 255, 0.4);
+        }
+      }
+    }
+
+    .confirm-dialog-modal {
+      position: fixed;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 102;
+
+      .confirm-dialog {
+        width: 280px;
+        background: #333333;
+        border-radius: 10px;
+
+        .desc {
+          padding: 40px 45px;
+          box-sizing: border-box;
+          font-size: 16px;
+          color: #ffffff;
+          line-height: 22px;
+          text-align: center;
+        }
+
+        .btns {
+          display: flex;
+          border-top: 1px solid rgba(255, 255, 255, 0.05);
+          box-sizing: border-box;
+
+          .btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            line-height: 22px;
+            height: 60px;
+            box-sizing: border-box;
+
+            & + .btn {
+              border-left: 1px solid rgba(255, 255, 255, 0.05);
+            }
+
+            &.cancel {
+              color: #ffffff;
+
+              &:active {
+                color: rgba(255, 255, 255, 0.6);
+              }
+            }
+
+            &.sure {
+              color: #2784ff;
+
+              &:active {
+                color: rgba(39, 132, 255, 0.6);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   // PC
   .pc-player-wrapper {
     position: fixed;
@@ -423,6 +1061,7 @@ export default {
           height: 48px;
           border-radius: 10px;
           border: 1px solid rgba(255, 255, 255, 0.1);
+          background-color: #222;
           box-sizing: border-box;
           display: flex;
           align-items: center;
@@ -612,7 +1251,7 @@ export default {
     }
   }
 
-  .volume-popup {
+  .pc-volume-popup {
     position: absolute;
     right: calc(50% - 565px + 129px);
     bottom: 94px;
@@ -658,7 +1297,7 @@ export default {
     }
   }
 
-  .play-list-popup {
+  .pc-play-list-popup {
     position: absolute;
     right: calc(50% - 565px + 38px);
     bottom: 94px;

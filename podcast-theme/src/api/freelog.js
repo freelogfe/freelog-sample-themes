@@ -45,14 +45,6 @@ export const getExhibitAuthStatus = async (exhibitIds) => {
 };
 
 /**
- * 查询展品授权链状态
- * @param exhibitIds 展品id
- */
-export const getExhibitAvailable = async (exhibitIds) => {
-  return window.freelogApp.getExhibitAvailalbe(exhibitIds);
-};
-
-/**
  * 唤起授权弹窗
  * @param exhibitId 展品id
  */

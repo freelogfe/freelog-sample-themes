@@ -1,21 +1,15 @@
 <template>
-  <div id="app" @scroll="updateScroll()">
+  <div id="app">
     <div class="page-wrapper">
       <my-header />
-      <router-view class="router-view" />
+      <keep-alive>
+        <router-view class="router-view" :class="{ mobile: $store.state.inMobile }" />
+      </keep-alive>
       <my-footer />
     </div>
     <my-player />
     <theme-entrance />
     <share />
-    <div
-      class="scroll-bar"
-      :style="{
-        height: `${(clientHeight / pageHeight) * 100}%`,
-        top: `${(scrollTop / pageHeight) * 100}%`,
-      }"
-      v-show="pageHeight > clientHeight"
-    ></div>
   </div>
 </template>
 
@@ -35,29 +29,17 @@ export default {
     share,
   },
 
-  data() {
-    return {
-      clientHeight: 0,
-      pageHeight: 0,
-      scrollTop: 0,
-    };
-  },
+  created() {
+    this.$router.afterEach((to) => {
+      // 将第一个路由记入路由历史
+      const { locationHistory } = this.$store.state;
+      if (locationHistory.length) return;
 
-  mounted() {
-    this.clientHeight = document.body.clientHeight;
-    const page = document.getElementsByClassName("page-wrapper")[0];
-    page.addEventListener("DOMNodeInserted", () => {
-      this.pageHeight = page.clientHeight;
+      const { path, query } = to;
+      locationHistory.push(JSON.stringify({ path, query }));
+      this.$store.commit("setData", { key: "locationHistory", value: locationHistory });
+      this.$store.commit("setData", { key: "routerMode", value: 1 });
     });
-    page.addEventListener("DOMNodeRemoved", () => {
-      this.pageHeight = page.clientHeight;
-    });
-  },
-
-  methods: {
-    updateScroll() {
-      this.scrollTop = app.scrollTop;
-    },
   },
 };
 </script>
@@ -70,10 +52,15 @@ export default {
   color: #fff;
   font-size: 14px;
 
-  &:hover {
-    .scroll-bar {
-      opacity: 1;
-    }
+  &::-webkit-scrollbar {
+    width: 5px;
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    width: 5px;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.3);
   }
 
   .page-wrapper {
@@ -88,24 +75,11 @@ export default {
       width: 1130px;
       flex: 1;
       animation: fade-in 0.5s ease;
+
+      &.mobile {
+        width: 100%;
+      }
     }
-  }
-
-  &::-webkit-scrollbar {
-    width: 0;
-  }
-
-  .scroll-bar {
-    position: fixed;
-    right: 0;
-    top: 0;
-    width: 5px;
-    height: 100px;
-    border-radius: 5px;
-    background-color: rgba(255, 255, 255, 0.3);
-    opacity: 0;
-    transition: opacity 0.3s linear;
-    z-index: 102;
   }
 }
 </style>

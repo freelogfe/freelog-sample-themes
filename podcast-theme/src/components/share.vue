@@ -1,9 +1,10 @@
+<!-- 分享 -->
 <template>
   <div class="share-wrapper">
     <transition-group name="fade">
-      <div class="share-modal" key="modal" @click="closeShare()" v-if="$store.state.shareInfo.show" />
+      <div class="share-modal" key="modal" @click="closeShare()" v-if="shareInfo.show" />
 
-      <div class="share-popup" key="popup" v-if="$store.state.shareInfo.show">
+      <div class="share-popup" key="popup" v-if="shareInfo.show">
         <div class="title-area">
           <div class="title">分享</div>
           <i class="text-btn freelog fl-icon-guanbi" @click="closeShare()"></i>
@@ -74,13 +75,20 @@ export default {
   },
 
   watch: {
-    "$store.state.shareInfo.show"() {
+    "shareInfo.show"(cur) {
       this.$nextTick(() => {
-        this.show = this.$store.state.shareInfo.show;
+        this.show = cur;
       });
-      if (!this.$store.state.shareInfo.show) return;
+      if (!cur) return;
 
       this.initShare();
+    },
+  },
+
+  computed: {
+    /** 分享信息 */
+    shareInfo() {
+      return this.$store.state.shareInfo;
     },
   },
 
@@ -89,8 +97,8 @@ export default {
     initShare() {
       const url = window.location.currentURL;
       this.href = url;
-      this.shareText = `我在freelog发现一个不错的声音：${this.$store.state.shareInfo.exhibit?.exhibitTitle} ${url}`;
-      if (!this.$store.state.shareInfo.show) this.qrcodeShow = false;
+      this.shareText = `我在freelog发现一个不错的声音：${this.shareInfo.exhibit.exhibitTitle} ${url}`;
+      if (!this.shareInfo.show) this.qrcodeShow = false;
     },
 
     /** 关闭分享弹窗 */
@@ -101,9 +109,9 @@ export default {
     /** 分享 */
     share(item) {
       const url = this.href;
-      const title = this.$store.state.shareInfo.exhibit?.exhibitTitle;
+      const title = this.shareInfo.exhibit.exhibitTitle;
       const summary = ``;
-      const image = this.$store.state.shareInfo.exhibit?.coverImages[0];
+      const image = this.shareInfo.exhibit.coverImages[0];
 
       if (item.id === "qqZone") {
         // QQ空间
@@ -111,7 +119,7 @@ export default {
         window.open(shareWeb);
       } else if (item.id === "weibo") {
         // 微博
-        const weiboTitle = `我在freelog发现一个不错的声音：${this.$store.state.shareInfo.exhibit?.exhibitTitle}`;
+        const weiboTitle = `我在freelog发现一个不错的声音：${this.shareInfo.exhibit.exhibitTitle}`;
         window.open(`https://service.weibo.com/share/share.php?url=${url}&title=${weiboTitle}&pic=${image}`);
       } else if (item.id === "douban") {
         // 豆瓣

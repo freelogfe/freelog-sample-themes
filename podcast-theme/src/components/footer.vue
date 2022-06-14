@@ -3,19 +3,21 @@
   <div class="footer-wrapper">
     <!-- mobile -->
     <div class="mobile-footer-wrapper" v-if="$store.state.inMobile">
-      <div
-        class="second-text-btn mobile"
-        v-for="(item, index) in freelogEntrances.filter((_, entrancesIndex) => entrancesIndex < 2)"
-        :key="item.label"
-        @click="toPage(item.url)"
-      >
-        <i :class="item.label" v-if="index === 0"></i>
-        <span v-else>{{ item.label }}</span>
+      <div class="btns-area">
+        <div
+          class="second-text-btn mobile"
+          v-for="(item, index) in freelogEntrances.filter((_, entrancesIndex) => entrancesIndex < 2)"
+          :key="item.label"
+          @click="toPage(item.url)"
+        >
+          <i :class="item.label" v-if="index === 0"></i>
+          <span v-else>{{ item.label }}</span>
+        </div>
       </div>
     </div>
 
     <!-- PC -->
-    <div class="pc-footer-wrapper" v-if="!$store.state.inMobile">
+    <div class="pc-footer-wrapper" v-if="$store.state.inMobile === false">
       <div
         class="second-text-btn"
         v-for="(item, index) in freelogEntrances"
@@ -62,15 +64,20 @@ export default {
   // mobile
   .mobile-footer-wrapper {
     width: 100%;
-    height: 98px;
-    background-color: rgba(0, 0, 0, 0.03);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    height: 178px;
+    background-color: rgba(255, 255, 255, 0.02);
 
-    .second-text-btn {
-      font-size: 14px;
-      line-height: 18px;
+    .btns-area {
+      width: 100%;
+      height: 98px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .second-text-btn {
+        font-size: 14px;
+        line-height: 18px;
+      }
     }
   }
 

@@ -1,13 +1,93 @@
 <!-- 声音 -->
 <template>
   <div class="voice-wrapper">
-    <!-- PC -->
-    <div class="pc-voice-wrapper">
+    <!-- mobile -->
+    <div class="mobile-voice-wrapper" v-if="$store.state.inMobile">
       <div
         ref="cover"
         class="cover-area"
-        :class="{ 'opacity-40p': !data.authLinkNormal }"
-        @click="$router.push({ path: '/voice-detail', query: { id: data.exhibitId } })"
+        :class="{ 'opacity-40': authLinkAbnormal }"
+        @click="$router.myPush({ path: '/voice-detail', query: { id: data.exhibitId } })"
+      >
+        <img class="cover" v-view-lazy="data.coverImages[0]" />
+        <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
+      </div>
+      <div class="info-area" @click="$router.myPush({ path: '/voice-detail', query: { id: data.exhibitId } })">
+        <div class="title-area">
+          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="authLinkAbnormal" />
+          <img
+            class="lock"
+            src="../assets/images/mini-lock.png"
+            @click.stop="getAuth()"
+            v-if="data.defaulterIdentityType >= 4"
+          />
+          <template v-if="authShow">
+            <div class="tag is-auth" :class="{ 'opacity-40': authLinkAbnormal }" v-if="data.defaulterIdentityType < 4">
+              已授权
+            </div>
+            <div class="tag not-auth" :class="{ 'opacity-40': authLinkAbnormal }" v-else>未授权</div>
+          </template>
+          <div class="title" :class="{ 'opacity-40': authLinkAbnormal }">
+            {{ data.exhibitTitle }}
+          </div>
+        </div>
+        <div class="duration-album" :class="{ 'opacity-40': authLinkAbnormal }">
+          <div>{{ "153" | duration }}</div>
+          <!-- <div class="album">{{ "专辑名称专辑名称专辑名称专辑名称专辑名称" }}</div> -->
+        </div>
+        <div class="other-area" :class="{ 'opacity-40': authLinkAbnormal }">
+          <div class="info-item">
+            <i class="freelog fl-icon-gengxinshijian"></i>
+            <div class="item-value">{{ data.updateDate | relativeTime }}</div>
+          </div>
+          <div class="info-item">
+            <i class="freelog fl-icon-yonghu"></i>
+            <div class="item-value">{{ data.signCount | signCount }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="btns-area" :class="{ opacity: authLinkAbnormal }">
+        <i
+          class="freelog"
+          :class="playing ? 'fl-icon-zanting-daibiankuang' : 'fl-icon-bofang-daibiankuang'"
+          @click="playOrPause()"
+        />
+        <i class="freelog fl-icon-xiaoshuomulu" @click="moreMenuShow = true" />
+      </div>
+      <div class="cover-to-add" :class="{ animation: addAnimation }" :style="{ '--top': coverTop + 'px' }">
+        <img class="cover" :src="data.coverImages[0]" />
+      </div>
+
+      <!-- 更多菜单 -->
+      <transition name="fade">
+        <div class="modal" @click="moreMenuShow = false" v-if="moreMenuShow"></div>
+      </transition>
+      <transition name="slide-up-fade">
+        <div class="more-menu-card" v-if="moreMenuShow">
+          <div class="btns">
+            <div
+              class="btn"
+              :class="{ disabled: item.disabled }"
+              v-for="item in menuBtnList"
+              :key="item.label"
+              @click="item.operate"
+            >
+              <i class="freelog" :class="item.icon"></i>
+              <div class="label">{{ item.label }}</div>
+            </div>
+          </div>
+          <div class="close-btn" @click="moreMenuShow = false">关闭</div>
+        </div>
+      </transition>
+    </div>
+
+    <!-- PC -->
+    <div class="pc-voice-wrapper" v-if="$store.state.inMobile === false">
+      <div
+        ref="cover"
+        class="cover-area"
+        :class="{ 'opacity-40': authLinkAbnormal }"
+        @click="$router.myPush({ path: '/voice-detail', query: { id: data.exhibitId } })"
       >
         <img class="cover" :src="data.coverImages[0]" />
         <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
@@ -19,36 +99,33 @@
       </div>
       <div class="info-area">
         <div class="title-area">
-          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="!data.authLinkNormal" />
-          <img class="lock" src="../assets/images/mini-lock.png" @click.stop="getAuth()" v-if="data.authCode === 303" />
-          <div
-            class="tag is-auth"
-            :class="{ 'opacity-40p': !data.authLinkNormal }"
-            v-if="authShow && [200, 301].includes(data.authCode)"
-          >
-            已授权
-          </div>
-          <div
-            class="tag not-auth"
-            :class="{ 'opacity-40p': !data.authLinkNormal }"
-            v-if="authShow && data.authCode === 303"
-          >
-            未授权
-          </div>
-          <my-tooltip class="title" :class="{ 'opacity-40p': !data.authLinkNormal }" :content="data.exhibitTitle">
-            <span @click="$router.push({ path: '/voice-detail', query: { id: data.exhibitId } })">
+          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="authLinkAbnormal" />
+          <img
+            class="lock"
+            src="../assets/images/mini-lock.png"
+            @click.stop="getAuth()"
+            v-if="data.defaulterIdentityType >= 4"
+          />
+          <template v-if="authShow">
+            <div class="tag is-auth" :class="{ 'opacity-40': authLinkAbnormal }" v-if="data.defaulterIdentityType < 4">
+              已授权
+            </div>
+            <div class="tag not-auth" :class="{ 'opacity-40': authLinkAbnormal }" v-else>未授权</div>
+          </template>
+          <my-tooltip class="title" :class="{ 'opacity-40': authLinkAbnormal }" :content="data.exhibitTitle">
+            <span @click="$router.myPush({ path: '/voice-detail', query: { id: data.exhibitId } })">
               {{ data.exhibitTitle }}
             </span>
           </my-tooltip>
         </div>
         <my-tooltip
           class="intro"
-          :class="{ 'opacity-40p': !data.authLinkNormal }"
+          :class="{ 'opacity-40': authLinkAbnormal }"
           :content="data.versionInfo.exhibitProperty.intro"
         >
           <span>{{ data.versionInfo.exhibitProperty.intro }}</span>
         </my-tooltip>
-        <div class="other-area" :class="{ 'opacity-40p': !data.authLinkNormal }">
+        <div class="other-area" :class="{ 'opacity-40': authLinkAbnormal }">
           <div class="info-item">
             <i class="freelog fl-icon-gengxinshijian"></i>
             <div class="item-value">{{ data.updateDate | relativeTime }}</div>
@@ -70,14 +147,19 @@
           </transition>
         </div>
       </div>
-      <div class="btns-area" :class="{ opacity: !data.authLinkNormal }">
-        <template v-for="item in btnList">
-          <my-tooltip class="text-btn" :content="item.title" :key="item.title" v-if="!item.hidden">
-            <i class="freelog" :class="item.icon" @click="item.operate" />
-          </my-tooltip>
-        </template>
+      <div class="btns-area" :class="{ opacity: authLinkAbnormal }">
+        <my-tooltip
+          class="text-btn"
+          :class="{ disabled: item.disabled }"
+          :content="item.title"
+          v-for="item in btnList"
+          :key="item.title"
+          v-if="!item.hidden"
+        >
+          <i class="freelog" :class="item.icon" @click="item.operate" />
+        </my-tooltip>
       </div>
-      <div class="duration">{{ $store.state.duration | duration }}</div>
+      <div class="duration">{{ 153 | duration }}</div>
       <div
         class="cover-to-add"
         :class="{ animation: addAnimation }"
@@ -121,6 +203,7 @@ export default {
 
   data() {
     return {
+      moreMenuShow: false,
       addAnimation: false,
       coverLeft: 0,
       coverTop: 0,
@@ -145,6 +228,11 @@ export default {
   },
 
   computed: {
+    /** 授权链异常 */
+    authLinkAbnormal() {
+      return ![0, 4].includes(this.data.defaulterIdentityType);
+    },
+
     /** 是否播放中 */
     playing() {
       const { playing, playingInfo } = this.$store.state;
@@ -163,7 +251,7 @@ export default {
           icon: "fl-icon-jiarubofangliebiao",
           title: "加入播放列表",
           operate: this.addToPlayList,
-          hidden: this.isInPlayList,
+          disabled: this.isInPlayList,
         },
         {
           icon: this.isCollected ? "fl-icon-shoucangxiaoshuoyishoucang" : "fl-icon-shoucangxiaoshuo",
@@ -173,9 +261,37 @@ export default {
         { icon: "fl-icon-fenxiang", title: "分享", operate: this.share },
       ];
     },
+
+    /** 更多菜单按钮群 */
+    menuBtnList() {
+      return [
+        {
+          icon: this.playing ? "fl-icon-zanting-daibiankuang" : "fl-icon-bofang-daibiankuang",
+          label: this.playing ? "暂停声音" : "播放声音",
+          operate: this.playOrPause,
+        },
+        {
+          icon: "fl-icon-jiarubofangliebiao",
+          label: "加入播放列表",
+          operate: this.addToPlayList,
+          disabled: this.isInPlayList,
+        },
+        { icon: "fl-icon-danji", label: "查看声音详情", operate: this.toVoiceDetail },
+        {
+          icon: this.isCollected ? "fl-icon-shoucangxiaoshuoyishoucang" : "fl-icon-shoucangxiaoshuo",
+          label: this.isCollected ? "取消收藏" : "收藏",
+          operate: this.operateCollect,
+        },
+      ];
+    },
   },
 
   methods: {
+    // 查看声音详情
+    toVoiceDetail() {
+      this.$router.myPush({ path: "/voice-detail", query: { id: this.data.exhibitId } });
+    },
+
     // 播放/暂停
     playOrPause() {
       useMyPlay.playOrPause(this.data);
@@ -214,6 +330,299 @@ export default {
 
 <style lang="scss" scoped>
 .voice-wrapper {
+  // mobile
+  .mobile-voice-wrapper {
+    display: flex;
+    align-items: center;
+
+    .cover-area {
+      position: relative;
+      width: 70px;
+      height: 70px;
+      background: #222;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-sizing: border-box;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+
+      .cover {
+        height: 100%;
+      }
+
+      .offline {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 40px;
+        height: 20px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 0px 0px 4px 0px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        span {
+          font-size: 10px;
+          font-weight: 600;
+          color: #ffffff;
+          transform: scale(0.84);
+        }
+      }
+    }
+
+    .info-area {
+      flex: 1;
+      height: 100%;
+      margin-left: 10px;
+
+      .title-area {
+        width: 100%;
+        display: flex;
+        align-items: center;
+
+        .auth-link-abnormal,
+        .lock {
+          width: 16px;
+          height: 16px;
+          margin-right: 5px;
+        }
+
+        .lock {
+          opacity: 0.6;
+        }
+
+        .tag {
+          flex-shrink: 0;
+          width: 49px;
+          height: 20px;
+          border-radius: 20px;
+          margin-right: 5px;
+          font-size: 11px;
+          font-weight: 600;
+          color: #ffffff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          &.is-auth {
+            background: #42c28c;
+          }
+
+          &.not-auth {
+            background: #e9a923;
+          }
+        }
+
+        .title {
+          flex: 1;
+          width: 0;
+          font-size: 16px;
+          font-weight: 600;
+          color: #fff;
+          line-height: 22px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+      }
+
+      .duration-album {
+        display: flex;
+        font-size: 14px;
+        line-height: 20px;
+        color: rgba(255, 255, 255, 0.4);
+        margin-top: 5px;
+
+        .album {
+          flex: 1;
+          width: 0;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          margin-left: 5px;
+        }
+      }
+
+      .other-area {
+        display: flex;
+        margin-top: 5px;
+
+        .info-item {
+          display: flex;
+          align-items: center;
+          color: rgba(255, 255, 255, 0.4);
+
+          & + .info-item {
+            margin-left: 10px;
+          }
+
+          .freelog {
+            font-size: 14px;
+          }
+
+          .item-value {
+            font-size: 12px;
+            line-height: 18px;
+            margin-left: 5px;
+          }
+        }
+      }
+    }
+
+    .btns-area {
+      color: rgba(255, 255, 255, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 20px;
+
+      .freelog {
+        font-size: 20px;
+
+        & + .freelog {
+          margin-left: 20px;
+        }
+
+        &:active {
+          color: rgba(255, 255, 255, 0.4);
+        }
+      }
+    }
+
+    .modal {
+      position: fixed;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.2);
+      z-index: 300;
+    }
+
+    .more-menu-card {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(20px);
+      z-index: 300;
+
+      .btns {
+        width: 100%;
+        height: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .btn {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          color: rgba(255, 255, 255, 0.6);
+
+          &:active {
+            color: rgba(255, 255, 255, 0.4);
+
+            .freelog {
+              background: rgba(255, 255, 255, 0.03);
+            }
+          }
+
+          &.disabled {
+            background: rgba(255, 255, 255, 0.02);
+            color: rgba(255, 255, 255, 0.24);
+            pointer-events: none;
+          }
+
+          & + .btn {
+            margin-left: 44px;
+          }
+
+          .freelog {
+            width: 48px;
+            height: 48px;
+            font-size: 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .label {
+            width: 48px;
+            line-height: 17px;
+            font-size: 12px;
+            display: flex;
+            justify-content: center;
+            margin-top: 5px;
+            word-break: keep-all;
+          }
+        }
+      }
+
+      .close-btn {
+        width: 100%;
+        height: 60px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+
+        &:active {
+          color: rgba(255, 255, 255, 0.4);
+        }
+      }
+    }
+
+    .cover-to-add {
+      position: fixed;
+      width: 70px;
+      height: 70px;
+      background: #222;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-sizing: border-box;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      opacity: 0;
+
+      &.animation {
+        z-index: 301;
+        animation: to-play-list-mobile 0.7s ease-out forwards;
+      }
+
+      .cover {
+        height: 100%;
+      }
+
+      @keyframes to-play-list-mobile {
+        from {
+          opacity: 1;
+          transform: scale(1);
+          right: calc(100vw - 85px);
+          bottom: calc(100vh - var(--top) - 70px);
+        }
+        to {
+          opacity: 0;
+          transform: scale(0);
+          right: -30px;
+          bottom: -30px;
+        }
+      }
+    }
+  }
+
   // pc
   .pc-voice-wrapper {
     display: flex;
@@ -467,7 +876,7 @@ export default {
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      z-index: -1;
+      opacity: 0;
 
       &.animation {
         z-index: 200;
@@ -492,10 +901,6 @@ export default {
           bottom: -50px;
         }
       }
-    }
-
-    .opacity-40p {
-      opacity: 0.4;
     }
   }
 }

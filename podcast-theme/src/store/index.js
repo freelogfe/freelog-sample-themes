@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import VueRouter from "vue-router";
 import { getSelfConfig, getCurrentUser, getUserData, setUserData } from "@/api/freelog";
 import { judgeDevice } from "@/utils/common";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
@@ -8,10 +9,11 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    inMobile: false, // 是否移动端设备
+    inMobile: null, // 是否移动端设备
     userData: {}, // 当前登录的用户数据
     selfConfig: {}, // 自定义配置
     locationHistory: [], // 历史路由
+    routerMode: "push", // 当前路由模式 1-push 2-back
     shareInfo: { show: false, exhibit: null }, // 分享数据
     signedList: null, // 签约列表
     collectionIdList: [], // 收藏列表(id)
@@ -39,10 +41,7 @@ export default new Vuex.Store({
         getUserData("playingId"),
       ]);
 
-      // 历史路由
-      context.commit("setData", { key: "locationHistory", value: [] });
-
-      // 是否移动端
+      // 是否移动端设备
       const inMobile = judgeDevice();
       context.commit("setData", { key: "inMobile", value: inMobile });
 
@@ -94,7 +93,7 @@ export default new Vuex.Store({
       }
       if (promises.length) Promise.all(promises);
 
-      if (playingId) useMyPlay.getPlayingInfo(playingId);
+      if (playingId && playIdList.includes(playingId)) useMyPlay.getPlayingInfo(playingId);
     },
   },
   modules: {},

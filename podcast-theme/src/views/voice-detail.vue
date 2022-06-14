@@ -1,87 +1,137 @@
 <template>
   <div class="voice-detail-wrapper">
-    <!-- PC -->
-    <div class="pc-voice-detail-wrapper" v-if="voiceInfo">
-      <div ref="cover" class="cover-area">
-        <img class="cover" :src="voiceInfo.coverImages[0]" />
-      </div>
-
-      <div class="right-area">
-        <div class="title-area">
-          <img
-            class="auth-link-abnormal"
-            src="../assets/images/auth-link-abnormal.png"
-            v-if="!voiceInfo.authLinkNormal"
-          />
-          <img
-            class="lock"
-            src="../assets/images/mini-lock.png"
-            @click.stop="getAuth()"
-            v-if="voiceInfo.authCode === 303"
-          />
-
-          <div class="type-mark">声音</div>
-
-          <my-tooltip class="title" :content="voiceInfo.exhibitTitle">
-            <span>{{ voiceInfo.exhibitTitle }}</span>
-          </my-tooltip>
-        </div>
-        <div class="intro">{{ voiceInfo.versionInfo.exhibitProperty.intro }}</div>
-        <div class="info-area">
-          <div class="info-item">
-            <i class="freelog fl-icon-gengxinshijian"></i>
-            <div class="item-value">{{ voiceInfo.updateDate | relativeTime }}</div>
+    <transition name="detail-fade">
+      <template v-if="voiceInfo">
+        <!-- mobile -->
+        <div class="mobile-voice-detail-wrapper" v-if="$store.state.inMobile">
+          <div ref="cover" class="cover-area">
+            <img class="cover" :src="voiceInfo.coverImages[0]" />
           </div>
-          <div class="info-item">
-            <i class="freelog fl-icon-yonghu"></i>
-            <div class="item-value">{{ voiceInfo.signCount | signCount }}</div>
+          <div class="title-area">
+            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="authLinkAbnormal" />
+            <img
+              class="lock"
+              src="../assets/images/mini-lock.png"
+              @click.stop="getAuth()"
+              v-if="voiceInfo.defaulterIdentityType >= 4"
+            />
+            <my-tooltip class="title" :content="voiceInfo.exhibitTitle">
+              <span>{{ voiceInfo.exhibitTitle }}</span>
+            </my-tooltip>
           </div>
-        </div>
-
-        <div class="btns-area">
-          <template v-if="$store.state.playingInfo">
-            <div class="duration" v-if="$store.state.playingInfo.exhibitId !== voiceInfo.exhibitId">
-              时长{{ $store.state.duration | duration }}
+          <div class="info-area">
+            <div class="info-item">
+              <i class="freelog fl-icon-gengxinshijian"></i>
+              <div class="item-value">{{ voiceInfo.updateDate | relativeTime }}</div>
             </div>
-            <transition name="slide-right">
-              <div class="playing-mark" v-if="$store.state.playingInfo.exhibitId === voiceInfo.exhibitId">
-                <play-status :playing="$store.state.playing" />
-                <div class="progress" v-if="$store.state.duration">
-                  {{ $store.state.progress | secondsToHMS }}/{{ $store.state.duration | secondsToHMS }}
-                </div>
+            <div class="info-item">
+              <i class="freelog fl-icon-yonghu"></i>
+              <div class="item-value">{{ voiceInfo.signCount | signCount }}</div>
+            </div>
+            <div class="duration">时长{{ 156 | duration }}</div>
+          </div>
+          <div class="play-voice-btn" @click="playOrPause()">
+            <i class="freelog" :class="playing ? 'fl-icon-zanting-daibiankuang' : 'fl-icon-bofang-daibiankuang'"></i>
+            <div class="label">{{ playing ? "暂停" : "播放" }}</div>
+          </div>
+          <div class="btns-area">
+            <template v-for="item in btnList.filter((_, i) => [1, 2].includes(i))">
+              <div class="btn" :class="{ disabled: item.disabled }" @click="item.operate">
+                <i class="freelog" :class="item.icon"></i>
+                <div class="btn-label">{{ item.title }}</div>
               </div>
-            </transition>
-          </template>
-          <template v-for="(item, index) in btnList">
-            <div
-              class="btn"
-              :class="index === 0 ? 'play-btn' : 'normal-btn'"
-              :key="item.title"
-              @click="item.operate"
-              v-if="!item.hidden"
-            >
-              <i class="freelog" :class="item.icon"></i>
-              <div class="btn-label">{{ item.title }}</div>
-            </div>
-          </template>
+            </template>
+          </div>
+          <div class="intro">{{ voiceInfo.versionInfo.exhibitProperty.intro }}</div>
+          <div
+            class="cover-to-add"
+            :class="{ animation: addAnimation }"
+            :style="{ '--left': coverLeft + 'px', '--top': coverTop + 'px' }"
+          >
+            <img class="cover" :src="voiceInfo.coverImages[0]" />
+          </div>
         </div>
-      </div>
 
-      <div
-        class="cover-to-add"
-        :class="{ animation: addAnimation }"
-        :style="{ '--left': coverLeft + 'px', '--top': coverTop + 'px' }"
-      >
-        <img class="cover" :src="voiceInfo.coverImages[0]" />
-      </div>
-    </div>
+        <!-- PC -->
+        <div class="pc-voice-detail-wrapper" v-if="!$store.state.inMobile">
+          <div ref="cover" class="cover-area">
+            <img class="cover" :src="voiceInfo.coverImages[0]" />
+          </div>
+
+          <div class="right-area">
+            <div class="title-area">
+              <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="authLinkAbnormal" />
+              <img
+                class="lock"
+                src="../assets/images/mini-lock.png"
+                @click.stop="getAuth()"
+                v-if="voiceInfo.defaulterIdentityType >= 4"
+              />
+
+              <div class="type-mark">声音</div>
+
+              <my-tooltip class="title" :content="voiceInfo.exhibitTitle">
+                <span>{{ voiceInfo.exhibitTitle }}</span>
+              </my-tooltip>
+            </div>
+            <div class="intro">{{ voiceInfo.versionInfo.exhibitProperty.intro }}</div>
+            <div class="info-area">
+              <div class="info-item">
+                <i class="freelog fl-icon-gengxinshijian"></i>
+                <div class="item-value">{{ voiceInfo.updateDate | relativeTime }}</div>
+              </div>
+              <div class="info-item">
+                <i class="freelog fl-icon-yonghu"></i>
+                <div class="item-value">{{ voiceInfo.signCount | signCount }}</div>
+              </div>
+            </div>
+
+            <div class="btns-area">
+              <template v-if="playingInfo">
+                <div class="duration" v-if="playingInfo.exhibitId !== voiceInfo.exhibitId">
+                  时长{{ 156 | duration }}
+                </div>
+                <transition name="slide-right">
+                  <div class="playing-mark" v-if="playingInfo.exhibitId === voiceInfo.exhibitId">
+                    <play-status :playing="$store.state.playing" />
+                    <div class="progress" v-if="$store.state.duration">
+                      {{ $store.state.progress | secondsToHMS }}/{{ $store.state.duration | secondsToHMS }}
+                    </div>
+                  </div>
+                </transition>
+              </template>
+              <template v-for="(item, index) in btnList">
+                <div
+                  class="btn normal-btn"
+                  :class="{ 'play-btn': index === 0, disabled: item.disabled }"
+                  :key="item.title"
+                  @click="item.operate"
+                  v-if="!item.hidden"
+                >
+                  <i class="freelog" :class="item.icon"></i>
+                  <div class="btn-label">{{ item.title }}</div>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <div
+            class="cover-to-add"
+            :class="{ animation: addAnimation }"
+            :style="{ '--left': coverLeft + 'px', '--top': coverTop + 'px' }"
+          >
+            <img class="cover" :src="voiceInfo.coverImages[0]" />
+          </div>
+        </div>
+      </template>
+    </transition>
   </div>
 </template>
 
 <script>
 import playStatus from "@/components/play-status";
 import myTooltip from "@/components/tooltip";
-import { getExhibitInfo, getExhibitSignCount, getExhibitAuthStatus, getExhibitAvailable } from "@/api/freelog";
+import { getExhibitInfo, getExhibitSignCount, getExhibitAuthStatus } from "@/api/freelog";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 
 export default {
@@ -91,7 +141,7 @@ export default {
 
   data() {
     return {
-      id: this.$route.query.id,
+      id: "",
       voiceInfo: null,
       isCollected: false,
       isInPlayList: false,
@@ -102,6 +152,15 @@ export default {
   },
 
   watch: {
+    "$route.query.id": {
+      handler(cur) {
+        if (!cur) return;
+
+        this.id = cur;
+        this.getVoiceInfo();
+      },
+      immediate: true,
+    },
     "$store.state.collectionIdList": {
       handler() {
         this.isCollected = useMyCollection.ifExist(this.id);
@@ -115,15 +174,25 @@ export default {
       immediate: true,
     },
     "$store.state.authIdList"(cur) {
-      if (cur.includes(this.voiceInfo.exhibitId)) this.voiceInfo.authCode = 200;
+      if (cur.includes(this.voiceInfo.exhibitId)) this.voiceInfo.defaulterIdentityType = 0;
     },
   },
 
   computed: {
+    /** 授权链异常 */
+    authLinkAbnormal() {
+      return ![0, 4].includes(this.voiceInfo.defaulterIdentityType);
+    },
+
     /** 是否播放中 */
     playing() {
       const { playing, playingInfo } = this.$store.state;
       return playing && playingInfo.exhibitId === this.voiceInfo.exhibitId;
+    },
+
+    /** 播放中声音信息 */
+    playingInfo() {
+      return this.$store.state.playingInfo;
     },
 
     /** 操作按钮群 */
@@ -138,7 +207,7 @@ export default {
           icon: "fl-icon-jiarubofangliebiao",
           title: "加入播放列表",
           operate: this.addToPlayList,
-          hidden: this.isInPlayList,
+          disabled: this.isInPlayList,
         },
         {
           icon: this.isCollected ? "fl-icon-shoucangxiaoshuoyishoucang" : "fl-icon-shoucangxiaoshuo",
@@ -148,10 +217,6 @@ export default {
         { icon: "fl-icon-fenxiang", title: "分享", operate: this.share },
       ];
     },
-  },
-
-  created() {
-    this.getVoiceInfo();
   },
 
   methods: {
@@ -185,17 +250,16 @@ export default {
 
     /** 获取声音详情 */
     async getVoiceInfo() {
-      const [exhibitInfo, signCountData, statusInfo, authLinkStatusInfo] = await Promise.all([
+      this.voiceInfo = null;
+      const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
         getExhibitInfo(this.id, { isLoadVersionProperty: 1 }),
         getExhibitSignCount(this.id),
         getExhibitAuthStatus(this.id),
-        getExhibitAvailable(this.id),
       ]);
       this.voiceInfo = {
         ...exhibitInfo.data.data,
         signCount: signCountData.data.data[0].count,
-        authCode: statusInfo.data.data[0].authCode,
-        authLinkNormal: statusInfo.data.data[0].authCode === 301 ? false : authLinkStatusInfo.data.data[0].isAuth,
+        defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
       };
     },
 
@@ -209,6 +273,201 @@ export default {
 
 <style lang="scss" scoped>
 .voice-detail-wrapper {
+  // mobile
+  .mobile-voice-detail-wrapper {
+    padding: 25px 15px 120px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .cover-area {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      background: #222;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-sizing: border-box;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+
+      .cover {
+        height: 100%;
+      }
+    }
+
+    .title-area {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 20px;
+
+      .auth-link-abnormal,
+      .lock {
+        width: 16px;
+        height: 16px;
+        margin-right: 5px;
+      }
+
+      .title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #ffffff;
+        line-height: 24px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+    }
+
+    .info-area {
+      color: rgba(255, 255, 255, 0.4);
+      display: flex;
+      margin-top: 10px;
+
+      .info-item {
+        display: flex;
+        align-items: center;
+
+        & + .info-item {
+          margin-left: 10px;
+        }
+
+        .freelog {
+          font-size: 14px;
+        }
+
+        .item-value {
+          font-size: 12px;
+          line-height: 18px;
+          margin-left: 5px;
+        }
+      }
+
+      .duration {
+        font-size: 12px;
+        line-height: 18px;
+        margin-left: 20px;
+      }
+    }
+
+    .play-voice-btn {
+      width: 240px;
+      height: 48px;
+      border-radius: 48px;
+      color: #222;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 30px;
+
+      &:active {
+        background: rgba(255, 255, 255, 0.8);
+        color: rgba(34, 34, 34, 0.8);
+      }
+
+      .freelog {
+        font-size: 16px;
+      }
+
+      .label {
+        font-size: 14px;
+        font-weight: 600;
+        margin-left: 5px;
+      }
+    }
+
+    .btns-area {
+      display: flex;
+      align-items: center;
+      margin-top: 20px;
+
+      .btn {
+        padding: 0 10px;
+        height: 40px;
+        color: rgba(255, 255, 255, 0.6);
+        display: flex;
+        align-items: center;
+
+        &:active {
+          color: rgba(255, 255, 255, 0.4);
+        }
+
+        &.disabled {
+          opacity: 0.24;
+          pointer-events: none;
+        }
+
+        & + .btn {
+          margin-left: 10px;
+        }
+
+        .freelog {
+          font-size: 16px;
+        }
+
+        .btn-label {
+          font-size: 14px;
+          line-height: 20px;
+          font-weight: 600;
+          margin-left: 5px;
+        }
+      }
+    }
+
+    .intro {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 20px;
+      margin-top: 20px;
+    }
+
+    .cover-to-add {
+      position: fixed;
+      width: 140px;
+      height: 140px;
+      background: #222;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-sizing: border-box;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      z-index: -1;
+
+      &.animation {
+        z-index: 200;
+        animation: to-play-list-mobile 0.7s ease-out forwards;
+      }
+
+      .cover {
+        height: 100%;
+      }
+
+      @keyframes to-play-list-mobile {
+        from {
+          opacity: 1;
+          transform: scale(1);
+          right: calc(100vw - var(--left) - 140px);
+          bottom: calc(100vh - var(--top) - 140px);
+        }
+        to {
+          opacity: 0;
+          transform: scale(0);
+          right: -30px;
+          bottom: -30px;
+        }
+      }
+    }
+  }
+
+  // PC
   .pc-voice-detail-wrapper {
     padding-top: 20px;
     padding-bottom: 168px;
@@ -269,7 +528,6 @@ export default {
           color: rgba(255, 255, 255, 0.6);
           font-size: 36px;
           font-weight: 600;
-          color: #ffffff;
           line-height: 56px;
           overflow: hidden;
           white-space: nowrap;
@@ -344,6 +602,11 @@ export default {
           display: flex;
           align-items: center;
 
+          &.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+          }
+
           & + .btn {
             margin-left: 15px;
           }
@@ -400,5 +663,13 @@ export default {
       }
     }
   }
+}
+
+/* detail-fade */
+.detail-fade-enter-active {
+  transition: all 0.2s ease;
+}
+.detail-fade-enter {
+  opacity: 0;
 }
 </style>

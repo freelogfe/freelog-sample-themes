@@ -33,6 +33,10 @@ img {
   box-shadow: none;
 }
 
+.opacity-40 {
+  opacity: 0.4;
+}
+
 .text-btn {
   color: rgba(39, 132, 255, 0.8);
   cursor: pointer;
@@ -51,8 +55,18 @@ img {
     transition: none;
 
     &:hover {
-      opacity: 1;
+      pointer-events: none;
     }
+
+    &:active {
+      color: #2784ff !important;
+      pointer-events: auto;
+    }
+  }
+
+  &.disabled {
+    color: rgba(39, 132, 255, 0.32);
+    pointer-events: none;
   }
 }
 
@@ -70,11 +84,17 @@ img {
   }
 
   &.mobile {
+    color: rgba(255, 255, 255, 0.4);
     cursor: default;
     transition: none;
 
     &:hover {
-      color: #999999;
+      pointer-events: none;
+    }
+
+    &:active {
+      color: rgba(255, 255, 255, 0.8);
+      pointer-events: auto;
     }
   }
 }
@@ -99,7 +119,12 @@ img {
     transition: none;
 
     &:hover {
-      opacity: 1;
+      pointer-events: none;
+    }
+
+    &:active {
+      background: #2784ff;
+      pointer-events: auto;
     }
   }
 }
@@ -123,7 +148,12 @@ img {
     transition: none;
 
     &:hover {
-      opacity: 1;
+      pointer-events: none;
+    }
+
+    &:active {
+      background: #fff;
+      pointer-events: auto;
     }
   }
 }
@@ -156,15 +186,6 @@ img {
 
   &:active {
     background: rgba(39, 132, 255, 0.8);
-  }
-
-  &.mobile {
-    cursor: default;
-    transition: none;
-
-    &:hover {
-      opacity: 1;
-    }
   }
 }
 
@@ -217,7 +238,7 @@ img {
 .slide-right-enter,
 .slide-right-leave-to {
   opacity: 0;
-  transform: translateX(-10px);
+  transform: translateX(-50%);
 }
 
 /* slide-down-scale */

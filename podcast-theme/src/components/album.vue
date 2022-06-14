@@ -3,7 +3,7 @@
   <div class="album-wrapper">
     <!-- PC -->
     <div class="pc-album-wrapper">
-      <div class="cover-area" @click="$router.push({ path: '/album-detail', query: { id: '123' } })">
+      <div class="cover-area" @click="$router.myPush({ path: '/album-detail', query: { id: '123' } })">
         <img
           class="cover"
           src="https://s3.cn-north-1.amazonaws.com.cn/lcavatar/f9705206-9b7a-47ad-a2c0-88c696410a5c_160x160.png"
@@ -21,7 +21,7 @@
         <!-- <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="!data.authLinkNormal" />
         <img class="lock" src="../assets/images/mini-lock.png" @click.stop="getAuth(data.exhibitId)" v-if="!isAuth" /> -->
         <my-tooltip class="title" :content="'睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊'">
-          <span @click="$router.push({ path: '/album-detail', query: { id: '123' } })">
+          <span @click="$router.myPush({ path: '/album-detail', query: { id: '123' } })">
             {{ "睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊" }}
           </span>
         </my-tooltip>

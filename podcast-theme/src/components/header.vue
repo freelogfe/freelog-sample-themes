@@ -1,101 +1,200 @@
 <!-- 头部 -->
 <template>
   <div class="header-wrapper">
-    <template v-if="!$store.state.inMobile">
-      <div class="pc-header-wrapper">
-        <div class="header-left">
-          <div
-            class="btn"
-            :class="{ active: $route.path === `/${item.value}` }"
-            v-for="item in tabList"
-            :key="item.value"
-            @click="toPage(item.value)"
-            v-if="item.value !== 'collection-list' || $store.state.userData.isLogin"
-          >
-            {{ item.label }}
-          </div>
+    <!-- mobile -->
+    <div
+      class="mobile-header-wrapper"
+      :class="{ home: currentPath === '/home', search: currentPath === '/search-list' }"
+      v-if="$store.state.inMobile"
+    >
+      <!-- 非搜索页头部 -->
+      <template v-if="currentPath !== '/search-list'">
+        <div class="header-left" @click="back()">
+          <template v-if="currentPath !== '/home'">
+            <img class="back-arrow" src="../assets/images/arrow.png" />
+            <div class="back-label">
+              {{ $store.state.locationHistory.length === 1 ? "首页" : "返回" }}
+            </div>
+          </template>
         </div>
 
         <div class="header-right">
-          <!-- 搜索框 -->
-          <div class="search-box">
-            <input
-              ref="searchInput"
-              class="search-input input-none"
-              :class="{ 'in-focus': searchKey }"
-              v-model="searchKey"
-              @input="searchKeyInput()"
-              @keyup="inputKeyUp($event)"
-              @focus="searchHistoryShow = true"
-              @blur="searchHistoryShow = false"
-            />
-            <i class="freelog fl-icon-content"></i>
-            <i
-              class="freelog fl-icon-guanbi text-btn"
-              @click="
-                searchKey = '';
-                search();
-              "
-              v-show="searchKey"
-            ></i>
+          <i class="freelog fl-icon-content" @click="toPage('/search-list')"></i>
 
-            <transition name="fade">
-              <div class="search-history" v-if="searchHistoryShow && mySearchHistory.length !== 0">
-                <div
-                  class="history-item"
-                  :class="{ catch: searchWordCatch === index }"
-                  v-for="(item, index) in mySearchHistory"
-                  :key="item"
-                  @click="clickSearchHistory(item)"
-                  @mousemove="searchWordCatch = index"
-                >
-                  <div class="item-word">{{ item }}</div>
-                  <i class="freelog fl-icon-guanbi" @click.stop="deleteSearchHistory(item)"></i>
-                </div>
+          <img class="menu" src="../assets/images/menu.png" @click="userBoxShow = true" />
+        </div>
+      </template>
 
-                <div class="text-btn" @click="clearHistory()">清空搜索记录</div>
-              </div>
-            </transition>
-          </div>
+      <!-- 搜索页头部 -->
+      <template v-if="currentPath === '/search-list'">
+        <div class="search-box">
+          <input
+            ref="searchInput"
+            class="search-input input-none"
+            :class="{ 'in-focus': searchKey }"
+            v-model="searchKey"
+            @input="searchKeyInput()"
+            @keyup.enter="search()"
+            @keyup.esc="
+              searchKey = '';
+              searchHistoryShow = true;
+            "
+          />
+          <i class="freelog fl-icon-content"></i>
+          <i
+            class="freelog fl-icon-guanbi"
+            @click="
+              searchKey = '';
+              searchHistoryShow = true;
+            "
+            v-show="searchKey"
+          ></i>
+        </div>
+        <div class="cancel-btn" @click="back()">取消</div>
 
-          <el-popover
-            popper-class="header-user-box"
-            placement="bottom-end"
-            trigger="hover"
-            :visible-arrow="false"
-            transition="slide-down-scale"
-            v-model="userBoxShow"
-            v-if="$store.state.userData.isLogin"
-          >
-            <img class="avatar" :src="$store.state.userData.headImage" :alt="$store.state.userData.username" />
-            <div class="username">{{ $store.state.userData.username }}</div>
-            <div class="mobile">{{ $store.state.userData.mobile }}</div>
-            <div
-              class="btn user-box-btn"
-              @click="
-                userBoxShow = false;
-                $router.push('/signed-list');
-              "
-            >
-              签约记录
+        <transition name="fade">
+          <div class="search-history" v-if="searchHistoryShow">
+            <div class="search-history-title">
+              <div class="title">搜索记录</div>
+              <div class="clear-btn" @click="clearHistory()">清空</div>
             </div>
-            <div class="btn user-box-btn" @click="callLoginOut()">登出</div>
+            <div class="search-history-list">
+              <div class="tag" v-for="item in searchHistory" :key="item" @click="selectTag(item)">
+                {{ item }}
+                <i class="freelog fl-icon-guanbi" @click.stop="deleteWord(item)"></i>
+              </div>
+            </div>
+          </div>
+        </transition>
+      </template>
 
+      <!-- 用户弹窗 -->
+      <transition name="fade">
+        <div id="modal" class="modal" @click="userBoxShow = false" v-if="userBoxShow"></div>
+      </transition>
+      <transition name="slide-right">
+        <div class="user-box-body" v-if="userBoxShow">
+          <div class="user-box-top">
             <img
               class="avatar"
-              :src="$store.state.userData.headImage"
-              :alt="$store.state.userData.username"
-              slot="reference"
+              :src="userData.headImage || require('../assets/images/default-user-avatar.png')"
+              :alt="userData.username || '未登录'"
+              @click="!userData.isLogin && callLogin()"
             />
-          </el-popover>
+            <div class="username" @click="!userData.isLogin && callLogin()">
+              {{ userData.username || "未登录" }}
+            </div>
+            <i class="freelog fl-icon-guanbi close-btn" @click="userBoxShow = false"></i>
+          </div>
+          <div class="btns">
+            <div class="menu-btns">
+              <template v-for="item in menuBtnList">
+                <div
+                  class="btn"
+                  :class="{ active: currentPath === item.path }"
+                  @click="toPage(item.path)"
+                  v-if="!item.hidden"
+                >
+                  <i class="freelog" :class="item.icon"></i>
+                  <div class="btn-label">{{ item.label }}</div>
+                </div>
+              </template>
+            </div>
 
-          <div class="user-btns" v-if="$store.state.userData.isLogin === false">
-            <div class="btn normal-btn" @click="callLogin()">登录</div>
-            <div class="btn header-register-btn" @click="register()">注册</div>
+            <div class="footer-btn" @click="callLoginOut()" v-if="userData.isLogin">
+              <i class="freelog fl-icon-tuichu1"></i>
+              <div class="btn-label">退出登录</div>
+            </div>
+            <div class="footer-btn" v-if="!userData.isLogin">
+              <div class="main-btn mobile" @click="callLogin()">立即登录</div>
+            </div>
           </div>
         </div>
+      </transition>
+    </div>
+
+    <!-- PC -->
+    <div class="pc-header-wrapper" v-if="$store.state.inMobile === false">
+      <div class="header-left">
+        <div
+          class="btn"
+          :class="{ active: currentPath === item.value }"
+          v-for="item in tabList"
+          :key="item.value"
+          @click="toPage(item.value)"
+          v-if="item.value !== '/collection-list' || userData.isLogin"
+        >
+          {{ item.label }}
+        </div>
       </div>
-    </template>
+
+      <div class="header-right">
+        <!-- 搜索框 -->
+        <div class="search-box">
+          <input
+            ref="searchInput"
+            class="search-input input-none"
+            :class="{ 'in-focus': searchKey }"
+            v-model="searchKey"
+            @input="searchKeyInput()"
+            @keyup="inputKeyUp($event)"
+            @focus="searchHistoryShow = true"
+            @blur="searchHistoryShow = false"
+          />
+          <i class="freelog fl-icon-content"></i>
+          <i class="freelog fl-icon-guanbi text-btn" @click="searchKey = ''" v-show="searchKey"></i>
+
+          <transition name="fade">
+            <div class="search-history" v-if="searchHistoryShow && mySearchHistory.length !== 0">
+              <div
+                class="history-item"
+                :class="{ catch: searchWordCatch === index }"
+                v-for="(item, index) in mySearchHistory"
+                :key="item"
+                @click="clickSearchHistory(item)"
+                @mousemove="searchWordCatch = index"
+              >
+                <div class="item-word">{{ item }}</div>
+                <i class="freelog fl-icon-guanbi" @click.stop="deleteSearchHistory(item)"></i>
+              </div>
+
+              <div class="text-btn" @click="clearHistory()">清空搜索记录</div>
+            </div>
+          </transition>
+        </div>
+
+        <el-popover
+          popper-class="header-user-box"
+          placement="bottom-end"
+          trigger="hover"
+          :visible-arrow="false"
+          transition="slide-down-scale"
+          v-model="userBoxShow"
+          v-if="userData.isLogin"
+        >
+          <img class="avatar" :src="userData.headImage" :alt="userData.username" />
+          <div class="username">{{ userData.username }}</div>
+          <div class="mobile">{{ userData.mobile }}</div>
+          <div
+            class="btn user-box-btn"
+            @click="
+              userBoxShow = false;
+              $router.myPush('/signed-list');
+            "
+          >
+            签约记录
+          </div>
+          <div class="btn user-box-btn" @click="callLoginOut()">登出</div>
+
+          <img class="avatar" :src="userData.headImage" :alt="userData.username" slot="reference" />
+        </el-popover>
+
+        <div class="user-btns" v-if="userData.isLogin === false">
+          <div class="btn normal-btn" @click="callLogin()">登录</div>
+          <div class="btn header-register-btn" @click="register()">注册</div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -107,68 +206,98 @@ export default {
 
   data() {
     return {
-      searchKey: this.$store.state.userData.isLogin,
+      searchKey: "",
       searchHistory: [],
       userBoxShow: false,
-      searchPopupShow: false,
       searchHistoryShow: false,
       searchWordCatch: null,
       tabList: [
-        { value: "home", label: "首页" },
-        // { value: "album-list", label: "专辑" },
-        { value: "voice-list", label: "声音" },
-        { value: "collection-list", label: "收藏" },
+        { value: "/home", label: "首页" },
+        // { value: "/album-list", label: "专辑" },
+        { value: "/voice-list", label: "声音" },
+        { value: "/collection-list", label: "收藏" },
       ],
     };
   },
 
   watch: {
-    // watch(
-    //   () => query.value,
-    //   () => {
-    //     initHeaderSearch();
-    //   }
-    // );
+    "$route.path"(cur) {
+      this.$nextTick(() => {
+        const { inMobile, routerMode } = this.$store.state;
+        if (cur !== "/search-list" || !inMobile) return;
+        this.searchHistoryShow = routerMode === 1 || routerMode !== 2;
+        if (routerMode === 1) this.$refs.searchInput.focus();
+      });
+    },
   },
 
   computed: {
+    /** 用户数据 */
+    userData() {
+      return this.$store.state.userData;
+    },
+
+    /** 当前路由 */
+    currentPath() {
+      return this.$route.path;
+    },
+
     /** 搜索历史选项 */
     mySearchHistory() {
       return this.searchHistory.filter((item) => item.includes(this.searchKey));
+    },
+
+    /** 菜单按钮群 */
+    menuBtnList() {
+      return [
+        { icon: "fl-icon-shouye", label: "首页", path: "/home" },
+        // { icon: "fl-icon-shouye", label: "专辑", path: "/album-list" },
+        { icon: "fl-icon-danji", label: "声音", path: "/voice-list" },
+        {
+          icon: "fl-icon-shoucangxiaoshuo",
+          label: "我的收藏",
+          hidden: !this.userData.isLogin,
+          path: "/collection-list",
+        },
+        { icon: "fl-icon-lishi", label: "签约记录", hidden: !this.userData.isLogin, path: "/signed-list" },
+      ];
     },
   },
 
   created() {
     this.searchHistory = JSON.parse(localStorage.getItem("searchHistory") || "[]");
-    this.initHeaderSearch();
-    // this.useMyLocationHistory();
   },
 
   methods: {
     callLogin,
     callLoginOut,
 
+    // 返回
+    back() {
+      const ONLY_PAGE = this.$store.state.locationHistory.length === 1;
+      if (ONLY_PAGE) {
+        this.$router.myPush("/home");
+      } else {
+        this.$router.back();
+      }
+    },
+
     // 切换tab页
-    toPage(router) {
-      const path = `/${router}`;
-      this.$router.push(path);
+    toPage(path) {
+      this.$router.myPush(path);
+      this.userBoxShow = false;
     },
 
     // 输入搜索词
-    searchKeyInput(inHomeSearch = false) {
+    searchKeyInput() {
       this.searchKey = (this.searchKey || "").trim();
       this.searchHistoryShow = true;
       this.searchWordCatch = null;
-      if (inHomeSearch) {
-        !this.searchKey && this.$router.push("/home");
-        this.searchPopupShow = !this.searchKey;
-      }
     },
 
     // 点击历史搜索词
     clickSearchHistory(item) {
       this.searchKey = item;
-      this.searchWord(this.searchKey);
       this.search();
     },
 
@@ -181,16 +310,15 @@ export default {
 
     // 搜索
     search() {
-      this.searchPopupShow = false;
       if (!this.searchKey) return;
-      
-      this.$router.push({ path: "/search-list" });
+
+      this.searchWord();
       this.$store.commit("setData", { key: "searchKey", value: this.searchKey });
+      this.searchHistoryShow = false;
     },
 
     // 搜索历史关键词
     selectTag(item) {
-      this.searchPopupShow = false;
       this.searchKey = item;
       this.search();
     },
@@ -205,7 +333,6 @@ export default {
           }
           this.searchWordCatch = null;
           this.searchHistoryShow = false;
-          this.searchWord(this.searchKey);
           this.search();
           break;
         case 27:
@@ -241,16 +368,9 @@ export default {
       window.open("http://user.freelog.com/logon");
     },
 
-    // 初始化头部搜索相关数据
-    initHeaderSearch() {
-      const { keywords } = this.$route.query;
-      this.searchKey = keywords || "";
-    },
-
     // 搜索
-    searchWord(keywords) {
-      keywords = keywords.trim();
-      if (!keywords) return;
+    searchWord() {
+      const keywords = this.searchKey.trim();
       const index = this.searchHistory.findIndex((item) => item === keywords);
       if (index !== -1) this.searchHistory.splice(index, 1);
       if (this.searchHistory.length === 10) this.searchHistory.pop();
@@ -277,8 +397,341 @@ export default {
 
 <style lang="scss" scoped>
 .header-wrapper {
+  width: 100%;
   display: flex;
   justify-content: center;
+
+  // mobile
+  .mobile-header-wrapper {
+    width: 100%;
+    height: 60px;
+    padding: 0 15px;
+    box-sizing: border-box;
+    background-color: #1c1c1c;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 200;
+
+    &.home {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      background-color: rgba(28, 28, 28, var(--opacity));
+    }
+
+    &.search {
+      padding-right: 0;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      color: #ffffff;
+
+      &:active {
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .back-arrow {
+        width: 7px;
+        height: 12px;
+      }
+
+      .back-label {
+        font-size: 16px;
+        margin-left: 5px;
+      }
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+
+      .fl-icon-content {
+        width: 40px;
+        height: 40px;
+        color: #fff;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .menu {
+        width: 42px;
+        height: 32px;
+        margin-left: 20px;
+        color: #fff;
+      }
+
+      .fl-icon-content:active,
+      .menu:active {
+        color: rgba(255, 255, 255, 0.6);
+      }
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+      height: 42px;
+      display: flex;
+      align-items: center;
+
+      .search-input {
+        height: 42px;
+        border-radius: 42px;
+        flex: 1;
+        font-size: 16px;
+        color: #222;
+        padding: 0 44px !important;
+        background: #ffffff;
+      }
+
+      .fl-icon-content {
+        position: absolute;
+        left: 15px;
+        font-size: 14px;
+        color: #8e8e93;
+      }
+
+      .fl-icon-guanbi {
+        position: absolute;
+        right: 15px;
+        font-size: 10px;
+        color: #8e8e93;
+        margin-top: 2px;
+
+        &:active {
+          color: rgba(142, 142, 147, 0.6);
+        }
+      }
+    }
+
+    .cancel-btn {
+      height: 100%;
+      padding: 0 15px;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      color: #ffffff;
+      line-height: 22px;
+
+      &:active {
+        color: rgba(255, 255, 255, 0.6);
+      }
+    }
+
+    .search-history {
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: 60px;
+      bottom: 0;
+      padding: 0 15px;
+      box-sizing: border-box;
+      background-color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .search-history-title {
+        width: 100%;
+        height: 60px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .title {
+          color: rgba(255, 255, 255, 0.4);
+        }
+
+        .clear-btn {
+          color: #2784ff;
+
+          &:active {
+            color: rgba(39, 132, 255, 0.6);
+          }
+        }
+      }
+
+      .search-history-list {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+
+        .tag {
+          height: 38px;
+          border-radius: 38px;
+          padding: 0 15px;
+          display: flex;
+          align-items: center;
+          font-size: 14px;
+          color: rgba(255, 255, 255, 0.6);
+          background-color: rgba(255, 255, 255, 0.1);
+          margin-right: 10px;
+          margin-bottom: 15px;
+
+          &:active {
+            color: rgba(255, 255, 255, 0.4);
+            background-color: rgba(255, 255, 255, 0.06);
+          }
+
+          .freelog {
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: scale(0.8);
+            margin-left: 10px;
+
+            &:active {
+              color: rgba(255, 255, 255, 0.24);
+            }
+          }
+        }
+      }
+    }
+
+    .modal {
+      position: fixed;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .user-box-body {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: calc(100% - 50px);
+      background: #222;
+      border-radius: 0px 10px 10px 0px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+
+      .user-box-top {
+        position: relative;
+        width: 100%;
+        height: 194px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.2);
+
+        .avatar {
+          width: 72px;
+          height: 72px;
+          border-radius: 50%;
+          border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .username {
+          font-size: 16px;
+          line-height: 22px;
+          color: #fff;
+          font-weight: bold;
+          margin-top: 20px;
+        }
+
+        .close-btn {
+          position: absolute;
+          right: 20px;
+          top: 20px;
+          width: 32px;
+          height: 32px;
+          font-size: 12px;
+          color: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+
+      .btns {
+        width: 100%;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 25px 20px 0;
+        box-sizing: border-box;
+
+        .menu-btns {
+          flex: 1;
+
+          .btn {
+            width: 100%;
+            height: 52px;
+            border-radius: 4px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+
+            &.active,
+            &:active {
+              background-color: rgba(255, 255, 255, 0.05);
+            }
+
+            & + .btn {
+              margin-top: 10px;
+            }
+
+            .freelog {
+              font-size: 18px;
+              margin: 0 10px;
+            }
+
+            .btn-label {
+              font-size: 16px;
+            }
+          }
+        }
+
+        .footer-btn {
+          width: 100%;
+          height: 102px;
+          border-top: 1px solid rgba(255, 255, 255, 0.05);
+          color: #fff;
+          display: flex;
+          align-items: center;
+
+          .freelog {
+            font-size: 18px;
+            margin: 0 10px;
+          }
+
+          .btn-label {
+            font-size: 16px;
+          }
+
+          .main-btn {
+            width: 100%;
+            height: 48px;
+            border-radius: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: #2784ff;
+
+            &:active {
+              background-color: rgba(39, 132, 255, 0.6);
+            }
+          }
+        }
+      }
+    }
+  }
 
   // PC
   .pc-header-wrapper {

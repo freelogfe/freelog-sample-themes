@@ -3,7 +3,7 @@
   <div class="second-voice-wrapper">
     <!-- PC -->
     <div class="pc-second-voice-wrapper">
-      <div class="cover-area" @click="$router.push({ path: '/voice-detail', query: { id: '123' } })">
+      <div class="cover-area" @click="$router.myPush({ path: '/voice-detail', query: { id: '123' } })">
         <img
           class="cover"
           src="https://image.freelog.com/preview-image/1b11038db350bc3d928496cd88ea12f4b90d0576.jpg#x=106&y=0&w=1707&h=1280&width=1920&height=1280"
@@ -20,7 +20,7 @@
             class="title"
             :content="'睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊'"
           >
-            <span @click="$router.push({ path: '/voice-detail', query: { id: '123' } })">
+            <span @click="$router.myPush({ path: '/voice-detail', query: { id: '123' } })">
               睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊
             </span>
           </my-tooltip>
