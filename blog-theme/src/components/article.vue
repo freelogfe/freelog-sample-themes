@@ -183,19 +183,19 @@ export default {
         }
 
         .auth-link-abnormal {
-          float: left;
+          display: inline-block;
           width: 16px;
           height: 16px;
           margin-right: 5px;
-          margin-top: 3px;
+          transform: translateY(2px);
         }
 
         .lock {
-          float: left;
+          display: inline-block;
           width: 16px;
           height: 16px;
           margin-right: 10px;
-          margin-top: 3px;
+          transform: translateY(2px);
         }
       }
 
@@ -328,11 +328,9 @@ export default {
 
         .lock {
           flex-shrink: 0;
-          float: left;
           width: 16px;
           height: 16px;
           margin-right: 10px;
-          margin-top: 6px;
         }
 
         .title {

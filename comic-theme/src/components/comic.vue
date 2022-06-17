@@ -273,21 +273,18 @@ export default {
       .comic-name-box {
         width: 100%;
         display: flex;
+        align-items: center;
 
         .auth-link-abnormal {
-          float: left;
           width: 16px;
           height: 16px;
           margin-right: 5px;
-          margin-top: 3px;
         }
 
         .lock {
-          float: left;
           width: 16px;
           height: 16px;
           margin-right: 10px;
-          margin-top: 3px;
         }
 
         .comic-name {
