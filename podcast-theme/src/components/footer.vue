@@ -44,7 +44,7 @@ export default {
   },
 
   methods: {
-    // 跳转相应页面
+    /** 跳转相应页面 */
     toPage(url) {
       window.open(url);
     },

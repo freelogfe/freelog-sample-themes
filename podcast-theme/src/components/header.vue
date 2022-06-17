@@ -272,7 +272,7 @@ export default {
     callLogin,
     callLoginOut,
 
-    // 返回
+    /** 返回 */
     back() {
       const ONLY_PAGE = this.$store.state.locationHistory.length === 1;
       if (ONLY_PAGE) {
@@ -282,48 +282,49 @@ export default {
       }
     },
 
-    // 切换tab页
+    /** 切换tab页 */
     toPage(path) {
       this.$router.myPush(path);
       this.userBoxShow = false;
     },
 
-    // 输入搜索词
+    /** 输入搜索词 */
     searchKeyInput() {
       this.searchKey = (this.searchKey || "").trim();
       this.searchHistoryShow = true;
       this.searchWordCatch = null;
     },
 
-    // 点击历史搜索词
+    /** 点击历史搜索词 */
     clickSearchHistory(item) {
       this.searchKey = item;
       this.search();
     },
 
-    // 删除历史搜索词
+    /** 删除历史搜索词 */
     deleteSearchHistory(item) {
       this.$refs.searchInput.focus();
       this.deleteWord(item);
       this.searchHistoryShow = true;
     },
 
-    // 搜索
+    /** 搜索 */
     search() {
       if (!this.searchKey) return;
 
       this.searchWord();
       this.$store.commit("setData", { key: "searchKey", value: this.searchKey });
       this.searchHistoryShow = false;
+      if (!this.$store.state.inMobile) this.$router.push({ path: "/search-list" });
     },
 
-    // 搜索历史关键词
+    /** 搜索历史关键词 */
     selectTag(item) {
       this.searchKey = item;
       this.search();
     },
 
-    // 搜索框键盘事件
+    /** 搜索框键盘事件 */
     inputKeyUp(e) {
       switch (e.keyCode) {
         case 13:
@@ -363,12 +364,12 @@ export default {
       }
     },
 
-    // 注册
+    /** 注册 */
     register() {
       window.open("http://user.freelog.com/logon");
     },
 
-    // 搜索
+    /** 搜索 */
     searchWord() {
       const keywords = this.searchKey.trim();
       const index = this.searchHistory.findIndex((item) => item === keywords);
@@ -378,7 +379,7 @@ export default {
       localStorage.setItem("searchHistory", JSON.stringify(this.searchHistory));
     },
 
-    // 删除搜索词
+    /** 删除搜索词 */
     deleteWord(keywords) {
       const index = this.searchHistory.findIndex((item) => item === keywords);
       if (index === -1) return;
@@ -386,7 +387,7 @@ export default {
       localStorage.setItem("searchHistory", JSON.stringify(this.searchHistory));
     },
 
-    // 清空搜索词
+    /** 清空搜索词 */
     clearHistory() {
       localStorage.setItem("searchHistory", "[]");
       this.searchHistory = [];

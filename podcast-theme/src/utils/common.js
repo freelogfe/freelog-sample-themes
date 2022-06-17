@@ -118,7 +118,7 @@ export const getSignCount = (count) => {
   else return (Math.floor((count / LIMIT ** 2) * 10) / 10).toFixed(1) + "亿";
 };
 
-// 判断设备
+/** 判断设备 */
 export const judgeDevice = () => {
   const mobile =
     /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i;
@@ -126,7 +126,7 @@ export const judgeDevice = () => {
   return !!inMobile;
 };
 
-// 弹出轻提示
+/** 弹出轻提示 */
 let timeout = null;
 export const showToast = (msg) => {
   const toast = document.getElementById("toast-wrapper");

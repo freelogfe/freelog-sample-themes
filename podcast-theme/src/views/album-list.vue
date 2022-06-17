@@ -19,14 +19,6 @@ export default {
   components: {
     album,
   },
-
-  data() {
-    return {};
-  },
-
-  created() {},
-
-  methods: {},
 };
 </script>
 
@@ -34,7 +26,7 @@ export default {
 .album-list-wrapper {
   .pc-album-list-wrapper {
     padding-top: 20px;
-    padding-bottom: 168px;
+    padding-bottom: 120px;
 
     .title {
       font-size: 36px;

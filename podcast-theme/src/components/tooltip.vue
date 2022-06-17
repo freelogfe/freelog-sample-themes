@@ -17,10 +17,12 @@ export default {
   name: "my-tooltip",
 
   props: {
+    /** 组件类名 */
     popperClass: {
       type: String,
       default: "",
     },
+    /** 内容 */
     content: {
       type: String,
       default: "",

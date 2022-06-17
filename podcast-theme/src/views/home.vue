@@ -47,7 +47,7 @@
       <el-skeleton class="skeleton" animated v-else>
         <template slot="template">
           <el-skeleton-item class="title" variant="text" />
-          <div class="voice-skeleton" v-for="item in 3" :key="item">
+          <div class="voice-skeleton" v-for="item in 2" :key="item">
             <el-skeleton-item class="cover" variant="image" />
             <div class="info-area">
               <el-skeleton-item class="voice-title" variant="text" />
@@ -181,9 +181,11 @@ export default {
   activated() {
     const { routerMode } = this.$store.state;
     if (routerMode === 1) {
+      // push 过来，滚动条回到顶部
       app.scroll({ top: 0 });
       sessionStorage.setItem("homeScroll", 0);
     } else if (routerMode === 2) {
+      // back 过来，滚动条回到之前位置
       const scrollTop = sessionStorage.getItem("homeScroll") || 0;
       app.scroll({ top: scrollTop });
     }
@@ -236,7 +238,8 @@ export default {
 .home-wrapper {
   // mobile
   .mobile-home-wrapper {
-    padding-bottom: 298px;
+    display: flex;
+    flex-direction: column;
 
     .node-avatar {
       position: relative;
@@ -297,7 +300,7 @@ export default {
 
     .content-area {
       width: 100%;
-      padding: 0 15px;
+      padding: 0 15px 120px;
       box-sizing: border-box;
 
       .content-top {
@@ -363,18 +366,21 @@ export default {
 
     .no-data-tip {
       width: 100%;
+      height: calc(100vh - 100vw);
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       font-size: 24px;
       color: rgba(255, 255, 255, 0.4);
       line-height: 40px;
-      margin-top: 120px;
     }
 
     .skeleton {
+      height: calc(100vh - 100vw);
       padding: 10px 15px;
       box-sizing: border-box;
+      overflow: hidden;
 
       .title {
         width: 150px;
@@ -430,8 +436,6 @@ export default {
 
   // PC
   .pc-home-wrapper {
-    padding-bottom: 168px;
-
     .top-area {
       padding: 20px 0 50px;
       display: flex;
@@ -510,6 +514,7 @@ export default {
 
     .content-area {
       padding-top: 45px;
+      padding-bottom: 120px;
 
       .content-top {
         display: flex;
@@ -579,15 +584,19 @@ export default {
 
     .no-data-tip {
       width: 100%;
-      text-align: center;
+      height: calc(100vh - 98px - 313px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 30px;
       color: rgba(255, 255, 255, 0.4);
-      line-height: 36px;
-      margin-top: 203px;
     }
 
     .skeleton {
+      height: calc(100vh - 98px - 313px);
       padding-top: 45px;
+      box-sizing: border-box;
+      overflow: hidden;
 
       .title {
         width: 150px;

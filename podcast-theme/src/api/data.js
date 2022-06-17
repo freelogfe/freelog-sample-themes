@@ -1,4 +1,4 @@
-// freelog相关入口
+/** freelog相关入口 */
 export const freelogEntrances = [
   { label: "freelog fl-icon-a-featherlogo5", url: "https://www.freelog.com/" },
   { label: "关于freelog", url: "" },
@@ -9,7 +9,7 @@ export const freelogEntrances = [
   { label: "浏览更多主题", url: "https://console.freelog.com/market" },
 ];
 
-// 分享按钮
+/** 分享按钮 */
 export const shareBtns = [
   {
     id: "qqZone",

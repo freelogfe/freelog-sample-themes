@@ -15,12 +15,7 @@
       <div class="info-area" @click="$router.myPush({ path: '/voice-detail', query: { id: data.exhibitId } })">
         <div class="title-area">
           <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="authLinkAbnormal" />
-          <img
-            class="lock"
-            src="../assets/images/mini-lock.png"
-            @click.stop="getAuth()"
-            v-if="data.defaulterIdentityType >= 4"
-          />
+          <i class="freelog fl-icon-suoding lock" @click.stop="getAuth()" v-if="data.defaulterIdentityType >= 4"></i>
           <template v-if="authShow">
             <div class="tag is-auth" :class="{ 'opacity-40': authLinkAbnormal }" v-if="data.defaulterIdentityType < 4">
               已授权
@@ -100,12 +95,7 @@
       <div class="info-area">
         <div class="title-area">
           <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="authLinkAbnormal" />
-          <img
-            class="lock"
-            src="../assets/images/mini-lock.png"
-            @click.stop="getAuth()"
-            v-if="data.defaulterIdentityType >= 4"
-          />
+          <i class="freelog fl-icon-suoding lock" @click.stop="getAuth()" v-if="data.defaulterIdentityType >= 4"></i>
           <template v-if="authShow">
             <div class="tag is-auth" :class="{ 'opacity-40': authLinkAbnormal }" v-if="data.defaulterIdentityType < 4">
               已授权
@@ -118,13 +108,9 @@
             </span>
           </my-tooltip>
         </div>
-        <my-tooltip
-          class="intro"
-          :class="{ 'opacity-40': authLinkAbnormal }"
-          :content="data.versionInfo.exhibitProperty.intro"
-        >
-          <span>{{ data.versionInfo.exhibitProperty.intro }}</span>
-        </my-tooltip>
+        <div class="intro" :class="{ 'opacity-40': authLinkAbnormal }">
+          {{ data.versionInfo.exhibitProperty.intro }}
+        </div>
         <div class="other-area" :class="{ 'opacity-40': authLinkAbnormal }">
           <div class="info-item">
             <i class="freelog fl-icon-gengxinshijian"></i>
@@ -154,7 +140,6 @@
           :content="item.title"
           v-for="item in btnList"
           :key="item.title"
-          v-if="!item.hidden"
         >
           <i class="freelog" :class="item.icon" @click="item.operate" />
         </my-tooltip>
@@ -180,16 +165,19 @@ export default {
   name: "voice",
 
   props: {
+    /** 声音信息 */
     data: {
       type: Object,
       default: () => {
         return {};
       },
     },
+    /** 是否显示上线状态 */
     statusShow: {
       type: Boolean,
       default: false,
     },
+    /** 是否显示授权状态 */
     authShow: {
       type: Boolean,
       default: false,
@@ -287,17 +275,17 @@ export default {
   },
 
   methods: {
-    // 查看声音详情
+    /** 查看声音详情 */
     toVoiceDetail() {
       this.$router.myPush({ path: "/voice-detail", query: { id: this.data.exhibitId } });
     },
 
-    // 播放/暂停
+    /** 播放/暂停 */
     playOrPause() {
       useMyPlay.playOrPause(this.data);
     },
 
-    // 加入播放列表
+    /** 加入播放列表 */
     addToPlayList() {
       useMyPlay.addToPlayList(this.data.exhibitId, () => {
         const { offsetTop, offsetLeft } = this.$refs.cover;
@@ -310,17 +298,17 @@ export default {
       });
     },
 
-    // 收藏/取消收藏
+    /** 收藏/取消收藏 */
     async operateCollect() {
       useMyCollection.operateCollect(this.data);
     },
 
-    // 分享
+    /** 分享 */
     share() {
       this.$store.commit("setData", { key: "shareInfo", value: { show: true, exhibit: this.data } });
     },
 
-    // 授权
+    /** 授权 */
     async getAuth() {
       useMyAuth.getAuth(this.data);
     },
@@ -348,6 +336,7 @@ export default {
       justify-content: center;
       overflow: hidden;
       flex-shrink: 0;
+      z-index: 1;
 
       .cover {
         height: 100%;
@@ -384,15 +373,16 @@ export default {
         display: flex;
         align-items: center;
 
-        .auth-link-abnormal,
-        .lock {
+        .auth-link-abnormal {
           width: 16px;
           height: 16px;
           margin-right: 5px;
         }
 
         .lock {
-          opacity: 0.6;
+          font-size: 16px;
+          color: rgba(255, 255, 255, 0.6);
+          margin-right: 5px;
         }
 
         .tag {
@@ -723,6 +713,7 @@ export default {
           .freelog {
             font-size: 18px;
             color: #fff;
+            margin-left: 5px;
           }
         }
       }
@@ -738,14 +729,16 @@ export default {
         display: flex;
         align-items: center;
 
-        .auth-link-abnormal,
-        .lock {
+        .auth-link-abnormal{
           width: 16px;
           height: 16px;
-          margin-right: 10px;
+          margin-right: 5px;
         }
 
         .lock {
+          font-size: 16px;
+          color: rgba(255, 255, 255, 0.8);
+          margin-right: 5px;
           cursor: pointer;
         }
 
@@ -819,7 +812,7 @@ export default {
           }
 
           .freelog {
-            font-size: 16px;
+            font-size: 14px;
           }
 
           .item-value {
@@ -847,9 +840,8 @@ export default {
       transition: all 0.5s ease;
 
       .text-btn {
-        .freelog {
-          font-size: 20px;
-        }
+        font-size: 20px;
+        flex-shrink: 0;
 
         & + .text-btn {
           margin-left: 24px;

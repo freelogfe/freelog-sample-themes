@@ -20,6 +20,14 @@ Vue.config.productionTip = false;
 
 // window.FREELOG_RESOURCENAME = "ZhuC/podcast-theme";
 
+// 获取原型对象上的 push 函数
+const originalPush = VueRouter.prototype.push;
+// 修改原型对象中的 push 方法
+VueRouter.prototype.push = function push(location) {
+  // 不 push 到当前路由
+  return originalPush.call(this, location).catch((err) => err);
+};
+
 // 重写 router 对象中的 push
 VueRouter.prototype.myPush = (location) => {
   const { locationHistory } = store.state;

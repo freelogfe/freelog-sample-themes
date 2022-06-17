@@ -68,6 +68,7 @@
         <div @touchstart="slidingProgress = true">
           <el-slider
             class="progress"
+            :class="{ 'no-voice': !playingInfo }"
             v-model="$store.state.progress"
             :min="0"
             :max="duration"
@@ -98,12 +99,11 @@
                     src="../assets/images/auth-link-abnormal.png"
                     v-if="![0, 4].includes(item.defaulterIdentityType)"
                   />
-                  <img
-                    class="icon lock"
-                    src="../assets/images/mini-lock.png"
+                  <i
+                    class="freelog fl-icon-suoding lock"
                     @click.stop="getAuth(item)"
                     v-if="item.defaulterIdentityType >= 4"
-                  />
+                  ></i>
                   <div class="voice-title">{{ item.exhibitTitle }}</div>
                 </div>
 
@@ -189,6 +189,7 @@
                 <div @mousedown="slidingProgress = true">
                   <el-slider
                     class="progress"
+                    :class="{ 'no-voice': !playingInfo }"
                     v-model="$store.state.progress"
                     :min="0"
                     :max="duration"
@@ -247,12 +248,11 @@
                     src="../assets/images/auth-link-abnormal.png"
                     v-if="![0, 4].includes(item.defaulterIdentityType)"
                   />
-                  <img
-                    class="icon"
-                    src="../assets/images/mini-lock.png"
+                  <i
+                    class="freelog fl-icon-suoding lock"
                     @click.stop="getAuth(item)"
                     v-if="item.defaulterIdentityType >= 4"
-                  />
+                  ></i>
                   <div class="title-area">
                     <my-tooltip class="title voice-title" :content="item.exhibitTitle">
                       <span>{{ item.exhibitTitle }}</span>
@@ -459,7 +459,7 @@ export default {
       this.playerShow = false;
       setTimeout(() => {
         this.playListPopupShow = true;
-      }, 700);
+      }, 300);
     },
 
     /** 关闭播放列表（移动端） */
@@ -467,7 +467,7 @@ export default {
       this.playListPopupShow = false;
       setTimeout(() => {
         this.playerShow = true;
-      }, 700);
+      }, 300);
     },
 
     /** 上一首 */
@@ -620,7 +620,7 @@ export default {
       display: flex;
       align-items: center;
       z-index: 102;
-      transition: bottom 0.5s ease;
+      transition: bottom 0.3s ease;
 
       &.show {
         bottom: 20px;
@@ -737,6 +737,10 @@ export default {
         bottom: 0;
         height: 2px;
 
+        &.no-voice ::v-deep .el-slider__button {
+          display: none;
+        }
+
         ::v-deep .el-slider__runway {
           margin: 0;
           height: 2px;
@@ -773,7 +777,7 @@ export default {
       right: 0;
       bottom: 0;
       background-color: rgba(0, 0, 0, 0.2);
-      z-index: 102;
+      z-index: 301;
     }
 
     .mobile-play-list-popup {
@@ -786,8 +790,8 @@ export default {
       backdrop-filter: blur(20px);
       display: flex;
       flex-direction: column;
-      z-index: 102;
-      transition: bottom 0.5s ease;
+      z-index: 301;
+      transition: bottom 0.3s ease;
 
       &.show {
         bottom: 0;
@@ -857,10 +861,12 @@ export default {
                 width: 14px;
                 height: 14px;
                 margin-right: 5px;
+              }
 
-                &.lock {
-                  opacity: 0.8;
-                }
+              .lock {
+                font-size: 14px;
+                color: rgba(255, 255, 255, 0.8);
+                margin-right: 5px;
               }
 
               .voice-title {
@@ -895,7 +901,7 @@ export default {
             }
           }
 
-          .freelog {
+          .text-btn {
             padding: 5px;
             font-size: 10px;
             margin-left: 20px;
@@ -952,7 +958,7 @@ export default {
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 102;
+      z-index: 400;
 
       .confirm-dialog {
         width: 280px;
@@ -1137,6 +1143,16 @@ export default {
             width: 100%;
             height: 4px;
             margin-top: 13px;
+
+            &.no-voice ::v-deep {
+              .el-slider__button-wrapper {
+                cursor: default;
+              }
+
+              .el-slider__button {
+                display: none;
+              }
+            }
 
             ::v-deep .el-slider__runway {
               margin: 0;
@@ -1379,8 +1395,14 @@ export default {
           align-items: center;
 
           .icon {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
+            margin-right: 5px;
+          }
+
+          .lock {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
             margin-right: 5px;
           }
 

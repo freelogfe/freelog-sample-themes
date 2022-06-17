@@ -1,6 +1,5 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import VueRouter from "vue-router";
 import { getSelfConfig, getCurrentUser, getUserData, setUserData } from "@/api/freelog";
 import { judgeDevice } from "@/utils/common";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
@@ -54,6 +53,7 @@ export default new Vuex.Store({
       // 自定义选项
       context.commit("setData", { key: "selfConfig", value: selfConfig });
 
+      // 获取签约列表
       useMyAuth.getSignedList();
 
       // 收藏列表
@@ -80,6 +80,7 @@ export default new Vuex.Store({
       }
       context.commit("setData", { key: "playIdList", value: playIdList || [] });
 
+      // 如果有收藏/播放列表，则获取相应数据
       const promises = [];
       if (collectionIdList.length) {
         promises.push(useMyCollection.getCollectionList());
@@ -93,6 +94,7 @@ export default new Vuex.Store({
       }
       if (promises.length) Promise.all(promises);
 
+      // 如果有之前播放的声音，且声音依然存在于播放列表中，则获取声音信息
       if (playingId && playIdList.includes(playingId)) useMyPlay.getPlayingInfo(playingId);
     },
   },

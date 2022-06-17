@@ -47,9 +47,11 @@ export default {
   activated() {
     const { routerMode } = this.$store.state;
     if (routerMode === 1) {
+      // push 过来，滚动条回到顶部
       app.scroll({ top: 0 });
       sessionStorage.setItem("voiceListScroll", 0);
     } else if (routerMode === 2) {
+      // back 过来，滚动条回到之前位置
       const scrollTop = sessionStorage.getItem("voiceListScroll") || 0;
       app.scroll({ top: scrollTop });
     }

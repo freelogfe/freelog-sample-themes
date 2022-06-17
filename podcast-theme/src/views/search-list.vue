@@ -45,6 +45,7 @@ export default {
         item.defaulterIdentityType = 0;
       });
     },
+
     "$store.state.searchKey": {
       handler(cur) {
         if (cur === this.keywords) return;
@@ -63,9 +64,11 @@ export default {
   activated() {
     const { routerMode } = this.$store.state;
     if (routerMode === 1) {
+      // push 过来，滚动条回到顶部
       app.scroll({ top: 0 });
       sessionStorage.setItem("searchListScroll", 0);
     } else if (routerMode === 2) {
+      // back 过来，滚动条回到之前位置
       const scrollTop = sessionStorage.getItem("searchListScroll") || 0;
       app.scroll({ top: scrollTop });
     }

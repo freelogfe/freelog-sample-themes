@@ -19,7 +19,7 @@
       </div>
       <div class="title-area">
         <!-- <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="!data.authLinkNormal" />
-        <img class="lock" src="../assets/images/mini-lock.png" @click.stop="getAuth(data.exhibitId)" v-if="!isAuth" /> -->
+        <i class="freelog fl-icon-suoding lock" @click.stop="getAuth(data.exhibitId)" v-if="!isAuth"></i> -->
         <my-tooltip class="title" :content="'睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊'">
           <span @click="$router.myPush({ path: '/album-detail', query: { id: '123' } })">
             {{ "睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊" }}
@@ -134,6 +134,7 @@ export default {
           .freelog {
             font-size: 26px;
             color: #fff;
+            margin-left: 4px;
           }
         }
       }
@@ -158,11 +159,17 @@ export default {
       align-items: center;
       margin-top: 10px;
 
-      .auth-link-abnormal,
-      .lock {
+      .auth-link-abnormal {
         width: 16px;
         height: 16px;
         margin-right: 5px;
+      }
+
+      .lock {
+        font-size: 16px;
+        color: rgba(255, 255, 255, 0.8);
+        margin-right: 5px;
+        cursor: pointer;
       }
 
       .title {

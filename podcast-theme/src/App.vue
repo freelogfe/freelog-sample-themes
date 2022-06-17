@@ -1,9 +1,9 @@
 <template>
-  <div id="app">
+  <div id="app" :class="{ pc: $store.state.inMobile === false, mobile: $store.state.inMobile }">
     <div class="page-wrapper">
       <my-header />
       <keep-alive>
-        <router-view class="router-view" :class="{ mobile: $store.state.inMobile }" />
+        <router-view class="router-view" />
       </keep-alive>
       <my-footer />
     </div>
@@ -52,15 +52,33 @@ export default {
   color: #fff;
   font-size: 14px;
 
-  &::-webkit-scrollbar {
-    width: 5px;
-    background-color: transparent;
+  &.pc {
+    .page-wrapper {
+      padding-bottom: 48px;
+
+      .router-view {
+        width: 1130px !important;
+      }
+    }
+
+    &::-webkit-scrollbar {
+      width: 5px;
+      background-color: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      width: 5px;
+      border-radius: 5px;
+      background-color: rgba(255, 255, 255, 0.3);
+    }
   }
 
-  &::-webkit-scrollbar-thumb {
-    width: 5px;
-    border-radius: 5px;
-    background-color: rgba(255, 255, 255, 0.3);
+  &.mobile .page-wrapper {
+    padding-bottom: 178px;
+    
+    .router-view {
+      width: 100%;
+    }
   }
 
   .page-wrapper {
@@ -72,13 +90,8 @@ export default {
     align-items: center;
 
     .router-view {
-      width: 1130px;
       flex: 1;
       animation: fade-in 0.5s ease;
-
-      &.mobile {
-        width: 100%;
-      }
     }
   }
 }

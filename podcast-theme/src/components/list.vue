@@ -56,40 +56,49 @@ export default {
   },
 
   props: {
+    /** 列表数据 */
     list: {
       type: Array,
       default: () => {
         return [];
       },
     },
+    /** 数据总条目数 */
     total: {
       type: Number,
       default: null,
     },
+    /** 数据是否加载中 */
     loading: {
       type: Boolean,
       default: false,
     },
+    /** 列表标题 */
     title: {
       type: String,
       default: "",
     },
+    /** 搜索列表标题 */
     searchTitle: {
       type: String,
       default: "",
     },
+    /** 无更多数据提示文本 */
     noMoreTip: {
       type: String,
       default: "",
     },
+    /** 无数据提示文本 */
     noDataTip: {
       type: String,
       default: "",
     },
+    /** 是否显示上线状态 */
     statusShow: {
       type: Boolean,
       default: false,
     },
+    /** 是否显示授权状态 */
     authShow: {
       type: Boolean,
       default: false,
@@ -101,7 +110,7 @@ export default {
 <style lang="scss" scoped>
 .list-wrapper {
   &.mobile {
-    padding: 30px 15px 298px;
+    padding: 30px 15px 120px;
     box-sizing: border-box;
 
     .title {
@@ -127,15 +136,15 @@ export default {
     }
 
     .no-data-tip {
+      top: 60px;
+      height: calc(100vh - 60px);
       font-size: 24px;
       line-height: 40px;
-      margin-top: 248px;
     }
   }
 
   &.pc {
     padding-top: 20px;
-    padding-bottom: 168px;
 
     .title,
     .search-title {
@@ -147,8 +156,12 @@ export default {
       margin-bottom: 50px;
     }
 
-    .voice-wrapper + .voice-wrapper {
-      margin-top: 25px;
+    .voice-list {
+      padding-bottom: 120px;
+
+      .voice-wrapper + .voice-wrapper {
+        margin-top: 25px;
+      }
     }
 
     .no-more-tip {
@@ -156,9 +169,10 @@ export default {
     }
 
     .no-data-tip {
+      top: 98px;
+      height: calc(100vh - 98px);
       font-size: 30px;
       line-height: 36px;
-      margin-top: 258px;
     }
   }
 
@@ -175,9 +189,13 @@ export default {
   }
 
   .no-data-tip {
-    width: 100%;
-    text-align: center;
+    position: absolute;
+    left: 0;
+    right: 0;
     color: rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .pc-skeleton {

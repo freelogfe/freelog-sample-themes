@@ -18,7 +18,7 @@
       <div class="info-area">
         <div class="title-area">
           <!-- <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="!data.authLinkNormal" />
-        <img class="lock" src="../assets/images/mini-lock.png" @click.stop="getAuth(data.exhibitId)" v-if="!isAuth" /> -->
+          <i class="freelog fl-icon-suoding lock" @click.stop="getAuth(data.exhibitId)" v-if="!isAuth"></i> -->
           <div class="tag is-auth" v-if="data.defaulterIdentityType < 4">已授权</div>
           <div class="tag not-auth" v-else>未授权</div>
           <div class="type-mark">专辑</div>
@@ -108,6 +108,7 @@ export default {
   },
 
   computed: {
+    /** 按钮群 */
     btnList() {
       return [
         {
@@ -127,22 +128,22 @@ export default {
   },
 
   methods: {
-    // 播放/暂停
+    /** 播放/暂停 */
     playOrPause() {
       this.playing = !this.playing;
     },
 
-    // 加入播放列表
+    /** 加入播放列表 */
     addToPlayList() {
       console.error("addToPlayList");
     },
 
-    // 收藏/取消收藏
+    /** 收藏/取消收藏 */
     collect() {
       console.error("collect");
     },
 
-    // 分享
+    /** 分享 */
     share() {
       this.$store.commit("setData", { key: "shareInfo", value: { show: true, exhibit: this.data } });
     },
@@ -215,8 +216,8 @@ export default {
         transition: all 0.5s ease;
 
         .btn {
-          width: 50px;
-          height: 50px;
+          width: 80px;
+          height: 80px;
           border-radius: 50%;
           background: rgba(255, 255, 255, 0.4);
           backdrop-filter: blur(1px);
@@ -235,8 +236,9 @@ export default {
           }
 
           .freelog {
-            font-size: 18px;
+            font-size: 26px;
             color: #fff;
+            margin-left: 4px;
           }
         }
       }
@@ -251,11 +253,17 @@ export default {
         display: flex;
         align-items: center;
 
-        .auth-link-abnormal,
-        .lock {
+        .auth-link-abnormal {
           width: 16px;
           height: 16px;
-          margin-right: 10px;
+          margin-right: 5px;
+        }
+
+        .lock {
+          font-size: 16px;
+          color: rgba(255, 255, 255, 0.8);
+          margin-right: 5px;
+          cursor: pointer;
         }
 
         .tag {
@@ -338,7 +346,7 @@ export default {
           }
 
           .freelog {
-            font-size: 16px;
+            font-size: 14px;
           }
 
           .item-value {

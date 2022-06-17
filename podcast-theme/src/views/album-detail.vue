@@ -12,7 +12,7 @@
       <div class="right-area">
         <div class="title-area">
           <!-- <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="!data.authLinkNormal" />
-          <img class="lock" src="../assets/images/mini-lock.png" @click.stop="getAuth(data.exhibitId)" v-if="!isAuth" /> -->
+          <i class="freelog fl-icon-suoding lock" @click.stop="getAuth(data.exhibitId)" v-if="!isAuth"></i> -->
 
           <div class="type-mark">专辑</div>
 
@@ -85,6 +85,7 @@ export default {
   },
 
   computed: {
+    /** 按钮群 */
     btnList() {
       return [
         {
@@ -106,22 +107,22 @@ export default {
   created() {},
 
   methods: {
-    // 播放/暂停
+    /** 播放/暂停 */
     playOrPause() {
       this.playing = !this.playing;
     },
 
-    // 加入播放列表
+    /** 加入播放列表 */
     addToPlayList() {
       console.error("addToPlayList");
     },
 
-    // 收藏/取消收藏
+    /** 收藏/取消收藏 */
     collect() {
       console.error("collect");
     },
 
-    // 分享
+    /** 分享 */
     share() {
       this.$store.commit("setData", { key: "shareInfo", value: { show: true, exhibit: this.albumInfo } });
     },
@@ -133,7 +134,7 @@ export default {
 .album-detail-wrapper {
   .pc-album-detail-wrapper {
     padding-top: 20px;
-    padding-bottom: 168px;
+    padding-bottom: 120px;
     display: flex;
 
     .cover-area {
@@ -164,11 +165,17 @@ export default {
         display: flex;
         align-items: center;
 
-        .auth-link-abnormal,
-        .lock {
+        .auth-link-abnormal {
           width: 30px;
           height: 30px;
           margin-right: 20px;
+        }
+
+        .lock {
+          font-size: 30px;
+          color: rgba(255, 255, 255, 0.8);
+          margin-right: 20px;
+          cursor: pointer;
         }
 
         .type-mark {

@@ -23,7 +23,7 @@ export default {
   },
 
   methods: {
-    // 跳转主题详情页
+    /** 跳转主题详情页 */
     toTheme() {
       window.open(this.themeEntrance.url);
     },

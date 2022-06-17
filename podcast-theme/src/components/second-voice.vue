@@ -88,6 +88,7 @@ export default {
   },
 
   computed: {
+    /** 按钮群 */
     btnList() {
       return [
         {
@@ -107,22 +108,22 @@ export default {
   },
 
   methods: {
-    // 播放/暂停
+    /** 播放/暂停 */
     playOrPause() {
       this.playing = !this.playing;
     },
 
-    // 加入播放列表
+    /** 加入播放列表 */
     addToPlayList() {
       console.error("addToPlayList");
     },
 
-    // 收藏/取消收藏
+    /** 收藏/取消收藏 */
     collect() {
       console.error("collect");
     },
 
-    // 分享
+    /** 分享 */
     share() {
       this.$store.commit("setData", { key: "shareInfo", value: { show: true, exhibit: this.data } });
     },
@@ -204,6 +205,7 @@ export default {
           .freelog {
             font-size: 10px;
             color: #fff;
+            margin-left: 5px;
           }
         }
       }
@@ -253,7 +255,7 @@ export default {
           }
 
           .freelog {
-            font-size: 16px;
+            font-size: 14px;
           }
 
           .item-value {

@@ -104,12 +104,12 @@ export const useMyCollection = {
     store.commit("setData", { key: "collectionList", value: result });
   },
 
-  // 判断当前展品是否已被收藏
+  /** 判断当前展品是否已被收藏 */
   ifExist(id) {
     return store.state.collectionIdList.includes(id);
   },
 
-  // 操作收藏（如未收藏则收藏，反之取消收藏）
+  /** 操作收藏（如未收藏则收藏，反之取消收藏） */
   async operateCollect(data) {
     if (!store.state.userData.isLogin) {
       callLogin();
@@ -145,8 +145,6 @@ export const useMyCollection = {
 export const useMyPlay = {
   /** 获取播放列表数据 */
   async getPlayList() {
-    if (!store.state.userData.isLogin) return;
-
     const result = [];
     const idList = store.state.playIdList;
     if (!idList.length) {
@@ -168,7 +166,7 @@ export const useMyPlay = {
     store.commit("setData", { key: "playList", value: result });
   },
 
-  // 判断当前展品是否已被收藏
+  /** 判断当前展品是否已存在播放列表中 */
   ifExist(id) {
     if (!store.state.userData.isLogin) {
       // 未登录时播放列表取本地
@@ -181,7 +179,7 @@ export const useMyPlay = {
     }
   },
 
-  // 加入播放列表
+  /** 加入播放列表 */
   async addToPlayList(id, callback) {
     if (!store.state.userData.isLogin) {
       // 未登录时存在本地
@@ -213,8 +211,10 @@ export const useMyPlay = {
     }
   },
 
-  // 移出播放列表
+  /** 移出播放列表 */
   async removeFromPlayList(id) {
+    const { playing, playingInfo } = store.state;
+
     if (!store.state.userData.isLogin) {
       // 未登录时取本地
       const list = localStorage.getItem("playIdList") || "[]";
@@ -229,7 +229,15 @@ export const useMyPlay = {
 
       store.commit("setData", { key: "playIdList", value: playIdList });
       store.commit("setData", { key: "playList", value: playList });
-      useMyPlay.playOrPause(playList[index]);
+
+      if (id !== playingInfo.exhibitId) return;
+      if (playing) {
+        // 如果移出的声音是当前正在播放的声音，自动播放列表中的下一个声音
+        useMyPlay.playOrPause(playList[index]);
+      } else {
+        // 如果移出的声音是当前正在暂停的声音，将播放中的声音信息置空
+        store.commit("setData", { key: "playingInfo", value: null });
+      }
     } else {
       // 已登录时取用户数据
       const playIdList = [...store.state.playIdList];
@@ -244,14 +252,22 @@ export const useMyPlay = {
 
         store.commit("setData", { key: "playIdList", value: playIdList });
         store.commit("setData", { key: "playList", value: playList });
-        useMyPlay.playOrPause(playList[index]);
+
+        if (id !== playingInfo.exhibitId) return;
+        if (playing) {
+          // 如果移出的声音是当前正在播放的声音，自动播放列表中的下一个声音
+          useMyPlay.playOrPause(playList[index]);
+        } else {
+          // 如果移出的声音是当前正在暂停的声音，将播放中的声音信息置空
+          store.commit("setData", { key: "playingInfo", value: null });
+        }
       } else {
         showToast("操作失败");
       }
     }
   },
 
-  // 清空播放列表
+  /** 清空播放列表 */
   async clearPlayList() {
     if (!store.state.userData.isLogin) {
       // 未登录时取本地
@@ -274,7 +290,7 @@ export const useMyPlay = {
     }
   },
 
-  // 播放
+  /** 播放 */
   async playOrPause(exhibit, type = "normal") {
     if (!exhibit) {
       store.commit("setData", { key: "playing", value: false });
@@ -325,7 +341,7 @@ export const useMyPlay = {
     setUserData("playingId", exhibitId);
   },
 
-  // 获取播放数据
+  /** 获取播放数据 */
   async getPlayingInfo(id) {
     const [info, statusInfo] = await Promise.all([
       getExhibitInfo(id, { isLoadVersionProperty: 1 }),

@@ -9,12 +9,11 @@
           </div>
           <div class="title-area">
             <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="authLinkAbnormal" />
-            <img
-              class="lock"
-              src="../assets/images/mini-lock.png"
+            <i
+              class="freelog fl-icon-suoding lock"
               @click.stop="getAuth()"
               v-if="voiceInfo.defaulterIdentityType >= 4"
-            />
+            ></i>
             <my-tooltip class="title" :content="voiceInfo.exhibitTitle">
               <span>{{ voiceInfo.exhibitTitle }}</span>
             </my-tooltip>
@@ -61,12 +60,11 @@
           <div class="right-area">
             <div class="title-area">
               <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="authLinkAbnormal" />
-              <img
-                class="lock"
-                src="../assets/images/mini-lock.png"
+              <i
+                class="freelog fl-icon-suoding lock"
                 @click.stop="getAuth()"
                 v-if="voiceInfo.defaulterIdentityType >= 4"
-              />
+              ></i>
 
               <div class="type-mark">声音</div>
 
@@ -156,23 +154,27 @@ export default {
       handler(cur) {
         if (!cur) return;
 
+        app.scroll({ top: 0 });
         this.id = cur;
         this.getVoiceInfo();
       },
       immediate: true,
     },
+
     "$store.state.collectionIdList": {
       handler() {
         this.isCollected = useMyCollection.ifExist(this.id);
       },
       immediate: true,
     },
+
     "$store.state.playIdList": {
       handler() {
         this.isInPlayList = useMyPlay.ifExist(this.id);
       },
       immediate: true,
     },
+
     "$store.state.authIdList"(cur) {
       if (cur.includes(this.voiceInfo.exhibitId)) this.voiceInfo.defaulterIdentityType = 0;
     },
@@ -220,12 +222,12 @@ export default {
   },
 
   methods: {
-    // 播放/暂停
+    /** 播放/暂停 */
     playOrPause() {
       useMyPlay.playOrPause(this.voiceInfo);
     },
 
-    // 加入播放列表
+    /** 加入播放列表 */
     addToPlayList() {
       useMyPlay.addToPlayList(this.id, () => {
         const { offsetTop, offsetLeft } = this.$refs.cover;
@@ -238,12 +240,12 @@ export default {
       });
     },
 
-    // 收藏/取消收藏
+    /** 收藏/取消收藏 */
     operateCollect() {
       useMyCollection.operateCollect(this.voiceInfo);
     },
 
-    // 分享
+    /** 分享 */
     share() {
       this.$store.commit("setData", { key: "shareInfo", value: { show: true, exhibit: this.voiceInfo } });
     },
@@ -293,6 +295,7 @@ export default {
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      z-index: 1;
 
       .cover {
         height: 100%;
@@ -306,10 +309,15 @@ export default {
       justify-content: center;
       margin-top: 20px;
 
-      .auth-link-abnormal,
-      .lock {
+      .auth-link-abnormal {
         width: 16px;
         height: 16px;
+        margin-right: 5px;
+      }
+
+      .lock {
+        font-size: 16px;
+        color: rgba(255, 255, 255, 0.6);
         margin-right: 5px;
       }
 
@@ -470,7 +478,7 @@ export default {
   // PC
   .pc-voice-detail-wrapper {
     padding-top: 20px;
-    padding-bottom: 168px;
+    padding-bottom: 120px;
     display: flex;
 
     .cover-area {
@@ -501,14 +509,16 @@ export default {
         display: flex;
         align-items: center;
 
-        .auth-link-abnormal,
-        .lock {
+        .auth-link-abnormal {
           width: 30px;
           height: 30px;
           margin-right: 20px;
         }
 
         .lock {
+          font-size: 30px;
+          color: rgba(255, 255, 255, 0.8);
+          margin-right: 20px;
           cursor: pointer;
         }
 
