@@ -42,8 +42,8 @@ dotenvFiles.forEach((dotenvFile) => {
 
 if (NODE_ENV === "development") {
   process.env.WDS_SOCKET_HOST = "localhost";
-  process.env.WDS_SOCKET_PATH = "localhost:3000";
-  process.env.WDS_SOCKET_PORT = "3000";
+  process.env.WDS_SOCKET_PATH = "localhost:8101";
+  process.env.WDS_SOCKET_PORT = "8101";
 }
 
 // We support resolving modules according to `NODE_PATH`.

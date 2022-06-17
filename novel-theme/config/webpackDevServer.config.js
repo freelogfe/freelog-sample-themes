@@ -94,7 +94,7 @@ module.exports = function (proxy, allowedHost) {
     host,
     hot: true,
     disableHostCheck: true,
-    port: 3000,
+    port: 8101,
     overlay: {
       warnings: false,
       errors: true,
