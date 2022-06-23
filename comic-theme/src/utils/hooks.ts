@@ -297,20 +297,16 @@ export const useMySignedList = () => {
     if (!store.state.userData.isLogin) return;
 
     const signedList: any = await getSignStatistics({ keywords });
-    const ids: string[] = [];
-    signedList.data.data.forEach((item: SignedItem) => {
-      ids.push(item.subjectId);
-    });
+    const ids = signedList.data.data.map((item: SignedItem) => item.subjectId).join();
 
-    if (ids.length === 0) {
+    if (!ids) {
       data.mySignedList = [];
       return;
     }
 
-    const exhibitIds = ids.join(",");
     const [list, statusList] = await Promise.all([
-      getExhibitListById({ exhibitIds }),
-      getExhibitAuthStatus(exhibitIds),
+      getExhibitListById({ exhibitIds: ids }),
+      getExhibitAuthStatus(ids),
     ]);
     list.data.data.forEach((item: ExhibitItem) => {
       const statusItem = statusList.data.data.find(

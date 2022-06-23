@@ -81,9 +81,9 @@ export default {
       },
 
       clickFrame(item: ExhibitItem) {
-        const { exhibitId, authLinkNormal } = item;
+        const { exhibitId, defaulterIdentityType } = item;
 
-        if (!authLinkNormal) {
+        if (![0, 4].includes(defaulterIdentityType)) {
           showToast("授权链异常，无法查看");
           return;
         }

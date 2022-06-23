@@ -209,9 +209,9 @@ export default {
       },
 
       clickFrame(item: ExhibitItem) {
-        const { exhibitId, authLinkNormal } = item;
+        const { exhibitId, defaulterIdentityType } = item;
 
-        if (!authLinkNormal) {
+        if (![0, 4].includes(defaulterIdentityType)) {
           showToast("授权链异常，无法查看");
           return;
         }
@@ -228,7 +228,7 @@ export default {
         for (let i = 0; i < waterfallList.value.length; i++) {
           const index = waterfall.value[waterfallList.value[i]].findIndex((item: ExhibitItem) => item.exhibitId === id);
           if (index !== -1) {
-            waterfall.value[waterfallList.value[i]][index].authCode = 200;
+            waterfall.value[waterfallList.value[i]][index].defaulterIdentityType = 0;
             break;
           }
         }

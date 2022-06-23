@@ -18,7 +18,7 @@
       v-if="inMobile"
     >
       <div class="cover-box">
-        <img class="image" :style="{ opacity: data.authLinkNormal ? 1 : 0.4 }" v-lazy="data.coverImages[0]" />
+        <img class="image" :style="{ opacity: authLinkAbnormal ? 0.4 : 1 }" v-lazy="data.coverImages[0]" />
 
         <!-- 下架标识 -->
         <div class="offline" v-if="data.onlineStatus === 0">已下架</div>
@@ -43,7 +43,7 @@
       <!-- 资源信息 -->
       <div class="frame-info">
         <div class="title">
-          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="!data.authLinkNormal" />
+          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="authLinkAbnormal" />
           {{ data.exhibitTitle }}
         </div>
         <tags :tags="data.tags" v-if="data.tags.length" />
@@ -64,7 +64,7 @@
       @mouseleave="modalShow = false"
       v-if="!inMobile"
     >
-      <img class="image" :style="{ opacity: data.authLinkNormal ? 1 : 0.4 }" v-lazy="data.coverImages[0]" />
+      <img class="image" :style="{ opacity: authLinkAbnormal ? 0.4 : 1 }" v-lazy="data.coverImages[0]" />
 
       <!-- 下架标识 -->
       <div class="offline" v-if="data.onlineStatus === 0">已下架</div>
@@ -79,7 +79,7 @@
       <!-- 签约量 -->
       <transition name="fade">
         <div class="normal-bar" v-if="!modalShow">
-          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="!data.authLinkNormal" />
+          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="authLinkAbnormal" />
           <div class="lock-circle" v-if="!isAuth">
             <img class="lock" src="../assets/images/mini-lock.png" />
           </div>
@@ -100,7 +100,7 @@
             <img class="img" src="../assets/images/video.png" v-if="data.articleInfo.resourceType === 'video'" />
           </div>
           <div class="title">
-            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="!data.authLinkNormal" />
+            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="authLinkAbnormal" />
             <img
               class="lock"
               src="../assets/images/mini-lock.png"
@@ -146,9 +146,12 @@ export default {
     const store = useStore();
     const data = reactive({
       modalShow: false,
-      authCode: props.data.authCode,
+      defaulterIdentityType: props.data.defaulterIdentityType,
     });
-    const isAuth = computed(() => [200, 301].includes(data.authCode));
+    /** 是否授权 */
+    const isAuth = computed(() => data.defaulterIdentityType < 4);
+    /** 授权链异常 */
+    const authLinkAbnormal = computed(() => ![0, 4].includes(data.defaulterIdentityType));
 
     const methods = {
       // 获取头像
@@ -160,14 +163,14 @@ export default {
       async getAuth(id: string) {
         const authResult = await addAuth(id);
         const { status } = authResult;
-        if (status === 0) data.authCode = 200;
+        if (status === 0) data.defaulterIdentityType = 0;
       },
     };
 
     watch(
-      () => props.data.authCode,
+      () => props.data.defaulterIdentityType,
       (cur) => {
-        data.authCode = cur;
+        data.defaulterIdentityType = cur;
       }
     );
 
@@ -176,6 +179,7 @@ export default {
       ...toRefs(store.state),
       ...toRefs(data),
       isAuth,
+      authLinkAbnormal,
       ...methods,
     };
   },
