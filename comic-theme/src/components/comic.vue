@@ -4,7 +4,7 @@
     <div class="comic-cover-box">
       <img
         class="comic-cover"
-        :class="{ 'opacity-40p': data.authLinkNormal === false }"
+        :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
         :src="data.coverImages[0]"
         :alt="data.exhibitTitle"
       />
@@ -15,12 +15,14 @@
       <img
         class="auth-link-abnormal"
         src="../assets/images/auth-link-abnormal.png"
-        v-if="data.authLinkNormal === false"
+        v-if="![0, 4].includes(data.defaulterIdentityType)"
       />
-      <div class="name" :class="{ 'opacity-40p': data.authLinkNormal === false }">{{ data.exhibitTitle }}</div>
+      <div class="name" :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">
+        {{ data.exhibitTitle }}
+      </div>
     </div>
 
-    <div class="comic-author" :class="{ 'opacity-40p': data.authLinkNormal === false }">
+    <div class="comic-author" :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">
       {{ data.articleInfo.articleOwnerName }}
     </div>
   </div>
@@ -36,7 +38,7 @@
       <div class="comic-cover-box">
         <img
           class="comic-cover"
-          :class="{ 'opacity-40p': data.authLinkNormal === false }"
+          :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
           :src="data.coverImages[0]"
           :alt="data.exhibitTitle"
         />
@@ -48,47 +50,52 @@
           <img
             class="auth-link-abnormal"
             src="../assets/images/auth-link-abnormal.png"
-            v-if="data.authLinkNormal === false"
+            v-if="![0, 4].includes(data.defaulterIdentityType)"
           />
           <img
             class="lock"
             src="../assets/images/mini-lock.png"
             alt="未授权"
-            v-if="mode !== 3 && data.authCode === 303"
+            v-if="mode !== 3 && data.defaulterIdentityType >= 4"
           />
-          <div class="comic-name" :class="{ 'opacity-40p': data.authLinkNormal === false }">
+          <div class="comic-name" :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">
             {{ data.exhibitTitle }}
           </div>
-          <div class="tag is-auth" v-if="mode === 3 && [200, 301].includes(data.authCode) && !inMobile">已授权</div>
-          <div class="tag not-auth" v-if="mode === 3 && data.authCode === 303 && !inMobile">未授权</div>
+          <div class="tag is-auth" v-if="mode === 3 && data.defaulterIdentityType < 4 && !inMobile">已授权</div>
+          <div class="tag not-auth" v-if="mode === 3 && data.defaulterIdentityType >= 4 && !inMobile">未授权</div>
         </div>
 
-        <div class="comic-author" :class="{ 'opacity-40p': data.authLinkNormal === false }">
+        <div class="comic-author" :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">
           {{ data.articleInfo.articleOwnerName }}
         </div>
 
-        <div class="tags" :class="{ 'opacity-40p': data.authLinkNormal === false }" v-if="!(mode === 3 && inMobile)">
+        <div
+          class="tags"
+          :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
+          v-if="!(mode === 3 && inMobile)"
+        >
           <tags :tags="data.tags" />
         </div>
 
         <div
           class="auth-tag"
-          :class="[200, 301].includes(data.authCode) ? 'is-auth' : 'not-auth'"
+          :class="data.defaulterIdentityType < 4 ? 'is-auth' : 'not-auth'"
           v-if="mode === 3 && inMobile"
         >
-          {{ [200, 301].includes(data.authCode) ? "已授权" : "未授权" }}
+          <span v-if="data.defaulterIdentityType < 4">已授权</span>
+          <span v-else>未授权</span>
         </div>
       </div>
 
       <i
         class="freelog fl-icon-zhankaigengduo"
-        :class="{ 'opacity-40p': data.authLinkNormal === false }"
+        :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
         v-if="!(mode === 3 && inMobile)"
       ></i>
 
       <div
         class="main-btn btn"
-        :class="{ disabled: data.authLinkNormal === false }"
+        :class="{ disabled: ![0, 4].includes(data.defaulterIdentityType) }"
         @click.stop="toPath('/reader')"
         v-if="[2, 3].includes(mode)"
       >
@@ -125,9 +132,9 @@ export default {
     const { switchPage } = useMyRouter();
     const methods = {
       toPath(path: string) {
-        const { exhibitId, authLinkNormal } = props.data;
+        const { exhibitId, defaulterIdentityType } = props.data;
 
-        if (!authLinkNormal) {
+        if (![0, 4].includes(defaulterIdentityType)) {
           showToast("授权链异常，无法查看");
           return;
         }

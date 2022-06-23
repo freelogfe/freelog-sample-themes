@@ -4,7 +4,7 @@
 
     <!-- mobile -->
     <div class="mobile-content" v-if="inMobile">
-      <div class="auth-link-abnormal-tip" v-if="comicInfo?.authLinkNormal === false">
+      <div class="auth-link-abnormal-tip" v-if="![0, 4].includes(comicInfo.defaulterIdentityType)">
         <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
         <div class="tip-text">授权链异常，无法查看</div>
       </div>
@@ -56,7 +56,7 @@
         <div class="operate-btns">
           <div
             class="btn main-btn mobile"
-            :class="{ disabled: comicInfo.authLinkNormal === false }"
+            :class="{ disabled: ![0, 4].includes(comicInfo.defaulterIdentityType) }"
             @click="switchPage('/reader', { id: comicInfo?.exhibitId })"
           >
             立即阅读
@@ -118,7 +118,7 @@
 
     <!-- PC -->
     <div class="content" v-if="!inMobile">
-      <div class="auth-link-abnormal-tip" v-if="comicInfo?.authLinkNormal === false">
+      <div class="auth-link-abnormal-tip" v-if="![0, 4].includes(comicInfo.defaulterIdentityType)">
         <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
         <div class="tip-text">授权链异常，无法查看</div>
       </div>
@@ -154,7 +154,7 @@
               <div class="operate-btns">
                 <div
                   class="btn main-btn"
-                  :class="{ disabled: comicInfo.authLinkNormal === false }"
+                  :class="{ disabled: ![0, 4].includes(comicInfo.defaulterIdentityType) }"
                   @click="switchPage('/reader', { id: comicInfo?.exhibitId })"
                 >
                   立即阅读
@@ -230,7 +230,7 @@
 import { useMyRouter, useMyShelf } from "../utils/hooks";
 import { defineAsyncComponent, reactive, ref, toRefs, watch } from "@vue/runtime-core";
 import { ExhibitItem } from "@/api/interface";
-import { getExhibitInfo, getExhibitSignCount, getExhibitAuthStatus, getExhibitAvailable } from "@/api/freelog";
+import { getExhibitInfo, getExhibitSignCount, getExhibitAuthStatus } from "@/api/freelog";
 import { useStore } from "vuex";
 import { formatDate, showToast } from "@/utils/common";
 import { watchEffect } from "vue";
@@ -279,27 +279,18 @@ export default {
     });
 
     const getComicInfo = async (id: string) => {
-      const exhibitInfo = await getExhibitInfo(id, {
-        isLoadVersionProperty: 1,
-      });
-      const signCountData = await getExhibitSignCount(id);
+      const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
+        getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+        getExhibitSignCount(id),
+        getExhibitAuthStatus(id),
+      ]);
       data.comicInfo = {
         ...exhibitInfo.data.data,
-        signCount: signCountData?.data.data[0]?.count,
+        signCount: signCountData.data.data[0].count,
+        defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
       };
       data.directory = Array.from({ length: 12 }, () => data.comicInfo.exhibitTitle || "目录名称");
       data.href = (window.location as any).currentURL;
-      const statusInfo = await getExhibitAuthStatus(id);
-      if (statusInfo.data.data) data.comicInfo.authCode = statusInfo.data.data[0].authCode;
-      if (data.comicInfo.authCode === 301) {
-        data.comicInfo.authLinkNormal = false;
-        return;
-      }
-      const authLinkStatusInfo = await getExhibitAvailable(id);
-      if (authLinkStatusInfo.data.data) {
-        data.comicInfo.authLinkNormal =
-          data.comicInfo.authCode === 301 ? false : authLinkStatusInfo.data.data[0].isAuth;
-      }
     };
     getComicInfo(id);
 

@@ -8,42 +8,22 @@
     }"
     @click="clickPage()"
   >
-    <my-header
-      :readerHeader="true"
-      v-if="(inMobile && mobileBarShow) || !inMobile"
-    />
+    <my-header :readerHeader="true" v-if="(inMobile && mobileBarShow) || !inMobile" />
 
     <my-loader v-if="loading" />
 
     <!-- mobile -->
     <template v-if="!loading && inMobile">
       <div class="mobile-body-wrapper">
-        <img
-          class="content"
-          :src="content"
-          v-if="
-            [200, 301].includes(comicInfo.authCode) &&
-            comicInfo.authLinkNormal &&
-            content
-          "
-        />
+        <img class="content" :src="content" v-if="comicInfo.defaulterIdentityType === 0 && content" />
 
-        <div class="auth-box" v-if="comicInfo.authLinkNormal === false">
-          <img
-            class="auth-link-abnormal"
-            src="../assets/images/auth-link-abnormal.png"
-          />
+        <div class="auth-box" v-if="comicInfo.defaulterIdentityType && comicInfo.defaulterIdentityType !== 4">
+          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
           <div class="auth-link-tip">授权链异常，无法查看</div>
           <div class="home-btn" @click="switchPage('/home')">进入首页</div>
         </div>
 
-        <div
-          class="lock-box"
-          v-if="
-            (comicInfo.authCode === 303 && comicInfo.authLinkNormal) ||
-            userData.isLogin === false
-          "
-        >
+        <div class="lock-box" v-if="comicInfo.defaulterIdentityType === 4 || userData.isLogin === false">
           <img class="lock" src="../assets/images/lock.png" alt="未授权" />
           <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
           <div class="get-btn" @click="getAuth()">获取授权</div>
@@ -51,11 +31,7 @@
       </div>
 
       <transition name="fade-down">
-        <div
-          class="mobile-operater-wrapper"
-          @touchmove.prevent
-          v-if="mobileBarShow"
-        >
+        <div class="mobile-operater-wrapper" @touchmove.prevent v-if="mobileBarShow">
           <!-- <div class="operater-btn">
             <i class="freelog fl-icon-zhankaigengduo"></i>
             <div class="operater-btn-label">上一话</div>
@@ -82,11 +58,7 @@
           <div class="single-btn" @click="operateShelf(comicInfo)">
             <i
               class="freelog"
-              :class="
-                isCollected
-                  ? 'fl-icon-shoucangxiaoshuoyishoucang'
-                  : 'fl-icon-shoucangxiaoshuo'
-              "
+              :class="isCollected ? 'fl-icon-shoucangxiaoshuoyishoucang' : 'fl-icon-shoucangxiaoshuo'"
             ></i>
             <div class="operater-btn-label">
               {{ isCollected ? "取消收藏" : "加入收藏" }}
@@ -101,10 +73,7 @@
       <div class="body-wrapper" :class="theme">
         <div class="breadcrumbs-wrapper">
           <div class="breadcrumbs-item">
-            <div
-              class="second-text-btn"
-              @click="switchPage('/detail', { id: comicInfo.exhibitId })"
-            >
+            <div class="second-text-btn" @click="switchPage('/detail', { id: comicInfo.exhibitId })">
               {{ comicInfo.exhibitTitle }}
               <!-- {{comicInfo.exhibitTitle}} > -->
             </div>
@@ -118,32 +87,15 @@
         </div>
 
         <div class="content-box">
-          <img
-            class="content"
-            :src="content"
-            v-if="
-              [200, 301].includes(comicInfo.authCode) &&
-              comicInfo.authLinkNormal &&
-              content
-            "
-          />
+          <img class="content" :src="content" v-if="comicInfo.defaulterIdentityType === 0 && content" />
 
-          <div class="auth-box" v-if="comicInfo.authLinkNormal === false">
-            <img
-              class="auth-link-abnormal"
-              src="../assets/images/auth-link-abnormal.png"
-            />
+          <div class="auth-box" v-if="comicInfo.defaulterIdentityType && comicInfo.defaulterIdentityType !== 4">
+            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
             <div class="auth-link-tip">授权链异常，无法查看</div>
             <div class="home-btn" @click="switchPage('/home')">进入首页</div>
           </div>
 
-          <div
-            class="lock-box"
-            v-if="
-              (comicInfo.authCode === 303 && comicInfo.authLinkNormal) ||
-              userData.isLogin === false
-            "
-          >
+          <div class="lock-box" v-if="comicInfo.defaulterIdentityType === 4 || userData.isLogin === false">
             <img class="lock" src="../assets/images/lock.png" alt="未授权" />
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
             <div class="get-btn" @click="getAuth()">获取授权</div>
@@ -171,11 +123,7 @@
           /> -->
 
           <operate-btn
-            :icon="
-              isCollected
-                ? 'fl-icon-shoucangxiaoshuoyishoucang'
-                : 'fl-icon-shoucangxiaoshuo'
-            "
+            :icon="isCollected ? 'fl-icon-shoucangxiaoshuoyishoucang' : 'fl-icon-shoucangxiaoshuo'"
             :theme="theme"
             @click="
               clickPage();
@@ -183,18 +131,12 @@
             "
           />
 
-          <operate-btn
-            icon="fl-icon-fenxiang"
-            :theme="theme"
-            @click.stop="sharePopupShow = true"
-          >
+          <operate-btn icon="fl-icon-fenxiang" :theme="theme" @click.stop="sharePopupShow = true">
             <share :show="sharePopupShow" :exhibit="comicInfo" />
           </operate-btn>
 
           <operate-btn
-            :icon="
-              theme === 'light' ? 'fl-icon-rijianmoshi' : 'fl-icon-yejianmoshi'
-            "
+            :icon="theme === 'light' ? 'fl-icon-rijianmoshi' : 'fl-icon-yejianmoshi'"
             :theme="theme"
             @click="
               clickPage();
@@ -211,11 +153,7 @@
       </div>
     </template>
 
-    <directory
-      :show="directoryShow"
-      :comicInfo="comicInfo"
-      @closeDirectory="directoryShow = false"
-    />
+    <directory :show="directoryShow" :comicInfo="comicInfo" @closeDirectory="directoryShow = false" />
   </div>
 </template>
 
@@ -224,13 +162,7 @@ import { toRefs } from "@vue/reactivity";
 import { useMyRouter, useMyScroll, useMyShelf } from "../utils/hooks";
 import { defineAsyncComponent, reactive, watch, watchEffect } from "vue";
 import { ExhibitItem } from "@/api/interface";
-import {
-  addAuth,
-  getExhibitAuthStatus,
-  getExhibitAvailable,
-  getExhibitFileStream,
-  getExhibitInfo,
-} from "@/api/freelog";
+import { addAuth, getExhibitAuthStatus, getExhibitFileStream, getExhibitInfo } from "@/api/freelog";
 import { useStore } from "vuex";
 
 export default {
@@ -295,14 +227,9 @@ export default {
     const getContent = async () => {
       data.loading = true;
       const statusInfo = await getExhibitAuthStatus(id);
-      if (statusInfo.data.data) data.comicInfo.authCode = statusInfo.data.data[0].authCode;
-      const authLinkStatusInfo = await getExhibitAvailable(id);
-      if (authLinkStatusInfo.data.data) {
-        data.comicInfo.authLinkNormal =
-          data.comicInfo.authCode === 301 ? false : authLinkStatusInfo.data.data[0].isAuth;
-      }
+      if (statusInfo.data.data) data.comicInfo.defaulterIdentityType = statusInfo.data.data[0].defaulterIdentityType;
 
-      if ([200, 301].includes(data.comicInfo.authCode) && data.comicInfo.authLinkNormal) {
+      if (data.comicInfo.defaulterIdentityType === 0) {
         // 已签约并且授权链无异常
         const info: any = await getExhibitFileStream(id, true);
         if (!info) {
@@ -322,7 +249,7 @@ export default {
       store.commit("setData", { key: "authIds", value: authIds });
       const index = myShelf.findIndex((item: ExhibitItem) => item.exhibitId === id);
       if (index !== -1) {
-        myShelf[index].authCode = 200;
+        myShelf[index].defaulterIdentityType = 0;
         store.commit("setData", { key: "myShelf", value: myShelf });
       }
     };
