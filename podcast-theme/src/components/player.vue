@@ -1019,7 +1019,7 @@ export default {
     position: fixed;
     left: 0;
     bottom: 0;
-    right: 0;
+    right: 5px;
     height: 84px;
     background: rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(25px);

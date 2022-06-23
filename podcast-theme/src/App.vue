@@ -63,7 +63,7 @@ export default {
 
     &::-webkit-scrollbar {
       width: 5px;
-      background-color: transparent;
+      background-color: rgba(0, 0, 0, 0.2);
     }
 
     &::-webkit-scrollbar-thumb {
