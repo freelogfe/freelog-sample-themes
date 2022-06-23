@@ -12,7 +12,7 @@ export interface GetExhibitListByPagingParams {
 // 搜索展品请求参数
 export interface GetExhibitListByIdParams {
   exhibitIds: string; // 展品id，多个使用","隔开
-  isLoadVersionProperty?: string; // 是否加载版本信息
+  isLoadVersionProperty?: 0 | 1; // 是否加载版本信息
 }
 
 // 获取展品信息请求参数
@@ -82,14 +82,6 @@ export const getExhibitFileStream = (exhibitId: string, returnUrl?: boolean, con
  */
 export const getExhibitAuthStatus = async (exhibitIds: string) => {
   return MyWindow.freelogApp.getExhibitAuthStatus(exhibitIds);
-};
-
-/**
- * 查询展品授权链状态
- * @param exhibitIds 展品id
- */
-export const getExhibitAvailable = async (exhibitIds: string) => {
-  return MyWindow.freelogApp.getExhibitAvailalbe(exhibitIds);
 };
 
 /**

@@ -1,7 +1,7 @@
 import "./home.scss";
 import { useState, useEffect, useCallback, useRef, useContext } from "react";
 import { Header } from "../../components/header/header";
-import { getExhibitAuthStatus, getExhibitAvailable, getExhibitListByPaging, GetExhibitListByPagingParams } from "../../api/freelog";
+import { getExhibitAuthStatus, getExhibitListByPaging, GetExhibitListByPagingParams } from "../../api/freelog";
 import { ExhibitItem } from "../../api/interface";
 import { Novel } from "../../components/novel/novel";
 import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
@@ -45,24 +45,14 @@ export const HomeScreen = (props: any) => {
       const list = await getExhibitListByPaging(queryParams);
       const { dataList, totalItem } = list.data.data;
       if (dataList.length !== 0) {
-        const idList: string[] = [];
-        dataList.forEach((item: ExhibitItem) => {
-          idList.push(item.exhibitId);
-        });
-        const ids = idList.join(",");
+        const ids = dataList.map((item: ExhibitItem) => item.exhibitId).join();
         const statusInfo = await getExhibitAuthStatus(ids);
         if (statusInfo.data.data) {
-          statusInfo.data.data.forEach((item: { exhibitId: string; authCode: number }) => {
-            const index = dataList.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.exhibitId);
-            dataList[index].authCode = item.authCode;
-          });
-        }
-        const authLinkStatusInfo = await getExhibitAvailable(ids);
-        if (authLinkStatusInfo.data.data) {
-          authLinkStatusInfo.data.data.forEach((item: { exhibitId: string; isAuth: boolean }) => {
-            const index = dataList.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.exhibitId);
-            // 全链路授权码为301时，必定是授权链出错
-            dataList[index].authLinkNormal = dataList[index].authCode === 301 ? false : item.isAuth;
+          dataList.forEach((item: ExhibitItem) => {
+            const index = statusInfo.data.data.findIndex(
+              (resultItem: { exhibitId: string }) => resultItem.exhibitId === item.exhibitId
+            );
+            if (index !== -1) item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
           });
         }
       }

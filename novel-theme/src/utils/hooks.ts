@@ -3,12 +3,10 @@ import { useHistory } from "react-router";
 import {
   getUserData,
   getExhibitListById,
-  GetExhibitListByIdParams,
   setUserData,
   getExhibitAuthStatus,
   callLogin,
   getSignStatistics,
-  getExhibitAvailable,
 } from "../api/freelog";
 import { showToast } from "../components/toast/toast";
 import { globalContext } from "../router";
@@ -36,31 +34,17 @@ export const useMyShelf = (id?: string) => {
       return;
     }
 
-    const exhibitIds = ids.join(",");
-    const queryParams: GetExhibitListByIdParams = { exhibitIds };
-    const list = await getExhibitListById(queryParams);
-    if (list.data.data.length !== 0) {
-      const idList: string[] = [];
-      list.data.data.forEach((item: ExhibitItem) => {
-        idList.push(item.exhibitId);
-      });
-      const ids = idList.join(",");
-      const statusInfo = await getExhibitAuthStatus(ids);
-      if (statusInfo.data.data) {
-        statusInfo.data.data.forEach((item: { exhibitId: string; authCode: number }) => {
-          const index = list.data.data.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.exhibitId);
-          list.data.data[index].authCode = item.authCode;
-        });
-      }
-      const authLinkStatusInfo = await getExhibitAvailable(ids);
-      if (authLinkStatusInfo.data.data) {
-        authLinkStatusInfo.data.data.forEach((item: { exhibitId: string; isAuth: boolean }) => {
-          const index = list.data.data.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.exhibitId);
-          // 全链路授权码为301时，必定是授权链出错
-          list.data.data[index].authLinkNormal = list.data.data[index].authCode === 301 ? false : item.isAuth;
-        });
-      }
-    }
+    const exhibitIds = ids.join();
+    const [list, statusList] = await Promise.all([
+      getExhibitListById({ exhibitIds }),
+      getExhibitAuthStatus(exhibitIds),
+    ]);
+    ids.forEach((id: string) => {
+      const book = list.data.data.find((item: ExhibitItem) => item.exhibitId === id);
+      if (!book) return;
+      const statusItem = statusList.data.data.find((item: { exhibitId: string }) => item.exhibitId === id);
+      book.defaulterIdentityType = statusItem.defaulterIdentityType;
+    });
     setMyShelf(list.data.data);
   };
 
@@ -124,36 +108,21 @@ export const useMySignedList = () => {
     if (!userData?.isLogin) return;
 
     const signedList = await getSignStatistics({ keywords });
-    const ids: string[] = [];
-    signedList.data.data.forEach((item: SignedItem) => {
-      ids.push(item.subjectId);
-    });
+    const ids: string = signedList.data.data.map((item: SignedItem) => item.subjectId).join();
 
-    if (ids.length === 0) {
+    if (!ids) {
       setMySignedList([]);
       return;
     }
 
-    const exhibitIds = ids.join(",");
-    const queryParams: GetExhibitListByIdParams = { exhibitIds };
-    const list = await getExhibitListById(queryParams);
-    if (list.data.data.length !== 0) {
-      const statusInfo = await getExhibitAuthStatus(exhibitIds);
-      if (statusInfo.data.data) {
-        statusInfo.data.data.forEach((item: { exhibitId: string; authCode: number }) => {
-          const index = list.data.data.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.exhibitId);
-          list.data.data[index].authCode = item.authCode;
-        });
-      }
-      const authLinkStatusInfo = await getExhibitAvailable(exhibitIds);
-      if (authLinkStatusInfo.data.data) {
-        authLinkStatusInfo.data.data.forEach((item: { exhibitId: string; isAuth: boolean }) => {
-          const index = list.data.data.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.exhibitId);
-          // 全链路授权码为301时，必定是授权链出错
-          list.data.data[index].authLinkNormal = list.data.data[index].authCode === 301 ? false : item.isAuth;
-        });
-      }
-    }
+    const [list, statusList] = await Promise.all([getExhibitListById({ exhibitIds: ids }), getExhibitAuthStatus(ids)]);
+    list.data.data.forEach((item: ExhibitItem) => {
+      const statusItem = statusList.data.data.find(
+        (status: { exhibitId: string }) => status.exhibitId === item.exhibitId
+      );
+      item.defaulterIdentityType = statusItem.defaulterIdentityType;
+    });
+
     setMySignedList(list.data.data.filter((item: ExhibitItem) => item.articleInfo.resourceType !== "theme"));
   };
 

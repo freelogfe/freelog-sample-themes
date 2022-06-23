@@ -10,9 +10,8 @@ export interface ExhibitItem {
   createDate: string;
   updateDate: string;
   signCount: number;
-  authCode: number;
-  authLinkNormal: boolean;
   onlineStatus: number;
+  defaulterIdentityType: number;
 }
 
 // 主题

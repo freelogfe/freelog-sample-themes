@@ -5,7 +5,7 @@ import BgImage from "../../assets/images/reader-bg.png";
 import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
 import { useState, useEffect, useCallback } from "react";
 import { ExhibitItem, ThemeItem } from "../../api/interface";
-import { addAuth, getExhibitAuthStatus, getExhibitAvailable, getExhibitFileStream, getExhibitInfo } from "../../api/freelog";
+import { addAuth, getExhibitAuthStatus, getExhibitFileStream, getExhibitInfo } from "../../api/freelog";
 import { readerThemeList } from "../../api/data";
 import { BackTop } from "../../components/back-top/back-top";
 import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
@@ -75,7 +75,11 @@ export const ReaderScreen = (props: any) => {
 
   return (
     <readerContext.Provider value={context}>
-      <div className={`reader-wrapper ${inMobile && "in-mobile"}`} style={{ backgroundImage: `url(${BgImage})`, backgroundColor: theme?.bgColor }} onClick={() => clickPage()}>
+      <div
+        className={`reader-wrapper ${inMobile && "in-mobile"}`}
+        style={{ backgroundImage: `url(${BgImage})`, backgroundColor: theme?.bgColor }}
+        onClick={() => clickPage()}
+      >
         <CSSTransition in={(inMobile && mobileBarShow) || !inMobile} classNames="slide-up" timeout={150} unmountOnExit>
           <Header readerHeader={true} />
         </CSSTransition>
@@ -96,21 +100,16 @@ const Body = () => {
   const { inMobile, book, id, fontSize, theme } = useContext(readerContext);
   const [content, setContent] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [authCode, setAuthCode] = useState<number | null>(null);
-  const [authLinkNormal, setAuthLinkNormal] = useState<boolean | null>(null);
+  const [defaulterIdentityType, setDefaulterIdentityType] = useState<number | null>(null);
 
   const getContent = useCallback(async () => {
     setLoading(true);
-    let code, authLink;
+    let authErrType;
     const statusInfo = await getExhibitAuthStatus(id);
-    if (statusInfo.data.data) code = statusInfo.data.data[0].authCode;
-    const authLinkStatusInfo = await getExhibitAvailable(id);
-    if (authLinkStatusInfo.data.data) {
-      authLink = code === 301 ? false : authLinkStatusInfo.data.data[0].isAuth;
-    }
-    setAuthCode(code);
-    setAuthLinkNormal(authLink);
-    if ([200, 301].includes(code) && authLink) {
+    if (statusInfo.data.data) authErrType = statusInfo.data.data[0].defaulterIdentityType;
+    setDefaulterIdentityType(authErrType);
+
+    if (authErrType === 0) {
       // 已签约并且授权链无异常
       const info: any = await getExhibitFileStream(id);
       if (!info) {
@@ -149,8 +148,7 @@ const Body = () => {
           lineHeight: fontSize + 14 + "px",
         }}
       >
-        {authCode &&
-          [200, 301].includes(authCode) &&
+        {defaulterIdentityType === 0 &&
           content.map((item, index) => {
             return (
               <p className="paragraph" key={item + index}>
@@ -158,7 +156,7 @@ const Body = () => {
               </p>
             );
           })}
-        {authLinkNormal === false && (
+        {![null, 0, 4].includes(defaulterIdentityType) && (
           <div className="auth-box">
             <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
             <div className="auth-link-tip">授权链异常，无法查看</div>
@@ -167,7 +165,7 @@ const Body = () => {
             </div>
           </div>
         )}
-        {((authCode === 303 && authLinkNormal === true) || userData?.isLogin === false) && (
+        {(defaulterIdentityType === 4 || userData?.isLogin === false) && (
           <div className="lock-box">
             <img className="lock" src={Lock} alt="未授权" />
             <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
@@ -206,8 +204,7 @@ const Body = () => {
             lineHeight: fontSize + 14 + "px",
           }}
         >
-          {authCode &&
-            [200, 301].includes(authCode) &&
+          {defaulterIdentityType === 0 &&
             content.map((item, index) => {
               return (
                 <p className="paragraph" key={item + index}>
@@ -215,7 +212,7 @@ const Body = () => {
                 </p>
               );
             })}
-          {authLinkNormal === false && (
+          {![null, 0, 4].includes(defaulterIdentityType) && (
             <div className="auth-box">
               <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
               <div className="auth-link-tip">授权链异常，无法查看</div>
@@ -224,7 +221,7 @@ const Body = () => {
               </div>
             </div>
           )}
-          {((authCode === 303 && authLinkNormal === true) || userData?.isLogin === false) && (
+          {(defaulterIdentityType === 4 || userData?.isLogin === false) && (
             <div className="lock-box">
               <img className="lock" src={Lock} alt="未授权" />
               <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
@@ -322,7 +319,8 @@ const Operater = () => {
   }, [scrollTop]);
 
   useEffect(() => {
-    document.body.style.overflowY = (sharePopupShow || fontSizePopupShow || themePopupShow) && inMobile ? "hidden" : "auto";
+    document.body.style.overflowY =
+      (sharePopupShow || fontSizePopupShow || themePopupShow) && inMobile ? "hidden" : "auto";
   }, [sharePopupShow, fontSizePopupShow, themePopupShow, inMobile]);
 
   return inMobile ? (
@@ -482,7 +480,10 @@ const Operater = () => {
             setFontSizePopupShow(true);
           }}
           slot={
-            <div className={`operater-popup ${theme?.type === 1 ? "dark" : "light"}`} style={{ width: fontSizePopupShow ? "162px" : "0" }}>
+            <div
+              className={`operater-popup ${theme?.type === 1 ? "dark" : "light"}`}
+              style={{ width: fontSizePopupShow ? "162px" : "0" }}
+            >
               <div className="fontsize-label" onClick={() => changeFontSize(0)}>
                 A-
               </div>
@@ -534,7 +535,11 @@ const OperateBtn = (props: { icon?: string; text?: string; slot?: any; onClick?:
   const { theme } = useContext(readerContext);
 
   return (
-    <div className={`operate-btn-wrapper ${theme?.type === 1 ? "dark" : "light"}`} style={{ backgroundColor: theme?.bookColor }} onClick={(e) => e.stopPropagation()}>
+    <div
+      className={`operate-btn-wrapper ${theme?.type === 1 ? "dark" : "light"}`}
+      style={{ backgroundColor: theme?.bookColor }}
+      onClick={(e) => e.stopPropagation()}
+    >
       {slot}
       {icon && <i className={`freelog ${icon}`} onClick={onClick}></i>}
       {text && (
