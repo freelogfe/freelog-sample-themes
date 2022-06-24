@@ -1,8 +1,6 @@
 import {
   getExhibitAuthStatus,
-  getExhibitAvailable,
   getExhibitListById,
-  GetExhibitListByIdParams,
   getExhibitListByPaging,
   GetExhibitListByPagingParams,
   getExhibitSignCount,
@@ -144,31 +142,19 @@ export const useGetList = () => {
     const list = await getExhibitListByPaging(queryParams);
     const { dataList, totalItem } = list.data.data;
     if (dataList.length !== 0) {
-      const idList: string[] = [];
+      const ids = dataList.map((item: ExhibitItem) => item.exhibitId).join();
+      const [signCountData, statusInfo] = await Promise.all([getExhibitSignCount(ids), getExhibitAuthStatus(ids)]);
       dataList.forEach((item: ExhibitItem) => {
-        idList.push(item.exhibitId);
+        let index;
+        index = signCountData.data.data.findIndex(
+          (resultItem: { subjectId: string }) => resultItem.subjectId === item.exhibitId
+        );
+        if (index !== -1) item.signCount = signCountData.data.data[index].count;
+        index = statusInfo.data.data.findIndex(
+          (resultItem: { exhibitId: string }) => resultItem.exhibitId === item.exhibitId
+        );
+        if (index !== -1) item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
       });
-      const ids = idList.join(",");
-      const signCountData = await getExhibitSignCount(ids);
-      signCountData.data.data.forEach((item: { subjectId: string; count: number }) => {
-        const index = dataList.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.subjectId);
-        dataList[index].signCount = item.count;
-      });
-      const statusInfo = await getExhibitAuthStatus(ids);
-      if (statusInfo.data.data) {
-        statusInfo.data.data.forEach((item: { exhibitId: string; authCode: number }) => {
-          const index = dataList.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.exhibitId);
-          dataList[index].authCode = item.authCode;
-        });
-      }
-      const authLinkStatusInfo = await getExhibitAvailable(ids);
-      if (authLinkStatusInfo.data.data) {
-        authLinkStatusInfo.data.data.forEach((item: { exhibitId: string; isAuth: boolean }) => {
-          const index = dataList.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.exhibitId);
-          // 全链路授权码为301时，必定是授权链出错
-          dataList[index].authLinkNormal = dataList[index].authCode === 301 ? false : item.isAuth;
-        });
-      }
     }
     data.listData = init ? dataList : [...data.listData, ...dataList];
     data.total = totalItem;
@@ -208,36 +194,20 @@ export const useMySignedList = () => {
     if (!store.state.userData) return;
 
     const signedList: any = await getSignStatistics({ keywords });
-    const ids: string[] = [];
-    signedList.data.data.forEach((item: SignedItem) => {
-      ids.push(item.subjectId);
-    });
+    const ids = signedList.data.data.map((item: SignedItem) => item.subjectId).join();
 
-    if (ids.length === 0) {
+    if (!ids) {
       data.mySignedList = [];
       return;
     }
 
-    const exhibitIds = ids.join(",");
-    const queryParams: GetExhibitListByIdParams = { exhibitIds };
-    const list = await getExhibitListById(queryParams);
-    if (list.data.data.length !== 0) {
-      const statusInfo = await getExhibitAuthStatus(exhibitIds);
-      if (statusInfo.data.data) {
-        statusInfo.data.data.forEach((item: { exhibitId: string; authCode: number }) => {
-          const index = list.data.data.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.exhibitId);
-          list.data.data[index].authCode = item.authCode;
-        });
-      }
-      const authLinkStatusInfo = await getExhibitAvailable(exhibitIds);
-      if (authLinkStatusInfo.data.data) {
-        authLinkStatusInfo.data.data.forEach((item: { exhibitId: string; isAuth: boolean }) => {
-          const index = list.data.data.findIndex((listItem: ExhibitItem) => listItem.exhibitId === item.exhibitId);
-          // 全链路授权码为301时，必定是授权链出错
-          list.data.data[index].authLinkNormal = list.data.data[index].authCode === 301 ? false : item.isAuth;
-        });
-      }
-    }
+    const [list, statusList] = await Promise.all([getExhibitListById({ exhibitIds: ids }), getExhibitAuthStatus(ids)]);
+    list.data.data.forEach((item: ExhibitItem) => {
+      const statusItem = statusList.data.data.find(
+        (status: { exhibitId: string }) => status.exhibitId === item.exhibitId
+      );
+      item.defaulterIdentityType = statusItem.defaulterIdentityType;
+    });
     data.mySignedList = list.data.data.filter((item: ExhibitItem) => item.articleInfo.resourceType !== "theme");
   };
 

@@ -179,10 +179,6 @@ export default {
 
       .article-box {
         width: 920px;
-
-        & + .article-box {
-          margin-top: 20px;
-        }
       }
     }
   }

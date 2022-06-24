@@ -5,7 +5,7 @@
       <div class="article-cover-box" v-if="selfConfig.articleCover === '显示'">
         <img
           class="article-cover"
-          :class="{ 'opacity-40p': !data.authLinkNormal }"
+          :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
           :src="data.coverImages[0]"
           :alt="data.exhibitTitle"
         />
@@ -14,22 +14,34 @@
 
       <div class="article-info">
         <div class="article-title" :class="{ 'one-line': inSignedList }">
-          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="!data.authLinkNormal" />
-          <img class="lock" src="../assets/images/mini-lock.png" v-if="!inSignedList && data.authCode === 303" />
-          <span :class="{ 'opacity-40p': !data.authLinkNormal }">{{ data.exhibitTitle }}</span>
+          <img
+            class="auth-link-abnormal"
+            src="../assets/images/auth-link-abnormal.png"
+            v-if="![0, 4].includes(data.defaulterIdentityType)"
+          />
+          <img
+            class="lock"
+            src="../assets/images/mini-lock.png"
+            v-if="!inSignedList && data.defaulterIdentityType >= 4"
+          />
+          <span :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">{{ data.exhibitTitle }}</span>
         </div>
-        <div class="other-info" :class="{ 'opacity-40p': !data.authLinkNormal }" v-if="!inSignedList">
+        <div
+          class="other-info"
+          :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
+          v-if="!inSignedList"
+        >
           <div class="info">{{ formatDate(data.createDate) }}</div>
           <div class="info">{{ data.signCount || 0 }}人已签约</div>
         </div>
         <template v-if="inSignedList">
-          <div class="time-signcount" :class="{ 'opacity-40p': !data.authLinkNormal }">
+          <div class="time-signcount" :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">
             <div class="info">{{ formatDate(data.createDate) }}</div>
             <div class="divider"></div>
             <div class="info">{{ data.signCount || 0 }}人已签约</div>
           </div>
-          <div class="tag is-auth" v-if="[200, 301].includes(data.authCode)">已授权</div>
-          <div class="tag not-auth" v-if="data.authCode === 303">未授权</div>
+          <div class="tag is-auth" v-if="data.defaulterIdentityType < 4">已授权</div>
+          <div class="tag not-auth" v-else>未授权</div>
         </template>
       </div>
     </div>
@@ -39,7 +51,7 @@
       <div class="article-cover-box" @click="clickArticle()" v-if="selfConfig.articleCover === '显示'">
         <img
           class="article-cover"
-          :class="{ 'opacity-40p': !data.authLinkNormal }"
+          :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
           :src="data.coverImages[0]"
           :alt="data.exhibitTitle"
         />
@@ -48,21 +60,31 @@
 
       <div class="article-info">
         <div class="article-title">
-          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="!data.authLinkNormal" />
-          <img class="lock" src="../assets/images/mini-lock.png" v-if="!inSignedList && data.authCode === 303" />
+          <img
+            class="auth-link-abnormal"
+            src="../assets/images/auth-link-abnormal.png"
+            v-if="![0, 4].includes(data.defaulterIdentityType)"
+          />
+          <img
+            class="lock"
+            src="../assets/images/mini-lock.png"
+            v-if="!inSignedList && data.defaulterIdentityType >= 4"
+          />
           <div
             class="title"
-            :class="{ 'opacity-40p': !data.authLinkNormal }"
+            :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
             :title="data.exhibitTitle"
             @click="clickArticle()"
           >
             {{ data.exhibitTitle }}
           </div>
-          <div class="tag is-auth" v-if="inSignedList && [200, 301].includes(data.authCode)">已授权</div>
-          <div class="tag not-auth" v-if="inSignedList && data.authCode === 303">未授权</div>
+          <div class="tag is-auth" v-if="inSignedList && data.defaulterIdentityType < 4">已授权</div>
+          <div class="tag not-auth" v-if="inSignedList && data.defaulterIdentityType >= 4">未授权</div>
         </div>
-        <div class="article-intro" :class="{ 'opacity-40p': !data.authLinkNormal }">{{ data.exhibitTitle }}</div>
-        <div class="other-info" :class="{ 'opacity-40p': !data.authLinkNormal }">
+        <div class="article-intro" :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">
+          {{ data.exhibitTitle }}
+        </div>
+        <div class="other-info" :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">
           <div class="info">{{ formatDate(data.createDate) }}</div>
           <div class="divider"></div>
           <div class="info">{{ data.signCount || 0 }}人已签约</div>
@@ -96,9 +118,9 @@ export default {
     const store = useStore();
     const { switchPage } = useMyRouter();
     const clickArticle = () => {
-      const { exhibitId, authLinkNormal } = props.data;
+      const { exhibitId, defaulterIdentityType } = props.data;
 
-      if (!authLinkNormal) {
+      if (![0, 4].includes(defaulterIdentityType)) {
         showToast("授权链异常，无法查看");
         return;
       }
