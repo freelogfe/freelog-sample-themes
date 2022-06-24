@@ -1,5 +1,7 @@
 ## freelog-sample-themes freelog 示例主题
 
+- empty-theme: 占位主题 by Vue3
+
 - novel-theme: 小说主题 by React
 
 - comic-theme: 漫画主题 by Vue3

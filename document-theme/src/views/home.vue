@@ -10,17 +10,18 @@
         <my-markdown
           :data="documentData"
           @getDirectory="getDirectory($event)"
-          v-if="!loading && [200, 301].includes(documentData?.authCode) && documentData?.authLinkNormal"
+          v-if="!loading && documentData?.defaulterIdentityType === 0"
         />
-        <div class="auth-box" v-if="!loading && documentData?.authLinkNormal === false">
+        <div
+          class="auth-box"
+          v-if="!loading && documentData?.defaulterIdentityType && documentData?.defaulterIdentityType !== 4"
+        >
           <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
           <div class="auth-link-tip">授权链异常，无法查看</div>
         </div>
         <div
           class="lock-box"
-          v-if="
-            !loading && ((documentData?.authCode === 303 && documentData?.authLinkNormal) || userData.isLogin === false)
-          "
+          v-if="!loading && (documentData?.defaulterIdentityType === 4 || userData.isLogin === false)"
         >
           <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
           <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
@@ -124,7 +125,7 @@
                 "
               >
                 <div class="item-title-box">
-                  <div class="item-title" :style="{ opacity: item.authLinkNormal ? 1 : 0.4 }">
+                  <div class="item-title" :style="{ opacity: [0, 4].includes(item.defaulterIdentityType) ? 1 : 0.4 }">
                     {{ item.exhibitTitle }}
                   </div>
                 </div>
@@ -133,14 +134,14 @@
                   <img
                     class="auth-link-abnormal"
                     src="../assets/images/auth-link-abnormal.png"
-                    v-if="!item?.authLinkNormal"
+                    v-if="![0, 4].includes(item.defaulterIdentityType)"
                   />
                   <img
                     class="item-lock"
                     src="../assets/images/mini-lock.png"
                     title="授权"
                     @click.stop="getAuth(item)"
-                    v-if="item?.authCode === 303"
+                    v-if="item.defaulterIdentityType >= 4"
                   />
                 </div>
               </div>
@@ -154,7 +155,10 @@
 
               <div class="list-item active" @click="clickDocument(documentData)">
                 <div class="item-title-box">
-                  <div class="item-title" :style="{ opacity: documentData?.authLinkNormal ? 1 : 0.4 }">
+                  <div
+                    class="item-title"
+                    :style="{ opacity: [0, 4].includes(documentData?.defaulterIdentityType) ? 1 : 0.4 }"
+                  >
                     {{ documentData?.exhibitTitle }}
                   </div>
                   <div class="offline">已下架</div>
@@ -164,7 +168,7 @@
                   <img
                     class="auth-link-abnormal"
                     src="../assets/images/auth-link-abnormal.png"
-                    v-if="!documentData?.authLinkNormal"
+                    v-if="![0, 4].includes(documentData?.defaulterIdentityType)"
                   />
 
                   <img
@@ -172,7 +176,7 @@
                     src="../assets/images/mini-lock.png"
                     title="授权"
                     @click.stop="getAuth(documentData)"
-                    v-if="documentData?.authCode === 303"
+                    v-if="documentData?.defaulterIdentityType >= 4"
                   />
                 </div>
               </div>
@@ -252,7 +256,11 @@
             @click="clickDocument(item)"
           >
             <div class="item-title-box">
-              <div class="item-title" :style="{ opacity: item.authLinkNormal ? 1 : 0.4 }" :title="item?.exhibitTitle">
+              <div
+                class="item-title"
+                :style="{ opacity: [0, 4].includes(item.defaulterIdentityType) ? 1 : 0.4 }"
+                :title="item?.exhibitTitle"
+              >
                 {{ item.exhibitTitle }}
               </div>
             </div>
@@ -260,14 +268,14 @@
               <img
                 class="auth-link-abnormal"
                 src="../assets/images/auth-link-abnormal.png"
-                v-if="!item.authLinkNormal"
+                v-if="![0, 4].includes(item.defaulterIdentityType)"
               />
               <img
                 class="item-lock"
                 src="../assets/images/mini-lock.png"
                 title="授权"
                 @click.stop="getAuth(item)"
-                v-if="item.authCode === 303"
+                v-if="item.defaulterIdentityType >= 4"
               />
             </div>
           </div>
@@ -283,7 +291,7 @@
             <div class="item-title-box">
               <div
                 class="item-title"
-                :style="{ opacity: documentData?.authLinkNormal ? 1 : 0.4 }"
+                :style="{ opacity: [0, 4].includes(documentData?.defaulterIdentityType) ? 1 : 0.4 }"
                 :title="documentData?.exhibitTitle"
               >
                 {{ documentData?.exhibitTitle }}
@@ -295,7 +303,7 @@
               <img
                 class="auth-link-abnormal"
                 src="../assets/images/auth-link-abnormal.png"
-                v-if="documentData?.authLinkNormal === false"
+                v-if="![0, 4].includes(documentData?.defaulterIdentityType)"
               />
 
               <img
@@ -303,7 +311,7 @@
                 src="../assets/images/mini-lock.png"
                 title="授权"
                 @click.stop="getAuth(documentData)"
-                v-if="documentData?.authCode === 303"
+                v-if="documentData?.defaulterIdentityType >= 4"
               />
             </div>
           </div>
@@ -318,16 +326,16 @@
             <my-markdown
               :data="documentData"
               @getDirectory="getDirectory($event)"
-              v-if="[200, 301].includes(documentData?.authCode) && documentData?.authLinkNormal"
+              v-if="documentData?.defaulterIdentityType === 0"
             />
-            <div class="auth-box" v-else-if="documentData?.authLinkNormal === false">
+            <div
+              class="auth-box"
+              v-else-if="documentData?.defaulterIdentityType && documentData?.defaulterIdentityType !== 4"
+            >
               <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
               <div class="auth-link-tip">授权链异常，无法查看</div>
             </div>
-            <div
-              class="lock-box"
-              v-else-if="(documentData?.authCode === 303 && documentData?.authLinkNormal) || userData.isLogin === false"
-            >
+            <div class="lock-box" v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false">
               <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
               <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
               <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
@@ -437,7 +445,6 @@ import {
   getExhibitSignCount,
   getExhibitInfo,
   getExhibitAuthStatus,
-  getExhibitAvailable,
 } from "@/api/freelog";
 import { ExhibitItem } from "@/api/interface";
 import { relativeTime } from "@/utils/common";
@@ -564,7 +571,7 @@ export default {
         const authResult = await addAuth(item.exhibitId);
         const { status } = authResult;
         if (status === 0) {
-          item.authCode = 200;
+          item.defaulterIdentityType = 0;
           if (data.currentId === item.exhibitId) getDocumentData();
         }
       },
@@ -596,9 +603,9 @@ export default {
 
       // 点击文档
       clickDocument(item: ExhibitItem) {
-        const { exhibitId, authLinkNormal } = item;
+        const { exhibitId, defaulterIdentityType } = item;
 
-        if (!authLinkNormal) {
+        if (![0, 4].includes(defaulterIdentityType)) {
           showToast("授权链异常，无法查看");
           return;
         }
@@ -622,28 +629,26 @@ export default {
       let documentData: any = datasOfGetList.listData.value.find((item) => item.exhibitId === exhibitId);
       data.viewOffline = false;
 
+      const requestArr = [getExhibitSignCount(exhibitId)];
       if (!documentData) {
-        data.viewOffline = true;
-        const exhibitInfo = await getExhibitInfo(exhibitId, {
-          isLoadVersionProperty: 1,
-        });
-        documentData = exhibitInfo.data.data;
-        const statusInfo = await getExhibitAuthStatus(exhibitId);
-        if (statusInfo.data.data) documentData.authCode = statusInfo.data.data[0].authCode;
-        const authLinkStatusInfo = await getExhibitAvailable(exhibitId);
-        if (authLinkStatusInfo.data.data) {
-          documentData.authLinkNormal = documentData.authCode === 301 ? false : authLinkStatusInfo.data.data[0].isAuth;
-        }
+        requestArr.push(getExhibitInfo(exhibitId, { isLoadVersionProperty: 1 }), getExhibitAuthStatus(exhibitId));
+        const [signCountData, exhibitInfo, statusInfo] = await Promise.all(requestArr);
+        documentData = {
+          ...exhibitInfo.data.data,
+          signCount: signCountData.data.data[0].count,
+          defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
+        };
+      } else {
+        const [signCountData] = await Promise.all(requestArr);
+        documentData.signCount = signCountData.data.data[0].count;
       }
 
-      const signCountData = await getExhibitSignCount(exhibitId);
-      documentData.signCount = signCountData.data.data[0].count;
       data.documentData = documentData;
       scrollToTop("auto");
       data.currentTitleIndex = 0;
       data.directoryList = [];
 
-      if (documentData.authCode === 303 || documentData.authLinkNormal === false) {
+      if (documentData.defaulterIdentityType !== 0) {
         data.myLoading = false;
         return;
       }

@@ -4,7 +4,7 @@
 
 本文所指运行时皆指 Freelog 运行时。
 
-建议搭配[《Freelog 插件开发文档》](https://fedoc.freelog.com)与[《Freelog 插件开发接口文档》](https://fedoc.freelog.com/api/)一起阅读。
+建议搭配[《Freelog 插件开发文档》](https://widget-docs.freelog.com)与[《Freelog 插件开发接口文档》](https://widget-docs.freelog.com/api)一起阅读。
 
 ---
 
@@ -38,7 +38,7 @@
 
 ## 项目配置
 
-> 使用不同前端框架，配置也会有所不同，如果您使用其他前端框架，具体配置方法请查看[《Freelog 插件开发文档》](https://fedoc.freelog.com/#%E6%A1%86%E6%9E%B6%E5%87%86%E5%A4%87)。
+> 使用不同前端框架，配置也会有所不同，如果您使用其他前端框架，具体配置方法请查看[《Freelog 插件开发文档-框架准备》](https://widget-docs.freelog.com/#%E6%A1%86%E6%9E%B6%E5%87%86%E5%A4%87)。
 
 ### webpack 配置示例
 
@@ -275,14 +275,14 @@ module.exports = {
 
 调用运行时 api 即可，无需自己开发 ui 与相关逻辑。
 
-- 登录：[callLogin（TODO:链接至 API 开发文档对应的 API 位置）](xxx)，登录成功后默认刷新页面。
+- 登录：[callLogin](https://widget-docs.freelog.com/api/#calllogin)，登录成功后默认刷新页面。
 
 ```js
 // 调起运行时登录弹窗
 window.freelogApp.callLogin();
 ```
 
-- 自定义登录成功后的操作：在入口文件`main.js`中将回调函数传给[onLogin（TODO:链接至 API 开发文档对应的 API 位置）](xxx)方法。
+- 自定义登录成功后的操作：在入口文件`main.js`中将回调函数传给[onLogin](https://widget-docs.freelog.com/api/#onlogin)方法。
 
 ```js
 // main.js
@@ -294,14 +294,14 @@ window.freelogApp.onLogin(() => {
 });
 ```
 
-- 登出：[callLoginOut（TODO:链接至 API 开发文档对应的 API 位置）](xxx)，登出成功会自动刷新页面。
+- 登出：[callLoginOut](https://widget-docs.freelog.com/api/#callloginout)，登出成功会自动刷新页面。
 
 ```js
 // 调起运行时登出弹窗
 window.freelogApp.callLoginOut();
 ```
 
-- 获取当前登录的用户数据：[getCurrentUser（TODO:链接至 API 开发文档对应的 API 位置）](xxx)。
+- 获取当前登录的用户数据：[getCurrentUser](https://widget-docs.freelog.com/api/#getcurrentuser)。
 
 ```js
 const userData = await window.freelogApp.getCurrentUser();
@@ -332,7 +332,7 @@ window.open("https://console.freelog.com/resource/details/61f251286fe5c1002e2c7b
 
 ### 获取主题配置
 
-[getSelfConfig（TODO:链接至 API 开发文档对应的 API 位置）](xxx)
+[getSelfConfig](https://widget-docs.freelog.com/api/#getselfconfig)
 
 ```js
 // 主题配置
@@ -386,7 +386,7 @@ this.logo = nodeAvatar;
 
 ### 展品列表
 
-以声音列表为例，我们需要分页获取展品，调用[getExhibitListByPaging（TODO:链接至 API 开发文档对应的 API 位置）](xxx)。
+以声音列表为例，我们需要分页获取展品，调用[getExhibitListByPaging](https://widget-docs.freelog.com/api/#getexhibitlistbypaging)。
 
 ```js
 const queryParams = {
@@ -405,7 +405,7 @@ this.total = totalItem;
 
 ### 展品签约量
 
-每个声音的签约量都需要在声音卡片下方显示出来，通过[getExhibitSignCount（TODO:链接至 API 开发文档对应的 API 位置）](xxx)可以批量查询对应展品的签约量。
+每个声音的签约量都需要在声音卡片下方显示出来，通过[getExhibitSignCount](https://widget-docs.freelog.com/api/#getexhibitsigncount)可以批量查询对应展品的签约量。
 
 ```js
 // dataList 是展品列表
@@ -418,7 +418,7 @@ const res = await window.freelogApp.getExhibitSignCount(ids);
 
 在用户播放声音之前，需要对声音展品进行授权。
 
-我们会在展品列表中显示未授权标识，通过[getExhibitAuthStatus（TODO:链接至 API 开发文档对应的 API 位置）](xxx)可以批量查询对应展品的授权状态，在播放时，根据授权状态决定是否播放。
+我们会在展品列表中显示未授权标识，通过[getExhibitAuthStatus](https://widget-docs.freelog.com/api/#getexhibitauthstatus)可以批量查询对应展品的授权状态，在播放时，根据授权状态决定是否播放。
 
 也许有顾客提前与音像店签订了一份商品订单，但音像店却因为供应链出现了问题，导致无法兑现顾客的订单，顾客无法正常获得商品，需要音像店老板处理此事。同样地，即使在用户授权了展品之后，也可能因为节点与资源之间的授权链出现了问题，导致用户无法正常获得该展品的内容。因此，除了判断授权状态以外，我们还需要进一步判断其授权链是否异常，如有异常我们会在列表显示异常标识，并在播放时给出提示。
 
@@ -444,7 +444,7 @@ const res = await window.freelogApp.getExhibitAuthStatus(ids);
 
 ### 展品详情
 
-详情页的数据需要通过[getExhibitInfo（TODO:链接至 API 开发文档对应的 API 位置）](xxx)获取。
+详情页的数据需要通过[getExhibitInfo](https://widget-docs.freelog.com/api/#getexhibitinfo)获取。
 
 ```js
 // 展品 id
@@ -455,7 +455,7 @@ this.exhibitInfo = res.data.data;
 
 ### 授权
 
-未授权的声音无法播放，可以在播放时通过[addAuth（TODO:链接至 API 开发文档对应的 API 位置）](xxx)调起授权弹窗进行授权。
+未授权的声音无法播放，可以在播放时通过[addAuth](https://widget-docs.freelog.com/api/#addauth)调起授权弹窗进行授权。
 
 ```js
 // 展品 id
@@ -468,7 +468,7 @@ if (res.status === 0) this.data.defaulterIdentityType = 0;
 
 ### 内容
 
-播放已授权声音时，通过[getExhibitFileStream（TODO:链接至 API 开发文档对应的 API 位置）](xxx)获取音频文件的 url。
+播放已授权声音时，通过[getExhibitFileStream](https://widget-docs.freelog.com/api/#getexhibitfilestream)获取音频文件的 url。
 
 ```js
 // 展品 id
@@ -480,7 +480,7 @@ this.data.url = url;
 
 ### 签约记录
 
-类似于购物网站的订单列表，播客主题也需要一份用户的签约记录，通过[getSignStatistics（TODO:链接至 API 开发文档对应的 API 位置）](xxx)获得这份数据。接下来，通过获取到的记录列表并调用[getExhibitListById（TODO:链接至 API 开发文档对应的 API 位置）](xxx)批量获取展品数据。注意：`getExhibitListById` 不会以参数顺序返回数据，因此需要自行处理排序。
+类似于购物网站的订单列表，播客主题也需要一份用户的签约记录，通过[getSignStatistics](https://widget-docs.freelog.com/api/#getsignstatistics)获得这份数据。接下来，通过获取到的记录列表并调用[getExhibitListById](https://widget-docs.freelog.com/api/#getexhibitlistbyid)批量获取展品数据。注意：`getExhibitListById` 不会以参数顺序返回数据，因此需要自行处理排序。
 
 > 因为主题也是展品，所以签约记录里包括主题展品，签约列表需要将主题筛选出去。
 
@@ -511,7 +511,7 @@ this.signedList = result;
 
 以收藏功能为例：
 
-- 在用户收藏或取消收藏时，调用[setUserData（TODO:链接至 API 开发文档对应的 API 位置）](xxx)修改用户的收藏 id 列表。
+- 在用户收藏或取消收藏时，调用[setUserData](https://widget-docs.freelog.com/api/#setuserdata)修改用户的收藏 id 列表。
 
 ```js
 // 处理后收藏的 id 列表
@@ -525,7 +525,7 @@ if (res.data.msg === "success") {
 }
 ```
 
-- 通过[getUserData（TODO:链接至 API 开发文档对应的 API 位置）](xxx)获取用户收藏 id 列表。接下来，通过获取到的收藏 id 列表并调用[getExhibitListById（TODO:链接至 API 开发文档对应的 API 位置）](xxx)批量获取展品数据。注意：`getExhibitListById` 不会以参数顺序返回数据，因此需要自行处理排序。
+- 通过[getUserData](https://widget-docs.freelog.com/api/#getuserdata)获取用户收藏 id 列表。接下来，通过获取到的收藏 id 列表并调用[getExhibitListById](https://widget-docs.freelog.com/api/#getexhibitlistbyid)批量获取展品数据。注意：`getExhibitListById` 不会以参数顺序返回数据，因此需要自行处理排序。
 
 ```js
 const result = [];
@@ -616,8 +616,8 @@ const url = window.location.currentURL;
 
 如您还有其他问题，请
 
-- 查看[《Freelog 插件开发文档》](https://fedoc.freelog.com)；
-- 查看[《Freelog 插件开发接口文档》](https://fedoc.freelog.com/api/)；
+- 查看[《Freelog 插件开发文档》](https://widget-docs.freelog.com)；
+- 查看[《Freelog 插件开发接口文档》](https://widget-docs.freelog.com/api)；
 - 到[Freelog 社区（TODO:链接至社区）](xxx)提出问题；
 - 向 Freelog 官方邮箱 或 Freelog 微信公众号 进行留言；
 - 加入微信群联系客服。

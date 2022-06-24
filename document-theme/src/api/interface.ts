@@ -10,10 +10,9 @@ export interface ExhibitItem {
   createDate: string;
   updateDate: string;
   signCount: number;
-  authCode: number;
-  authLinkNormal: boolean;
   height: number;
   content: string;
+  defaulterIdentityType: number;
 }
 
 // freelog相关入口

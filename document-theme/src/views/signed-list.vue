@@ -14,19 +14,24 @@
 
       <div class="document-box" v-for="item in mySignedList" :key="item.exhibitId">
         <div class="document-title-box">
-          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="!item.authLinkNormal" />
+          <img
+            class="auth-link-abnormal"
+            src="../assets/images/auth-link-abnormal.png"
+            v-if="![0, 4].includes(item.defaulterIdentityType)"
+          />
           <div class="offline" v-if="item.onlineStatus === 0">已下架</div>
           <div
             class="document-title"
-            :style="{ opacity: item.authLinkNormal ? 1 : 0.4 }"
+            :style="{ opacity: [0, 4].includes(item.defaulterIdentityType) ? 1 : 0.4 }"
             :title="item.exhibitTitle"
             @click="clickDocument(item)"
           >
             {{ item.exhibitTitle }}
           </div>
         </div>
-        <div class="tag" :class="[200, 301].includes(item.authCode) ? 'is-auth' : 'not-auth'">
-          {{ [200, 301].includes(item.authCode) ? "已授权" : "未授权" }}
+        <div class="tag" :class="item.defaulterIdentityType < 4 ? 'is-auth' : 'not-auth'">
+          <span v-if="item.defaulterIdentityType < 4">已授权</span>
+          <span v-else>未授权</span>
         </div>
       </div>
       <div class="tip" v-if="mySignedList.length === 0">暂无数据，快去签约文档吧～</div>
@@ -80,9 +85,9 @@ export default {
 
       // 点击文档
       clickDocument(item: ExhibitItem) {
-        const { exhibitId, authLinkNormal } = item;
+        const { exhibitId, defaulterIdentityType } = item;
 
-        if (!authLinkNormal) {
+        if (![0, 4].includes(defaulterIdentityType)) {
           showToast("授权链异常，无法查看");
           return;
         }
