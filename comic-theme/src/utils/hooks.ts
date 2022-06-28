@@ -89,6 +89,12 @@ export const useMyShelf = (id?: string) => {
     if (!store.state.userData.isLogin) return;
 
     const ids = await getUserData("shelf");
+
+    if (!ids || ids.length === 0) {
+      store.commit("setData", { key: "myShelf", value: [] });
+      return;
+    }
+
     const shelfIds = (ids || []).sort();
     const storeShelfIds = store.state.shelfIds.sort();
     let change = false;
@@ -106,11 +112,6 @@ export const useMyShelf = (id?: string) => {
     if (!change) return;
 
     store.commit("setData", { key: "shelfIds", value: shelfIds });
-
-    if (!ids || ids.length === 0) {
-      store.commit("setData", { key: "myShelf", value: [] });
-      return;
-    }
 
     const exhibitIds = ids.join(",");
     const [list, statusList] = await Promise.all([
@@ -155,7 +156,7 @@ export const useMyShelf = (id?: string) => {
       getMyShelf();
       if (id) data.isCollected = ifExistInShelf(id);
     } else {
-      showToast("收藏失败");
+      showToast("操作失败");
     }
   };
 
@@ -304,10 +305,7 @@ export const useMySignedList = () => {
       return;
     }
 
-    const [list, statusList] = await Promise.all([
-      getExhibitListById({ exhibitIds: ids }),
-      getExhibitAuthStatus(ids),
-    ]);
+    const [list, statusList] = await Promise.all([getExhibitListById({ exhibitIds: ids }), getExhibitAuthStatus(ids)]);
     list.data.data.forEach((item: ExhibitItem) => {
       const statusItem = statusList.data.data.find(
         (status: { exhibitId: string }) => status.exhibitId === item.exhibitId

@@ -590,9 +590,8 @@ hash 路由暂不支持。
 
 ### 调试
 
-推荐使用 vconsole 来进行移动端调试。
+运行时已经集成了 vConsole 提供移动端调试，只需将链接中的 `dev` 改为 `devconsole` 即可生效。
 
-注意：在 vconsole 基础配置完成后，连接节点时需要将原本链接中的 `dev` 改为 `devconsole` 使之生效。
 如：
 `http://zhuc-test.freelog.com/?dev=http://localhost:8888`
 改为

@@ -713,7 +713,14 @@ export default {
           .freelog {
             font-size: 18px;
             color: #fff;
-            margin-left: 5px;
+
+            &.fl-icon-bofang-sanjiaoxing {
+              margin-left: 5px;
+            }
+
+            &.fl-icon-zanting {
+              margin-left: 2px;
+            }
           }
         }
       }
@@ -729,7 +736,7 @@ export default {
         display: flex;
         align-items: center;
 
-        .auth-link-abnormal{
+        .auth-link-abnormal {
           width: 16px;
           height: 16px;
           margin-right: 5px;
