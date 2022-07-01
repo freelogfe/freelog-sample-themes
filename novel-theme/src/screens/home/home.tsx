@@ -35,7 +35,7 @@ export const HomeScreen = (props: any) => {
       myLoading.current = true;
       skip.current = init ? 0 : skip.current + 30;
       const queryParams: GetExhibitListByPagingParams = {
-        omitArticleResourceType: "theme",
+        articleResourceTypes: "文章",
         skip: skip.current,
         limit: 30,
       };

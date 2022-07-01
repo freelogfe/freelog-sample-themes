@@ -73,7 +73,7 @@ export default {
       this.skip = init ? 0 : this.skip + 20;
       const queryParams = {
         skip: this.skip,
-        articleResourceTypes: "audio",
+        articleResourceTypes: "音频",
         isLoadVersionProperty: 1,
         limit: 20,
       };

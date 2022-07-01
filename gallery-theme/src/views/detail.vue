@@ -13,7 +13,7 @@
 
       <transition-group name="content-fade">
         <template v-if="!loading && exhibitInfo?.defaulterIdentityType === 0">
-          <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType === 'image'" />
+          <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')" />
           <video
             :src="content"
             controls
@@ -21,7 +21,7 @@
             autoplay
             webkit-playsinline
             playsinline
-            v-if="exhibitInfo?.articleInfo.resourceType === 'video'"
+            v-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
           ></video>
         </template>
 
@@ -33,9 +33,7 @@
 
         <div
           class="lock-box"
-          v-if="
-            (!loading && exhibitInfo?.defaulterIdentityType === 4) || userData.isLogin === false
-          "
+          v-if="(!loading && exhibitInfo?.defaulterIdentityType === 4) || userData.isLogin === false"
         >
           <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
           <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
@@ -127,16 +125,14 @@
 
             <transition-group name="content-fade">
               <template v-if="!loading">
-                <template
-                  v-if="exhibitInfo?.defaulterIdentityType === 0 && contentMode"
-                >
+                <template v-if="exhibitInfo?.defaulterIdentityType === 0 && contentMode">
                   <img
                     :class="{
                       'width-full': contentMode === 1,
                       'height-full': contentMode === 2,
                     }"
                     :src="content"
-                    v-if="exhibitInfo?.articleInfo.resourceType === 'image'"
+                    v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')"
                   />
                   <video
                     :class="{
@@ -145,7 +141,7 @@
                     }"
                     :src="content"
                     controls
-                    v-if="exhibitInfo?.articleInfo.resourceType === 'video'"
+                    v-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
                   ></video>
                 </template>
 
@@ -155,10 +151,7 @@
                   <div class="home-btn" @click="closePopup()">进入首页</div>
                 </div>
 
-                <div
-                  class="lock-box"
-                  v-if="exhibitInfo?.defaulterIdentityType === 4 || userData.isLogin === false"
-                >
+                <div class="lock-box" v-if="exhibitInfo?.defaulterIdentityType === 4 || userData.isLogin === false">
                   <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
                   <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
                   <div class="get-btn" @click="getAuth()">获取授权</div>
@@ -318,7 +311,7 @@ export default {
         }
 
         const resourceType = data.exhibitInfo.articleInfo.resourceType;
-        if (resourceType === "image") {
+        if (resourceType.includes("图片")) {
           const img = new Image();
           img.src = info;
           img.onload = () => {
@@ -329,7 +322,7 @@ export default {
             data.content = info;
             data.loading = false;
           };
-        } else if (resourceType === "video") {
+        } else if (resourceType.includes("视频")) {
           const video: HTMLVideoElement = document.createElement("video");
           video.src = info;
           video.onloadeddata = () => {

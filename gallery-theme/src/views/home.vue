@@ -70,7 +70,7 @@
 
               <div
                 class="tag"
-                :class="{ active: searchData.articleResourceTypes === 'video' }"
+                :class="{ active: searchData.articleResourceTypes === '视频' }"
                 @click="
                   filterBoxShow = false;
                   filterVideo();
@@ -111,7 +111,7 @@
 
         <div
           class="category-btn"
-          :class="{ active: searchData.articleResourceTypes === 'video' }"
+          :class="{ active: searchData.articleResourceTypes === '视频' }"
           @click="filterVideo()"
         >
           视频
@@ -204,7 +204,7 @@ export default {
         const { keywords } = data.searchData;
         const query: { keywords?: string; articleResourceTypes?: string } = {};
         if (keywords) query.keywords = keywords;
-        query.articleResourceTypes = "video";
+        query.articleResourceTypes = "视频";
         switchPage("/home", query);
       },
 

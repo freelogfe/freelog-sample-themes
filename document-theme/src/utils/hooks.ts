@@ -91,7 +91,7 @@ export const useGetList = (inList = false) => {
     const sort = sortMappings.find((item) => item.label === store.state.selfConfig.sort);
     const queryParams: GetExhibitListByPagingParams = {
       skip: data.skip,
-      articleResourceTypes: "markdown",
+      articleResourceTypes: "文章",
       limit: params.limit || 100,
       sort: sort?.value || "updateDate:-1",
       isLoadVersionProperty: 1,

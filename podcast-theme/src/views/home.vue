@@ -203,7 +203,7 @@ export default {
 
       this.loading = true;
       const queryParams = {
-        articleResourceTypes: "audio",
+        articleResourceTypes: "音频",
         isLoadVersionProperty: 1,
         limit: 10,
       };

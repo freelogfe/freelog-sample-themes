@@ -24,7 +24,7 @@
         <div class="offline" v-if="data.onlineStatus === 0">已下架</div>
 
         <!-- 视频遮罩 -->
-        <div class="video-modal" v-if="data.articleInfo.resourceType === 'video'">
+        <div class="video-modal" v-if="data.articleInfo.resourceType.includes('视频')">
           <img class="video-image" src="../assets/images/video.png" />
         </div>
 
@@ -71,7 +71,7 @@
 
       <!-- 视频遮罩 -->
       <transition name="fade">
-        <div class="video-modal" v-if="data.articleInfo.resourceType === 'video' && !modalShow">
+        <div class="video-modal" v-if="data.articleInfo.resourceType.includes('视频') && !modalShow">
           <img class="video-image" src="../assets/images/video.png" />
         </div>
       </transition>
@@ -97,7 +97,7 @@
       <transition name="slide-up">
         <div class="modal-content" v-if="modalShow">
           <div class="img-box">
-            <img class="img" src="../assets/images/video.png" v-if="data.articleInfo.resourceType === 'video'" />
+            <img class="img" src="../assets/images/video.png" v-if="data.articleInfo.resourceType.includes('视频')" />
           </div>
           <div class="title">
             <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="authLinkAbnormal" />

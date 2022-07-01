@@ -95,7 +95,7 @@ export const useGetList = () => {
     data.skip = init ? 0 : data.skip + 40;
     const queryParams: GetExhibitListByPagingParams = {
       skip: data.skip,
-      articleResourceTypes: "image,video",
+      articleResourceTypes: "图片,视频",
       limit: params.limit || 40,
       ...params,
     };
