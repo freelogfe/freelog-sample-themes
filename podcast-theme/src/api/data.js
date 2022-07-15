@@ -1,12 +1,15 @@
 /** freelog相关入口 */
 export const freelogEntrances = [
   { label: "freelog fl-icon-a-featherlogo5", url: "https://www.freelog.com/" },
-  { label: "关于freelog", url: "" },
+  {
+    label: "关于freelog",
+    url: "https://freelog4.freelog.com/$freelog-61f252ef6fe5c1002e2c7b4b=/home_id=62d0d202456ff0002e3295ab",
+  },
   {
     label: "使用此主题",
     url: "https://console.freelog.com/resource/details/61f251286fe5c1002e2c7b41",
   },
-  { label: "浏览更多主题", url: "https://console.freelog.com/market" },
+  { label: "浏览更多主题", url: "https://console.freelog.com/market?query=主题" },
 ];
 
 /** 分享按钮 */

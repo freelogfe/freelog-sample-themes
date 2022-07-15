@@ -12,7 +12,7 @@
 
 ## 主题（Theme）是什么？
 
-> 在 Freelog 平台，主题是指资源类型为主题的**功能性资源**，主题将决定节点的整体外观和设计。在节点激活主题展品即在您的节点上应用该主题。如果激活一个新的主题，只要主题支持的资源类型不变，除了布局之外，节点上的展示的内容型展品也不会发生改变。 —— [《Freelog 运营帮助文档》（TODO:链接至产品运营文档）](xxx)
+> 在 Freelog 平台，如果节点商想向资源消费者分享节点或者展品，需先为节点添加激活一个「主题」，主题决定了节点面向资源消费者呈现时的整体外观和设计。 —— [《基础概念》](https://freelog3.freelog.com/$freelog-61f252ef6fe5c1002e2c7b4b=/home_id=62d0cf48456ff0002e3294fb)
 
 ## 通俗解释
 
@@ -24,7 +24,7 @@
 
 我们的主要角色是以上例子中的店铺主人，也就是**主题资源作者**，但是与其他内容性资源作者不同，我们需要确保在正常情况下主题能够使节点商正常使用，因此，在整个创作过程中我们有时也需要扮演**节点商**的角色。
 
-本文将会完整地描述使用**Vue 2**开发一个[播客主题（TODO:链接至主题详情页）](xxx)的流程，您可以到[播客节点（TODO:名字需要替换成官方节点，链接至节点页面）](xxx)查看效果。
+本文将会完整地描述使用**Vue 2**开发一个[麦响-Freelog 播客主题](https://console.freelog.com/resource/details/62d0e1e98e71fb00394bd314)的流程，您可以到[FreelogPodcast](https://fl-podcast.freelog.com)节点查看效果。
 
 ---
 
@@ -198,13 +198,11 @@ export async function unmount() {
 
 ### 准备一个节点
 
-[创建一个节点](https://console.freelog.com/node/creator)，建立我们的音像店。
+[创建一个节点](https://console.freelog.com/node/creator)，建立一个“音像店”。创建成功之后，在推荐主题页面中，点击“我是主题/插件开发者”签约**占位主题**，如果您不小心跳过了签约主题页面，还可以到节点的主题管理页面进行签约。
 
-### 添加主题
+> 按照规定，节点在没有主题激活的情况下无法打开，开发者需要一个主题框架，因此签约官方准备的**占位主题**即可。
 
-按照规定，节点在没有主题激活的情况下无法打开，因此需要去[资源市场](https://console.freelog.com/market)中任意签约一个主题，使节点能够正常打开。
-
-注意：如果退出登录状态下无法进入节点并显示“当前节点主题未开放授权，继续浏览请签约并获取授权”，导致无法继续开发登录相关功能，是因为您没有将节点所激活的主题**开放授权**，未开放授权的展品不会被自动签约且无法被未登录用户访问，因此需要主题启用以下策略（代码模式）：
+注意：推荐主题会默认**开放授权**，如果退出登录状态下无法进入节点并显示“当前节点主题未开放授权，继续浏览请签约并获取授权”，导致无法继续开发登录相关功能，是因为您修改了主题展品的授权策略，该策略没有将节点所激活的主题开放授权，未开放授权的展品不会被自动签约且无法被未登录用户访问，因此需要主题启用以下策略（代码模式）：
 
 ```
 for public
@@ -212,8 +210,6 @@ for public
 initial[active]:
   terminate
 ```
-
-TODO:我不知道如何合理地解释这一块设定，一定要去签约一个毫不相关的主题且开放授权，才能正常开发新的主题，不然节点根本打不开，这对开发者来说实在太奇怪了。
 
 ### 建立连接
 
@@ -312,8 +308,7 @@ const userData = await window.freelogApp.getCurrentUser();
 在播客主题页面的右侧中间位置，我们放了一个通往主题详情页的引流入口，但此时我们的主题还处于开发中，并没有上线到资源市场。我们预先去[创建一个资源](https://console.freelog.com/resource/creator)，这个资源将作为当前正开发的播客主题资源，创建成功后这个资源会出现在我们的[资源管理](https://console.freelog.com/resource/list)中，点击即可进入该资源的详情页，复制此页的网址作为按钮的跳转页面。
 
 ```js
-TODO: 之后将链接替换为播客主题的链接;
-window.open("https://console.freelog.com/resource/details/61f251286fe5c1002e2c7b41");
+window.open("https://console.freelog.com/resource/details/62d0e1e98e71fb00394bd314");
 ```
 
 ## 自定义配置
@@ -402,6 +397,8 @@ this.listData = dataList;
 // 展品总数
 this.total = totalItem;
 ```
+
+展品版本数据会在版本信息`versionInfo`中返回，包括依赖树、资源的分析数据（图片高宽、视频时长等）。
 
 ### 展品签约量
 
@@ -617,6 +614,6 @@ const url = window.location.currentURL;
 
 - 查看[《Freelog 插件开发文档》](https://widget-docs.freelog.com)；
 - 查看[《Freelog 插件开发接口文档》](https://widget-docs.freelog.com/api)；
-- 到[Freelog 社区（TODO:链接至社区）](xxx)提出问题；
-- 向 Freelog 官方邮箱 或 Freelog 微信公众号 进行留言；
+- 到[Freelog 论坛](https://forum.freelog.com/)提出问题；
+- 向 Freelog 官方邮箱service@freelog.com 或 Freelog 微信公众号 进行留言；
 - 加入微信群联系客服。

@@ -38,7 +38,10 @@ export default defineComponent({
       // freelog相关入口
       freelogEntrances: [
         { label: "fl-icon-a-featherlogo5", url: "https://www.freelog.com/" },
-        { label: "关于freelog", url: "" },
+        {
+          label: "关于freelog",
+          url: "https://freelog4.freelog.com/$freelog-61f252ef6fe5c1002e2c7b4b=/home_id=62d0d202456ff0002e3295ab",
+        },
       ] as freelogEntranceItem[],
     };
 
