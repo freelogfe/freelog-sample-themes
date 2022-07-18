@@ -27,7 +27,7 @@
               <i class="freelog fl-icon-yonghu"></i>
               <div class="item-value">{{ voiceInfo.signCount | signCount }}</div>
             </div>
-            <div class="duration">时长{{ 156 | duration }}</div>
+            <div class="duration">时长{{ voiceInfo.versionInfo.exhibitProperty.duration | duration }}</div>
           </div>
           <div class="play-voice-btn" @click="playOrPause()">
             <i class="freelog" :class="playing ? 'fl-icon-zanting-daibiankuang' : 'fl-icon-bofang-daibiankuang'"></i>
@@ -87,7 +87,7 @@
             <div class="btns-area">
               <template v-if="playingInfo">
                 <div class="duration" v-if="playingInfo.exhibitId !== voiceInfo.exhibitId">
-                  时长{{ 156 | duration }}
+                  时长{{ voiceInfo.versionInfo.exhibitProperty.duration | duration }}
                 </div>
                 <transition name="slide-right">
                   <div class="playing-mark" v-if="playingInfo.exhibitId === voiceInfo.exhibitId">

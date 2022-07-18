@@ -113,7 +113,7 @@
                     :desc="`${secondsToHMS($store.state.progress)}/${secondsToHMS(duration)}`"
                     v-if="playingInfo && playingInfo.exhibitId === item.exhibitId"
                   />
-                  <div class="duration" v-else>{{ 153 | secondsToHMS }}</div>
+                  <div class="duration" v-else>{{ playingInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}</div>
                   <!-- <div class="album-title">
                     {{ "睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊" }}
                   </div> -->
@@ -274,7 +274,7 @@
                     :desc="`${secondsToHMS($store.state.progress)}/${secondsToHMS(duration)}`"
                     v-if="playingInfo && playingInfo.exhibitId === item.exhibitId"
                   />
-                  <div class="duration" v-else>{{ 153 | secondsToHMS }}</div>
+                  <div class="duration" v-else>{{ playingInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}</div>
                   <i class="text-btn freelog fl-icon-guanbi" @click.stop="deleteVoice(item.exhibitId)"></i>
                 </div>
               </div>

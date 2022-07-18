@@ -27,7 +27,7 @@
           </div>
         </div>
         <div class="duration-album" :class="{ 'opacity-40': authLinkAbnormal }">
-          <div>{{ "153" | duration }}</div>
+          <div>{{ data.versionInfo.exhibitProperty.duration | duration }}</div>
           <!-- <div class="album">{{ "专辑名称专辑名称专辑名称专辑名称专辑名称" }}</div> -->
         </div>
         <div class="other-area" :class="{ 'opacity-40': authLinkAbnormal }">
@@ -144,7 +144,7 @@
           <i class="freelog" :class="item.icon" @click="item.operate" />
         </my-tooltip>
       </div>
-      <div class="duration">{{ 153 | duration }}</div>
+      <div class="duration">{{ data.versionInfo.exhibitProperty.duration | duration }}</div>
       <div
         class="cover-to-add"
         :class="{ animation: addAnimation }"
