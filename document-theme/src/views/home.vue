@@ -7,26 +7,22 @@
       <!-- 内容区域 -->
       <div class="content-area">
         <my-loader v-if="loading" />
-        <my-markdown
-          :data="documentData"
-          @getDirectory="getDirectory($event)"
-          v-if="!loading && documentData?.defaulterIdentityType === 0"
-        />
-        <div
-          class="auth-box"
-          v-if="!loading && documentData?.defaulterIdentityType && documentData?.defaulterIdentityType !== 4"
-        >
-          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-          <div class="auth-link-tip">授权链异常，无法查看</div>
-        </div>
-        <div
-          class="lock-box"
-          v-if="!loading && (documentData?.defaulterIdentityType === 4 || userData.isLogin === false)"
-        >
-          <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
-          <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-          <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
-        </div>
+        <template v-else>
+          <my-markdown
+            :data="documentData"
+            @getDirectory="getDirectory($event)"
+            v-if="documentData?.defaulterIdentityType === 0"
+          />
+          <div class="auth-box" v-else-if="documentData?.defaulterIdentityType && documentData?.defaulterIdentityType !== 4">
+            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+            <div class="auth-link-tip">授权链异常，无法查看</div>
+          </div>
+          <div class="lock-box" v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false">
+            <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
+            <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+            <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
+          </div>
+        </template>
 
         <div class="footer-area">
           <div class="footer-bar">
