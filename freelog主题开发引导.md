@@ -4,13 +4,13 @@
 
 本文所指运行时皆指 Freelog 运行时。
 
-建议搭配[《Freelog 插件开发文档》](https://widget-docs.freelog.com)与[《Freelog 插件开发接口文档》](https://widget-docs.freelog.com/api)一起阅读。
+建议搭配[《Freelog 运行时文档》](https://widget-docs.freelog.com)与[《Freelog 运行时 api 文档》](https://widget-docs.freelog.com/api)一起阅读。
 
 ---
 
 # 介绍
 
-## 主题（Theme）是什么？
+## 主题是什么？
 
 > 在 Freelog 平台，如果节点商想向资源消费者分享节点或者展品，需先为节点添加激活一个「主题」，主题决定了节点面向资源消费者呈现时的整体外观和设计。 —— [《基础概念》](https://freelog3.freelog.com/$freelog-61f252ef6fe5c1002e2c7b4b=/home_id=62d0cf48456ff0002e3294fb)
 
@@ -38,7 +38,7 @@
 
 ## 项目配置
 
-> 使用不同前端框架，配置也会有所不同，如果您使用其他前端框架，具体配置方法请查看[《Freelog 插件开发文档-框架准备》](https://widget-docs.freelog.com/#%E6%A1%86%E6%9E%B6%E5%87%86%E5%A4%87)。
+> 使用不同前端框架，配置也会有所不同，如果您使用其他前端框架，具体配置方法请查看[《Freelog 运行时文档-插件开发准备》](https://widget-docs.freelog.com/#%E6%A1%86%E6%9E%B6%E5%87%86%E5%A4%87)。
 
 ### webpack 配置示例
 
@@ -54,7 +54,7 @@ function resolve(dir) {
   return path.join(__dirname, dir);
 }
 
-const port = 8888; // 本地端口号
+const port = 8888;
 
 module.exports = {
   outputDir: "dist",
@@ -64,26 +64,15 @@ module.exports = {
     hot: true,
     disableHostCheck: true,
     port,
-    overlay: {
-      warnings: false,
-      errors: true,
-    },
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
+    overlay: { warnings: false, errors: true },
+    headers: { "Access-Control-Allow-Origin": "*" },
   },
-  // 自定义webpack配置
   configureWebpack: {
-    resolve: {
-      alias: {
-        "@": resolve("src"),
-      },
-    },
+    resolve: { alias: { "@": resolve("src") } },
     output: {
-      // 把子应用打包成 umd 库格式
       library: `${name}-[name]`,
-      libraryTarget: "umd",
-      jsonpFunction: `webpackJsonp_${name}`,
+      libraryTarget: "umd", // 把子应用打包成 umd 库格式
+      jsonpFunction: `webpackJsonp_${name}`, // webpack5 使用 chunkLoadingGlobal: `webpackJsonp${name}`
     },
   },
 };
@@ -236,7 +225,7 @@ initial[active]:
    `mkcert -install`
    `mkcert localhost 192.168.2.102`（将 ip 地址改为您本地的 ip 地址）
 
-6. 到您电脑的`C:\Users\您的电脑设备用户名`路径下找到`localhost+1.pem`与`localhost+1-key.pem`文件，将两个文件复制到主题项目的根目录下，再复制一份`localhost+1.pem`文件到项目根目录下，并将后缀名改为`.crt`，一共三个文件
+6. 到您电脑的`C:\Users\${您的电脑设备用户名}`路径下找到`localhost+1.pem`与`localhost+1-key.pem`文件，将两个文件复制到主题项目的根目录下，再复制一份`localhost+1.pem`文件到项目根目录下，并将后缀名改为`.crt`，一共三个文件
 
 7. 在主题项目`vue.config.js`文件中添加配置（示例）
 
@@ -255,7 +244,7 @@ module.exports = {
 
 8. 重启主题项目
 
-#### 连接测试节点与本地
+#### 连接节点与本地
 
 在节点 url 后面拼接主题项目本地运行 url：`${节点url}?dev=${本地运行url}`。
 
@@ -265,7 +254,7 @@ module.exports = {
 
 # 开发
 
-> 运行时提供了一系列 API 挂载到 window.freelogApp 上，整个主题的数据交互都会通过 API 实现，开发者不需要关心跨域问题，也不建议请求外部接口。
+> 运行时提供了一系列 API 挂载到 window.freelogApp 上，整个主题的数据交互都会通过 API 实现，开发者不需要关心登录、授权等功能的实现逻辑，也不建议请求外部接口。
 
 ## 登录相关
 
@@ -556,7 +545,7 @@ this.collectionList = result;
 
 ## 创建资源
 
-在 freelog 平台[创建一个主题资源](https://console.freelog.com/resource/creator)（资源类型为 theme），如果您之前已经提前创建，跳过此步骤。
+去 Freelog 工作台[创建一个资源](https://console.freelog.com/resource/creator)（资源类型为主题），如果您之前已经提前创建，跳过此步骤。
 
 ## 上传
 
@@ -612,8 +601,8 @@ const url = window.location.currentURL;
 
 如您还有其他问题，请
 
-- 查看[《Freelog 插件开发文档》](https://widget-docs.freelog.com)；
-- 查看[《Freelog 插件开发接口文档》](https://widget-docs.freelog.com/api)；
-- 到[Freelog 论坛](https://forum.freelog.com/)提出问题；
+- 查看[《Freelog 运行时文档》](https://widget-docs.freelog.com)；
+- 查看[《Freelog 运行时 api 文档》](https://widget-docs.freelog.com/api)；
+- 到 [Freelog 论坛](https://forum.freelog.com/) 提出问题；
 - 向 Freelog 官方邮箱service@freelog.com 或 Freelog 微信公众号 进行留言；
 - 加入微信群联系客服。
