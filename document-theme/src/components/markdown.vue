@@ -42,7 +42,8 @@ export default {
       const deps = dependencyTree.filter((_: any, index: number) => index !== 0);
       let promiseArr = [] as Promise<any>[];
       deps.forEach((dep: { resourceType: string; parentNid: any; articleId: any }) => {
-        const isMediaResource = ["image", "video", "audio"].includes(dep.resourceType);
+        const isMediaResource =
+          dep.resourceType.includes("图片") || dep.resourceType.includes("视频") || dep.resourceType.includes("音频");
         const depContent: Promise<any> = getExhibitDepFileStream(
           props.data.exhibitId,
           dep.parentNid,
@@ -111,29 +112,30 @@ export default {
   h6 {
     color: #222;
     line-height: 1.25;
-    margin-top: 24px;
-    margin-bottom: 16px;
+    margin-top: 50px;
+    margin-bottom: 20px;
+    font-weight: bold;
   }
 
   h1 {
-    font-size: 32px;
+    font-size: 36px;
     margin-top: 0;
   }
 
   h2 {
-    font-size: 24px;
+    font-size: 32px;
   }
 
   h3 {
-    font-size: 20px;
+    font-size: 28px;
   }
 
   h4 {
-    font-size: 16px;
+    font-size: 22px;
   }
 
   h5 {
-    font-size: 14px;
+    font-size: 16px;
   }
 
   h6 {
@@ -144,7 +146,7 @@ export default {
   hr {
     height: 4px;
     padding: 0;
-    margin: 24px 0;
+    margin: 50px 0;
     background-color: #e1e4e8;
     border: 0;
   }
@@ -202,6 +204,22 @@ export default {
     font-family: sans-serif;
     letter-spacing: 0.6px;
 
+    ::-webkit-scrollbar {
+      height: 8px;
+      border-radius: 8px;
+      background-color: rgba(0, 0, 0, 0.2);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      height: 8px;
+      border-radius: 8px;
+      background-color: rgba(255, 255, 255, 0.3);
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+    }
+
     code {
       background-color: transparent;
       color: #fff;
@@ -239,14 +257,24 @@ export default {
     word-break: initial;
     width: 100%;
     overflow: auto;
+    margin-bottom: 30px;
+
+    tbody tr:nth-child(2n) {
+      background-color: #f6f8fa;
+    }
 
     tr {
       background-color: #fff;
       border-top: 1px solid #c6cbd1;
 
+      th,
       td {
-        padding: 6px 13px;
+        padding: 10px 13px;
         border: 1px solid #dfe2e5;
+      }
+
+      th {
+        font-weight: bold;
       }
     }
   }
