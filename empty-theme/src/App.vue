@@ -3,7 +3,8 @@
     <div class="app-wrapper" :class="inMobile ? 'mobile' : 'pc'">
       <div class="tip">此主题供开发者使用，不支持常规展品的运营和展示。</div>
       <div class="tip">
-        如需浏览更多主题，请前往<span class="btn" @click="openPage('https://console.freelog.com/market')">资源市场</span
+        如需浏览更多主题，请前往<span class="btn" @click="openPage('https://console.freelog.com/market?query=主题')"
+          >资源市场</span
         >。
       </div>
 
