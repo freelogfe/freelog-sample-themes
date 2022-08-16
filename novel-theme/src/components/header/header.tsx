@@ -399,7 +399,7 @@ export const Header = (props: {
                 </div>
                 <div
                   className="btn header-register-btn"
-                  onClick={() => window.open("http://user.testfreelog.com/logon")}
+                  onClick={() => window.open("https://user.freelog.com/logon")}
                 >
                   注册
                 </div>

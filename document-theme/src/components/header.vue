@@ -124,7 +124,7 @@ export default {
     const methods = {
       // 注册
       register() {
-        window.open("http://user.testfreelog.com/logon");
+        window.open("https://user.freelog.com/logon");
       },
 
       // 通知父组件打开目录

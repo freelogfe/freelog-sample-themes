@@ -366,7 +366,7 @@ export default {
 
     /** 注册 */
     register() {
-      window.open("http://user.freelog.com/logon");
+      window.open("https://user.freelog.com/logon");
     },
 
     /** 搜索 */

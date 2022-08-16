@@ -7,7 +7,7 @@ export const freelogEntrances = [
   },
   {
     label: "使用此主题",
-    url: "https://console.freelog.com/resource/details/61f251286fe5c1002e2c7b41",
+    url: "https://console.freelog.com/resource/details/62d0e1e98e71fb00394bd314",
   },
   { label: "浏览更多主题", url: "https://console.freelog.com/market?query=主题" },
 ];

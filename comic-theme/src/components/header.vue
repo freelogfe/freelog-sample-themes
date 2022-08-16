@@ -376,7 +376,7 @@ export default {
 
       // 注册
       register() {
-        window.open("http://user.testfreelog.com/logon");
+        window.open("https://user.freelog.com/logon");
       },
     };
 
