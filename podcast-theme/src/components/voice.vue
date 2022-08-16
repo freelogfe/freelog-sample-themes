@@ -47,7 +47,7 @@
           :class="playing ? 'fl-icon-zanting-daibiankuang' : 'fl-icon-bofang-daibiankuang'"
           @click="playOrPause()"
         />
-        <i class="freelog fl-icon-xiaoshuomulu" @click="moreMenuShow = true" />
+        <i class="freelog fl-icon-gengduo_yuandian_zongxiang" @click="moreMenuShow = true" />
       </div>
       <div class="cover-to-add" :class="{ animation: addAnimation }" :style="{ '--top': coverTop + 'px' }">
         <img class="cover" :src="data.coverImages[0]" />
