@@ -17,13 +17,13 @@
         <div class="article-content">
           <my-markdown :data="contentInfo" v-if="articleData?.defaulterIdentityType === 0" />
 
-          <div class="auth-box" v-if="articleData?.defaulterIdentityType && articleData?.defaulterIdentityType !== 4">
+          <div class="auth-box" v-else-if="articleData?.defaulterIdentityType && articleData?.defaulterIdentityType !== 4">
             <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
             <div class="auth-link-tip">授权链异常，无法查看</div>
             <div class="home-btn" @click="switchPage('/home')">进入首页</div>
           </div>
 
-          <div class="lock-box" v-if="articleData?.defaulterIdentityType === 4 || userData.isLogin === false">
+          <div class="lock-box" v-else-if="articleData?.defaulterIdentityType === 4 || userData.isLogin === false">
             <img class="lock" src="../assets/images/lock.png" />
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
             <div class="get-btn" @click="getAuth()">获取授权</div>
@@ -65,13 +65,13 @@
         <div class="article-content">
           <my-markdown :data="contentInfo" v-if="articleData?.defaulterIdentityType === 0" />
 
-          <div class="auth-box" v-if="articleData?.defaulterIdentityType && articleData?.defaulterIdentityType !== 4">
+          <div class="auth-box" v-else-if="articleData?.defaulterIdentityType && articleData?.defaulterIdentityType !== 4">
             <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
             <div class="auth-link-tip">授权链异常，无法查看</div>
             <div class="home-btn" @click="switchPage('/home')">进入首页</div>
           </div>
 
-          <div class="lock-box" v-if="articleData?.defaulterIdentityType === 4 || userData.isLogin === false">
+          <div class="lock-box" v-else-if="articleData?.defaulterIdentityType === 4 || userData.isLogin === false">
             <img class="lock" src="../assets/images/lock.png" />
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
             <div class="get-btn" @click="getAuth()">获取授权</div>
