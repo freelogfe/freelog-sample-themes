@@ -701,7 +701,7 @@ export default {
         .play-btn-area {
           position: relative;
 
-          ::v-deep .progress {
+          :deep .progress {
             position: absolute;
             left: 0;
             top: 0;
@@ -737,11 +737,11 @@ export default {
         bottom: 0;
         height: 2px;
 
-        &.no-voice ::v-deep .el-slider__button {
+        &.no-voice :deep .el-slider__button {
           display: none;
         }
 
-        ::v-deep .el-slider__runway {
+        :deep .el-slider__runway {
           margin: 0;
           height: 2px;
           background-color: transparent;
@@ -925,7 +925,7 @@ export default {
         padding: 15px;
         box-sizing: border-box;
 
-        ::v-deep .el-skeleton.is-animated .el-skeleton__item {
+        :deep .el-skeleton.is-animated .el-skeleton__item {
           background: linear-gradient(90deg, rgb(70, 70, 70) 25%, rgb(50, 50, 50) 37%, rgb(70, 70, 70) 63%) 0% 0% / 400%
             100%;
         }
@@ -1144,7 +1144,7 @@ export default {
             height: 4px;
             margin-top: 13px;
 
-            &.no-voice ::v-deep {
+            &.no-voice :deep {
               .el-slider__button-wrapper {
                 cursor: default;
               }
@@ -1154,7 +1154,7 @@ export default {
               }
             }
 
-            ::v-deep .el-slider__runway {
+            :deep .el-slider__runway {
               margin: 0;
               height: 4px;
 
@@ -1285,7 +1285,7 @@ export default {
       width: 4px;
       height: 130px;
 
-      ::v-deep .el-slider__runway {
+      :deep .el-slider__runway {
         margin: 0;
         width: 4px;
 
@@ -1464,7 +1464,7 @@ export default {
       padding: 20px;
       box-sizing: border-box;
 
-      ::v-deep .el-skeleton.is-animated .el-skeleton__item {
+      :deep .el-skeleton.is-animated .el-skeleton__item {
         background: linear-gradient(90deg, rgb(70, 70, 70) 25%, rgb(50, 50, 50) 37%, rgb(70, 70, 70) 63%) 0% 0% / 400%
           100%;
       }

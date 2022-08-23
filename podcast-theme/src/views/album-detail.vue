@@ -282,7 +282,7 @@ export default {
           margin-top: 25px;
         }
 
-        ::v-deep .voice-wrapper .info-area {
+        :deep .voice-wrapper .info-area {
           width: 480px;
         }
       }

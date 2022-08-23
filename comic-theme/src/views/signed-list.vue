@@ -111,7 +111,7 @@ export default {
       .comic-box {
         width: 100%;
 
-        &:last-child ::v-deep .comic-content {
+        &:last-child :deep .comic-content {
           border-bottom: none;
         }
       }

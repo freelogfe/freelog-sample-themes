@@ -99,7 +99,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-::v-deep.markdown-wrapper {
+:deep.markdown-wrapper {
   width: 100%;
   font-size: 16px;
   color: #222;
@@ -203,6 +203,10 @@ export default {
     border-radius: 3px;
     font-family: sans-serif;
     letter-spacing: 0.6px;
+
+    & + pre {
+      margin-top: 30px;
+    }
 
     ::-webkit-scrollbar {
       height: 8px;

@@ -289,7 +289,7 @@ export default {
   background-color: #fafbfc;
   transition: all 0.2s linear;
 
-  &.in-mobile ::v-deep .mobile-header-wrapper {
+  &.in-mobile :deep .mobile-header-wrapper {
     position: fixed;
     top: 0;
     z-index: 1;
