@@ -17,17 +17,19 @@
       <div class="mobile-body-wrapper">
         <img class="content" :src="content" v-if="comicInfo.defaulterIdentityType === 0 && content" />
 
-        <div class="auth-box" v-if="comicInfo.defaulterIdentityType && comicInfo.defaulterIdentityType !== 4">
-          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-          <div class="auth-link-tip">授权链异常，无法查看</div>
-          <div class="home-btn" @click="switchPage('/home')">进入首页</div>
-        </div>
+        <template v-else-if="comicInfo.defaulterIdentityType">
+          <div class="auth-box" v-if="comicInfo.defaulterIdentityType !== 4">
+            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+            <div class="auth-link-tip">授权链异常，无法查看</div>
+            <div class="home-btn" @click="switchPage('/home')">进入首页</div>
+          </div>
 
-        <div class="lock-box" v-if="comicInfo.defaulterIdentityType === 4 || userData.isLogin === false">
-          <img class="lock" src="../assets/images/lock.png" alt="未授权" />
-          <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-          <div class="get-btn" @click="getAuth()">获取授权</div>
-        </div>
+          <div class="lock-box" v-else-if="comicInfo.defaulterIdentityType === 4 || userData.isLogin === false">
+            <img class="lock" src="../assets/images/lock.png" alt="未授权" />
+            <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+            <div class="get-btn" @click="getAuth()">获取授权</div>
+          </div>
+        </template>
       </div>
 
       <transition name="fade-down">
@@ -89,17 +91,19 @@
         <div class="content-box">
           <img class="content" :src="content" v-if="comicInfo.defaulterIdentityType === 0 && content" />
 
-          <div class="auth-box" v-if="comicInfo.defaulterIdentityType && comicInfo.defaulterIdentityType !== 4">
-            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-            <div class="auth-link-tip">授权链异常，无法查看</div>
-            <div class="home-btn" @click="switchPage('/home')">进入首页</div>
-          </div>
+          <template v-else-if="comicInfo.defaulterIdentityType">
+            <div class="auth-box" v-if="comicInfo.defaulterIdentityType !== 4">
+              <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+              <div class="auth-link-tip">授权链异常，无法查看</div>
+              <div class="home-btn" @click="switchPage('/home')">进入首页</div>
+            </div>
 
-          <div class="lock-box" v-if="comicInfo.defaulterIdentityType === 4 || userData.isLogin === false">
-            <img class="lock" src="../assets/images/lock.png" alt="未授权" />
-            <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-            <div class="get-btn" @click="getAuth()">获取授权</div>
-          </div>
+            <div class="lock-box" v-else-if="comicInfo.defaulterIdentityType === 4 || userData.isLogin === false">
+              <img class="lock" src="../assets/images/lock.png" alt="未授权" />
+              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+              <div class="get-btn" @click="getAuth()">获取授权</div>
+            </div>
+          </template>
         </div>
 
         <!-- <div class="footer-bar">

@@ -102,7 +102,7 @@ const BookBody = () => {
     // mobile
     <div className="mobile-content">
       {/* 授权链异常提示 */}
-      {![0, 4].includes(book.defaulterIdentityType) && (
+      {![0, 4].includes(book?.defaulterIdentityType) && (
         <div className="auth-link-abnormal-tip">
           <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
           <div className="tip-text">授权链异常，无法查看</div>
@@ -147,7 +147,7 @@ const BookBody = () => {
 
         <div className="operate-btns">
           <div
-            className={`btn main-btn mobile ${![0, 4].includes(book.defaulterIdentityType) && "disabled"}`}
+            className={`btn main-btn mobile ${![0, 4].includes(book?.defaulterIdentityType) && "disabled"}`}
             onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}
           >
             立即阅读
@@ -210,7 +210,7 @@ const BookBody = () => {
       {book && (
         <div className="content-box">
           {/* 授权链异常提示 */}
-          {![0, 4].includes(book.defaulterIdentityType) && (
+          {![0, 4].includes(book?.defaulterIdentityType) && (
             <div className="auth-link-abnormal-tip">
               <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
               <div className="tip-text">授权链异常，无法查看</div>
@@ -238,7 +238,7 @@ const BookBody = () => {
               <div className="btns-box">
                 <div className="operate-btns">
                   <div
-                    className={`btn main-btn ${![0, 4].includes(book.defaulterIdentityType) && "disabled"}`}
+                    className={`btn main-btn ${![0, 4].includes(book?.defaulterIdentityType) && "disabled"}`}
                     onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}
                   >
                     立即阅读

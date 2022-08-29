@@ -156,7 +156,7 @@ const Body = () => {
               </p>
             );
           })}
-        {![null, 0, 4].includes(defaulterIdentityType) && (
+        {![null, 0, 4].includes(defaulterIdentityType) ? (
           <div className="auth-box">
             <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
             <div className="auth-link-tip">授权链异常，无法查看</div>
@@ -164,15 +164,17 @@ const Body = () => {
               进入首页
             </div>
           </div>
-        )}
-        {(defaulterIdentityType === 4 || userData?.isLogin === false) && (
-          <div className="lock-box">
-            <img className="lock" src={Lock} alt="未授权" />
-            <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-            <div className="get-btn" onClick={() => getAuth()}>
-              获得授权
+        ) : (
+          defaulterIdentityType &&
+          (defaulterIdentityType === 4 || userData?.isLogin === false) && (
+            <div className="lock-box">
+              <img className="lock" src={Lock} alt="未授权" />
+              <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+              <div className="get-btn" onClick={() => getAuth()}>
+                获得授权
+              </div>
             </div>
-          </div>
+          )
         )}
       </div>
     );
@@ -212,7 +214,7 @@ const Body = () => {
                 </p>
               );
             })}
-          {![null, 0, 4].includes(defaulterIdentityType) && (
+          {![null, 0, 4].includes(defaulterIdentityType) ? (
             <div className="auth-box">
               <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
               <div className="auth-link-tip">授权链异常，无法查看</div>
@@ -220,15 +222,17 @@ const Body = () => {
                 进入首页
               </div>
             </div>
-          )}
-          {(defaulterIdentityType === 4 || userData?.isLogin === false) && (
-            <div className="lock-box">
-              <img className="lock" src={Lock} alt="未授权" />
-              <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-              <div className="get-btn" onClick={() => getAuth()}>
-                获得授权
+          ) : (
+            defaulterIdentityType &&
+            (defaulterIdentityType === 4 || userData?.isLogin === false) && (
+              <div className="lock-box">
+                <img className="lock" src={Lock} alt="未授权" />
+                <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+                <div className="get-btn" onClick={() => getAuth()}>
+                  获得授权
+                </div>
               </div>
-            </div>
+            )
           )}
         </div>
 

@@ -9,6 +9,7 @@ import { nextTick, watch } from "@vue/runtime-core";
 import { ExhibitItem } from "@/api/interface";
 import { getExhibitDepFileStream } from "@/api/freelog";
 import { SetupContext } from "vue";
+import Axios from "../api/http";
 
 export default {
   name: "my-markdown",
@@ -20,6 +21,8 @@ export default {
   setup(props: { data: ExhibitItem }, context: SetupContext) {
     const content = ref("");
     const contentBody = ref<any>(null);
+    let videoList: any[] = [];
+
     showdown.setOption("tables", true);
     showdown.setOption("tasklists", true);
     showdown.setOption("simplifiedAutoLink", true);
@@ -59,7 +62,7 @@ export default {
             // 进一步判断是否为文本文件
             if (!dep.headers["content-type"].startsWith("text")) return;
 
-            // 返回数据是对象，切有data属性，说明该依赖未非媒体资源
+            // 返回数据是对象，且有data属性，说明该依赖为非媒体资源
             const reg = new RegExp("{{" + `freelog://${deps[index].articleName}` + "}}", "g");
             const converter = new showdown.Converter();
             const data = converter.makeHtml(dep.data);
@@ -67,7 +70,7 @@ export default {
           } else {
             // 媒体资源
             const reg = new RegExp("src=['\"]" + `freelog://${deps[index].articleName}` + "['\"]", "g");
-            html = html.replace(reg, `src="${dep}"`);
+            html = html.replace(reg, `id="${deps[index].articleId}" src="${dep}"`);
           }
         });
       });
@@ -78,6 +81,71 @@ export default {
         const elements = [...contentBody.value.children];
         const titles = elements.filter((item: HTMLElement) => ["H1", "H2", "H3"].includes(item.nodeName));
         context.emit("getDirectory", titles);
+
+        videoPlayDuration();
+      });
+    };
+
+    /** 视频播放时长记录 */
+    const videoPlayDuration = () => {
+      const nodeIsOfficial = (window as any).location.currentURL.startsWith("https://freelog3.freelog.com");
+      const docIsOfficial = props.data.exhibitId === "62ce6f8a456ff0002e32915f";
+      // 只在官方帮助中心节点且《快速上手》文档功能生效
+      if (!nodeIsOfficial || !docIsOfficial) return;
+
+      videoList = [
+        {
+          taskDuration: 0,
+          interval: null,
+          playTime: 0,
+        },
+        {
+          taskDuration: 0,
+          interval: null,
+          playTime: 0,
+        },
+      ];
+      const firstVideo = document.getElementById("62b01da8a4b6ff00394f1697");
+      const secondVideo = document.getElementById("630c7dfc7fdd6d003a1a1acc");
+      [firstVideo, secondVideo].forEach((video: any, index: number) => {
+        if (video) {
+          video.onloadeddata = (e: any) => {
+            videoList[index].taskDuration = e.target.duration * 0.05;
+          };
+          video.onplaying = () => {
+            const isComplete = videoList.filter((item) => item.playTime > item.taskDuration).length;
+            if (isComplete) return;
+
+            // 清除另一个视频的播放时长
+            videoList[index === 0 ? 1 : 0].playTime = 0;
+
+            videoList[index].interval = setInterval(() => {
+              videoList[index].playTime++;
+              if (videoList[index].playTime > videoList[index].taskDuration) {
+                // 完成任务
+                videoList.forEach((item) => {
+                  clearInterval(item.interval);
+                  item.interval = null;
+                });
+                completeTask();
+              }
+            }, 1000);
+          };
+          video.onpause = () => {
+            videoList.forEach((item) => {
+              clearInterval(item.interval);
+              item.interval = null;
+            });
+          };
+        }
+      });
+    };
+
+    /** 内测任务完成 */
+    const completeTask = () => {
+      Axios("https://qi.freelog.com/v2/activities/facade/pushMessage4Task", {
+        method: "POST",
+        data: { taskConfigCode: "TS000011" },
       });
     };
 

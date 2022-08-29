@@ -13,15 +13,17 @@
             @getDirectory="getDirectory($event)"
             v-if="documentData?.defaulterIdentityType === 0"
           />
-          <div class="auth-box" v-else-if="documentData?.defaulterIdentityType && documentData?.defaulterIdentityType !== 4">
-            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-            <div class="auth-link-tip">授权链异常，无法查看</div>
-          </div>
-          <div class="lock-box" v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false">
-            <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
-            <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-            <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
-          </div>
+          <template v-else-if="documentData?.defaulterIdentityType">
+            <div class="auth-box" v-if="documentData?.defaulterIdentityType !== 4">
+              <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+              <div class="auth-link-tip">授权链异常，无法查看</div>
+            </div>
+            <div class="lock-box" v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false">
+              <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
+              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+              <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
+            </div>
+          </template>
         </template>
 
         <div class="footer-area">
@@ -324,18 +326,17 @@
               @getDirectory="getDirectory($event)"
               v-if="documentData?.defaulterIdentityType === 0"
             />
-            <div
-              class="auth-box"
-              v-else-if="documentData?.defaulterIdentityType && documentData?.defaulterIdentityType !== 4"
-            >
-              <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-              <div class="auth-link-tip">授权链异常，无法查看</div>
-            </div>
-            <div class="lock-box" v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false">
-              <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
-              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-              <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
-            </div>
+            <template v-else-if="documentData?.defaulterIdentityType">
+              <div class="auth-box" v-if="documentData?.defaulterIdentityType !== 4">
+                <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+                <div class="auth-link-tip">授权链异常，无法查看</div>
+              </div>
+              <div class="lock-box" v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false">
+                <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
+                <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+                <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
+              </div>
+            </template>
           </template>
 
           <div class="footer-area">
@@ -398,14 +399,14 @@
         <div
           class="directory-item"
           :class="{
-            active: currentTitleIndex === index,
+            active: currentTitle === item.innerText,
             second: item.nodeName === 'H2',
             third: item.nodeName === 'H3',
           }"
           :title="item.innerText"
-          v-for="(item, index) in directoryList"
+          v-for="item in directoryList"
           :key="item.id"
-          @click="jumpToTitle(item.id)"
+          @click="jumpToTitle(item.innerText)"
         >
           <span>{{ item.innerText }}</span>
         </div>
@@ -473,7 +474,7 @@ export default {
       currentId: "",
       documentData: null as ExhibitItem | null,
       directoryList: [] as HTMLElement[],
-      currentTitleIndex: 0,
+      currentTitle: "",
       sharePopupShow: false,
       searchKey: "",
       searching: false,
@@ -575,11 +576,14 @@ export default {
       // 获取目录数据
       getDirectory(directoryList: HTMLElement[]) {
         data.directoryList = directoryList;
+        if (data.currentTitle) methods.jumpToTitle(data.currentTitle);
       },
 
       // 跳到标题位置
-      jumpToTitle(id: string) {
-        const el: any = data.directoryList.find((item) => item.id === id);
+      jumpToTitle(title: string) {
+        const el: any = data.directoryList.find((item) => item.innerText === title);
+        if (!el) return;
+
         scrollTo(el.offsetTop);
       },
 
@@ -641,7 +645,6 @@ export default {
 
       data.documentData = documentData;
       scrollToTop("auto");
-      data.currentTitleIndex = 0;
       data.directoryList = [];
 
       if (documentData.defaulterIdentityType !== 0) {
@@ -693,7 +696,13 @@ export default {
     watch(
       () => query.value,
       (cur) => {
-        if (cur.id !== data.currentId) getData();
+        if (!datasOfGetList.listData.value.length) {
+          getData();
+        } else if (cur.id !== data.currentId) {
+          data.currentId = query.value.id;
+          getDocumentData();
+        }
+        if (cur.title !== data.currentTitle) data.currentTitle = cur.title || "";
       },
       { immediate: true }
     );
@@ -705,7 +714,9 @@ export default {
 
         for (let i = data.directoryList.length - 1; i >= 0; i--) {
           if (cur >= data.directoryList[i].offsetTop) {
-            data.currentTitleIndex = i;
+            const currentTitle = data.directoryList[i].innerText;
+            data.currentTitle = currentTitle;
+            switchPage("/home", { id: data.currentId, title: currentTitle });
             break;
           }
         }
