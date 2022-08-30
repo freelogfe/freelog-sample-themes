@@ -110,7 +110,7 @@ export default {
       [firstVideo, secondVideo].forEach((video: any, index: number) => {
         if (video) {
           video.onloadeddata = (e: any) => {
-            videoList[index].taskDuration = e.target.duration * 0.05;
+            videoList[index].taskDuration = e.target.duration * 0.4;
           };
           video.onplaying = () => {
             const isComplete = videoList.filter((item) => item.playTime > item.taskDuration).length;
