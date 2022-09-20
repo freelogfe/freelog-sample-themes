@@ -1261,8 +1261,8 @@ export default {
 }
 
 @media (min-width: 1600px) {
-  .home-wrapper .header-top,
-  .home-wrapper .header-node-info {
+  .header-top,
+  .header-node-info {
     width: 1540px !important;
   }
 }
