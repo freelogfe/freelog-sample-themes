@@ -27,7 +27,7 @@
           </div>
         </div>
         <div class="duration-album" :class="{ 'opacity-40': authLinkAbnormal }">
-          <div>{{ data.versionInfo.exhibitProperty.duration | duration }}</div>
+          <div>{{ data.versionInfo.exhibitProperty.duration | secondsToHMS }}</div>
           <!-- <div class="album">{{ "专辑名称专辑名称专辑名称专辑名称专辑名称" }}</div> -->
         </div>
         <div class="other-area" :class="{ 'opacity-40': authLinkAbnormal }">
@@ -126,8 +126,10 @@
               v-if="$store.state.playingInfo && $store.state.playingInfo.exhibitId === data.exhibitId"
             >
               <play-status :playing="playing" />
-              <div class="progress" v-if="$store.state.duration">
-                {{ $store.state.progress | secondsToHMS }}/{{ $store.state.duration | secondsToHMS }}
+              <div class="progress">
+                <span>{{ ($store.state.progress * 1000) | secondsToHMS }}</span>
+                <span class="progress-divider">/</span>
+                <span>{{ data.versionInfo.exhibitProperty.duration | secondsToHMS }}</span>
               </div>
             </div>
           </transition>
@@ -144,7 +146,7 @@
           <i class="freelog" :class="item.icon" @click="item.operate" />
         </my-tooltip>
       </div>
-      <div class="duration">{{ data.versionInfo.exhibitProperty.duration | duration }}</div>
+      <div class="duration">{{ data.versionInfo.exhibitProperty.duration | secondsToHMS }}</div>
       <div
         class="cover-to-add"
         :class="{ animation: addAnimation }"
@@ -834,6 +836,10 @@ export default {
             color: #2784ff;
             line-height: 18px;
             margin-left: 10px;
+
+            .progress-divider {
+              margin: 0 2px;
+            }
           }
         }
       }

@@ -67,35 +67,14 @@ export const relativeTime = (time) => {
 };
 
 /**
- * 时长
- * @param time 时间
- */
-export const duration = (time) => {
-  if (!time) return;
-
-  let result = "";
-  const seconds = Math.ceil(time / 1000);
-
-  if (seconds / 60 < 1) {
-    result = `${seconds}秒`;
-  } else {
-    const minutes = Math.floor(seconds / 60);
-    const remainder = seconds % 60;
-    result = `${remainder < 30 ? minutes : minutes + 1}分钟`;
-  }
-
-  return result;
-};
-
-/**
  * 秒转为时分秒
- * @param time 时间（秒数）
+ * @param time 时间（毫秒数）
  */
 export const secondsToHMS = (time) => {
   if (!time) return "00:00";
 
   let result = "";
-  const totalSeconds = Math.ceil(time);
+  const totalSeconds = Math.ceil(time / 1000);
   const hours = Math.floor(totalSeconds / 60 / 60);
   const minutes = Math.floor((totalSeconds - hours * 60 * 60) / 60);
   const seconds = totalSeconds - hours * 60 * 60 - minutes * 60;

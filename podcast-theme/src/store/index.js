@@ -22,7 +22,6 @@ export default new Vuex.Store({
     playingInfo: null, // 播放中的声音信息
     playing: false, // 是否在播放中
     progress: 0, // 当前播放进度
-    duration: null, // 当前播放的音频时长
     authIdList: [], // 已授权 id 集合（用于刷新首页列表、声音列表、搜索结果列表、详情页授权状态）
     searchKey: "", // 搜索关键词
   },

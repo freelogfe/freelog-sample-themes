@@ -27,7 +27,7 @@
               <i class="freelog fl-icon-yonghu"></i>
               <div class="item-value">{{ voiceInfo.signCount | signCount }}</div>
             </div>
-            <div class="duration">时长{{ voiceInfo.versionInfo.exhibitProperty.duration | duration }}</div>
+            <div class="duration">时长{{ voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}</div>
           </div>
           <div class="play-voice-btn" @click="playOrPause()">
             <i class="freelog" :class="playing ? 'fl-icon-zanting-daibiankuang' : 'fl-icon-bofang-daibiankuang'"></i>
@@ -87,13 +87,15 @@
             <div class="btns-area">
               <template v-if="playingInfo">
                 <div class="duration" v-if="playingInfo.exhibitId !== voiceInfo.exhibitId">
-                  时长{{ voiceInfo.versionInfo.exhibitProperty.duration | duration }}
+                  时长{{ voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
                 </div>
                 <transition name="slide-right">
                   <div class="playing-mark" v-if="playingInfo.exhibitId === voiceInfo.exhibitId">
                     <play-status :playing="$store.state.playing" />
-                    <div class="progress" v-if="$store.state.duration">
-                      {{ $store.state.progress | secondsToHMS }}/{{ $store.state.duration | secondsToHMS }}
+                    <div class="progress">
+                      <span>{{ ($store.state.progress * 1000) | secondsToHMS }}</span>
+                      <span class="progress-divider">/</span>
+                      <span>{{ voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}</span>
                     </div>
                   </div>
                 </transition>
@@ -602,6 +604,10 @@ export default {
             color: #2784ff;
             line-height: 18px;
             margin-left: 10px;
+
+            .progress-divider {
+              margin: 0 2px;
+            }
           }
         }
 

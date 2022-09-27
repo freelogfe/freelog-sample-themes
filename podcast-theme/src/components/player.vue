@@ -56,7 +56,11 @@
             <el-progress
               class="progress"
               type="circle"
-              :percentage="$store.state.progress && duration ? ($store.state.progress / duration) * 100 : 0"
+              :percentage="
+                playingInfo
+                  ? (($store.state.progress * 1000) / playingInfo.versionInfo.exhibitProperty.duration) * 100
+                  : 0
+              "
               color="white"
               :width="30"
               :stroke-width="2"
@@ -71,9 +75,9 @@
             :class="{ 'no-voice': !playingInfo }"
             v-model="$store.state.progress"
             :min="0"
-            :max="duration"
+            :max="playingInfo && playingInfo.versionInfo.exhibitProperty.duration / 1000"
             :show-tooltip="false"
-            :disabled="!duration"
+            :disabled="!playing"
             @change="changeProgress"
           ></el-slider>
         </div>
@@ -110,15 +114,13 @@
                 <div class="duration-area">
                   <play-status
                     :playing="playing"
-                    :desc="
-                      duration
-                        ? `${secondsToHMS($store.state.progress)}/${secondsToHMS(duration)}`
-                        : `00:00/${secondsToHMS(Math.ceil(playingInfo.versionInfo.exhibitProperty.duration / 1000))}`
-                    "
+                    :desc="`${secondsToHMS($store.state.progress * 1000)} / ${secondsToHMS(
+                      item.versionInfo.exhibitProperty.duration
+                    )}`"
                     v-if="playingInfo && playingInfo.exhibitId === item.exhibitId"
                   />
                   <div class="duration" v-else>
-                    {{ Math.ceil(item.versionInfo.exhibitProperty.duration / 1000) | secondsToHMS }}
+                    {{ item.versionInfo.exhibitProperty.duration | secondsToHMS }}
                   </div>
                   <!-- <div class="album-title">
                     {{ "睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊" }}
@@ -186,8 +188,9 @@
                       </span>
                     </my-tooltip> -->
                     </div>
-                    <div class="progress-area" v-if="duration">
-                      {{ $store.state.progress | secondsToHMS }}/{{ duration | secondsToHMS }}
+                    <div class="progress-area">
+                      {{ ($store.state.progress * 1000) | secondsToHMS }} /
+                      {{ playingInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
                     </div>
                   </template>
                   <span class="no-data-title" v-else>暂无播放的声音</span>
@@ -198,9 +201,9 @@
                     :class="{ 'no-voice': !playingInfo }"
                     v-model="$store.state.progress"
                     :min="0"
-                    :max="duration"
-                    :format-tooltip="() => secondsToHMS($store.state.progress)"
-                    :disabled="!duration"
+                    :max="playingInfo && playingInfo.versionInfo.exhibitProperty.duration / 1000"
+                    :format-tooltip="() => secondsToHMS($store.state.progress * 1000)"
+                    :disabled="!playing"
                     @change="changeProgress"
                   ></el-slider>
                 </div>
@@ -277,15 +280,13 @@
                 <div class="right-area">
                   <play-status
                     :playing="playing"
-                    :desc="
-                      duration
-                        ? `${secondsToHMS($store.state.progress)}/${secondsToHMS(duration)}`
-                        : `00:00/${secondsToHMS(Math.ceil(playingInfo.versionInfo.exhibitProperty.duration / 1000))}`
-                    "
+                    :desc="`${secondsToHMS($store.state.progress * 1000)} / ${secondsToHMS(
+                      item.versionInfo.exhibitProperty.duration
+                    )}`"
                     v-if="playingInfo && playingInfo.exhibitId === item.exhibitId"
                   />
                   <div class="duration" v-else>
-                    {{ Math.ceil(item.versionInfo.exhibitProperty.duration / 1000) | secondsToHMS }}
+                    {{ item.versionInfo.exhibitProperty.duration | secondsToHMS }}
                   </div>
                   <i class="text-btn freelog fl-icon-guanbi" @click.stop="deleteVoice(item.exhibitId)"></i>
                 </div>
@@ -352,9 +353,6 @@ export default {
     "$store.state.playingInfo": {
       handler(cur) {
         this.$store.commit("setData", { key: "progress", value: 0 });
-        this.$nextTick(() => {
-          this.$store.commit("setData", { key: "duration", value: null });
-        });
         this.playingInfo = cur;
 
         if (this.playList && this.$store.state.inMobile) {
@@ -405,11 +403,6 @@ export default {
     /** 是否播放中 */
     playing() {
       return this.$store.state.playing;
-    },
-
-    /** 播放中的声音时长 */
-    duration() {
-      return this.$store.state.duration;
     },
 
     /** 左区域按钮群 */
@@ -557,8 +550,6 @@ export default {
 
     /** 加载完成 */
     canplay() {
-      const { duration } = this.$refs.player;
-      this.$store.commit("setData", { key: "duration", value: duration });
       if (this.playing) this.$refs.player.play();
     },
 

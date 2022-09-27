@@ -55,7 +55,7 @@
           <i class="freelog" :class="item.icon" @click="item.operate" />
         </my-tooltip>
       </div>
-      <div class="duration">{{ "150" | duration }}</div>
+      <div class="duration">{{ "150" | secondsToHMS }}</div>
     </div>
   </div>
 </template>
