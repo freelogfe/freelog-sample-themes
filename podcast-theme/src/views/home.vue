@@ -33,7 +33,7 @@
           <div class="voice-list">
             <voice :data="item" v-for="item in listData" :key="item.exhibitId" />
           </div>
-          <div class="view-more">
+          <div class="view-more" v-if="total > 10">
             <div class="view-more-btn" @click="$router.myPush('/voice-list')">查看更多声音</div>
           </div>
         </div>
@@ -111,7 +111,7 @@
           <div class="voice-list">
             <voice :data="item" v-for="item in listData" :key="item.exhibitId" />
           </div>
-          <div class="view-more">
+          <div class="view-more" v-if="total > 10">
             <div class="text-btn" @click="$router.myPush('/voice-list')">查看更多声音</div>
           </div>
         </div>
@@ -427,7 +427,7 @@ export default {
         }
       }
 
-      :deep .el-skeleton.is-animated .el-skeleton__item {
+      ::v-deep .el-skeleton.is-animated .el-skeleton__item {
         background: linear-gradient(90deg, rgb(70, 70, 70) 25%, rgb(50, 50, 50) 37%, rgb(70, 70, 70) 63%) 0% 0% / 400%
           100%;
       }
@@ -643,7 +643,7 @@ export default {
         }
       }
 
-      :deep .el-skeleton.is-animated .el-skeleton__item {
+      ::v-deep .el-skeleton.is-animated .el-skeleton__item {
         background: linear-gradient(90deg, rgb(70, 70, 70) 25%, rgb(50, 50, 50) 37%, rgb(70, 70, 70) 63%) 0% 0% / 400%
           100%;
       }

@@ -291,6 +291,7 @@ export default {
         const { offsetTop, offsetLeft } = this.$refs.cover;
         this.coverLeft = offsetLeft;
         this.coverTop = offsetTop - app.scrollTop;
+        if (this.$store.state.inMobile) this.moreMenuShow = false;
         this.addAnimation = true;
         setTimeout(() => {
           this.addAnimation = false;
@@ -896,7 +897,7 @@ export default {
         to {
           opacity: 0;
           transform: scale(0);
-          right: 119px;
+          right: calc((100% - 1130px) / 2 - 48px);
           bottom: -50px;
         }
       }

@@ -110,7 +110,7 @@ export default {
         padding: 0 20px;
         box-sizing: border-box;
 
-        &:last-child :deep .article-wrapper {
+        &:last-child ::v-deep .article-wrapper {
           border-bottom: none;
         }
       }

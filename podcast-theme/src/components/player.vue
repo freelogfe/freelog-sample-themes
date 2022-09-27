@@ -110,10 +110,16 @@
                 <div class="duration-area">
                   <play-status
                     :playing="playing"
-                    :desc="`${secondsToHMS($store.state.progress)}/${secondsToHMS(duration)}`"
+                    :desc="
+                      duration
+                        ? `${secondsToHMS($store.state.progress)}/${secondsToHMS(duration)}`
+                        : `00:00/${secondsToHMS(Math.ceil(playingInfo.versionInfo.exhibitProperty.duration / 1000))}`
+                    "
                     v-if="playingInfo && playingInfo.exhibitId === item.exhibitId"
                   />
-                  <div class="duration" v-else>{{ playingInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}</div>
+                  <div class="duration" v-else>
+                    {{ Math.ceil(item.versionInfo.exhibitProperty.duration / 1000) | secondsToHMS }}
+                  </div>
                   <!-- <div class="album-title">
                     {{ "睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊睡前聊一聊" }}
                   </div> -->
@@ -271,10 +277,16 @@
                 <div class="right-area">
                   <play-status
                     :playing="playing"
-                    :desc="`${secondsToHMS($store.state.progress)}/${secondsToHMS(duration)}`"
+                    :desc="
+                      duration
+                        ? `${secondsToHMS($store.state.progress)}/${secondsToHMS(duration)}`
+                        : `00:00/${secondsToHMS(Math.ceil(playingInfo.versionInfo.exhibitProperty.duration / 1000))}`
+                    "
                     v-if="playingInfo && playingInfo.exhibitId === item.exhibitId"
                   />
-                  <div class="duration" v-else>{{ playingInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}</div>
+                  <div class="duration" v-else>
+                    {{ Math.ceil(item.versionInfo.exhibitProperty.duration / 1000) | secondsToHMS }}
+                  </div>
                   <i class="text-btn freelog fl-icon-guanbi" @click.stop="deleteVoice(item.exhibitId)"></i>
                 </div>
               </div>
@@ -322,8 +334,10 @@ export default {
 
   watch: {
     "$store.state.playList": {
-      handler(cur) {
+      handler(cur, pre) {
         this.playList = cur;
+        // 加入播放列表，显示播放器动画
+        if (cur && pre && cur.length - pre.length === 1) this.animation();
         if (!cur || !this.$store.state.inMobile) return;
 
         if (!this.infoAreaWidth) this.infoAreaWidth = this.$refs.infoArea.clientWidth;
@@ -356,6 +370,8 @@ export default {
 
       if (cur) {
         this.$refs.player.play();
+        // 播放音频，显示播放器动画
+        this.animation();
       } else {
         this.$refs.player.pause();
       }
@@ -597,6 +613,16 @@ export default {
         useMyPlay.preVoice();
       }
     },
+
+    /** 播放或加入播放列表时，播放器动画 */
+    animation() {
+      if (this.show) return;
+
+      this.show = true;
+      setTimeout(() => {
+        if (!this.playListPopupShow && !this.volumePopupShow) this.show = false;
+      }, 3000);
+    },
   },
 };
 </script>
@@ -701,7 +727,7 @@ export default {
         .play-btn-area {
           position: relative;
 
-          :deep .progress {
+          ::v-deep .progress {
             position: absolute;
             left: 0;
             top: 0;
@@ -737,11 +763,11 @@ export default {
         bottom: 0;
         height: 2px;
 
-        &.no-voice :deep .el-slider__button {
+        &.no-voice ::v-deep .el-slider__button {
           display: none;
         }
 
-        :deep .el-slider__runway {
+        ::v-deep .el-slider__runway {
           margin: 0;
           height: 2px;
           background-color: transparent;
@@ -925,7 +951,7 @@ export default {
         padding: 15px;
         box-sizing: border-box;
 
-        :deep .el-skeleton.is-animated .el-skeleton__item {
+        ::v-deep .el-skeleton.is-animated .el-skeleton__item {
           background: linear-gradient(90deg, rgb(70, 70, 70) 25%, rgb(50, 50, 50) 37%, rgb(70, 70, 70) 63%) 0% 0% / 400%
             100%;
         }
@@ -1144,7 +1170,7 @@ export default {
             height: 4px;
             margin-top: 13px;
 
-            &.no-voice :deep {
+            &.no-voice ::v-deep {
               .el-slider__button-wrapper {
                 cursor: default;
               }
@@ -1154,7 +1180,7 @@ export default {
               }
             }
 
-            :deep .el-slider__runway {
+            ::v-deep .el-slider__runway {
               margin: 0;
               height: 4px;
 
@@ -1221,7 +1247,7 @@ export default {
 
   .pc-show-btn {
     position: fixed;
-    right: 154px;
+    right: calc((100% - 1130px) / 2);
     bottom: 0;
     height: 30px;
     background: rgba(0, 0, 0, 0.2);
@@ -1285,7 +1311,7 @@ export default {
       width: 4px;
       height: 130px;
 
-      :deep .el-slider__runway {
+      ::v-deep .el-slider__runway {
         margin: 0;
         width: 4px;
 
@@ -1464,7 +1490,7 @@ export default {
       padding: 20px;
       box-sizing: border-box;
 
-      :deep .el-skeleton.is-animated .el-skeleton__item {
+      ::v-deep .el-skeleton.is-animated .el-skeleton__item {
         background: linear-gradient(90deg, rgb(70, 70, 70) 25%, rgb(50, 50, 50) 37%, rgb(70, 70, 70) 63%) 0% 0% / 400%
           100%;
       }
