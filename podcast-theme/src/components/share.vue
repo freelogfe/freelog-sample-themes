@@ -281,6 +281,7 @@ export default {
           width: fit-content;
           left: 50%;
           transform: translateX(-50%);
+          word-break: keep-all;
         }
 
         .freelog {
