@@ -171,6 +171,7 @@ export default {
   width: 100%;
   font-size: 16px;
   color: #222;
+  word-break: break-all;
 
   h1,
   h2,
