@@ -52,7 +52,7 @@
 
         <div className="tip" v-show="total === 0">当前节点暂无任何书籍，请稍后查看</div>
         <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">
-          — 已加载全部书籍 —
+          — 已加载全部 —
         </div>
       </template>
 
@@ -147,7 +147,7 @@
 
         <div className="tip" v-show="total === 0">当前节点暂无任何书籍，请稍后查看</div>
         <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">
-          — 已加载全部书籍 —
+          — 已加载全部 —
         </div>
       </template>
     </div>
