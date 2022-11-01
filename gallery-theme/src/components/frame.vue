@@ -36,7 +36,7 @@
           <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
             {{ isAuth ? "已授权" : "未授权" }}
           </div>
-          <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
+          <div class="sign-count" v-if="!inSignedList">签约量：{{ getSignCount(data.signCount) }}</div>
         </div>
       </div>
 
@@ -86,7 +86,7 @@
           <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
             {{ isAuth ? "已授权" : "未授权" }}
           </div>
-          <div class="sign-count">签约量：{{ getSignCount(data.signCount) }}</div>
+          <div class="sign-count" v-if="!inSignedList">签约量：{{ getSignCount(data.signCount) }}</div>
         </div>
       </transition>
 
