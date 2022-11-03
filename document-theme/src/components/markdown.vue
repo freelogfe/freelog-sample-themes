@@ -1,5 +1,5 @@
 <template>
-  <div ref="contentBody" class="markdown-wrapper" v-html="content" v-highlight></div>
+  <div ref="contentBody" class="markdown-wrapper" v-html="content" v-highlight oncontextmenu="return false"></div>
 </template>
 
 <script lang="ts">
@@ -74,6 +74,10 @@ export default {
           }
         });
       });
+
+      // 隐藏视频与音频的下载按钮
+      html = html.replace(/<video/g, '<video controlslist="nodownload"');
+      html = html.replace(/<audio/g, '<audio controlslist="nodownload"');
 
       content.value = html;
 

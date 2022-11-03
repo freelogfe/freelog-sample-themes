@@ -3,7 +3,7 @@
     <my-loader />
   </div>
 
-  <div class="markdown-wrapper" v-html="content" v-if="!loading"></div>
+  <div class="markdown-wrapper" v-html="content" oncontextmenu="return false" v-if="!loading"></div>
 </template>
 
 <script lang="ts">
@@ -86,6 +86,10 @@ export default {
         });
       });
 
+      // 隐藏视频与音频的下载按钮
+      html = html.replace(/<video/g, '<video controlslist="nodownload"');
+      html = html.replace(/<audio/g, '<audio controlslist="nodownload"');
+
       content.value = html;
       loading.value = false;
     };
@@ -101,6 +105,7 @@ export default {
   font-size: 16px;
   color: #222;
   word-break: break-all;
+  user-select: none;
 
   h1,
   h2,

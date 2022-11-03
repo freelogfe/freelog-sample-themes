@@ -15,7 +15,12 @@
     <!-- mobile -->
     <template v-if="!loading && inMobile">
       <div class="mobile-body-wrapper">
-        <img class="content" :src="content" v-if="comicInfo.defaulterIdentityType === 0 && content" />
+        <img
+          class="content"
+          :src="content"
+          oncontextmenu="return false"
+          v-if="comicInfo.defaulterIdentityType === 0 && content"
+        />
 
         <template v-else-if="comicInfo.defaulterIdentityType">
           <div class="auth-box" v-if="comicInfo.defaulterIdentityType !== 4">
@@ -89,7 +94,12 @@
         </div>
 
         <div class="content-box">
-          <img class="content" :src="content" v-if="comicInfo.defaulterIdentityType === 0 && content" />
+          <img
+            class="content"
+            :src="content"
+            oncontextmenu="return false"
+            v-if="comicInfo.defaulterIdentityType === 0 && content"
+          />
 
           <template v-else-if="comicInfo.defaulterIdentityType">
             <div class="auth-box" v-if="comicInfo.defaulterIdentityType !== 4">

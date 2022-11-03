@@ -133,6 +133,7 @@
                       'height-full': contentMode === 2,
                     }"
                     :src="content"
+                    oncontextmenu="return false"
                     v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')"
                   />
                   <video
@@ -142,6 +143,8 @@
                     }"
                     :src="content"
                     controls
+                    controlslist="nodownload"
+                    oncontextmenu="return false"
                     v-else-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
                   ></video>
                 </template>
