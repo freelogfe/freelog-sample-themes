@@ -70,7 +70,7 @@ export default {
           } else {
             // 媒体资源
             const reg = new RegExp("src=['\"]" + `freelog://${deps[index].articleName}` + "['\"]", "g");
-            html = html.replace(reg, `id="${deps[index].articleId}" src="${dep}"`);
+            html = html.replace(reg, `src="${dep}"`);
           }
         });
       });
@@ -78,6 +78,16 @@ export default {
       // 隐藏视频与音频的下载按钮
       html = html.replace(/<video/g, '<video controlslist="nodownload"');
       html = html.replace(/<audio/g, '<audio controlslist="nodownload"');
+
+      // 后期要删除，新手任务相关功能
+      html = html.replace(
+        'src="https://static.freelog.com/static/release_resource.mp4"',
+        'id="release_resource_video" src="https://static.freelog.com/static/release_resource.mp4"'
+      );
+      html = html.replace(
+        'src="https://static.freelog.com/static/create_node.mp4"',
+        'id="create_node_video" src="https://static.freelog.com/static/create_node.mp4"'
+      );
 
       content.value = html;
 
@@ -109,8 +119,8 @@ export default {
           playTime: 0,
         },
       ];
-      const firstVideo = document.getElementById("62b01da8a4b6ff00394f1697");
-      const secondVideo = document.getElementById("630c7dfc7fdd6d003a1a1acc");
+      const firstVideo = document.getElementById("release_resource_video");
+      const secondVideo = document.getElementById("create_node_video");
       [firstVideo, secondVideo].forEach((video: any, index: number) => {
         if (video) {
           video.onloadeddata = (e: any) => {
