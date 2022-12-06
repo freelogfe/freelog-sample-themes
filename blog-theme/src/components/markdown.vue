@@ -33,13 +33,6 @@ export default {
     showdown.setOption("backslashEscapesHTMLTags", true);
     showdown.setOption("emoji", true);
 
-    watch(
-      () => props.data,
-      () => {
-        getContent();
-      }
-    );
-
     const getContent = async () => {
       loading.value = true;
       let html = "";
@@ -93,6 +86,15 @@ export default {
       content.value = html;
       loading.value = false;
     };
+
+    watch(
+      () => props.data,
+      (cur) => {
+        if (!cur || !cur.content) return;
+        getContent();
+      },
+      { immediate: true, deep: true }
+    );
 
     return { loading, content };
   },
