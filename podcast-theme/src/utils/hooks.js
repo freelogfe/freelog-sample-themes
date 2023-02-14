@@ -47,8 +47,12 @@ export const useMyAuth = {
     store.commit("setData", { key: "signedList", value: result });
   },
 
-  /** 授权 */
-  async getAuth(data) {
+  /**
+   * 授权
+   * @param data 展品信息
+   * @param play 授权成功是否播放
+   */
+  async getAuth(data, play = false) {
     const { exhibitId } = data;
     const authResult = await addAuth(exhibitId);
     const { status } = authResult;
@@ -63,9 +67,9 @@ export const useMyAuth = {
     const playItem = playList.find((item) => item.exhibitId === exhibitId);
     if (playItem) playItem.defaulterIdentityType = 0;
     authIdList.push(exhibitId);
+    if (play) useMyPlay.playOrPause(data);
     store.commit("setData", { key: "collectionList", value: collectionList });
     store.commit("setData", { key: "signedList", value: signedList });
-    store.commit("setData", { key: "playList", value: playList });
     store.commit("setData", { key: "playList", value: playList });
     store.commit("setData", { key: "authIdList", value: authIdList });
   },
@@ -327,7 +331,7 @@ export const useMyPlay = {
 
     if (defaulterIdentityType >= 4) {
       // 未授权
-      useMyAuth.getAuth(exhibit);
+      useMyAuth.getAuth(exhibit, true);
       return;
     }
 

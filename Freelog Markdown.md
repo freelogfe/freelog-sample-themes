@@ -128,7 +128,3 @@ depContentList.forEach((dep, index) => {
 # 结言
 
 在资源版本创建页面，Freelog 提供了一个 Freelog Markdown 编辑器，您可以在此以所见即所得的方式编辑您的 Freelog Markdown 资源，快速便捷地插入资源，以及处理授权。
-
-```
-
-```
