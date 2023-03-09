@@ -29,9 +29,9 @@
             </div>
             <div class="duration">时长{{ voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}</div>
           </div>
-          <div class="play-voice-btn" @click="playOrPause()">
-            <i class="freelog" :class="playing ? 'fl-icon-zanting-daibiankuang' : 'fl-icon-bofang-daibiankuang'"></i>
-            <div class="label">{{ playing ? "暂停" : "播放" }}</div>
+          <div class="play-voice-btn" :class="{ disabled: btnList[0].disabled }" @click="playOrPause()">
+            <i class="freelog" :class="btnList[0].icon"></i>
+            <div class="label">{{ btnList[0].title }}</div>
           </div>
           <div class="btns-area">
             <template v-for="item in btnList.filter((_, i) => [1, 2].includes(i))">
@@ -188,6 +188,12 @@ export default {
       return ![0, 4].includes(this.voiceInfo.defaulterIdentityType);
     },
 
+    /** 是否为支持格式 */
+    ifSupportMime() {
+      const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
+      return supportMimeList.includes(this.voiceInfo.versionInfo.exhibitProperty.mime);
+    },
+
     /** 是否播放中 */
     playing() {
       const { playing, playingInfo } = this.$store.state;
@@ -203,15 +209,20 @@ export default {
     btnList() {
       return [
         {
-          icon: this.playing ? "fl-icon-zanting-daibiankuang" : "fl-icon-bofang-daibiankuang",
-          title: this.playing ? "暂停" : "播放",
+          icon: !this.ifSupportMime
+            ? "fl-icon-wufabofang"
+            : this.playing
+            ? "fl-icon-zanting-daibiankuang"
+            : "fl-icon-bofang-daibiankuang",
+          title: !this.ifSupportMime ? "无法播放" : this.playing ? "暂停" : "播放",
           operate: this.playOrPause,
+          disabled: !this.ifSupportMime,
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
           title: "加入播放列表",
           operate: this.addToPlayList,
-          disabled: this.isInPlayList,
+          disabled: this.isInPlayList || !this.ifSupportMime,
         },
         {
           icon: this.isCollected ? "fl-icon-shoucangxiaoshuoyishoucang" : "fl-icon-shoucangxiaoshuo",
@@ -379,6 +390,11 @@ export default {
       &:active {
         background: rgba(255, 255, 255, 0.8);
         color: rgba(34, 34, 34, 0.8);
+      }
+
+      &.disabled {
+        opacity: 0.24;
+        pointer-events: none;
       }
 
       .freelog {

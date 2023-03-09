@@ -4,26 +4,23 @@
 
     <!-- mobile -->
     <div class="mobile-home-body" v-if="inMobile">
+      <div class="no-data" v-if="loading === false && !total && myLoading === null">
+        <img class="no-data-img" src="../assets/images/no-data.svg" />
+      </div>
+      <el-skeleton class="content-skeleton" :rows="9" animated v-if="myLoading === true" />
       <!-- 内容区域 -->
-      <div class="content-area">
-        <my-loader v-if="loading" />
-        <template v-else>
-          <my-markdown
-            :data="documentData"
-            @getDirectory="getDirectory($event)"
-            v-if="documentData?.defaulterIdentityType === 0"
-          />
-          <template v-else-if="documentData?.defaulterIdentityType">
-            <div class="auth-box" v-if="documentData?.defaulterIdentityType !== 4">
-              <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-              <div class="auth-link-tip">授权链异常，无法查看</div>
-            </div>
-            <div class="lock-box" v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false">
-              <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
-              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-              <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
-            </div>
-          </template>
+      <div class="content-area" v-if="myLoading === false">
+        <my-markdown :data="documentData" v-if="documentData?.defaulterIdentityType === 0" />
+        <template v-else-if="documentData?.defaulterIdentityType">
+          <div class="auth-box" v-if="documentData?.defaulterIdentityType !== 4">
+            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+            <div class="auth-link-tip">授权链异常，无法查看</div>
+          </div>
+          <div class="lock-box" v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false">
+            <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
+            <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+            <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
+          </div>
         </template>
 
         <div class="footer-area">
@@ -92,92 +89,98 @@
               <i class="freelog fl-icon-guanbi" @click="directoryShow = false"></i>
             </div>
 
-            <template v-if="!viewOffline">
-              <!-- 搜索框 -->
-              <div class="search-box">
-                <div class="input-box">
-                  <input
-                    class="search-input"
-                    v-model="searchKey"
-                    placeholder="输入文档名称或关键字"
-                    @keyup.enter="search()"
-                    @keyup.esc="searchKey = ''"
-                  />
-                  <i class="freelog fl-icon-content"></i>
-                </div>
+            <el-skeleton class="list-skeleton" :rows="2" animated v-if="loading" />
 
-                <div class="search-tip" v-show="searching">
-                  <div class="tip">查询到{{ listData.length }}个相关结果</div>
-                  <div class="clear-btn" @click="clearSearch()">清空</div>
-                </div>
-              </div>
+            <div class="no-data-tip" v-if="!loading && !total && !searching">当前节点暂无内容</div>
 
-              <div
-                class="list-item"
-                :class="{ active: currentId === item.exhibitId }"
-                v-for="item in listData"
-                :key="item.exhibitId"
-                @click="
-                  clickDocument(item);
-                  directoryShow = false;
-                "
-              >
-                <div class="item-title-box">
-                  <div class="item-title" :style="{ opacity: [0, 4].includes(item.defaulterIdentityType) ? 1 : 0.4 }">
-                    {{ item.exhibitTitle }}
+            <template v-else-if="!loading">
+              <template v-if="!viewOffline">
+                <!-- 搜索框 -->
+                <div class="search-box">
+                  <div class="input-box">
+                    <input
+                      class="search-input"
+                      v-model="searchKey"
+                      placeholder="输入文档名称或关键字"
+                      @keyup.enter="search()"
+                      @keyup.esc="searchKey = ''"
+                    />
+                    <i class="freelog fl-icon-content"></i>
+                  </div>
+
+                  <div class="search-tip" v-show="searching">
+                    <div class="tip">查询到{{ listData.length }}个相关结果</div>
+                    <div class="clear-btn" @click="clearSearch()">清空</div>
                   </div>
                 </div>
 
-                <div class="other-box">
-                  <img
-                    class="auth-link-abnormal"
-                    src="../assets/images/auth-link-abnormal.png"
-                    v-if="![0, 4].includes(item.defaulterIdentityType)"
-                  />
-                  <img
-                    class="item-lock"
-                    src="../assets/images/mini-lock.png"
-                    title="授权"
-                    @click.stop="getAuth(item)"
-                    v-if="item.defaulterIdentityType >= 4"
-                  />
-                </div>
-              </div>
-            </template>
-
-            <template v-if="viewOffline">
-              <div class="offline-tip">
-                <div class="tip">当前文档已下架，已签约可继续浏览</div>
-                <div class="text-btn mobile" @click="switchPage('/home')">返回列表</div>
-              </div>
-
-              <div class="list-item active" @click="clickDocument(documentData)">
-                <div class="item-title-box">
-                  <div
-                    class="item-title"
-                    :style="{ opacity: [0, 4].includes(documentData?.defaulterIdentityType) ? 1 : 0.4 }"
-                  >
-                    {{ documentData?.exhibitTitle }}
+                <div
+                  class="list-item"
+                  :class="{ active: currentId === item.exhibitId }"
+                  v-for="item in listData"
+                  :key="item.exhibitId"
+                  @click="
+                    clickDocument(item);
+                    directoryShow = false;
+                  "
+                >
+                  <div class="item-title-box">
+                    <div class="item-title" :style="{ opacity: [0, 4].includes(item.defaulterIdentityType) ? 1 : 0.4 }">
+                      {{ item.exhibitTitle }}
+                    </div>
                   </div>
-                  <div class="offline">已下架</div>
+
+                  <div class="other-box">
+                    <img
+                      class="auth-link-abnormal"
+                      src="../assets/images/auth-link-abnormal.png"
+                      v-if="![0, 4].includes(item.defaulterIdentityType)"
+                    />
+                    <img
+                      class="item-lock"
+                      src="../assets/images/mini-lock.png"
+                      title="授权"
+                      @click.stop="getAuth(item)"
+                      v-if="item.defaulterIdentityType >= 4"
+                    />
+                  </div>
+                </div>
+              </template>
+
+              <template v-if="viewOffline">
+                <div class="offline-tip">
+                  <div class="tip">当前文档已下架，已签约可继续浏览</div>
+                  <div class="text-btn mobile" @click="switchPage('/home')">返回列表</div>
                 </div>
 
-                <div class="other-box">
-                  <img
-                    class="auth-link-abnormal"
-                    src="../assets/images/auth-link-abnormal.png"
-                    v-if="![0, 4].includes(documentData?.defaulterIdentityType)"
-                  />
+                <div class="list-item active" @click="clickDocument(documentData)">
+                  <div class="item-title-box">
+                    <div
+                      class="item-title"
+                      :style="{ opacity: [0, 4].includes(documentData?.defaulterIdentityType) ? 1 : 0.4 }"
+                    >
+                      {{ documentData?.exhibitTitle }}
+                    </div>
+                    <div class="offline">已下架</div>
+                  </div>
 
-                  <img
-                    class="item-lock"
-                    src="../assets/images/mini-lock.png"
-                    title="授权"
-                    @click.stop="getAuth(documentData)"
-                    v-if="documentData?.defaulterIdentityType >= 4"
-                  />
+                  <div class="other-box">
+                    <img
+                      class="auth-link-abnormal"
+                      src="../assets/images/auth-link-abnormal.png"
+                      v-if="![0, 4].includes(documentData?.defaulterIdentityType)"
+                    />
+
+                    <img
+                      class="item-lock"
+                      src="../assets/images/mini-lock.png"
+                      title="授权"
+                      @click.stop="getAuth(documentData)"
+                      v-if="documentData?.defaulterIdentityType >= 4"
+                    />
+                  </div>
                 </div>
-              </div>
+              </template>
             </template>
           </div>
         </div>
@@ -195,148 +198,158 @@
     <!-- PC -->
     <div class="home-body" @click="sharePopupShow = false" v-if="!inMobile">
       <!-- 列表条 -->
-      <div class="list-bar" :class="{ large: !directoryList.length }">
-        <template v-if="!viewOffline">
-          <!-- 搜索框 -->
-          <div class="search-box">
-            <div class="input-box">
-              <input
-                ref="searchInput"
-                class="search-input input-none"
-                :class="{ 'in-focus': searchKey }"
-                v-model="searchKey"
-                placeholder="输入文档名称或关键字"
-                @input="searchKeyInput()"
-                @keyup="inputKeyUp($event)"
-                @focus="searchHistoryShow = true"
-                @blur="searchHistoryShow = false"
-              />
-              <i class="freelog fl-icon-content"></i>
-              <i
-                class="freelog fl-icon-guanbi text-btn"
-                @click="
-                  searchKey = '';
-                  search();
-                "
-                v-show="searchKey"
-              ></i>
+      <div class="list-bar">
+        <el-skeleton class="list-skeleton" :rows="2" animated v-if="loading" />
 
-              <transition name="fade">
-                <div class="search-history" v-if="searchHistoryShow && mySearchHistory.length !== 0">
-                  <div
-                    class="history-item"
-                    :class="{ catch: searchWordCatch === index }"
-                    v-for="(item, index) in mySearchHistory"
-                    :key="item"
-                    @click="clickSearchHistory(item)"
-                    @mousemove="searchWordCatch = index"
-                  >
-                    <div class="item-word">{{ item }}</div>
-                    <i class="freelog fl-icon-guanbi" @click.stop="deleteSearchHistory(item)"></i>
+        <div class="no-data-tip" v-if="!loading && !total && !searching">当前节点暂无内容</div>
+
+        <template v-else-if="!loading">
+          <template v-if="!viewOffline">
+            <!-- 搜索框 -->
+            <div class="search-box">
+              <div class="input-box">
+                <input
+                  ref="searchInput"
+                  class="search-input input-none"
+                  :class="{ 'in-focus': searchKey }"
+                  v-model="searchKey"
+                  placeholder="输入文档名称或关键字"
+                  @input="searchKeyInput()"
+                  @keyup="inputKeyUp($event)"
+                  @focus="searchHistoryShow = true"
+                  @blur="searchHistoryShow = false"
+                />
+                <i class="freelog fl-icon-content"></i>
+                <i
+                  class="freelog fl-icon-guanbi text-btn"
+                  @click="
+                    searchKey = '';
+                    search();
+                  "
+                  v-show="searchKey"
+                ></i>
+
+                <transition name="fade">
+                  <div class="search-history" v-if="searchHistoryShow && mySearchHistory.length !== 0">
+                    <div
+                      class="history-item"
+                      :class="{ catch: searchWordCatch === index }"
+                      v-for="(item, index) in mySearchHistory"
+                      :key="item"
+                      @click="clickSearchHistory(item)"
+                      @mousemove="searchWordCatch = index"
+                    >
+                      <div class="item-word">{{ item }}</div>
+                      <i class="freelog fl-icon-guanbi" @click.stop="deleteSearchHistory(item)"></i>
+                    </div>
+
+                    <div class="text-btn" @click="clearHistory()">清空搜索记录</div>
                   </div>
+                </transition>
+              </div>
 
-                  <div class="text-btn" @click="clearHistory()">清空搜索记录</div>
+              <div class="search-tip" v-show="searching">
+                <div class="tip">查询到{{ listData.length }}个相关结果</div>
+                <div class="clear-btn" @click="clearSearch()">清空</div>
+              </div>
+            </div>
+
+            <div class="list">
+              <div
+                class="list-item"
+                :class="{ active: currentId === item.exhibitId }"
+                v-for="item in listData"
+                :key="item.exhibitId"
+                @click="clickDocument(item)"
+              >
+                <div class="item-title-box">
+                  <div
+                    class="item-title"
+                    :style="{ opacity: [0, 4].includes(item.defaulterIdentityType) ? 1 : 0.4 }"
+                    :title="item?.exhibitTitle"
+                  >
+                    {{ item.exhibitTitle }}
+                  </div>
                 </div>
-              </transition>
-            </div>
-
-            <div class="search-tip" v-show="searching">
-              <div class="tip">查询到{{ listData.length }}个相关结果</div>
-              <div class="clear-btn" @click="clearSearch()">清空</div>
-            </div>
-          </div>
-
-          <div
-            class="list-item"
-            :class="{ active: currentId === item.exhibitId }"
-            v-for="item in listData"
-            :key="item.exhibitId"
-            @click="clickDocument(item)"
-          >
-            <div class="item-title-box">
-              <div
-                class="item-title"
-                :style="{ opacity: [0, 4].includes(item.defaulterIdentityType) ? 1 : 0.4 }"
-                :title="item?.exhibitTitle"
-              >
-                {{ item.exhibitTitle }}
+                <div class="other-box">
+                  <img
+                    class="auth-link-abnormal"
+                    src="../assets/images/auth-link-abnormal.png"
+                    v-if="![0, 4].includes(item.defaulterIdentityType)"
+                  />
+                  <img
+                    class="item-lock"
+                    src="../assets/images/mini-lock.png"
+                    title="授权"
+                    @click.stop="getAuth(item)"
+                    v-if="item.defaulterIdentityType >= 4"
+                  />
+                </div>
               </div>
             </div>
-            <div class="other-box">
-              <img
-                class="auth-link-abnormal"
-                src="../assets/images/auth-link-abnormal.png"
-                v-if="![0, 4].includes(item.defaulterIdentityType)"
-              />
-              <img
-                class="item-lock"
-                src="../assets/images/mini-lock.png"
-                title="授权"
-                @click.stop="getAuth(item)"
-                v-if="item.defaulterIdentityType >= 4"
-              />
+          </template>
+
+          <template v-if="viewOffline">
+            <div class="offline-tip">
+              <div class="tip">当前文档已下架，已签约可继续浏览</div>
+
+              <div class="text-btn" @click="switchPage('/home')">返回列表</div>
             </div>
-          </div>
-        </template>
 
-        <template v-if="viewOffline">
-          <div class="offline-tip">
-            <div class="tip">当前文档已下架，已签约可继续浏览</div>
-            <div class="text-btn" @click="switchPage('/home')">返回列表</div>
-          </div>
-
-          <div class="list-item active" @click="clickDocument(documentData)">
-            <div class="item-title-box">
-              <div
-                class="item-title"
-                :style="{ opacity: [0, 4].includes(documentData?.defaulterIdentityType) ? 1 : 0.4 }"
-                :title="documentData?.exhibitTitle"
-              >
-                {{ documentData?.exhibitTitle }}
+            <div class="list-item active" @click="clickDocument(documentData)">
+              <div class="item-title-box">
+                <div
+                  class="item-title"
+                  :style="{ opacity: [0, 4].includes(documentData?.defaulterIdentityType) ? 1 : 0.4 }"
+                  :title="documentData?.exhibitTitle"
+                >
+                  {{ documentData?.exhibitTitle }}
+                </div>
+                <div class="offline">已下架</div>
               </div>
-              <div class="offline">已下架</div>
-            </div>
 
-            <div class="other-box">
-              <img
-                class="auth-link-abnormal"
-                src="../assets/images/auth-link-abnormal.png"
-                v-if="![0, 4].includes(documentData?.defaulterIdentityType)"
-              />
+              <div class="other-box">
+                <img
+                  class="auth-link-abnormal"
+                  src="../assets/images/auth-link-abnormal.png"
+                  v-if="![0, 4].includes(documentData?.defaulterIdentityType)"
+                />
 
-              <img
-                class="item-lock"
-                src="../assets/images/mini-lock.png"
-                title="授权"
-                @click.stop="getAuth(documentData)"
-                v-if="documentData?.defaulterIdentityType >= 4"
-              />
+                <img
+                  class="item-lock"
+                  src="../assets/images/mini-lock.png"
+                  title="授权"
+                  @click.stop="getAuth(documentData)"
+                  v-if="documentData?.defaulterIdentityType >= 4"
+                />
+              </div>
             </div>
-          </div>
+          </template>
         </template>
       </div>
 
+      <div class="no-data" v-if="loading === false && !total && myLoading === null">
+        <img class="no-data-img" src="../assets/images/no-data.svg" />
+      </div>
+      <el-skeleton class="content-skeleton" :rows="9" animated v-if="myLoading === true" />
       <!-- 内容区域 -->
-      <div class="content-area" :class="{ large: !directoryList.length }">
+      <div class="content-area" v-if="myLoading === false">
         <div class="content-body">
-          <my-loader v-if="loading" />
-          <template v-else>
-            <my-markdown
-              :data="documentData"
-              @getDirectory="getDirectory($event)"
-              v-if="documentData?.defaulterIdentityType === 0"
-            />
-            <template v-else-if="documentData?.defaulterIdentityType">
-              <div class="auth-box" v-if="documentData?.defaulterIdentityType !== 4">
-                <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-                <div class="auth-link-tip">授权链异常，无法查看</div>
-              </div>
-              <div class="lock-box" v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false">
-                <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
-                <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-                <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
-              </div>
-            </template>
+          <my-markdown
+            :data="documentData"
+            @getDirectory="getDirectory($event)"
+            v-if="documentData?.defaulterIdentityType === 0"
+          />
+          <template v-else-if="documentData?.defaulterIdentityType">
+            <div class="auth-box" v-if="documentData?.defaulterIdentityType !== 4">
+              <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+              <div class="auth-link-tip">授权链异常，无法查看</div>
+            </div>
+            <div class="lock-box" v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false">
+              <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
+              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+              <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
+            </div>
           </template>
 
           <div class="footer-area">
@@ -395,20 +408,25 @@
       </div>
 
       <!-- 标题目录区域 -->
-      <div class="title-directory" v-if="directoryList.length">
-        <div
-          class="directory-item"
-          :class="{
-            active: currentTitle === item.innerText,
-            second: item.nodeName === 'H2',
-            third: item.nodeName === 'H3',
-          }"
-          :title="item.innerText"
-          v-for="item in directoryList"
-          :key="item.id"
-          @click="jumpToTitle(item.innerText)"
-        >
-          <span>{{ item.innerText }}</span>
+      <div class="title-directory-box">
+        <div class="title-directory-icon" v-if="directoryList.length">
+          <div class="icon" v-for="item in 6" :key="`directoryIcon${item}`"></div>
+        </div>
+        <div class="title-directory">
+          <div
+            class="directory-item"
+            :class="{
+              active: currentTitle === item.innerText,
+              second: item.nodeName === 'H2',
+              third: item.nodeName === 'H3',
+            }"
+            :title="item.innerText"
+            v-for="item in directoryList"
+            :key="item.id"
+            @click="jumpToTitle(item.innerText)"
+          >
+            <span>{{ item.innerText }}</span>
+          </div>
         </div>
       </div>
 
@@ -452,7 +470,6 @@ export default {
 
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
-    "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
     "my-markdown": defineAsyncComponent(() => import("../components/markdown.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     share: defineAsyncComponent(() => import("../components/share.vue")),
@@ -462,7 +479,7 @@ export default {
 
   setup() {
     const store = useStore();
-    const { query, switchPage } = useMyRouter();
+    const { query, switchPage, route } = useMyRouter();
     const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
     const { scrollTop, scrollTo, scrollToTop } = useMyScroll();
     const datasOfGetList = useGetList();
@@ -470,7 +487,7 @@ export default {
     const mySearchHistory = computed(() => searchHistory.value.filter((item) => item.includes(data.searchKey)));
 
     const data = reactive({
-      myLoading: false,
+      myLoading: null as boolean | null,
       currentId: "",
       documentData: null as ExhibitItem | null,
       directoryList: [] as HTMLElement[],
@@ -482,7 +499,7 @@ export default {
       searchHistoryShow: false,
       searchWordCatch: null as number | null,
       directoryShow: false,
-      viewOffline: false,
+      viewOffline: false, // 查看已下架展品
     });
 
     const currentIndex = computed(() => {
@@ -638,6 +655,7 @@ export default {
           signCount: signCountData.data.data[0].count,
           defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
         };
+        if (exhibitInfo.data.errCode === 0) data.viewOffline = true;
       } else {
         const [signCountData] = await Promise.all(requestArr);
         documentData.signCount = signCountData.data.data[0].count;
@@ -679,7 +697,7 @@ export default {
       () => datasOfGetList.listData.value,
       (cur) => {
         data.searching = !!data.searchKey;
-        if (!cur.length) {
+        if (!cur.length && !data.searching) {
           data.currentId = "";
           return;
         }
@@ -696,8 +714,13 @@ export default {
     watch(
       () => query.value,
       (cur) => {
-        if (!datasOfGetList.listData.value.length) {
+        if (route.path !== "/home") return;
+
+        const { total } = datasOfGetList;
+        if (!total.value && !data.searching) {
           getData();
+        } else if (!cur.id) {
+          switchPage("/home", { id: datasOfGetList.listData.value[0].exhibitId });
         } else if (cur.id !== data.currentId) {
           data.currentId = query.value.id;
           getDocumentData();
@@ -760,6 +783,79 @@ export default {
   .mobile-home-body {
     width: 100%;
 
+    .no-data {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+
+      .no-data-img {
+        margin-top: 100px;
+        width: 275px;
+        height: 250px;
+      }
+    }
+
+    .content-skeleton {
+      width: 100%;
+      padding: 30px;
+      box-sizing: border-box;
+
+      ::v-deep .el-skeleton__item {
+        display: block;
+        width: 100%;
+        height: 30px;
+        border-radius: 6px;
+        background: linear-gradient(90deg, #f0f2f5 3%, #e6e8eb 37%, #f0f2f5 63%);
+        background-size: 400% 100%;
+
+        & + .el-skeleton__item {
+          margin-top: 20px;
+        }
+
+        &:nth-child(1) {
+          width: 240/780 * 100%;
+        }
+
+        &:nth-child(2) {
+          width: 600/780 * 100%;
+        }
+
+        &:nth-child(3) {
+          width: 120/780 * 100%;
+        }
+
+        &:nth-child(4) {
+          margin-top: 50px;
+        }
+
+        &:nth-child(5) {
+          width: 540/780 * 100%;
+        }
+
+        &:nth-child(6) {
+          width: 300/780 * 100%;
+        }
+
+        &:nth-child(7) {
+          width: 120/780 * 100%;
+        }
+
+        &:nth-child(8) {
+          margin-top: 50px;
+          width: 120/780 * 100%;
+        }
+
+        &:nth-child(9) {
+          width: 300/780 * 100%;
+        }
+
+        &:nth-child(10) {
+          width: 540/780 * 100%;
+        }
+      }
+    }
+
     .content-area {
       position: relative;
       width: 100%;
@@ -768,6 +864,7 @@ export default {
       box-sizing: border-box;
       display: flex;
       justify-content: center;
+      flex-shrink: 0;
 
       .markdown-wrapper {
         margin-top: 30px;
@@ -999,6 +1096,40 @@ export default {
           }
         }
 
+        .list-skeleton {
+          width: 100%;
+          margin-top: 30px;
+          box-sizing: border-box;
+
+          ::v-deep .el-skeleton__item {
+            width: 100%;
+            height: 30px;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #f0f2f5 3%, #e6e8eb 37%, #f0f2f5 63%);
+            background-size: 400% 100%;
+
+            & + .el-skeleton__item {
+              margin-top: 20px;
+            }
+
+            &:nth-child(2) {
+              width: 75%;
+            }
+
+            &:nth-child(3) {
+              width: 50%;
+            }
+          }
+        }
+
+        .no-data-tip {
+          width: 100%;
+          margin-top: 200px;
+          text-align: center;
+          font-size: 14px;
+          color: rgba(0, 0, 0, 0.4);
+        }
+
         .search-box {
           width: 100%;
           margin-bottom: 30px;
@@ -1208,6 +1339,40 @@ export default {
       flex-direction: column;
       align-items: flex-end;
 
+      .list-skeleton {
+        width: 100%;
+        padding: 30px;
+        box-sizing: border-box;
+
+        ::v-deep .el-skeleton__item {
+          width: 100%;
+          height: 30px;
+          border-radius: 6px;
+          background: linear-gradient(90deg, #f0f2f5 3%, #e6e8eb 37%, #f0f2f5 63%);
+          background-size: 400% 100%;
+
+          & + .el-skeleton__item {
+            margin-top: 20px;
+          }
+
+          &:nth-child(2) {
+            width: 75%;
+          }
+
+          &:nth-child(3) {
+            width: 50%;
+          }
+        }
+      }
+
+      .no-data-tip {
+        width: 100%;
+        margin-top: 292px;
+        text-align: center;
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.4);
+      }
+
       .search-box {
         width: 100%;
         padding: 30px;
@@ -1389,89 +1554,171 @@ export default {
         }
       }
 
-      .list-item {
+      .list {
         width: 100%;
-        height: 50px;
-        padding: 15px 30px;
+        padding: 0 10px;
         box-sizing: border-box;
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        transition: background 0.2s linear;
 
-        &:hover,
-        &.active {
-          background: rgba(0, 0, 0, 0.03);
-
-          .item-title {
-            color: #222222 !important;
-          }
-        }
-
-        &.active {
-          border: 1px solid #e5e5e5;
-          border-right: none;
-        }
-
-        .item-title-box {
-          flex: 1;
-          width: 0;
+        .list-item {
+          width: 100%;
+          height: 50px;
+          padding: 15px 20px;
+          box-sizing: border-box;
+          flex-shrink: 0;
           display: flex;
           align-items: center;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: background 0.2s linear;
 
-          .item-title {
-            max-width: 100%;
-            font-size: 14px;
-            font-weight: 600;
-            color: #999;
-            line-height: 20px;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            transition: all 0.2s linear;
+          & + .list-item {
+            margin-top: 5px;
           }
 
-          .offline {
-            flex-shrink: 0;
-            width: 40px;
-            height: 20px;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 600;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-left: 5px;
-          }
-        }
-
-        .other-box {
-          display: flex;
-          justify-content: flex-end;
-
-          .auth-link-abnormal {
-            width: 16px;
-            height: 16px;
-            margin-left: 30px;
+          &:hover {
+            background: rgba(0, 0, 0, 0.03);
           }
 
-          .item-lock {
-            width: 16px;
-            height: 16px;
-            margin-left: 30px;
-            transition: all 0.1s linear;
+          &.active {
+            background: rgba(0, 0, 0, 0.03);
 
-            &:hover {
-              transform: scale(1.2);
+            .item-title {
+              color: #222222 !important;
             }
           }
 
-          .auth-link-abnormal + .item-lock {
-            margin-left: 5px;
+          .item-title-box {
+            flex: 1;
+            width: 0;
+            display: flex;
+            align-items: center;
+
+            .item-title {
+              max-width: 100%;
+              font-size: 14px;
+              font-weight: 600;
+              color: #999;
+              line-height: 20px;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              transition: all 0.2s linear;
+            }
+
+            .offline {
+              flex-shrink: 0;
+              width: 40px;
+              height: 20px;
+              background: rgba(0, 0, 0, 0.4);
+              border-radius: 4px;
+              font-size: 10px;
+              font-weight: 600;
+              color: #ffffff;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin-left: 5px;
+            }
           }
+
+          .other-box {
+            display: flex;
+            justify-content: flex-end;
+
+            .auth-link-abnormal {
+              width: 16px;
+              height: 16px;
+              margin-left: 30px;
+            }
+
+            .item-lock {
+              width: 16px;
+              height: 16px;
+              margin-left: 30px;
+              transition: all 0.1s linear;
+
+              &:hover {
+                transform: scale(1.2);
+              }
+            }
+
+            .auth-link-abnormal + .item-lock {
+              margin-left: 5px;
+            }
+          }
+        }
+      }
+    }
+
+    .no-data {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+
+      .no-data-img {
+        margin-top: 190px;
+        width: 275px;
+        height: 250px;
+      }
+    }
+
+    .content-skeleton {
+      width: 100%;
+      padding: 30px 100px;
+      box-sizing: border-box;
+
+      ::v-deep .el-skeleton__item {
+        display: block;
+        width: 100%;
+        height: 30px;
+        border-radius: 6px;
+        background: linear-gradient(90deg, #f0f2f5 3%, #e6e8eb 37%, #f0f2f5 63%);
+        background-size: 400% 100%;
+
+        & + .el-skeleton__item {
+          margin-top: 20px;
+        }
+
+        &:nth-child(1) {
+          width: 240/780 * 100%;
+        }
+
+        &:nth-child(2) {
+          width: 600/780 * 100%;
+        }
+
+        &:nth-child(3) {
+          width: 120/780 * 100%;
+        }
+
+        &:nth-child(4) {
+          margin-top: 50px;
+        }
+
+        &:nth-child(5) {
+          width: 540/780 * 100%;
+        }
+
+        &:nth-child(6) {
+          width: 300/780 * 100%;
+        }
+
+        &:nth-child(7) {
+          width: 120/780 * 100%;
+        }
+
+        &:nth-child(8) {
+          margin-top: 50px;
+          width: 120/780 * 100%;
+        }
+
+        &:nth-child(9) {
+          width: 300/780 * 100%;
+        }
+
+        &:nth-child(10) {
+          width: 540/780 * 100%;
         }
       }
     }
@@ -1483,7 +1730,7 @@ export default {
 
       .content-body {
         position: relative;
-        width: 750px;
+        width: 780px;
         min-height: calc(100vh - 70px);
         padding-bottom: 285px;
         box-sizing: border-box;
@@ -1674,47 +1921,82 @@ export default {
       }
     }
 
-    .title-directory {
+    .title-directory-box {
       position: sticky;
-      top: 100px;
-      height: fit-content;
-      max-height: calc(100vh - 130px);
-      overflow-y: auto;
-      margin-top: 30px;
-      border-left: 1px solid rgba(0, 0, 0, 0.1);
+      top: 70px;
+      height: calc(100vh - 70px);
+      padding-top: 30px;
+      box-sizing: border-box;
+      background-color: #fff;
 
-      &::-webkit-scrollbar {
-        width: 0;
+      .title-directory-icon {
+        position: absolute;
+        left: -20px;
+        top: 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+
+        .icon {
+          width: 20px;
+          height: 4px;
+          background: rgba(0, 0, 0, 0.1);
+
+          & + .icon {
+            margin-top: 15px;
+          }
+
+          &:nth-child(3),
+          &:nth-child(4) {
+            width: 15px;
+          }
+
+          &:nth-child(5),
+          &:nth-child(6) {
+            width: 10px;
+          }
+        }
       }
 
-      .directory-item {
+      .title-directory {
         width: 100%;
-        padding-left: 30px;
-        box-sizing: border-box;
-        font-size: 14px;
-        color: #999999;
-        line-height: 20px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        cursor: pointer;
-        transition: all 0.2s linear;
+        height: fit-content;
+        max-height: 100%;
+        overflow-y: auto;
 
-        &.second {
-          padding-left: 50px;
+        &::-webkit-scrollbar {
+          width: 0;
         }
 
-        &.third {
-          padding-left: 70px;
-        }
+        .directory-item {
+          width: 100%;
+          padding: 0 30px;
+          box-sizing: border-box;
+          font-size: 14px;
+          color: #999999;
+          line-height: 20px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          cursor: pointer;
+          transition: all 0.2s linear;
 
-        &:hover,
-        &.active {
-          color: #2784ff;
-        }
+          &.second {
+            padding-left: 50px;
+          }
 
-        & + .directory-item {
-          margin-top: 15px;
+          &.third {
+            padding-left: 70px;
+          }
+
+          &:hover,
+          &.active {
+            color: #2784ff;
+          }
+
+          & + .directory-item {
+            margin-top: 15px;
+          }
         }
       }
     }
@@ -1758,59 +2040,80 @@ export default {
 
     @media (min-width: 0) {
       .list-bar {
-        width: 280px;
+        width: 300px;
         flex-shrink: 0;
       }
 
       .content-area {
         flex: 1;
-        min-width: 860px;
+        min-width: calc(780px + 140px);
       }
 
-      .title-directory {
-        display: none;
+      .title-directory-box {
+        position: fixed;
+        left: 100vw;
+        width: 200px;
+        transition: all 0.2s ease;
+
+        &:hover {
+          left: calc(100vw - 200px);
+          box-shadow: -1px 0px 3px 0px rgba(0, 0, 0, 0.1);
+
+          .title-directory-icon {
+            opacity: 0;
+          }
+        }
+
+        .title-directory {
+          border-left: none;
+        }
       }
     }
 
-    @media (min-width: 1320px) {
+    @media (min-width: 1400px) {
       .content-area {
-        width: 860px;
+        min-width: 780px;
       }
 
-      .title-directory {
-        flex: 1;
+      .title-directory-box {
+        position: sticky;
+        width: 300px;
+
+        &:hover {
+          left: none;
+          box-shadow: none;
+        }
+
+        .title-directory {
+          border-left: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .title-directory-icon {
+          display: none;
+        }
+      }
+    }
+
+    @media (min-width: 1480px) {
+      .list-bar {
         width: 0;
-        display: block;
+        flex: 2;
 
-        .directory-item {
-          padding-right: 30px;
-        }
-      }
-    }
-
-    @media (min-width: 1420px) {
-      .list-bar {
-        width: calc((100vw - 860px) / 2);
-      }
-
-      .title-directory {
-        flex: none;
-        width: calc((100vw - 860px) / 2);
-        display: block;
-        .directory-item {
-          width: 250px !important;
-          padding-right: 0;
-        }
-      }
-    }
-
-    @media (min-width: 1512px) {
-      .list-bar {
         .offline-tip,
         .search-box,
-        .list-item {
-          width: 326px !important;
+        .list {
+          width: 300px !important;
         }
+      }
+
+      .content-area {
+        flex: none;
+        width: calc(780px + 200px);
+      }
+
+      .title-directory-box {
+        width: 0;
+        flex: 1;
       }
     }
   }

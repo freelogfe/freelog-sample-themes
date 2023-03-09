@@ -7,6 +7,8 @@ import routes from "./router";
 import store from "./store";
 import hljs from "highlight.js";
 import "highlight.js/styles/a11y-dark.css";
+import ElementPlus from "element-plus";
+import "element-plus/dist/index.css";
 
 let myWindow: any = window;
 
@@ -23,7 +25,7 @@ function render(props: any = {}) {
     history: createWebHistory(process.env.BASE_URL),
     routes,
   });
-  instance = createApp(App).use(router).use(store);
+  instance = createApp(App).use(router).use(store).use(ElementPlus);
   instance.mount(container ? container.querySelector("#app") : "#app");
   store.dispatch("initData");
 

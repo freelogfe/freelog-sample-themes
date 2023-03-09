@@ -2,7 +2,7 @@
 <template>
   <div class="voice-wrapper">
     <!-- mobile -->
-    <div class="mobile-voice-wrapper" v-if="$store.state.inMobile">
+    <div class="mobile-voice-wrapper" :class="{ unplayable: !ifSupportMime }" v-if="$store.state.inMobile">
       <div
         ref="cover"
         class="cover-area"
@@ -11,6 +11,7 @@
       >
         <img class="cover" v-view-lazy="data.coverImages[0]" />
         <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
+        <div class="unplayable-tip" v-if="!ifSupportMime">无法播放</div>
       </div>
       <div class="info-area" @click="$router.myPush({ path: '/voice-detail', query: { id: data.exhibitId } })">
         <div class="title-area">
@@ -42,11 +43,7 @@
         </div>
       </div>
       <div class="btns-area" :class="{ opacity: authLinkAbnormal }">
-        <i
-          class="freelog"
-          :class="playing ? 'fl-icon-zanting-daibiankuang' : 'fl-icon-bofang-daibiankuang'"
-          @click="playOrPause()"
-        />
+        <i class="freelog" :class="{ [btnList[0].icon]: true, disabled: btnList[0].disabled }" @click="playOrPause()" />
         <i class="freelog fl-icon-gengduo_yuandian_zongxiang" @click="moreMenuShow = true" />
       </div>
       <div class="cover-to-add" :class="{ animation: addAnimation }" :style="{ '--top': coverTop + 'px' }">
@@ -77,7 +74,7 @@
     </div>
 
     <!-- PC -->
-    <div class="pc-voice-wrapper" v-if="$store.state.inMobile === false">
+    <div class="pc-voice-wrapper" :class="{ unplayable: !ifSupportMime }" v-if="$store.state.inMobile === false">
       <div
         ref="cover"
         class="cover-area"
@@ -86,7 +83,7 @@
       >
         <img class="cover" :src="data.coverImages[0]" />
         <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
-        <div class="btn-modal">
+        <div class="btn-modal" v-if="ifSupportMime">
           <div class="btn" @click.stop="playOrPause()">
             <i class="freelog" :class="playing ? 'fl-icon-zanting' : 'fl-icon-bofang-sanjiaoxing'"></i>
           </div>
@@ -119,6 +116,10 @@
           <div class="info-item">
             <i class="freelog fl-icon-yonghu"></i>
             <div class="item-value">{{ data.signCount | signCount }}</div>
+          </div>
+          <div class="info-item" v-if="!ifSupportMime">
+            <i class="freelog fl-icon-wufabofang"></i>
+            <div class="item-value">无法播放</div>
           </div>
           <transition name="slide-right">
             <div
@@ -223,6 +224,12 @@ export default {
       return ![0, 4].includes(this.data.defaulterIdentityType);
     },
 
+    /** 是否为支持格式 */
+    ifSupportMime() {
+      const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
+      return supportMimeList.includes(this.data.versionInfo.exhibitProperty.mime);
+    },
+
     /** 是否播放中 */
     playing() {
       const { playing, playingInfo } = this.$store.state;
@@ -233,15 +240,20 @@ export default {
     btnList() {
       return [
         {
-          icon: this.playing ? "fl-icon-zanting-daibiankuang" : "fl-icon-bofang-daibiankuang",
+          icon: !this.ifSupportMime
+            ? "fl-icon-wufabofang"
+            : this.playing
+            ? "fl-icon-zanting-daibiankuang"
+            : "fl-icon-bofang-daibiankuang",
           title: this.playing ? "暂停" : "播放",
           operate: this.playOrPause,
+          disabled: !this.ifSupportMime,
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
           title: "加入播放列表",
           operate: this.addToPlayList,
-          disabled: this.isInPlayList,
+          disabled: this.isInPlayList || !this.ifSupportMime,
         },
         {
           icon: this.isCollected ? "fl-icon-shoucangxiaoshuoyishoucang" : "fl-icon-shoucangxiaoshuo",
@@ -256,15 +268,20 @@ export default {
     menuBtnList() {
       return [
         {
-          icon: this.playing ? "fl-icon-zanting-daibiankuang" : "fl-icon-bofang-daibiankuang",
-          label: this.playing ? "暂停声音" : "播放声音",
+          icon: !this.ifSupportMime
+            ? "fl-icon-wufabofang"
+            : this.playing
+            ? "fl-icon-zanting-daibiankuang"
+            : "fl-icon-bofang-daibiankuang",
+          label: !this.ifSupportMime ? "无法播放" : this.playing ? "暂停声音" : "播放声音",
           operate: this.playOrPause,
+          disabled: !this.ifSupportMime,
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
           label: "加入播放列表",
           operate: this.addToPlayList,
-          disabled: this.isInPlayList,
+          disabled: this.isInPlayList || !this.ifSupportMime,
         },
         { icon: "fl-icon-danji", label: "查看声音详情", operate: this.toVoiceDetail },
         {
@@ -326,6 +343,14 @@ export default {
     display: flex;
     align-items: center;
 
+    &.unplayable {
+      .cover-area,
+      .info-area,
+      .btns-area {
+        opacity: 0.4;
+      }
+    }
+
     .cover-area {
       position: relative;
       width: 70px;
@@ -363,6 +388,19 @@ export default {
           color: #ffffff;
           transform: scale(0.84);
         }
+      }
+
+      .unplayable-tip {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: #ffffff;
       }
     }
 
@@ -482,6 +520,11 @@ export default {
 
         &:active {
           color: rgba(255, 255, 255, 0.4);
+        }
+
+        &.disabled {
+          color: rgba(255, 255, 255, 0.6);
+          pointer-events: none;
         }
       }
     }
@@ -620,6 +663,10 @@ export default {
   .pc-voice-wrapper {
     display: flex;
     align-items: center;
+
+    &.unplayable {
+      opacity: 0.4;
+    }
 
     &:hover {
       .btns-area {

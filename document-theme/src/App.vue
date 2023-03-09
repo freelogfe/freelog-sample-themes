@@ -15,6 +15,16 @@
   height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    width: 5px;
+    border-radius: 5px;
+    background-color: rgba(0, 0, 0, 0.1);
+  }
 }
 
 html,

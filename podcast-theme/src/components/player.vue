@@ -7,6 +7,7 @@
       @canplay="canplay()"
       @timeupdate="audioPlayUpdate()"
       @ended="nextVoice()"
+      @error="playError($event)"
     />
 
     <!-- mobile -->
@@ -305,7 +306,7 @@
 import playStatus from "@/components/play-status";
 import myTooltip from "@/components/tooltip";
 import { useMyAuth, useMyPlay, useMyCollection } from "@/utils/hooks";
-import { secondsToHMS } from "@/utils/common";
+import { secondsToHMS, showToast } from "@/utils/common";
 
 export default {
   name: "my-player",
@@ -487,6 +488,13 @@ export default {
     /** 下一首 */
     nextVoice() {
       useMyPlay.nextVoice();
+    },
+
+    /** 播放失败 */
+    playError() {
+      if (!this.playing) return;
+
+      showToast("当前浏览器无法播放，请更换浏览器重试");
     },
 
     /** 播放/暂停 */

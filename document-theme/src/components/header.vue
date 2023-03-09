@@ -394,6 +394,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
   z-index: 1;
 
   .logo {
