@@ -13,7 +13,12 @@ if (!NODE_ENV) {
     'The NODE_ENV environment variable is required but was not specified.'
   );
 }
-
+process.env.PORT = '7000' // 端口自行定
+if (NODE_ENV === 'development') {
+  process.env.WDS_SOCKET_HOST = 'localhost'
+  // process.env.WDS_SOCKET_PATH = 'localhost:' + process.env.PORT // webpack5设置为空 ''
+  process.env.WDS_SOCKET_PORT = process.env.PORT
+}
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
 const dotenvFiles = [
   `${paths.dotenv}.${NODE_ENV}.local`,
