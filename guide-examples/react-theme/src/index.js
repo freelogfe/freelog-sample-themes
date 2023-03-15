@@ -3,9 +3,10 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import "./public-path";
 
 // eslint-disable-next-line no-undef
-__webpack_public_path__ = window.__INJECTED_PUBLIC_PATH_BY_FREELOG__;
+// __webpack_public_path__ = window.__INJECTED_PUBLIC_PATH_BY_FREELOG__;
 
 let root = null
 
@@ -21,7 +22,8 @@ export async function bootstrap(props) {
 
 export async function mount(props = {}) {
   const { container } = props;
-
+  // eslint-disable-next-line no-undef
+  console.log(__webpack_public_path__)
   root = ReactDOM.createRoot(container ? container.querySelector('#root') : document.querySelector('#root'));
   root.render(
     <React.StrictMode>
