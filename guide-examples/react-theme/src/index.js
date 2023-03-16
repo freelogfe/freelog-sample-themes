@@ -25,7 +25,7 @@ export async function mount(props = {}) {
   const { container } = props;
   // eslint-disable-next-line no-undef
   console.log(__webpack_public_path__)
-  root = ReactDOM.createRoot(container ? container.querySelector('#root') : document.querySelector('#root'));
+  root = root || ReactDOM.createRoot(container ? container.querySelector('#root') : document.querySelector('#root'));
   root.render(
     <React.StrictMode>
       <App />
@@ -33,7 +33,7 @@ export async function mount(props = {}) {
   );
   props.registerApi({
     // 这个对象会给到父插件
-  }) 
+  })
 }
 
 export async function unmount(props) {
