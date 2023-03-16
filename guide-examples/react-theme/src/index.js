@@ -1,12 +1,13 @@
+import "./public-path";
+// eslint-disable-next-line no-undef
+// __webpack_public_path__ = window.__INJECTED_PUBLIC_PATH_BY_FREELOG__;
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import "./public-path";
 
-// eslint-disable-next-line no-undef
-// __webpack_public_path__ = window.__INJECTED_PUBLIC_PATH_BY_FREELOG__;
+
 
 let root = null
 

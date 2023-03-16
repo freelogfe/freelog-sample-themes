@@ -5,7 +5,7 @@ function resolve(dir) {
   return path.join(__dirname, dir);
 }
 
-const port = 7105;
+const port = 8000;
 
 module.exports = {
   outputDir: 'dist',
@@ -13,12 +13,7 @@ module.exports = {
   filenameHashing: true,
   devServer: {
     hot: true,
-    disableHostCheck: true,
     port,
-    overlay: {
-      warnings: false,
-      errors: true,
-    },
     headers: {
       'Access-Control-Allow-Origin': '*',
     },
@@ -34,7 +29,7 @@ module.exports = {
       // 把子应用打包成 umd 库格式
       library: `${name}-[name]`,
       libraryTarget: 'umd',
-      jsonpFunction: `webpackJsonp_${name}`,
+      chunkLoadingGlobal: `webpackJsonp_${name}`,
     },
   },
 };
