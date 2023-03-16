@@ -13,5 +13,3 @@
 - document-theme: 文档主题 by Vue3
 
 - podcast-theme: 播客主题 by Vue2
-
-- slide-theme: 幻灯片主题 by Vue3
