@@ -666,18 +666,18 @@ export default {
       data.directoryList = [];
 
       if (documentData.defaulterIdentityType !== 0) {
-        data.myLoading = false;
+        endMyLoading();
         return;
       }
 
       const info: any = await getExhibitFileStream(exhibitId);
       if (!info) {
-        data.myLoading = false;
+        endMyLoading();
         return;
       }
 
       (data.documentData as ExhibitItem).content = info.data;
-      data.myLoading = false;
+      endMyLoading();
     };
 
     const keyup = (e: KeyboardEvent) => {
@@ -691,6 +691,12 @@ export default {
         switchPage("/home", {
           id: datasOfGetList.listData.value[currentIndex.value + 1].exhibitId,
         });
+    };
+
+    const endMyLoading = () => {
+      setTimeout(() => {
+        data.myLoading = false;
+      }, 1000);
     };
 
     watch(
@@ -2077,7 +2083,7 @@ export default {
 
       .title-directory-box {
         position: sticky;
-        width: 300px;
+        width: 200px;
 
         &:hover {
           left: none;
@@ -2096,8 +2102,7 @@ export default {
 
     @media (min-width: 1480px) {
       .list-bar {
-        width: 0;
-        flex: 2;
+        width: calc((100vw - 780px - 200px) / 3 * 2);
 
         .offline-tip,
         .search-box,
@@ -2112,8 +2117,7 @@ export default {
       }
 
       .title-directory-box {
-        width: 0;
-        flex: 1;
+        width: calc((100vw - 780px - 200px) / 3);
       }
     }
   }

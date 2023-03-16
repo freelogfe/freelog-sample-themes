@@ -112,7 +112,9 @@ export const useGetList = (inList = false) => {
     data.listData = init ? dataList : [...data.listData, ...dataList];
     inList && store.commit("setData", { key: "listData", value: data.listData });
     data.total = totalItem;
-    data.loading = false;
+    setTimeout(() => {
+      data.loading = false;
+    }, 1000);
   };
 
   const clearData = () => {
