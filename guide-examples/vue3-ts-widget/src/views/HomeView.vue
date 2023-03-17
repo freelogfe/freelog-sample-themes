@@ -1,18 +1,18 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+  <div class="home" >
+    <img alt="Vue logo" src="../assets/logo.png" />
+    <div style="font-size: 50px;">{{ count }}</div> 
   </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from 'vue-class-component';
-import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
+<script lang="ts" setup>
+import { storeToRefs } from "pinia";
+import { useCounterStore } from "../stores/counter";
 
-@Options({
-  components: {
-    HelloWorld,
-  },
-})
-export default class HomeView extends Vue {}
+const store = useCounterStore();
+// `name` and `doubleCount` are reactive refs
+// This will also extract refs for properties added by plugins
+// but skip any action or non reactive (non ref/reactive) property
+const { count } = storeToRefs(store);
+// the increment action can just be destructured
 </script>
