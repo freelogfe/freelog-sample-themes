@@ -51,9 +51,7 @@
         </div>
 
         <div className="tip" v-show="total === 0">当前节点暂无任何书籍，请稍后查看</div>
-        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">
-          — 已加载全部 —
-        </div>
+        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部 —</div>
       </template>
 
       <transition name="fade">
@@ -146,9 +144,7 @@
         </div>
 
         <div className="tip" v-show="total === 0">当前节点暂无任何书籍，请稍后查看</div>
-        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">
-          — 已加载全部 —
-        </div>
+        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部 —</div>
       </template>
     </div>
 
@@ -402,7 +398,7 @@ export default {
       border-radius: 0px 10px 10px 0px;
       padding: 0 20px;
       box-sizing: border-box;
-      overflow: hidden;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
       z-index: 101;
@@ -498,12 +494,11 @@ export default {
       .filter-bar {
         position: relative;
         width: 100%;
-        height: 50px;
         border-radius: 6px;
+        padding: 13px 20px 11px;
         display: flex;
-        align-items: center;
         justify-content: center;
-        overflow: hidden;
+        flex-wrap: wrap;
         margin: 30px 0;
 
         .filter-bar-bg {
@@ -515,13 +510,13 @@ export default {
 
         .category-btn {
           position: relative;
-          height: 24px;
           padding: 2px 8px;
           box-sizing: border-box;
           font-size: 14px;
           color: #666;
           line-height: 20px;
           border-radius: 12px;
+          margin-bottom: 2px;
           cursor: pointer;
           transition: all 0.2s linear;
           z-index: 1;

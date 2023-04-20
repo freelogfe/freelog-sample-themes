@@ -1,7 +1,7 @@
 /* eslint-disable */
 import "./public-path";
 import { createApp } from "vue";
-import App from "./App.vue";;
+import App from "./App.vue";
 
 let myWindow: any = window;
 

@@ -381,7 +381,6 @@ export const Header = (props: {
                     <div className="user-box-body">
                       <img className="avatar" src={userData.headImage} alt={userData.username} />
                       <div className="username">{userData.username}</div>
-                      <div className="mobile">{userData.mobile}</div>
                       <div className="btn user-box-btn" onClick={() => history.switchPage("/signedList")}>
                         已签约书籍
                       </div>

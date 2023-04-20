@@ -81,3 +81,8 @@ export const callLoginOut = async () => {
 export const getSelfConfig = async () => {
   return window.freelogApp.getSelfConfig();
 };
+
+/** 获取节点信息 */
+export const getNodeInfo = () => {
+  return window.freelogApp.nodeInfo;
+};

@@ -25,22 +25,14 @@
     <template v-if="homeHeader">
       <div class="header-other-info">
         <div class="blogger-avatar">
-          <img
-            :src="selfConfig.bloggerAvatar || require('../assets/images/default-avatar.png')"
-            alt="博主头像"
-            class="avatar-img"
-          />
+          <img :src="nodeLogo || require('../assets/images/default-avatar.png')" alt="博主头像" class="avatar-img" />
         </div>
         <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
       </div>
 
       <div class="header-blog-info">
-        <div class="blog-title">
-          {{ selfConfig.blogTitle }}
-        </div>
-        <div class="blog-desc">
-          {{ selfConfig.blogIntro }}
-        </div>
+        <div class="blog-title">{{ nodeTitle }}</div>
+        <div class="blog-desc" v-html="nodeShortDescription"></div>
       </div>
     </template>
 
@@ -225,7 +217,6 @@
               <div class="user-box-body">
                 <img class="avatar" :src="userData.headImage" :alt="userData.username" />
                 <div class="username">{{ userData.username }}</div>
-                <div class="mobile">{{ userData.mobile }}</div>
                 <div
                   class="user-box-btn"
                   @click="
@@ -253,23 +244,15 @@
       <!-- 博客信息 -->
       <div class="header-blog-info">
         <div class="blogger-avatar">
-          <img
-            :src="selfConfig.bloggerAvatar || require('../assets/images/default-avatar.png')"
-            alt="博主头像"
-            class="avatar-img"
-          />
+          <img :src="nodeLogo || require('../assets/images/default-avatar.png')" alt="博主头像" class="avatar-img" />
         </div>
 
         <div class="info-content">
           <div class="title-signcount">
-            <div class="blog-title">
-              {{ selfConfig.blogTitle }}
-            </div>
+            <div class="blog-title">{{ nodeTitle }}</div>
             <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
           </div>
-          <div class="blog-desc">
-            {{ selfConfig.blogIntro }}
-          </div>
+          <div class="blog-desc" v-html="nodeShortDescription"></div>
         </div>
       </div>
     </template>
@@ -279,7 +262,7 @@
 <script lang="ts">
 import { computed, reactive, ref, toRefs, watch } from "vue";
 import { useMyLocationHistory, useMyRouter, useSearchHistory } from "../utils/hooks";
-import { callLogin, callLoginOut } from "@/api/freelog";
+import { callLogin, callLoginOut, getNodeInfo } from "@/api/freelog";
 import { useStore } from "vuex";
 
 export default {
@@ -301,6 +284,7 @@ export default {
   },
 
   setup(props: { homeHeader: boolean }) {
+    const nodeInfo = getNodeInfo();
     const store = useStore();
     const { query, route, switchPage, routerBack } = useMyRouter();
     const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
@@ -425,6 +409,7 @@ export default {
 
     return {
       ...props,
+      ...nodeInfo,
       callLogin,
       callLoginOut,
       switchPage,
@@ -1143,15 +1128,7 @@ export default {
               color: #222222;
               font-weight: bold;
               margin-top: 15px;
-            }
-
-            .mobile {
-              font-size: 14px;
-              color: #222222;
-              font-weight: bold;
-              line-height: 20px;
-              margin-top: 8px;
-              margin-bottom: 16px;
+              margin-bottom: 20px;
             }
 
             .user-box-btn {

@@ -470,7 +470,7 @@ export default {
       border-radius: 0px 10px 10px 0px;
       padding: 0 20px;
       box-sizing: border-box;
-      overflow: hidden;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
       z-index: 101;
@@ -562,12 +562,11 @@ export default {
     .filter-bar {
       position: relative;
       width: 100%;
-      height: 50px;
       border-radius: 6px;
+      padding: 13px 20px 11px;
       display: flex;
-      align-items: center;
       justify-content: center;
-      overflow: hidden;
+      flex-wrap: wrap;
       margin-top: 30px;
       margin-bottom: 40px;
 
@@ -580,13 +579,13 @@ export default {
 
       .category-btn {
         position: relative;
-        height: 24px;
         padding: 2px 8px;
         box-sizing: border-box;
         font-size: 14px;
         color: #666;
         line-height: 20px;
         border-radius: 12px;
+        margin-bottom: 2px;
         cursor: pointer;
         transition: all 0.2s linear;
         z-index: 1;

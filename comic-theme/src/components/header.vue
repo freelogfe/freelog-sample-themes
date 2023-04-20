@@ -227,7 +227,6 @@
               <div class="user-box-body">
                 <img class="avatar" :src="userData.headImage" :alt="userData.username" />
                 <div class="username">{{ userData.username }}</div>
-                <div class="mobile">{{ userData.mobile }}</div>
                 <div
                   class="btn user-box-btn"
                   @click="
@@ -1083,15 +1082,7 @@ export default {
               color: #222222;
               font-weight: bold;
               margin-top: 15px;
-            }
-
-            .mobile {
-              font-size: 14px;
-              color: #222222;
-              font-weight: bold;
-              line-height: 20px;
-              margin-top: 8px;
-              margin-bottom: 16px;
+              margin-bottom: 20px;
             }
 
             .btn {

@@ -25,22 +25,14 @@
     <template v-if="homeHeader">
       <div class="header-other-info">
         <div class="node-avatar">
-          <img
-            :src="selfConfig.nodeAvatar || require('../assets/images/default-avatar.png')"
-            alt="节点头像"
-            class="avatar-img"
-          />
+          <img :src="nodeLogo || require('../assets/images/default-avatar.png')" alt="节点头像" class="avatar-img" />
         </div>
         <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
       </div>
 
       <div class="header-node-info">
-        <div class="node-title">
-          {{ selfConfig.nodeTitle }}
-        </div>
-        <div class="node-desc">
-          {{ selfConfig.nodeIntro }}
-        </div>
+        <div class="node-title">{{ nodeTitle }}</div>
+        <div class="node-desc" v-html="nodeShortDescription"></div>
       </div>
     </template>
 
@@ -225,7 +217,6 @@
               <div class="user-box-body">
                 <img class="avatar" :src="userData.headImage" :alt="userData.username" />
                 <div class="username">{{ userData.username }}</div>
-                <div class="mobile">{{ userData.mobile }}</div>
                 <div
                   class="user-box-btn"
                   @click="
@@ -253,23 +244,15 @@
       <!-- 节点信息 -->
       <div class="header-node-info">
         <div class="node-avatar">
-          <img
-            :src="selfConfig.nodeAvatar || require('../assets/images/default-avatar.png')"
-            alt="节点头像"
-            class="avatar-img"
-          />
+          <img :src="nodeLogo || require('../assets/images/default-avatar.png')" alt="节点头像" class="avatar-img" />
         </div>
 
         <div class="info-content">
           <div class="title-signcount">
-            <div class="node-title">
-              {{ selfConfig.nodeTitle }}
-            </div>
+            <div class="node-title">{{ nodeTitle }}</div>
             <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
           </div>
-          <div class="node-desc">
-            {{ selfConfig.nodeIntro }}
-          </div>
+          <div class="node-desc" v-html="nodeShortDescription"></div>
         </div>
       </div>
     </template>
@@ -279,7 +262,7 @@
 <script lang="ts">
 import { computed, reactive, ref, toRefs, watch } from "vue";
 import { useMyLocationHistory, useMyRouter, useSearchHistory } from "../utils/hooks";
-import { callLogin, callLoginOut } from "@/api/freelog";
+import { callLogin, callLoginOut, getNodeInfo } from "@/api/freelog";
 import { useStore } from "vuex";
 
 export default {
@@ -301,6 +284,7 @@ export default {
   },
 
   setup(props: { homeHeader: boolean }) {
+    const nodeInfo = getNodeInfo();
     const store = useStore();
     const { query, route, switchPage, routerBack } = useMyRouter();
     const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
@@ -422,6 +406,7 @@ export default {
 
     return {
       ...props,
+      ...nodeInfo,
       callLogin,
       callLoginOut,
       route,
@@ -1141,15 +1126,7 @@ export default {
               color: #222222;
               font-weight: bold;
               margin-top: 15px;
-            }
-
-            .mobile {
-              font-size: 14px;
-              color: #222222;
-              font-weight: bold;
-              line-height: 20px;
-              margin-top: 8px;
-              margin-bottom: 16px;
+              margin-bottom: 20px;
             }
 
             .user-box-btn {

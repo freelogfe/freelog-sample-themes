@@ -33,7 +33,7 @@ export const judgeDevice = () => {
 };
 
 // 弹出轻提示
-let timeout: number | null = null;
+let timeout: any = null;
 export const showToast = (msg: string) => {
   const toast = document.getElementById("toast-wrapper");
   if (toast) document.body.removeChild(toast);

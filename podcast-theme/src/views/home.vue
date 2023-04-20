@@ -3,21 +3,11 @@
     <!-- mobile -->
     <div class="mobile-home-wrapper" v-if="$store.state.inMobile">
       <div class="node-avatar">
-        <img class="avatar-img" :src="selfConfig.nodeAvatar" v-if="selfConfig.nodeAvatar" />
+        <img class="avatar-img" :src="nodeInfo.nodeLogo" v-if="nodeInfo.nodeLogo" />
         <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
         <div class="node-info">
-          <div class="node-title">{{ selfConfig.nodeTitle }}</div>
-          <div class="node-intros">
-            <div class="node-intro" v-if="selfConfig.nodeIntro1st">
-              {{ selfConfig.nodeIntro1st }}
-            </div>
-            <div class="node-intro" v-if="selfConfig.nodeIntro2nd">
-              {{ selfConfig.nodeIntro2nd }}
-            </div>
-            <div class="node-intro" v-if="selfConfig.nodeIntro3rd">
-              {{ selfConfig.nodeIntro3rd }}
-            </div>
-          </div>
+          <div class="node-title">{{ nodeInfo.nodeTitle }}</div>
+          <div class="node-intro" v-html="nodeInfo.nodeShortDescription"></div>
         </div>
       </div>
 
@@ -63,22 +53,12 @@
     <div class="pc-home-wrapper" v-if="$store.state.inMobile === false">
       <div class="top-area">
         <div class="node-avatar">
-          <img class="avatar-img" :src="selfConfig.nodeAvatar" v-if="selfConfig.nodeAvatar" />
+          <img class="avatar-img" :src="nodeInfo.nodeLogo" v-if="nodeInfo.nodeLogo" />
           <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
         </div>
         <div class="node-info">
-          <div class="node-title">{{ selfConfig.nodeTitle }}</div>
-          <div class="node-intros">
-            <div class="node-intro" v-if="selfConfig.nodeIntro1st">
-              {{ selfConfig.nodeIntro1st }}
-            </div>
-            <div class="node-intro" v-if="selfConfig.nodeIntro2nd">
-              {{ selfConfig.nodeIntro2nd }}
-            </div>
-            <div class="node-intro" v-if="selfConfig.nodeIntro3rd">
-              {{ selfConfig.nodeIntro3rd }}
-            </div>
-          </div>
+          <div class="node-title">{{ nodeInfo.nodeTitle }}</div>
+          <div class="node-intro" v-html="nodeInfo.nodeShortDescription"></div>
           <!-- <div class="sign-count">
             <i class="freelog fl-icon-yonghu"></i>
             <div class="count">{{ formatSignCount(signCount) }}</div>
@@ -140,7 +120,7 @@
 <script>
 import album from "@/components/album";
 import voice from "@/components/voice";
-import { getExhibitAuthStatus, getExhibitListByPaging, getExhibitSignCount } from "@/api/freelog";
+import { getExhibitAuthStatus, getExhibitListByPaging, getExhibitSignCount, getNodeInfo } from "@/api/freelog";
 
 export default {
   name: "home",
@@ -155,6 +135,7 @@ export default {
       listData: [],
       loading: false,
       total: 0,
+      nodeInfo: {},
     };
   },
 
@@ -175,6 +156,7 @@ export default {
   },
 
   created() {
+    this.nodeInfo = getNodeInfo();
     this.getList();
   },
 
@@ -281,19 +263,12 @@ export default {
           line-height: 60px;
         }
 
-        .node-intros {
+        .node-intro {
           font-size: 14px;
           color: rgba(255, 255, 255, 0.8);
           line-height: 20px;
           margin-top: 10px;
-
-          .node-intro {
-            word-break: break-all;
-
-            & + .node-intro {
-              margin-top: 15px;
-            }
-          }
+          word-break: break-all;
         }
       }
     }
@@ -476,20 +451,13 @@ export default {
           opacity: 0.8;
         }
 
-        .node-intros {
+        .node-intro {
           opacity: 0.6;
           font-size: 14px;
           color: #ffffff;
           line-height: 20px;
           margin-top: 25px;
-
-          .node-intro {
-            word-break: break-all;
-
-            & + .node-intro {
-              margin-top: 15px;
-            }
-          }
+          word-break: break-all;
         }
 
         .sign-count {
