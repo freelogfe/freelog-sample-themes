@@ -81,8 +81,12 @@
           <div class="tag is-auth" v-if="inSignedList && data.defaulterIdentityType < 4">已授权</div>
           <div class="tag not-auth" v-if="inSignedList && data.defaulterIdentityType >= 4">未授权</div>
         </div>
-        <div class="article-intro" :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">
-          {{ data.exhibitTitle }}
+        <div
+          class="article-intro"
+          :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
+          :title="data.versionInfo.exhibitProperty.intro || ''"
+        >
+          {{ data.versionInfo.exhibitProperty.intro || "" }}
         </div>
         <div class="other-info" :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">
           <div class="info">{{ formatDate(data.createDate) }}</div>
@@ -399,6 +403,7 @@ export default {
         font-size: 14px;
         color: #666666;
         line-height: 20px;
+        height: 20px;
         margin-top: 10px;
         overflow: hidden;
         white-space: nowrap;

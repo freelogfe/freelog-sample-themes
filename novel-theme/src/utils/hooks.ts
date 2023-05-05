@@ -123,7 +123,7 @@ export const useMySignedList = () => {
       item.defaulterIdentityType = statusItem.defaulterIdentityType;
     });
 
-    setMySignedList(list.data.data.filter((item: ExhibitItem) => item.articleInfo.resourceType !== "theme"));
+    setMySignedList(list.data.data.filter((item: ExhibitItem) => !item.articleInfo.resourceType.includes("主题")));
   };
 
   useEffect(() => {

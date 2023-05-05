@@ -35,7 +35,7 @@ export const useMyAuth = {
     ]);
     idList.forEach((id) => {
       const signedItem = list.data.data.find((item) => item.exhibitId === id);
-      if (!signedItem || signedItem.articleInfo.resourceType === "theme") return;
+      if (!signedItem || signedItem.articleInfo.resourceType.includes("主题")) return;
       const countItem = countList.data.data.find((item) => item.subjectId === id);
       const statusItem = statusList.data.data.find((item) => item.exhibitId === id);
       result.push({

@@ -137,6 +137,7 @@ export const useGetList = () => {
       skip: data.skip,
       articleResourceTypes: "文章",
       limit: params.limit || 30,
+      isLoadVersionProperty: 1,
       ...params,
     };
     const list = await getExhibitListByPaging(queryParams);
@@ -201,14 +202,17 @@ export const useMySignedList = () => {
       return;
     }
 
-    const [list, statusList] = await Promise.all([getExhibitListById({ exhibitIds: ids }), getExhibitAuthStatus(ids)]);
+    const [list, statusList] = await Promise.all([
+      getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
+      getExhibitAuthStatus(ids),
+    ]);
     list.data.data.forEach((item: ExhibitItem) => {
       const statusItem = statusList.data.data.find(
         (status: { exhibitId: string }) => status.exhibitId === item.exhibitId
       );
       item.defaulterIdentityType = statusItem.defaulterIdentityType;
     });
-    data.mySignedList = list.data.data.filter((item: ExhibitItem) => item.articleInfo.resourceType !== "theme");
+    data.mySignedList = list.data.data.filter((item: ExhibitItem) => !item.articleInfo.resourceType.includes("主题"));
   };
 
   getMySignedList();

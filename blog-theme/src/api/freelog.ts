@@ -8,17 +8,18 @@ export interface GetExhibitListByPagingParams {
   tags?: string; // 展品和资源标签，多个使用","隔开
   keywords?: string; // 搜索关键字
   sort?: string; // 排序
+  isLoadVersionProperty?: 0 | 1; // 是否加载版本属性
 }
 
 // 搜索展品请求参数
 export interface GetExhibitListByIdParams {
   exhibitIds: string; // 展品id，多个使用","隔开
-  isLoadVersionProperty?: string; // 是否加载版本信息
+  isLoadVersionProperty?: 0 | 1; // 是否加载版本信息
 }
 
 // 获取展品信息请求参数
 export interface GetExhibitInfoParams {
-  isLoadVersionProperty?: 0 | 1; // 是否需要展品版本属性
+  isLoadVersionProperty?: 0 | 1; // 是否加载版本信息
 }
 
 // 获取签约展品列表请求参数
@@ -159,4 +160,3 @@ export const getSelfConfig = async () => {
 export const getNodeInfo = () => {
   return MyWindow.freelogApp.nodeInfo;
 };
-

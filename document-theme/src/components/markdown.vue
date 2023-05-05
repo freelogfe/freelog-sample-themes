@@ -235,8 +235,8 @@ export default {
   }
 
   p {
+    white-space: pre-wrap;
     font-weight: normal;
-    word-break: break-word;
     line-height: 1.6;
     margin-top: 0;
     margin-bottom: 16px;

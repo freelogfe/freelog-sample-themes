@@ -212,7 +212,7 @@ export const useMySignedList = () => {
       );
       item.defaulterIdentityType = statusItem.defaulterIdentityType;
     });
-    data.mySignedList = list.data.data.filter((item: ExhibitItem) => item.articleInfo.resourceType !== "theme");
+    data.mySignedList = list.data.data.filter((item: ExhibitItem) => !item.articleInfo.resourceType.includes("主题"));
   };
 
   getMySignedList();

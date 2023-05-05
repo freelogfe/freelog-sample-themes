@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useRef } from "react";
 import "./reader.scss";
 import Lock from "../../assets/images/lock.png";
 import BgImage from "../../assets/images/reader-bg.png";
@@ -16,8 +16,9 @@ import { Share } from "../../components/share/share";
 import { showToast } from "../../components/toast/toast";
 import CSSTransition from "react-transition-group/CSSTransition";
 import { Loader } from "../../components/loader/loader";
+import { Markdown } from "../../components/markdown/markdown";
 
-const readerContext = React.createContext<any>({});
+export const readerContext = React.createContext<any>({});
 
 export const ReaderScreen = (props: any) => {
   const id = props.match.params.id;
@@ -98,7 +99,7 @@ const Body = () => {
   const history = useMyHistory();
   const { userData } = useContext(globalContext);
   const { inMobile, book, id, fontSize, theme } = useContext(readerContext);
-  const [content, setContent] = useState<string[]>([]);
+  const [content, setContent] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [defaulterIdentityType, setDefaulterIdentityType] = useState<number | null>(null);
 
@@ -116,8 +117,7 @@ const Body = () => {
         setLoading(false);
         return;
       }
-      const content = info.data.split(/\n/g).filter((item: string) => !!item);
-      setContent(content);
+      setContent(info.data);
     }
     setLoading(false);
     // eslint-disable-next-line
@@ -141,21 +141,17 @@ const Body = () => {
     return (
       <div
         className={`mobile-body-wrapper ${theme?.type === 1 ? "dark" : "light"}`}
-        style={{
-          backgroundImage: `url(${BgImage})`,
-          backgroundColor: theme?.bookColor,
-          fontSize: fontSize + "px",
-          lineHeight: fontSize + 14 + "px",
-        }}
+        style={
+          {
+            backgroundImage: `url(${BgImage})`,
+            backgroundColor: theme?.bookColor,
+            "--fontSize": fontSize,
+            // fontSize: fontSize + "px",
+            // lineHeight: fontSize + 14 + "px",
+          } as any
+        }
       >
-        {defaulterIdentityType === 0 &&
-          content.map((item, index) => {
-            return (
-              <p className="paragraph" key={item + index}>
-                {item}
-              </p>
-            );
-          })}
+        {defaulterIdentityType === 0 && <Markdown data={{ content, exhibitInfo: book }}></Markdown>}
         {![null, 0, 4].includes(defaulterIdentityType) ? (
           <div className="auth-box">
             <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
@@ -164,18 +160,15 @@ const Body = () => {
               进入首页
             </div>
           </div>
-        ) : (
-          defaulterIdentityType &&
-          (defaulterIdentityType === 4 || userData?.isLogin === false) && (
-            <div className="lock-box">
-              <img className="lock" src={Lock} alt="未授权" />
-              <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-              <div className="get-btn" onClick={() => getAuth()}>
-                获得授权
-              </div>
+        ) : defaulterIdentityType && (defaulterIdentityType === 4 || userData?.isLogin === false) ? (
+          <div className="lock-box">
+            <img className="lock" src={Lock} alt="未授权" />
+            <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+            <div className="get-btn" onClick={() => getAuth()}>
+              获得授权
             </div>
-          )
-        )}
+          </div>
+        ) : null}
       </div>
     );
   } else if (inMobile === false) {
@@ -199,21 +192,17 @@ const Body = () => {
 
         <div
           className={`content ${theme?.type === 1 ? "dark" : "light"}`}
-          style={{
-            backgroundImage: `url(${BgImage})`,
-            backgroundColor: theme?.bookColor,
-            fontSize: fontSize + "px",
-            lineHeight: fontSize + 14 + "px",
-          }}
+          style={
+            {
+              backgroundImage: `url(${BgImage})`,
+              backgroundColor: theme?.bookColor,
+              "--fontSize": fontSize,
+              // fontSize: fontSize + "px",
+              // lineHeight: fontSize + 14 + "px",
+            } as any
+          }
         >
-          {defaulterIdentityType === 0 &&
-            content.map((item, index) => {
-              return (
-                <p className="paragraph" key={item + index}>
-                  {item}
-                </p>
-              );
-            })}
+          {defaulterIdentityType === 0 && <Markdown data={{ content, exhibitInfo: book }}></Markdown>}
           {![null, 0, 4].includes(defaulterIdentityType) ? (
             <div className="auth-box">
               <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
@@ -222,18 +211,15 @@ const Body = () => {
                 进入首页
               </div>
             </div>
-          ) : (
-            defaulterIdentityType &&
-            (defaulterIdentityType === 4 || userData?.isLogin === false) && (
-              <div className="lock-box">
-                <img className="lock" src={Lock} alt="未授权" />
-                <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-                <div className="get-btn" onClick={() => getAuth()}>
-                  获得授权
-                </div>
+          ) : defaulterIdentityType && (defaulterIdentityType === 4 || userData?.isLogin === false) ? (
+            <div className="lock-box">
+              <img className="lock" src={Lock} alt="未授权" />
+              <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+              <div className="get-btn" onClick={() => getAuth()}>
+                获得授权
               </div>
-            )
-          )}
+            </div>
+          ) : null}
         </div>
 
         {/* <div
@@ -281,8 +267,13 @@ const Operater = () => {
   } = useContext(readerContext);
   const { isCollected, operateShelf } = useMyShelf(book?.exhibitId);
   const [href, setHref] = useState("");
+  let changingFontSize = useRef(false);
+  let changingFontSizeTimer = useRef<any>(null);
 
   const changeFontSize = (type: number) => {
+    changingFontSize.current = true;
+    clearTimeout(changingFontSizeTimer.current);
+    changingFontSizeTimer.current = null;
     let result = fontSize;
     if (type === 0) {
       if (result === 14) return;
@@ -293,6 +284,11 @@ const Operater = () => {
     }
     setFontSize(result);
     localStorage.setItem("fontSize", result);
+    changingFontSizeTimer.current = setTimeout(() => {
+      changingFontSize.current = false;
+      clearTimeout(changingFontSizeTimer.current);
+      changingFontSizeTimer.current = null;
+    }, 500);
   };
 
   const closeAllPopup = () => {
@@ -314,6 +310,8 @@ const Operater = () => {
   }, []);
 
   useEffect(() => {
+    if (changingFontSize.current) return;
+
     if (sharePopupShow) setSharePopupShow(false);
     if (fontSizePopupShow) setFontSizePopupShow(false);
     if (themePopupShow) setThemePopupShow(false);
