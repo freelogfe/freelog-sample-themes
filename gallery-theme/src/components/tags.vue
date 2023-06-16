@@ -16,7 +16,7 @@
 <script lang="ts">
 import { useMyRouter } from "@/utils/hooks";
 import { useStore } from "vuex";
-import { SetupContext, toRefs } from "vue";
+import { toRefs } from "vue";
 
 export default {
   name: "tags",
@@ -28,7 +28,7 @@ export default {
     },
   },
 
-  setup(props: { tags: any[] }, context: SetupContext<Record<string, any>>) {
+  setup() {
     const store = useStore();
     const { switchPage } = useMyRouter();
 
@@ -37,7 +37,6 @@ export default {
       searchTag(tag: string) {
         const query: { tags: string } = { tags: tag };
         switchPage("/home", query);
-        context.emit("search");
       },
     };
 

@@ -30,7 +30,7 @@
         <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
       </div>
 
-      <div class="header-node-info">
+      <div class="header-node-info" @click="nodeInfoPopupShow = true">
         <div class="node-title">{{ nodeTitle }}</div>
         <div class="node-desc" v-html="nodeShortDescription"></div>
       </div>
@@ -125,6 +125,13 @@
             </div>
           </div>
         </div>
+      </div>
+    </transition>
+
+    <transition name="fade">
+      <div class="node-info-popup" @click="nodeInfoPopupShow = false" v-if="nodeInfoPopupShow">
+        <div class="node-title">{{ nodeTitle }}</div>
+        <div class="node-desc" v-html="nodeShortDescription"></div>
       </div>
     </transition>
   </div>
@@ -249,10 +256,10 @@
 
         <div class="info-content">
           <div class="title-signcount">
-            <div class="node-title">{{ nodeTitle }}</div>
+            <div class="node-title" :title="nodeTitle">{{ nodeTitle }}</div>
             <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
           </div>
-          <div class="node-desc" v-html="nodeShortDescription"></div>
+          <div class="node-desc" v-html="nodeShortDescription" :title="nodeShortDescription"></div>
         </div>
       </div>
     </template>
@@ -295,6 +302,7 @@ export default {
       signCount: 0,
       searchKey: "",
       userBoxShow: false,
+      nodeInfoPopupShow: false,
       searchPopupShow: false,
       searchHistoryShow: false,
       searchWordCatch: null as number | null,
@@ -529,6 +537,10 @@ export default {
       font-weight: 600;
       color: #ffffff;
       line-height: 30px;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
     }
 
     .node-desc {
@@ -536,6 +548,10 @@ export default {
       color: rgba(255, 255, 255, 0.6);
       line-height: 20px;
       margin-top: 10px;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      overflow: hidden;
     }
   }
 
@@ -822,6 +838,33 @@ export default {
           }
         }
       }
+    }
+  }
+
+  .node-info-popup {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 30px 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    z-index: 1;
+
+    .node-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #ffffff;
+      line-height: 30px;
+    }
+
+    .node-desc {
+      font-size: 14px;
+      color: #ffffff;
+      line-height: 20px;
+      margin-top: 20px;
     }
   }
 }

@@ -13,6 +13,15 @@ export interface ExhibitItem {
   defaulterIdentityType: number;
 }
 
+// 内容图片
+export interface ContentImage {
+  name: string;
+  size: number;
+  url: string;
+  width: number;
+  height: number;
+}
+
 // freelog相关入口
 export interface freelogEntranceItem {
   label: string;

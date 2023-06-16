@@ -29,10 +29,11 @@ export default {
   transition: all 0.2s linear;
 
   &.dark {
-    color: #999999;
-    background-color: #373737;
+    color: rgba(255, 255, 255, 0.7);
+    background-color: rgba(55, 55, 55, 1);
 
     &:hover {
+      background-color: rgba(55, 55, 55, 0.7);
       box-shadow: 0px 2px 10px 0px rgba(255, 255, 255, 0.4);
     }
   }

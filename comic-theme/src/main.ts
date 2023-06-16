@@ -6,6 +6,8 @@ import App from "./App.vue";
 import routes from "./router";
 import store from "./store";
 import lazyPlugin from "vue3-lazy";
+import { Carousel } from "ant-design-vue";
+import "ant-design-vue/dist/antd.css";
 
 let myWindow: any = window;
 
@@ -25,6 +27,7 @@ function render(props: any = {}) {
   instance = createApp(App)
     .use(router)
     .use(store)
+    .use(Carousel)
     .use(lazyPlugin, {
       // loading: require("./assets/image/default-img.jpg"),
       // error: require("./assets/image/default-img.jpg"),

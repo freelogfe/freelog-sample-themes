@@ -85,7 +85,7 @@ export const useSearchHistory = () => {
   };
 
   // 搜索
-  const searchWord = (keywords: string) => {
+  const searchWord = (keywords = '') => {
     keywords = keywords.trim();
     if (!keywords) return;
     const index = data.searchHistory.findIndex((item) => item === keywords);

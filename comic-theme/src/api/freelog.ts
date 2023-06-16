@@ -70,11 +70,15 @@ export const getExhibitSignCount = (ids: string) => {
 /**
  * 获取展品资源文件流
  * @param exhibitId 展品id
- * @param returnUrl 是否只返回url， 例如img标签图片只需要url
+ * @param returnUrl 是否只返回url，例如img标签图片只需要url
  * @param config axios的config 目前仅支持"onUploadProgress", "onDownloadProgress", "responseType"
+ * @param subFilePath 漫画中的图片等子文件的路径
  */
-export const getExhibitFileStream = (exhibitId: string, returnUrl?: boolean, config?: any) => {
-  return MyWindow.freelogApp.getExhibitFileStream(exhibitId, returnUrl, config);
+export const getExhibitFileStream = (
+  exhibitId: string,
+  options: { returnUrl?: boolean; config?: any; subFilePath?: string }
+) => {
+  return MyWindow.freelogApp.getExhibitFileStream(exhibitId, options);
 };
 
 /**

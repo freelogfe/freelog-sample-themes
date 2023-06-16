@@ -5,11 +5,18 @@
       <div class="node-avatar">
         <img class="avatar-img" :src="nodeInfo.nodeLogo" v-if="nodeInfo.nodeLogo" />
         <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
-        <div class="node-info">
+        <div class="node-info" @click="nodeInfoPopupShow = true">
           <div class="node-title">{{ nodeInfo.nodeTitle }}</div>
           <div class="node-intro" v-html="nodeInfo.nodeShortDescription"></div>
         </div>
       </div>
+
+      <transition name="fade">
+        <div class="node-info-popup" @click="nodeInfoPopupShow = false" v-if="nodeInfoPopupShow">
+          <div class="node-title">{{ nodeInfo.nodeTitle }}</div>
+          <div class="node-desc" v-html="nodeInfo.nodeShortDescription"></div>
+        </div>
+      </transition>
 
       <template v-if="!loading">
         <div class="content-area" v-if="total">
@@ -57,8 +64,8 @@
           <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
         </div>
         <div class="node-info">
-          <div class="node-title">{{ nodeInfo.nodeTitle }}</div>
-          <div class="node-intro" v-html="nodeInfo.nodeShortDescription"></div>
+          <div class="node-title" :title="nodeInfo.nodeTitle">{{ nodeInfo.nodeTitle }}</div>
+          <div class="node-intro" v-html="nodeInfo.nodeShortDescription" :title="nodeInfo.nodeShortDescription"></div>
           <!-- <div class="sign-count">
             <i class="freelog fl-icon-yonghu"></i>
             <div class="count">{{ formatSignCount(signCount) }}</div>
@@ -136,6 +143,7 @@ export default {
       loading: false,
       total: 0,
       nodeInfo: {},
+      nodeInfoPopupShow: false,
     };
   },
 
@@ -261,6 +269,10 @@ export default {
           font-weight: 600;
           color: #ffffff;
           line-height: 60px;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
+          overflow: hidden;
         }
 
         .node-intro {
@@ -269,7 +281,38 @@ export default {
           line-height: 20px;
           margin-top: 10px;
           word-break: break-all;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 3;
+          overflow: hidden;
         }
+      }
+    }
+
+    .node-info-popup {
+      position: fixed;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 30px 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      z-index: 200;
+
+      .node-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #ffffff;
+        line-height: 30px;
+      }
+
+      .node-desc {
+        font-size: 14px;
+        color: #ffffff;
+        line-height: 20px;
+        margin-top: 20px;
       }
     }
 
@@ -449,6 +492,10 @@ export default {
           color: #ffffff;
           line-height: 60px;
           opacity: 0.8;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
+          overflow: hidden;
         }
 
         .node-intro {
@@ -458,6 +505,10 @@ export default {
           line-height: 20px;
           margin-top: 25px;
           word-break: break-all;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 4;
+          overflow: hidden;
         }
 
         .sign-count {

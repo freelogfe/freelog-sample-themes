@@ -142,7 +142,7 @@
 
     <login-btn />
 
-    <detail v-model:id="currentId" @refreshAuth="refreshAuth(currentId)" v-if="!inMobile" />
+    <detail v-model:id="currentId" @refreshAuth="refreshAuth(currentId)" v-if="!inMobile && route.path === '/home'" />
   </div>
 </template>
 
@@ -369,6 +369,7 @@ export default {
       ...datasOfGetList,
       ...toRefs(data),
       ...methods,
+      route,
     };
   },
 };

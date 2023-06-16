@@ -177,7 +177,7 @@ export default {
     const data = reactive({
       sortPopupShow: false,
       createDateSortType: "-1",
-      searchData: {} as { keywords?: string; tags?: string; sort?: string },
+      searchData: { sort: "createDate:-1" } as { keywords?: string; tags?: string; sort?: string },
       filterBoxShow: false,
     });
 
@@ -193,7 +193,7 @@ export default {
 
       // 清除搜索
       clearSearch() {
-        data.searchData = {};
+        data.searchData = { sort: "createDate:-1" };
         switchPage("/home");
       },
 
@@ -220,12 +220,7 @@ export default {
       () => query.value,
       () => {
         if (route.path !== "/home") return;
-        if (
-          data.searchData.keywords === query.value.keywords &&
-          data.searchData.tags === query.value.tags &&
-          data.searchData.sort === query.value.sort
-        )
-          return;
+        if (data.searchData.keywords === query.value.keywords && data.searchData.tags === query.value.tags) return;
 
         getData();
       }
@@ -233,7 +228,7 @@ export default {
 
     // 获取数据
     const getData = () => {
-      data.searchData = query.value;
+      data.searchData = { ...query.value, sort: data.searchData.sort };
       datasOfGetList.clearData();
       datasOfGetList.getList(data.searchData, true);
     };

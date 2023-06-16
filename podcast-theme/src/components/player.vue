@@ -57,11 +57,7 @@
             <el-progress
               class="progress"
               type="circle"
-              :percentage="
-                playingInfo
-                  ? (($store.state.progress * 1000) / playingInfo.versionInfo.exhibitProperty.duration) * 100
-                  : 0
-              "
+              :percentage="percentage"
               color="white"
               :width="30"
               :stroke-width="2"
@@ -404,6 +400,20 @@ export default {
     /** 是否播放中 */
     playing() {
       return this.$store.state.playing;
+    },
+
+    /** 播放进度 */
+    percentage() {
+      if (this.$store.state.playingInfo) {
+        const duration = this.$store.state.playingInfo.versionInfo.exhibitProperty.duration;
+        if (duration) {
+          return ((this.$store.state.progress * 1000) / duration) * 100;
+        } else {
+          return 0;
+        }
+      } else {
+        return 0;
+      }
     },
 
     /** 左区域按钮群 */

@@ -118,7 +118,7 @@
             <div class="author-name">
               {{ exhibitInfo?.articleInfo.articleOwnerName }}
             </div>
-            <tags :tags="exhibitInfo?.tags" @search="closePopup()" v-if="exhibitInfo?.tags.length" />
+            <tags :tags="exhibitInfo?.tags" v-if="exhibitInfo?.tags.length" />
           </div>
 
           <div ref="contentArea" class="main-area">
@@ -465,7 +465,7 @@ export default {
             if (num === cur.length) setWaterFall(cur.filter((item) => item.exhibitId !== data.currentId));
           };
         }
-        data.recommendShow = cur.length !== 0;
+        data.recommendShow = cur.length > 1;
       }
     );
 

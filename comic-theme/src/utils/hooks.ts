@@ -238,7 +238,7 @@ export const useGetList = () => {
     data.skip = init ? 0 : data.skip + 30;
     const queryParams: GetExhibitListByPagingParams = {
       skip: data.skip,
-      articleResourceTypes: "图片",
+      articleResourceTypes: "漫画",
       limit: params.limit || 30,
       ...params,
     };
@@ -327,7 +327,8 @@ export const useMySignedList = () => {
  * 获取页面滚动相关信息hook
  */
 export const useMyScroll = () => {
-  const app = document.getElementById("app");
+  const scrollArea = document.getElementById("app");
+
   const data = reactive({
     scrollTop: 0,
     clientHeight: 0,
@@ -335,22 +336,22 @@ export const useMyScroll = () => {
   });
 
   const scroll = () => {
-    data.scrollTop = app?.scrollTop || 0;
-    data.clientHeight = app?.clientHeight || 0;
-    data.scrollHeight = app?.scrollHeight || 0;
+    data.scrollTop = scrollArea?.scrollTop || 0;
+    data.clientHeight = scrollArea?.clientHeight || 0;
+    data.scrollHeight = scrollArea?.scrollHeight || 0;
   };
 
   const scrollTo = (top: number, behavior: ScrollBehavior = "smooth") => {
-    app?.scroll({ top, behavior });
+    scrollArea?.scroll({ top, behavior });
   };
 
   const scrollToTop = () => {
-    app?.scroll({ top: 0, behavior: "smooth" });
+    scrollArea?.scroll({ top: 0, behavior: "smooth" });
   };
 
-  app?.addEventListener("scroll", scroll);
+  scrollArea?.addEventListener("scroll", scroll);
   onUnmounted(() => {
-    app?.removeEventListener("scroll", scroll);
+    scrollArea?.removeEventListener("scroll", scroll);
   });
 
   return {

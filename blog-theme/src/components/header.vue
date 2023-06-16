@@ -30,7 +30,7 @@
         <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
       </div>
 
-      <div class="header-blog-info">
+      <div class="header-blog-info" @click="blogInfoPopupShow = true">
         <div class="blog-title">{{ nodeTitle }}</div>
         <div class="blog-desc" v-html="nodeShortDescription"></div>
       </div>
@@ -127,6 +127,13 @@
         </div>
       </div>
     </transition>
+
+    <transition name="fade">
+      <div class="blog-info-popup" @click="blogInfoPopupShow = false" v-if="blogInfoPopupShow">
+        <div class="blog-title">{{ nodeTitle }}</div>
+        <div class="blog-desc" v-html="nodeShortDescription"></div>
+      </div>
+    </transition>
   </div>
 
   <!-- 移动端首页搜索头部 -->
@@ -169,7 +176,6 @@
             @input="searchKeyInput()"
             @keyup="inputKeyUp($event)"
             @focus="searchHistoryShow = true"
-            @blur="searchHistoryShow = false"
           />
           <i class="freelog fl-icon-content"></i>
           <i
@@ -182,7 +188,11 @@
           ></i>
 
           <transition name="fade">
-            <div class="search-history" v-if="searchHistoryShow && mySearchHistory.length !== 0">
+            <div
+              ref="searchHistoryPopup"
+              class="search-history"
+              v-if="searchHistoryShow && mySearchHistory.length !== 0"
+            >
               <div
                 class="history-item"
                 :class="{ catch: searchWordCatch === index }"
@@ -190,6 +200,7 @@
                 :key="item"
                 @click="clickSearchHistory(item)"
                 @mousemove="searchWordCatch = index"
+                @mouseleave="searchWordCatch = null"
               >
                 <div class="item-word">{{ item }}</div>
                 <i class="freelog fl-icon-guanbi" @click.stop="deleteSearchHistory(item)"></i>
@@ -249,10 +260,10 @@
 
         <div class="info-content">
           <div class="title-signcount">
-            <div class="blog-title">{{ nodeTitle }}</div>
+            <div class="blog-title" :title="nodeTitle">{{ nodeTitle }}</div>
             <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
           </div>
-          <div class="blog-desc" v-html="nodeShortDescription"></div>
+          <div class="blog-desc" v-html="nodeShortDescription" :title="nodeShortDescription"></div>
         </div>
       </div>
     </template>
@@ -289,6 +300,7 @@ export default {
     const { query, route, switchPage, routerBack } = useMyRouter();
     const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
     const searchInput = ref();
+    const searchHistoryPopup = ref();
     const mySearchHistory = computed(() => searchHistory.value.filter((item) => item.includes(data.searchKey)));
 
     const data = reactive({
@@ -296,6 +308,7 @@ export default {
       searchKey: "",
       tags: "",
       userBoxShow: false,
+      blogInfoPopupShow: false,
       searchPopupShow: false,
       searchHistoryShow: false,
       searchWordCatch: null as number | null,
@@ -323,13 +336,13 @@ export default {
 
       // 删除历史搜索词
       deleteSearchHistory(item: string) {
-        searchInput.value.focus();
         deleteWord(item);
       },
 
       // 搜索
       search() {
         data.searchPopupShow = false;
+        data.searchHistoryShow = false;
         const { searchKey } = data;
         const query: { keywords?: string } = {};
         if (searchKey) query.keywords = searchKey;
@@ -352,7 +365,6 @@ export default {
               data.searchKey = mySearchHistory.value[data.searchWordCatch];
             }
             data.searchWordCatch = null;
-            data.searchHistoryShow = false;
             searchWord(data.searchKey);
             this.search();
             break;
@@ -390,10 +402,31 @@ export default {
       },
     };
 
+    // 根据点击区域判断历史搜索框是否关闭
+    const ifCloseHistoryPopup = (e: MouseEvent) => {
+      if (!searchInput.value || !searchHistoryPopup.value) return;
+      const clickInput = searchInput.value.contains(e.target);
+      const clickPopup = searchHistoryPopup.value.contains(e.target);
+      if (!clickInput && !clickPopup) {
+        data.searchHistoryShow = false;
+      }
+    };
+
     watch(
       () => query.value,
       () => {
         initHeaderSearch();
+      }
+    );
+
+    watch(
+      () => data.searchHistoryShow,
+      (cur) => {
+        if (cur) {
+          document.addEventListener("click", ifCloseHistoryPopup);
+        } else {
+          document.removeEventListener("click", ifCloseHistoryPopup);
+        }
       }
     );
 
@@ -417,6 +450,7 @@ export default {
       ...toRefs(store.state),
       route,
       searchInput,
+      searchHistoryPopup,
       searchHistory,
       mySearchHistory,
       searchWord,
@@ -532,6 +566,10 @@ export default {
       font-weight: 600;
       color: #ffffff;
       line-height: 30px;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
     }
 
     .blog-desc {
@@ -539,6 +577,10 @@ export default {
       color: rgba(255, 255, 255, 0.6);
       line-height: 20px;
       margin-top: 10px;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      overflow: hidden;
     }
   }
 
@@ -824,6 +866,33 @@ export default {
           }
         }
       }
+    }
+  }
+
+  .blog-info-popup {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 30px 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    z-index: 1;
+
+    .blog-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #ffffff;
+      line-height: 30px;
+    }
+
+    .blog-desc {
+      font-size: 14px;
+      color: #ffffff;
+      line-height: 20px;
+      margin-top: 20px;
     }
   }
 }
