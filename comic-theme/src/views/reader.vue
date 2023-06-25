@@ -17,20 +17,23 @@
       <div class="mobile-body-wrapper">
         <template v-if="comicInfo.defaulterIdentityType === 0">
           <template v-if="mode[0] === 'paging'">
-            <a-carousel :dots="false">
-              <img
-                class="swipe-image"
-                v-lazy="item.url"
-                oncontextmenu="return false"
-                v-for="item in contentImgList"
-                :key="item.name"
-              />
-            </a-carousel>
+            <my-swipe
+              class="paging-area"
+              :initial-swipe="swipeIndex"
+              :loop="false"
+              :show-indicators="false"
+              @change="swipePage"
+            >
+              <my-swipe-item class="swipe-image-box" v-for="item in mobilePagingList" :key="item.name">
+                <img class="swipe-image" v-lazy="item.url" oncontextmenu="return false" />
+              </my-swipe-item>
+            </my-swipe>
           </template>
 
           <template v-else-if="mode[0] === 'scroll'">
             <img
               class="content-image"
+              :style="{ height: item.height + 'px' }"
               v-lazy="item.url"
               oncontextmenu="return false"
               v-for="item in contentImgList"
@@ -371,6 +374,8 @@ import { defineAsyncComponent, nextTick, onUnmounted, reactive, watch, watchEffe
 import { ContentImage, ExhibitItem } from "@/api/interface";
 import { addAuth, getExhibitAuthStatus, getExhibitFileStream, getExhibitInfo } from "@/api/freelog";
 import { useStore } from "vuex";
+import { Swipe, SwipeItem } from "vant";
+import "vant/lib/index.css";
 
 export default {
   name: "reader",
@@ -382,6 +387,8 @@ export default {
     "back-top": defineAsyncComponent(() => import("../components/back-top.vue")),
     share: defineAsyncComponent(() => import("../components/share.vue")),
     directory: defineAsyncComponent(() => import("../components/directory.vue")),
+    "my-swipe": Swipe,
+    "my-swipe-item": SwipeItem,
   },
 
   setup() {
@@ -426,6 +433,8 @@ export default {
       loading: false,
       comicInfo: {} as ExhibitItem,
       contentImgList: [] as ContentImage[],
+      swipeIndex: 0,
+      mobilePagingList: [] as ContentImage[],
       pagePointList: [] as number[],
       totalHeight: 0,
       comicMode: 0,
@@ -499,30 +508,33 @@ export default {
 
       /** 切换阅读模式 */
       changeMode(value: modeType, index: number) {
-        if (index && data.mode[0] !== "paging") {
-          // 选择页面模式或翻页方向时，如果当前阅读模式不为翻页模式，则自动选择翻页模式
+        const { inMobile } = store.state;
+
+        if (inMobile && index === 2 && data.mode[0] !== "paging") {
+          // 移动端，选择页面模式或翻页方向时，如果当前阅读模式不为翻页模式，则自动切换为翻页模式
           data.mode[0] = "paging";
+        } else if (inMobile && index === 0) {
+          // 移动端，选择阅读模式时，清空翻页模式选择
+          data.mode[2] = "";
         }
 
         if (data.mode.includes(value)) return;
 
-        if (index && data.mode[0] !== "paging") {
-          // 选择页面模式或翻页方向时，如果当前阅读模式不为翻页模式，则自动选择翻页模式
-          data.mode[0] = "paging";
-        }
-
         data.mode[index] = value;
 
-        if (value === "paging") {
-          this.jump();
-        } else if (value === "scroll") {
-          this.getPointInScroll();
-        } else if (data.mode[0] === "paging") {
+        if (data.mode[0] === "paging") {
+          if (inMobile) {
+            dealListInPagingMobile();
+          } else {
+            this.jump();
+          }
           // 页漫时，将选择的模式保存在本地
           localStorage.setItem("comicReadMode", JSON.stringify(data.mode));
+        } else if (value === "scroll") {
+          this.getPointInScroll();
         }
 
-        if (index === 2) {
+        if (index === 2 && !inMobile) {
           this.showDirectionTip();
         }
       },
@@ -562,6 +574,7 @@ export default {
           offset = 1;
         }
         const page = data.currentPage - offset;
+        if (page < 1) return;
         data.currentPage = page;
         data.jumpPage = page;
       },
@@ -575,6 +588,7 @@ export default {
           offset = 1;
         }
         const page = data.currentPage + offset;
+        if (page > data.contentImgList.length) return;
         data.currentPage = page;
         data.jumpPage = page;
       },
@@ -592,6 +606,15 @@ export default {
         data.currentPage = page;
         data.jumpPage = page;
         data.amend = value;
+      },
+
+      /** 移动端划动翻页 */
+      swipePage(index: number) {
+        const pagingType = data.mode[2];
+        let page = index + 1;
+        if (pagingType === "manga") page = data.mobilePagingList.length - index;
+        data.currentPage = page;
+        data.jumpPage = page;
       },
 
       /** 跳转 */
@@ -618,18 +641,27 @@ export default {
         }
         data.currentPage = page;
         data.jumpPage = page;
+
+        if (store.state.inMobile && data.mode[0] === "paging") {
+          const index = data.mode[2] === "normal" ? page - 1 : data.mobilePagingList.length - page;
+          data.swipeIndex = index;
+        }
       },
 
       /** 滚动模式下获取每页的位置 */
       getPointInScroll() {
         data.pagePointList = [];
         data.totalHeight = 0;
-        const WIDTH = 1000;
+        let WIDTH = 1000;
+        if (store.state.inMobile) {
+          const app = document.getElementById("app");
+          WIDTH = app!.clientWidth;
+        }
         data.contentImgList.forEach((item) => {
           data.pagePointList.push(data.totalHeight);
           const { width, height } = item;
           const currentHeight = (WIDTH / width) * height;
-          item.width = 1000;
+          item.width = WIDTH;
           item.height = currentHeight;
           data.totalHeight += currentHeight;
         });
@@ -668,6 +700,7 @@ export default {
 
         data.contentImgList = info.data.list;
         data.currentUrl = data.contentImgList[0].url;
+        window.addEventListener("keyup", keyup);
       }
 
       data.loading = false;
@@ -679,6 +712,24 @@ export default {
         // 页漫/日漫时，自动选择翻页模式（如本地有记录翻页模式的选择，优先取本地记录的模式）
         const comicReadMode = localStorage.getItem("comicReadMode");
         if (comicReadMode) data.mode = JSON.parse(comicReadMode);
+        if (store.state.inMobile) {
+          // 移动端翻页模式下处理图片顺序
+          dealListInPagingMobile();
+        }
+      }
+    };
+
+    /** 移动端翻页模式下处理图片顺序 */
+    const dealListInPagingMobile = () => {
+      const pagingType = data.mode[2];
+      if (pagingType === "normal") {
+        // 普通模式下（从左向右）
+        data.mobilePagingList = [...data.contentImgList];
+        data.swipeIndex = data.currentPage - 1;
+      } else if (pagingType === "manga") {
+        // 日漫模式下（从右向左）
+        data.mobilePagingList = [...data.contentImgList].reverse();
+        data.swipeIndex = data.mobilePagingList.length - data.currentPage;
       }
     };
 
@@ -691,6 +742,18 @@ export default {
       if (index !== -1) {
         myShelf[index].defaulterIdentityType = 0;
         store.commit("setData", { key: "myShelf", value: myShelf });
+      }
+    };
+
+    /** 快捷键 */
+    const keyup = (e: KeyboardEvent) => {
+      const target: any = e.target;
+      if (target && target.nodeName === 'INPUT') return;
+
+      if (e.key === "ArrowLeft") {
+        methods.leftSwitchPage();
+      } else if (e.key === "ArrowRight") {
+        methods.rightSwitchPage();
       }
     };
 
@@ -734,7 +797,7 @@ export default {
         const { contentImgList } = data;
         nextTick(() => {
           data.currentUrl = contentImgList[cur - 1].url;
-          if (cur <= contentImgList.length) {
+          if (contentImgList[cur]) {
             data.nextUrl = contentImgList[cur].url;
           }
         });
@@ -750,6 +813,7 @@ export default {
         clearTimeout(tipTimer);
         tipTimer = null;
       }
+      window.removeEventListener("keyup", keyup);
     });
 
     getComicInfo();
@@ -781,28 +845,25 @@ export default {
     background-color: #e9e9e9;
   }
 
-  .header {
-    transform: translateY(-100%);
-  }
-
   // mobile 主题内容区
   .mobile-body-wrapper {
     width: 100%;
-    height: 100%;
     animation: fade-in 0.3s ease-out;
-    // .ant-carousel :deep(.slick-slide) {
-    //   height: 100vh;
-    //   overflow: hidden;
-    // }
 
-    // .ant-carousel :deep(.slick-slide h3) {
-    //   color: #fff;
-    // }
-
-    .swipe-image {
+    .paging-area {
       width: 100%;
       height: 100vh;
-      object-fit: contain;
+
+      .swipe-image-box {
+        width: 100%;
+        height: 100%;
+
+        .swipe-image {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+        }
+      }
     }
 
     .content-image {
