@@ -2,14 +2,16 @@
   <div class="shelf-wrapper" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
     <my-header />
 
-    <div class="content" v-if="userData.isLogin && myShelf">
+    <div class="content" v-if="userData.isLogin">
       <div class="shelf-title">我的漫画</div>
 
-      <div class="comic-box" v-for="item in myShelf" :key="item.exhibitId">
-        <comic :mode="2" :data="item" :operateShelf="operateShelf" />
-      </div>
+      <template v-if="myShelf && myShelf.length !== 0">
+        <div class="comic-box" v-for="item in myShelf" :key="item.exhibitId">
+          <comic :mode="2" :data="item" :operateShelf="operateShelf" />
+        </div>
+      </template>
 
-      <div class="tip" v-if="myShelf.length === 0">暂无数据，快去寻找漫画来收藏吧～</div>
+      <div class="tip" v-if="!myShelf || myShelf.length === 0">暂无数据，快去寻找漫画来收藏吧～</div>
 
       <div class="add-comic-box">
         <div class="add-comic-btn" @click="switchPage(`/`)">

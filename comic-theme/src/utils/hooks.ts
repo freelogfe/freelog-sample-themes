@@ -75,7 +75,7 @@ export const useMyLocationHistory = () => {
 };
 
 /**
- * 我的书架hook
+ * 我的收藏hook
  */
 export const useMyShelf = (id?: string) => {
   const store = useStore();
@@ -84,16 +84,11 @@ export const useMyShelf = (id?: string) => {
     isCollected: false,
   });
 
-  // 获取书架数据
+  // 获取收藏数据
   const getMyShelf = async () => {
     if (!store.state.userData.isLogin) return;
 
     const ids = await getUserData("shelf");
-
-    if (!ids || ids.length === 0) {
-      store.commit("setData", { key: "myShelf", value: [] });
-      return;
-    }
 
     const shelfIds = (ids || []).sort();
     const storeShelfIds = store.state.shelfIds.sort();
@@ -112,6 +107,11 @@ export const useMyShelf = (id?: string) => {
     if (!change) return;
 
     store.commit("setData", { key: "shelfIds", value: shelfIds });
+
+    if (!ids || ids.length === 0) {
+      store.commit("setData", { key: "myShelf", value: [] });
+      return;
+    }
 
     const exhibitIds = ids.join(",");
     const [list, statusList] = await Promise.all([
@@ -151,8 +151,8 @@ export const useMyShelf = (id?: string) => {
       shelfIds.push(exhibit.exhibitId);
     }
     const res = await setUserData("shelf", shelfIds);
-    if (res.data.msg === "success") {
-      showToast(isThisCollected ? `已将书籍从书架中移除～` : `已将书籍加入书架～`);
+    if (res.data.errCode === 0) {
+      showToast(isThisCollected ? `已将漫画从收藏中移除～` : `已将漫画加入收藏～`);
       getMyShelf();
       if (id) data.isCollected = ifExistInShelf(id);
     } else {

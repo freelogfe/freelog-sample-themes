@@ -20,6 +20,27 @@
   height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
+
+  &:has(.reader-wrapper.in-pc) {
+    &::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      width: 10px;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.15);
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.35);
+      }
+    }
+
+    &::-webkit-scrollbar-track {
+      background-color: rgba(0, 0, 0, 0.03);
+      border-radius: 10px;
+    }
+  }
 }
 
 html,

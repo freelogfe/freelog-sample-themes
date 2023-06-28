@@ -82,9 +82,7 @@
             {{ comicInfo?.versionInfo?.exhibitProperty?.intro }}
           </div>
 
-          <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">
-            ...查看全部
-          </div>
+          <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">...查看全部</div>
         </div>
         <div class="no-intro-tip" v-else>暂无简介</div>
       </div>
@@ -136,7 +134,7 @@
           </div>
 
           <div class="comic-content">
-            <div class="comic-name">{{ comicInfo?.exhibitTitle }}</div>
+            <div class="comic-name" :title="comicInfo?.exhibitTitle">{{ comicInfo?.exhibitTitle }}</div>
 
             <div class="comic-author">
               {{ comicInfo?.articleInfo?.articleOwnerName }}
@@ -192,9 +190,7 @@
               {{ comicInfo?.versionInfo?.exhibitProperty?.intro }}
             </div>
 
-            <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">
-              ...查看全部
-            </div>
+            <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">...查看全部</div>
           </div>
           <div class="no-intro-tip" v-else>暂无简介</div>
         </div>
@@ -733,6 +729,7 @@ export default {
 
         .comic-content {
           flex: 1;
+          width: 0;
 
           .comic-name {
             font-size: 24px;
@@ -740,6 +737,9 @@ export default {
             height: 30px;
             color: #222222;
             font-weight: bold;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
           }
 
           .comic-author {

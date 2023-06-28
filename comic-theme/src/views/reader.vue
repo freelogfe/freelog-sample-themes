@@ -3,6 +3,8 @@
     class="reader-wrapper"
     :class="{
       'in-mobile': inMobile,
+      'in-pc': !inMobile,
+      'scroll-mode': contentImgList.length !== 0 && mode[0] === 'scroll',
       light: theme === 'light',
       dark: theme === 'dark',
     }"
@@ -107,10 +109,10 @@
       <div class="body-area" :class="theme">
         <template v-if="comicInfo.defaulterIdentityType === 0">
           <div class="paging-mode-area" v-if="mode[0] === 'paging'">
-            <!-- 页漫、双页模式、非跨页匹配、当前为首页时，首页左侧显示空屏 -->
+            <!-- 条漫/页漫、双页模式、非跨页匹配、当前为首页时，首页左侧显示空屏 -->
             <div
               class="blank-screen"
-              v-if="comicMode === 2 && mode[1] === 'double' && !amend && currentPage === 1"
+              v-if="[1, 2].includes(comicMode) && mode[1] === 'double' && !amend && currentPage === 1"
             ></div>
             <!-- 日漫、双页模式、当前为尾页时，尾页左侧显示空屏 -->
             <div
@@ -122,10 +124,10 @@
               class="content-image-box"
               v-if="
                 comicMode === 3 &&
-                  mode[1] === 'double' &&
-                  (amend || (!amend && currentPage !== 1)) &&
-                  currentPage !== contentImgList.length &&
-                  nextUrl
+                mode[1] === 'double' &&
+                (amend || (!amend && currentPage !== 1)) &&
+                currentPage !== contentImgList.length &&
+                nextUrl
               "
             >
               <img class="content-image" :src="nextUrl" />
@@ -134,23 +136,23 @@
             <div class="content-image-box" :class="{ single: mode[1] === 'single' }" v-if="currentUrl">
               <img class="content-image" :src="currentUrl" />
             </div>
-            <!-- 页漫、双页模式、跨页匹配/非跨页匹配且当前不为首页、当前页不为尾页时，当前页右侧显示下一页 -->
+            <!-- 条漫/页漫、双页模式、跨页匹配/非跨页匹配且当前不为首页、当前页不为尾页时，当前页右侧显示下一页 -->
             <div
               class="content-image-box"
               v-if="
-                comicMode === 2 &&
-                  mode[1] === 'double' &&
-                  (amend || (!amend && currentPage !== 1)) &&
-                  currentPage !== contentImgList.length &&
-                  nextUrl
+                [1, 2].includes(comicMode) &&
+                mode[1] === 'double' &&
+                (amend || (!amend && currentPage !== 1)) &&
+                currentPage !== contentImgList.length &&
+                nextUrl
               "
             >
               <img class="content-image" :src="nextUrl" />
             </div>
-            <!-- 页漫、双页模式、当前为尾页时，尾页右侧显示空屏 -->
+            <!-- 条漫/页漫、双页模式、当前为尾页时，尾页右侧显示空屏 -->
             <div
               class="blank-screen"
-              v-if="comicMode === 2 && mode[1] === 'double' && currentPage === contentImgList.length"
+              v-if="[1, 2].includes(comicMode) && mode[1] === 'double' && currentPage === contentImgList.length"
             ></div>
             <!-- 日漫、双页模式、非跨页匹配、当前为首页时，首页右侧显示空屏 -->
             <div
@@ -163,7 +165,7 @@
               @click="leftSwitchPage()"
               v-if="
                 (currentPage !== 1 && mode[2] === 'normal') ||
-                  (currentPage < contentImgList.length - (mode[1] === 'single' ? 0 : 1) && mode[2] === 'manga')
+                (currentPage < contentImgList.length - (mode[1] === 'single' ? 0 : 1) && mode[2] === 'manga')
               "
             ></div>
             <div
@@ -171,7 +173,7 @@
               @click="rightSwitchPage()"
               v-if="
                 (currentPage < contentImgList.length - (mode[1] === 'single' ? 0 : 1) && mode[2] === 'normal') ||
-                  (currentPage !== 1 && mode[2] === 'manga')
+                (currentPage !== 1 && mode[2] === 'manga')
               "
             ></div>
           </div>
@@ -240,14 +242,21 @@
         :class="{ show: barShow }"
         @mouseenter="changeBarShow(true)"
         @mouseleave="changeBarShow(false)"
+        v-if="contentImgList.length !== 0"
       >
         <div class="footer-body">
           <div class="pager">
             当前页
-            <!-- 页漫、翻页模式、双页模式、非跨页匹配、当前为首页时，左侧显示空屏页码 -->
+            <!-- 条漫/页漫、翻页模式、双页模式、非跨页匹配、当前为首页时，左侧显示空屏页码 -->
             <span
               class="page-number"
-              v-if="comicMode === 2 && mode[0] === 'paging' && mode[1] === 'double' && !amend && currentPage === 1"
+              v-if="
+                [1, 2].includes(comicMode) &&
+                mode[0] === 'paging' &&
+                mode[1] === 'double' &&
+                !amend &&
+                currentPage === 1
+              "
             >
               -
             </span>
@@ -265,34 +274,37 @@
               class="page-number"
               v-if="
                 comicMode === 3 &&
-                  mode[0] === 'paging' &&
-                  mode[1] === 'double' &&
-                  (amend || (!amend && currentPage !== 1)) &&
-                  currentPage + 1 <= contentImgList.length
+                mode[0] === 'paging' &&
+                mode[1] === 'double' &&
+                (amend || (!amend && currentPage !== 1)) &&
+                currentPage + 1 <= contentImgList.length
               "
             >
               {{ currentPage + 1 }}
             </span>
             <!-- 当前页页码 -->
             <span class="page-number">{{ currentPage }}</span>
-            <!-- 页漫、翻页模式、双页模式、跨页匹配或非跨页匹配且当前不为首页时，左侧显示下一页页码 -->
+            <!-- 条漫/页漫、翻页模式、双页模式、跨页匹配或非跨页匹配且当前不为首页时，左侧显示下一页页码 -->
             <span
               class="page-number"
               v-if="
-                comicMode === 2 &&
-                  mode[0] === 'paging' &&
-                  mode[1] === 'double' &&
-                  (amend || (!amend && currentPage !== 1)) &&
-                  currentPage + 1 <= contentImgList.length
+                [1, 2].includes(comicMode) &&
+                mode[0] === 'paging' &&
+                mode[1] === 'double' &&
+                (amend || (!amend && currentPage !== 1)) &&
+                currentPage + 1 <= contentImgList.length
               "
             >
               {{ currentPage + 1 }}
             </span>
-            <!-- 页漫、翻页模式、双页模式、当前为尾页时，右侧显示空屏页码 -->
+            <!-- 条漫/页漫、翻页模式、双页模式、当前为尾页时，右侧显示空屏页码 -->
             <span
               class="page-number"
               v-if="
-                comicMode === 2 && mode[0] === 'paging' && mode[1] === 'double' && currentPage === contentImgList.length
+                [1, 2].includes(comicMode) &&
+                mode[0] === 'paging' &&
+                mode[1] === 'double' &&
+                currentPage === contentImgList.length
               "
             >
               -
@@ -316,9 +328,7 @@
           <div class="jumper">
             <input class="page-number" v-model="jumpPage" @input="changeJumpPage" @keyup.enter="jump()" />
             <div class="page-total">/ {{ contentImgList.length }}</div>
-            <div class="jump ghost-btn" @click="jump()">
-              跳转
-            </div>
+            <div class="jump ghost-btn" @click="jump()">跳转</div>
           </div>
           <div class="mode ghost-btn" @click="modeMenuShow = !modeMenuShow">
             <i class="freelog fl-icon-shujia1" />
@@ -444,12 +454,13 @@ export default {
       jumpPage: 1,
       amend: false,
       theme: myTheme,
-      mode: ["paging", "single", "normal"],
+      mode: ["paging", "double", "normal"],
       modeMenuShow: false,
       directionTipShow: false,
       sharePopupShow: false,
       directoryShow: false,
       barShow: false,
+      jumping: false,
     });
 
     const methods = {
@@ -598,6 +609,7 @@ export default {
         let page;
         if (data.currentPage === 1) {
           page = 1;
+          data.nextUrl = data.contentImgList[1].url;
         } else if (value) {
           page = data.currentPage === data.contentImgList.length ? data.currentPage - 1 : data.currentPage + 1;
         } else {
@@ -635,9 +647,13 @@ export default {
             page = data.jumpPage % 2 ? data.jumpPage - 1 : data.jumpPage;
           }
         } else if (data.mode[0] === "scroll") {
-          setTimeout(() => {
+          data.jumping = true;
+          nextTick(() => {
             scrollTo(data.pagePointList[page - 1], "auto");
-          }, 0);
+            setTimeout(() => {
+              data.jumping = false;
+            }, 50);
+          });
         }
         data.currentPage = page;
         data.jumpPage = page;
@@ -655,7 +671,7 @@ export default {
         let WIDTH = 1000;
         if (store.state.inMobile) {
           const app = document.getElementById("app");
-          WIDTH = app!.clientWidth;
+          WIDTH = app?.clientWidth || 0;
         }
         data.contentImgList.forEach((item) => {
           data.pagePointList.push(data.totalHeight);
@@ -698,6 +714,16 @@ export default {
           return;
         }
 
+        const requestList: Promise<any>[] = [];
+        info.data.list.forEach((item: ContentImage) => {
+          const request = getExhibitFileStream(id, { subFilePath: item.name, returnUrl: true });
+          requestList.push(request);
+        });
+        const results = await Promise.all([...requestList]);
+        info.data.list.forEach((item: ContentImage, index: number) => {
+          item.url = results[index];
+        });
+
         data.contentImgList = info.data.list;
         data.currentUrl = data.contentImgList[0].url;
         window.addEventListener("keyup", keyup);
@@ -708,6 +734,7 @@ export default {
       if (data.comicMode === 1) {
         // 条漫时，自动选择滚动模式
         methods.changeMode("scroll", 0);
+        methods.getPointInScroll();
       } else if ([2, 3].includes(data.comicMode)) {
         // 页漫/日漫时，自动选择翻页模式（如本地有记录翻页模式的选择，优先取本地记录的模式）
         const comicReadMode = localStorage.getItem("comicReadMode");
@@ -748,7 +775,7 @@ export default {
     /** 快捷键 */
     const keyup = (e: KeyboardEvent) => {
       const target: any = e.target;
-      if (target && target.nodeName === 'INPUT') return;
+      if (target && target.nodeName === "INPUT") return;
 
       if (e.key === "ArrowLeft") {
         methods.leftSwitchPage();
@@ -766,10 +793,11 @@ export default {
       (cur) => {
         if (data.mode[0] !== "scroll") return;
 
-        if (data.barShow) {
+        if (data.barShow && !data.jumping) {
           clearTimeout(barShowTimer);
           barShowTimer = null;
           data.barShow = false;
+          if (data.modeMenuShow) data.modeMenuShow = false;
         }
 
         const height = clientHeight.value || 0;
@@ -843,6 +871,13 @@ export default {
 
   &.light {
     background-color: #e9e9e9;
+  }
+
+  &.scroll-mode {
+    :deep .reader-header-wrapper,
+    .reader-footer {
+      right: 10px !important;
+    }
   }
 
   // mobile 主题内容区
@@ -987,6 +1022,8 @@ export default {
 
         .content-image {
           height: 100%;
+          max-width: 100%;
+          object-fit: contain;
         }
       }
 

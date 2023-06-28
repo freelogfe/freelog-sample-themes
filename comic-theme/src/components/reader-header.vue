@@ -1,6 +1,6 @@
 <template>
   <!-- 移动端头部 -->
-  <div class="mobile-reader-header-wrapper" :class="{ show: headerShow }" v-if="inMobile">
+  <div class="mobile-reader-header-wrapper" :class="{ show: headerShow }" @click.stop v-if="inMobile">
     <!-- header顶部 -->
     <div class="header-top" :class="{ logon: userData.isLogin }">
       <div class="header-top-left" @click="locationHistory.length === 1 ? switchPage('/home') : routerBack()">
@@ -14,68 +14,74 @@
     </div>
 
     <!-- 展品标题 -->
-    <div class="comic-name">{{ comicInfo.exhibitTitle }}</div>
+    <div class="comic-name">
+      <span @click="switchPage('/detail', { id: comicInfo.exhibitId })">{{ comicInfo.exhibitTitle }}</span>
+    </div>
 
     <!-- 用户弹窗 -->
-    <transition name="fade">
-      <div id="modal" class="modal" @click="userBoxShow = false" v-if="userBoxShow"></div>
-    </transition>
-    <transition name="slide-right">
-      <div class="user-box-body" v-if="userBoxShow">
-        <div class="user-box-top">
-          <img
-            class="avatar"
-            :src="userData?.headImage || require('../assets/images/default-avatar.png')"
-            :alt="userData?.username || '未登录'"
-            @click="!userData.isLogin && callLogin()"
-          />
-          <div class="username" @click="!userData.isLogin && callLogin()">
-            {{ userData?.username || "未登录" }}
-          </div>
-          <div class="close-btn" @click="userBoxShow = false">
-            <i class="freelog fl-icon-guanbi"></i>
-          </div>
-        </div>
-        <div class="btns">
-          <div class="menu-btns">
-            <div class="btn" @click="switchPage('/home')">
-              <i class="freelog fl-icon-shouye"></i>
-              <div class="btn-label">首页</div>
+    <teleport to="#modal">
+      <transition name="fade">
+        <div id="modal" class="mobile-modal" @click="userBoxShow = false" v-if="userBoxShow"></div>
+      </transition>
+    </teleport>
+    <teleport to="#modal">
+      <transition name="slide-right">
+        <div class="mobile-user-box-body" v-if="userBoxShow">
+          <div class="user-box-top">
+            <img
+              class="avatar"
+              :src="userData?.headImage || require('../assets/images/default-avatar.png')"
+              :alt="userData?.username || '未登录'"
+              @click="!userData.isLogin && callLogin()"
+            />
+            <div class="username" @click="!userData.isLogin && callLogin()">
+              {{ userData?.username || "未登录" }}
             </div>
-            <div
-              class="btn"
-              @click="
-                switchPage('/shelf');
-                userBoxShow = false;
-              "
-              v-if="userData.isLogin"
-            >
-              <i class="freelog fl-icon-shujia"></i>
-              <div class="btn-label">我的收藏</div>
-            </div>
-            <div
-              class="btn"
-              @click="
-                switchPage('/signedList');
-                userBoxShow = false;
-              "
-              v-if="userData.isLogin"
-            >
-              <i class="freelog fl-icon-lishi"></i>
-              <div class="btn-label">已签约漫画</div>
+            <div class="close-btn" @click="userBoxShow = false">
+              <i class="freelog fl-icon-guanbi"></i>
             </div>
           </div>
+          <div class="btns">
+            <div class="menu-btns">
+              <div class="btn" @click="switchPage('/home')">
+                <i class="freelog fl-icon-shouye"></i>
+                <div class="btn-label">首页</div>
+              </div>
+              <div
+                class="btn"
+                @click="
+                  switchPage('/shelf');
+                  userBoxShow = false;
+                "
+                v-if="userData.isLogin"
+              >
+                <i class="freelog fl-icon-shujia"></i>
+                <div class="btn-label">我的收藏</div>
+              </div>
+              <div
+                class="btn"
+                @click="
+                  switchPage('/signedList');
+                  userBoxShow = false;
+                "
+                v-if="userData.isLogin"
+              >
+                <i class="freelog fl-icon-lishi"></i>
+                <div class="btn-label">已签约漫画</div>
+              </div>
+            </div>
 
-          <div class="footer-btn" @click="callLoginOut()" v-if="userData.isLogin">
-            <i class="freelog fl-icon-tuichu1"></i>
-            <div class="btn-label">退出登录</div>
-          </div>
-          <div class="footer-btn" v-if="!userData.isLogin">
-            <div class="main-btn mobile" @click="callLogin()">立即登录</div>
+            <div class="footer-btn" @click="callLoginOut()" v-if="userData.isLogin">
+              <i class="freelog fl-icon-tuichu1"></i>
+              <div class="btn-label">退出登录</div>
+            </div>
+            <div class="footer-btn" v-if="!userData.isLogin">
+              <div class="main-btn mobile" @click="callLogin()">立即登录</div>
+            </div>
           </div>
         </div>
-      </div>
-    </transition>
+      </transition>
+    </teleport>
   </div>
 
   <!-- PC -->
@@ -88,9 +94,13 @@
   >
     <div class="header-body">
       <div class="header-center">
-        <span class="comic-name" @click="switchPage('/detail', { id: comicInfo.exhibitId })">
+        <div
+          class="comic-name"
+          :title="comicInfo.exhibitTitle"
+          @click="switchPage('/detail', { id: comicInfo.exhibitId })"
+        >
           {{ comicInfo.exhibitTitle }}
-        </span>
+        </div>
       </div>
 
       <div class="header-box">
@@ -102,12 +112,8 @@
         />
 
         <div class="header-right">
-          <div class="nav-btn" @click="switchPage('/')">
-            首页
-          </div>
-          <div class="nav-btn" @click="switchPage('/shelf')" v-if="userData.isLogin">
-            我的收藏
-          </div>
+          <div class="nav-btn" @click="switchPage('/')">首页</div>
+          <div class="nav-btn" @click="switchPage('/shelf')" v-if="userData.isLogin">我的收藏</div>
 
           <div
             class="user-avatar"
@@ -149,7 +155,7 @@
 
 <script lang="ts">
 import { SetupContext, reactive, toRefs, watch } from "vue";
-import { useMyRouter } from "../utils/hooks";
+import { useMyLocationHistory, useMyRouter } from "../utils/hooks";
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
 import { ExhibitItem } from "@/api/interface";
@@ -192,6 +198,8 @@ export default {
       }
     );
 
+    useMyLocationHistory();
+    
     return {
       callLogin,
       callLoginOut,
@@ -267,125 +275,105 @@ export default {
     text-overflow: ellipsis;
     margin-top: 10px;
   }
+}
 
-  .modal {
-    position: fixed;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.4);
-  }
+.mobile-modal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 101;
+}
 
-  .user-box-body {
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 340px;
-    background: #ffffff;
-    border-radius: 0px 10px 10px 0px;
-    overflow: hidden;
+.mobile-user-box-body {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 340px;
+  background: #ffffff;
+  border-radius: 0px 10px 10px 0px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  z-index: 101;
+
+  .user-box-top {
+    position: relative;
+    width: 100%;
+    height: 194px;
     display: flex;
     flex-direction: column;
-    z-index: 101;
+    align-items: center;
+    justify-content: center;
+    background: var(--gradientColor);
 
-    .user-box-top {
-      position: relative;
-      width: 100%;
-      height: 194px;
+    .avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .username {
+      font-size: 16px;
+      line-height: 22px;
+      color: #fff;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    .close-btn {
+      position: absolute;
+      right: 31px;
+      top: 31px;
+      width: 12px;
+      height: 12px;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: var(--gradientColor);
 
-      .avatar {
-        width: 72px;
-        height: 72px;
-        border-radius: 50%;
-        border: 1px solid rgba(255, 255, 255, 0.4);
-      }
-
-      .username {
-        font-size: 16px;
-        line-height: 22px;
+      .freelog {
+        font-size: 12px;
         color: #fff;
-        font-weight: bold;
-        margin-top: 20px;
-      }
-
-      .close-btn {
-        position: absolute;
-        right: 31px;
-        top: 31px;
-        width: 12px;
-        height: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-
-        .freelog {
-          font-size: 12px;
-          color: #fff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
       }
     }
+  }
 
-    .btns {
-      width: 100%;
+  .btns {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 25px 20px 0;
+    box-sizing: border-box;
+
+    .menu-btns {
       flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 25px 20px 0;
-      box-sizing: border-box;
 
-      .menu-btns {
-        flex: 1;
-
-        .btn {
-          width: 100%;
-          height: 52px;
-          border-radius: 4px;
-          color: #222;
-          background-color: #fff;
-          display: flex;
-          align-items: center;
-
-          &.active,
-          &:active {
-            color: var(--deriveColor);
-            background: rgba(93, 145, 145, 0.05);
-          }
-
-          & + .btn {
-            margin-top: 10px;
-          }
-
-          .freelog {
-            font-size: 16px;
-            margin: 0 11px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-
-          .btn-label {
-            font-size: 16px;
-          }
-        }
-      }
-
-      .footer-btn {
+      .btn {
         width: 100%;
-        height: 102px;
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        height: 52px;
+        border-radius: 4px;
         color: #222;
+        background-color: #fff;
         display: flex;
         align-items: center;
+
+        &.active,
+        &:active {
+          color: var(--deriveColor);
+          background: rgba(93, 145, 145, 0.05);
+        }
+
+        & + .btn {
+          margin-top: 10px;
+        }
 
         .freelog {
           font-size: 16px;
@@ -398,18 +386,39 @@ export default {
         .btn-label {
           font-size: 16px;
         }
+      }
+    }
 
-        .main-btn {
-          width: 100%;
-          height: 48px;
-          border-radius: 48px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 16px;
-          font-weight: 600;
-          color: #ffffff;
-        }
+    .footer-btn {
+      width: 100%;
+      height: 102px;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      color: #222;
+      display: flex;
+      align-items: center;
+
+      .freelog {
+        font-size: 16px;
+        margin: 0 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .btn-label {
+        font-size: 16px;
+      }
+
+      .main-btn {
+        width: 100%;
+        height: 48px;
+        border-radius: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-weight: 600;
+        color: #ffffff;
       }
     }
   }
@@ -447,10 +456,15 @@ export default {
       justify-content: center;
 
       .comic-name {
+        width: 400px;
+        text-align: center;
         font-size: 16px;
         font-weight: 600;
         color: #ffffff;
         line-height: 22px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
         cursor: pointer;
       }
     }
@@ -466,11 +480,13 @@ export default {
         position: relative;
         height: 24px;
         cursor: pointer;
+        z-index: 1;
       }
 
       .header-right {
         display: flex;
         align-items: center;
+        z-index: 1;
 
         .nav-btn {
           padding: 0 25px;
