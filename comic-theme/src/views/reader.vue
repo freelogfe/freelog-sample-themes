@@ -114,10 +114,15 @@
               class="blank-screen"
               v-if="[1, 2].includes(comicMode) && mode[1] === 'double' && !amend && currentPage === 1"
             ></div>
-            <!-- 日漫、双页模式、当前为尾页时，尾页左侧显示空屏 -->
+            <!-- 日漫、双页模式、页数不为1且当前为尾页/页数为1且跨页匹配时，尾页左侧显示空屏 -->
             <div
               class="blank-screen"
-              v-if="comicMode === 3 && mode[1] === 'double' && currentPage === contentImgList.length"
+              v-if="
+                comicMode === 3 &&
+                mode[1] === 'double' &&
+                ((contentImgList.length !== 1 && currentPage === contentImgList.length) ||
+                  (contentImgList.length === 1 && amend))
+              "
             ></div>
             <!-- 日漫、双页模式、跨页匹配/非跨页匹配且当前不为首页、当前页不为尾页时，当前页左侧显示下一页 -->
             <div
@@ -149,10 +154,15 @@
             >
               <img class="content-image" :src="nextUrl" />
             </div>
-            <!-- 条漫/页漫、双页模式、当前为尾页时，尾页右侧显示空屏 -->
+            <!-- 条漫/页漫、双页模式、页数不为1且当前为尾页/页数为1且跨页匹配时，尾页右侧显示空屏 -->
             <div
               class="blank-screen"
-              v-if="[1, 2].includes(comicMode) && mode[1] === 'double' && currentPage === contentImgList.length"
+              v-if="
+                [1, 2].includes(comicMode) &&
+                mode[1] === 'double' &&
+                ((contentImgList.length !== 1 && currentPage === contentImgList.length) ||
+                  (contentImgList.length === 1 && amend))
+              "
             ></div>
             <!-- 日漫、双页模式、非跨页匹配、当前为首页时，首页右侧显示空屏 -->
             <div
@@ -260,11 +270,15 @@
             >
               -
             </span>
-            <!-- 日漫、翻页模式、双页模式、当前为尾页时，左侧显示空屏页码 -->
+            <!-- 日漫、翻页模式、双页模式、当前为尾页且不为第一页时，左侧显示空屏页码 -->
             <span
               class="page-number"
               v-if="
-                comicMode === 3 && mode[0] === 'paging' && mode[1] === 'double' && currentPage === contentImgList.length
+                comicMode === 3 &&
+                mode[0] === 'paging' &&
+                mode[1] === 'double' &&
+                currentPage === contentImgList.length &&
+                currentPage !== 1
               "
             >
               -
@@ -297,14 +311,15 @@
             >
               {{ currentPage + 1 }}
             </span>
-            <!-- 条漫/页漫、翻页模式、双页模式、当前为尾页时，右侧显示空屏页码 -->
+            <!-- 条漫/页漫、翻页模式、双页模式、当前为尾页且不为第一页时，右侧显示空屏页码 -->
             <span
               class="page-number"
               v-if="
                 [1, 2].includes(comicMode) &&
                 mode[0] === 'paging' &&
                 mode[1] === 'double' &&
-                currentPage === contentImgList.length
+                currentPage === contentImgList.length &&
+                currentPage !== 1
               "
             >
               -
@@ -326,7 +341,7 @@
             </div>
           </div>
           <div class="jumper">
-            <input class="page-number" v-model="jumpPage" @input="changeJumpPage" @keyup.enter="jump()" />
+            <input class="page-number" v-model="jumpPage" @keyup.enter="jump()" />
             <div class="page-total">/ {{ contentImgList.length }}</div>
             <div class="jump ghost-btn" @click="jump()">跳转</div>
           </div>
@@ -505,18 +520,6 @@ export default {
         }
       },
 
-      /** 输入跳转页数 */
-      changeJumpPage(e: any) {
-        const { value } = e.target;
-        let jumpNumber = Number(value.replace(/[^0-9]/g, "")) || 0;
-        if (jumpNumber < 1) {
-          jumpNumber = 1;
-        } else if (jumpNumber > data.contentImgList.length) {
-          jumpNumber = data.contentImgList.length;
-        }
-        data.jumpPage = jumpNumber;
-      },
-
       /** 切换阅读模式 */
       changeMode(value: modeType, index: number) {
         const { inMobile } = store.state;
@@ -631,7 +634,13 @@ export default {
 
       /** 跳转 */
       jump() {
-        let page = data.jumpPage;
+        let jumpPageNum = Number(String(data.jumpPage).replace(/[^0-9]/g, ""));
+        if (jumpPageNum < 1) {
+          jumpPageNum = 1;
+        } else if (jumpPageNum > data.contentImgList.length) {
+          jumpPageNum = data.contentImgList.length;
+        }
+        let page = jumpPageNum;
 
         if (data.mode[0] === "paging" && data.mode[1] === "double") {
           // 翻页模式、双页模式下，需对跳转页码进行修正
@@ -641,10 +650,10 @@ export default {
             return;
           } else if (data.amend) {
             // 跨页匹配时，页码显示双页的奇数页码
-            page = data.jumpPage % 2 ? data.jumpPage : data.jumpPage - 1;
+            page = jumpPageNum % 2 ? jumpPageNum : jumpPageNum - 1;
           } else {
             // 非跨页匹配时，页码显示双页的偶数页码
-            page = data.jumpPage % 2 ? data.jumpPage - 1 : data.jumpPage;
+            page = jumpPageNum % 2 ? jumpPageNum - 1 : jumpPageNum;
           }
         } else if (data.mode[0] === "scroll") {
           data.jumping = true;
