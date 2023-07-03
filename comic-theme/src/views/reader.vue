@@ -718,7 +718,7 @@ export default {
       if (data.comicInfo.defaulterIdentityType === 0) {
         // 已签约并且授权链无异常
         const info: any = await getExhibitFileStream(id, { subFilePath: "index.json" });
-        if (info.status !== 200) {
+        if (info.status !== 200 || info.data.list.length === 0) {
           data.loading = false;
           return;
         }

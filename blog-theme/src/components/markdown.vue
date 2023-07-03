@@ -90,7 +90,11 @@ export default {
     watch(
       () => props.data,
       (cur) => {
-        if (!cur || !cur.content) return;
+        if (!cur) return;
+        if (!cur.content) {
+          loading.value = false;
+          return;
+        }
         getContent();
       },
       { immediate: true, deep: true }
