@@ -88,7 +88,7 @@
   <div
     class="reader-header-wrapper"
     :class="{ show: headerShow }"
-    @mouseenter="changeShow(true)"
+    @mousemove="changeShow(true)"
     @mouseleave="changeShow(false)"
     v-if="!inMobile"
   >
@@ -154,7 +154,7 @@
 </template>
 
 <script lang="ts">
-import { SetupContext, reactive, toRefs, watch } from "vue";
+import { reactive, toRefs, watch } from "vue";
 import { useMyLocationHistory, useMyRouter } from "../utils/hooks";
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
@@ -167,7 +167,7 @@ export default {
 
   props: ["comicInfo", "show"],
 
-  setup(props: { comicInfo: ExhibitItem; show: boolean }, context: SetupContext<Record<string, any>>) {
+  setup(props: { comicInfo: ExhibitItem; show: boolean }, context: any) {
     const store = useStore();
     const { switchPage, routerBack } = useMyRouter();
 
@@ -199,7 +199,7 @@ export default {
     );
 
     useMyLocationHistory();
-    
+
     return {
       callLogin,
       callLoginOut,
