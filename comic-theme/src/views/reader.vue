@@ -19,9 +19,16 @@
       <div class="mobile-body-wrapper">
         <template v-if="comicInfo.defaulterIdentityType === 0">
           <template v-if="mode[0] === 'paging'">
-            <my-swipe ref="swiper" class="paging-area" :loop="false" :show-indicators="false" @change="swipePage">
+            <my-swipe
+              class="paging-area"
+              :initial-swipe="swipeIndex"
+              :loop="false"
+              :show-indicators="false"
+              @change="swipePage"
+              :lazy-render="true"
+            >
               <my-swipe-item class="swipe-image-box" v-for="item in mobilePagingList" :key="item.name">
-                <img class="swipe-image" v-lazy="item.url" oncontextmenu="return false" />
+                <img class="swipe-image" :src="item.url" oncontextmenu="return false" />
               </my-swipe-item>
             </my-swipe>
           </template>
@@ -389,7 +396,7 @@
 <script lang="tsx">
 import { toRefs } from "@vue/reactivity";
 import { useMyRouter, useMyScroll, useMyShelf } from "../utils/hooks";
-import { defineAsyncComponent, nextTick, onUnmounted, reactive, ref, watch, watchEffect } from "vue";
+import { defineAsyncComponent, nextTick, onUnmounted, reactive, watch, watchEffect } from "vue";
 import { ContentImage, ExhibitItem } from "@/api/interface";
 import { addAuth, getExhibitAuthStatus, getExhibitFileStream, getExhibitInfo } from "@/api/freelog";
 import { useStore } from "vuex";
@@ -448,14 +455,13 @@ export default {
     let barShowTimer: any = null;
     let tipTimer: any = null;
 
-    const swiper = ref();
-
     const data = reactive({
       loading: false,
       comicInfo: {} as ExhibitItem,
       contentImgList: [] as ContentImage[],
       mobilePagingList: [] as ContentImage[],
       pagePointList: [] as number[],
+      swipeIndex: 0,
       totalHeight: 0,
       comicMode: 0,
       currentPage: 1,
@@ -663,8 +669,12 @@ export default {
         data.jumpPage = page;
 
         if (store.state.inMobile && data.mode[0] === "paging") {
+          data.loading = true;
           const index = data.mode[2] === "normal" ? page - 1 : data.mobilePagingList.length - page;
-          swiper.value.swipeTo(index, { immediate: true });
+          nextTick(() => {
+            data.swipeIndex = index;
+            data.loading = false;
+          });
         }
       },
 
@@ -750,20 +760,21 @@ export default {
 
     /** 移动端翻页模式下处理图片顺序 */
     const dealListInPagingMobile = () => {
-      data.mobilePagingList = [];
+      data.loading = true;
+      const pagingType = data.mode[2];
+      let currentIndex = 0;
+      if (pagingType === "normal") {
+        // 普通模式下（从左向右）
+        data.mobilePagingList = [...data.contentImgList];
+        currentIndex = data.currentPage - 1;
+      } else if (pagingType === "manga") {
+        // 日漫模式下（从右向左）
+        data.mobilePagingList = [...data.contentImgList].reverse();
+        currentIndex = data.mobilePagingList.length - data.currentPage;
+      }
       nextTick(() => {
-        const pagingType = data.mode[2];
-        let currentIndex = 0;
-        if (pagingType === "normal") {
-          // 普通模式下（从左向右）
-          data.mobilePagingList = [...data.contentImgList];
-          currentIndex = data.currentPage - 1;
-        } else if (pagingType === "manga") {
-          // 日漫模式下（从右向左）
-          data.mobilePagingList = [...data.contentImgList].reverse();
-          currentIndex = data.mobilePagingList.length - data.currentPage;
-        }
-        swiper.value.swipeTo(currentIndex, { immediate: true });
+        data.swipeIndex = currentIndex;
+        data.loading = false;
       });
     };
 
@@ -854,7 +865,6 @@ export default {
     getComicInfo();
 
     return {
-      swiper,
       ...toRefs(store.state),
       switchPage,
       isCollected,
