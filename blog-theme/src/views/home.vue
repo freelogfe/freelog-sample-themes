@@ -5,7 +5,12 @@
     <!-- mobile -->
     <div class="mobile-home-body" v-if="inMobile">
       <div class="header">
-        <div class="sort" v-if="!searchData.keywords" @click.stop="sortPopupShow = true">
+        <div
+          class="sort"
+          :class="{ disabled: myLoading }"
+          v-if="!searchData.keywords"
+          @click.stop="sortPopupShow = true"
+        >
           {{ createDateSortType === "-1" ? "最新" : "最早" }}
           <i class="freelog fl-icon-zhankaigengduo"></i>
 
@@ -37,7 +42,7 @@
 
         <div class="box-title" v-if="searchData.keywords">查询到{{ listData.length }}个相关结果</div>
 
-        <div class="text-btn mobile" @click="filterBoxShow = true">
+        <div class="text-btn mobile" :class="{ disabled: myLoading }" @click="filterBoxShow = true">
           <i className="freelog fl-icon-shaixuan"></i>
           <div class="filter-label">筛选</div>
         </div>
@@ -103,11 +108,13 @@
         <div class="filter-bar">
           <div class="filter-bar-bg"></div>
 
-          <div class="category-btn" :class="{ active: !searchData.tags }" @click="selectTag()">全部</div>
+          <div class="category-btn" :class="{ active: !searchData.tags, disabled: myLoading }" @click="selectTag()">
+            全部
+          </div>
 
           <div
             class="category-btn"
-            :class="{ active: searchData.tags === item }"
+            :class="{ active: searchData.tags === item, disabled: myLoading }"
             v-for="item in tagsList"
             :key="item"
             @click="selectTag(item)"
@@ -118,6 +125,7 @@
 
         <div
           class="sort"
+          :class="{ disabled: myLoading }"
           @mouseover="sortPopupShow = true"
           @mouseleave="sortPopupShow = false"
           v-if="!searchData.keywords && !searchData.tags"

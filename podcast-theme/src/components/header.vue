@@ -139,13 +139,16 @@
             @input="searchKeyInput()"
             @keyup="inputKeyUp($event)"
             @focus="searchHistoryShow = true"
-            @blur="searchHistoryShow = false"
           />
           <i class="freelog fl-icon-content"></i>
           <i class="freelog fl-icon-guanbi text-btn" @click="searchKey = ''" v-show="searchKey"></i>
 
           <transition name="fade">
-            <div class="search-history" v-if="searchHistoryShow && mySearchHistory.length !== 0">
+            <div
+              ref="searchHistoryPopup"
+              class="search-history"
+              v-if="searchHistoryShow && mySearchHistory.length !== 0"
+            >
               <div
                 class="history-item"
                 :class="{ catch: searchWordCatch === index }"
@@ -153,6 +156,7 @@
                 :key="item"
                 @click="clickSearchHistory(item)"
                 @mousemove="searchWordCatch = index"
+                @mouseleave="searchWordCatch = null"
               >
                 <div class="item-word">{{ item }}</div>
                 <i class="freelog fl-icon-guanbi" @click.stop="deleteSearchHistory(item)"></i>
@@ -228,6 +232,14 @@ export default {
         if (routerMode === 1) this.$refs.searchInput.focus();
       });
     },
+
+    searchHistoryShow(cur) {
+      if (cur) {
+        document.addEventListener("click", this.ifCloseHistoryPopup);
+      } else {
+        document.removeEventListener("click", this.ifCloseHistoryPopup);
+      }
+    },
   },
 
   computed: {
@@ -284,6 +296,7 @@ export default {
     /** 切换tab页 */
     toPage(path) {
       this.$router.myPush(path);
+      this.searchKey = "";
       this.userBoxShow = false;
     },
 
@@ -302,19 +315,20 @@ export default {
 
     /** 删除历史搜索词 */
     deleteSearchHistory(item) {
-      this.$refs.searchInput.focus();
       this.deleteWord(item);
-      this.searchHistoryShow = true;
     },
 
     /** 搜索 */
     search() {
-      if (!this.searchKey) return;
+      if (!this.searchKey) {
+        this.$router.myPush({ path: "/home" });
+        return;
+      }
 
       this.searchWord();
       this.$store.commit("setData", { key: "searchKey", value: this.searchKey });
       this.searchHistoryShow = false;
-      if (!this.$store.state.inMobile) this.$router.push({ path: "/search-list" });
+      if (!this.$store.state.inMobile) this.$router.myPush({ path: "/search-list" });
     },
 
     /** 搜索历史关键词 */
@@ -332,7 +346,7 @@ export default {
             this.searchKey = this.mySearchHistory[this.searchWordCatch];
           }
           this.searchWordCatch = null;
-          this.searchHistoryShow = false;
+          this.searchWord();
           this.search();
           break;
         case 27:
@@ -371,6 +385,7 @@ export default {
     /** 搜索 */
     searchWord() {
       const keywords = this.searchKey.trim();
+      if (!keywords) return;
       const index = this.searchHistory.findIndex((item) => item === keywords);
       if (index !== -1) this.searchHistory.splice(index, 1);
       if (this.searchHistory.length === 10) this.searchHistory.pop();
@@ -390,6 +405,16 @@ export default {
     clearHistory() {
       localStorage.setItem("searchHistory", "[]");
       this.searchHistory = [];
+    },
+
+    /** 根据点击区域判断历史搜索框是否关闭 */
+    ifCloseHistoryPopup(e) {
+      if (!this.$refs.searchInput || !this.$refs.searchHistoryPopup) return;
+      const clickInput = this.$refs.searchInput.contains(e.target);
+      const clickPopup = this.$refs.searchHistoryPopup.contains(e.target);
+      if (!clickInput && !clickPopup) {
+        this.searchHistoryShow = false;
+      }
     },
   },
 };

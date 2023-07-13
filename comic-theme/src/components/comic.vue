@@ -452,7 +452,6 @@ export default {
 
       &.disabled {
         opacity: 0.4;
-        pointer-events: none;
       }
     }
   }

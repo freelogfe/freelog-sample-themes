@@ -7,7 +7,7 @@
       <div class="header" v-if="searchData.keywords">
         <div class="box-title">查询到{{ listData.length }}个相关结果</div>
 
-        <div class="text-btn mobile" @click="filterBoxShow = true">
+        <div class="text-btn mobile" :class="{ disabled: myLoading }" @click="filterBoxShow = true">
           <i className="freelog fl-icon-shaixuan"></i>
           <div class="filter-label">筛选</div>
         </div>
@@ -93,7 +93,7 @@
 
         <div
           class="category-btn"
-          :class="{ active: !searchData.tags && !searchData.articleResourceTypes }"
+          :class="{ active: !searchData.tags && !searchData.articleResourceTypes, disabled: myLoading }"
           @click="selectTag()"
         >
           全部
@@ -101,7 +101,7 @@
 
         <div
           class="category-btn"
-          :class="{ active: searchData.tags === item }"
+          :class="{ active: searchData.tags === item, disabled: myLoading }"
           v-for="item in tagsList"
           :key="item"
           @click="selectTag(item)"
@@ -111,7 +111,7 @@
 
         <div
           class="category-btn"
-          :class="{ active: searchData.articleResourceTypes === '视频' }"
+          :class="{ active: searchData.articleResourceTypes === '视频', disabled: myLoading }"
           @click="filterVideo()"
         >
           视频

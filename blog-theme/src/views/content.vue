@@ -171,6 +171,9 @@ export default {
           content: info.data,
           exhibitInfo: exhibitInfo.data.data,
         };
+      } else if (data.articleData.defaulterIdentityType === 4) {
+        // 标的物未签约，自动弹出授权弹窗
+        methods.getAuth();
       }
 
       await datasOfGetList.getList({ limit: 4 }, true);

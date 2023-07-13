@@ -234,7 +234,7 @@ export const useMyPlay = {
       store.commit("setData", { key: "playIdList", value: playIdList });
       store.commit("setData", { key: "playList", value: playList });
 
-      if (id !== playingInfo.exhibitId) return;
+      if (id !== playingInfo?.exhibitId) return;
       if (playing) {
         // 如果移出的声音是当前正在播放的声音，自动播放列表中的下一个声音
         useMyPlay.playOrPause(playList[index]);
@@ -257,7 +257,7 @@ export const useMyPlay = {
         store.commit("setData", { key: "playIdList", value: playIdList });
         store.commit("setData", { key: "playList", value: playList });
 
-        if (id !== playingInfo.exhibitId) return;
+        if (id !== playingInfo?.exhibitId) return;
         if (playing) {
           // 如果移出的声音是当前正在播放的声音，自动播放列表中的下一个声音
           useMyPlay.playOrPause(playList[index]);
@@ -317,6 +317,10 @@ export const useMyPlay = {
       }
     }
 
+    if (!playingInfo || playingInfo.exhibit !== exhibitId) {
+      store.commit("setData", { key: "playingInfo", value: exhibit });
+    }
+
     if (![0, 4].includes(defaulterIdentityType)) {
       // 授权链异常
       if (type !== "normal") {
@@ -331,6 +335,8 @@ export const useMyPlay = {
 
     if (defaulterIdentityType >= 4) {
       // 未授权
+      store.commit("setData", { key: "playing", value: false });
+      store.commit("setData", { key: "progress", value: 0 });
       useMyAuth.getAuth(exhibit, true);
       return;
     }
@@ -339,6 +345,7 @@ export const useMyPlay = {
       const url = await getExhibitFileStream(exhibitId, true);
       exhibit.url = url;
     }
+
     useMyPlay.addToPlayList(exhibitId);
     store.commit("setData", { key: "playingInfo", value: exhibit });
     store.commit("setData", { key: "playing", value: true });

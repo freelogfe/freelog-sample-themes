@@ -242,6 +242,10 @@ input:focus {
   z-index: 101;
 }
 
+.disabled {
+  pointer-events: none;
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;

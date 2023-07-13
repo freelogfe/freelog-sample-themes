@@ -70,6 +70,18 @@ export const Header = (props: {
     }
   };
 
+  // 根据点击区域判断历史搜索框是否关闭
+  const ifCloseHistoryPopup = (e: any) => {
+    const searchInput = document.getElementById("searchInput");
+    const searchHistoryPopup = document.getElementById("searchHistoryPopup");
+    if (!searchInput || !searchHistoryPopup) return;
+    const clickInput = searchInput.contains(e.target);
+    const clickPopup = searchHistoryPopup.contains(e.target);
+    if (!clickInput && !clickPopup) {
+      setSearchHistoryShow(false);
+    }
+  };
+
   useEffect(() => {
     if (search === 0) return;
     searchWord(searchKey);
@@ -88,6 +100,14 @@ export const Header = (props: {
   useEffect(() => {
     setSearchKey(props.defaultSearchKey || "");
   }, [props.defaultSearchKey]);
+
+  useEffect(() => {
+    if (searchHistoryShow) {
+      document.addEventListener("click", ifCloseHistoryPopup);
+    } else {
+      document.removeEventListener("click", ifCloseHistoryPopup);
+    }
+  }, [searchHistoryShow]);
 
   if (inMobile === true && !props.mobileSearching) {
     // 移动端头部
@@ -299,6 +319,7 @@ export const Header = (props: {
             {/* 搜索框 */}
             <div className="small-search-box">
               <input
+                id="searchInput"
                 className={`search-input input-none ${searchKey && "in-focus"}`}
                 value={searchKey}
                 onChange={(e) => {
@@ -308,7 +329,6 @@ export const Header = (props: {
                 }}
                 onKeyUp={(e: { keyCode: number }) => inputKeyUp(e.keyCode)}
                 onFocus={() => setSearchHistoryShow(true)}
-                onBlur={() => setSearchHistoryShow(false)}
               />
               <i className="freelog fl-icon-content"></i>
               {searchKey && (
@@ -327,7 +347,7 @@ export const Header = (props: {
                 timeout={200}
                 unmountOnExit
               >
-                <div className="search-history">
+                <div id="searchHistoryPopup" className="search-history">
                   {mySearchHistory.map((item, index) => (
                     <div
                       className={`history-item ${searchWordCatch === index && "catch"}`}
@@ -336,13 +356,13 @@ export const Header = (props: {
                         setSearchKey(item);
                         setSearch((pre) => pre + 1);
                       }}
-                      onMouseOver={() => setSearchWordCatch(index)}
+                      onMouseMove={() => setSearchWordCatch(index)}
+                      onMouseLeave={() => setSearchWordCatch(null)}
                     >
                       <div className="item-word">{item}</div>
                       <i
                         className="freelog fl-icon-guanbi"
                         onClick={(e) => {
-                          setSearchHistoryShow(true);
                           e.stopPropagation();
                           deleteWord(item);
                         }}
@@ -396,10 +416,7 @@ export const Header = (props: {
                 <div className="btn header-login-btn" onClick={() => callLogin()}>
                   登录
                 </div>
-                <div
-                  className="btn header-register-btn"
-                  onClick={() => window.open("https://user.freelog.com/logon")}
-                >
+                <div className="btn header-register-btn" onClick={() => window.open("https://user.freelog.com/logon")}>
                   注册
                 </div>
               </div>

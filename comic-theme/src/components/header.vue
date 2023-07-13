@@ -174,7 +174,6 @@
             @input="searchKeyInput()"
             @keyup="inputKeyUp($event)"
             @focus="searchHistoryShow = true"
-            @blur="searchHistoryShow = false"
           />
           <i class="freelog fl-icon-content"></i>
           <i
@@ -187,7 +186,11 @@
           ></i>
 
           <transition name="fade">
-            <div class="search-history" v-if="searchHistoryShow && mySearchHistory.length !== 0">
+            <div
+              ref="searchHistoryPopup"
+              class="search-history"
+              v-if="searchHistoryShow && mySearchHistory.length !== 0"
+            >
               <div
                 class="history-item"
                 :class="{ catch: searchWordCatch === index }"
@@ -195,6 +198,7 @@
                 :key="item"
                 @click="clickSearchHistory(item)"
                 @mousemove="searchWordCatch = index"
+                @mouseleave="searchWordCatch = null"
               >
                 <div class="item-word">{{ item }}</div>
                 <i class="freelog fl-icon-guanbi" @click.stop="deleteSearchHistory(item)"></i>
@@ -207,12 +211,8 @@
       </div>
 
       <div class="header-right">
-        <div class="nav-btn" @click="switchPage('/')">
-          首页
-        </div>
-        <div class="nav-btn" @click="switchPage('/shelf')" v-if="userData.isLogin">
-          我的收藏
-        </div>
+        <div class="nav-btn" @click="switchPage('/')">首页</div>
+        <div class="nav-btn" @click="switchPage('/shelf')" v-if="userData.isLogin">我的收藏</div>
 
         <div
           class="user-avatar"
@@ -280,6 +280,7 @@ export default {
     const { query, route, switchPage, routerBack } = useMyRouter();
     const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
     const searchInput = ref();
+    const searchHistoryPopup = ref();
     const mySearchHistory = computed(() => searchHistory.value.filter((item) => item.includes(data.searchKey)));
 
     const data = reactive({
@@ -312,7 +313,6 @@ export default {
 
       // 删除历史搜索词
       deleteSearchHistory(item: string) {
-        searchInput.value.focus();
         deleteWord(item);
       },
 
@@ -341,7 +341,6 @@ export default {
               data.searchKey = mySearchHistory.value[data.searchWordCatch];
             }
             data.searchWordCatch = null;
-            data.searchHistoryShow = false;
             searchWord(data.searchKey);
             this.search();
             break;
@@ -379,10 +378,31 @@ export default {
       },
     };
 
+    // 根据点击区域判断历史搜索框是否关闭
+    const ifCloseHistoryPopup = (e: MouseEvent) => {
+      if (!searchInput.value || !searchHistoryPopup.value) return;
+      const clickInput = searchInput.value.contains(e.target);
+      const clickPopup = searchHistoryPopup.value.contains(e.target);
+      if (!clickInput && !clickPopup) {
+        data.searchHistoryShow = false;
+      }
+    };
+
     watch(
       () => query.value,
       () => {
         initHeaderSearch();
+      }
+    );
+
+    watch(
+      () => data.searchHistoryShow,
+      (cur) => {
+        if (cur) {
+          document.addEventListener("click", ifCloseHistoryPopup);
+        } else {
+          document.removeEventListener("click", ifCloseHistoryPopup);
+        }
       }
     );
 
@@ -403,6 +423,7 @@ export default {
       routerBack,
       ...toRefs(store.state),
       searchInput,
+      searchHistoryPopup,
       searchHistory,
       mySearchHistory,
       searchWord,

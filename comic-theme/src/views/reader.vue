@@ -741,6 +741,9 @@ export default {
         data.contentImgList = info.data.list;
         data.currentUrl = data.contentImgList[0].url;
         window.addEventListener("keyup", keyup);
+      } else if (data.comicInfo.defaulterIdentityType === 4) {
+        // 标的物未签约，自动弹出授权弹窗
+        methods.getAuth();
       }
 
       data.loading = false;

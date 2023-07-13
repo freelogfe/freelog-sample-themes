@@ -23,14 +23,14 @@
       <div class="comic-list">
         <div class="search-box-title" v-if="searching">
           <div class="box-title">查询到{{ listData.length }}个相关结果</div>
-          <div class="text-btn mobile" @click="filterBoxShow = true">
+          <div class="text-btn mobile" :class="{ disabled: myLoading }" @click="filterBoxShow = true">
             <i className="freelog fl-icon-shaixuan"></i>
             <div class="filter-label">筛选</div>
           </div>
         </div>
         <div class="box-header" v-else>
           <div class="box-title">精选漫画</div>
-          <div class="text-btn mobile" @click="filterBoxShow = true">
+          <div class="text-btn mobile" :class="{ disabled: myLoading }" @click="filterBoxShow = true">
             <i className="freelog fl-icon-shaixuan"></i>
             <div class="filter-label">筛选</div>
           </div>
@@ -43,13 +43,9 @@
             <comic :data="item" />
           </div>
 
-          <div class="tip" v-if="listData.length === 0">
-            当前节点暂无任何漫画，请稍后查看
-          </div>
+          <div class="tip" v-if="listData.length === 0">当前节点暂无任何漫画，请稍后查看</div>
 
-          <div class="tip no-more" v-if="listData.length !== 0 && listData.length === total">
-            — 已加载全部漫画 —
-          </div>
+          <div class="tip no-more" v-if="listData.length !== 0 && listData.length === total">— 已加载全部漫画 —</div>
         </template>
       </div>
 
@@ -120,13 +116,13 @@
         <div class="filter-bar">
           <div class="filter-bar-bg"></div>
 
-          <div class="category-btn" :class="{ active: !searchData.tags }" @click="selectTag()">
+          <div class="category-btn" :class="{ active: !searchData.tags, disabled: myLoading }" @click="selectTag()">
             全部
           </div>
 
           <div
             class="category-btn"
-            :class="{ active: searchData.tags === item }"
+            :class="{ active: searchData.tags === item, disabled: myLoading }"
             v-for="item in tagsList"
             :key="item"
             @click="selectTag(item)"
@@ -144,13 +140,9 @@
             </div>
           </div>
 
-          <div class="tip" v-if="listData.length === 0">
-            当前节点暂无任何漫画，请稍后查看
-          </div>
+          <div class="tip" v-if="listData.length === 0">当前节点暂无任何漫画，请稍后查看</div>
 
-          <div class="tip no-more" v-if="listData.length !== 0 && listData.length === total">
-            — 已加载全部漫画 —
-          </div>
+          <div class="tip no-more" v-if="listData.length !== 0 && listData.length === total">— 已加载全部漫画 —</div>
         </template>
       </div>
     </div>

@@ -74,7 +74,6 @@
             :min="0"
             :max="playingInfo && playingInfo.versionInfo.exhibitProperty.duration / 1000"
             :show-tooltip="false"
-            :disabled="!playing"
             @change="changeProgress"
           ></el-slider>
         </div>
@@ -155,7 +154,7 @@
             <div class="left-area">
               <i
                 class="freelog"
-                :class="item.icon"
+                :class="{ [item.icon]: true, disabled: item.disabled }"
                 v-for="item in leftBtnList"
                 :key="item.icon"
                 @click="item.operate"
@@ -200,7 +199,6 @@
                     :min="0"
                     :max="playingInfo && playingInfo.versionInfo.exhibitProperty.duration / 1000"
                     :format-tooltip="() => secondsToHMS($store.state.progress * 1000)"
-                    :disabled="!playing"
                     @change="changeProgress"
                   ></el-slider>
                 </div>
@@ -314,6 +312,7 @@ export default {
 
   data() {
     return {
+      initPlay: false,
       playList: null,
       show: false,
       volumePopupShow: false,
@@ -361,10 +360,18 @@ export default {
     },
 
     "$store.state.playing"(cur) {
-      if (!this.$store.state.playingInfo || !this.$store.state.playingInfo.url) return;
+      if (!this.$store.state.playingInfo) return;
 
       if (cur) {
         this.$refs.player.play();
+        if (!this.initPlay) {
+          // ios 设备第一次播放音频会失败，需要重新播放一次才会正常
+          this.$nextTick(() => {
+            this.$refs.player.pause();
+            this.$refs.player.play();
+            this.initPlay = true;
+          });
+        }
         // 播放音频，显示播放器动画
         this.animation();
       } else {
@@ -419,12 +426,12 @@ export default {
     /** 左区域按钮群 */
     leftBtnList() {
       return [
-        { icon: "fl-icon-shangyishou1", operate: this.preVoice },
+        { icon: "fl-icon-shangyishou1", operate: this.preVoice, disabled: this.$store.state.playList.length <= 1 },
         {
           icon: this.playing ? "fl-icon-zanting-daibiankuang" : "fl-icon-bofang-daibiankuang",
           operate: this.playOrPause,
         },
-        { icon: "fl-icon-xiayishou1", operate: this.nextVoice },
+        { icon: "fl-icon-xiayishou1", operate: this.nextVoice, disabled: this.$store.state.playList.length <= 1 },
       ];
     },
 
@@ -517,11 +524,6 @@ export default {
       useMyCollection.operateCollect(this.playingInfo);
     },
 
-    /** 格式化进度条 */
-    formatTooltip() {
-      return "03:21";
-    },
-
     /** 播放/暂停播放列表 */
     playOrPauseList(data) {
       useMyPlay.playOrPause(data);
@@ -573,7 +575,7 @@ export default {
 
     /** 音频播放时间变化 */
     audioPlayUpdate() {
-      if (this.slidingProgress) return;
+      if (this.slidingProgress || !this.$store.state.playing) return;
 
       const progress = this.$refs.player.currentTime;
       this.$store.commit("setData", { key: "progress", value: progress });
@@ -583,6 +585,7 @@ export default {
     changeProgress(e) {
       this.slidingProgress = false;
       this.$refs.player.currentTime = e;
+      if (!this.playing) this.playOrPause();
     },
 
     /** 开始划动声音 */
@@ -592,8 +595,6 @@ export default {
 
     /** 划动声音 */
     touchMove(e) {
-      if (!this.playing) return;
-
       const index = this.playList.findIndex((item) => item.exhibitId === this.playingInfo.exhibitId);
       const basicX = -this.infoAreaWidth * index;
       const offset = e.changedTouches[0].clientX - this.startTouchX;
@@ -602,8 +603,6 @@ export default {
 
     /** 结束划动声音 */
     touchEnd() {
-      if (!this.playing) return;
-
       const index = this.playList.findIndex((item) => item.exhibitId === this.playingInfo.exhibitId);
       const basicX = -this.infoAreaWidth * index;
       const areaWidth = this.$refs.infoArea.clientWidth;
@@ -1085,6 +1084,11 @@ export default {
 
           &:active {
             color: rgba(255, 255, 255, 0.6);
+          }
+
+          &.disabled {
+            opacity: 0.4;
+            pointer-events: none;
           }
 
           & + .freelog {

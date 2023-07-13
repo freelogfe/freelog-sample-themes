@@ -20,19 +20,19 @@ export const HomeScreen = (props: any) => {
   const [total, setTotal] = useState<number | null>(null);
   const [searching, setSearching] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [myloading, setMyloading] = useState(false);
   let skip = useRef(0);
-  let myLoading = useRef(false);
 
   const getBookList = useCallback(
     async (init = false) => {
-      if (myLoading.current) return;
+      if (myloading) return;
 
       setSearching(!!keywords);
 
       if (total === bookList.length && !init) return;
 
       if (init) setLoading(true);
-      myLoading.current = true;
+      setMyloading(true);
       skip.current = init ? 0 : skip.current + 30;
       const queryParams: GetExhibitListByPagingParams = {
         articleResourceTypes: "文章",
@@ -59,7 +59,7 @@ export const HomeScreen = (props: any) => {
       setBookList((pre) => (init ? dataList : [...pre, ...dataList]));
       setTotal(totalItem);
       if (init) setLoading(false);
-      myLoading.current = false;
+      setMyloading(false);
     },
     // eslint-disable-next-line
     [bookList.length, total, tags, keywords]
@@ -86,6 +86,7 @@ export const HomeScreen = (props: any) => {
         tags={tags}
         keywords={keywords}
         loading={loading}
+        myloading={myloading}
       />
 
       <Footer />
@@ -104,8 +105,9 @@ const HomeBody = (props: {
   tags: string;
   keywords: string;
   loading: boolean;
+  myloading: boolean;
 }) => {
-  const { bookList, searching, total, tags, keywords, loading } = props;
+  const { bookList, searching, total, tags, keywords, loading, myloading } = props;
   const { inMobile, userData, selfConfig } = useContext(globalContext);
   const tagsList: string[] = selfConfig.tags?.split(",");
   const { myShelf } = useMyShelf();
@@ -148,7 +150,7 @@ const HomeBody = (props: {
           {searching ? (
             <div className="search-box-title">
               <div className="box-title">查询到{bookList.length}个相关结果</div>
-              <div className="text-btn mobile" onClick={() => setFilterBoxShow(true)}>
+              <div className={`text-btn mobile ${myloading && "disabled"}`} onClick={() => setFilterBoxShow(true)}>
                 <i className="freelog fl-icon-shaixuan"></i>
                 <div className="filter-label">筛选</div>
               </div>
@@ -156,7 +158,7 @@ const HomeBody = (props: {
           ) : (
             <div className="box-header">
               <div className="box-title">精选小说</div>
-              <div className="text-btn mobile" onClick={() => setFilterBoxShow(true)}>
+              <div className={`text-btn mobile ${myloading && "disabled"}`} onClick={() => setFilterBoxShow(true)}>
                 <i className="freelog fl-icon-shaixuan"></i>
                 <div className="filter-label">筛选</div>
               </div>
@@ -257,13 +259,20 @@ const HomeBody = (props: {
           <div className="filter-bar">
             <div className="filter-bar-bg"></div>
 
-            <div className={`category-btn ${tags === "全部" && "active"}`} onClick={() => selectTag("全部")}>
+            <div
+              className={`category-btn ${tags === "全部" && "active"} ${myloading && "disabled"}`}
+              onClick={() => selectTag("全部")}
+            >
               全部
             </div>
 
             {tagsList.map((item) => {
               return (
-                <div className={`category-btn ${tags === item && "active"}`} key={item} onClick={() => selectTag(item)}>
+                <div
+                  className={`category-btn ${tags === item && "active"} ${myloading && "disabled"}`}
+                  key={item}
+                  onClick={() => selectTag(item)}
+                >
                   {item}
                 </div>
               );
