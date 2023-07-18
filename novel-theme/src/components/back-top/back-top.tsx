@@ -3,10 +3,12 @@ import CSSTransition from "react-transition-group/CSSTransition";
 import { useMyScroll } from "../../utils/hooks";
 import { ReactChild } from "react";
 
+/** 回到顶部控件 */
 export const BackTop = (props: { children: ReactChild; onClick?: () => void }) => {
   const { scrollTop, scrollToTop } = useMyScroll();
   const { children, onClick } = props;
 
+  /** 回到顶部 */
   const backToTop = () => {
     onClick && onClick();
     scrollToTop();

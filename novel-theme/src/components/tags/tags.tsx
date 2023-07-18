@@ -3,6 +3,7 @@ import { useMyHistory } from "../../utils/hooks";
 import { useContext } from "react";
 import { globalContext } from "../../router";
 
+/** 标签组 */
 export const Tags = (props: { data: string[] }) => {
   const { data } = props;
   const { inMobile } = useContext(globalContext);

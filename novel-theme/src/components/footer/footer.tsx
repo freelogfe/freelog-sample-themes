@@ -3,6 +3,7 @@ import { freelogEntrances } from "../../api/data";
 import { globalContext } from "../../router";
 import "./footer.scss";
 
+/** 页面脚部 */
 export const Footer = () => {
   const { inMobile } = useContext(globalContext);
 
@@ -31,6 +32,6 @@ export const Footer = () => {
       </div>
     );
   } else {
-    return <div></div>;
+    return <></>;
   }
 };

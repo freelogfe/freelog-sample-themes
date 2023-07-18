@@ -2,6 +2,7 @@ import "./toast.scss";
 
 let timeout: NodeJS.Timeout | null = null;
 
+/** 轻提示 */
 export const showToast = (msg: string) => {
   const toast = document.getElementById("toast-wrapper");
   if (toast) document.body.removeChild(toast);

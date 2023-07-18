@@ -4,7 +4,7 @@
  * @param format 自定义输出结果格式（YYYY:年，MM:月，DD:日，hh:时，mm:分，ss:秒）
  */
 export const formatDate = (time: string | undefined, format: string = "YYYY-MM-DD hh:mm:ss") => {
-  if (!time) return;
+  if (!time) return '';
 
   const date = new Date(time);
 
@@ -25,7 +25,9 @@ export const formatDate = (time: string | undefined, format: string = "YYYY-MM-D
   return result;
 };
 
-// 判断设备
+/**
+ * 判断设备
+ */
 export const judgeDevice = () => {
   const mobile =
     /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i;

@@ -10,6 +10,7 @@ import { globalContext } from "../../router";
 import { callLogin } from "../../api/freelog";
 import { LoginBtn } from "../../components/login-btn/login-btn";
 
+/** 书架页 */
 export const ShelfScreen = () => {
   const { inMobile } = useContext(globalContext);
   const { myShelf, operateShelf } = useMyShelf();
@@ -17,18 +18,15 @@ export const ShelfScreen = () => {
   return (
     <div className={`shelf-wrapper ${inMobile ? "in-mobile" : "in-pc"}`}>
       <Header />
-
       <ShelfBody shelfList={myShelf} operateShelf={operateShelf} />
-
       <Footer />
-
       <LoginBtn />
-
       <ThemeEntrance />
     </div>
   );
 };
 
+/** 书架页主体内容 */
 const ShelfBody = (props: { shelfList: ExhibitItem[] | null; operateShelf: (data: ExhibitItem) => void }) => {
   const { userData, inMobile } = useContext(globalContext);
   const { shelfList, operateShelf } = props;
@@ -69,6 +67,6 @@ const ShelfBody = (props: { shelfList: ExhibitItem[] | null; operateShelf: (data
       </div>
     );
   } else {
-    return <div></div>;
+    return <></>;
   }
 };

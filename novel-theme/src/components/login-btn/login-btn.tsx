@@ -3,6 +3,7 @@ import { callLogin } from "../../api/freelog";
 import { globalContext } from "../../router";
 import "./login-btn.scss";
 
+/** 移动端登录/注册按钮 */
 export const LoginBtn = () => {
   const { userData, inMobile, theme } = useContext(globalContext);
 

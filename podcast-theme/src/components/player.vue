@@ -337,10 +337,14 @@ export default {
         if (cur && pre && cur.length - pre.length === 1) this.animation();
         if (!cur || !this.$store.state.inMobile) return;
 
-        if (!this.infoAreaWidth) this.infoAreaWidth = this.$refs.infoArea.clientWidth;
         if (this.playingInfo) {
           const index = cur.findIndex((item) => item.exhibitId === this.playingInfo.exhibitId);
           this.touchMoveX = -this.infoAreaWidth * index;
+        }
+        if (!this.infoAreaWidth) {
+          this.$nextTick(() => {
+            this.infoAreaWidth = this.$refs.infoArea.clientWidth;
+          });
         }
       },
       immediate: true,

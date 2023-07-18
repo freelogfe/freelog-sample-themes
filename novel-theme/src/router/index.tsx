@@ -10,6 +10,7 @@ import { getSelfConfig, getCurrentUser } from "../api/freelog";
 import { judgeDevice } from "../utils/common";
 import { themeList } from "../api/data";
 
+/** 全局数据 */
 interface Global {
   inMobile: boolean | null;
   userData: UserData | null;
@@ -18,6 +19,7 @@ interface Global {
   locationHistory: string[];
 }
 
+/** 当前登录用户数据 */
 interface UserData {
   username: string;
   headImage: string;
@@ -25,12 +27,21 @@ interface UserData {
   isLogin: boolean;
 }
 
+/** 主题数据 */
 interface Theme {
   gradientColor: string;
   deriveColor: string;
 }
 
 const history = createBrowserHistory();
+
+const routeList = [
+  { name: "home", path: "/home/:tags/:keywords?", component: HomeScreen },
+  { name: "shelf", path: "/shelf", component: ShelfScreen },
+  { name: "signedList", path: "/signedList", component: SignedListScreen },
+  { name: "detail", path: "/detail/:id", component: DetailScreen },
+  { name: "reader", path: "/reader/:id", component: ReaderScreen },
+];
 
 export const globalContext = React.createContext<Global>({
   inMobile: null,
@@ -41,12 +52,13 @@ export const globalContext = React.createContext<Global>({
 });
 
 const RouterView = () => {
-  const [userData, setUserData] = useState<UserData | null>(null);
   const [inMobile, setInMobile] = useState<boolean | null>(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [selfConfig, setSelfConfig] = useState<any>({});
   const [theme, setTheme] = useState<Theme>({ gradientColor: "", deriveColor: "" });
   const [locationHistory] = useState<string[]>([]);
 
+  /** 初始化全局数据 */
   const initGlobalData = async () => {
     const userData = await getCurrentUser();
     const selfConfig = await getSelfConfig();
@@ -69,11 +81,9 @@ const RouterView = () => {
       <Router history={history}>
         <Switch>
           <Route path="/" exact render={() => <Redirect to="/home/全部" />} />
-          <Route path="/home/:tags/:keywords?" component={HomeScreen}></Route>
-          <Route path="/shelf" component={ShelfScreen}></Route>
-          <Route path="/signedList" component={SignedListScreen}></Route>
-          <Route path="/detail/:id" component={DetailScreen}></Route>
-          <Route path="/reader/:id" component={ReaderScreen}></Route>
+          {routeList.map((route) => (
+            <Route path={route.path} component={route.component} key={route.name}></Route>
+          ))}
         </Switch>
       </Router>
     </globalContext.Provider>

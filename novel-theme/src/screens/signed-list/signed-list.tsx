@@ -9,24 +9,22 @@ import { useMySignedList } from "../../utils/hooks";
 import { callLogin } from "../../api/freelog";
 import { LoginBtn } from "../../components/login-btn/login-btn";
 
+/** 签约列表页 */
 export const SignedListScreen = () => {
   const { inMobile } = useContext(globalContext);
 
   return (
     <div className={`signed-list-wrapper ${inMobile ? "in-mobile" : "in-pc"}`}>
       <Header />
-
       <SignedListBody />
-
       <Footer />
-
       <LoginBtn />
-
       <ThemeEntrance />
     </div>
   );
 };
 
+/** 签约列表页主体内容 */
 const SignedListBody = () => {
   const { userData, inMobile } = useContext(globalContext);
   const { mySignedList, getMySignedList } = useMySignedList();
@@ -76,6 +74,6 @@ const SignedListBody = () => {
       </div>
     );
   } else {
-    return <div></div>;
+    return <></>;
   }
 };

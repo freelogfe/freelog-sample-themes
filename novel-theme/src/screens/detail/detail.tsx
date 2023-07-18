@@ -13,17 +13,17 @@ import { ThemeEntrance } from "../../components/theme-entrance/theme-entrance";
 import { Share } from "../../components/share/share";
 import { LoginBtn } from "../../components/login-btn/login-btn";
 import { globalContext } from "../../router";
-import { Directory } from "../../components/directory/directory";
 import { showToast } from "../../components/toast/toast";
 
 const detailContext = React.createContext<any>({});
 
+/** 详情页 */
 export const DetailScreen = (props: any) => {
   const { id } = props.match.params;
-  const [book, setBook] = useState<ExhibitItem | null>(null);
-  const [directoryShow, setDirectoryShow] = useState(false);
+  const [novel, setNovel] = useState<ExhibitItem | null>(null);
 
-  const getBookInfo = useCallback(async () => {
+  /** 获取小说信息 */
+  const getNovelInfo = useCallback(async () => {
     const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
       getExhibitInfo(id, { isLoadVersionProperty: 1 }),
       getExhibitSignCount(id),
@@ -35,47 +35,42 @@ export const DetailScreen = (props: any) => {
       defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
     };
 
-    setBook(bookInfo);
+    setNovel(bookInfo);
   }, [id]);
 
   useEffect(() => {
     document.documentElement.scroll({ top: 0 });
     document.body.scroll({ top: 0 });
 
-    getBookInfo();
+    getNovelInfo();
     // eslint-disable-next-line
   }, []);
 
   return (
-    <detailContext.Provider value={{ book, setDirectoryShow }}>
+    <detailContext.Provider value={{ novel }}>
       <div className="detail-wrapper">
         <Header />
-
-        <BookBody />
-
+        <DetailBody />
         <Footer />
-
         <LoginBtn />
-
         <ThemeEntrance />
-
-        <Directory book={book} directoryShow={directoryShow} setDirectoryShow={setDirectoryShow} />
       </div>
     </detailContext.Provider>
   );
 };
 
-const BookBody = () => {
+/** 详情页主体内容 */
+const DetailBody = () => {
   const { inMobile } = useContext(globalContext);
-  const { book } = useContext(detailContext);
-  const { isCollected, operateShelf } = useMyShelf(book?.exhibitId);
+  const { novel } = useContext(detailContext);
+  const { isCollected, operateShelf } = useMyShelf(novel?.exhibitId);
   const history = useMyHistory();
   const introContent = useRef<any>();
   const [introState, setIntroState] = useState(0);
   const [shareShow, setShareShow] = useState(false);
   const [href, setHref] = useState("");
-  // const directory = Array.from({ length: 12 }, () => book?.exhibitTitle || "目录名称");
 
+  /** 移动端分享 */
   const share = () => {
     // 复制链接
     const input: any = document.getElementById("href");
@@ -92,7 +87,7 @@ const BookBody = () => {
     const introHeight = introContent.current?.clientHeight;
     const foldHeight = inMobile ? 120 : 60;
     if (introHeight > foldHeight) setIntroState(1);
-  }, [book, inMobile]);
+  }, [novel, inMobile]);
 
   useEffect(() => {
     document.body.style.overflowY = shareShow && inMobile ? "hidden" : "auto";
@@ -102,32 +97,32 @@ const BookBody = () => {
     // mobile
     <div className="mobile-content">
       {/* 授权链异常提示 */}
-      {![0, 4].includes(book?.defaulterIdentityType) && (
+      {![0, 4].includes(novel?.defaulterIdentityType) && (
         <div className="auth-link-abnormal-tip">
           <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
           <div className="tip-text">授权链异常，无法查看</div>
         </div>
       )}
       {/* 书籍信息 */}
-      <div className="book-info">
-        <div className="book-base-info">
-          <div className="book-cover">
-            <img className="book-cover-image" src={book?.coverImages[0]} alt={book?.exhibitTitle} />
+      <div className="novel-info">
+        <div className="novel-base-info">
+          <div className="novel-cover">
+            <img className="novel-cover-image" src={novel?.coverImages[0]} alt={novel?.exhibitTitle} />
           </div>
 
-          <div className="book-content">
+          <div className="novel-content">
             <div className="content-top">
-              <div className="book-name">{book?.exhibitTitle}</div>
+              <div className="novel-name">{novel?.exhibitTitle}</div>
 
-              <div className="book-author">{book?.articleInfo.articleOwnerName}</div>
+              <div className="novel-author">{novel?.articleInfo.articleOwnerName}</div>
 
               <div className="tags">
-                <Tags data={book?.tags || []} />
+                <Tags data={novel?.tags || []} />
               </div>
             </div>
 
             <div className="content-bottom">
-              <div className="sign-count">{book?.signCount}人签约</div>
+              <div className="sign-count">{novel?.signCount}人签约</div>
               <div className="share-btn" onClick={() => share()}>
                 <span className="share-btn-text">
                   <i className="freelog fl-icon-fenxiang"></i>
@@ -139,32 +134,32 @@ const BookBody = () => {
           </div>
         </div>
 
-        <div className="book-date-info">
-          <div className="date-info">创建时间：{formatDate(book?.createDate)}</div>
+        <div className="novel-date-info">
+          <div className="date-info">创建时间：{formatDate(novel?.createDate)}</div>
 
-          <div className="date-info">最近更新：{formatDate(book?.updateDate)}</div>
+          <div className="date-info">最近更新：{formatDate(novel?.updateDate)}</div>
         </div>
 
         <div className="operate-btns">
           <div
-            className={`btn main-btn mobile ${![0, 4].includes(book?.defaulterIdentityType) && "disabled"}`}
-            onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}
+            className={`btn main-btn mobile ${![0, 4].includes(novel?.defaulterIdentityType) && "disabled"}`}
+            onClick={() => history.switchPage(`/reader/${novel?.exhibitId}`)}
           >
             立即阅读
           </div>
-          <div className={`btn ${isCollected ? "delete" : "collect-btn mobile"}`} onClick={() => operateShelf(book)}>
+          <div className={`btn ${isCollected ? "delete" : "collect-btn mobile"}`} onClick={() => operateShelf(novel)}>
             {isCollected ? "移出书架" : "加入书架"}
           </div>
         </div>
       </div>
       {/* 书籍简介 */}
-      <div className="book-intro">
+      <div className="novel-intro">
         <div className="intro-title">内容简介</div>
 
-        {book?.versionInfo?.exhibitProperty?.intro ? (
+        {novel?.versionInfo?.exhibitProperty?.intro ? (
           <div className={`intro ${introState === 1 ? "fold" : "unfold"}`}>
             <div className="intro-content" ref={introContent}>
-              {book?.versionInfo?.exhibitProperty?.intro}
+              {novel?.versionInfo?.exhibitProperty?.intro}
             </div>
 
             {introState === 1 && (
@@ -177,82 +172,56 @@ const BookBody = () => {
           <div className="no-intro-tip">暂无简介</div>
         )}
       </div>
-
-      {/* 书籍目录 */}
-      {/* <div className="directory-list">
-        <div className="directory-header">
-          <div className="directory-title">目录</div>
-          <div className="view-all-btn" onClick={() => setDirectoryShow(true)}>
-            全部{directory.length}
-            <i className="freelog fl-icon-zhankaigengduo"></i>
-          </div>
-        </div>
-
-        <div className="directory-list-box">
-          {directory
-            .filter((_, index) => index < 5)
-            .map((item, index) => {
-              return (
-                <div className="directory-item" key={item + index}>
-                  <div className="item-content">
-                    <div className="directory-title">{item}</div>
-                    <i className="freelog fl-icon-zhankaigengduo"></i>
-                  </div>
-                </div>
-              );
-            })}
-        </div>
-      </div> */}
     </div>
   ) : (
     // PC
     <div className="content">
-      {book && (
+      {novel && (
         <div className="content-box">
           {/* 授权链异常提示 */}
-          {![0, 4].includes(book?.defaulterIdentityType) && (
+          {![0, 4].includes(novel?.defaulterIdentityType) && (
             <div className="auth-link-abnormal-tip">
               <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
               <div className="tip-text">授权链异常，无法查看</div>
             </div>
           )}
           {/* 书籍信息 */}
-          <div className="book-info">
-            <div className="book-cover">
-              <img className="book-cover-image" src={book?.coverImages[0]} alt={book?.exhibitTitle} />
+          <div className="novel-info">
+            <div className="novel-cover">
+              <img className="novel-cover-image" src={novel?.coverImages[0]} alt={novel?.exhibitTitle} />
             </div>
 
-            <div className="book-content">
-              <div className="book-name">{book?.exhibitTitle}</div>
+            <div className="novel-content">
+              <div className="novel-name">{novel?.exhibitTitle}</div>
 
-              <div className="book-author">{book?.articleInfo.articleOwnerName}</div>
+              <div className="novel-author">{novel?.articleInfo.articleOwnerName}</div>
 
               <div className="tags">
-                <Tags data={book?.tags || []} />
+                <Tags data={novel?.tags || []} />
               </div>
 
-              <div className="create-date">创建时间：{formatDate(book?.createDate)}</div>
+              <div className="create-date">创建时间：{formatDate(novel?.createDate)}</div>
 
-              <div className="update-date">最近更新：{formatDate(book?.updateDate)}</div>
+              <div className="update-date">最近更新：{formatDate(novel?.updateDate)}</div>
 
               <div className="btns-box">
                 <div className="operate-btns">
                   <div
-                    className={`btn main-btn ${![0, 4].includes(book?.defaulterIdentityType) && "disabled"}`}
-                    onClick={() => history.switchPage(`/reader/${book?.exhibitId}`)}
+                    className={`btn main-btn ${![0, 4].includes(novel?.defaulterIdentityType) && "disabled"}`}
+                    onClick={() => history.switchPage(`/reader/${novel?.exhibitId}`)}
                   >
                     立即阅读
                   </div>
                   <div
                     className={`btn ${isCollected ? "warning-btn" : "collect-btn"}`}
-                    onClick={() => operateShelf(book)}
+                    onClick={() => operateShelf(novel)}
                   >
                     {isCollected ? "移出书架" : "加入书架"}
                   </div>
                 </div>
 
                 <div className="other-btns">
-                  <div className="sign-count">{book?.signCount}人签约</div>
+                  <div className="sign-count">{novel?.signCount}人签约</div>
                   <div
                     className="share-btn"
                     onMouseOver={() => setShareShow(true)}
@@ -263,7 +232,7 @@ const BookBody = () => {
                       分享给更多人
                     </span>
 
-                    <Share show={shareShow} exhibit={book} />
+                    <Share show={shareShow} exhibit={novel} />
                   </div>
                 </div>
               </div>
@@ -271,13 +240,13 @@ const BookBody = () => {
           </div>
 
           {/* 书籍简介 */}
-          <div className="book-intro">
+          <div className="novel-intro">
             <div className="intro-title">内容简介</div>
 
-            {book?.versionInfo?.exhibitProperty?.intro ? (
+            {novel?.versionInfo?.exhibitProperty?.intro ? (
               <div className={`intro ${introState === 1 ? "fold" : "unfold"}`}>
                 <div className="intro-content" ref={introContent}>
-                  {book?.versionInfo?.exhibitProperty?.intro}
+                  {novel?.versionInfo?.exhibitProperty?.intro}
                 </div>
 
                 {introState === 1 && (
@@ -290,27 +259,6 @@ const BookBody = () => {
               <div className="no-intro-tip">暂无简介</div>
             )}
           </div>
-
-          {/* 书籍目录 */}
-          {/* <div className="directory-list">
-            <div className="directory-title">
-              目录
-              <span className="directory-length">({directory.length}章)</span>
-            </div>
-
-            <div className="directory-list-box">
-              {directory.map((item, index) => {
-                return (
-                  <div className="directory-item" key={item + index}>
-                    <div className="directory-title">{item}</div>
-                    <div className="directory-status">已授权</div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="no-more">— 已加载全部章节 —</div>
-          </div> */}
         </div>
       )}
     </div>

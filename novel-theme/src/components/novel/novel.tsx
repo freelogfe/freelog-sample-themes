@@ -8,14 +8,17 @@ import { useContext } from "react";
 import { globalContext } from "../../router";
 import { showToast } from "../toast/toast";
 
+/** 小说 */
 export const Novel = (props: {
-  mode?: number; // 1-默认首页 2-书架 3-签约记录 4-移动端首页书架
+  mode?: number; // 1-首页默认样式 2-书架样式 3-签约记录样式 4-移动端首页书架样式
   data: ExhibitItem;
   operateShelf?: (data: ExhibitItem) => void;
 }) => {
   const { mode = 1, data, operateShelf } = props;
   const { inMobile } = useContext(globalContext);
   const history = useMyHistory();
+
+  /** 跳转页面 */
   const toPath = (path: string) => {
     if (![0, 4].includes(data.defaulterIdentityType)) {
       showToast("授权链异常，无法查看");

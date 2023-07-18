@@ -560,9 +560,9 @@
 
           .history-item {
             width: 100%;
-            height: 34px;
+            min-height: 34px;
             border-radius: 4px;
-            padding: 0 11px;
+            padding: 8px 11px;
             box-sizing: border-box;
             display: flex;
             align-items: center;
@@ -581,7 +581,10 @@
 
             .item-word {
               font-size: 12px;
+              line-height: 18px;
               color: #222222;
+              word-break: break-all;
+              margin-right: 10px;
             }
 
             .freelog {

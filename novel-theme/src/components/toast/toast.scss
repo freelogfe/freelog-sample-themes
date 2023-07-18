@@ -10,15 +10,21 @@
   border-radius: 6px;
   font-size: 16px;
   line-height: 22px;
-  animation: fade-in 0.3s ease-out;
+  animation: fade-in-out 2s linear both;
   white-space: nowrap;
 }
 
-@keyframes fade-in {
-  from {
+@keyframes fade-in-out {
+  0% {
     opacity: 0;
   }
-  to {
+  10% {
     opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }

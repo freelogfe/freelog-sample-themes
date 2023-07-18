@@ -17,6 +17,18 @@
   transition: all 0.2s linear;
   display: none !important;
 
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    opacity: 0.6;
+  }
+
+  &.show {
+    display: flex !important;
+  }
+
   .freelog {
     width: 20px;
     height: 20px;
@@ -28,17 +40,5 @@
   .text {
     font-size: 14px;
     line-height: 20px;
-  }
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  &:active {
-    opacity: 0.6;
-  }
-
-  &.show {
-    display: flex !important;
   }
 }

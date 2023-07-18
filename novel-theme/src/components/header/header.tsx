@@ -9,6 +9,7 @@ import { callLogin, callLoginOut } from "../../api/freelog";
 import { globalContext } from "../../router";
 import CSSTransition from "react-transition-group/CSSTransition";
 
+/** 页面头部 */
 export const Header = (props: {
   homeHeader?: boolean;
   readerHeader?: boolean;
@@ -27,12 +28,14 @@ export const Header = (props: {
   const [searchHistoryShow, setSearchHistoryShow] = useState(false);
   const [searchWordCatch, setSearchWordCatch] = useState<number | null>(null);
 
+  /** 搜索展品列表 */
   const searchList = useCallback(() => {
     let url = `/home/全部`;
     if (searchKey) url += `/${searchKey}`;
     history.switchPage(url);
   }, [history, searchKey]);
 
+  /** 搜索快捷键 */
   const inputKeyUp = (keycode: number) => {
     switch (keycode) {
       case 13:
@@ -70,7 +73,7 @@ export const Header = (props: {
     }
   };
 
-  // 根据点击区域判断历史搜索框是否关闭
+  /** 根据点击区域判断历史搜索框是否关闭 */
   const ifCloseHistoryPopup = (e: any) => {
     const searchInput = document.getElementById("searchInput");
     const searchHistoryPopup = document.getElementById("searchHistoryPopup");
@@ -426,6 +429,6 @@ export const Header = (props: {
       </div>
     );
   } else {
-    return <div></div>;
+    return <></>;
   }
 };

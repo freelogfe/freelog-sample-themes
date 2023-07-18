@@ -55,7 +55,7 @@
       flex-direction: column;
       justify-content: space-between;
       padding: 8% 5%;
-      animation: flip 2s linear infinite;
+      animation: flip 2s linear infinite alternate;
       transform-origin: left;
       transform-style: preserve-3d;
 

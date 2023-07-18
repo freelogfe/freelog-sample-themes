@@ -10,7 +10,6 @@ import { readerThemeList } from "../../api/data";
 import { BackTop } from "../../components/back-top/back-top";
 import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
 import { Header } from "../../components/header/header";
-import { Directory } from "../../components/directory/directory";
 import { globalContext } from "../../router";
 import { Share } from "../../components/share/share";
 import { showToast } from "../../components/toast/toast";
@@ -20,6 +19,7 @@ import { Markdown } from "../../components/markdown/markdown";
 
 export const readerContext = React.createContext<any>({});
 
+/** 阅读页 */
 export const ReaderScreen = (props: any) => {
   const id = props.match.params.id;
   const { inMobile } = useContext(globalContext);
@@ -31,7 +31,6 @@ export const ReaderScreen = (props: any) => {
   const [sharePopupShow, setSharePopupShow] = useState(false);
   const [fontSizePopupShow, setFontSizePopupShow] = useState(false);
   const [themePopupShow, setThemePopupShow] = useState(false);
-  const [directoryShow, setDirectoryShow] = useState(false);
   const [mobileBarShow, setMobileBarShow] = useState(true);
 
   const context = {
@@ -49,28 +48,26 @@ export const ReaderScreen = (props: any) => {
     setFontSizePopupShow,
     themePopupShow,
     setThemePopupShow,
-    directoryShow,
-    setDirectoryShow,
     mobileBarShow,
     setMobileBarShow,
   };
 
-  const getBookInfo = useCallback(async () => {
+  /** 获取小说信息 */
+  const getNovelInfo = useCallback(async () => {
     const exhibitInfo = await getExhibitInfo(id, { isLoadVersionProperty: 1 });
     setBook(exhibitInfo.data.data);
   }, [id]);
 
+  /** 点击页面（关闭所有打开的弹窗） */
   const clickPage = () => {
-    if (sharePopupShow || fontSizePopupShow || themePopupShow) {
-      setSharePopupShow(false);
-      setFontSizePopupShow(false);
-      setThemePopupShow(false);
-    }
+    if (sharePopupShow) setSharePopupShow(false);
+    if (fontSizePopupShow) setFontSizePopupShow(false);
+    if (themePopupShow) setThemePopupShow(false);
     if (inMobile) setMobileBarShow(true);
   };
 
   useEffect(() => {
-    getBookInfo();
+    getNovelInfo();
     // eslint-disable-next-line
   }, [id]);
 
@@ -84,18 +81,15 @@ export const ReaderScreen = (props: any) => {
         <CSSTransition in={(inMobile && mobileBarShow) || !inMobile} classNames="slide-up" timeout={150} unmountOnExit>
           <Header readerHeader={true} />
         </CSSTransition>
-
-        <Body />
-
-        <Operater />
-
-        <Directory book={book} directoryShow={directoryShow} setDirectoryShow={setDirectoryShow} />
+        <ReaderBody />
+        <OperaterBtns />
       </div>
     </readerContext.Provider>
   );
 };
 
-const Body = () => {
+/** 阅读页主体内容 */
+const ReaderBody = () => {
   const history = useMyHistory();
   const { userData } = useContext(globalContext);
   const { inMobile, book, id, fontSize, theme } = useContext(readerContext);
@@ -103,6 +97,7 @@ const Body = () => {
   const [loading, setLoading] = useState(false);
   const [defaulterIdentityType, setDefaulterIdentityType] = useState<number | null>(null);
 
+  /** 获取小说内容 */
   const getContent = useCallback(async () => {
     setLoading(true);
     let authErrType;
@@ -126,6 +121,7 @@ const Body = () => {
     // eslint-disable-next-line
   }, [id]);
 
+  /** 获取授权 */
   const getAuth = async () => {
     const authResult = await addAuth(id);
     const { status } = authResult;
@@ -149,8 +145,6 @@ const Body = () => {
             backgroundImage: `url(${BgImage})`,
             backgroundColor: theme?.bookColor,
             "--fontSize": fontSize,
-            // fontSize: fontSize + "px",
-            // lineHeight: fontSize + 14 + "px",
           } as any
         }
       >
@@ -182,15 +176,8 @@ const Body = () => {
           <div className="breadcrumbs-item">
             <div className="second-text-btn" onClick={() => history.switchPage("/detail/" + id)}>
               {book?.exhibitTitle}
-              {/* {book?.exhibitTitle} {">"} */}
             </div>
           </div>
-
-          {/* <div className="breadcrumbs-item">
-          <div className="current-page">
-            {book?.exhibitTitle}
-          </div>
-        </div> */}
         </div>
 
         <div
@@ -200,8 +187,6 @@ const Body = () => {
               backgroundImage: `url(${BgImage})`,
               backgroundColor: theme?.bookColor,
               "--fontSize": fontSize,
-              // fontSize: fontSize + "px",
-              // lineHeight: fontSize + 14 + "px",
             } as any
           }
         >
@@ -224,25 +209,6 @@ const Body = () => {
             </div>
           ) : null}
         </div>
-
-        {/* <div
-        className="footer-bar"
-        style={{
-          backgroundImage: `url(${BgImage})`,
-          backgroundColor: theme?.bookColor,
-          color: theme?.type === 1 ? "#999" : "#222",
-        }}
-      >
-        <div className={`footer-btn invalid`} onClick={() => console.log(123)}>
-          上一章
-        </div>
-        <div className="footer-btn" onClick={() => history.switchPage("/detail/" + id)}>
-          书籍详情
-        </div>
-        <div className={`footer-btn invalid`} onClick={() => console.log(123)}>
-          下一章
-        </div>
-      </div> */}
       </div>
     );
   } else {
@@ -250,7 +216,8 @@ const Body = () => {
   }
 };
 
-const Operater = () => {
+/** 功能操作按钮群 */
+const OperaterBtns = () => {
   const { scrollTop } = useMyScroll();
   const {
     inMobile,
@@ -273,6 +240,7 @@ const Operater = () => {
   let changingFontSize = useRef(false);
   let changingFontSizeTimer = useRef<any>(null);
 
+  /** 改变字体大小 */
   const changeFontSize = (type: number) => {
     changingFontSize.current = true;
     clearTimeout(changingFontSizeTimer.current);
@@ -294,12 +262,14 @@ const Operater = () => {
     }, 500);
   };
 
+  /** 关闭所有弹窗 */
   const closeAllPopup = () => {
     setSharePopupShow(false);
     setFontSizePopupShow(false);
     setThemePopupShow(false);
   };
 
+  /** 移动端分享 */
   const share = () => {
     // 复制链接
     const input: any = document.getElementById("href");
@@ -332,17 +302,6 @@ const Operater = () => {
     // mobile
     <CSSTransition in={mobileBarShow} classNames="slide-down" timeout={150} unmountOnExit>
       <div className="mobile-operater-wrapper">
-        {/* <div
-        className="operater-btn"
-        onClick={() => {
-          closeAllPopup();
-          setDirectoryShow(true);
-        }}
-      >
-        <i className="freelog fl-icon-xiaoshuomulu"></i>
-        <div className="operater-btn-label">目录</div>
-      </div> */}
-
         {isCollected ? (
           <div
             className="operater-btn"
@@ -443,14 +402,6 @@ const Operater = () => {
     // PC
     <div className="operater-wrapper">
       <div className="operater-btns-box">
-        {/* <OperateBtn
-          icon="fl-icon-xiaoshuomulu"
-          onClick={() => {
-            closeAllPopup();
-            setDirectoryShow(true);
-          }}
-        /> */}
-
         {isCollected ? (
           <OperateBtn
             icon="fl-icon-shoucangxiaoshuoyishoucang"
@@ -535,6 +486,7 @@ const Operater = () => {
   );
 };
 
+/** 功能操作按钮 */
 const OperateBtn = (props: { icon?: string; text?: string; slot?: any; onClick?: (e: any) => void }) => {
   const { icon, text, slot, onClick } = props;
   const { theme } = useContext(readerContext);

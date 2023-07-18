@@ -1,4 +1,3 @@
-import React from "react";
 import ReactDOM from "react-dom";
 import "./index.scss";
 import reportWebVitals from "./reportWebVitals";
@@ -10,18 +9,13 @@ window.freelogApp.onLogin(() => {
   window.location.reload();
 });
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
 
 export async function bootstrap() {
-  console.log("[react17] react app bootstraped");
+  console.log("react app bootstraped");
 }
-//     </React.StrictMode>,
 
-export async function mount(props = {}) {
-  // const { container } = props;
+export async function mount() {
   ReactDOM.render(<RouterView />, document.getElementById("root"));
 }
 

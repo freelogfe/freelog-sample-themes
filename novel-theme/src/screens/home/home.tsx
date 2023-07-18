@@ -12,24 +12,26 @@ import { LoginBtn } from "../../components/login-btn/login-btn";
 import CSSTransition from "react-transition-group/CSSTransition";
 import { Loader } from "../../components/loader/loader";
 
+/** 首页 */
 export const HomeScreen = (props: any) => {
   const { tags, keywords } = props.match.params;
   const { inMobile } = useContext(globalContext);
   const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
-  const [bookList, setBookList] = useState<ExhibitItem[]>([]);
+  const [novelList, setNovelList] = useState<ExhibitItem[]>([]);
   const [total, setTotal] = useState<number | null>(null);
   const [searching, setSearching] = useState(false);
   const [loading, setLoading] = useState(false);
   const [myloading, setMyloading] = useState(false);
   let skip = useRef(0);
 
-  const getBookList = useCallback(
+  /** 获取小说列表 */
+  const getNovelList = useCallback(
     async (init = false) => {
       if (myloading) return;
 
       setSearching(!!keywords);
 
-      if (total === bookList.length && !init) return;
+      if (total === novelList.length && !init) return;
 
       if (init) setLoading(true);
       setMyloading(true);
@@ -56,31 +58,30 @@ export const HomeScreen = (props: any) => {
           });
         }
       }
-      setBookList((pre) => (init ? dataList : [...pre, ...dataList]));
+      setNovelList((pre) => (init ? dataList : [...pre, ...dataList]));
       setTotal(totalItem);
       if (init) setLoading(false);
       setMyloading(false);
     },
     // eslint-disable-next-line
-    [bookList.length, total, tags, keywords]
+    [novelList.length, total, tags, keywords]
   );
 
   useEffect(() => {
-    getBookList(true);
+    getNovelList(true);
     // eslint-disable-next-line
   }, [tags, keywords]);
 
   useEffect(() => {
-    if (scrollTop + clientHeight === scrollHeight) getBookList();
+    if (scrollTop + clientHeight === scrollHeight) getNovelList();
     // eslint-disable-next-line
   }, [scrollTop, clientHeight, scrollHeight]);
 
   return (
     <div className="home-wrapper">
       <Header homeHeader={!searching} mobileSearching={(inMobile && searching) || false} defaultSearchKey={keywords} />
-
       <HomeBody
-        bookList={bookList}
+        novelList={novelList}
         searching={searching}
         total={total}
         tags={tags}
@@ -88,18 +89,16 @@ export const HomeScreen = (props: any) => {
         loading={loading}
         myloading={myloading}
       />
-
       <Footer />
-
       <LoginBtn />
-
       <ThemeEntrance />
     </div>
   );
 };
 
+/** 首页主体内容 */
 const HomeBody = (props: {
-  bookList: ExhibitItem[];
+  novelList: ExhibitItem[];
   searching: boolean;
   total: number | null;
   tags: string;
@@ -107,7 +106,7 @@ const HomeBody = (props: {
   loading: boolean;
   myloading: boolean;
 }) => {
-  const { bookList, searching, total, tags, keywords, loading, myloading } = props;
+  const { novelList, searching, total, tags, keywords, loading, myloading } = props;
   const { inMobile, userData, selfConfig } = useContext(globalContext);
   const tagsList: string[] = selfConfig.tags?.split(",");
   const { myShelf } = useMyShelf();
@@ -149,7 +148,7 @@ const HomeBody = (props: {
         <div className="book-list">
           {searching ? (
             <div className="search-box-title">
-              <div className="box-title">查询到{bookList.length}个相关结果</div>
+              <div className="box-title">查询到{novelList.length}个相关结果</div>
               <div className={`text-btn mobile ${myloading && "disabled"}`} onClick={() => setFilterBoxShow(true)}>
                 <i className="freelog fl-icon-shaixuan"></i>
                 <div className="filter-label">筛选</div>
@@ -168,7 +167,7 @@ const HomeBody = (props: {
           {loading && <Loader />}
 
           {!loading &&
-            bookList.map((item) => {
+            novelList.map((item) => {
               return (
                 <div key={item.exhibitId} className="book-box">
                   <Novel data={item}></Novel>
@@ -176,9 +175,9 @@ const HomeBody = (props: {
               );
             })}
 
-          {!loading && bookList.length === 0 && <div className="tip">当前节点暂无任何书籍，请稍后查看</div>}
+          {!loading && novelList.length === 0 && <div className="tip">当前节点暂无任何书籍，请稍后查看</div>}
 
-          {!loading && bookList.length !== 0 && bookList.length === total && (
+          {!loading && novelList.length !== 0 && novelList.length === total && (
             <div className="tip no-more">— 已加载全部书籍 —</div>
           )}
         </div>
@@ -252,7 +251,7 @@ const HomeBody = (props: {
 
         <div className="book-list">
           {searching ? (
-            <div className="search-box-title">查询到{bookList.length}个相关结果</div>
+            <div className="search-box-title">查询到{novelList.length}个相关结果</div>
           ) : (
             <div className="box-title">精选小说</div>
           )}
@@ -283,7 +282,7 @@ const HomeBody = (props: {
 
           {!loading && (
             <div className="book-list-box">
-              {bookList.map((item) => {
+              {novelList.map((item) => {
                 return (
                   <div key={item.exhibitId} className="book-box">
                     <Novel data={item}></Novel>
@@ -292,14 +291,14 @@ const HomeBody = (props: {
               })}
             </div>
           )}
-          {!loading && bookList.length === 0 && <div className="tip">当前节点暂无任何书籍，请稍后查看</div>}
-          {!loading && bookList.length !== 0 && bookList.length === total && (
+          {!loading && novelList.length === 0 && <div className="tip">当前节点暂无任何书籍，请稍后查看</div>}
+          {!loading && novelList.length !== 0 && novelList.length === total && (
             <div className="tip no-more">— 已加载全部书籍 —</div>
           )}
         </div>
       </div>
     );
   } else {
-    return <div></div>;
+    return <></>;
   }
 };

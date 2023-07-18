@@ -1,6 +1,6 @@
 import { freelogEntranceItem, shareBtnItem, ThemeItem } from "./interface";
 
-// 节点主题色
+/** 节点主题色 */
 export const themeList: any = {
   酷黑: { gradientColor: "linear-gradient(135deg, #222222, #353535)", deriveColor: "#222222" },
   炫丽: { gradientColor: "linear-gradient(135deg, #C127FF, #35A3C5)", deriveColor: "#C127FF" },
@@ -11,7 +11,7 @@ export const themeList: any = {
   沉静: { gradientColor: "linear-gradient(315deg, #2C5364, #0F2027)", deriveColor: "#0F2027" },
 };
 
-// 阅读页主题色
+/** 阅读页主题色 */
 export const readerThemeList: ThemeItem[] = [
   { bookColor: "#ffffff", bgColor: "#efefef", type: 0 },
   { bookColor: "#F6ECC9", bgColor: "#EAD9AA", type: 0 },
@@ -21,7 +21,7 @@ export const readerThemeList: ThemeItem[] = [
   { bookColor: "#111111", bgColor: "#181818", type: 1 },
 ];
 
-// freelog相关入口
+/** freelog相关入口 */
 export const freelogEntrances: freelogEntranceItem[] = [
   { label: "freelog fl-icon-a-featherlogo5", url: "https://www.freelog.com/" },
   {
@@ -35,7 +35,7 @@ export const freelogEntrances: freelogEntranceItem[] = [
   { label: "浏览更多主题", url: "https://console.freelog.com/market?query=主题" },
 ];
 
-// 分享按钮
+/** 分享按钮 */
 export const shareBtns: shareBtnItem[] = [
   {
     id: "qqZone",

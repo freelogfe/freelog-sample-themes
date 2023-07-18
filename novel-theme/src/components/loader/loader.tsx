@@ -1,5 +1,6 @@
 import "./loader.scss";
 
+/** loading 动画 */
 export const Loader = () => {
   return (
     <div className="loader-wrapper">

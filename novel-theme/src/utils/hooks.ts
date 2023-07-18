@@ -12,16 +12,14 @@ import { showToast } from "../components/toast/toast";
 import { globalContext } from "../router";
 import { ExhibitItem } from "../api/interface";
 
-/**
- * 我的书架hook
- */
+/** 书架 hook */
 export const useMyShelf = (id?: string) => {
   const { userData } = useContext(globalContext);
   const [shelfIds, setShelfIds] = useState<string[]>([]);
   const [myShelf, setMyShelf] = useState<ExhibitItem[] | null>(null);
   const [isCollected, setIsCollected] = useState(false);
 
-  // 获取书架数据
+  /** 获取书架数据 */
   const getMyShelf = async () => {
     // 用户未登录
     if (!userData?.isLogin) return;
@@ -48,13 +46,13 @@ export const useMyShelf = (id?: string) => {
     setMyShelf(list.data.data);
   };
 
-  // 判断当前资源是否已被收藏
+  /** 判断当前资源是否已被收藏 */
   const ifExistInShelf = (exhibitId: string) => {
     const isThisCollected = shelfIds.includes(exhibitId);
     return isThisCollected;
   };
 
-  // 操作收藏（如未收藏则收藏，反之取消收藏）
+  /** 操作收藏（如未收藏则收藏，反之取消收藏） */
   const operateShelf = async (exhibit: ExhibitItem) => {
     if (!userData?.isLogin) {
       callLogin();
@@ -91,9 +89,7 @@ export const useMyShelf = (id?: string) => {
   return { myShelf, isCollected, operateShelf };
 };
 
-/**
- * 我的已签约展品hook
- */
+/** 签约列表 hook */
 export const useMySignedList = () => {
   interface SignedItem {
     subjectId: string;
@@ -102,7 +98,7 @@ export const useMySignedList = () => {
   const { userData } = useContext(globalContext);
   const [mySignedList, setMySignedList] = useState<ExhibitItem[] | null>(null);
 
-  // 获取已签约展品数据
+  /** 获取签约展品列表 */
   const getMySignedList = async (keywords = "") => {
     // 用户未登录
     if (!userData?.isLogin) return;
@@ -134,19 +130,17 @@ export const useMySignedList = () => {
   return { mySignedList, getMySignedList };
 };
 
-/**
- * 搜索历史hook
- */
+/** 搜索历史 hook */
 export const useSearchHistory = () => {
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
 
-  // 获取搜索历史
+  /** 获取搜索历史 */
   const getSearchHistory = async () => {
     const json = localStorage.getItem("searchHistory") || "[]";
     setSearchHistory(JSON.parse(json));
   };
 
-  // 搜索
+  /** 搜索 */
   const searchWord = (keywords = "") => {
     keywords = keywords.trim();
     if (!keywords) return;
@@ -158,7 +152,7 @@ export const useSearchHistory = () => {
     getSearchHistory();
   };
 
-  // 删除搜索词
+  /** 删除搜索词 */
   const deleteWord = (keywords: string) => {
     const index = searchHistory.findIndex((item) => item === keywords);
     if (index === -1) return;
@@ -167,7 +161,7 @@ export const useSearchHistory = () => {
     getSearchHistory();
   };
 
-  // 清空搜索词
+  /** 清空搜索词 */
   const clearHistory = () => {
     localStorage.setItem("searchHistory", "[]");
     setSearchHistory([]);
@@ -180,21 +174,21 @@ export const useSearchHistory = () => {
   return { searchHistory, searchWord, deleteWord, clearHistory };
 };
 
-/**
- * 页面滚动相关hook
- */
+/** 页面滚动 hook */
 export const useMyScroll = () => {
   const app = document.getElementById("root");
   const [scrollTop, setScrollTop] = useState(0);
   const [clientHeight, setClientHeight] = useState(0);
   const [scrollHeight, setScrollHeight] = useState(0);
 
+  /** 页面滚动 */
   const scroll = useCallback(() => {
     setScrollTop(app?.scrollTop || 0);
     setClientHeight(app?.clientHeight || 0);
     setScrollHeight(app?.scrollHeight || 0);
   }, [setScrollTop, setClientHeight, setScrollHeight, app]);
 
+  /** 回到顶部 */
   const scrollToTop = () => {
     app?.scroll({ top: 0, behavior: "smooth" });
   };
@@ -212,16 +206,16 @@ export const useMyScroll = () => {
   };
 };
 
-/**
- * 路由hook
- */
+/** 路由 hook */
 export const useMyHistory = () => {
   const history = useHistory();
 
+  /** 跳转页面 */
   const switchPage = (path: string) => {
     history.push(path);
   };
 
+  /** 页面返回 */
   const back = () => {
     history.goBack();
   };
@@ -229,9 +223,7 @@ export const useMyHistory = () => {
   return { switchPage, back, pathname: history.location.pathname };
 };
 
-/**
- * 页面路由记录hook
- */
+/** 路由历史 hook */
 export const useMyLocationHistory = () => {
   const { locationHistory } = useContext(globalContext);
   const history = useHistory();
