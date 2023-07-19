@@ -1,7 +1,9 @@
+<!-- 页面头部 -->
+
 <template>
   <!-- 移动端头部 -->
   <div class="mobile-header-wrapper" :class="{ 'in-home': homeHeader }" v-if="inMobile && !mobileSearching">
-    <!-- header顶部 -->
+    <!-- 顶部 -->
     <div class="header-top" :class="{ logon: userData.isLogin }">
       <img
         class="logo"
@@ -292,7 +294,7 @@ export default {
     });
 
     const methods = {
-      // 输入搜索词
+      /** 输入搜索词 */
       searchKeyInput(inHomeSearch = false) {
         data.searchKey = (data.searchKey || "").trim();
         data.searchHistoryShow = true;
@@ -303,7 +305,7 @@ export default {
         }
       },
 
-      // 点击历史搜索词
+      /** 点击历史搜索词 */
       clickSearchHistory(item: string) {
         data.searchKey = item;
         searchWord(data.searchKey);
@@ -311,12 +313,12 @@ export default {
         data.searchHistoryShow = false;
       },
 
-      // 删除历史搜索词
+      /** 删除历史搜索词 */
       deleteSearchHistory(item: string) {
         deleteWord(item);
       },
 
-      // 搜索
+      /** 搜索 */
       search() {
         data.searchPopupShow = false;
         const { searchKey } = data;
@@ -325,14 +327,14 @@ export default {
         switchPage("/home", query);
       },
 
-      // 搜索历史关键词
+      /** 搜索历史关键词 */
       selectTag(item: string) {
         data.searchPopupShow = false;
         data.searchKey = item;
         this.search();
       },
 
-      // 搜索框键盘事件
+      /** 搜索框键盘快捷键 */
       inputKeyUp(e: { keyCode: any }) {
         switch (e.keyCode) {
           case 13:
@@ -372,20 +374,28 @@ export default {
         }
       },
 
-      // 注册
+      /** 注册 */
       register() {
         window.open("https://user.freelog.com/logon");
       },
     };
 
-    // 根据点击区域判断历史搜索框是否关闭
+    /** 根据点击区域判断历史搜索框是否关闭 */
     const ifCloseHistoryPopup = (e: MouseEvent) => {
       if (!searchInput.value || !searchHistoryPopup.value) return;
       const clickInput = searchInput.value.contains(e.target);
       const clickPopup = searchHistoryPopup.value.contains(e.target);
       if (!clickInput && !clickPopup) {
         data.searchHistoryShow = false;
+      } else {
+        searchInput.value.focus();
       }
+    };
+
+    /** 初始化头部搜索相关数据 */
+    const initHeaderSearch = () => {
+      const { keywords } = query.value;
+      data.searchKey = keywords || "";
     };
 
     watch(
@@ -406,11 +416,6 @@ export default {
       }
     );
 
-    // 初始化头部搜索相关数据
-    const initHeaderSearch = () => {
-      const { keywords } = query.value;
-      data.searchKey = keywords || "";
-    };
     initHeaderSearch();
     useMyLocationHistory();
 
@@ -437,714 +442,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// 移动端头部
-.mobile-header-wrapper {
-  width: 100%;
-  padding: 16px 20px;
-  box-sizing: border-box;
-  background: var(--gradientColor);
-
-  &.in-home {
-    padding: 22px 20px;
-  }
-
-  .header-top {
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    .logo {
-      height: 24px;
-    }
-
-    .header-top-left {
-      display: flex;
-      align-items: center;
-
-      .back-arrow {
-        width: 7px;
-        height: 12px;
-      }
-
-      .back-label {
-        font-size: 16px;
-        color: #ffffff;
-        margin-left: 10px;
-      }
-    }
-
-    .header-top-right {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      margin-left: 10px;
-
-      .fl-icon-content {
-        width: 20px;
-        height: 20px;
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .menu {
-        width: 42px;
-        height: 32px;
-        margin-left: 30px;
-      }
-    }
-  }
-
-  .search-box {
-    width: 100%;
-    height: 42px;
-    border-radius: 42px;
-    display: flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.1);
-    margin-top: 36px;
-
-    .fl-icon-content {
-      width: 14px;
-      height: 14px;
-      font-size: 14px;
-      margin-left: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: rgba(255, 255, 255, 0.6);
-    }
-  }
-
-  .modal {
-    position: fixed;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.4);
-  }
-
-  .user-box-body {
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 340px;
-    background: #ffffff;
-    border-radius: 0px 10px 10px 0px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    z-index: 101;
-
-    .user-box-top {
-      position: relative;
-      width: 100%;
-      height: 194px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: var(--gradientColor);
-
-      .avatar {
-        width: 72px;
-        height: 72px;
-        border-radius: 50%;
-        border: 1px solid rgba(255, 255, 255, 0.4);
-      }
-
-      .username {
-        font-size: 16px;
-        line-height: 22px;
-        color: #fff;
-        font-weight: bold;
-        margin-top: 20px;
-      }
-
-      .close-btn {
-        position: absolute;
-        right: 31px;
-        top: 31px;
-        width: 12px;
-        height: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        .freelog {
-          font-size: 12px;
-          color: #fff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-      }
-    }
-
-    .btns {
-      width: 100%;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 25px 20px 0;
-      box-sizing: border-box;
-
-      .menu-btns {
-        flex: 1;
-
-        .btn {
-          width: 100%;
-          height: 52px;
-          border-radius: 4px;
-          color: #222;
-          background-color: #fff;
-          display: flex;
-          align-items: center;
-
-          &.active,
-          &:active {
-            color: var(--deriveColor);
-            background: rgba(93, 145, 145, 0.05);
-          }
-
-          & + .btn {
-            margin-top: 10px;
-          }
-
-          .freelog {
-            font-size: 16px;
-            margin: 0 11px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-
-          .btn-label {
-            font-size: 16px;
-          }
-        }
-      }
-
-      .footer-btn {
-        width: 100%;
-        height: 102px;
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
-        color: #222;
-        display: flex;
-        align-items: center;
-
-        .freelog {
-          font-size: 16px;
-          margin: 0 11px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .btn-label {
-          font-size: 16px;
-        }
-
-        .main-btn {
-          width: 100%;
-          height: 48px;
-          border-radius: 48px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 16px;
-          font-weight: 600;
-          color: #ffffff;
-        }
-      }
-    }
-  }
-
-  .search-page {
-    position: fixed;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #fff;
-    z-index: 1;
-
-    .search-page-header {
-      width: 100%;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      padding-left: 20px;
-      box-sizing: border-box;
-      background: var(--gradientColor);
-      margin-bottom: 20px;
-
-      .search-page-box {
-        position: relative;
-        flex: 1;
-        height: 42px;
-        border-radius: 42px;
-        display: flex;
-        align-items: center;
-        overflow: hidden;
-
-        .search-input {
-          height: 100%;
-          flex: 1;
-          width: 0;
-          font-size: 16px;
-          color: #222;
-          background-color: rgba(255, 255, 255, 0.1) !important;
-          padding: 0 44px !important;
-          transition: all 0.2s linear;
-
-          &:active {
-            background-color: rgba(255, 255, 255, 0.18) !important;
-          }
-
-          &:focus,
-          &.in-focus {
-            background-color: #fff !important;
-
-            & ~ .fl-icon-content {
-              color: #8e8e93;
-            }
-          }
-        }
-
-        .fl-icon-content {
-          position: absolute;
-          left: 15px;
-          width: 14px;
-          height: 14px;
-          font-size: 14px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: rgba(255, 255, 255, 0.6);
-          transition: all 0.2s linear;
-        }
-      }
-
-      .cancel-btn {
-        font-size: 16px;
-        line-height: 22px;
-        height: 100%;
-        padding: 0 20px;
-        display: flex;
-        align-items: center;
-        color: #fff;
-
-        &:active {
-          opacity: 0.6;
-        }
-      }
-    }
-
-    .search-history-box {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-
-      & + .search-history-box {
-        margin-top: 25px;
-      }
-
-      .search-history-box-title {
-        width: 100%;
-        font-size: 14px;
-        color: #999999;
-        line-height: 20px;
-        padding: 0 20px;
-        box-sizing: border-box;
-        display: flex;
-        justify-content: space-between;
-
-        .clear-btn {
-          color: #5d9191;
-        }
-      }
-
-      .search-history-box-list {
-        width: 340px;
-        margin-top: 20px;
-        display: flex;
-        flex-wrap: wrap;
-
-        .tag {
-          height: 38px;
-          padding: 0 15px;
-          border-radius: 38px;
-          display: flex;
-          align-items: center;
-          font-size: 14px;
-          color: #575e6a;
-          background-color: #ebecf0;
-          margin: 0 5px 15px;
-
-          &:active {
-            background-color: #dcdee2;
-          }
-
-          .freelog {
-            font-size: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-left: 10px;
-          }
-        }
-      }
-    }
-  }
-}
-
-// 移动端首页搜索头部
-.mobile-search-header-wrapper {
-  width: 100%;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  padding-left: 20px;
-  box-sizing: border-box;
-  background: var(--gradientColor);
-
-  .search-page-box {
-    position: relative;
-    flex: 1;
-    height: 42px;
-    border-radius: 42px;
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-
-    .search-input {
-      height: 100%;
-      flex: 1;
-      width: 0;
-      font-size: 16px;
-      color: #222;
-      background-color: rgba(255, 255, 255, 0.1) !important;
-      padding: 0 44px !important;
-      transition: all 0.2s linear;
-
-      &:active {
-        background-color: rgba(255, 255, 255, 0.18) !important;
-      }
-
-      &:focus,
-      &.in-focus {
-        background-color: #fff !important;
-
-        & ~ .fl-icon-content {
-          color: #8e8e93;
-        }
-      }
-    }
-
-    .fl-icon-content {
-      position: absolute;
-      left: 15px;
-      width: 14px;
-      height: 14px;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: rgba(255, 255, 255, 0.6);
-      transition: all 0.2s linear;
-    }
-  }
-
-  .cancel-btn {
-    font-size: 16px;
-    line-height: 22px;
-    height: 100%;
-    padding: 0 20px;
-    display: flex;
-    align-items: center;
-    color: #fff;
-
-    &:active {
-      opacity: 0.6;
-    }
-  }
-}
-
-// PC
-.header-wrapper {
-  width: 100%;
-  padding: 0 140px;
-  background: var(--gradientColor);
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  .header-box {
-    width: 1160px;
-    height: 70px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    .header-left {
-      display: flex;
-      align-items: center;
-
-      .logo {
-        height: 24px;
-        cursor: pointer;
-
-        .freelog {
-          height: 24px;
-          font-size: 24px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: normal;
-          margin-right: 5px;
-        }
-      }
-
-      .search-box {
-        position: relative;
-        width: 240px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        margin-left: 40px;
-
-        .search-input {
-          height: 32px;
-          border-radius: 32px;
-          flex: 1;
-          font-size: 14px;
-          color: #222;
-          padding: 0 34px !important;
-          background-color: rgba(255, 255, 255, 0.1) !important;
-          transition: all 0.2s linear;
-
-          &:hover {
-            background-color: rgba(255, 255, 255, 0.18) !important;
-          }
-
-          &:focus,
-          &.in-focus {
-            background-color: #fff !important;
-
-            & ~ .fl-icon-content {
-              color: #8e8e93;
-            }
-          }
-        }
-
-        .fl-icon-content {
-          position: absolute;
-          left: 10px;
-          font-size: 14px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: rgba(255, 255, 255, 0.6);
-        }
-
-        .fl-icon-guanbi {
-          position: absolute;
-          right: 10px;
-          font-size: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-top: 2px;
-        }
-
-        .search-history {
-          position: absolute;
-          left: 0;
-          right: 0;
-          top: 100%;
-          margin-top: 5px;
-          min-height: 170px;
-          background-color: #fff;
-          background: #ffffff;
-          box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
-          border-radius: 4px;
-          padding: 4px;
-          padding-bottom: 50px;
-          box-sizing: border-box;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          z-index: 2;
-
-          .history-item {
-            width: 100%;
-            height: 34px;
-            border-radius: 4px;
-            padding: 0 11px;
-            box-sizing: border-box;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            transition: all 0.2s linear;
-
-            &.catch,
-            &:hover {
-              background: rgba(0, 0, 0, 0.03);
-
-              .freelog {
-                opacity: 1;
-              }
-            }
-
-            .item-word {
-              font-size: 12px;
-              color: #222222;
-            }
-
-            .freelog {
-              width: 10px;
-              height: 10px;
-              font-size: 10px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              color: #999;
-              cursor: pointer;
-              transition: all 0.2s linear;
-              opacity: 0;
-
-              &:hover {
-                color: #a9a9ad;
-              }
-            }
-          }
-
-          .text-btn {
-            position: absolute;
-            bottom: 12px;
-            font-size: 12px;
-            line-height: 18px;
-          }
-        }
-      }
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-
-      .nav-btn {
-        padding: 0 25px;
-        font-size: 14px;
-        line-height: 16px;
-        font-weight: 600;
-        color: #ffffff;
-        border-right: 1px solid rgba(255, 255, 255, 0.2);
-        opacity: 0.8;
-        cursor: pointer;
-        transition: all 0.2s linear;
-
-        &:hover {
-          opacity: 1;
-        }
-      }
-
-      .user-avatar {
-        position: relative;
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        margin-left: 25px;
-
-        .avatar {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          border: 1px solid rgba(255, 255, 255, 0.4);
-        }
-
-        .user-box {
-          position: absolute;
-          right: 0;
-          top: 100%;
-          padding-top: 10px;
-          cursor: default;
-          z-index: 100;
-
-          .user-box-body {
-            width: 240px;
-            background: #ffffff;
-            box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-
-            .avatar {
-              width: 60px;
-              height: 60px;
-              border-radius: 50%;
-              border: 1px solid #d1d1d1;
-              margin-top: 20px;
-            }
-
-            .username {
-              font-size: 16px;
-              line-height: 22px;
-              color: #222222;
-              font-weight: bold;
-              margin-top: 15px;
-              margin-bottom: 20px;
-            }
-
-            .btn {
-              width: 100%;
-              height: 50px;
-              line-height: 50px;
-              font-size: 14px;
-              padding-left: 20px;
-              box-sizing: border-box;
-              border-top: 1px solid rgba(0, 0, 0, 0.05);
-
-              &:last-child {
-                border-radius: 0 0 4px 4px;
-              }
-            }
-          }
-        }
-      }
-
-      .user-btns {
-        display: flex;
-        margin-left: 25px;
-
-        .btn {
-          height: 32px;
-          padding: 0 15px;
-          box-sizing: border-box;
-          border-radius: 4px;
-          font-size: 14px;
-          font-weight: bold;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-        }
-
-        .header-register-btn {
-          margin-left: 10px;
-        }
-      }
-    }
-  }
-}
+@import "@/assets/css/header";
 </style>

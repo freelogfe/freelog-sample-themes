@@ -25,9 +25,7 @@ export const formatDate = (time: string | undefined, format: string = "YYYY-MM-D
   return result;
 };
 
-/**
- * 判断设备
- */
+/** 判断设备 */
 export const judgeDevice = () => {
   const mobile =
     /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i;

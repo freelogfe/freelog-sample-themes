@@ -1,3 +1,5 @@
+<!-- 移动端登录/注册按钮 -->
+
 <template>
   <div
     class="login-btn-wrapper main-btn mobile"

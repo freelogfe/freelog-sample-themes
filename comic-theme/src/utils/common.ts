@@ -25,14 +25,15 @@ export const formatDate = (time: string | undefined, format = "YYYY-MM-DD hh:mm:
   return result;
 };
 
-// 判断设备
+/** 判断设备 */
 export const judgeDevice = () => {
-  const mobile = /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i;
+  const mobile =
+    /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i;
   const inMobile = navigator.userAgent.match(mobile);
   return !!inMobile;
 };
 
-// 弹出轻提示
+/** 轻提示 */
 let timeout: any = null;
 export const showToast = (msg: string) => {
   const toast = document.getElementById("toast-wrapper");

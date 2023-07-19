@@ -1,3 +1,5 @@
+<!-- loading 动画 -->
+
 <template>
   <div class="loader-wrapper">
     <div class="signboard">
@@ -85,7 +87,6 @@
   from {
     transform: rotate(10deg);
   }
-
   to {
     transform: rotate(-10deg);
   }

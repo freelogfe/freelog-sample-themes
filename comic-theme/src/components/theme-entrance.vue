@@ -1,3 +1,5 @@
+<!-- 漫画主题资源入口 -->
+
 <template>
   <div
     class="theme-entrance-wrapper"
@@ -13,7 +15,7 @@
 <script lang="ts">
 import { useStore } from "vuex";
 import { freelogEntrances } from "@/api/data";
-import { toRefs } from 'vue';
+import { toRefs } from "vue";
 
 export default {
   name: "theme-entrance",
@@ -23,7 +25,7 @@ export default {
     const store = useStore();
 
     const methods = {
-      // 跳转主题详情页
+      /** 打开主题资源详情页 */
       toTheme() {
         window.open(themeEntrance.url);
       },

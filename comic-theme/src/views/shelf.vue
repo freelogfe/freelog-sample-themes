@@ -1,3 +1,5 @@
+<!-- 收藏页 -->
+
 <template>
   <div class="shelf-wrapper" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
     <my-header />

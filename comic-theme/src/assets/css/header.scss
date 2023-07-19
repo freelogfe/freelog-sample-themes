@@ -17,16 +17,6 @@
 
     .logo {
       height: 24px;
-
-      .freelog {
-        height: 24px;
-        font-size: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: normal;
-        margin-right: 5px;
-      }
     }
 
     .header-top-left {
@@ -97,7 +87,6 @@
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.4);
-    z-index: 101;
   }
 
   .user-box-body {
@@ -194,7 +183,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-top: 3px;
           }
 
           .btn-label {
@@ -217,7 +205,6 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          margin-top: 3px;
         }
 
         .btn-label {
@@ -246,7 +233,7 @@
     right: 0;
     bottom: 0;
     background-color: #fff;
-    z-index: 101;
+    z-index: 1;
 
     .search-page-header {
       width: 100%;
@@ -490,7 +477,7 @@
         }
       }
 
-      .small-search-box {
+      .search-box {
         position: relative;
         width: 240px;
         height: 32px;
@@ -559,7 +546,7 @@
           display: flex;
           flex-direction: column;
           align-items: center;
-          z-index: 1;
+          z-index: 2;
 
           .history-item {
             width: 100%;
@@ -658,7 +645,7 @@
           top: 100%;
           padding-top: 10px;
           cursor: default;
-          z-index: 1;
+          z-index: 100;
 
           .user-box-body {
             width: 240px;
@@ -726,60 +713,4 @@
       }
     }
   }
-}
-
-// fade-in
-.fade-in-enter {
-  opacity: 0.5;
-}
-.fade-in-enter-active {
-  opacity: 1;
-  transition: all 200ms ease-out;
-}
-.fade-in-exit {
-  opacity: 1;
-}
-.fade-in-exit-active {
-  opacity: 0;
-  transition: all 200ms ease-in;
-}
-
-// slide-down-scale
-.slide-down-scale-enter {
-  opacity: 0.5;
-  transform: translateY(-30px) scaleY(0.8);
-}
-.slide-down-scale-enter-active {
-  opacity: 1;
-  transform: translateY(0) scaleY(1);
-  transition: all 200ms ease-out;
-}
-.slide-down-scale-exit {
-  opacity: 1;
-  transform: translateY(0) scaleY(1);
-}
-.slide-down-scale-exit-active {
-  opacity: 0;
-  transform: translateY(-30px) scaleY(0.8);
-  transition: all 200ms ease-in;
-}
-
-// slide-right
-.slide-right-enter {
-  opacity: 0;
-  transform: translateX(-100%);
-}
-.slide-right-enter-active {
-  opacity: 1;
-  transform: translateX(0);
-  transition: all 0.2s ease-out;
-}
-.slide-right-exit {
-  opacity: 1;
-  transform: translateX(0);
-}
-.slide-right-exit-active {
-  opacity: 0;
-  transform: translateX(-100%);
-  transition: all 0.2s ease-in;
 }

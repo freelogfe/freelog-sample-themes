@@ -1,3 +1,5 @@
+<!-- 阅读页功能操作按钮 -->
+
 <template>
   <div class="operate-btn-wrapper" :class="theme">
     <slot></slot>

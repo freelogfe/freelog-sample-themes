@@ -82,6 +82,8 @@ export const Header = (props: {
     const clickPopup = searchHistoryPopup.contains(e.target);
     if (!clickInput && !clickPopup) {
       setSearchHistoryShow(false);
+    } else {
+      searchInput.focus();
     }
   };
 

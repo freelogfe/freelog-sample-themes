@@ -1,3 +1,5 @@
+<!-- 漫画 -->
+
 <template>
   <!-- 移动端收藏漫画组件 -->
   <div class="mobile-shelf-comic-wrapper" @click="toPath('/detail')" v-if="mode === 4">
@@ -102,9 +104,7 @@
         立即阅读
       </div>
 
-      <div class="warning-btn btn last-btn" @click.stop="operateShelf(data)" v-if="mode === 2">
-        取消收藏
-      </div>
+      <div class="warning-btn btn last-btn" @click.stop="operateShelf(data)" v-if="mode === 2">取消收藏</div>
     </div>
   </div>
 </template>
@@ -130,7 +130,9 @@ export default {
   setup(props: { data: ExhibitItem }) {
     const store = useStore();
     const { switchPage } = useMyRouter();
+    
     const methods = {
+      /** 跳转页面 */
       toPath(path: string) {
         const { exhibitId, defaulterIdentityType } = props.data;
 

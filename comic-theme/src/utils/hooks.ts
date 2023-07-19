@@ -15,9 +15,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { showToast } from "./common";
 
-/**
- * 路由hook
- */
+/** 路由 hook */
 export const useMyRouter = () => {
   const router = useRouter();
   const route = useRoute();
@@ -27,17 +25,17 @@ export const useMyRouter = () => {
     query.value = { ...route.query };
   });
 
-  // 路由跳转方法
+  /** 路由跳转 */
   const switchPage = (path: string, query: any = {}) => {
     router.push({ path, query });
   };
 
-  // 路由跳转方法
+  /** 路由返回 */
   const routerBack = () => {
     router.back();
   };
 
-  // 获取当前路由方法
+  /** 获取当前路由 */
   const getCurrentPath: () => any = () => {
     return router.currentRoute.value.fullPath;
   };
@@ -45,9 +43,7 @@ export const useMyRouter = () => {
   return { route, router, query, switchPage, routerBack, getCurrentPath };
 };
 
-/**
- * 页面路由记录hook
- */
+/** 路由历史 hook */
 export const useMyLocationHistory = () => {
   const store = useStore();
   const router = useRouter();
@@ -74,9 +70,7 @@ export const useMyLocationHistory = () => {
   );
 };
 
-/**
- * 我的收藏hook
- */
+/** 收藏 hook */
 export const useMyShelf = (id?: string) => {
   const store = useStore();
 
@@ -84,7 +78,7 @@ export const useMyShelf = (id?: string) => {
     isCollected: false,
   });
 
-  // 获取收藏数据
+  /** 获取收藏数据 */
   const getMyShelf = async () => {
     if (!store.state.userData.isLogin) return;
 
@@ -127,14 +121,14 @@ export const useMyShelf = (id?: string) => {
     store.commit("setData", { key: "myShelf", value: list.data.data });
   };
 
-  // 判断当前资源是否已被收藏
+  /** 判断当前资源是否已被收藏 */
   const ifExistInShelf = (exhibitId: string) => {
     const shelfIds = store.state.shelfIds;
     const isCollected = shelfIds.includes(exhibitId);
     return isCollected;
   };
 
-  // 操作收藏（如未收藏则收藏，反之取消收藏）
+  /** 操作收藏（如未收藏则收藏，反之取消收藏） */
   const operateShelf = async (exhibit: ExhibitItem) => {
     if (!store.state.userData.isLogin) {
       callLogin();
@@ -173,21 +167,19 @@ export const useMyShelf = (id?: string) => {
   return { ...toRefs(data), operateShelf };
 };
 
-/**
- * 搜索历史hook
- */
+/** 搜索 hook */
 export const useSearchHistory = () => {
   const data = reactive({
     searchHistory: [] as string[],
   });
 
-  // 获取搜索历史
+  /** 获取搜索历史 */
   const getSearchHistory = async () => {
     const json = localStorage.getItem("searchHistory") || "[]";
     data.searchHistory = JSON.parse(json);
   };
 
-  // 搜索
+  /** 搜索 */
   const searchWord = (keywords = "") => {
     keywords = keywords.trim();
     if (!keywords) return;
@@ -198,7 +190,7 @@ export const useSearchHistory = () => {
     localStorage.setItem("searchHistory", JSON.stringify(data.searchHistory));
   };
 
-  // 删除搜索词
+  /** 删除搜索词 */
   const deleteWord = (keywords: string) => {
     const index = data.searchHistory.findIndex((item) => item === keywords);
     if (index === -1) return;
@@ -206,7 +198,7 @@ export const useSearchHistory = () => {
     localStorage.setItem("searchHistory", JSON.stringify(data.searchHistory));
   };
 
-  // 清空搜索词
+  /** 清空搜索词 */
   const clearHistory = () => {
     localStorage.setItem("searchHistory", "[]");
     data.searchHistory = [];
@@ -217,9 +209,7 @@ export const useSearchHistory = () => {
   return { ...toRefs(data), searchWord, deleteWord, clearHistory };
 };
 
-/**
- * 获取列表数据hook
- */
+/** 展品列表 hook */
 export const useGetList = () => {
   const data = reactive({
     listData: <ExhibitItem[]>[],
@@ -229,6 +219,7 @@ export const useGetList = () => {
     skip: 0,
   });
 
+  /** 获取展品列表 */
   const getList = async (params: Partial<GetExhibitListByPagingParams> = {}, init = false) => {
     if (data.myLoading) return;
     if (data.total === data.listData.length && !init) return;
@@ -265,6 +256,7 @@ export const useGetList = () => {
     data.myLoading = false;
   };
 
+  /** 清空展品列表 */
   const clearData = () => {
     data.listData = [];
     data.total = 0;
@@ -277,9 +269,7 @@ export const useGetList = () => {
   };
 };
 
-/**
- * 我的已签约展品hook
- */
+/** 签约列表 hook */
 export const useMySignedList = () => {
   interface SignedItem {
     subjectId: string;
@@ -292,7 +282,7 @@ export const useMySignedList = () => {
     loading: false,
   });
 
-  // 获取已签约展品数据
+  /** 获取已签约列表 */
   const getMySignedList = async (keywords = "") => {
     // 用户未登录
     if (!store.state.userData.isLogin) return;
@@ -323,9 +313,7 @@ export const useMySignedList = () => {
   };
 };
 
-/**
- * 获取页面滚动相关信息hook
- */
+/** 页面滚动 hook */
 export const useMyScroll = () => {
   const scrollArea = document.getElementById("app");
 
@@ -335,16 +323,19 @@ export const useMyScroll = () => {
     scrollHeight: 0,
   });
 
+  /** 页面滚动 */
   const scroll = () => {
     data.scrollTop = scrollArea?.scrollTop || 0;
     data.clientHeight = scrollArea?.clientHeight || 0;
     data.scrollHeight = scrollArea?.scrollHeight || 0;
   };
 
+  /** 滚动到指定位置 */
   const scrollTo = (top: number, behavior: ScrollBehavior = "smooth") => {
     scrollArea?.scroll({ top, behavior });
   };
 
+  /** 回到顶部 */
   const scrollToTop = () => {
     scrollArea?.scroll({ top: 0, behavior: "smooth" });
   };

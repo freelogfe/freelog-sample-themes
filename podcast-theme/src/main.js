@@ -18,7 +18,7 @@ Object.keys(filters).forEach((key) => {
 
 Vue.config.productionTip = false;
 
-// window.FREELOG_RESOURCENAME = "ZhuC/podcast-theme";
+window.FREELOG_RESOURCENAME = "ZhuC/podcast-theme";
 
 // 获取原型对象上的 push 函数
 const originalPush = VueRouter.prototype.push;

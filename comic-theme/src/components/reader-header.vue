@@ -1,3 +1,5 @@
+<!-- 阅读页头部 -->
+
 <template>
   <!-- 移动端头部 -->
   <div class="mobile-reader-header-wrapper" :class="{ show: headerShow }" @click.stop v-if="inMobile">
@@ -180,12 +182,12 @@ export default {
     });
 
     const methods = {
-      // 注册
+      /** 注册 */
       register() {
         window.open("https://user.freelog.com/logon");
       },
 
-      // 改变 header 显示状态
+      /** 改变 header 显示状态 */
       changeShow(value: boolean) {
         context.emit("changeBarShow", value);
       },
