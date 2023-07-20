@@ -1,3 +1,5 @@
+<!-- 回到顶部控件 -->
+
 <template>
   <transition name="fade">
     <div @click="scrollToTop()" v-show="topBtnShow"><slot></slot></div>

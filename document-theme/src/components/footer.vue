@@ -1,3 +1,5 @@
+<!-- 页面脚部 -->
+
 <template>
   <!-- mobile -->
   <div class="mobile-footer-wrapper" v-if="inMobile">
@@ -33,7 +35,7 @@ export default {
     const store = useStore();
 
     const methods = {
-      // 跳转相应页面
+      /** 打开新标签页 */
       toPage(url: string) {
         window.open(url);
       },

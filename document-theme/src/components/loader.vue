@@ -1,14 +1,16 @@
+<!-- loading 动画 -->
+
 <template>
   <div class="loader-wrapper">
     <div class="book">
       <div class="static-page">
-        <span v-for="(item, index) in 5" :key="'left' + index"></span>
+        <span v-for="(_, index) in 5" :key="'left' + index"></span>
       </div>
       <div class="static-page right">
-        <span v-for="(item, index) in 5" :key="'right' + index"></span>
+        <span v-for="(_, index) in 5" :key="'right' + index"></span>
       </div>
       <div class="page">
-        <span v-for="(item, index) in 5" :key="'rotate' + index"></span>
+        <span v-for="(_, index) in 5" :key="'rotate' + index"></span>
       </div>
     </div>
   </div>

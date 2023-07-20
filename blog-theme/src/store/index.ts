@@ -34,6 +34,7 @@ export default createStore({
   },
 
   mutations: {
+    /** 更新数据 */
     setData(state: any, payload: any) {
       state[payload.key] = payload.value;
     },

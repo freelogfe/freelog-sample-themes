@@ -27,7 +27,7 @@ export interface ThemeItem {
   type: number; // 0-浅色 1-深色
 }
 
-/** freelog相关入口 */
+/** freelog 相关入口 */
 export interface freelogEntranceItem {
   label: string;
   url: string;

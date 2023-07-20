@@ -22,7 +22,7 @@ export interface ContentImage {
   height: number;
 }
 
-// freelog相关入口
+// freelog 相关入口
 export interface freelogEntranceItem {
   label: string;
   url: string;

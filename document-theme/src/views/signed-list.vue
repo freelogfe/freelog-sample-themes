@@ -1,3 +1,5 @@
+<!-- 签约列表页 -->
+
 <template>
   <div class="signed-list-wrapper" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
     <my-header />
@@ -75,6 +77,7 @@ export default {
     });
 
     const methods = {
+      /** 搜索签约列表 */
       search(e: { keyCode: number }) {
         if (e.keyCode === 13) {
           getMySignedList(data.searchKey);
@@ -83,7 +86,7 @@ export default {
         }
       },
 
-      // 点击文档
+      /** 点击文档 */
       clickDocument(item: ExhibitItem) {
         const { exhibitId, defaulterIdentityType } = item;
 

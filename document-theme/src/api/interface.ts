@@ -1,4 +1,4 @@
-// 展品
+/** 展品 */
 export interface ExhibitItem {
   exhibitId: string;
   exhibitTitle: string;
@@ -15,13 +15,13 @@ export interface ExhibitItem {
   defaulterIdentityType: number;
 }
 
-// freelog相关入口
+/** freelog 相关入口 */
 export interface freelogEntranceItem {
   label: string;
   url: string;
 }
 
-// 分享按钮
+/** 分享按钮 */
 export interface shareBtnItem {
   id: string;
   name: string;

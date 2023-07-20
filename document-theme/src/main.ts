@@ -1,4 +1,3 @@
-/* eslint-disable */
 import "./public-path";
 import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
@@ -10,10 +9,9 @@ import "highlight.js/styles/a11y-dark.css";
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
 
-let myWindow: any = window;
+const myWindow: any = window;
 
 myWindow.FREELOG_RESOURCENAME = "ZhuC/document-theme";
-
 myWindow.freelogApp.onLogin(() => myWindow.location.reload());
 
 let instance: any = null;
@@ -31,7 +29,7 @@ function render(props: any = {}) {
 
   // 定义⾃定义指令 highlight 代码⾼亮
   instance.directive("highlight", function (el: { querySelectorAll: (arg0: string) => any }) {
-    let blocks = el.querySelectorAll("pre code");
+    const blocks = el.querySelectorAll("pre code");
     blocks.forEach((block: any) => {
       hljs.highlightBlock(block);
     });
@@ -43,11 +41,10 @@ if (!myWindow.__POWERED_BY_FREELOG__) {
 }
 
 export async function bootstrap() {
-  console.log("%c ", "color: green;", "vue3.0 app bootstraped");
+  console.log("vue app bootstraped");
 }
 
 export async function mount(props: { onGlobalStateChange: any; setGlobalState: any }) {
-  storeTest(props);
   render(props);
   if (instance.config) {
     instance.config.globalProperties.$onGlobalStateChange = props.onGlobalStateChange;
@@ -61,20 +58,3 @@ export async function unmount() {
   instance = null;
   router = null;
 }
-
-// 插件通信功能暂未测试
-function storeTest(props: { onGlobalStateChange: any; setGlobalState: any; name?: any }) {
-  props.onGlobalStateChange &&
-    props.onGlobalStateChange(
-      (value: any, prev: any) => console.log(`[onGlobalStateChange - ${props.name}]:`, value, prev),
-      true
-    );
-  props.setGlobalState &&
-    props.setGlobalState({
-      ignore: props.name,
-      user: {
-        name: props.name,
-      },
-    });
-}
-/* eslint-disable */

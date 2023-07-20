@@ -11,7 +11,7 @@ export const themeList: any = {
   沉静: { gradientColor: "linear-gradient(315deg, #2C5364, #0F2027)", deriveColor: "#0F2027" },
 };
 
-/** freelog相关入口 */
+/** freelog 相关入口 */
 export const freelogEntrances: freelogEntranceItem[] = [
   { label: "freelog fl-icon-a-featherlogo5", url: "https://www.freelog.com/" },
   {

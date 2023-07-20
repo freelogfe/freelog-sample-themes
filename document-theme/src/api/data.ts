@@ -1,6 +1,6 @@
 import { freelogEntranceItem, shareBtnItem } from "./interface";
 
-// freelog相关入口
+/** freelog 相关入口 */
 export const freelogEntrances: freelogEntranceItem[] = [
   { label: "freelog fl-icon-a-featherlogo5", url: "https://www.freelog.com/" },
   {
@@ -14,7 +14,7 @@ export const freelogEntrances: freelogEntranceItem[] = [
   { label: "浏览更多主题", url: "https://console.freelog.com/market?query=主题" },
 ];
 
-// 展品列表排序映射
+/** 展品列表排序映射 */
 export const sortMappings = [
   { label: "更新时间倒序", value: "updateDate:-1" },
   { label: "更新时间正序", value: "updateDate:1" },
@@ -22,7 +22,7 @@ export const sortMappings = [
   { label: "发布时间正序", value: "createDate:1" },
 ];
 
-// 分享按钮
+/** 分享按钮 */
 export const shareBtns: shareBtnItem[] = [
   {
     id: "qqZone",

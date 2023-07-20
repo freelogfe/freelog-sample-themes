@@ -156,6 +156,7 @@ export const useGetList = () => {
     data.myLoading = false;
   };
 
+  /** 清空展品列表 */
   const clearData = () => {
     data.listData = [];
     data.total = 0;

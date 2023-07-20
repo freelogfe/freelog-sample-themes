@@ -1,8 +1,5 @@
-/**
- * 请求封装
- */
+/** axios 请求封装 */
 
-// import { showToast } from "@/utils/common";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import qs from "qs";
 
@@ -83,7 +80,6 @@ service.interceptors.request.use(
     // 错误抛到业务代码
     error.data = {};
     error.data.msg = "请求失败";
-    // showToast(error.data.msg);
     return Promise.resolve(error);
   }
 );
@@ -93,10 +89,6 @@ service.interceptors.response.use(
   (response: AxiosResponse) => {
     // 在请求结束后，移除本次请求
     removePending(response);
-    // if (response.data.errcode !== 0 && response.data.msg) {
-    //   // 请求出错，将服务器报错抛出
-    //   showToast(response.data.msg);
-    // }
     return response;
   },
   (error) => {
@@ -105,7 +97,6 @@ service.interceptors.response.use(
     } else {
       error.data = {};
       error.data.msg = "请求失败";
-      // showToast(error.data.msg);
     }
     return Promise.reject(error);
   }

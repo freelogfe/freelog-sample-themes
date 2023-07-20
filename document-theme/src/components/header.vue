@@ -1,3 +1,5 @@
+<!-- 页面头部 -->
+
 <template>
   <!-- mobile -->
   <div class="mobile-header-wrapper" v-if="inMobile">
@@ -111,7 +113,7 @@ export default {
 
   emits: ["openDirectory"],
 
-  setup(props: any, context: SetupContext) {
+  setup(_: any, context: SetupContext) {
     const store = useStore();
     const { route, switchPage, routerBack } = useMyRouter();
 
@@ -121,12 +123,12 @@ export default {
     });
 
     const methods = {
-      // 注册
+      /** 注册 */
       register() {
         window.open("https://user.freelog.com/logon");
       },
 
-      // 通知父组件打开目录
+      /** 通知父组件打开目录 */
       openDirectory() {
         context.emit("openDirectory");
       },
