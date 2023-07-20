@@ -1,4 +1,5 @@
-<!-- 脚部 -->
+<!-- 页面脚部 -->
+
 <template>
   <div class="footer-wrapper">
     <!-- mobile -->
@@ -44,7 +45,7 @@ export default {
   },
 
   methods: {
-    /** 跳转相应页面 */
+    /** 打开新标签页 */
     toPage(url) {
       window.open(url);
     },

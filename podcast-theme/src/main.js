@@ -18,8 +18,6 @@ Object.keys(filters).forEach((key) => {
 
 Vue.config.productionTip = false;
 
-window.FREELOG_RESOURCENAME = "ZhuC/podcast-theme";
-
 // 获取原型对象上的 push 函数
 const originalPush = VueRouter.prototype.push;
 // 修改原型对象中的 push 方法
@@ -53,6 +51,8 @@ window.addEventListener(
   true
 );
 
+window.FREELOG_RESOURCENAME = "ZhuC/podcast-theme";
+
 let router = null;
 let instance = null;
 
@@ -77,28 +77,12 @@ if (!window.__POWERED_BY_FREELOG__) {
   render();
 }
 
-function storeTest(props) {
-  props.onGlobalStateChange &&
-    props.onGlobalStateChange(
-      (value, prev) => console.log(`[onGlobalStateChange - ${props.name}]:`, value, prev),
-      true
-    );
-  props.setGlobalState &&
-    props.setGlobalState({
-      ignore: props.name,
-      user: {
-        name: props.name,
-      },
-    });
-}
-
 export async function bootstrap() {
   console.log("[vue] vue app bootstraped");
 }
 
 export async function mount(props) {
   console.log("[vue] props from main framework", props);
-  storeTest(props);
   render(props);
 }
 

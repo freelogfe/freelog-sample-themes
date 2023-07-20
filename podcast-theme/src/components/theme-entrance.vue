@@ -1,4 +1,5 @@
-<!-- 主题入口按钮 -->
+<!-- 播客主题资源入口 -->
+
 <template>
   <div
     class="theme-entrance-wrapper"
@@ -23,7 +24,7 @@ export default {
   },
 
   methods: {
-    /** 跳转主题详情页 */
+    /** 打开主题资源详情页 */
     toTheme() {
       window.open(this.themeEntrance.url);
     },

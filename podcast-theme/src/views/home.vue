@@ -1,3 +1,5 @@
+<!-- 首页 -->
+
 <template>
   <div class="home-wrapper">
     <!-- mobile -->
@@ -66,25 +68,8 @@
         <div class="node-info">
           <div class="node-title" :title="nodeInfo.nodeTitle">{{ nodeInfo.nodeTitle }}</div>
           <div class="node-intro" v-html="nodeInfo.nodeShortDescription" :title="nodeInfo.nodeShortDescription"></div>
-          <!-- <div class="sign-count">
-            <i class="freelog fl-icon-yonghu"></i>
-            <div class="count">{{ formatSignCount(signCount) }}</div>
-          </div> -->
         </div>
       </div>
-
-      <!-- <div class="content-area">
-        <div class="content-top">
-          <div class="top-title">专辑（{{ 7 }}）</div>
-          <div class="view-all-btn" @click="$router.myPush('/album-list')">
-            <span class="btn-label">全部</span>
-            <i class="freelog fl-icon-zhankaigengduo"></i>
-          </div>
-        </div>
-        <div class="album-list">
-          <album v-for="item in 5" :key="item" />
-        </div>
-      </div> -->
 
       <template v-if="!loading">
         <div class="content-area" v-if="total">
@@ -125,7 +110,6 @@
 </template>
 
 <script>
-import album from "@/components/album";
 import voice from "@/components/voice";
 import { getExhibitAuthStatus, getExhibitListByPaging, getExhibitSignCount, getNodeInfo } from "@/api/freelog";
 
@@ -133,7 +117,6 @@ export default {
   name: "home",
 
   components: {
-    album,
     voice,
   },
 
@@ -575,11 +558,6 @@ export default {
             margin-left: 5px;
           }
         }
-      }
-
-      .album-list {
-        display: flex;
-        justify-content: space-between;
       }
 
       .voice-list {

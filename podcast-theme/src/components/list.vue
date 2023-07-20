@@ -1,4 +1,5 @@
-<!-- 列表 -->
+<!-- 展品列表 -->
+
 <template>
   <div class="list-wrapper" :class="$store.state.inMobile ? 'mobile' : 'pc'">
     <div class="title" v-if="title">{{ title }}</div>
@@ -45,14 +46,12 @@
 
 <script>
 import voice from "@/components/voice";
-import secondAlbum from "@/components/second-album";
 
 export default {
   name: "list",
 
   components: {
     voice,
-    secondAlbum,
   },
 
   props: {
@@ -154,6 +153,7 @@ export default {
       line-height: 56px;
       opacity: 0.6;
       margin-bottom: 50px;
+      word-break: break-all;
     }
 
     .voice-list {

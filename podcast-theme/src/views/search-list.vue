@@ -1,3 +1,5 @@
+<!-- 搜索列表页 -->
+
 <template>
   <div class="search-list-wrapper">
     <list

@@ -1,3 +1,5 @@
+<!-- 收藏列表页 -->
+
 <template>
   <div class="collect-list-wrapper">
     <list

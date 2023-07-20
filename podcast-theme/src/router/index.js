@@ -14,19 +14,9 @@ const routes = [
     component: () => import("../views/home.vue"),
   },
   {
-    path: "/album-list",
-    name: "album-list",
-    component: () => import("../views/album-list.vue"),
-  },
-  {
     path: "/voice-list",
     name: "voice-list",
     component: () => import("../views/voice-list.vue"),
-  },
-  {
-    path: "/album-detail",
-    name: "album-detail",
-    component: () => import("../views/album-detail.vue"),
   },
   {
     path: "/voice-detail",

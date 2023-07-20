@@ -26,11 +26,13 @@ export default new Vuex.Store({
     searchKey: "", // 搜索关键词
   },
   mutations: {
+    /** 更新数据 */
     setData(state, payload) {
       state[payload.key] = payload.value;
     },
   },
   actions: {
+    /** 初始化 store */
     async initStoreData(context) {
       const [userData, selfConfig, collectionIdList = [], playingId] = await Promise.all([
         getCurrentUser(),

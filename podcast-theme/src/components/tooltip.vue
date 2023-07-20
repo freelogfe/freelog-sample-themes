@@ -1,4 +1,5 @@
 <!-- 悬停提示 -->
+
 <template>
   <el-tooltip
     :popper-class="popperClass"
@@ -32,5 +33,3 @@ export default {
   methods: {},
 };
 </script>
-
-<style lang="scss" scoped></style>

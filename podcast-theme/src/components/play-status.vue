@@ -1,4 +1,5 @@
 <!-- 播放状态（动画图标与描述） -->
+
 <template>
   <div class="play-status" :style="{ '--color': color }">
     <div class="play-icon-wrapper">

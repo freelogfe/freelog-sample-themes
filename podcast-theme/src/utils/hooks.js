@@ -14,7 +14,7 @@ import store from "@/store";
 
 /** 授权 hook */
 export const useMyAuth = {
-  /** 获取播放列表数据 */
+  /** 获取签约列表 */
   async getSignedList() {
     // 用户未登录
     if (!store.state.userData.isLogin) return;
@@ -48,7 +48,7 @@ export const useMyAuth = {
   },
 
   /**
-   * 授权
+   * 获取授权
    * @param data 展品信息
    * @param play 授权成功是否播放
    */

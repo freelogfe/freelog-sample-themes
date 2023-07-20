@@ -1,4 +1,4 @@
-/** freelog相关入口 */
+/** freelog 相关入口 */
 export const freelogEntrances = [
   { label: "freelog fl-icon-a-featherlogo5", url: "https://www.freelog.com/" },
   {
