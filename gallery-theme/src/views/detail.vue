@@ -1,3 +1,5 @@
+<!-- 详情页 -->
+
 <template>
   <div class="mobile-detail-wrapper" v-if="inMobile">
     <my-header />
@@ -249,12 +251,12 @@ export default {
     });
 
     const methods = {
-      // 获取头像
+      /** 获取用户头像 */
       getAvatarUrl(id: any) {
         return `https://image.freelog.com/headImage/${id}`;
       },
 
-      // 切换图片
+      /** 切换图片 */
       switchExhibit(type: string) {
         const currentIndex = store.state.listData.findIndex((item: ExhibitItem) => item.exhibitId === data.currentId);
         if (type === "ArrowLeft" && currentIndex !== 0)
@@ -263,19 +265,20 @@ export default {
           data.currentId = store.state.listData[currentIndex + 1].exhibitId;
       },
 
-      // 搜索标签
+      /** 搜索标签 */
       search(tag: string) {
         const query: { tags?: string } = { tags: tag };
         switchPage("/home", query);
       },
 
+      /** 关闭详情弹窗 */
       closePopup() {
         data.currentId = "";
         context.emit("update:id", "");
         switchPage(route.path, { id: "" }, "replace");
       },
 
-      // 授权
+      /** 授权 */
       async getAuth() {
         window.removeEventListener("keyup", keyup);
         const authResult = await addAuth(data.currentId);
@@ -288,6 +291,7 @@ export default {
       },
     };
 
+    /** 快捷键 */
     const keyup = (e: KeyboardEvent) => {
       if (e.key === "Escape") methods.closePopup();
       if (["ArrowLeft", "ArrowRight"].includes(e.key)) {
@@ -295,7 +299,7 @@ export default {
       }
     };
 
-    // 获取资源内容
+    /** 获取资源内容 */
     const getData = async () => {
       data.loading = true;
 
@@ -354,7 +358,7 @@ export default {
       datasOfGetList.getList({ tags: data.exhibitInfo.tags.join(","), limit: 20 }, true);
     };
 
-    // 根据资源宽高比决定显示模式
+    /** 根据资源宽高比决定显示模式 */
     const judgeContentMode = (ratio: number) => {
       if (!store.state.inMobile) {
         const { clientWidth, clientHeight } = contentArea.value;
@@ -363,7 +367,7 @@ export default {
       }
     };
 
-    // 根据资源宽高比计算实际高度
+    /** 根据资源宽高比计算实际高度 */
     const judgeContentHeight = (ratio: number) => {
       if (store.state.inMobile) {
         data.contentHeight = 460;
@@ -372,7 +376,7 @@ export default {
       }
     };
 
-    // 屏幕尺寸变化切换瀑布流列数
+    /** 屏幕尺寸变化切换瀑布流列数 */
     const waterfallResize = () => {
       getListNumber();
       initWaterfall();
@@ -380,6 +384,7 @@ export default {
       data.recommendShow = datasOfGetList.listData.value.length !== 0;
     };
 
+    /** 刷新授权状态 */
     const refreshAuth = () => {
       const { inMobile } = store.state;
       if (inMobile) {
@@ -490,605 +495,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// mobile
-.mobile-detail-wrapper {
-  position: relative;
-  width: 100%;
-  min-height: 100vh;
-  padding-bottom: 98px;
-
-  .main-area {
-    position: relative;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #fafbfc;
-
-    .loader-wrapper {
-      position: absolute;
-      transform: scale(0.6);
-    }
-
-    img,
-    video {
-      width: 100%;
-    }
-
-    .auth-box {
-      width: 100%;
-      height: 460px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-
-      .auth-link-abnormal {
-        width: 72px;
-        height: 72px;
-      }
-
-      .auth-link-tip {
-        font-size: 16px;
-        color: #222222;
-        line-height: 22px;
-        margin-top: 30px;
-      }
-
-      .home-btn {
-        padding: 9px 20px;
-        border-radius: 4px;
-        font-size: 14px;
-        line-height: 20px;
-        background-color: #f2f2f2;
-        color: #666;
-        margin-top: 30px;
-        cursor: pointer;
-
-        &:hover {
-          opacity: 0.8;
-        }
-
-        &:active {
-          opacity: 0.6;
-        }
-      }
-    }
-
-    .lock-box {
-      width: 100%;
-      height: 460px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-
-      .lock {
-        width: 64px;
-        height: 64px;
-        font-size: 64px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #9aa7bb;
-      }
-
-      .lock-tip {
-        font-size: 16px;
-        color: #222;
-        line-height: 22px;
-        margin-top: 40px;
-      }
-
-      .get-btn {
-        padding: 9px 20px;
-        border-radius: 4px;
-        font-size: 14px;
-        line-height: 20px;
-        font-weight: bold;
-        background-color: #2784ff;
-        color: #fff;
-        margin-top: 40px;
-        cursor: pointer;
-
-        &:hover {
-          background-color: #529dff;
-        }
-
-        &:active {
-          background-color: #2376e5;
-        }
-      }
-    }
-
-    .switch-btn {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 40px;
-      height: 60px;
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      z-index: 0;
-
-      .freelog {
-        width: 12px;
-        height: 26px;
-        font-size: 26px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      &.previous {
-        left: 15px;
-
-        .freelog {
-          transform: rotate(180deg);
-        }
-      }
-
-      &.next {
-        right: 15px;
-      }
-    }
-  }
-
-  .other-area {
-    width: 100%;
-    padding: 0 15px;
-    box-sizing: border-box;
-
-    .detail-info {
-      padding: 20px 0;
-
-      .title-box {
-        display: flex;
-        align-items: center;
-
-        .title {
-          max-width: 100%;
-          font-size: 16px;
-          font-weight: 600;
-          color: #222222;
-          line-height: 22px;
-          height: 22px;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-        }
-
-        .offline {
-          width: 40px;
-          height: 20px;
-          background: rgba(0, 0, 0, 0.5);
-          border-radius: 4px;
-          font-size: 10px;
-          font-weight: 600;
-          color: #ffffff;
-          margin-left: 5px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-      }
-
-      .tags-wrapper {
-        margin-top: 10px;
-        height: 24px;
-        overflow: hidden;
-      }
-
-      .author-info {
-        display: flex;
-        align-items: center;
-        margin-top: 12px;
-
-        .author-avatar {
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          border: 1px solid #ebecf0;
-        }
-
-        .author-name {
-          font-size: 12px;
-          color: #999;
-          line-height: 18px;
-          margin-left: 5px;
-        }
-      }
-    }
-
-    .recommend-area {
-      width: 100%;
-      border-top: 1px solid rgba(0, 0, 0, 0.1);
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-
-      .title {
-        width: 100%;
-        font-size: 16px;
-        font-weight: bold;
-        color: #222222;
-        line-height: 22px;
-        margin: 20px 0;
-      }
-
-      .recommend-list {
-        width: 100%;
-        display: flex;
-
-        .waterfall {
-          flex: 1;
-
-          & + .waterfall {
-            margin-left: 10px;
-          }
-
-          .frame-wrapper + .frame-wrapper {
-            margin-top: 10px;
-          }
-        }
-      }
-
-      .text-btn {
-        font-size: 14px;
-        line-height: 20px;
-        margin: 30px 0;
-      }
-    }
-  }
-}
-
-// PC
-.modal {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.4);
-  z-index: 100;
-
-  .close-btn {
-    position: absolute;
-    right: 20px;
-    top: 10px;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: rgba(0, 0, 0, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 102;
-
-    .freelog {
-      font-size: 12px;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-  }
-}
-
-.content-card {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: calc(100vh - 50px);
-  border-radius: 20px 20px 0 0;
-  background-color: #fff;
-  overflow-y: auto;
-  z-index: 101;
-
-  .content-area {
-    padding: 30px 0 55px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    .title-box {
-      width: 1230px;
-      display: flex;
-      align-items: center;
-
-      .title {
-        max-width: 100%;
-        font-size: 24px;
-        font-weight: 600;
-        color: #222222;
-        line-height: 30px;
-        height: 30px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-      }
-
-      .offline {
-        width: 40px;
-        height: 20px;
-        background: rgba(0, 0, 0, 0.5);
-        border-radius: 4px;
-        font-size: 10px;
-        font-weight: 600;
-        color: #ffffff;
-        margin-left: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-    }
-
-    .exhibit-info {
-      width: 1230px;
-      display: flex;
-      align-items: center;
-      margin-top: 15px;
-      height: 34px;
-
-      .author-avatar {
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        border: 1px solid #ebecf0;
-      }
-
-      .author-name {
-        font-size: 14px;
-        font-weight: 600;
-        color: #222222;
-        line-height: 20px;
-        margin-left: 10px;
-      }
-
-      .tags-wrapper {
-        margin-left: 30px;
-        height: 24px;
-        overflow: hidden;
-      }
-    }
-
-    .main-area {
-      position: relative;
-      width: 1230px;
-      min-height: 600px;
-      max-height: 750px;
-      height: calc(100vh - 300px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #fafbfc;
-      border-radius: 10px;
-      margin-top: 30px;
-      overflow: hidden;
-
-      .loader-wrapper {
-        position: absolute;
-        inset: 0;
-      }
-
-      .width-full {
-        width: 100%;
-      }
-
-      .height-full {
-        height: 100%;
-      }
-
-      .auth-box {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-
-        .auth-link-abnormal {
-          width: 72px;
-          height: 72px;
-        }
-
-        .auth-link-tip {
-          font-size: 16px;
-          color: #222222;
-          line-height: 22px;
-          margin-top: 30px;
-        }
-
-        .home-btn {
-          padding: 9px 20px;
-          border-radius: 4px;
-          font-size: 14px;
-          line-height: 20px;
-          background-color: #f2f2f2;
-          color: #666;
-          margin-top: 30px;
-          cursor: pointer;
-
-          &:hover {
-            opacity: 0.8;
-          }
-
-          &:active {
-            opacity: 0.6;
-          }
-        }
-      }
-
-      .lock-box {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-
-        .lock {
-          width: 48px;
-          height: 48px;
-          font-size: 48px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #9aa7bb;
-        }
-
-        .lock-tip {
-          font-size: 20px;
-          color: #222;
-          line-height: 28px;
-          margin-top: 40px;
-        }
-
-        .get-btn {
-          padding: 9px 20px;
-          border-radius: 4px;
-          font-size: 14px;
-          line-height: 20px;
-          font-weight: bold;
-          background-color: #2784ff;
-          color: #fff;
-          margin-top: 40px;
-          cursor: pointer;
-
-          &:hover {
-            background-color: #529dff;
-          }
-
-          &:active {
-            background-color: #2376e5;
-          }
-        }
-      }
-
-      .switch-btn {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 40px;
-        height: 60px;
-        background: rgba(0, 0, 0, 0.2);
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        cursor: pointer;
-        opacity: 0;
-        transition: all 0.2s linear;
-
-        &:hover {
-          background: rgba(0, 0, 0, 0.4);
-        }
-
-        .freelog {
-          width: 12px;
-          height: 26px;
-          font-size: 26px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        &.previous {
-          left: 15px;
-
-          .freelog {
-            transform: rotate(180deg);
-          }
-        }
-
-        &.next {
-          right: 15px;
-        }
-      }
-
-      &:hover .switch-btn {
-        opacity: 1;
-      }
-    }
-  }
-
-  .recommend-area {
-    width: 100%;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    padding: 0 0 100px;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: center;
-
-    .recommend-box {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-
-      .title {
-        width: 100%;
-        font-size: 30px;
-        font-weight: 400;
-        color: #222222;
-        line-height: 100px;
-      }
-
-      .recommend-list {
-        display: flex;
-
-        .waterfall {
-          width: 300px;
-
-          & + .waterfall {
-            margin-left: 10px;
-          }
-
-          .frame-wrapper + .frame-wrapper {
-            margin-top: 10px;
-          }
-        }
-      }
-
-      .text-btn {
-        font-size: 14px;
-        line-height: 20px;
-        margin-top: 30px;
-      }
-    }
-  }
-}
-
-@media (min-width: 1440px) {
-  .content-area {
-    padding: 30px 105px 55px !important;
-
-    .title-box,
-    .exhibit-info,
-    .main-area {
-      width: 100% !important;
-    }
-  }
-}
-
-@media (min-width: 1650px) {
-  .content-area {
-    padding: 30px 0 55px !important;
-
-    .title-box,
-    .exhibit-info,
-    .main-area {
-      width: 1540px !important;
-    }
-  }
-}
-
-/* content-fade */
-.content-fade-enter-active {
-  transition: all 1s ease;
-}
-.content-fade-enter-from {
-  opacity: 0;
-}
+@import "@/assets/css/detail";
 </style>

@@ -1,3 +1,5 @@
+<!-- 首页 -->
+
 <template>
   <div class="home-wrapper">
     <my-header homeHeader :mobileSearching="!!(inMobile && searchData.keywords)" />
@@ -185,13 +187,13 @@ export default {
     });
 
     const methods = {
-      // 清除搜索
+      /** 清除搜索 */
       clearSearch() {
         data.searchData = {};
         switchPage("/home");
       },
 
-      // 筛选标签
+      /** 筛选标签 */
       selectTag(tag: string) {
         const { keywords } = data.searchData;
         const query: { keywords?: string; tags?: string } = {};
@@ -200,6 +202,7 @@ export default {
         switchPage("/home", query);
       },
 
+      /** 筛选视频展品 */
       filterVideo() {
         const { keywords } = data.searchData;
         const query: { keywords?: string; articleResourceTypes?: string } = {};
@@ -208,6 +211,7 @@ export default {
         switchPage("/home", query);
       },
 
+      /** 点击图片/视频组件 */
       clickFrame(item: ExhibitItem) {
         const { exhibitId, defaulterIdentityType } = item;
 
@@ -224,6 +228,7 @@ export default {
         store.commit("setData", { key: "listData", value: datasOfGetList.listData.value });
       },
 
+      /** 刷新授权状态 */
       refreshAuth(id: string) {
         for (let i = 0; i < waterfallList.value.length; i++) {
           const index = waterfall.value[waterfallList.value[i]].findIndex((item: ExhibitItem) => item.exhibitId === id);
@@ -235,28 +240,28 @@ export default {
       },
     };
 
-    // 获取数据
+    /** 获取数据 */
     const getData = () => {
       data.searchData = query.value;
       datasOfGetList.clearData();
       datasOfGetList.getList(data.searchData, true);
     };
 
-    // 获取更多数据
+    /** 获取更多数据 */
     const getMoreData = () => {
       if (scrollTop.value + clientHeight.value === scrollHeight.value) {
         datasOfGetList.getList();
       }
     };
 
-    // 屏幕尺寸变化切换瀑布流列数
+    /** 屏幕尺寸变化切换瀑布流列数 */
     const waterfallResize = () => {
       getListNumber();
       initWaterfall();
       setWaterFall(datasOfGetList.listData.value);
     };
 
-    // 根据链接判断是否进入详情页或打开内容弹窗
+    /** 根据链接判断是否进入详情页或打开内容弹窗 */
     const judgeUrl = () => {
       const { id } = query.value;
       if (!id) return;

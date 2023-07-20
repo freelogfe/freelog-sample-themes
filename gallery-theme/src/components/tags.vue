@@ -1,3 +1,5 @@
+<!-- 标签组 -->
+
 <template>
   <div class="tags-wrapper">
     <div
@@ -33,7 +35,7 @@ export default {
     const { switchPage } = useMyRouter();
 
     const methods = {
-      // 搜索标签
+      /** 搜索标签 */
       searchTag(tag: string) {
         const query: { tags: string } = { tags: tag };
         switchPage("/home", query);

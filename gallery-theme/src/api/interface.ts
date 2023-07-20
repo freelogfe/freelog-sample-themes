@@ -1,10 +1,10 @@
-// 展品
+/** 展品 */
 export interface ExhibitItem {
   exhibitId: string;
   exhibitTitle: string;
   coverImages: string[];
   tags: string[];
-  articleInfo: { articleOwnerName: string, resourceType: string };
+  articleInfo: { articleOwnerName: string; resourceType: string };
   versionInfo: { exhibitProperty: { intro: string } };
   intro: string;
   createDate: string;
@@ -14,7 +14,7 @@ export interface ExhibitItem {
   defaulterIdentityType: number;
 }
 
-// freelog相关入口
+/** freelog 相关入口 */
 export interface freelogEntranceItem {
   label: string;
   url: string;

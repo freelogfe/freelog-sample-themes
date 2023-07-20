@@ -11,9 +11,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { ExhibitItem } from "../api/interface";
 
-/**
- * 路由hook
- */
+/** 路由 hook */
 export const useMyRouter = () => {
   const router = useRouter();
   const route = useRoute();
@@ -23,7 +21,7 @@ export const useMyRouter = () => {
     query.value = { ...route.query };
   });
 
-  // 路由跳转方法
+  /** 页面跳转 */
   const switchPage = (path: string, query: any = {}, mode = "push") => {
     if (mode === "push") {
       router.push({ path, query });
@@ -32,12 +30,12 @@ export const useMyRouter = () => {
     }
   };
 
-  // 路由跳转方法
+  /** 页面返回 */
   const routerBack = () => {
     router.back();
   };
 
-  // 获取当前路由方法
+  /** 获取当前路由 */
   const getCurrentPath: () => any = () => {
     return router.currentRoute.value.fullPath;
   };
@@ -45,9 +43,7 @@ export const useMyRouter = () => {
   return { query, route, router, switchPage, routerBack, getCurrentPath };
 };
 
-/**
- * 页面路由记录hook
- */
+/** 路由历史 hook */
 export const useMyLocationHistory = () => {
   const store = useStore();
   const router = useRouter();
@@ -74,9 +70,7 @@ export const useMyLocationHistory = () => {
   );
 };
 
-/**
- * 获取列表数据hook
- */
+/** 展品列表 hook */
 export const useGetList = () => {
   const data = reactive({
     listData: <ExhibitItem[]>[],
@@ -86,6 +80,7 @@ export const useGetList = () => {
     skip: 0,
   });
 
+  /** 获取展品列表 */
   const getList = async (params: Partial<GetExhibitListByPagingParams> = {}, init = false) => {
     if (data.myLoading) return;
     if (data.total === data.listData.length && !init) return;
@@ -134,21 +129,19 @@ export const useGetList = () => {
   };
 };
 
-/**
- * 搜索历史hook
- */
+/** 搜索 hook */
 export const useSearchHistory = () => {
   const data = reactive({
     searchHistory: [] as string[],
   });
 
-  // 获取搜索历史
+  /** 获取搜索历史 */
   const getSearchHistory = async () => {
     const json = localStorage.getItem("searchHistory") || "[]";
     data.searchHistory = JSON.parse(json);
   };
 
-  // 搜索
+  /** 搜索 */
   const searchWord = (keywords = "") => {
     keywords = keywords.trim();
     if (!keywords) return;
@@ -159,7 +152,7 @@ export const useSearchHistory = () => {
     localStorage.setItem("searchHistory", JSON.stringify(data.searchHistory));
   };
 
-  // 删除搜索词
+  /** 删除搜索词 */
   const deleteWord = (keywords: string) => {
     const index = data.searchHistory.findIndex((item) => item === keywords);
     if (index === -1) return;
@@ -167,7 +160,7 @@ export const useSearchHistory = () => {
     localStorage.setItem("searchHistory", JSON.stringify(data.searchHistory));
   };
 
-  // 清空搜索词
+  /** 清空搜索词 */
   const clearHistory = () => {
     localStorage.setItem("searchHistory", "[]");
     data.searchHistory = [];
@@ -178,9 +171,7 @@ export const useSearchHistory = () => {
   return { ...toRefs(data), searchWord, deleteWord, clearHistory };
 };
 
-/**
- * 我的已签约展品hook
- */
+/** 签约列表 hook */
 export const useMySignedList = () => {
   interface SignedItem {
     subjectId: string;
@@ -192,7 +183,7 @@ export const useMySignedList = () => {
     loading: false,
   });
 
-  // 获取已签约展品数据
+  /** 获取已签约展品列表 */
   const getMySignedList = async (keywords = "") => {
     // 用户未登录
     if (!store.state.userData.isLogin) return;
@@ -223,9 +214,7 @@ export const useMySignedList = () => {
   };
 };
 
-/**
- * 瀑布流hook
- */
+/** 瀑布流 hook */
 export const useMyWaterfall = () => {
   const store = useStore();
   const data = reactive({
@@ -235,7 +224,7 @@ export const useMyWaterfall = () => {
   });
   let heightList: number[] = [];
 
-  // 根据屏幕宽度判断瀑布流列数
+  /** 根据屏幕宽度判断瀑布流列数 */
   const getListNumber = () => {
     const { clientWidth } = document.body;
     const { inMobile } = store.state;
@@ -248,7 +237,7 @@ export const useMyWaterfall = () => {
     }
   };
 
-  // 初始化瀑布流数据
+  /** 初始化瀑布流数据 */
   const initWaterfall = () => {
     heightList = [];
     data.waterfall = {};
@@ -257,7 +246,7 @@ export const useMyWaterfall = () => {
     }
   };
 
-  // 整理瀑布流数据
+  /** 整理瀑布流数据 */
   const setWaterFall = (listData: ExhibitItem[], startIndex = 0) => {
     for (let i = startIndex; i < listData.length; i++) {
       let minHeightItemIndex = 0;
@@ -281,9 +270,7 @@ export const useMyWaterfall = () => {
   };
 };
 
-/**
- * 获取页面相关信息hook
- */
+/** 页面滚动 hook */
 export const useMyScroll = () => {
   const app = document.getElementById("app");
   const data = reactive({
@@ -292,12 +279,14 @@ export const useMyScroll = () => {
     scrollHeight: 0,
   });
 
+  /** 滚动 */
   const scroll = () => {
     data.scrollTop = app?.scrollTop || 0;
     data.clientHeight = app?.clientHeight || 0;
     data.scrollHeight = app?.scrollHeight || 0;
   };
 
+  /** 滚动到指定位置 */
   const scrollTo = (top: number, behavior: ScrollBehavior = "smooth") => {
     app?.scroll({ top, behavior });
   };

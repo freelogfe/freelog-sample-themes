@@ -4,7 +4,7 @@ import { ExhibitItem } from "@/api/interface";
 import { judgeDevice } from "@/utils/common";
 import { createStore } from "vuex";
 
-// 用户信息
+/** 用户信息 */
 interface UserData {
   username: string;
   headImage: string;
@@ -12,13 +12,13 @@ interface UserData {
   isLogin: boolean;
 }
 
-// 主题色
+/** 主题色 */
 interface Theme {
   gradientColor: string;
   deriveColor: string;
 }
 
-// 路由记录
+/** 路由记录 */
 interface HistoryItem {
   path: string;
   query?: any;
@@ -36,13 +36,15 @@ export default createStore({
   },
 
   mutations: {
+    /** 更新数据 */
     setData(state: any, payload: any) {
       state[payload.key] = payload.value;
     },
   },
 
   actions: {
-    async initData(context) {
+    /** 初始化 store */
+    async initStoreData(context) {
       const userData = await getCurrentUser();
       const selfConfig = await getSelfConfig();
       const inMobile = judgeDevice();

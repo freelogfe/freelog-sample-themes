@@ -1,6 +1,6 @@
 const MyWindow: any = window;
 
-// 获取展品列表请求参数
+/** 获取展品列表请求参数 */
 export interface GetExhibitListByPagingParams {
   skip: number; // 从第几个开始
   limit: number; // 取多少个
@@ -10,18 +10,18 @@ export interface GetExhibitListByPagingParams {
   sort?: string; // 排序
 }
 
-// 搜索展品请求参数
+/** 搜索展品请求参数 */
 export interface GetExhibitListByIdParams {
   exhibitIds: string; // 展品id，多个使用","隔开
   isLoadVersionProperty?: string; // 是否加载版本信息
 }
 
-// 获取展品信息请求参数
+/** 获取展品信息请求参数 */
 export interface GetExhibitInfoParams {
   isLoadVersionProperty?: 0 | 1; // 是否需要展品版本属性
 }
 
-// 获取签约展品列表请求参数
+/** 获取签约展品列表请求参数 */
 export interface GetSignStatisticsParams {
   keywords: string; // 搜索关键词
 }
@@ -78,24 +78,6 @@ export const getExhibitFileStream = (exhibitId: string, returnUrl?: boolean, con
 };
 
 /**
- * 获取展品子依赖
- * @param exhibitId 展品id
- * @param parentNid 链路id
- * @param subArticleIdOrName 子依赖资源id或名称
- * @param returnUrl 是否只返回url， 例如img标签图片只需要url
- * @param config axios的config 目前仅支持"onUploadProgress", "onDownloadProgress", "responseType"
- */
-export const getExhibitDepFileStream = (
-  exhibitId: string | number,
-  parentNid: string,
-  subArticleIdOrName: string,
-  returnUrl?: boolean,
-  config?: any
-) => {
-  return MyWindow.freelogApp.getExhibitDepFileStream(exhibitId, parentNid, subArticleIdOrName, returnUrl, config);
-};
-
-/**
  * 查询展品授权状态
  * @param exhibitIds 展品id
  */
@@ -111,51 +93,27 @@ export const addAuth = async (exhibitId: string) => {
   return MyWindow.freelogApp.addAuth(exhibitId, { immediate: true });
 };
 
-/**
- * 获取当前登录的用户信息
- */
+/** 获取当前登录的用户信息 */
 export const getCurrentUser = () => {
   return MyWindow.freelogApp.getCurrentUser();
 };
 
-/**
- * 获取用户存储数据
- */
-export const getUserData = async (key: string) => {
-  return MyWindow.freelogApp.getUserData(key);
-};
-
-/**
- * 更新用户存储数据
- */
-export const setUserData = async (key: string, data: any) => {
-  return MyWindow.freelogApp.setUserData(key, data);
-};
-
-/**
- * 唤起登录弹窗
- */
+/** 唤起登录弹窗 */
 export const callLogin = async () => {
   return MyWindow.freelogApp.callLogin();
 };
 
-/**
- * 唤起登出弹窗
- */
+/** 唤起登出弹窗 */
 export const callLoginOut = async () => {
   return MyWindow.freelogApp.callLoginOut();
 };
 
-/**
- * 获取主题自定义选项配置
- */
+/** 获取主题自定义选项配置 */
 export const getSelfConfig = async () => {
   return MyWindow.freelogApp.getSelfConfig();
 };
 
-/**
- * 获取节点信息
- */
+/** 获取节点信息 */
 export const getNodeInfo = () => {
   return MyWindow.freelogApp.nodeInfo;
 };

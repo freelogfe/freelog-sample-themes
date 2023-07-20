@@ -1,3 +1,5 @@
+<!-- loading 动画 -->
+
 <template>
   <div class="loader-wrapper">
     <div class="camera">

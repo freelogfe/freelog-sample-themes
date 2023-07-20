@@ -1,3 +1,5 @@
+<!-- 图片/视频组件 -->
+
 <template>
   <div
     class="frame-wrapper"
@@ -154,12 +156,12 @@ export default {
     const authLinkAbnormal = computed(() => ![0, 4].includes(data.defaulterIdentityType));
 
     const methods = {
-      // 获取头像
+      /** 获取用户头像 */
       getAvatarUrl(id: any) {
         return `https://image.freelog.com/headImage/${id}`;
       },
 
-      // 授权
+      /** 授权 */
       async getAuth(id: string) {
         const authResult = await addAuth(id);
         const { status } = authResult;

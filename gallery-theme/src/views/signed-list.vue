@@ -1,3 +1,5 @@
+<!-- 签约列表页 -->
+
 <template>
   <div class="signed-list-wrapper" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
     <my-header />
@@ -72,6 +74,7 @@ export default {
     });
 
     const methods = {
+      /** 搜索签约列表 */
       search(e: { keyCode: number }) {
         if (e.keyCode === 13) {
           getMySignedList(data.searchKey);
@@ -80,6 +83,7 @@ export default {
         }
       },
 
+      /** 点击图片/视频组件 */
       clickFrame(item: ExhibitItem) {
         const { exhibitId, defaulterIdentityType } = item;
 
@@ -97,14 +101,14 @@ export default {
       },
     };
 
-    // 屏幕尺寸变化切换瀑布流列数
+    /** 屏幕尺寸变化切换瀑布流列数 */
     const waterfallResize = () => {
       getListNumber();
       initWaterfall();
       setWaterFall(mySignedList.value || []);
     };
 
-    // 根据链接判断是否进入详情页或打开内容弹窗
+    /** 根据链接判断是否进入详情页或打开内容弹窗 */
     const judgeUrl = () => {
       const { id } = query.value;
       if (!id) return;
