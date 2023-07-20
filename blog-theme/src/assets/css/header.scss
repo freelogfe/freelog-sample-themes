@@ -377,15 +377,18 @@
         flex-wrap: wrap;
 
         .tag {
-          height: 38px;
-          padding: 0 15px;
+          min-height: 38px;
+          padding: 8px 15px;
           border-radius: 38px;
           display: flex;
           align-items: center;
           font-size: 14px;
+          word-break: break-all;
           color: #575e6a;
           background-color: #ebecf0;
           margin: 0 5px 15px;
+          line-height: 18px;
+          box-sizing: border-box;
 
           &:active {
             background-color: #dcdee2;
@@ -612,9 +615,9 @@
 
           .history-item {
             width: 100%;
-            height: 34px;
+            min-height: 34px;
             border-radius: 4px;
-            padding: 0 11px;
+            padding: 8px 11px;
             box-sizing: border-box;
             display: flex;
             align-items: center;
@@ -633,7 +636,10 @@
 
             .item-word {
               font-size: 12px;
+              line-height: 18px;
               color: #222222;
+              word-break: break-all;
+              margin-right: 10px;
             }
 
             .freelog {

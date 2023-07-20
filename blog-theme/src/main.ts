@@ -5,6 +5,8 @@ import App from "./App.vue";
 import routes from "./router";
 import store from "./store";
 import lazyPlugin from "vue3-lazy";
+import hljs from "highlight.js";
+import "highlight.js/styles/a11y-dark.css";
 
 const myWindow: any = window;
 
@@ -23,6 +25,14 @@ function render(props: any = {}) {
   instance = createApp(App).use(router).use(store).use(lazyPlugin, {});
   instance.mount(container ? container.querySelector("#app") : "#app");
   store.dispatch("initData");
+
+  // 定义⾃定义指令 highlight 代码⾼亮
+  instance.directive("highlight", function (el: { querySelectorAll: (arg0: string) => any }) {
+    const blocks = el.querySelectorAll("pre code");
+    blocks.forEach((block: any) => {
+      hljs.highlightBlock(block);
+    });
+  });
 }
 
 if (!myWindow.__POWERED_BY_FREELOG__) {

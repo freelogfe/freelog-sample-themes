@@ -3,7 +3,7 @@
     <my-loader />
   </div>
 
-  <div class="markdown-wrapper" v-html="content" oncontextmenu="return false" v-if="!loading"></div>
+  <div class="markdown-wrapper" v-html="content" v-highlight oncontextmenu="return false" v-if="!loading"></div>
 </template>
 
 <script lang="ts">

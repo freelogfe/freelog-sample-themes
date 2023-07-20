@@ -411,6 +411,8 @@ export default {
       const clickPopup = searchHistoryPopup.value.contains(e.target);
       if (!clickInput && !clickPopup) {
         data.searchHistoryShow = false;
+      } else {
+        searchInput.value.focus();
       }
     };
 
