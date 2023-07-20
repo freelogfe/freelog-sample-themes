@@ -1,3 +1,5 @@
+<!-- 签约列表页 -->
+
 <template>
   <div class="signed-list-wrapper" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
     <my-header />
@@ -7,12 +9,7 @@
         <div class="signed-list-title">已签约文章</div>
 
         <div class="search-box">
-          <input
-            class="search-input input-none"
-            v-model="searchKey"
-            placeholder="搜索"
-            @keyup="search($event)"
-          />
+          <input class="search-input input-none" v-model="searchKey" placeholder="搜索" @keyup="search($event)" />
           <i class="freelog fl-icon-content"></i>
         </div>
       </div>
@@ -59,6 +56,7 @@ export default {
     });
 
     const methods = {
+      /** 搜索签约列表 */
       search(e: { keyCode: number }) {
         if (e.keyCode === 13) {
           getMySignedList(data.searchKey);

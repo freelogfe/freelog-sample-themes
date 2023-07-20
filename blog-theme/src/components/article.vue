@@ -1,3 +1,5 @@
+<!-- 文章组件 -->
+
 <template>
   <div class="article-wrapper">
     <!-- mobile -->
@@ -121,6 +123,8 @@ export default {
   setup(props: { data: ExhibitItem }) {
     const store = useStore();
     const { switchPage } = useMyRouter();
+
+    /** 点击文章组件 */
     const clickArticle = () => {
       const { exhibitId, defaulterIdentityType } = props.data;
 

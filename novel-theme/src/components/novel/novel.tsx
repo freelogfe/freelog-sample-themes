@@ -8,7 +8,7 @@ import { useContext } from "react";
 import { globalContext } from "../../router";
 import { showToast } from "../toast/toast";
 
-/** 小说 */
+/** 小说组件 */
 export const Novel = (props: {
   mode?: number; // 1-首页默认样式 2-书架样式 3-签约记录样式 4-移动端首页书架样式
   data: ExhibitItem;

@@ -35,7 +35,7 @@ export default {
     const store = useStore();
 
     const methods = {
-      /** 跳转页面 */
+      /** 打开新标签页 */
       toPage(url: string) {
         window.open(url);
       },

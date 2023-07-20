@@ -3,7 +3,7 @@ import { getSelfConfig, getCurrentUser } from "@/api/freelog";
 import { judgeDevice } from "@/utils/common";
 import { createStore } from "vuex";
 
-// 用户信息
+/** 当前登录用户数据 */
 interface UserData {
   username: string;
   headImage: string;
@@ -11,13 +11,13 @@ interface UserData {
   isLogin: boolean;
 }
 
-// 主题色
+/** 主题数据 */
 interface Theme {
   gradientColor: string;
   deriveColor: string;
 }
 
-// 路由记录
+/** 路由历史记录 */
 interface HistoryItem {
   path: string;
   query?: any;
@@ -40,6 +40,7 @@ export default createStore({
   },
 
   actions: {
+    /** 初始化 store */
     async initData(context) {
       const userData = await getCurrentUser();
       const selfConfig = await getSelfConfig();

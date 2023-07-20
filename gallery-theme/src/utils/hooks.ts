@@ -21,7 +21,7 @@ export const useMyRouter = () => {
     query.value = { ...route.query };
   });
 
-  /** 页面跳转 */
+  /** 路由跳转 */
   const switchPage = (path: string, query: any = {}, mode = "push") => {
     if (mode === "push") {
       router.push({ path, query });
@@ -30,7 +30,7 @@ export const useMyRouter = () => {
     }
   };
 
-  /** 页面返回 */
+  /** 路由返回 */
   const routerBack = () => {
     router.back();
   };
@@ -183,7 +183,7 @@ export const useMySignedList = () => {
     loading: false,
   });
 
-  /** 获取已签约展品列表 */
+  /** 获取已签约列表 */
   const getMySignedList = async (keywords = "") => {
     // 用户未登录
     if (!store.state.userData.isLogin) return;
@@ -279,7 +279,7 @@ export const useMyScroll = () => {
     scrollHeight: 0,
   });
 
-  /** 滚动 */
+  /** 页面滚动 */
   const scroll = () => {
     data.scrollTop = app?.scrollTop || 0;
     data.clientHeight = app?.clientHeight || 0;

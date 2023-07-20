@@ -1,3 +1,5 @@
+<!-- 首页 -->
+
 <template>
   <div class="home-wrapper" @click="sortPopupShow = false">
     <my-header homeHeader :mobileSearching="!!(inMobile && searchData.keywords)" />
@@ -190,7 +192,7 @@ export default {
     });
 
     const methods = {
-      // 排序
+      /** 排序 */
       sort(sortType: string) {
         if (data.createDateSortType === sortType) return;
 
@@ -199,13 +201,13 @@ export default {
         datasOfGetList.getList(data.searchData, true);
       },
 
-      // 清除搜索
+      /** 清除搜索 */
       clearSearch() {
         data.searchData = { sort: "createDate:-1" };
         switchPage("/home");
       },
 
-      // 筛选标签
+      /** 筛选标签 */
       selectTag(tag: string) {
         const { keywords } = data.searchData;
         const query: { keywords?: string; tags?: string } = {};
@@ -234,7 +236,7 @@ export default {
       }
     );
 
-    // 获取数据
+    /** 获取展品列表 */
     const getData = () => {
       data.searchData = { ...query.value, sort: data.searchData.sort };
       datasOfGetList.clearData();

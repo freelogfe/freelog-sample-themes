@@ -1,3 +1,5 @@
+<!-- 内容页 -->
+
 <template>
   <div class="content-wrapper" :class="{ 'in-mobile': inMobile }">
     <my-header readerHeader />
@@ -137,6 +139,7 @@ export default {
     });
 
     const methods = {
+      /** 获取授权 */
       async getAuth() {
         const { id } = query.value;
         const authResult = await addAuth(id);
@@ -148,6 +151,7 @@ export default {
       },
     };
 
+    /** 获取文章信息与内容 */
     const getData = async () => {
       const { id } = query.value;
 
@@ -181,6 +185,7 @@ export default {
       data.recommendList = recommendList.filter((_: any, index: number) => index < 4);
     };
 
+    /** 刷新授权状态 */
     const refreshAuth = () => {
       const { authIds } = store.state;
       authIds.push(data.articleData?.exhibitId);
