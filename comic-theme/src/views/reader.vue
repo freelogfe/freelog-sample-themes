@@ -229,8 +229,8 @@
             "
           />
 
-          <operate-btn icon="fl-icon-fenxiang" :theme="theme" @click.stop="sharePopupShow = true">
-            <share :show="sharePopupShow" :exhibit="comicInfo" />
+          <operate-btn icon="fl-icon-fenxiang" :theme="theme" @click.stop="setWidgetData('show', true)">
+            <div id="share" class="share-wrapper" />
           </operate-btn>
 
           <operate-btn
@@ -398,7 +398,14 @@ import { toRefs } from "@vue/reactivity";
 import { useMyRouter, useMyScroll, useMyShelf } from "../utils/hooks";
 import { defineAsyncComponent, nextTick, onUnmounted, reactive, watch } from "vue";
 import { ContentImage, ExhibitItem } from "@/api/interface";
-import { addAuth, getExhibitAuthStatus, getExhibitFileStream, getExhibitInfo } from "@/api/freelog";
+import {
+  addAuth,
+  getExhibitAuthStatus,
+  getExhibitFileStream,
+  getExhibitInfo,
+  getExhibitListByPaging,
+  mountWidget,
+} from "@/api/freelog";
 import { useStore } from "vuex";
 import { Swipe, SwipeItem } from "vant";
 import "vant/lib/index.css";
@@ -411,7 +418,6 @@ export default {
     "operate-btn": defineAsyncComponent(() => import("../components/operate-btn.vue")),
     "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
     "back-top": defineAsyncComponent(() => import("../components/back-top.vue")),
-    share: defineAsyncComponent(() => import("../components/share.vue")),
     "my-swipe": Swipe,
     "my-swipe-item": SwipeItem,
   },
@@ -472,15 +478,15 @@ export default {
       mode: ["paging", "double", "normal"],
       modeMenuShow: false,
       directionTipShow: false,
-      sharePopupShow: false,
       barShow: false,
       jumping: false,
+      shareWidget: null as any,
     });
 
     const methods = {
       /** 点击页面 */
       clickPage() {
-        if (data.sharePopupShow) data.sharePopupShow = false;
+        this.setWidgetData("show", false);
         if (store.state.inMobile) {
           data.barShow = !data.barShow;
           if (data.modeMenuShow) data.modeMenuShow = false;
@@ -695,6 +701,13 @@ export default {
         });
         this.jump();
       },
+
+      /** 通知插件更新数据 */
+      setWidgetData(key: string, value: any) {
+        if (data.shareWidget && data.shareWidget.getApi().setData) {
+          data.shareWidget.getApi().setData(key, value);
+        }
+      },
     };
 
     /** 获取漫画信息 */
@@ -723,6 +736,7 @@ export default {
         const info: any = await getExhibitFileStream(id, { subFilePath: "index.json" });
         if (info.status !== 200 || info.data.list.length === 0) {
           data.loading = false;
+          mountShareWidget();
           return;
         }
 
@@ -745,6 +759,7 @@ export default {
       }
 
       data.loading = false;
+      mountShareWidget();
 
       if (data.comicMode === 1) {
         // 条漫时，自动选择滚动模式
@@ -801,6 +816,20 @@ export default {
       } else if (e.key === "ArrowRight") {
         methods.rightSwitchPage();
       }
+    };
+
+    /** 加载分享插件 */
+    const mountShareWidget = async () => {
+      if (store.state.inMobile) return;
+      
+      const res = await getExhibitListByPaging({ articleResourceTypes: "插件", skip: 0, limit: 100 });
+      const widget = res.data.data.dataList.find((item: any) => item.articleInfo.articleName === "ZhuC/share-widget");
+      if (!widget) return;
+      data.shareWidget = await mountWidget({
+        widget,
+        container: document.getElementById("share"),
+        config: { exhibit: data.comicInfo, type: "漫画" },
+      });
     };
 
     watch(

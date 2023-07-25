@@ -142,13 +142,17 @@
 
               <div class="other-btns">
                 <div class="sign-count">{{ comicInfo?.signCount }}人签约</div>
-                <div class="share-btn" @mouseover="shareShow = true" @mouseleave="shareShow = false">
+                <div
+                  class="share-btn"
+                  @mouseover="setWidgetData('show', true)"
+                  @mouseleave="setWidgetData('show', false)"
+                >
                   <span class="share-btn-text" :class="{ active: shareShow }">
                     <i class="freelog fl-icon-fenxiang"></i>
                     分享给更多人
                   </span>
 
-                  <share :show="shareShow" :exhibit="comicInfo" />
+                  <div id="share" class="share-wrapper" />
                 </div>
               </div>
             </div>
@@ -185,7 +189,13 @@
 import { useMyRouter, useMyShelf } from "../utils/hooks";
 import { defineAsyncComponent, reactive, ref, toRefs, watch } from "@vue/runtime-core";
 import { ExhibitItem } from "@/api/interface";
-import { getExhibitInfo, getExhibitSignCount, getExhibitAuthStatus } from "@/api/freelog";
+import {
+  getExhibitInfo,
+  getExhibitSignCount,
+  getExhibitAuthStatus,
+  getExhibitListByPaging,
+  mountWidget,
+} from "@/api/freelog";
 import { useStore } from "vuex";
 import { formatDate, showToast } from "@/utils/common";
 
@@ -198,7 +208,6 @@ export default {
     "login-btn": defineAsyncComponent(() => import("../components/login-btn.vue")),
     "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
-    share: defineAsyncComponent(() => import("../components/share.vue")),
   },
 
   setup() {
@@ -213,6 +222,7 @@ export default {
       shareShow: false,
       introState: 0,
       href: "",
+      shareWidget: null as any,
     });
 
     const methods = {
@@ -222,6 +232,13 @@ export default {
         input.select();
         document.execCommand("Copy");
         showToast("链接复制成功～");
+      },
+
+      /** 通知插件更新数据 */
+      setWidgetData(key: string, value: any) {
+        if (data.shareWidget && data.shareWidget.getApi().setData) {
+          data.shareWidget.getApi().setData(key, value);
+        }
       },
     };
 
@@ -238,6 +255,21 @@ export default {
         defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
       };
       data.href = (window.location as any).currentURL;
+      mountShareWidget();
+    };
+
+    /** 加载分享插件 */
+    const mountShareWidget = async () => {
+      if (store.state.inMobile) return;
+      
+      const res = await getExhibitListByPaging({ articleResourceTypes: "插件", skip: 0, limit: 100 });
+      const widget = res.data.data.dataList.find((item: any) => item.articleInfo.articleName === "ZhuC/share-widget");
+      if (!widget) return;
+      data.shareWidget = await mountWidget({
+        widget,
+        container: document.getElementById("share"),
+        config: { exhibit: data.comicInfo, type: "漫画" },
+      });
     };
 
     watch(

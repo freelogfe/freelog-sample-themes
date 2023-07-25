@@ -17,20 +17,24 @@
           <tags :tags="articleData?.tags" />
         </div>
         <div class="article-content">
-          <my-markdown :data="contentInfo" v-if="articleData?.defaulterIdentityType === 0" />
+          <my-loader v-if="contentLoading" />
 
-          <template v-else-if="articleData?.defaulterIdentityType">
-            <div class="auth-box" v-if="articleData?.defaulterIdentityType !== 4">
-              <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-              <div class="auth-link-tip">授权链异常，无法查看</div>
-              <div class="home-btn" @click="switchPage('/home')">进入首页</div>
-            </div>
+          <template v-else>
+            <div id="markdown" v-if="articleData?.defaulterIdentityType === 0" />
 
-            <div class="lock-box" v-else-if="articleData?.defaulterIdentityType === 4 || userData.isLogin === false">
-              <img class="lock" src="../assets/images/lock.png" />
-              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-              <div class="get-btn" @click="getAuth()">获取授权</div>
-            </div>
+            <template v-else-if="articleData?.defaulterIdentityType">
+              <div class="auth-box" v-if="articleData?.defaulterIdentityType !== 4">
+                <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+                <div class="auth-link-tip">授权链异常，无法查看</div>
+                <div class="home-btn" @click="switchPage('/home')">进入首页</div>
+              </div>
+
+              <div class="lock-box" v-else-if="articleData?.defaulterIdentityType === 4 || userData.isLogin === false">
+                <img class="lock" src="../assets/images/lock.png" />
+                <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+                <div class="get-btn" @click="getAuth()">获取授权</div>
+              </div>
+            </template>
           </template>
         </div>
       </div>
@@ -48,13 +52,13 @@
       <div class="article-card">
         <div class="title-share">
           <div class="article-title">{{ articleData?.exhibitTitle }}</div>
-          <div class="share-btn" @mouseover="shareShow = true" @mouseleave="shareShow = false">
+          <div class="share-btn" @mouseover="setWidgetData('show', true)" @mouseleave="setWidgetData('show', false)">
             <span class="share-btn-text" :class="{ active: shareShow }">
               <i class="freelog fl-icon-fenxiang"></i>
               分享
             </span>
 
-            <share :show="shareShow" :exhibit="articleData" />
+            <div id="share" class="share-wrapper" />
           </div>
         </div>
         <div class="other-info">
@@ -67,20 +71,24 @@
         </div>
         <div class="divider"></div>
         <div class="article-content">
-          <my-markdown :data="contentInfo" v-if="articleData?.defaulterIdentityType === 0" />
+          <my-loader v-if="contentLoading" />
 
-          <template v-else-if="articleData?.defaulterIdentityType">
-            <div class="auth-box" v-if="articleData?.defaulterIdentityType !== 4">
-              <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-              <div class="auth-link-tip">授权链异常，无法查看</div>
-              <div class="home-btn" @click="switchPage('/home')">进入首页</div>
-            </div>
+          <template v-else>
+            <div id="markdown" v-if="articleData?.defaulterIdentityType === 0" />
 
-            <div class="lock-box" v-else-if="articleData?.defaulterIdentityType === 4 || userData.isLogin === false">
-              <img class="lock" src="../assets/images/lock.png" />
-              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-              <div class="get-btn" @click="getAuth()">获取授权</div>
-            </div>
+            <template v-else-if="articleData?.defaulterIdentityType">
+              <div class="auth-box" v-if="articleData?.defaulterIdentityType !== 4">
+                <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+                <div class="auth-link-tip">授权链异常，无法查看</div>
+                <div class="home-btn" @click="switchPage('/home')">进入首页</div>
+              </div>
+
+              <div class="lock-box" v-else-if="articleData?.defaulterIdentityType === 4 || userData.isLogin === false">
+                <img class="lock" src="../assets/images/lock.png" />
+                <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+                <div class="get-btn" @click="getAuth()">获取授权</div>
+              </div>
+            </template>
           </template>
         </div>
       </div>
@@ -109,7 +117,9 @@ import {
   getExhibitAuthStatus,
   getExhibitFileStream,
   getExhibitInfo,
+  getExhibitListByPaging,
   getExhibitSignCount,
+  mountWidget,
 } from "@/api/freelog";
 import { formatDate } from "@/utils/common";
 import { useStore } from "vuex";
@@ -120,22 +130,23 @@ export default {
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
-    share: defineAsyncComponent(() => import("../components/share.vue")),
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
     "my-article": defineAsyncComponent(() => import("../components/article.vue")),
-    "my-markdown": defineAsyncComponent(() => import("../components/markdown.vue")),
+    "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
   },
 
   setup() {
     const store = useStore();
-    const { query, switchPage } = useMyRouter();
+    const { query, switchPage, getCurrentPath } = useMyRouter();
     const datasOfGetList = useGetList();
 
     const data = reactive({
+      contentLoading: false,
       articleData: null as ExhibitItem | null,
       contentInfo: null as { content: string; exhibitInfo: ExhibitItem } | null,
       recommendList: [] as ExhibitItem[],
       shareShow: false,
+      shareWidget: null as any,
     });
 
     const methods = {
@@ -149,10 +160,18 @@ export default {
           refreshAuth();
         }
       },
+
+      /** 通知插件更新数据 */
+      setWidgetData(key: string, value: any) {
+        if (data.shareWidget && data.shareWidget.getApi().setData) {
+          data.shareWidget.getApi().setData(key, value);
+        }
+      },
     };
 
     /** 获取文章信息与内容 */
     const getData = async () => {
+      data.contentLoading = true;
       const { id } = query.value;
 
       const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
@@ -166,10 +185,15 @@ export default {
         defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
       } as ExhibitItem;
 
+      mountShareWidget();
+
       if (data.articleData.defaulterIdentityType === 0) {
         // 已签约并且授权链无异常
         const info: any = await getExhibitFileStream(id);
-        if (!info) return;
+        if (!info) {
+          data.contentLoading = false;
+          return;
+        }
 
         data.contentInfo = {
           content: info.data,
@@ -180,6 +204,8 @@ export default {
         methods.getAuth();
       }
 
+      data.contentLoading = false;
+      mountMarkdownWidget();
       await datasOfGetList.getList({ limit: 4 }, true);
       const recommendList = datasOfGetList.listData.value.filter((item: ExhibitItem) => item.exhibitId !== id);
       data.recommendList = recommendList.filter((_: any, index: number) => index < 4);
@@ -192,9 +218,40 @@ export default {
       store.commit("setData", { key: "authIds", value: authIds });
     };
 
+    /** 加载分享插件 */
+    const mountShareWidget = async () => {
+      if (store.state.inMobile) return;
+
+      const res = await getExhibitListByPaging({ articleResourceTypes: "插件", skip: 0, limit: 100 });
+      const widget = res.data.data.dataList.find((item: any) => item.articleInfo.articleName === "ZhuC/share-widget");
+      if (!widget) return;
+      data.shareWidget = await mountWidget({
+        widget,
+        container: document.getElementById("share"),
+        config: { exhibit: data.articleData, type: "博客" },
+      });
+    };
+
+    /** 加载 markdown 插件 */
+    const mountMarkdownWidget = async () => {
+      const res = await getExhibitListByPaging({ articleResourceTypes: "插件", skip: 0, limit: 100 });
+      const widget = res.data.data.dataList.find(
+        (item: any) => item.articleInfo.articleName === "ZhuC/markdown-widget"
+      );
+      if (!widget) return;
+      mountWidget({
+        widget,
+        container: document.getElementById("markdown"),
+        config: { exhibitInfo: data.contentInfo?.exhibitInfo, content: data.contentInfo?.content },
+      });
+    };
+
     watch(
       () => query.value,
       () => {
+        const path = getCurrentPath();
+        if (!path.startsWith('/content')) return;
+
         document.documentElement.scroll({ top: 0 });
         data.articleData = null;
         data.contentInfo = null;
@@ -240,6 +297,7 @@ export default {
 
     .article-info {
       width: 100%;
+      min-height: calc(100vh - 64px);
       background: #ffffff;
       padding: 20px;
       box-sizing: border-box;
@@ -396,6 +454,7 @@ export default {
 
     .article-card {
       width: 100%;
+      min-height: calc(100vh - 130px);
       background: #ffffff;
       box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.1);
       border-radius: 6px;
@@ -440,6 +499,12 @@ export default {
               margin-right: 6px;
             }
           }
+
+          .share-wrapper {
+            position: absolute;
+            right: 0;
+            top: 100%;
+          }
         }
       }
 
@@ -480,6 +545,11 @@ export default {
         font-size: 14px;
         color: #222222;
         line-height: 24px;
+
+        #markdown {
+          position: relative;
+          z-index: 0;
+        }
 
         .auth-box {
           width: 100%;

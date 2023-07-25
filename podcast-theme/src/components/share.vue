@@ -97,7 +97,7 @@ export default {
     initShare() {
       const url = window.location.currentURL;
       this.href = url;
-      this.shareText = `我在freelog发现一个不错的声音：${this.shareInfo.exhibit.exhibitTitle} ${url}`;
+      this.shareText = `我在freelog发现一个不错的声音：\n《${this.shareInfo.exhibit.exhibitTitle}》\n${url}`;
       if (!this.shareInfo.show) this.qrcodeShow = false;
     },
 
@@ -119,8 +119,7 @@ export default {
         window.open(shareWeb);
       } else if (item.id === "weibo") {
         // 微博
-        const weiboTitle = `我在freelog发现一个不错的声音：${this.shareInfo.exhibit.exhibitTitle}`;
-        window.open(`https://service.weibo.com/share/share.php?url=${url}&title=${weiboTitle}&pic=${image}`);
+        window.open(`https://service.weibo.com/share/share.php?url=${url}&title=${this.shareText}&pic=${image}`);
       } else if (item.id === "douban") {
         // 豆瓣
         window.open(`https://www.douban.com/share/service?url=${url}&title=${title}&image=${image}`);
@@ -204,7 +203,7 @@ export default {
 
     .textarea {
       width: 100%;
-      height: 100px;
+      height: 125px;
       background-color: rgba(255, 255, 255, 0.1);
       border-radius: 4px;
       padding: 10px;
@@ -216,6 +215,7 @@ export default {
       margin-top: 17px;
       outline: none;
       resize: none;
+      word-break: break-all;
     }
 
     .btns-box {

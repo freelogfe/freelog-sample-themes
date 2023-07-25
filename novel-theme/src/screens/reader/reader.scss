@@ -28,8 +28,9 @@
       color: #222;
     }
 
-    .paragraph {
-      word-break: break-all;
+    #markdown {
+      position: relative;
+      z-index: 0;
     }
 
     .auth-box {
@@ -152,8 +153,9 @@
         color: #222;
       }
 
-      .paragraph {
-        word-break: break-all;
+      #markdown {
+        position: relative;
+        z-index: 0;
       }
 
       .auth-box {
@@ -545,10 +547,9 @@
         }
 
         .share-wrapper {
-          right: 100%;
-          top: 50%;
-          margin-top: -140px;
-          margin-right: 20px;
+          position: absolute;
+          right: 35px;
+          top: -20px;
         }
       }
     }

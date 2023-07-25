@@ -4,13 +4,18 @@ import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
 import { useState, useEffect, useCallback } from "react";
 import { Header } from "../../components/header/header";
 import { ExhibitItem } from "../../api/interface";
-import { getExhibitAuthStatus, getExhibitInfo, getExhibitSignCount } from "../../api/freelog";
+import {
+  getExhibitAuthStatus,
+  getExhibitInfo,
+  getExhibitListByPaging,
+  getExhibitSignCount,
+  mountWidget,
+} from "../../api/freelog";
 import { formatDate } from "../../utils/common";
 import { Tags } from "../../components/tags/tags";
 import { useMyHistory, useMyShelf } from "../../utils/hooks";
 import { Footer } from "../../components/footer/footer";
 import { ThemeEntrance } from "../../components/theme-entrance/theme-entrance";
-import { Share } from "../../components/share/share";
 import { LoginBtn } from "../../components/login-btn/login-btn";
 import { globalContext } from "../../router";
 import { showToast } from "../../components/toast/toast";
@@ -66,8 +71,8 @@ const DetailBody = () => {
   const { isCollected, operateShelf } = useMyShelf(novel?.exhibitId);
   const history = useMyHistory();
   const introContent = useRef<any>();
+  const shareWidget = useRef<any>();
   const [introState, setIntroState] = useState(0);
-  const [shareShow, setShareShow] = useState(false);
   const [href, setHref] = useState("");
 
   /** 移动端分享 */
@@ -79,6 +84,27 @@ const DetailBody = () => {
     showToast("链接复制成功～");
   };
 
+  /** 加载分享插件 */
+  const mountShareWidget = async () => {
+    if (inMobile) return;
+    
+    const res = await getExhibitListByPaging({ articleResourceTypes: "插件", skip: 0, limit: 100 });
+    const widget = res.data.data.dataList.find((item: any) => item.articleInfo.articleName === "ZhuC/share-widget");
+    if (!widget) return;
+    shareWidget.current = await mountWidget({
+      widget,
+      container: document.getElementById("share"),
+      config: { exhibit: novel, type: "小说" },
+    });
+  };
+
+  /** 通知插件更新数据 */
+  const setWidgetData = (key: string, value: any) => {
+    if (shareWidget.current && shareWidget.current.getApi().setData) {
+      shareWidget.current.getApi().setData(key, value);
+    }
+  };
+
   useEffect(() => {
     setHref((window.location as any).currentURL);
   }, []);
@@ -87,11 +113,9 @@ const DetailBody = () => {
     const introHeight = introContent.current?.clientHeight;
     const foldHeight = inMobile ? 120 : 60;
     if (introHeight > foldHeight) setIntroState(1);
+    if (novel) mountShareWidget();
+    // eslint-disable-next-line
   }, [novel, inMobile]);
-
-  useEffect(() => {
-    document.body.style.overflowY = shareShow && inMobile ? "hidden" : "auto";
-  }, [shareShow, inMobile]);
 
   return inMobile ? (
     // mobile
@@ -224,15 +248,15 @@ const DetailBody = () => {
                   <div className="sign-count">{novel?.signCount}人签约</div>
                   <div
                     className="share-btn"
-                    onMouseOver={() => setShareShow(true)}
-                    onMouseLeave={() => setShareShow(false)}
+                    onMouseOver={() => setWidgetData("show", true)}
+                    onMouseLeave={() => setWidgetData("show", false)}
                   >
-                    <span className={`share-btn-text ${shareShow && "active"}`}>
+                    <span className="share-btn-text">
                       <i className="freelog fl-icon-fenxiang"></i>
                       分享给更多人
                     </span>
 
-                    <Share show={shareShow} exhibit={novel} />
+                    <div id="share" className="share-wrapper" />
                   </div>
                 </div>
               </div>

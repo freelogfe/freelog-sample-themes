@@ -1261,6 +1261,12 @@
           align-items: center;
           justify-content: center;
         }
+
+        .share-wrapper {
+          position: absolute;
+          right: 0;
+          bottom: 60px;
+        }
       }
 
       .back-top {

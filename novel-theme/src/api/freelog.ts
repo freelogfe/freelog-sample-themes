@@ -25,6 +25,14 @@ export interface GetSignStatisticsParams {
   keywords: string; // 搜索关键词
 }
 
+/** 加载子插件参数 */
+export interface MountWidgetParams {
+  widget: any; // 插件数据
+  container: any; // 挂载容器
+  config?: any; // 配置数据
+  widget_entry?: string; // 插件本地运行 url
+}
+
 /**
  * 获取展品列表
  * @param query GetExhibitListByPagingParams
@@ -134,4 +142,12 @@ export const callLoginOut = () => {
 /** 获取主题自定义选项配置 */
 export const getSelfConfig = () => {
   return MyWindow.freelogApp.getSelfConfig();
+};
+
+/**
+ * 加载子插件
+ * @param query MountWidgetParams
+ */
+export const mountWidget = (query: MountWidgetParams) => {
+  return MyWindow.freelogApp.mountWidget(query);
 };

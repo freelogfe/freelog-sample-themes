@@ -78,7 +78,7 @@
       flex-direction: column;
       justify-content: space-between;
       padding: 8% 5%;
-      animation: flip 3s linear infinite;
+      animation: flip 2s linear infinite alternate;
       transform-origin: left;
       transform-style: preserve-3d;
       box-sizing: border-box;
@@ -94,11 +94,11 @@
   }
 
   @keyframes flip {
-    55% {
+    20% {
       transform: rotateY(0) translateX(0) skewY(0);
     }
 
-    70% {
+    56% {
       transform: rotateY(-90deg) translateX(calc(-1 * var(--sw) / 2)) skewY(-20deg);
     }
 

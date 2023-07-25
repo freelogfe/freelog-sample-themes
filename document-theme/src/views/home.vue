@@ -198,7 +198,7 @@
     </div>
 
     <!-- PC -->
-    <div class="home-body" @click="sharePopupShow = false" v-if="!inMobile">
+    <div class="home-body" @click="setWidgetData('show', false)" v-if="!inMobile">
       <!-- 列表条 -->
       <div class="list-bar">
         <el-skeleton class="list-skeleton" :rows="2" animated v-if="loading" />
@@ -437,8 +437,8 @@
       </div>
 
       <div class="fixed-btns">
-        <div class="fixed-btn" @click.stop="sharePopupShow = true">
-          <share :show="sharePopupShow" :exhibit="documentData" />
+        <div class="fixed-btn" @click.stop="setWidgetData('show', true)">
+          <div id="share" class="share-wrapper" />
           <i class="freelog fl-icon-fenxiang"></i>
         </div>
 
@@ -466,6 +466,8 @@ import {
   getExhibitSignCount,
   getExhibitInfo,
   getExhibitAuthStatus,
+  getExhibitListByPaging,
+  mountWidget,
 } from "@/api/freelog";
 import { ExhibitItem } from "@/api/interface";
 import { relativeTime } from "@/utils/common";
@@ -478,7 +480,6 @@ export default {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-markdown": defineAsyncComponent(() => import("../components/markdown.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
-    share: defineAsyncComponent(() => import("../components/share.vue")),
     "back-top": defineAsyncComponent(() => import("../components/back-top.vue")),
     "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
   },
@@ -499,7 +500,6 @@ export default {
       documentData: null as ExhibitItem | null,
       directoryList: [] as HTMLElement[],
       currentTitle: "",
-      sharePopupShow: false,
       searchKey: "",
       searching: false,
       searchPopupShow: false,
@@ -507,6 +507,7 @@ export default {
       searchWordCatch: null as number | null,
       directoryShow: false,
       viewOffline: false, // 查看已下架展品
+      shareWidget: null as any,
     });
 
     const currentIndex = computed(() => {
@@ -627,6 +628,13 @@ export default {
 
         switchPage("/home", { id: exhibitId });
       },
+
+      /** 通知插件更新数据 */
+      setWidgetData(key: string, value: any) {
+        if (data.shareWidget && data.shareWidget.getApi().setData) {
+          data.shareWidget.getApi().setData(key, value);
+        }
+      },
     };
 
     /** 获取列表数据 */
@@ -660,6 +668,7 @@ export default {
       }
 
       data.documentData = documentData;
+      mountShareWidget();
       scrollToTop("auto");
       data.directoryList = [];
 
@@ -715,6 +724,20 @@ export default {
       }
     };
 
+    /** 加载分享插件 */
+    const mountShareWidget = async () => {
+      if (store.state.inMobile) return;
+
+      const res = await getExhibitListByPaging({ articleResourceTypes: "插件", skip: 0, limit: 100 });
+      const widget = res.data.data.dataList.find((item: any) => item.articleInfo.articleName === "ZhuC/share-widget");
+      if (!widget) return;
+      data.shareWidget = await mountWidget({
+        widget,
+        container: document.getElementById("share"),
+        config: { exhibit: data.documentData, type: "文档" },
+      });
+    };
+
     watch(
       () => data.searchHistoryShow,
       (cur) => {
@@ -765,7 +788,7 @@ export default {
     watch(
       () => scrollTop.value,
       (cur) => {
-        data.sharePopupShow = false;
+        methods.setWidgetData("show", false);
 
         for (let i = data.directoryList.length - 1; i >= 0; i--) {
           if (cur >= data.directoryList[i].offsetTop) {

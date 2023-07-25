@@ -5,17 +5,22 @@ import BgImage from "../../assets/images/reader-bg.png";
 import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
 import { useState, useEffect, useCallback } from "react";
 import { ExhibitItem, ThemeItem } from "../../api/interface";
-import { addAuth, getExhibitAuthStatus, getExhibitFileStream, getExhibitInfo } from "../../api/freelog";
+import {
+  addAuth,
+  getExhibitAuthStatus,
+  getExhibitFileStream,
+  getExhibitInfo,
+  getExhibitListByPaging,
+  mountWidget,
+} from "../../api/freelog";
 import { readerThemeList } from "../../api/data";
 import { BackTop } from "../../components/back-top/back-top";
 import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
 import { Header } from "../../components/header/header";
 import { globalContext } from "../../router";
-import { Share } from "../../components/share/share";
 import { showToast } from "../../components/toast/toast";
 import CSSTransition from "react-transition-group/CSSTransition";
 import { Loader } from "../../components/loader/loader";
-import { Markdown } from "../../components/markdown/markdown";
 
 export const readerContext = React.createContext<any>({});
 
@@ -23,15 +28,75 @@ export const readerContext = React.createContext<any>({});
 export const ReaderScreen = (props: any) => {
   const id = props.match.params.id;
   const { inMobile } = useContext(globalContext);
-  const myFontSize = Number(localStorage.getItem("fontSize"));
   const myTheme = JSON.parse(localStorage.getItem("theme") || "null");
   const [book, setBook] = useState<ExhibitItem | null>(null);
-  const [fontSize, setFontSize] = useState(myFontSize || 22);
+  const [fontSize, setFontSize] = useState(22);
   const [theme, setTheme] = useState<ThemeItem>(myTheme || readerThemeList[0]);
-  const [sharePopupShow, setSharePopupShow] = useState(false);
   const [fontSizePopupShow, setFontSizePopupShow] = useState(false);
   const [themePopupShow, setThemePopupShow] = useState(false);
   const [mobileBarShow, setMobileBarShow] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const widgetList = useRef<any>({});
+
+  /** 获取小说信息 */
+  const getNovelInfo = useCallback(async () => {
+    setLoading(true);
+    const exhibitInfo = await getExhibitInfo(id, { isLoadVersionProperty: 1 });
+    setBook(exhibitInfo.data.data);
+  }, [id]);
+
+  /** 加载分享插件 */
+  const mountShareWidget = async () => {
+    if (inMobile) return;
+
+    const res = await getExhibitListByPaging({ articleResourceTypes: "插件", skip: 0, limit: 100 });
+    const widget = res.data.data.dataList.find((item: any) => item.articleInfo.articleName === "ZhuC/share-widget");
+    if (!widget) return;
+    widgetList.current.share = await mountWidget({
+      widget,
+      container: document.getElementById("share"),
+      config: { exhibit: book, type: "小说" },
+    });
+  };
+
+  /** 加载 markdown 插件 */
+  const mountMarkdownWidget = async (exhibitInfo: ExhibitItem, content: string) => {
+    const res = await getExhibitListByPaging({ articleResourceTypes: "插件", skip: 0, limit: 100 });
+    const widget = res.data.data.dataList.find((item: any) => item.articleInfo.articleName === "ZhuC/markdown-widget");
+    if (!widget) return;
+    widgetList.current.markdown = await mountWidget({
+      widget,
+      container: document.getElementById("markdown"),
+      config: { exhibitInfo, content },
+    });
+    await widgetList.current.markdown.mountPromise;
+    const myFontSize = Number(localStorage.getItem("fontSize"));
+    setFontSize(myFontSize || 22);
+  };
+
+  /** 通知插件更新数据 */
+  const setWidgetData = (widget: string, key: string, value: any) => {
+    if (widgetList.current[widget] && widgetList.current[widget].getApi().setData) {
+      widgetList.current[widget].getApi().setData(key, value);
+    }
+  };
+
+  /** 点击页面（关闭所有打开的弹窗） */
+  const clickPage = () => {
+    setWidgetData("share", "show", false);
+    if (fontSizePopupShow) setFontSizePopupShow(false);
+    if (themePopupShow) setThemePopupShow(false);
+    if (inMobile) setMobileBarShow(true);
+  };
+
+  useEffect(() => {
+    getNovelInfo();
+    // eslint-disable-next-line
+  }, [id]);
+
+  useEffect(() => {
+    setWidgetData("markdown", "fontSize", fontSize);
+  }, [fontSize]);
 
   const context = {
     id,
@@ -42,34 +107,18 @@ export const ReaderScreen = (props: any) => {
     setFontSize,
     theme,
     setTheme,
-    sharePopupShow,
-    setSharePopupShow,
     fontSizePopupShow,
     setFontSizePopupShow,
     themePopupShow,
     setThemePopupShow,
     mobileBarShow,
     setMobileBarShow,
+    loading,
+    setLoading,
+    mountShareWidget,
+    mountMarkdownWidget,
+    setWidgetData,
   };
-
-  /** 获取小说信息 */
-  const getNovelInfo = useCallback(async () => {
-    const exhibitInfo = await getExhibitInfo(id, { isLoadVersionProperty: 1 });
-    setBook(exhibitInfo.data.data);
-  }, [id]);
-
-  /** 点击页面（关闭所有打开的弹窗） */
-  const clickPage = () => {
-    if (sharePopupShow) setSharePopupShow(false);
-    if (fontSizePopupShow) setFontSizePopupShow(false);
-    if (themePopupShow) setThemePopupShow(false);
-    if (inMobile) setMobileBarShow(true);
-  };
-
-  useEffect(() => {
-    getNovelInfo();
-    // eslint-disable-next-line
-  }, [id]);
 
   return (
     <readerContext.Provider value={context}>
@@ -92,14 +141,12 @@ export const ReaderScreen = (props: any) => {
 const ReaderBody = () => {
   const history = useMyHistory();
   const { userData } = useContext(globalContext);
-  const { inMobile, book, id, fontSize, theme } = useContext(readerContext);
+  const { inMobile, book, id, theme, mountMarkdownWidget, loading, setLoading } = useContext(readerContext);
   const [content, setContent] = useState<string>("");
-  const [loading, setLoading] = useState(false);
   const [defaulterIdentityType, setDefaulterIdentityType] = useState<number | null>(null);
 
   /** 获取小说内容 */
   const getContent = useCallback(async () => {
-    setLoading(true);
     let authErrType;
     const statusInfo = await getExhibitAuthStatus(id);
     if (statusInfo.data.data) authErrType = statusInfo.data.data[0].defaulterIdentityType;
@@ -116,8 +163,9 @@ const ReaderBody = () => {
     } else if (authErrType === 4) {
       // 标的物未签约，自动弹出授权弹窗
       getAuth();
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
     // eslint-disable-next-line
   }, [id]);
 
@@ -133,6 +181,14 @@ const ReaderBody = () => {
     // eslint-disable-next-line
   }, [id]);
 
+  useEffect(() => {
+    if (book && content) {
+      setLoading(false);
+      mountMarkdownWidget(book, content);
+    }
+    // eslint-disable-next-line
+  }, [book, content]);
+
   if (loading) {
     return <Loader />;
   } else if (inMobile === true) {
@@ -144,11 +200,10 @@ const ReaderBody = () => {
           {
             backgroundImage: `url(${BgImage})`,
             backgroundColor: theme?.bookColor,
-            "--fontSize": fontSize,
           } as any
         }
       >
-        {defaulterIdentityType === 0 && <Markdown data={{ content, exhibitInfo: book }}></Markdown>}
+        {defaulterIdentityType === 0 && <div id="markdown" />}
         {![null, 0, 4].includes(defaulterIdentityType) ? (
           <div className="auth-box">
             <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
@@ -186,11 +241,10 @@ const ReaderBody = () => {
             {
               backgroundImage: `url(${BgImage})`,
               backgroundColor: theme?.bookColor,
-              "--fontSize": fontSize,
             } as any
           }
         >
-          {defaulterIdentityType === 0 && <Markdown data={{ content, exhibitInfo: book }}></Markdown>}
+          {defaulterIdentityType === 0 && <div id="markdown" />}
           {![null, 0, 4].includes(defaulterIdentityType) ? (
             <div className="auth-box">
               <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
@@ -212,7 +266,7 @@ const ReaderBody = () => {
       </div>
     );
   } else {
-    return <div></div>;
+    return <></>;
   }
 };
 
@@ -226,14 +280,14 @@ const OperaterBtns = () => {
     setFontSize,
     theme,
     setTheme,
-    sharePopupShow,
-    setSharePopupShow,
     fontSizePopupShow,
     setFontSizePopupShow,
     themePopupShow,
     setThemePopupShow,
     mobileBarShow,
     setMobileBarShow,
+    mountShareWidget,
+    setWidgetData,
   } = useContext(readerContext);
   const { isCollected, operateShelf } = useMyShelf(book?.exhibitId);
   const [href, setHref] = useState("");
@@ -264,7 +318,7 @@ const OperaterBtns = () => {
 
   /** 关闭所有弹窗 */
   const closeAllPopup = () => {
-    setSharePopupShow(false);
+    setWidgetData("share", "show", false);
     setFontSizePopupShow(false);
     setThemePopupShow(false);
   };
@@ -279,13 +333,18 @@ const OperaterBtns = () => {
   };
 
   useEffect(() => {
+    if (book) mountShareWidget();
+    // eslint-disable-next-line
+  }, [book]);
+
+  useEffect(() => {
     setHref((window.location as any).currentURL);
   }, []);
 
   useEffect(() => {
     if (changingFontSize.current) return;
 
-    if (sharePopupShow) setSharePopupShow(false);
+    setWidgetData("share", "show", false);
     if (fontSizePopupShow) setFontSizePopupShow(false);
     if (themePopupShow) setThemePopupShow(false);
     if (scrollTop === 0 && !mobileBarShow) setMobileBarShow(true);
@@ -294,9 +353,8 @@ const OperaterBtns = () => {
   }, [scrollTop]);
 
   useEffect(() => {
-    document.body.style.overflowY =
-      (sharePopupShow || fontSizePopupShow || themePopupShow) && inMobile ? "hidden" : "auto";
-  }, [sharePopupShow, fontSizePopupShow, themePopupShow, inMobile]);
+    document.body.style.overflowY = (fontSizePopupShow || themePopupShow) && inMobile ? "hidden" : "auto";
+  }, [fontSizePopupShow, themePopupShow, inMobile]);
 
   return inMobile ? (
     // mobile
@@ -424,9 +482,11 @@ const OperaterBtns = () => {
           icon="fl-icon-fenxiang"
           onClick={() => {
             closeAllPopup();
-            setSharePopupShow(true);
+            setTimeout(() => {
+              setWidgetData("share", "show", true);
+            }, 0);
           }}
-          slot={<Share show={sharePopupShow} exhibit={book} />}
+          slot={<div id="share" className="share-wrapper" />}
         />
 
         <OperateBtn

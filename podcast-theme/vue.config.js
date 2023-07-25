@@ -23,7 +23,7 @@ module.exports = {
     headers: {
       "Access-Control-Allow-Origin": "*",
     },
-    https: true,
+    // https: true,
     ca: fs.readFileSync("localhost+1.pem"),
     key: fs.readFileSync("localhost+1-key.pem"),
     cert: fs.readFileSync("localhost+1.crt"),
