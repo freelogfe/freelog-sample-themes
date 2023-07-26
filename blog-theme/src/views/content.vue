@@ -109,7 +109,7 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, reactive, toRefs, watch } from "vue";
+import { defineAsyncComponent, onUnmounted, reactive, toRefs, watch } from "vue";
 import { useGetList, useMyRouter } from "../utils/hooks";
 import { ExhibitItem } from "@/api/interface";
 import {
@@ -117,8 +117,8 @@ import {
   getExhibitAuthStatus,
   getExhibitFileStream,
   getExhibitInfo,
-  getExhibitListByPaging,
   getExhibitSignCount,
+  getSubDep,
   mountWidget,
 } from "@/api/freelog";
 import { formatDate } from "@/utils/common";
@@ -147,6 +147,7 @@ export default {
       recommendList: [] as ExhibitItem[],
       shareShow: false,
       shareWidget: null as any,
+      markdownWidget: null as any,
     });
 
     const methods = {
@@ -222,26 +223,26 @@ export default {
     const mountShareWidget = async () => {
       if (store.state.inMobile) return;
 
-      const res = await getExhibitListByPaging({ articleResourceTypes: "插件", skip: 0, limit: 100 });
-      const widget = res.data.data.dataList.find((item: any) => item.articleInfo.articleName === "ZhuC/share-widget");
+      const themeData = await getSubDep();
+      const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/share-widget");
       if (!widget) return;
       data.shareWidget = await mountWidget({
         widget,
         container: document.getElementById("share"),
+        topExhibitData: themeData,
         config: { exhibit: data.articleData, type: "博客" },
       });
     };
 
     /** 加载 markdown 插件 */
     const mountMarkdownWidget = async () => {
-      const res = await getExhibitListByPaging({ articleResourceTypes: "插件", skip: 0, limit: 100 });
-      const widget = res.data.data.dataList.find(
-        (item: any) => item.articleInfo.articleName === "ZhuC/markdown-widget"
-      );
+      const themeData = await getSubDep();
+      const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/markdown-widget");
       if (!widget) return;
-      mountWidget({
+      data.markdownWidget = await mountWidget({
         widget,
         container: document.getElementById("markdown"),
+        topExhibitData: themeData,
         config: { exhibitInfo: data.contentInfo?.exhibitInfo, content: data.contentInfo?.content },
       });
     };
@@ -250,7 +251,7 @@ export default {
       () => query.value,
       () => {
         const path = getCurrentPath();
-        if (!path.startsWith('/content')) return;
+        if (!path.startsWith("/content")) return;
 
         document.documentElement.scroll({ top: 0 });
         data.articleData = null;
@@ -259,6 +260,11 @@ export default {
         getData();
       }
     );
+
+    onUnmounted(async () => {
+      data.shareWidget && await data.shareWidget.unmount();
+      data.markdownWidget && await data.markdownWidget.unmount();
+    });
 
     getData();
 

@@ -290,6 +290,7 @@ export const Header = (props: {
           <input
             className={`search-input input-none ${searchKey && "in-focus"}`}
             value={searchKey}
+            maxLength={100}
             onChange={(e) => {
               setSearchKey((e.target.value || "").trim());
               !e.target.value && history.switchPage("/home/全部");
@@ -327,6 +328,7 @@ export const Header = (props: {
                 id="searchInput"
                 className={`search-input input-none ${searchKey && "in-focus"}`}
                 value={searchKey}
+                maxLength={100}
                 onChange={(e) => {
                   setSearchKey((e.target.value || "").trim());
                   setSearchHistoryShow(true);
@@ -338,7 +340,7 @@ export const Header = (props: {
               <i className="freelog fl-icon-content"></i>
               {searchKey && (
                 <i
-                  className="freelog fl-icon-guanbi text-btn"
+                  className="freelog fl-icon-guanbi text-btn clear-btn"
                   onClick={() => {
                     setSearchKey("");
                     setSearch((pre) => pre + 1);
@@ -353,27 +355,29 @@ export const Header = (props: {
                 unmountOnExit
               >
                 <div id="searchHistoryPopup" className="search-history">
-                  {mySearchHistory.map((item, index) => (
-                    <div
-                      className={`history-item ${searchWordCatch === index && "catch"}`}
-                      key={item}
-                      onClick={() => {
-                        setSearchKey(item);
-                        setSearch((pre) => pre + 1);
-                      }}
-                      onMouseMove={() => setSearchWordCatch(index)}
-                      onMouseLeave={() => setSearchWordCatch(null)}
-                    >
-                      <div className="item-word">{item}</div>
-                      <i
-                        className="freelog fl-icon-guanbi"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteWord(item);
+                  <div className="history-list">
+                    {mySearchHistory.map((item, index) => (
+                      <div
+                        className={`history-item ${searchWordCatch === index && "catch"}`}
+                        key={item}
+                        onClick={() => {
+                          setSearchKey(item);
+                          setSearch((pre) => pre + 1);
                         }}
-                      ></i>
-                    </div>
-                  ))}
+                        onMouseMove={() => setSearchWordCatch(index)}
+                        onMouseLeave={() => setSearchWordCatch(null)}
+                      >
+                        <div className="item-word">{item}</div>
+                        <i
+                          className="freelog fl-icon-guanbi delete-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteWord(item);
+                          }}
+                        ></i>
+                      </div>
+                    ))}
+                  </div>
 
                   <div className="text-btn" onClick={() => clearHistory()}>
                     清空搜索记录

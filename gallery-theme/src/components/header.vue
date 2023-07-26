@@ -145,6 +145,7 @@
         class="search-input input-none"
         :class="{ 'in-focus': searchKey }"
         v-model="searchKey"
+        :maxLength="100"
         @input="searchKeyInput(true)"
         @keyup.enter="
           searchWord(searchKey);
@@ -175,13 +176,14 @@
             class="search-input input-none"
             :class="{ 'in-focus': searchKey }"
             v-model="searchKey"
+            :maxLength="100"
             @input="searchKeyInput()"
             @keyup="inputKeyUp($event)"
             @focus="searchHistoryShow = true"
           />
           <i class="freelog fl-icon-content"></i>
           <i
-            class="freelog fl-icon-guanbi text-btn"
+            class="freelog fl-icon-guanbi text-btn clear-btn"
             @click="
               searchKey = '';
               search();
@@ -195,6 +197,7 @@
               class="search-history"
               v-if="searchHistoryShow && mySearchHistory.length !== 0"
             >
+              <div class="history-list">
               <div
                 class="history-item"
                 :class="{ catch: searchWordCatch === index }"
@@ -205,7 +208,8 @@
                 @mouseleave="searchWordCatch = null"
               >
                 <div class="item-word">{{ item }}</div>
-                <i class="freelog fl-icon-guanbi" @click.stop="deleteSearchHistory(item)"></i>
+                <i class="freelog fl-icon-guanbi delete-btn" @click.stop="deleteSearchHistory(item)"></i>
+              </div>
               </div>
 
               <div class="text-btn" @click="clearHistory()">清空搜索记录</div>

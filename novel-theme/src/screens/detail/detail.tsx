@@ -5,10 +5,11 @@ import { useState, useEffect, useCallback } from "react";
 import { Header } from "../../components/header/header";
 import { ExhibitItem } from "../../api/interface";
 import {
+  getCurrentUrl,
   getExhibitAuthStatus,
   getExhibitInfo,
-  getExhibitListByPaging,
   getExhibitSignCount,
+  getSubDep,
   mountWidget,
 } from "../../api/freelog";
 import { formatDate } from "../../utils/common";
@@ -87,15 +88,19 @@ const DetailBody = () => {
   /** 加载分享插件 */
   const mountShareWidget = async () => {
     if (inMobile) return;
-    
-    const res = await getExhibitListByPaging({ articleResourceTypes: "插件", skip: 0, limit: 100 });
-    const widget = res.data.data.dataList.find((item: any) => item.articleInfo.articleName === "ZhuC/share-widget");
+
+    const themeData = await getSubDep();
+    const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/share-widget");
     if (!widget) return;
     shareWidget.current = await mountWidget({
       widget,
       container: document.getElementById("share"),
+      topExhibitData: themeData,
       config: { exhibit: novel, type: "小说" },
     });
+    await shareWidget.current.mountPromise;
+    await shareWidget.current.unmount();
+    shareWidget.current.mount();
   };
 
   /** 通知插件更新数据 */
@@ -106,7 +111,7 @@ const DetailBody = () => {
   };
 
   useEffect(() => {
-    setHref((window.location as any).currentURL);
+    setHref(getCurrentUrl());
   }, []);
 
   useEffect(() => {

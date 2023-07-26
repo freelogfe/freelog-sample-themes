@@ -403,7 +403,7 @@ import {
   getExhibitAuthStatus,
   getExhibitFileStream,
   getExhibitInfo,
-  getExhibitListByPaging,
+  getSubDep,
   mountWidget,
 } from "@/api/freelog";
 import { useStore } from "vuex";
@@ -821,13 +821,14 @@ export default {
     /** 加载分享插件 */
     const mountShareWidget = async () => {
       if (store.state.inMobile) return;
-      
-      const res = await getExhibitListByPaging({ articleResourceTypes: "插件", skip: 0, limit: 100 });
-      const widget = res.data.data.dataList.find((item: any) => item.articleInfo.articleName === "ZhuC/share-widget");
+
+      const themeData = await getSubDep();
+      const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/share-widget");
       if (!widget) return;
       data.shareWidget = await mountWidget({
         widget,
         container: document.getElementById("share"),
+        topExhibitData: themeData,
         config: { exhibit: data.comicInfo, type: "漫画" },
       });
     };
@@ -886,6 +887,7 @@ export default {
         tipTimer = null;
       }
       window.removeEventListener("keyup", keyup);
+      data.shareWidget && data.shareWidget.unmount();
     });
 
     getComicInfo();

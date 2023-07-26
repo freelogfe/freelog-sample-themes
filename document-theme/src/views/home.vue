@@ -103,6 +103,7 @@
                     <input
                       class="search-input"
                       v-model="searchKey"
+                      :maxLength="100"
                       placeholder="输入文档名称或关键字"
                       @keyup.enter="search()"
                       @keyup.esc="searchKey = ''"
@@ -215,6 +216,7 @@
                   class="search-input input-none"
                   :class="{ 'in-focus': searchKey }"
                   v-model="searchKey"
+                  :maxLength="100"
                   placeholder="输入文档名称或关键字"
                   @input="searchKeyInput()"
                   @keyup="inputKeyUp($event)"
@@ -222,7 +224,7 @@
                 />
                 <i class="freelog fl-icon-content"></i>
                 <i
-                  class="freelog fl-icon-guanbi text-btn"
+                  class="freelog fl-icon-guanbi text-btn clear-btn"
                   @click="
                     searchKey = '';
                     search();
@@ -236,17 +238,19 @@
                     class="search-history"
                     v-if="searchHistoryShow && mySearchHistory.length !== 0"
                   >
-                    <div
-                      class="history-item"
-                      :class="{ catch: searchWordCatch === index }"
-                      v-for="(item, index) in mySearchHistory"
-                      :key="item"
-                      @click="clickSearchHistory(item)"
-                      @mousemove="searchWordCatch = index"
-                      @mouseleave="searchWordCatch = null"
-                    >
-                      <div class="item-word">{{ item }}</div>
-                      <i class="freelog fl-icon-guanbi" @click.stop="deleteSearchHistory(item)"></i>
+                    <div class="history-list">
+                      <div
+                        class="history-item"
+                        :class="{ catch: searchWordCatch === index }"
+                        v-for="(item, index) in mySearchHistory"
+                        :key="item"
+                        @click="clickSearchHistory(item)"
+                        @mousemove="searchWordCatch = index"
+                        @mouseleave="searchWordCatch = null"
+                      >
+                        <div class="item-word">{{ item }}</div>
+                        <i class="freelog fl-icon-guanbi delete-btn" @click.stop="deleteSearchHistory(item)"></i>
+                      </div>
                     </div>
 
                     <div class="text-btn" @click="clearHistory()">清空搜索记录</div>
@@ -466,8 +470,8 @@ import {
   getExhibitSignCount,
   getExhibitInfo,
   getExhibitAuthStatus,
-  getExhibitListByPaging,
   mountWidget,
+  getSubDep,
 } from "@/api/freelog";
 import { ExhibitItem } from "@/api/interface";
 import { relativeTime } from "@/utils/common";
@@ -728,12 +732,14 @@ export default {
     const mountShareWidget = async () => {
       if (store.state.inMobile) return;
 
-      const res = await getExhibitListByPaging({ articleResourceTypes: "插件", skip: 0, limit: 100 });
-      const widget = res.data.data.dataList.find((item: any) => item.articleInfo.articleName === "ZhuC/share-widget");
+      data.shareWidget && await data.shareWidget.unmount();
+      const themeData = await getSubDep();
+      const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/share-widget");
       if (!widget) return;
       data.shareWidget = await mountWidget({
         widget,
         container: document.getElementById("share"),
+        topExhibitData: themeData,
         config: { exhibit: data.documentData, type: "文档" },
       });
     };
@@ -804,6 +810,7 @@ export default {
     window.addEventListener("keyup", keyup);
     onUnmounted(() => {
       window.removeEventListener("keyup", keyup);
+      data.shareWidget && data.shareWidget.unmount();
     });
 
     return {

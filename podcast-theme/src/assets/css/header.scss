@@ -161,9 +161,13 @@
       }
 
       .search-history-list {
+        flex: 1;
+        height: 0;
         width: 100%;
         display: flex;
+        align-content: flex-start;
         flex-wrap: wrap;
+        overflow-y: auto;
 
         .tag {
           min-height: 38px;
@@ -440,7 +444,7 @@
           color: rgb(142, 142, 147, 0.3);
         }
 
-        .fl-icon-guanbi {
+        .clear-btn {
           position: absolute;
           right: 15px;
           font-size: 10px;
@@ -469,49 +473,70 @@
           align-items: center;
           z-index: 2;
 
-          .history-item {
-            width: 100%;
-            min-height: 34px;
-            border-radius: 4px;
-            padding: 8px 11px;
-            box-sizing: border-box;
+          .history-list {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            transition: all 0.2s linear;
+            flex-direction: column;
+            width: 100%;
+            min-height: 170px;
+            max-height: 400px;
+            overflow-y: auto;
 
-            &.catch,
-            &:hover {
-              background: rgba(0, 0, 0, 0.5);
-
-              .freelog {
-                opacity: 1;
-              }
+            &::-webkit-scrollbar {
+              width: 5px;
             }
 
-            .item-word {
-              font-size: 12px;
-              line-height: 18px;
-              color: rgba(255, 255, 255, 0.6);
-              word-break: break-all;
-              margin-right: 20px;
+            &::-webkit-scrollbar-thumb {
+              width: 5px;
+              border-radius: 5px;
+              background-color: rgba(255, 255, 255, 0.1);
             }
 
-            .freelog {
-              width: 10px;
-              height: 10px;
-              font-size: 10px;
+            .history-item {
+              position: relative;
+              flex-shrink: 0;
+              width: 100%;
+              min-height: 34px;
+              border-radius: 4px;
+              padding: 8px 11px;
+              box-sizing: border-box;
               display: flex;
               align-items: center;
-              justify-content: center;
-              color: #999;
+              justify-content: space-between;
               cursor: pointer;
               transition: all 0.2s linear;
-              opacity: 0;
 
+              &.catch,
               &:hover {
-                color: #a9a9ad;
+                background: rgba(0, 0, 0, 0.5);
+
+                .freelog {
+                  opacity: 1;
+                }
+              }
+
+              .item-word {
+                font-size: 12px;
+                line-height: 18px;
+                color: rgba(255, 255, 255, 0.6);
+                word-break: break-all;
+                margin-right: 20px;
+              }
+
+              .delete-btn {
+                width: 10px;
+                height: 10px;
+                font-size: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #999;
+                cursor: pointer;
+                transition: all 0.2s linear;
+                opacity: 0;
+
+                &:hover {
+                  color: #a9a9ad;
+                }
               }
             }
           }

@@ -29,6 +29,7 @@ export interface GetSignStatisticsParams {
 export interface MountWidgetParams {
   widget: any; // 插件数据
   container: any; // 挂载容器
+  topExhibitData: any; // 主题展品数据
   config?: any; // 配置数据
   widget_entry?: string; // 插件本地运行 url
 }
@@ -144,10 +145,20 @@ export const getSelfConfig = () => {
   return MyWindow.freelogApp.getSelfConfig();
 };
 
+/** 获取节点主题展品数据 */
+export const getSubDep = () => {
+  return MyWindow.freelogApp.getSubDep();
+};
+
 /**
  * 加载子插件
  * @param query MountWidgetParams
  */
 export const mountWidget = (query: MountWidgetParams) => {
   return MyWindow.freelogApp.mountWidget(query);
+};
+
+/** 获取节点主题展品数据 */
+export const getCurrentUrl = () => {
+  return MyWindow.location.currentURL;
 };

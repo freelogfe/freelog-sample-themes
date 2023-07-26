@@ -193,11 +193,13 @@ import {
   getExhibitInfo,
   getExhibitSignCount,
   getExhibitAuthStatus,
-  getExhibitListByPaging,
   mountWidget,
+  getSubDep,
+  getCurrentUrl,
 } from "@/api/freelog";
 import { useStore } from "vuex";
 import { formatDate, showToast } from "@/utils/common";
+import { onUnmounted } from "vue";
 
 export default {
   name: "detail",
@@ -254,20 +256,21 @@ export default {
         signCount: signCountData.data.data[0].count,
         defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
       };
-      data.href = (window.location as any).currentURL;
+      data.href = getCurrentUrl();
       mountShareWidget();
     };
 
     /** 加载分享插件 */
     const mountShareWidget = async () => {
       if (store.state.inMobile) return;
-      
-      const res = await getExhibitListByPaging({ articleResourceTypes: "插件", skip: 0, limit: 100 });
-      const widget = res.data.data.dataList.find((item: any) => item.articleInfo.articleName === "ZhuC/share-widget");
+
+      const themeData = await getSubDep();
+      const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/share-widget");
       if (!widget) return;
       data.shareWidget = await mountWidget({
         widget,
         container: document.getElementById("share"),
+        topExhibitData: themeData,
         config: { exhibit: data.comicInfo, type: "漫画" },
       });
     };
@@ -280,6 +283,10 @@ export default {
         if (introHeight > foldHeight) data.introState = 1;
       }
     );
+
+    onUnmounted(() => {
+      data.shareWidget && data.shareWidget.unmount();
+    });
 
     getComicInfo(id);
 

@@ -31,6 +31,7 @@ export interface GetSignStatisticsParams {
 export interface MountWidgetParams {
   widget: any; // 插件数据
   container: any; // 挂载容器
+  topExhibitData: any; // 主题展品数据
   config?: any; // 配置数据
   widget_entry?: string; // 插件本地运行 url
 }
@@ -143,6 +144,11 @@ export const getSelfConfig = async () => {
 /** 获取节点信息 */
 export const getNodeInfo = () => {
   return MyWindow.freelogApp.nodeInfo;
+};
+
+/** 获取节点主题展品数据 */
+export const getSubDep = () => {
+  return MyWindow.freelogApp.getSubDep();
 };
 
 /**

@@ -10,7 +10,7 @@ import {
   getExhibitAuthStatus,
   getExhibitFileStream,
   getExhibitInfo,
-  getExhibitListByPaging,
+  getSubDep,
   mountWidget,
 } from "../../api/freelog";
 import { readerThemeList } from "../../api/data";
@@ -49,27 +49,34 @@ export const ReaderScreen = (props: any) => {
   const mountShareWidget = async () => {
     if (inMobile) return;
 
-    const res = await getExhibitListByPaging({ articleResourceTypes: "插件", skip: 0, limit: 100 });
-    const widget = res.data.data.dataList.find((item: any) => item.articleInfo.articleName === "ZhuC/share-widget");
+    const themeData = await getSubDep();
+    const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/share-widget");
     if (!widget) return;
     widgetList.current.share = await mountWidget({
       widget,
       container: document.getElementById("share"),
+      topExhibitData: themeData,
       config: { exhibit: book, type: "小说" },
     });
+    await widgetList.current.share.mountPromise;
+    await widgetList.current.share.unmount();
+    widgetList.current.share.mount();
   };
 
   /** 加载 markdown 插件 */
   const mountMarkdownWidget = async (exhibitInfo: ExhibitItem, content: string) => {
-    const res = await getExhibitListByPaging({ articleResourceTypes: "插件", skip: 0, limit: 100 });
-    const widget = res.data.data.dataList.find((item: any) => item.articleInfo.articleName === "ZhuC/markdown-widget");
+    const themeData = await getSubDep();
+    const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/markdown-widget");
     if (!widget) return;
     widgetList.current.markdown = await mountWidget({
       widget,
       container: document.getElementById("markdown"),
+      topExhibitData: themeData,
       config: { exhibitInfo, content },
     });
     await widgetList.current.markdown.mountPromise;
+    await widgetList.current.markdown.unmount();
+    widgetList.current.markdown.mount();
     const myFontSize = Number(localStorage.getItem("fontSize"));
     setFontSize(myFontSize || 22);
   };
