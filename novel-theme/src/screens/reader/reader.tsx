@@ -170,9 +170,9 @@ const ReaderBody = () => {
     } else if (authErrType === 4) {
       // 标的物未签约，自动弹出授权弹窗
       getAuth();
-    } else {
-      setLoading(false);
     }
+
+    setLoading(false);
     // eslint-disable-next-line
   }, [id]);
 

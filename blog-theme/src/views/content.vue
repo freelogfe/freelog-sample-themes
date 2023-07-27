@@ -110,7 +110,7 @@
 
 <script lang="ts">
 import { defineAsyncComponent, onUnmounted, reactive, toRefs, watch } from "vue";
-import { useGetList, useMyRouter } from "../utils/hooks";
+import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
 import { ExhibitItem } from "@/api/interface";
 import {
   addAuth,
@@ -139,6 +139,7 @@ export default {
     const store = useStore();
     const { query, switchPage, getCurrentPath } = useMyRouter();
     const datasOfGetList = useGetList();
+    const { scrollTo } = useMyScroll();
 
     const data = reactive({
       contentLoading: false,
@@ -206,7 +207,7 @@ export default {
       }
 
       data.contentLoading = false;
-      mountMarkdownWidget();
+      if (data.articleData.defaulterIdentityType === 0) mountMarkdownWidget();
       await datasOfGetList.getList({ limit: 4 }, true);
       const recommendList = datasOfGetList.listData.value.filter((item: ExhibitItem) => item.exhibitId !== id);
       data.recommendList = recommendList.filter((_: any, index: number) => index < 4);
@@ -253,7 +254,7 @@ export default {
         const path = getCurrentPath();
         if (!path.startsWith("/content")) return;
 
-        document.documentElement.scroll({ top: 0 });
+        scrollTo(0, "auto");
         data.articleData = null;
         data.contentInfo = null;
         data.recommendList = [];
@@ -262,8 +263,8 @@ export default {
     );
 
     onUnmounted(async () => {
-      data.shareWidget && await data.shareWidget.unmount();
-      data.markdownWidget && await data.markdownWidget.unmount();
+      data.shareWidget && (await data.shareWidget.unmount());
+      data.markdownWidget && (await data.markdownWidget.unmount());
     });
 
     getData();

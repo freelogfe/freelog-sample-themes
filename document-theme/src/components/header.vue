@@ -15,7 +15,11 @@
     </div>
 
     <!-- logo -->
-    <img class="logo" :src="selfConfig.logoImage || require('../assets/images/logo.png')" />
+    <img
+      class="logo"
+      :src="selfConfig.logoImage || require('../assets/images/logo.png')"
+      referrerpolicy="no-referrer"
+    />
 
     <div class="header-right">
       <img

@@ -8,6 +8,7 @@
       <img
         class="logo"
         :src="selfConfig.logoImage || require('../assets/images/logo.png')"
+        referrerpolicy="no-referrer"
         @click="switchPage('/')"
         v-if="homeHeader"
       />

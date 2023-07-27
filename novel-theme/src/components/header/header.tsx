@@ -126,6 +126,7 @@ export const Header = (props: {
               className="logo"
               src={selfConfig.logoImage || MyLogo}
               alt="logo"
+              referrerPolicy="no-referrer"
               onClick={() => history.switchPage("/home/全部")}
             />
           ) : (

@@ -194,14 +194,15 @@ export const useMySignedList = () => {
       return;
     }
 
-    const [list, statusList] = await Promise.all([
+    const [list, signCountData, statusData] = await Promise.all([
       getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
+      getExhibitSignCount(ids),
       getExhibitAuthStatus(ids),
     ]);
     list.data.data.forEach((item: ExhibitItem) => {
-      const statusItem = statusList.data.data.find(
-        (status: { exhibitId: string }) => status.exhibitId === item.exhibitId
-      );
+      const signCountItem = signCountData.data.data.find((signCount: any) => signCount.subjectId === item.exhibitId);
+      item.signCount = signCountItem.count;
+      const statusItem = statusData.data.data.find((status: any) => status.exhibitId === item.exhibitId);
       item.defaulterIdentityType = statusItem.defaulterIdentityType;
     });
     data.mySignedList = list.data.data.filter((item: ExhibitItem) => !item.articleInfo.resourceType.includes("主题"));

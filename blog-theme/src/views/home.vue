@@ -130,7 +130,7 @@
           :class="{ disabled: myLoading }"
           @mouseover="sortPopupShow = true"
           @mouseleave="sortPopupShow = false"
-          v-if="!searchData.keywords && !searchData.tags"
+          v-if="!searchData.keywords && listData.length"
         >
           {{ createDateSortType === "-1" ? "最新" : "最早" }}
           <i class="freelog fl-icon-zhankaigengduo"></i>
