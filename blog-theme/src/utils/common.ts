@@ -29,8 +29,13 @@ export const formatDate = (time: string | undefined, format = "YYYY-MM-DD hh:mm:
 export const judgeDevice = () => {
   const mobile =
     /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i;
-  const inMobile = navigator.userAgent.match(mobile);
-  return !!inMobile;
+  let inMobile = !!navigator.userAgent.match(mobile);
+  if (!inMobile) {
+    const deviceWidth = Math.min(document.body.clientWidth, document.body.clientHeight);
+    if (deviceWidth <= 500) inMobile = true;
+  }
+
+  return inMobile;
 };
 
 /** 轻提示 */
