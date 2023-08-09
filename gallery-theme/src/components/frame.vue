@@ -158,7 +158,7 @@ export default {
     const methods = {
       /** 获取用户头像 */
       getAvatarUrl(id: any) {
-        return `https://image.freelog.com/headImage/${id}`;
+        return `https://image.freelog.com/avatar/${id}`;
       },
 
       /** 授权 */

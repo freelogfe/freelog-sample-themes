@@ -1,7 +1,7 @@
 import { themeList } from "@/api/data";
 import { getSelfConfig, getCurrentUser } from "@/api/freelog";
 import { ExhibitItem } from "@/api/interface";
-import { judgeDevice } from "@/utils/common";
+import { judgeDevice, judgeIOSDevice } from "@/utils/common";
 import { createStore } from "vuex";
 
 /** 用户信息 */
@@ -27,6 +27,7 @@ interface HistoryItem {
 export default createStore({
   state: {
     inMobile: false as boolean,
+    isIOS: false as boolean,
     userData: null as UserData | null,
     selfConfig: {} as any,
     theme: { gradientColor: "", deriveColor: "" } as Theme,
@@ -48,6 +49,7 @@ export default createStore({
       const userData = await getCurrentUser();
       const selfConfig = await getSelfConfig();
       const inMobile = judgeDevice();
+      const isIOS = judgeIOSDevice();
       const theme = themeList[selfConfig.theme];
       context.commit("setData", {
         key: "userData",
@@ -55,6 +57,7 @@ export default createStore({
       });
       context.commit("setData", { key: "selfConfig", value: selfConfig });
       context.commit("setData", { key: "inMobile", value: inMobile });
+      context.commit("setData", { key: "isIOS", value: isIOS });
       context.commit("setData", { key: "theme", value: theme });
       context.commit("setData", { key: "locationHistory", value: [] });
 

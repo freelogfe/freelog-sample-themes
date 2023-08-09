@@ -253,7 +253,7 @@ export default {
     const methods = {
       /** 获取用户头像 */
       getAvatarUrl(id: any) {
-        return `https://image.freelog.com/headImage/${id}`;
+        return `https://image.freelog.com/avatar/${id}`;
       },
 
       /** 切换图片 */
@@ -273,9 +273,13 @@ export default {
 
       /** 关闭详情弹窗 */
       closePopup() {
-        data.currentId = "";
-        context.emit("update:id", "");
-        switchPage(route.path, { id: "" }, "replace");
+        if (store.state.inMobile) {
+          switchPage("/home");
+        } else {
+          data.currentId = "";
+          context.emit("update:id", "");
+          switchPage(route.path, { id: "" }, "replace");
+        }
       },
 
       /** 授权 */
@@ -338,7 +342,7 @@ export default {
         } else if (resourceType.includes("视频")) {
           const video: HTMLVideoElement = document.createElement("video");
           video.src = info;
-          video.onloadeddata = () => {
+          const ready = () => {
             const { videoWidth, videoHeight } = video;
             const ratio = videoWidth / videoHeight;
             judgeContentHeight(ratio);
@@ -346,6 +350,10 @@ export default {
             data.content = info;
             data.loading = false;
           };
+          // 正常视频加载完成
+          video.onloadeddata = ready;
+          // onloadeddata 在 ios 不触发，onprogress 为了解决 ios 无法播放视频问题
+          video.onprogress = ready;
         }
       } else if (data.exhibitInfo.defaulterIdentityType === 4) {
         // 未签约并且授权链无异常

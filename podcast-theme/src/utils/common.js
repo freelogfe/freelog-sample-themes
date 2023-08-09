@@ -111,6 +111,14 @@ export const judgeDevice = () => {
   return inMobile;
 };
 
+/** 判断 IOS 设备 */
+export const judgeIOSDevice = () => {
+  const ios = /(iPhone|iPod|ios|iPad)/i;
+  const isIOS = !!navigator.userAgent.match(ios);
+
+  return isIOS;
+};
+
 /** 弹出轻提示 */
 let timeout = null;
 export const showToast = (msg) => {

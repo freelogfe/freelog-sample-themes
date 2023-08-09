@@ -1,7 +1,7 @@
 <!-- 内容页 -->
 
 <template>
-  <div class="content-wrapper" :class="{ 'in-mobile': inMobile }">
+  <div class="content-wrapper" :class="{ 'in-mobile': inMobile }" @mouseover="setWidgetData('show', false)">
     <my-header readerHeader />
 
     <!-- mobile -->
@@ -52,7 +52,7 @@
       <div class="article-card">
         <div class="title-share">
           <div class="article-title">{{ articleData?.exhibitTitle }}</div>
-          <div class="share-btn" @mouseover="setWidgetData('show', true)" @mouseleave="setWidgetData('show', false)">
+          <div class="share-btn" @mouseover.stop="setWidgetData('show', true)">
             <span class="share-btn-text" :class="{ active: shareShow }">
               <i class="freelog fl-icon-fenxiang"></i>
               分享
@@ -109,7 +109,7 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, onUnmounted, reactive, toRefs, watch } from "vue";
+import { defineAsyncComponent, onBeforeUnmount, reactive, toRefs, watch } from "vue";
 import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
 import { ExhibitItem } from "@/api/interface";
 import {
@@ -125,7 +125,7 @@ import { formatDate } from "@/utils/common";
 import { useStore } from "vuex";
 
 export default {
-  name: "home",
+  name: "content",
 
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
@@ -262,9 +262,9 @@ export default {
       }
     );
 
-    onUnmounted(async () => {
-      data.shareWidget && (await data.shareWidget.unmount());
-      data.markdownWidget && (await data.markdownWidget.unmount());
+    onBeforeUnmount(async () => {
+      await data.shareWidget?.unmount();
+      await data.markdownWidget?.unmount();
     });
 
     getData();

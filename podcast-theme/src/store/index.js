@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import { getSelfConfig, getCurrentUser, getUserData, setUserData } from "@/api/freelog";
-import { judgeDevice } from "@/utils/common";
+import { judgeDevice, judgeIOSDevice } from "@/utils/common";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 
 Vue.use(Vuex);
@@ -9,6 +9,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     inMobile: null, // 是否移动端设备
+    isIOS: null, // 是否 IOS 设备
     userData: {}, // 当前登录的用户数据
     selfConfig: {}, // 自定义配置
     locationHistory: [], // 历史路由
@@ -44,6 +45,12 @@ export default new Vuex.Store({
       // 是否移动端设备
       const inMobile = judgeDevice();
       context.commit("setData", { key: "inMobile", value: inMobile });
+
+      if (inMobile) {
+        // 是否 IOS 设备
+        const isIOS = judgeIOSDevice();
+        context.commit("setData", { key: "isIOS", value: isIOS });
+      }
 
       // 当前登录用户数据
       context.commit("setData", {

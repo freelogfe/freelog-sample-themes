@@ -3,8 +3,9 @@
     <div class="page-wrapper">
       <my-header />
       <keep-alive>
-        <router-view class="router-view" />
+        <router-view class="router-view" :key="$route.path" v-if="$route.meta.keepAlive" />
       </keep-alive>
+      <router-view class="router-view" v-if="!$route.meta.keepAlive" />
       <my-footer />
     </div>
     <my-player />
@@ -75,7 +76,7 @@ export default {
 
   &.mobile .page-wrapper {
     padding-bottom: 178px;
-    
+
     .router-view {
       width: 100%;
     }

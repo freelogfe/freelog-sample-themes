@@ -6,7 +6,10 @@
 
     <!-- mobile -->
     <div class="mobile-content" v-if="inMobile">
-      <div class="auth-link-abnormal-tip" v-if="![0, 4].includes(comicInfo.defaulterIdentityType)">
+      <div
+        class="auth-link-abnormal-tip"
+        v-if="comicInfo.defaulterIdentityType && ![0, 4].includes(comicInfo.defaulterIdentityType)"
+      >
         <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
         <div class="tip-text">授权链异常，无法查看</div>
       </div>
@@ -93,8 +96,11 @@
     </div>
 
     <!-- PC -->
-    <div class="content" v-if="!inMobile">
-      <div class="auth-link-abnormal-tip" v-if="![0, 4].includes(comicInfo.defaulterIdentityType)">
+    <div class="content" @mouseover="setWidgetData('show', false)" v-if="!inMobile">
+      <div
+        class="auth-link-abnormal-tip"
+        v-if="comicInfo.defaulterIdentityType && ![0, 4].includes(comicInfo.defaulterIdentityType)"
+      >
         <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
         <div class="tip-text">授权链异常，无法查看</div>
       </div>
@@ -142,11 +148,7 @@
 
               <div class="other-btns">
                 <div class="sign-count">{{ comicInfo?.signCount }}人签约</div>
-                <div
-                  class="share-btn"
-                  @mouseover="setWidgetData('show', true)"
-                  @mouseleave="setWidgetData('show', false)"
-                >
+                <div class="share-btn" @mouseover.stop="setWidgetData('show', true)">
                   <span class="share-btn-text" :class="{ active: shareShow }">
                     <i class="freelog fl-icon-fenxiang"></i>
                     分享给更多人
@@ -199,7 +201,7 @@ import {
 } from "@/api/freelog";
 import { useStore } from "vuex";
 import { formatDate, showToast } from "@/utils/common";
-import { onUnmounted } from "vue";
+import { onBeforeUnmount } from "vue";
 
 export default {
   name: "detail",
@@ -284,8 +286,8 @@ export default {
       }
     );
 
-    onUnmounted(() => {
-      data.shareWidget && data.shareWidget.unmount();
+    onBeforeUnmount(async () => {
+      await data.shareWidget?.unmount();
     });
 
     getComicInfo(id);

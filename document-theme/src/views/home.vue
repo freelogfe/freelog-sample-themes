@@ -461,7 +461,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineAsyncComponent, onUnmounted, reactive, ref, toRefs, watch } from "vue";
+import { computed, defineAsyncComponent, onBeforeUnmount, reactive, ref, toRefs, watch } from "vue";
 import { useStore } from "vuex";
 import { useGetList, useMyRouter, useMyScroll, useSearchHistory } from "../utils/hooks";
 import {
@@ -613,6 +613,7 @@ export default {
         const query: { keywords?: string } = {};
         if (searchKey) query.keywords = searchKey;
         datasOfGetList.getList(query, true);
+        data.searchHistoryShow = false;
       },
 
       /** 清除搜索 */
@@ -732,7 +733,6 @@ export default {
     const mountShareWidget = async () => {
       if (store.state.inMobile) return;
 
-      data.shareWidget && await data.shareWidget.unmount();
       const themeData = await getSubDep();
       const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/share-widget");
       if (!widget) return;
@@ -778,7 +778,6 @@ export default {
       (cur) => {
         if (route.path !== "/home") return;
 
-        data.searchKey = "";
         const { total } = datasOfGetList;
         if ((!total.value && !data.searching) || !cur.id) {
           getData();
@@ -807,11 +806,12 @@ export default {
       }
     );
 
-    window.addEventListener("keyup", keyup);
-    onUnmounted(() => {
+    onBeforeUnmount(async () => {
       window.removeEventListener("keyup", keyup);
-      data.shareWidget && data.shareWidget.unmount();
+      await data.shareWidget?.unmount();
     });
+
+    window.addEventListener("keyup", keyup);
 
     return {
       relativeTime,

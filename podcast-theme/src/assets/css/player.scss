@@ -281,11 +281,18 @@
             }
           }
 
-          .text-btn {
-            padding: 5px;
-            font-size: 10px;
+          .delete-btn {
+            width: 22px;
+            height: 22px;
             margin-left: 20px;
-            color: rgba(153, 153, 153, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .fl-icon-guanbi {
+              font-size: 10px;
+              color: rgba(153, 153, 153, 0.4);
+            }
           }
         }
 

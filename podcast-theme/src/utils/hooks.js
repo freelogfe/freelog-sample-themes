@@ -317,10 +317,6 @@ export const useMyPlay = {
       }
     }
 
-    if (!playingInfo || playingInfo.exhibit !== exhibitId) {
-      store.commit("setData", { key: "playingInfo", value: exhibit });
-    }
-
     if (![0, 4].includes(defaulterIdentityType)) {
       // 授权链异常
       if (type !== "normal") {
@@ -331,6 +327,12 @@ export const useMyPlay = {
         showToast("授权链异常");
       }
       return;
+    } else {
+      if (!url) {
+        const url = await getExhibitFileStream(exhibitId, true);
+        exhibit.url = url;
+      }
+      store.commit("setData", { key: "playingInfo", value: exhibit });
     }
 
     if (defaulterIdentityType >= 4) {
@@ -339,11 +341,6 @@ export const useMyPlay = {
       store.commit("setData", { key: "progress", value: 0 });
       useMyAuth.getAuth(exhibit, true);
       return;
-    }
-
-    if (!url) {
-      const url = await getExhibitFileStream(exhibitId, true);
-      exhibit.url = url;
     }
 
     useMyPlay.addToPlayList(exhibitId);

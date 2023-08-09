@@ -58,9 +58,6 @@ export const ReaderScreen = (props: any) => {
       topExhibitData: themeData,
       config: { exhibit: book, type: "小说" },
     });
-    await widgetList.current.share.mountPromise;
-    await widgetList.current.share.unmount();
-    widgetList.current.share.mount();
   };
 
   /** 加载 markdown 插件 */
@@ -68,17 +65,15 @@ export const ReaderScreen = (props: any) => {
     const themeData = await getSubDep();
     const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/markdown-widget");
     if (!widget) return;
+    const myFontSize = Number(localStorage.getItem("fontSize")) || 22;
+    setFontSize(myFontSize);
     widgetList.current.markdown = await mountWidget({
       widget,
       container: document.getElementById("markdown"),
       topExhibitData: themeData,
-      config: { exhibitInfo, content },
+      config: { exhibitInfo, content, fontSize: myFontSize },
+      widget_entry: "http://localhost:8201/",
     });
-    await widgetList.current.markdown.mountPromise;
-    await widgetList.current.markdown.unmount();
-    widgetList.current.markdown.mount();
-    const myFontSize = Number(localStorage.getItem("fontSize"));
-    setFontSize(myFontSize || 22);
   };
 
   /** 通知插件更新数据 */
@@ -95,6 +90,18 @@ export const ReaderScreen = (props: any) => {
     if (themePopupShow) setThemePopupShow(false);
     if (inMobile) setMobileBarShow(true);
   };
+
+  useEffect(() => {
+    return () => {
+      (async function unmountWidget() {
+        // eslint-disable-next-line
+        for (const key in widgetList.current) {
+          // eslint-disable-next-line
+          await widgetList.current[key].unmount();
+        }
+      })();
+    };
+  }, []);
 
   useEffect(() => {
     getNovelInfo();

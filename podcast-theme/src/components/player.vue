@@ -116,7 +116,9 @@
                 </div>
               </div>
 
-              <i class="text-btn mobile freelog fl-icon-guanbi" @click.stop="deleteVoice(item.exhibitId)"></i>
+              <div class="delete-btn" @click.stop="deleteVoice(item.exhibitId)">
+                <i class="text-btn mobile freelog fl-icon-guanbi"></i>
+              </div>
             </div>
           </template>
           <div class="no-data-tip" v-else>暂无任何声音</div>
@@ -288,7 +290,6 @@ export default {
 
   data() {
     return {
-      initPlay: false,
       playList: null,
       show: false,
       volumePopupShow: false,
@@ -344,12 +345,12 @@ export default {
 
       if (cur) {
         this.$refs.player.play();
-        if (!this.initPlay) {
+        const { isIOS } = this.$store.state;
+        if (isIOS) {
           // ios 设备第一次播放音频会失败，需要重新播放一次才会正常
           this.$nextTick(() => {
             this.$refs.player.pause();
             this.$refs.player.play();
-            this.initPlay = true;
           });
         }
         // 播放音频，显示播放器动画
@@ -391,8 +392,8 @@ export default {
 
     /** 播放进度 */
     percentage() {
-      if (this.$store.state.playingInfo) {
-        const duration = this.$store.state.playingInfo.versionInfo.exhibitProperty.duration;
+      if (this.playingInfo) {
+        const duration = this.playingInfo.versionInfo.exhibitProperty.duration;
         if (duration) {
           return ((this.$store.state.progress * 1000) / duration) * 100;
         } else {

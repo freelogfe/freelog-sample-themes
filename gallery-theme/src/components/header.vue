@@ -347,6 +347,7 @@ export default {
 
       /** 搜索 */
       search() {
+        data.searchHistoryShow = false;
         data.searchPopupShow = false;
         const { searchKey } = data;
         const query: { keywords?: string } = {};

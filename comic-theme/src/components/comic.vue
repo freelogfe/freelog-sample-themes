@@ -104,7 +104,7 @@
         立即阅读
       </div>
 
-      <div class="warning-btn btn last-btn" @click.stop="operateShelf(data)" v-if="mode === 2">取消收藏</div>
+      <div class="warning-btn btn last-btn" @click.stop="deleteCollection()" v-if="mode === 2">取消收藏</div>
     </div>
   </div>
 </template>
@@ -127,10 +127,11 @@ export default {
   // mode: 1-默认首页 2-收藏 3-签约记录 4-移动端首页收藏
   props: ["mode", "data", "operateShelf"],
 
-  setup(props: { data: ExhibitItem }) {
+  setup(props: { data: ExhibitItem; operateShelf: (data: ExhibitItem) => void }) {
     const store = useStore();
     const { switchPage } = useMyRouter();
-    
+    let deleting = false;
+
     const methods = {
       /** 跳转页面 */
       toPath(path: string) {
@@ -142,6 +143,15 @@ export default {
         }
 
         switchPage(path, { id: exhibitId });
+      },
+
+      /** 取消收藏 */
+      deleteCollection() {
+        if (!deleting) {
+          deleting = true;
+          const { data, operateShelf } = props;
+          operateShelf(data);
+        }
       },
     };
 

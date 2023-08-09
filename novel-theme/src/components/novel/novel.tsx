@@ -4,7 +4,7 @@ import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
 import { ExhibitItem } from "../../api/interface";
 import { useMyHistory } from "../../utils/hooks";
 import { Tags } from "../tags/tags";
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import { globalContext } from "../../router";
 import { showToast } from "../toast/toast";
 
@@ -17,6 +17,7 @@ export const Novel = (props: {
   const { mode = 1, data, operateShelf } = props;
   const { inMobile } = useContext(globalContext);
   const history = useMyHistory();
+  const deleteBook = useRef(false);
 
   /** 跳转页面 */
   const toPath = (path: string) => {
@@ -121,7 +122,10 @@ export const Novel = (props: {
             className="warning-btn btn"
             onClick={(e) => {
               e.stopPropagation();
-              operateShelf && operateShelf(data);
+              if (!deleteBook.current) {
+                deleteBook.current = true;
+                operateShelf && operateShelf(data);
+              }
             }}
           >
             移出书架

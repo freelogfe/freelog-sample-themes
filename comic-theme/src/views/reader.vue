@@ -396,7 +396,7 @@
 <script lang="tsx">
 import { toRefs } from "@vue/reactivity";
 import { useMyRouter, useMyScroll, useMyShelf } from "../utils/hooks";
-import { defineAsyncComponent, nextTick, onUnmounted, reactive, watch } from "vue";
+import { defineAsyncComponent, nextTick, onBeforeUnmount, reactive, watch } from "vue";
 import { ContentImage, ExhibitItem } from "@/api/interface";
 import {
   addAuth,
@@ -877,7 +877,7 @@ export default {
       }
     );
 
-    onUnmounted(() => {
+    onBeforeUnmount(async () => {
       if (barShowTimer) {
         clearTimeout(barShowTimer);
         barShowTimer = null;
@@ -887,7 +887,7 @@ export default {
         tipTimer = null;
       }
       window.removeEventListener("keyup", keyup);
-      data.shareWidget && data.shareWidget.unmount();
+      await data.shareWidget?.unmount();
     });
 
     getComicInfo();
