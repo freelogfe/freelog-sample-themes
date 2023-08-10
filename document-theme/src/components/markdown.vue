@@ -7,9 +7,8 @@ import showdown from "showdown";
 import { ref } from "@vue/reactivity";
 import { nextTick, watch } from "@vue/runtime-core";
 import { ExhibitItem } from "@/api/interface";
-import { getExhibitDepFileStream } from "@/api/freelog";
+import { getExhibitDepFileStream, pushMessage4Task } from "@/api/freelog";
 import { SetupContext } from "vue";
-import Axios from "../api/http";
 
 export default {
   name: "my-markdown",
@@ -157,10 +156,7 @@ export default {
 
     /** 内测任务完成 */
     const completeTask = () => {
-      Axios("https://qi.freelog.com/v2/activities/facade/pushMessage4Task", {
-        method: "POST",
-        data: { taskConfigCode: "TS000011" },
-      });
+      pushMessage4Task({ taskConfigCode: "TS000011" });
     };
 
     watch(

@@ -53,6 +53,7 @@
 <script>
 import { shareBtns } from "@/api/data";
 import QrcodeVue from "qrcode.vue";
+import { pushMessage4Task } from "@/api/freelog";
 
 export default {
   name: "share",
@@ -143,6 +144,7 @@ export default {
           this.copySuccess = false;
         }, 2300);
       }
+      pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableld: this.shareInfo.exhibit.exhibitId } });
     },
   },
 };

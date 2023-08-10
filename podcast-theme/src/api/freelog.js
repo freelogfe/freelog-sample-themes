@@ -86,3 +86,8 @@ export const getSelfConfig = async () => {
 export const getNodeInfo = () => {
   return window.freelogApp.nodeInfo;
 };
+
+/** 推送任务消息埋点 */
+export const pushMessage4Task = (data) => {
+  return window.freelogApp.pushMessage4Task(data);
+};
