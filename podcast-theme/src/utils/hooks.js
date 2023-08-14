@@ -1,14 +1,4 @@
-import {
-  callLogin,
-  addAuth,
-  setUserData,
-  getExhibitListById,
-  getExhibitSignCount,
-  getExhibitAuthStatus,
-  getSignStatistics,
-  getExhibitInfo,
-  getExhibitFileStream,
-} from "@/api/freelog";
+import { callLogin, addAuth, setUserData, getExhibitListById, getExhibitSignCount, getExhibitAuthStatus, getSignStatistics, getExhibitInfo, getExhibitFileStream } from "@/api/freelog";
 import { showToast } from "./common";
 import store from "@/store";
 
@@ -28,11 +18,7 @@ export const useMyAuth = {
     }
 
     const ids = idList.join();
-    const [list, countList, statusList] = await Promise.all([
-      getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
-      getExhibitSignCount(ids),
-      getExhibitAuthStatus(ids),
-    ]);
+    const [list, countList, statusList] = await Promise.all([getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }), getExhibitSignCount(ids), getExhibitAuthStatus(ids)]);
     idList.forEach((id) => {
       const signedItem = list.data.data.find((item) => item.exhibitId === id);
       if (!signedItem || signedItem.articleInfo.resourceType.includes("主题")) return;
@@ -89,11 +75,7 @@ export const useMyCollection = {
     }
 
     const ids = idList.join();
-    const [list, countList, statusList] = await Promise.all([
-      getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
-      getExhibitSignCount(ids),
-      getExhibitAuthStatus(ids),
-    ]);
+    const [list, countList, statusList] = await Promise.all([getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }), getExhibitSignCount(ids), getExhibitAuthStatus(ids)]);
     idList.forEach((id) => {
       const collectionItem = list.data.data.find((item) => item.exhibitId === id);
       if (!collectionItem) return;
@@ -157,10 +139,7 @@ export const useMyPlay = {
     }
 
     const ids = idList.join();
-    const [list, statusList] = await Promise.all([
-      getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
-      getExhibitAuthStatus(ids),
-    ]);
+    const [list, statusList] = await Promise.all([getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }), getExhibitAuthStatus(ids)]);
     idList.forEach((id) => {
       const playItem = list.data.data.find((item) => item.exhibitId === id);
       if (!playItem) return;
@@ -304,7 +283,7 @@ export const useMyPlay = {
 
     const { defaulterIdentityType, url, exhibitId } = exhibit;
     const { playingInfo, playing } = store.state;
-    if (playingInfo) {
+    if (playingInfo && defaulterIdentityType === 0) {
       const { exhibitId: id, url } = playingInfo;
       if (exhibitId === id && playing) {
         // 暂停
@@ -327,20 +306,14 @@ export const useMyPlay = {
         showToast("授权链异常");
       }
       return;
-    } else {
-      if (!url) {
-        const url = await getExhibitFileStream(exhibitId, true);
-        exhibit.url = url;
-      }
-      store.commit("setData", { key: "playingInfo", value: exhibit });
-    }
-
-    if (defaulterIdentityType >= 4) {
+    } else if (defaulterIdentityType === 4) {
       // 未授权
-      store.commit("setData", { key: "playing", value: false });
-      store.commit("setData", { key: "progress", value: 0 });
       useMyAuth.getAuth(exhibit, true);
       return;
+    } else if (!url) {
+      // 已授权未获取 url
+      const url = await getExhibitFileStream(exhibitId, true);
+      exhibit.url = url;
     }
 
     useMyPlay.addToPlayList(exhibitId);
@@ -351,10 +324,7 @@ export const useMyPlay = {
 
   /** 获取播放数据 */
   async getPlayingInfo(id) {
-    const [info, statusInfo] = await Promise.all([
-      getExhibitInfo(id, { isLoadVersionProperty: 1 }),
-      getExhibitAuthStatus(id),
-    ]);
+    const [info, statusInfo] = await Promise.all([getExhibitInfo(id, { isLoadVersionProperty: 1 }), getExhibitAuthStatus(id)]);
     info.data.data.defaulterIdentityType = statusInfo.data.data[0].defaulterIdentityType;
     store.commit("setData", { key: "playingInfo", value: info.data.data });
   },
