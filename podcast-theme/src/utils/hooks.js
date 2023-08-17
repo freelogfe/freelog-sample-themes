@@ -1,4 +1,14 @@
-import { callLogin, addAuth, setUserData, getExhibitListById, getExhibitSignCount, getExhibitAuthStatus, getSignStatistics, getExhibitInfo, getExhibitFileStream } from "@/api/freelog";
+import {
+  callLogin,
+  addAuth,
+  setUserData,
+  getExhibitListById,
+  getExhibitSignCount,
+  getExhibitAuthStatus,
+  getSignStatistics,
+  getExhibitInfo,
+  getExhibitFileStream,
+} from "@/api/freelog";
 import { showToast } from "./common";
 import store from "@/store";
 
@@ -18,7 +28,11 @@ export const useMyAuth = {
     }
 
     const ids = idList.join();
-    const [list, countList, statusList] = await Promise.all([getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }), getExhibitSignCount(ids), getExhibitAuthStatus(ids)]);
+    const [list, countList, statusList] = await Promise.all([
+      getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
+      getExhibitSignCount(ids),
+      getExhibitAuthStatus(ids),
+    ]);
     idList.forEach((id) => {
       const signedItem = list.data.data.find((item) => item.exhibitId === id);
       if (!signedItem || signedItem.articleInfo.resourceType.includes("主题")) return;
@@ -53,11 +67,20 @@ export const useMyAuth = {
     const playItem = playList.find((item) => item.exhibitId === exhibitId);
     if (playItem) playItem.defaulterIdentityType = 0;
     authIdList.push(exhibitId);
-    if (play) useMyPlay.playOrPause(data);
     store.commit("setData", { key: "collectionList", value: collectionList });
     store.commit("setData", { key: "signedList", value: signedList });
     store.commit("setData", { key: "playList", value: playList });
     store.commit("setData", { key: "authIdList", value: authIdList });
+
+    if (play) {
+      useMyPlay.addToPlayList(exhibitId);
+      setUserData("playingId", exhibitId);
+      // 已授权未获取 url
+      const url = await getExhibitFileStream(exhibitId, true);
+      data.url = url;
+      store.commit("setData", { key: "playingInfo", value: data });
+      store.commit("setData", { key: "playing", value: true });
+    }
   },
 };
 
@@ -75,7 +98,11 @@ export const useMyCollection = {
     }
 
     const ids = idList.join();
-    const [list, countList, statusList] = await Promise.all([getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }), getExhibitSignCount(ids), getExhibitAuthStatus(ids)]);
+    const [list, countList, statusList] = await Promise.all([
+      getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
+      getExhibitSignCount(ids),
+      getExhibitAuthStatus(ids),
+    ]);
     idList.forEach((id) => {
       const collectionItem = list.data.data.find((item) => item.exhibitId === id);
       if (!collectionItem) return;
@@ -139,7 +166,10 @@ export const useMyPlay = {
     }
 
     const ids = idList.join();
-    const [list, statusList] = await Promise.all([getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }), getExhibitAuthStatus(ids)]);
+    const [list, statusList] = await Promise.all([
+      getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
+      getExhibitAuthStatus(ids),
+    ]);
     idList.forEach((id) => {
       const playItem = list.data.data.find((item) => item.exhibitId === id);
       if (!playItem) return;
@@ -281,15 +311,32 @@ export const useMyPlay = {
       return;
     }
 
+    const { isIOS, initUrl, playingInfo, playing } = store.state;
+
+    if (isIOS) {
+      if (initUrl) {
+        setTimeout(() => {
+          store.commit("setData", { key: "initUrl", value: null });
+        }, 0);
+      } else if (initUrl === "") {
+        // 使用任意 url 初始化播放器
+        store.commit("setData", {
+          key: "initUrl",
+          value: "http://file.testfreelog.com/exhibits/64d1ed97cc4a64002f632b0d",
+        });
+        this.playOrPause(exhibit, type);
+        return;
+      }
+    }
+
     const { defaulterIdentityType, url, exhibitId } = exhibit;
-    const { playingInfo, playing } = store.state;
     if (playingInfo && defaulterIdentityType === 0) {
-      const { exhibitId: id, url } = playingInfo;
-      if (exhibitId === id && playing) {
+      const { exhibitId: id, url: playingUrl } = playingInfo;
+      if (exhibitId === id && playing && type === "normal" && playingUrl === url) {
         // 暂停
         store.commit("setData", { key: "playing", value: false });
         return;
-      } else if (exhibitId === id && !playing && url) {
+      } else if (exhibitId === id && !playing && playingUrl) {
         // 之前暂停的声音继续播放
         store.commit("setData", { key: "playing", value: true });
         return;
@@ -324,8 +371,13 @@ export const useMyPlay = {
 
   /** 获取播放数据 */
   async getPlayingInfo(id) {
-    const [info, statusInfo] = await Promise.all([getExhibitInfo(id, { isLoadVersionProperty: 1 }), getExhibitAuthStatus(id)]);
+    const [info, statusInfo, url] = await Promise.all([
+      getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+      getExhibitAuthStatus(id),
+      getExhibitFileStream(id, true),
+    ]);
     info.data.data.defaulterIdentityType = statusInfo.data.data[0].defaulterIdentityType;
+    info.data.data.url = url;
     store.commit("setData", { key: "playingInfo", value: info.data.data });
   },
 

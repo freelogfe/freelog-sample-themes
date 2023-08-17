@@ -4,27 +4,19 @@
   <div class="player-wrapper">
     <audio
       ref="player"
-      :src="playingInfo ? playingInfo.url : ''"
-      @canplay="canplay()"
-      @timeupdate="audioPlayUpdate()"
-      @ended="nextVoice()"
-      @error="playError($event)"
+      :src="$store.state.initUrl ? $store.state.initUrl : playingInfo ? playingInfo.url : ''"
+      @loadedmetadata="loadedVoice()"
+      @timeupdate="$store.state.initUrl !== '' && audioPlayUpdate()"
+      @ended="$store.state.initUrl !== '' && endVoice()"
+      @error="$store.state.initUrl !== '' && playError($event)"
     />
 
     <!-- mobile -->
     <div class="mobile-player-wrapper" v-if="$store.state.inMobile">
       <div class="player" :class="{ show: playerShow }">
         <div class="cover-area">
-          <img
-            class="cover"
-            :src="playingInfo.coverImages[0]"
-            v-if="playingInfo"
-          />
-          <img
-            class="default-avatar"
-            src="../assets/images/default-avatar.png"
-            v-else
-          />
+          <img class="cover" :src="playingInfo.coverImages[0]" v-if="playingInfo" />
+          <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
         </div>
         <div ref="infoArea" class="info-area">
           <div
@@ -60,11 +52,7 @@
           <div class="play-btn-area" @click="playOrPause()">
             <i
               class="freelog play"
-              :class="
-                playing
-                  ? 'fl-icon-zanting-daibiankuang'
-                  : 'fl-icon-bofang-daibiankuang'
-              "
+              :class="playing ? 'fl-icon-zanting-daibiankuang' : 'fl-icon-bofang-daibiankuang'"
             ></i>
 
             <el-progress
@@ -77,10 +65,7 @@
               :show-text="false"
             />
           </div>
-          <i
-            class="freelog fl-icon-jiarubofangliebiao"
-            @click="openPlayList()"
-          ></i>
+          <i class="freelog fl-icon-jiarubofangliebiao" @click="openPlayList()"></i>
         </div>
         <div class="progress-box" @touchstart="slidingProgress = true">
           <el-slider
@@ -88,10 +73,7 @@
             :class="{ 'no-voice': !playingInfo }"
             v-model="$store.state.progress"
             :min="0"
-            :max="
-              playingInfo &&
-              playingInfo.versionInfo.exhibitProperty.duration / 1000
-            "
+            :max="playingInfo && playingInfo.versionInfo.exhibitProperty.duration / 1000"
             :show-tooltip="false"
             @change="changeProgress"
           ></el-slider>
@@ -99,33 +81,18 @@
       </div>
 
       <transition name="fade">
-        <div
-          class="mobile-play-list-modal"
-          @click="closePlayList()"
-          v-if="playListPopupShow"
-        ></div>
+        <div class="mobile-play-list-modal" @click="closePlayList()" v-if="playListPopupShow"></div>
       </transition>
       <div class="mobile-play-list-popup" :class="{ show: playListPopupShow }">
         <div class="top-area">
           <div class="popup-title">
             播放列表<span v-if="playList">（{{ playList.length }}）</span>
           </div>
-          <div
-            class="clear-btn"
-            @click="confirmDialogShow = true"
-            v-if="playList && playList.length"
-          >
-            清空列表
-          </div>
+          <div class="clear-btn" @click="confirmDialogShow = true" v-if="playList && playList.length">清空列表</div>
         </div>
         <div class="voice-list" v-if="playList">
           <template v-if="playList.length">
-            <div
-              class="voice-item"
-              v-for="item in playList"
-              :key="item.exhibitId"
-              @click="playOrPauseList(item)"
-            >
+            <div class="voice-item" v-for="item in playList" :key="item.exhibitId" @click="playOrPauseList(item)">
               <div class="left-area">
                 <div class="title-area">
                   <img
@@ -144,19 +111,13 @@
                 <div class="duration-area">
                   <play-status
                     :playing="playing"
-                    :desc="`${secondsToHMS(
-                      $store.state.progress * 1000
-                    )} / ${secondsToHMS(
+                    :desc="`${secondsToHMS($store.state.progress * 1000)} / ${secondsToHMS(
                       item.versionInfo.exhibitProperty.duration
                     )}`"
-                    v-if="
-                      playingInfo && playingInfo.exhibitId === item.exhibitId
-                    "
+                    v-if="playingInfo && playingInfo.exhibitId === item.exhibitId"
                   />
                   <div class="duration" v-else>
-                    {{
-                      item.versionInfo.exhibitProperty.duration | secondsToHMS
-                    }}
+                    {{ item.versionInfo.exhibitProperty.duration | secondsToHMS }}
                   </div>
                 </div>
               </div>
@@ -177,9 +138,7 @@
           <div class="confirm-dialog">
             <div class="desc">清空列表会移除播放列表中的全部声音</div>
             <div class="btns">
-              <div class="btn cancel" @click="confirmDialogShow = false">
-                取消
-              </div>
+              <div class="btn cancel" @click="confirmDialogShow = false">取消</div>
               <div class="btn sure" @click="clearPlayList()">清空</div>
             </div>
           </div>
@@ -190,7 +149,7 @@
     <!-- PC -->
     <template v-if="$store.state.inMobile === false">
       <transition name="slide-up-fade">
-        <div class="pc-player-wrapper" v-if="show">
+        <div class="pc-player-wrapper" @mouseover="clearCloseTimer()" @mouseout="animation()" v-if="show">
           <div class="player-wrapper">
             <div class="left-area">
               <i
@@ -204,25 +163,14 @@
 
             <div class="main-area">
               <div class="cover-area">
-                <img
-                  class="cover"
-                  :src="playingInfo.coverImages[0]"
-                  v-if="playingInfo"
-                />
-                <img
-                  class="default-avatar"
-                  src="../assets/images/default-avatar.png"
-                  v-else
-                />
+                <img class="cover" :src="playingInfo.coverImages[0]" v-if="playingInfo" />
+                <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
               </div>
               <div class="info-area">
                 <div class="top-area">
                   <template v-if="playingInfo">
                     <div class="title-area">
-                      <my-tooltip
-                        class="title voice-title"
-                        :content="playingInfo.exhibitTitle"
-                      >
+                      <my-tooltip class="title voice-title" :content="playingInfo.exhibitTitle">
                         <span
                           @click="
                             $router.myPush({
@@ -237,10 +185,7 @@
                     </div>
                     <div class="progress-area">
                       {{ ($store.state.progress * 1000) | secondsToHMS }} /
-                      {{
-                        playingInfo.versionInfo.exhibitProperty.duration
-                          | secondsToHMS
-                      }}
+                      {{ playingInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
                     </div>
                   </template>
                   <span class="no-data-title" v-else>暂无播放的声音</span>
@@ -251,13 +196,8 @@
                     :class="{ 'no-voice': !playingInfo }"
                     v-model="$store.state.progress"
                     :min="0"
-                    :max="
-                      playingInfo &&
-                      playingInfo.versionInfo.exhibitProperty.duration / 1000
-                    "
-                    :format-tooltip="
-                      () => secondsToHMS($store.state.progress * 1000)
-                    "
+                    :max="playingInfo && playingInfo.versionInfo.exhibitProperty.duration / 1000"
+                    :format-tooltip="() => secondsToHMS($store.state.progress * 1000)"
                     @change="changeProgress"
                   ></el-slider>
                 </div>
@@ -279,12 +219,7 @@
       </transition>
 
       <transition name="scale">
-        <div
-          class="pc-show-btn"
-          key="showBtn"
-          @click="show = true"
-          v-if="!show"
-        >
+        <div class="pc-show-btn" key="showBtn" @click="show = true" v-if="!show">
           <div class="btn-area">
             <i class="freelog fl-icon-shouqi1" />
             <div class="btn-label">打开播放器</div>
@@ -293,53 +228,23 @@
       </transition>
 
       <transition name="scale">
-        <div
-          ref="volumePopup"
-          class="pc-volume-popup"
-          key="volume"
-          v-if="volumePopupShow"
-        >
-          <el-slider
-            class="progress"
-            v-model="volume"
-            vertical
-            :min="0"
-            :max="100"
-          ></el-slider>
+        <div ref="volumePopup" class="pc-volume-popup" key="volume" v-if="volumePopupShow">
+          <el-slider class="progress" v-model="volume" vertical :min="0" :max="100"></el-slider>
         </div>
       </transition>
 
       <transition name="scale">
-        <div
-          ref="playListPopup"
-          class="pc-play-list-popup"
-          key="playList"
-          v-if="playListPopupShow"
-        >
+        <div ref="playListPopup" class="pc-play-list-popup" key="playList" v-if="playListPopupShow">
           <div class="top-area">
             <div class="popup-title">播放列表</div>
             <div class="top-right">
-              <div
-                class="text-btn clear-btn"
-                @click="clearPlayList()"
-                v-if="playList.length"
-              >
-                清空列表
-              </div>
-              <i
-                class="text-btn freelog fl-icon-zhankaigengduo"
-                @click="playListPopupShow = false"
-              ></i>
+              <div class="text-btn clear-btn" @click="clearPlayList()" v-if="playList.length">清空列表</div>
+              <i class="text-btn freelog fl-icon-zhankaigengduo" @click="playListPopupShow = false"></i>
             </div>
           </div>
           <div class="voice-list" v-if="playList">
             <template v-if="playList.length">
-              <div
-                class="voice-item"
-                v-for="item in playList"
-                :key="item.exhibitId"
-                @click="playOrPauseList(item)"
-              >
+              <div class="voice-item" v-for="item in playList" :key="item.exhibitId" @click="playOrPauseList(item)">
                 <div class="left-area">
                   <img
                     class="icon"
@@ -352,10 +257,7 @@
                     v-if="item.defaulterIdentityType >= 4"
                   ></i>
                   <div class="title-area">
-                    <my-tooltip
-                      class="title voice-title"
-                      :content="item.exhibitTitle"
-                    >
+                    <my-tooltip class="title voice-title" :content="item.exhibitTitle">
                       <span>{{ item.exhibitTitle }}</span>
                     </my-tooltip>
                   </div>
@@ -364,24 +266,15 @@
                 <div class="right-area">
                   <play-status
                     :playing="playing"
-                    :desc="`${secondsToHMS(
-                      $store.state.progress * 1000
-                    )} / ${secondsToHMS(
+                    :desc="`${secondsToHMS($store.state.progress * 1000)} / ${secondsToHMS(
                       item.versionInfo.exhibitProperty.duration
                     )}`"
-                    v-if="
-                      playingInfo && playingInfo.exhibitId === item.exhibitId
-                    "
+                    v-if="playingInfo && playingInfo.exhibitId === item.exhibitId"
                   />
                   <div class="duration" v-else>
-                    {{
-                      item.versionInfo.exhibitProperty.duration | secondsToHMS
-                    }}
+                    {{ item.versionInfo.exhibitProperty.duration | secondsToHMS }}
                   </div>
-                  <i
-                    class="text-btn freelog fl-icon-guanbi"
-                    @click.stop="deleteVoice(item.exhibitId)"
-                  ></i>
+                  <i class="text-btn freelog fl-icon-guanbi" @click.stop="deleteVoice(item.exhibitId)"></i>
                 </div>
               </div>
             </template>
@@ -423,6 +316,7 @@ export default {
       infoAreaWidth: 0,
       startTouchX: 0,
       touchMoveX: 0,
+      closeTimer: null,
     };
   },
 
@@ -434,16 +328,13 @@ export default {
         if (cur && pre && cur.length - pre.length === 1) this.animation();
         if (!cur || !this.$store.state.inMobile) return;
 
-        if (this.playingInfo) {
-          const index = cur.findIndex(
-            (item) => item.exhibitId === this.playingInfo.exhibitId
-          );
-          this.touchMoveX = -this.infoAreaWidth * index;
-        }
         if (!this.infoAreaWidth) {
-          this.$nextTick(() => {
-            this.infoAreaWidth = this.$refs.infoArea.clientWidth;
-          });
+          this.infoAreaWidth = this.$refs.infoArea.clientWidth;
+        }
+
+        if (this.playingInfo) {
+          const index = cur.findIndex((item) => item.exhibitId === this.playingInfo.exhibitId);
+          this.touchMoveX = -this.infoAreaWidth * index;
         }
       },
       immediate: true,
@@ -455,9 +346,7 @@ export default {
         this.playingInfo = cur;
 
         if (this.playList && this.$store.state.inMobile) {
-          const index = this.playList.findIndex(
-            (item) => item.exhibitId === this.playingInfo.exhibitId
-          );
+          const index = this.playList.findIndex((item) => item.exhibitId === this.playingInfo.exhibitId);
           this.touchMoveX = -this.infoAreaWidth * index;
         }
       },
@@ -468,19 +357,17 @@ export default {
       if (!this.$store.state.playingInfo) return;
 
       if (cur) {
-        this.$refs.player.play();
-        const { isIOS } = this.$store.state;
-        if (isIOS) {
-          // ios 设备第一次播放音频会失败，需要重新播放一次才会正常
-          this.$nextTick(() => {
-            this.$refs.player.pause();
-            this.$refs.player.play();
-          });
-        }
-        // 播放音频，显示播放器动画
-        this.animation();
+        this.playVoice();
       } else {
         this.$refs.player.pause();
+      }
+    },
+
+    "$store.state.initUrl"(cur) {
+      if (cur) {
+        this.$refs.player.volume = 0;
+      } else {
+        this.$refs.player.volume = this.volume / 100;
       }
     },
 
@@ -506,9 +393,7 @@ export default {
     /** 是否收藏 */
     isCollected() {
       const { collectionIdList, playingInfo } = this.$store.state;
-      return playingInfo
-        ? collectionIdList.includes(playingInfo.exhibitId)
-        : false;
+      return playingInfo ? collectionIdList.includes(playingInfo.exhibitId) : false;
     },
 
     /** 是否播放中 */
@@ -521,7 +406,8 @@ export default {
       if (this.playingInfo) {
         const duration = this.playingInfo.versionInfo.exhibitProperty.duration;
         if (duration) {
-          return ((this.$store.state.progress * 1000) / duration) * 100;
+          const progress = ((this.$store.state.progress * 1000) / duration) * 100;
+          return Math.min(100, progress);
         } else {
           return 0;
         }
@@ -539,9 +425,7 @@ export default {
           disabled: this.$store.state.playList.length <= 1,
         },
         {
-          icon: this.playing
-            ? "fl-icon-zanting-daibiankuang"
-            : "fl-icon-bofang-daibiankuang",
+          icon: this.playing ? "fl-icon-zanting-daibiankuang" : "fl-icon-bofang-daibiankuang",
           operate: this.playOrPause,
         },
         {
@@ -564,9 +448,7 @@ export default {
         },
         {
           name: "collect",
-          icon: this.isCollected
-            ? "fl-icon-shoucangxiaoshuoyishoucang"
-            : "fl-icon-shoucangxiaoshuo",
+          icon: this.isCollected ? "fl-icon-shoucangxiaoshuoyishoucang" : "fl-icon-shoucangxiaoshuo",
           operate: this.operateCollect,
         },
         {
@@ -626,6 +508,11 @@ export default {
       useMyPlay.nextVoice();
     },
 
+    /** 播放完成 */
+    endVoice() {
+      this.nextVoice();
+    },
+
     /** 播放失败 */
     playError() {
       if (!this.playing) return;
@@ -672,11 +559,7 @@ export default {
         if (this.volumePopupShow) {
           const volumePopup = this.$refs.volumePopup;
           const volume = this.$refs.volume[0];
-          if (
-            app.contains(e.target) &&
-            !volumePopup.contains(e.target) &&
-            !volume.contains(e.target)
-          ) {
+          if (app.contains(e.target) && !volumePopup.contains(e.target) && !volume.contains(e.target)) {
             this.volumePopupShow = false;
           }
         }
@@ -684,11 +567,7 @@ export default {
         if (this.playListPopupShow) {
           const playListPopup = this.$refs.playListPopup;
           const playList = this.$refs.playList[0];
-          if (
-            app.contains(e.target) &&
-            !playListPopup.contains(e.target) &&
-            !playList.contains(e.target)
-          ) {
+          if (app.contains(e.target) && !playListPopup.contains(e.target) && !playList.contains(e.target)) {
             this.playListPopupShow = false;
           }
         }
@@ -696,8 +575,25 @@ export default {
     },
 
     /** 加载完成 */
-    canplay() {
-      if (this.playing) this.$refs.player.play();
+    loadedVoice() {
+      this.playVoice();
+    },
+
+    /** 播放声音 */
+    playVoice() {
+      if (!this.playing) return;
+
+      this.$refs.player.play();
+      // const { isIOS } = this.$store.state;
+      // if (isIOS) {
+      //   // ios 设备第一次播放音频会失败，需要重新播放一次才会正常
+      //   this.$nextTick(() => {
+      //     this.$refs.player.pause();
+      //     this.$refs.player.play();
+      //   });
+      // }
+      // 播放音频，显示播放器动画
+      this.animation();
     },
 
     /** 音频播放时间变化 */
@@ -717,50 +613,60 @@ export default {
 
     /** 开始划动声音 */
     touchStart(e) {
-      this.startTouchX = e.changedTouches[0].clientX;
+      if (this.playList && this.playList.length > 1) {
+        this.startTouchX = e.changedTouches[0].clientX;
+      }
     },
 
     /** 划动声音 */
     touchMove(e) {
-      const index = this.playList.findIndex(
-        (item) => item.exhibitId === this.playingInfo.exhibitId
-      );
-      const basicX = -this.infoAreaWidth * index;
-      const offset = e.changedTouches[0].clientX - this.startTouchX;
-      this.touchMoveX = basicX + offset;
+      if (this.playList && this.playList.length > 1) {
+        const index = this.playList.findIndex((item) => item.exhibitId === this.playingInfo.exhibitId);
+        const basicX = -this.infoAreaWidth * index;
+        const offset = e.changedTouches[0].clientX - this.startTouchX;
+        this.touchMoveX = basicX + offset * 1.5;
+      }
     },
 
     /** 结束划动声音 */
     touchEnd() {
-      const index = this.playList.findIndex(
-        (item) => item.exhibitId === this.playingInfo.exhibitId
-      );
-      const basicX = -this.infoAreaWidth * index;
-      const areaWidth = this.$refs.infoArea.clientWidth;
-      const offset = basicX - this.touchMoveX;
-      if (Math.abs(offset) < (areaWidth * 2) / 3) {
-        // 不切
-        this.touchMoveX = -this.infoAreaWidth * index;
-        return;
-      }
+      if (this.playList && this.playList.length > 1) {
+        const index = this.playList.findIndex((item) => item.exhibitId === this.playingInfo.exhibitId);
+        const basicX = -this.infoAreaWidth * index;
+        const areaWidth = this.$refs.infoArea.clientWidth;
+        const offset = basicX - this.touchMoveX;
+        if (Math.abs(offset) < (areaWidth * 2) / 5) {
+          // 不切
+          this.touchMoveX = -this.infoAreaWidth * index;
+          return;
+        }
 
-      if (offset > 0) {
-        // 下一首
-        useMyPlay.nextVoice();
-      } else if (offset < 0) {
-        // 上一首
-        useMyPlay.preVoice();
+        if (offset > 0) {
+          // 下一首
+          this.nextVoice();
+        } else if (offset < 0) {
+          // 上一首
+          this.preVoice();
+        }
       }
     },
 
     /** 播放或加入播放列表时，播放器动画 */
     animation() {
-      if (this.show) return;
-
-      this.show = true;
-      setTimeout(() => {
+      if (!this.show) this.show = true;
+      if (this.closeTimer) this.clearCloseTimer();
+      this.closeTimer = setTimeout(() => {
         if (!this.playListPopupShow && !this.volumePopupShow) this.show = false;
+        this.closeTimer = null;
       }, 3000);
+    },
+
+    /** 清除自动隐藏计时器 */
+    clearCloseTimer() {
+      if (this.closeTimer) {
+        clearTimeout(this.closeTimer);
+        this.closeTimer = null;
+      }
     },
   },
 };
