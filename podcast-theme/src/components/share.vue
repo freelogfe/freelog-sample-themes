@@ -144,7 +144,7 @@ export default {
           this.copySuccess = false;
         }, 2300);
       }
-      pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableld: this.shareInfo.exhibit.exhibitId } });
+      pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: this.shareInfo.exhibit.exhibitId } });
     },
   },
 };

@@ -6,9 +6,9 @@
       ref="player"
       :src="$store.state.initUrl ? $store.state.initUrl : playingInfo ? playingInfo.url : ''"
       @loadedmetadata="loadedVoice()"
-      @timeupdate="$store.state.initUrl !== '' && audioPlayUpdate()"
-      @ended="$store.state.initUrl !== '' && endVoice()"
-      @error="$store.state.initUrl !== '' && playError($event)"
+      @timeupdate="$store.state.initUrl === null && audioPlayUpdate()"
+      @ended="$store.state.initUrl === null && endVoice()"
+      @error="$store.state.initUrl === null && playError($event)"
     />
 
     <!-- mobile -->
