@@ -225,7 +225,7 @@ export default {
       if (store.state.inMobile) return;
 
       const themeData = await getSubDep();
-      const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/share-widget");
+      const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-展品分享");
       if (!widget) return;
       data.shareWidget = await mountWidget({
         widget,
@@ -238,7 +238,7 @@ export default {
     /** 加载 markdown 插件 */
     const mountMarkdownWidget = async () => {
       const themeData = await getSubDep();
-      const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/markdown-widget");
+      const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-markdown解析");
       if (!widget) return;
       data.markdownWidget = await mountWidget({
         widget,

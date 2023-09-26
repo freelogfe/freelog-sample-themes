@@ -90,7 +90,7 @@ const DetailBody = () => {
     if (inMobile) return;
 
     const themeData = await getSubDep();
-    const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/share-widget");
+    const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-展品分享");
     if (!widget) return;
     shareWidget.current = await mountWidget({
       widget,
