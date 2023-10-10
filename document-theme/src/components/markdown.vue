@@ -9,6 +9,7 @@ import { nextTick, watch } from "@vue/runtime-core";
 import { ExhibitItem } from "@/api/interface";
 import { getExhibitDepFileStream, pushMessage4Task } from "@/api/freelog";
 import { SetupContext } from "vue";
+import { useStore } from "vuex";
 
 export default {
   name: "my-markdown",
@@ -18,6 +19,8 @@ export default {
   emits: ["getDirectory"],
 
   setup(props: { data: ExhibitItem }, context: SetupContext) {
+    const store = useStore();
+
     const content = ref("");
     const contentBody = ref<any>(null);
     let videoList: any[] = [];
@@ -83,12 +86,12 @@ export default {
 
       // 后期要删除，新手任务相关功能
       html = html.replace(
-        'src="https://static.freelog.com/static/release_resource.mp4"',
-        'id="release_resource_video" src="https://static.freelog.com/static/release_resource.mp4"'
+        "src='https://file.freelog.com/objects/6524f328a6f027002e9ee1de'",
+        "id='release_resource_video' src='https://file.freelog.com/objects/6524f328a6f027002e9ee1de'"
       );
       html = html.replace(
-        'src="https://static.freelog.com/static/create_node.mp4"',
-        'id="create_node_video" src="https://static.freelog.com/static/create_node.mp4"'
+        "src='https://static.freelog.com/static/create_node.mp4'",
+        "id='create_node_video' src='https://static.freelog.com/static/create_node.mp4'"
       );
 
       content.value = html;
@@ -98,7 +101,7 @@ export default {
         const titles = elements.filter((item: HTMLElement) => ["H1", "H2", "H3"].includes(item.nodeName));
         context.emit("getDirectory", titles);
 
-        videoPlayDuration();
+        if (store.state.userData.isLogin) videoPlayDuration();
       });
     };
 
