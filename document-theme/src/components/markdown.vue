@@ -86,12 +86,12 @@ export default {
 
       // 后期要删除，新手任务相关功能
       html = html.replace(
-        "src='https://file.freelog.com/objects/6524f328a6f027002e9ee1de'",
-        "id='release_resource_video' src='https://file.freelog.com/objects/6524f328a6f027002e9ee1de'"
+        "src='https://file.freelog.com/objects/65250e98a6f027002e9ef8c5'",
+        "id='release_resource_video' src='https://file.freelog.com/objects/65250e98a6f027002e9ef8c5'"
       );
       html = html.replace(
-        "src='https://static.freelog.com/static/create_node.mp4'",
-        "id='create_node_video' src='https://static.freelog.com/static/create_node.mp4'"
+        "src='https://file.freelog.com/objects/65250c36a6f027002e9ef7d8'",
+        "id='create_node_video' src='https://file.freelog.com/objects/65250c36a6f027002e9ef7d8'"
       );
 
       content.value = html;

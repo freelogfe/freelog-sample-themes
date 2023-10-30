@@ -195,10 +195,10 @@ const DetailBody = () => {
           <div className="novel-intro">
             <div className="intro-title">内容简介</div>
 
-            {novel.versionInfo?.exhibitProperty?.intro ? (
+            {novel.exhibitIntro ? (
               <div className={`intro ${introState === 1 ? "fold" : "unfold"}`}>
                 <div className="intro-content" ref={introContent}>
-                  {novel.versionInfo?.exhibitProperty?.intro}
+                  {novel.exhibitIntro}
                 </div>
 
                 {introState === 1 && (
@@ -286,10 +286,10 @@ const DetailBody = () => {
           <div className="novel-intro">
             <div className="intro-title">内容简介</div>
 
-            {novel.versionInfo?.exhibitProperty?.intro ? (
+            {novel.exhibitIntro ? (
               <div className={`intro ${introState === 1 ? "fold" : "unfold"}`}>
                 <div className="intro-content" ref={introContent}>
-                  {novel.versionInfo?.exhibitProperty?.intro}
+                  {novel.exhibitIntro}
                 </div>
 
                 {introState === 1 && (

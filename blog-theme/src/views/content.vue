@@ -54,8 +54,7 @@
           <div class="article-title">{{ articleData?.exhibitTitle }}</div>
           <div class="share-btn" @mouseover.stop="setWidgetData('show', true)">
             <span class="share-btn-text" :class="{ active: shareShow }">
-              <i class="freelog fl-icon-fenxiang"></i>
-              分享
+              <i class="freelog fl-icon-fenxiang"></i>分享
             </span>
 
             <div id="share" class="share-wrapper" />

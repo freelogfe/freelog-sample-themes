@@ -106,7 +106,7 @@
           </my-tooltip>
         </div>
         <div class="intro" :class="{ 'opacity-40': authLinkAbnormal }">
-          {{ data.versionInfo.exhibitProperty.intro }}
+          {{ data.exhibitIntro }}
         </div>
         <div class="other-area" :class="{ 'opacity-40': authLinkAbnormal }">
           <div class="info-item">

@@ -86,9 +86,9 @@
         <div
           class="article-intro"
           :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
-          :title="data.versionInfo.exhibitProperty.intro || ''"
+          :title="data.exhibitIntro || ''"
         >
-          {{ data.versionInfo.exhibitProperty.intro || "" }}
+          {{ data.exhibitIntro || "" }}
         </div>
         <div class="other-info" :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">
           <div class="info">{{ formatDate(data.createDate) }}</div>

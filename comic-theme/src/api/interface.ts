@@ -2,6 +2,7 @@
 export interface ExhibitItem {
   exhibitId: string;
   exhibitTitle: string;
+  exhibitIntro: string;
   coverImages: string[];
   tags: string[];
   articleInfo: { articleId: string; articleOwnerName: string; resourceType: string };

@@ -109,11 +109,21 @@
     </transition>
 
     <transition name="slide-up">
-      <div ref="scrollArea" class="content-card" @click.stop v-if="currentId">
+      <div ref="scrollArea" class="content-card" @click.stop @mouseover="setWidgetData('show', false)" v-if="currentId">
         <div class="content-area">
           <div class="title-box">
-            <div class="title">{{ exhibitInfo?.exhibitTitle }}</div>
-            <div class="offline" v-if="exhibitInfo?.onlineStatus === 0">已下架</div>
+            <div class="box-left">
+              <div class="title">{{ exhibitInfo?.exhibitTitle }}</div>
+              <div class="offline" v-if="exhibitInfo?.onlineStatus === 0">已下架</div>
+            </div>
+
+            <div class="share-btn" @mouseover.stop="setWidgetData('show', true)">
+              <span class="share-btn-text" :class="{ active: shareShow }">
+                <i class="freelog fl-icon-fenxiang"></i>分享
+              </span>
+
+              <div id="share" class="share-wrapper" />
+            </div>
           </div>
           <div class="exhibit-info">
             <img class="author-avatar" :src="getAvatarUrl(exhibitInfo?.userId)" v-if="exhibitInfo?.userId" />
@@ -211,10 +221,17 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, onUnmounted, reactive, ref, SetupContext, toRefs, watch } from "vue";
+import { defineAsyncComponent, onBeforeUnmount, onUnmounted, reactive, ref, SetupContext, toRefs, watch } from "vue";
 import { ExhibitItem } from "../api/interface";
 import { useGetList, useMyRouter, useMyWaterfall } from "../utils/hooks";
-import { addAuth, getExhibitAuthStatus, getExhibitFileStream, getExhibitInfo } from "@/api/freelog";
+import {
+  addAuth,
+  getExhibitAuthStatus,
+  getExhibitFileStream,
+  getExhibitInfo,
+  getSubDep,
+  mountWidget,
+} from "@/api/freelog";
 import { useStore } from "vuex";
 
 export default {
@@ -248,6 +265,8 @@ export default {
       contentMode: null as null | number, // 显示模式 1-宽撑满，高自适应 2-高撑满，宽自适应
       contentHeight: 460,
       recommendShow: false,
+      shareShow: false,
+      shareWidget: null as any,
     });
 
     const methods = {
@@ -276,6 +295,7 @@ export default {
         if (store.state.inMobile) {
           switchPage("/home");
         } else {
+          data.shareWidget?.unmount();
           data.currentId = "";
           context.emit("update:id", "");
           switchPage(route.path, { id: "" }, "replace");
@@ -291,6 +311,13 @@ export default {
         if (status === 0) {
           getData();
           refreshAuth();
+        }
+      },
+
+      /** 通知插件更新数据 */
+      setWidgetData(key: string, value: any) {
+        if (data.shareWidget && data.shareWidget.getApi().setData) {
+          data.shareWidget.getApi().setData(key, value);
         }
       },
     };
@@ -315,6 +342,8 @@ export default {
         ...exhibitInfo.data.data,
         defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
       } as ExhibitItem;
+
+      mountShareWidget();
 
       if (![0, 4].includes(data.exhibitInfo.defaulterIdentityType)) {
         // 授权链异常
@@ -402,6 +431,22 @@ export default {
       } else {
         context.emit("refreshAuth");
       }
+    };
+
+    /** 加载分享插件 */
+    const mountShareWidget = async () => {
+      if (store.state.inMobile) return;
+
+      const themeData = await getSubDep();
+      const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-展品分享");
+      if (!widget) return;
+      const type = data.exhibitInfo?.articleInfo.resourceType.includes("图片") ? "图片" : "视频";
+      data.shareWidget = await mountWidget({
+        widget,
+        container: document.getElementById("share"),
+        topExhibitData: themeData,
+        config: { exhibit: data.exhibitInfo, type },
+      });
     };
 
     watch(

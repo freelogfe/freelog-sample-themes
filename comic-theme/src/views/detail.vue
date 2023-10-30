@@ -81,10 +81,10 @@
         <div
           class="intro"
           :class="introState === 1 ? 'fold' : 'unfold'"
-          v-if="comicInfo?.versionInfo?.exhibitProperty?.intro"
+          v-if="comicInfo?.exhibitIntro"
         >
           <div ref="introContent" class="intro-content">
-            {{ comicInfo?.versionInfo?.exhibitProperty?.intro }}
+            {{ comicInfo?.exhibitIntro }}
           </div>
 
           <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">...查看全部</div>
@@ -168,10 +168,10 @@
           <div
             class="intro"
             :class="introState === 1 ? 'fold' : 'unfold'"
-            v-if="comicInfo?.versionInfo?.exhibitProperty?.intro"
+            v-if="comicInfo?.exhibitIntro"
           >
             <div ref="introContent" class="intro-content">
-              {{ comicInfo?.versionInfo?.exhibitProperty?.intro }}
+              {{ comicInfo?.exhibitIntro }}
             </div>
 
             <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">...查看全部</div>

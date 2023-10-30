@@ -43,7 +43,7 @@
               </div>
             </template>
           </div>
-          <div class="intro">{{ voiceInfo.versionInfo.exhibitProperty.intro }}</div>
+          <div class="intro">{{ voiceInfo.exhibitIntro }}</div>
           <div
             class="cover-to-add"
             :class="{ animation: addAnimation }"
@@ -74,7 +74,7 @@
                 <span>{{ voiceInfo.exhibitTitle }}</span>
               </my-tooltip>
             </div>
-            <div class="intro">{{ voiceInfo.versionInfo.exhibitProperty.intro }}</div>
+            <div class="intro">{{ voiceInfo.exhibitIntro }}</div>
             <div class="info-area">
               <div class="info-item">
                 <i class="freelog fl-icon-gengxinshijian"></i>
