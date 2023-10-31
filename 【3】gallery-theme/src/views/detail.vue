@@ -221,7 +221,7 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, onBeforeUnmount, onUnmounted, reactive, ref, SetupContext, toRefs, watch } from "vue";
+import { defineAsyncComponent, onUnmounted, reactive, ref, SetupContext, toRefs, watch } from "vue";
 import { ExhibitItem } from "../api/interface";
 import { useGetList, useMyRouter, useMyWaterfall } from "../utils/hooks";
 import {
