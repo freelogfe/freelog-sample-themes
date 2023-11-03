@@ -189,8 +189,13 @@
         </div>
       </transition>
 
-      <div class="back-top">
-        <back-top>
+      <div class="fixed-btns">
+        <div class="fixed-btn" @click="share()">
+          <i class="freelog fl-icon-fenxiang"></i>
+        </div>
+        <input id="href" class="hidden-input" :value="href" readOnly />
+
+        <back-top class="back-top-box">
           <div class="fixed-btn">
             <i class="freelog fl-icon-huidaodingbu"></i>
           </div>
@@ -472,10 +477,12 @@ import {
   getExhibitAuthStatus,
   mountWidget,
   getSubDep,
+  getCurrentUrl,
+  pushMessage4Task,
 } from "@/api/freelog";
 import { ExhibitItem } from "@/api/interface";
 import { relativeTime } from "@/utils/common";
-import { showToast } from "../../../comic-theme/src/utils/common";
+import { showToast } from "@/utils/common";
 
 export default {
   name: "home",
@@ -511,6 +518,7 @@ export default {
       searchWordCatch: null as number | null,
       directoryShow: false,
       viewOffline: false, // 查看已下架展品
+      href: "",
       shareWidget: null as any,
     });
 
@@ -519,6 +527,15 @@ export default {
     });
 
     const methods = {
+      /** 移动端分享 */
+      share() {
+        const input: any = document.getElementById("href");
+        input.select();
+        document.execCommand("Copy");
+        showToast("链接复制成功～");
+        pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: data.documentData?.exhibitId } });
+      },
+
       /** 输入搜索词 */
       searchKeyInput(inHomeSearch = false) {
         data.searchKey = (data.searchKey || "").trim();
@@ -673,6 +690,7 @@ export default {
       }
 
       data.documentData = documentData;
+      data.href = getCurrentUrl();
       mountShareWidget();
       scrollToTop("auto");
       data.directoryList = [];

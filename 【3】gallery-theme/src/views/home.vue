@@ -153,7 +153,7 @@ import { defineAsyncComponent, onActivated, onDeactivated, onUnmounted, reactive
 import { useGetList, useMyRouter, useMyScroll, useMyWaterfall } from "../utils/hooks";
 import { useStore } from "vuex";
 import { ExhibitItem } from "@/api/interface";
-import { showToast } from "../../../comic-theme/src/utils/common";
+import { showToast } from "@/utils/common";
 
 export default {
   name: "home",

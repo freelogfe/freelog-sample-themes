@@ -36,12 +36,13 @@
             <div class="label">{{ btnList[0].title }}</div>
           </div>
           <div class="btns-area">
-            <template v-for="item in btnList.filter((_, i) => [1, 2].includes(i))">
+            <template v-for="item in btnList.filter((_, i) => [1, 2, 3].includes(i))">
               <div class="btn" :class="{ disabled: item.disabled }" @click="item.operate">
                 <i class="freelog" :class="item.icon"></i>
                 <div class="btn-label">{{ item.title }}</div>
               </div>
             </template>
+            <input id="href" class="hidden-input" :value="href" readOnly />
           </div>
           <div class="intro">{{ voiceInfo.exhibitIntro }}</div>
           <div
@@ -133,8 +134,15 @@
 <script>
 import playStatus from "@/components/play-status";
 import myTooltip from "@/components/tooltip";
-import { getExhibitInfo, getExhibitSignCount, getExhibitAuthStatus } from "@/api/freelog";
+import {
+  getExhibitInfo,
+  getExhibitSignCount,
+  getExhibitAuthStatus,
+  getCurrentUrl,
+  pushMessage4Task,
+} from "@/api/freelog";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
+import { showToast } from "@/utils/common";
 
 export default {
   name: "voice-detail",
@@ -150,6 +158,7 @@ export default {
       addAnimation: false,
       coverLeft: 0,
       coverTop: 0,
+      href: "",
     };
   },
 
@@ -262,7 +271,15 @@ export default {
 
     /** 分享 */
     share() {
-      this.$store.commit("setData", { key: "shareInfo", value: { show: true, exhibit: this.voiceInfo } });
+      if (this.$store.state.inMobile) {
+        const input = document.getElementById("href");
+        input.select();
+        document.execCommand("Copy");
+        showToast("链接复制成功～");
+        pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: this.voiceInfo?.exhibitId } });
+      } else {
+        this.$store.commit("setData", { key: "shareInfo", value: { show: true, exhibit: this.voiceInfo } });
+      }
     },
 
     /** 获取声音详情 */
@@ -278,6 +295,7 @@ export default {
         signCount: signCountData.data.data[0].count,
         defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
       };
+      this.href = getCurrentUrl();
     },
 
     /** 授权 */

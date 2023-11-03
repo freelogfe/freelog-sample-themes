@@ -109,7 +109,7 @@ import { defineAsyncComponent, toRefs } from "vue";
 import { useMyRouter } from "@/utils/hooks";
 import { useStore } from "vuex";
 import { ExhibitItem } from "../api/interface";
-import { showToast } from "../../../comic-theme/src/utils/common";
+import { showToast } from "@/utils/common";
 
 export default {
   name: "my-article",

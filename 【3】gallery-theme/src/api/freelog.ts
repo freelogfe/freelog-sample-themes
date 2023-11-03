@@ -139,3 +139,13 @@ export const getSubDep = () => {
 export const mountWidget = (query: MountWidgetParams) => {
   return MyWindow.freelogApp.mountWidget(query);
 };
+
+/** 获取节点主题展品数据 */
+export const getCurrentUrl = () => {
+  return MyWindow.location.currentURL;
+};
+
+/** 推送任务消息埋点 */
+export const pushMessage4Task = (data: { taskConfigCode: string; meta?: any }) => {
+  return MyWindow.freelogApp.pushMessage4Task(data);
+};

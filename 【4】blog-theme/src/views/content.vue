@@ -9,9 +9,15 @@
       <div class="article-info">
         <div class="article-title">{{ articleData?.exhibitTitle }}</div>
         <div class="other-info">
-          <div class="info">{{ formatDate(articleData?.createDate) }}</div>
-          <div class="divider"></div>
-          <div class="info">{{ articleData?.signCount || 0 }}人已签约</div>
+          <div class="info-left">
+            <div class="info">{{ formatDate(articleData?.createDate) }}</div>
+            <div class="divider"></div>
+            <div class="info">{{ articleData?.signCount || 0 }}人已签约</div>
+          </div>
+          <div class="share-btn" @click="share()">
+            <span class="share-btn-text"><i class="freelog fl-icon-fenxiang"></i>分享</span>
+          </div>
+          <input id="href" class="hidden-input" :value="href" readOnly />
         </div>
         <div class="tags">
           <tags :tags="articleData?.tags" />
@@ -119,9 +125,12 @@ import {
   getExhibitSignCount,
   getSubDep,
   mountWidget,
+  getCurrentUrl,
+  pushMessage4Task,
 } from "@/api/freelog";
 import { formatDate } from "@/utils/common";
 import { useStore } from "vuex";
+import { showToast } from "@/utils/common";
 
 export default {
   name: "content",
@@ -146,11 +155,21 @@ export default {
       contentInfo: null as { content: string; exhibitInfo: ExhibitItem } | null,
       recommendList: [] as ExhibitItem[],
       shareShow: false,
+      href: "",
       shareWidget: null as any,
       markdownWidget: null as any,
     });
 
     const methods = {
+      /** 移动端分享 */
+      share() {
+        const input: any = document.getElementById("href");
+        input.select();
+        document.execCommand("Copy");
+        showToast("链接复制成功～");
+        pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: data.articleData?.exhibitId } });
+      },
+
       /** 获取授权 */
       async getAuth() {
         const { id } = query.value;
@@ -186,6 +205,7 @@ export default {
         defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
       } as ExhibitItem;
 
+      data.href = getCurrentUrl();
       mountShareWidget();
 
       if (data.articleData.defaulterIdentityType === 0) {
@@ -316,21 +336,55 @@ export default {
       }
 
       .other-info {
-        margin-top: 8px;
+        width: 100%;
         display: flex;
         align-items: center;
+        justify-content: space-between;
+        margin-top: 8px;
 
-        .info {
-          font-size: 12px;
-          line-height: 18px;
-          color: #999999;
+        .info-left {
+          display: flex;
+          align-items: center;
+
+          .info {
+            font-size: 12px;
+            line-height: 18px;
+            color: #999999;
+          }
+
+          .divider {
+            width: 1px;
+            height: 14px;
+            background: rgba(0, 0, 0, 0.15);
+            margin: 0 10px;
+          }
         }
 
-        .divider {
-          width: 1px;
-          height: 14px;
-          background: rgba(0, 0, 0, 0.15);
-          margin: 0 10px;
+        .share-btn {
+          position: relative;
+          display: flex;
+          align-items: center;
+          margin-left: 20px;
+
+          .share-btn-text {
+            font-size: 12px;
+            line-height: 18px;
+            color: #999999;
+
+            &:active {
+              color: #666666;
+            }
+
+            .fl-icon-fenxiang {
+              font-size: 14px;
+              margin-right: 5px;
+            }
+          }
+        }
+
+        .hidden-input {
+          position: absolute;
+          z-index: -1;
         }
       }
 

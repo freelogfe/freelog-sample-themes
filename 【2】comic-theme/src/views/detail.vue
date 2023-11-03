@@ -78,11 +78,7 @@
       <div class="comic-intro">
         <div class="intro-title">内容简介</div>
 
-        <div
-          class="intro"
-          :class="introState === 1 ? 'fold' : 'unfold'"
-          v-if="comicInfo?.exhibitIntro"
-        >
+        <div class="intro" :class="introState === 1 ? 'fold' : 'unfold'" v-if="comicInfo?.exhibitIntro">
           <div ref="introContent" class="intro-content">
             {{ comicInfo?.exhibitIntro }}
           </div>
@@ -165,11 +161,7 @@
         <div class="comic-intro">
           <div class="intro-title">内容简介</div>
 
-          <div
-            class="intro"
-            :class="introState === 1 ? 'fold' : 'unfold'"
-            v-if="comicInfo?.exhibitIntro"
-          >
+          <div class="intro" :class="introState === 1 ? 'fold' : 'unfold'" v-if="comicInfo?.exhibitIntro">
             <div ref="introContent" class="intro-content">
               {{ comicInfo?.exhibitIntro }}
             </div>
@@ -198,6 +190,7 @@ import {
   mountWidget,
   getSubDep,
   getCurrentUrl,
+  pushMessage4Task,
 } from "@/api/freelog";
 import { useStore } from "vuex";
 import { formatDate, showToast } from "@/utils/common";
@@ -236,6 +229,7 @@ export default {
         input.select();
         document.execCommand("Copy");
         showToast("链接复制成功～");
+        pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: data.comicInfo.exhibitId } });
       },
 
       /** 通知插件更新数据 */

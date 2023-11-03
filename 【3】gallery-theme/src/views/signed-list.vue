@@ -49,7 +49,7 @@ import { useStore } from "vuex";
 import { onUnmounted, watch } from "vue";
 import { callLogin } from "@/api/freelog";
 import { ExhibitItem } from "../api/interface";
-import { showToast } from "../../../comic-theme/src/utils/common";
+import { showToast } from "@/utils/common";
 
 export default {
   name: "signed-list",

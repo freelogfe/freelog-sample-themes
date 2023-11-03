@@ -87,6 +87,11 @@ export const getNodeInfo = () => {
   return window.freelogApp.nodeInfo;
 };
 
+/** 获取节点主题展品数据 */
+export const getCurrentUrl = () => {
+  return window.location.currentURL;
+};
+
 /** 推送任务消息埋点 */
 export const pushMessage4Task = (data) => {
   return window.freelogApp.pushMessage4Task(data);

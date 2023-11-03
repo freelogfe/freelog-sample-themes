@@ -56,7 +56,7 @@ import { useMyRouter, useMySignedList } from "../utils/hooks";
 import { useStore } from "vuex";
 import { callLogin } from "@/api/freelog";
 import { ExhibitItem } from "../api/interface";
-import { showToast } from "../../../comic-theme/src/utils/common";
+import { showToast } from "@/utils/common";
 
 export default {
   name: "signed-list",

@@ -69,11 +69,17 @@
           <div class="offline" v-if="exhibitInfo?.onlineStatus === 0">已下架</div>
         </div>
         <tags :tags="exhibitInfo?.tags" v-if="exhibitInfo?.tags.length" />
-        <div class="author-info">
-          <img class="author-avatar" :src="getAvatarUrl(exhibitInfo?.userId)" v-if="exhibitInfo?.userId" />
-          <div class="author-name">
-            {{ exhibitInfo?.articleInfo.articleOwnerName }}
+        <div class="bottom-bar">
+          <div class="author-info">
+            <img class="author-avatar" :src="getAvatarUrl(exhibitInfo?.userId)" v-if="exhibitInfo?.userId" />
+            <div class="author-name">
+              {{ exhibitInfo?.articleInfo.articleOwnerName }}
+            </div>
           </div>
+          <div class="share-btn" @click="share()">
+            <span class="share-btn-text"><i class="freelog fl-icon-fenxiang"></i>分享</span>
+          </div>
+          <input id="href" class="hidden-input" :value="href" readOnly />
         </div>
       </div>
 
@@ -231,8 +237,11 @@ import {
   getExhibitInfo,
   getSubDep,
   mountWidget,
+  getCurrentUrl,
+  pushMessage4Task,
 } from "@/api/freelog";
 import { useStore } from "vuex";
+import { showToast } from "@/utils/common";
 
 export default {
   name: "detail",
@@ -266,10 +275,20 @@ export default {
       contentHeight: 460,
       recommendShow: false,
       shareShow: false,
+      href: "",
       shareWidget: null as any,
     });
 
     const methods = {
+      /** 移动端分享 */
+      share() {
+        const input: any = document.getElementById("href");
+        input.select();
+        document.execCommand("Copy");
+        showToast("链接复制成功～");
+        pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: data.exhibitInfo?.exhibitId } });
+      },
+
       /** 获取用户头像 */
       getAvatarUrl(id: any) {
         return `https://image.freelog.com/avatar/${id}`;
@@ -343,6 +362,7 @@ export default {
         defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
       } as ExhibitItem;
 
+      data.href = getCurrentUrl();
       mountShareWidget();
 
       if (![0, 4].includes(data.exhibitInfo.defaulterIdentityType)) {

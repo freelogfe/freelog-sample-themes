@@ -114,8 +114,8 @@ import { formatDate } from "@/utils/common";
 import { defineAsyncComponent, toRefs } from "vue";
 import { useMyRouter } from "@/utils/hooks";
 import { useStore } from "vuex";
-import { ExhibitItem } from "../../../blog-theme/src/api/interface";
 import { showToast } from "../utils/common";
+import { ExhibitItem } from "@/api/interface";
 
 export default {
   name: "comic",

@@ -527,7 +527,7 @@
       }
     }
 
-    .back-top {
+    .fixed-btns {
       position: fixed;
       right: 30px;
       bottom: 50px;
@@ -537,8 +537,7 @@
         height: 50px;
         border-radius: 50px;
         color: #fff;
-        background: #2784ff;
-        box-shadow: 0px 2px 10px 0px rgba(39, 132, 255, 0.4);
+        background: rgba(0, 0, 0, 0.5);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -546,6 +545,15 @@
         .freelog {
           font-size: 18px;
         }
+      }
+
+      .back-top-box {
+        margin-top: 20px;
+      }
+
+      .hidden-input {
+        position: absolute;
+        z-index: -1;
       }
     }
   }

@@ -11,6 +11,7 @@ import {
   getExhibitSignCount,
   getSubDep,
   mountWidget,
+  pushMessage4Task,
 } from "../../api/freelog";
 import { formatDate } from "../../utils/common";
 import { Tags } from "../../components/tags/tags";
@@ -83,6 +84,7 @@ const DetailBody = () => {
     input.select();
     document.execCommand("Copy");
     showToast("链接复制成功～");
+    pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: novel.exhibitId } });
   };
 
   /** 加载分享插件 */
