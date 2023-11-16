@@ -328,6 +328,12 @@ export default {
 
             if (num === cur.length - pre.length) setWaterFall(cur, index);
           };
+          img.onerror = () => {
+            cur[i].height = minHeight;
+            num++;
+
+            if (num === cur.length - pre.length) setWaterFall(cur, index);
+          }
         }
       }
     );

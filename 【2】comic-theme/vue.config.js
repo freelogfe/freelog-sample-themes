@@ -1,5 +1,6 @@
 const path = require("path");
 const { name } = require("./package");
+const fs = require("fs");
 
 function resolve(dir) {
   return path.join(__dirname, dir);
@@ -22,6 +23,10 @@ module.exports = {
     headers: {
       "Access-Control-Allow-Origin": "*",
     },
+    https: true,
+    ca: fs.readFileSync("localhost+1.pem"),
+    key: fs.readFileSync("localhost+1-key.pem"),
+    cert: fs.readFileSync("localhost+1.crt"),
   },
   // 自定义webpack配置
   configureWebpack: {

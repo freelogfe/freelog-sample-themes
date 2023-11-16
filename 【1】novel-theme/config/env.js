@@ -44,6 +44,7 @@ if (NODE_ENV === "development") {
   process.env.WDS_SOCKET_HOST = "localhost";
   process.env.WDS_SOCKET_PATH = "localhost:8101";
   process.env.WDS_SOCKET_PORT = "8101";
+  process.env.HTTPS = true;
 }
 
 // We support resolving modules according to `NODE_PATH`.

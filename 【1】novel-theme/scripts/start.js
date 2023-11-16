@@ -108,7 +108,7 @@ checkBrowsers(paths.appPath, isInteractive)
       }
 
       console.log(chalk.cyan("Starting the development server...\n"));
-      openBrowser("http://freelognovel.testfreelog.com/?dev=" + urls.localUrlForBrowser);
+      openBrowser("https://freelognovel.testfreelog.com/?dev=" + urls.localUrlForBrowser);
     });
 
     ["SIGINT", "SIGTERM"].forEach(function (sig) {
