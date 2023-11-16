@@ -72,7 +72,7 @@ export const ReaderScreen = (props: any) => {
       container: document.getElementById("markdown"),
       topExhibitData: themeData,
       config: { exhibitInfo, content, fontSize: myFontSize },
-      widget_entry: "http://localhost:8201/",
+      // widget_entry: "http://localhost:8202/",
     });
   };
 

@@ -81,8 +81,9 @@ export default {
       });
 
       // 隐藏视频与音频的下载按钮
-      html = html.replace(/<video/g, '<video controlslist="nodownload"');
-      html = html.replace(/<audio/g, '<audio controlslist="nodownload"');
+      html = html.replace(/<img/g, "<p><img");
+      html = html.replace(/<video/g, '<p><video controlslist="nodownload"');
+      html = html.replace(/<audio/g, '<p><audio controlslist="nodownload"');
 
       // 后期要删除，新手任务相关功能
       html = html.replace(
