@@ -49,6 +49,7 @@ export const ReaderScreen = (props: any) => {
   const mountShareWidget = async () => {
     if (inMobile) return;
 
+    if (widgetList.current.share) await widgetList.current.share.unmount();
     const themeData = await getSubDep();
     const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-展品分享");
     if (!widget) return;
