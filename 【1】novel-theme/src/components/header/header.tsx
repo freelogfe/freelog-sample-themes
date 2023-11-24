@@ -30,8 +30,8 @@ export const Header = (props: {
 
   /** 搜索展品列表 */
   const searchList = useCallback(() => {
-    let url = `/home/全部`;
-    if (searchKey) url += `/${searchKey}`;
+    let url = `/home`;
+    if (searchKey) url += `?keywords=${searchKey}`;
     history.switchPage(url);
   }, [history, searchKey]);
 
@@ -127,12 +127,12 @@ export const Header = (props: {
               src={selfConfig.logoImage || MyLogo}
               alt="logo"
               referrerPolicy="no-referrer"
-              onClick={() => history.switchPage("/home/全部")}
+              onClick={() => history.switchPage("/home")}
             />
           ) : (
             <div
               className="header-top-left"
-              onClick={() => (locationHistory.length === 1 ? history.switchPage("/home/全部") : history.back())}
+              onClick={() => (locationHistory.length === 1 ? history.switchPage("/home") : history.back())}
             >
               <img className="back-arrow" src={BackArrow} alt="" />
               {locationHistory.length === 1 ? (
@@ -183,7 +183,7 @@ export const Header = (props: {
               <div className="menu-btns">
                 <div
                   className={`btn ${history.pathname.startsWith("/home") && "active"}`}
-                  onClick={() => !history.pathname.startsWith("/home") && history.switchPage("/home/全部")}
+                  onClick={() => !history.pathname.startsWith("/home") && history.switchPage("/home")}
                 >
                   <i className="freelog fl-icon-shouye"></i>
                   <div className="btn-label">首页</div>
@@ -294,7 +294,7 @@ export const Header = (props: {
             maxLength={100}
             onChange={(e) => {
               setSearchKey((e.target.value || "").trim());
-              !e.target.value && history.switchPage("/home/全部");
+              !e.target.value && history.switchPage("/home");
               !e.target.value && setSearchPopupShow(true);
             }}
             onKeyUp={(e: { keyCode: number }) => {
@@ -304,7 +304,7 @@ export const Header = (props: {
           <i className="freelog fl-icon-content"></i>
         </div>
 
-        <div className="cancel-btn" onClick={() => history.switchPage("/home/全部")}>
+        <div className="cancel-btn" onClick={() => history.switchPage("/home")}>
           取消
         </div>
       </div>
@@ -320,7 +320,7 @@ export const Header = (props: {
               className="logo"
               src={selfConfig.logoImage || MyLogo}
               alt="logo"
-              onClick={() => history.switchPage("/home/全部")}
+              onClick={() => history.switchPage("/home")}
             />
 
             {/* 搜索框 */}
@@ -389,7 +389,7 @@ export const Header = (props: {
           </div>
 
           <div className="header-right">
-            <div className="nav-btn" onClick={() => history.switchPage("/home/全部")}>
+            <div className="nav-btn" onClick={() => history.switchPage("/home")}>
               首页
             </div>
             {userData?.isLogin && (

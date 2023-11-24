@@ -21,12 +21,13 @@ import { globalContext } from "../../router";
 import { showToast } from "../../components/toast/toast";
 import CSSTransition from "react-transition-group/CSSTransition";
 import { Loader } from "../../components/loader/loader";
+import { getUrlParams } from "../../utils/common";
 
 export const readerContext = React.createContext<any>({});
 
 /** 阅读页 */
 export const ReaderScreen = (props: any) => {
-  const id = props.match.params.id;
+  const { id } = getUrlParams(props.location.search);
   const { inMobile } = useContext(globalContext);
   const myTheme = JSON.parse(localStorage.getItem("theme") || "null");
   const [book, setBook] = useState<ExhibitItem | null>(null);
@@ -223,7 +224,7 @@ const ReaderBody = () => {
           <div className="auth-box">
             <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
             <div className="auth-link-tip">授权链异常，无法查看</div>
-            <div className="home-btn" onClick={() => history.switchPage("/home/全部")}>
+            <div className="home-btn" onClick={() => history.switchPage("/home")}>
               进入首页
             </div>
           </div>
@@ -244,7 +245,7 @@ const ReaderBody = () => {
       <div className="body-wrapper">
         <div className="breadcrumbs-wrapper">
           <div className="breadcrumbs-item">
-            <div className="second-text-btn" onClick={() => history.switchPage("/detail/" + id)}>
+            <div className="second-text-btn" onClick={() => history.switchPage(`/detail?id=${id}`)}>
               {book?.exhibitTitle}
             </div>
           </div>
@@ -264,7 +265,7 @@ const ReaderBody = () => {
             <div className="auth-box">
               <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
               <div className="auth-link-tip">授权链异常，无法查看</div>
-              <div className="home-btn" onClick={() => history.switchPage("/home/全部")}>
+              <div className="home-btn" onClick={() => history.switchPage("/home")}>
                 进入首页
               </div>
             </div>

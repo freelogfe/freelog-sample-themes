@@ -48,7 +48,7 @@ const ShelfBody = (props: { shelfList: ExhibitItem[] | null; operateShelf: (data
         {shelfList.length === 0 && <div className="tip">暂无数据，快去收藏书籍到书架吧～</div>}
 
         <div className="add-book-box">
-          <div className="add-book-btn" onClick={() => history.switchPage("/home/全部")}>
+          <div className="add-book-btn" onClick={() => history.switchPage("/home")}>
             <i className="freelog fl-icon-tianjia"></i>
             <span>添加书籍</span>
           </div>

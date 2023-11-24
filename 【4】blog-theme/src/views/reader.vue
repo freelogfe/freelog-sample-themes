@@ -1,11 +1,11 @@
-<!-- 内容页 -->
+<!-- 阅读页 -->
 
 <template>
-  <div class="content-wrapper" :class="{ 'in-mobile': inMobile }" @mouseover="setWidgetData('show', false)">
+  <div class="reader-wrapper" :class="{ 'in-mobile': inMobile }" @mouseover="setWidgetData('show', false)">
     <my-header readerHeader />
 
     <!-- mobile -->
-    <div class="mobile-content-body" v-if="inMobile">
+    <div class="mobile-reader-body" v-if="inMobile">
       <div class="article-info">
         <div class="article-title">{{ articleData?.exhibitTitle }}</div>
         <div class="other-info">
@@ -54,7 +54,7 @@
     </div>
 
     <!-- PC -->
-    <div class="content-body" v-if="!inMobile">
+    <div class="reader-body" v-if="!inMobile">
       <div class="article-card">
         <div class="title-share">
           <div class="article-title">{{ articleData?.exhibitTitle }}</div>
@@ -133,7 +133,7 @@ import { useStore } from "vuex";
 import { showToast } from "@/utils/common";
 
 export default {
-  name: "content",
+  name: "reader",
 
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
@@ -272,7 +272,7 @@ export default {
       () => query.value,
       () => {
         const path = getCurrentPath();
-        if (!path.startsWith("/content")) return;
+        if (!path.startsWith("/reader")) return;
 
         scrollTo(0, "auto");
         data.articleData = null;
@@ -302,7 +302,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.content-wrapper {
+.reader-wrapper {
   position: relative;
   min-height: 100vh;
   width: 100%;
@@ -319,7 +319,7 @@ export default {
   }
 
   // mobile
-  .mobile-content-body {
+  .mobile-reader-body {
     width: 100%;
 
     .article-info {
@@ -509,7 +509,7 @@ export default {
   }
 
   // PC
-  .content-body {
+  .reader-body {
     width: 920px;
     padding-top: 30px;
 

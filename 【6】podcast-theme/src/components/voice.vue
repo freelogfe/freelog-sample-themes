@@ -8,13 +8,13 @@
         ref="cover"
         class="cover-area"
         :class="{ 'opacity-40': authLinkAbnormal }"
-        @click="$router.myPush({ path: '/voice-detail', query: { id: data.exhibitId } })"
+        @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
       >
         <img class="cover" v-view-lazy="data.coverImages[0]" />
         <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
         <div class="unplayable-tip" v-if="!ifSupportMime">无法播放</div>
       </div>
-      <div class="info-area" @click="$router.myPush({ path: '/voice-detail', query: { id: data.exhibitId } })">
+      <div class="info-area" @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })">
         <div class="title-area">
           <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="authLinkAbnormal" />
           <i class="freelog fl-icon-suoding lock" @click.stop="getAuth()" v-if="data.defaulterIdentityType >= 4"></i>
@@ -79,7 +79,7 @@
         ref="cover"
         class="cover-area"
         :class="{ 'opacity-40': authLinkAbnormal }"
-        @click="$router.myPush({ path: '/voice-detail', query: { id: data.exhibitId } })"
+        @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
       >
         <img class="cover" :src="data.coverImages[0]" />
         <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
@@ -100,7 +100,7 @@
             <div class="tag not-auth" :class="{ 'opacity-40': authLinkAbnormal }" v-else>未授权</div>
           </template>
           <my-tooltip class="title" :class="{ 'opacity-40': authLinkAbnormal }" :content="data.exhibitTitle">
-            <span @click="$router.myPush({ path: '/voice-detail', query: { id: data.exhibitId } })">
+            <span @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })">
               {{ data.exhibitTitle }}
             </span>
           </my-tooltip>
@@ -296,7 +296,7 @@ export default {
   methods: {
     /** 查看声音详情 */
     toVoiceDetail() {
-      this.$router.myPush({ path: "/voice-detail", query: { id: this.data.exhibitId } });
+      this.$router.myPush({ path: "/detail", query: { id: this.data.exhibitId } });
     },
 
     /** 播放/暂停 */

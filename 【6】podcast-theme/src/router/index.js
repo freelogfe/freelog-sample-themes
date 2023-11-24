@@ -9,6 +9,10 @@ const routes = [
     redirect: { name: "home" },
   },
   {
+    path: "/:pathMatch(.*)",
+    redirect: "/home",
+  },
+  {
     path: "/home",
     name: "home",
     component: () => import("../views/home.vue"),
@@ -21,9 +25,9 @@ const routes = [
     meta: { keepAlive: true },
   },
   {
-    path: "/voice-detail",
-    name: "voice-detail",
-    component: () => import("../views/voice-detail.vue"),
+    path: "/detail",
+    name: "detail",
+    component: () => import("../views/detail.vue"),
   },
   {
     path: "/signed-list",

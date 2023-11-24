@@ -13,7 +13,7 @@ import {
   mountWidget,
   pushMessage4Task,
 } from "../../api/freelog";
-import { formatDate } from "../../utils/common";
+import { formatDate, getUrlParams } from "../../utils/common";
 import { Tags } from "../../components/tags/tags";
 import { useMyHistory, useMyShelf } from "../../utils/hooks";
 import { Footer } from "../../components/footer/footer";
@@ -26,7 +26,7 @@ const detailContext = React.createContext<any>({});
 
 /** 详情页 */
 export const DetailScreen = (props: any) => {
-  const { id } = props.match.params;
+  const { id } = getUrlParams(props.location.search);
   const [novel, setNovel] = useState<ExhibitItem | null>(null);
 
   /** 获取小说信息 */
@@ -181,7 +181,7 @@ const DetailBody = () => {
             <div className="operate-btns">
               <div
                 className={`btn main-btn mobile ${![0, 4].includes(novel.defaulterIdentityType) && "disabled"}`}
-                onClick={() => history.switchPage(`/reader/${novel.exhibitId}`)}
+                onClick={() => history.switchPage(`/reader?id=${novel.exhibitId}`)}
               >
                 立即阅读
               </div>
@@ -251,7 +251,7 @@ const DetailBody = () => {
                 <div className="operate-btns">
                   <div
                     className={`btn main-btn ${![0, 4].includes(novel.defaulterIdentityType) && "disabled"}`}
-                    onClick={() => history.switchPage(`/reader/${novel.exhibitId}`)}
+                    onClick={() => history.switchPage(`/reader?id=${novel.exhibitId}`)}
                   >
                     立即阅读
                   </div>

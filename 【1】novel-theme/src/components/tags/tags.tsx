@@ -18,7 +18,7 @@ export const Tags = (props: { data: string[] }) => {
           title={`搜索“${tag}”`}
           onClick={(e) => {
             e.stopPropagation();
-            history.switchPage(`/home/${tag}`);
+            history.switchPage(`/home?tags=${tag}`);
           }}
         >
           {tag}

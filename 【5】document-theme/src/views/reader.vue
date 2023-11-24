@@ -1,4 +1,4 @@
-<!-- 首页 -->
+<!-- 首页（阅读页） -->
 
 <template>
   <div class="home-wrapper">
@@ -40,7 +40,7 @@
               :class="{ invalid: !currentIndex }"
               :title="currentIndex ? listData[currentIndex - 1].exhibitTitle : ''"
               @click="
-                switchPage('/home', {
+                switchPage('/reader', {
                   id: listData[currentIndex - 1].exhibitId,
                 })
               "
@@ -58,7 +58,7 @@
               :class="{ invalid: currentIndex === listData.length - 1 }"
               :title="currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : ''"
               @click="
-                switchPage('/home', {
+                switchPage('/reader', {
                   id: listData[currentIndex + 1].exhibitId,
                 })
               "
@@ -153,7 +153,7 @@
               <template v-if="viewOffline">
                 <div class="offline-tip">
                   <div class="tip">当前文档已下架，已签约可继续浏览</div>
-                  <div class="text-btn mobile" @click="switchPage('/home')">返回列表</div>
+                  <div class="text-btn mobile" @click="switchPage('/reader')">返回列表</div>
                 </div>
 
                 <div class="list-item active" @click="clickDocument(documentData)">
@@ -308,7 +308,7 @@
             <div class="offline-tip">
               <div class="tip">当前文档已下架，已签约可继续浏览</div>
 
-              <div class="text-btn" @click="switchPage('/home')">返回列表</div>
+              <div class="text-btn" @click="switchPage('/reader')">返回列表</div>
             </div>
 
             <div class="list-item active" @click="clickDocument(documentData)">
@@ -382,7 +382,7 @@
                 :class="{ invalid: !currentIndex }"
                 :title="currentIndex ? listData[currentIndex - 1].exhibitTitle : ''"
                 @click="
-                  switchPage('/home', {
+                  switchPage('/reader', {
                     id: listData[currentIndex - 1].exhibitId,
                   })
                 "
@@ -400,7 +400,7 @@
                 :class="{ invalid: currentIndex === listData.length - 1 }"
                 :title="currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : ''"
                 @click="
-                  switchPage('/home', {
+                  switchPage('/reader', {
                     id: listData[currentIndex + 1].exhibitId,
                   })
                 "
@@ -485,7 +485,7 @@ import { relativeTime } from "@/utils/common";
 import { showToast } from "@/utils/common";
 
 export default {
-  name: "home",
+  name: "reader",
 
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
@@ -542,7 +542,7 @@ export default {
         data.searchHistoryShow = true;
         data.searchWordCatch = null;
         if (inHomeSearch) {
-          !data.searchKey && switchPage("/home");
+          !data.searchKey && switchPage("/reader");
           data.searchPopupShow = !data.searchKey;
         }
       },
@@ -648,7 +648,7 @@ export default {
           return;
         }
 
-        switchPage("/home", { id: exhibitId });
+        switchPage("/reader", { id: exhibitId });
       },
 
       /** 通知插件更新数据 */
@@ -719,11 +719,11 @@ export default {
       if (currentIndex.value === -1) return;
 
       if (e.key === "ArrowLeft" && currentIndex.value !== 0)
-        switchPage("/home", {
+        switchPage("/reader", {
           id: datasOfGetList.listData.value[currentIndex.value - 1].exhibitId,
         });
       if (e.key === "ArrowRight" && currentIndex.value !== datasOfGetList.listData.value.length - 1)
-        switchPage("/home", {
+        switchPage("/reader", {
           id: datasOfGetList.listData.value[currentIndex.value + 1].exhibitId,
         });
     };
@@ -784,7 +784,7 @@ export default {
         }
 
         if (!query.value.id) {
-          switchPage("/home", { id: cur[0].exhibitId });
+          switchPage("/reader", { id: cur[0].exhibitId });
         } else if (data.currentId !== query.value.id) {
           data.currentId = query.value.id;
           getDocumentData();
@@ -795,7 +795,7 @@ export default {
     watch(
       () => query.value,
       (cur) => {
-        if (route.path !== "/home") return;
+        if (route.path !== "/reader") return;
 
         const { total } = datasOfGetList;
         if ((!total.value && !data.searching) || !cur.id) {
@@ -818,7 +818,7 @@ export default {
           if (cur >= data.directoryList[i].offsetTop) {
             const currentTitle = data.directoryList[i].innerText;
             data.currentTitle = currentTitle;
-            switchPage("/home", { id: data.currentId, title: currentTitle });
+            switchPage("/reader", { id: data.currentId, title: currentTitle });
             break;
           }
         }
@@ -853,5 +853,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/css/home";
+@import "@/assets/css/reader";
 </style>

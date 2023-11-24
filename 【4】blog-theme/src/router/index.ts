@@ -6,14 +6,18 @@ const routes: Array<RouteRecordRaw> = [
     redirect: { name: "home" },
   },
   {
+    path: "/:pathMatch(.*)",
+    redirect: "/home",
+  },
+  {
     path: "/home",
     name: "home",
     component: () => import("../views/home.vue"),
   },
   {
-    path: "/content",
-    name: "content",
-    component: () => import("../views/content.vue"),
+    path: "/reader",
+    name: "reader",
+    component: () => import("../views/reader.vue"),
   },
   {
     path: "/signedList",

@@ -4,7 +4,7 @@
  * @param format 自定义输出结果格式（YYYY:年，MM:月，DD:日，hh:时，mm:分，ss:秒）
  */
 export const formatDate = (time: string | undefined, format: string = "YYYY-MM-DD hh:mm:ss") => {
-  if (!time) return '';
+  if (!time) return "";
 
   const date = new Date(time);
 
@@ -36,4 +36,16 @@ export const judgeDevice = () => {
   }
 
   return inMobile;
+};
+
+/** 获取 url 参数 */
+export const getUrlParams = (str: string) => {
+  str = decodeURIComponent(str);
+  const result: Record<string, string> = {};
+  const paramsArr = str.replace("?", "").split("&");
+  paramsArr.forEach((item) => {
+    const [key, value] = item.split("=");
+    result[key] = value;
+  });
+  return result;
 };

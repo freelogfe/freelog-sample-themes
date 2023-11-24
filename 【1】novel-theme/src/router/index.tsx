@@ -36,11 +36,11 @@ interface Theme {
 const history = createBrowserHistory();
 
 const routeList = [
-  { name: "home", path: "/home/:tags/:keywords?", component: HomeScreen },
+  { name: "home", path: "/home", component: HomeScreen },
   { name: "shelf", path: "/shelf", component: ShelfScreen },
   { name: "signedList", path: "/signedList", component: SignedListScreen },
-  { name: "detail", path: "/detail/:id", component: DetailScreen },
-  { name: "reader", path: "/reader/:id", component: ReaderScreen },
+  { name: "detail", path: "/detail", component: DetailScreen },
+  { name: "reader", path: "/reader", component: ReaderScreen },
 ];
 
 export const globalContext = React.createContext<Global>({
@@ -80,10 +80,11 @@ const RouterView = () => {
     <globalContext.Provider value={{ inMobile, userData, selfConfig, theme, locationHistory }}>
       <Router history={history}>
         <Switch>
-          <Route path="/" exact render={() => <Redirect to="/home/全部" />} />
+          <Route path="/" exact render={() => <Redirect to="/home" />} />
           {routeList.map((route) => (
             <Route path={route.path} component={route.component} key={route.name}></Route>
           ))}
+          <Route path="*" exact render={() => <Redirect to="/home" />} />
         </Switch>
       </Router>
     </globalContext.Provider>

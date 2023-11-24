@@ -1,11 +1,11 @@
 <!-- 声音详情页 -->
 
 <template>
-  <div class="voice-detail-wrapper">
+  <div class="detail-wrapper">
     <transition name="detail-fade">
       <template v-if="voiceInfo">
         <!-- mobile -->
-        <div class="mobile-voice-detail-wrapper" v-if="$store.state.inMobile">
+        <div class="mobile-detail-wrapper" v-if="$store.state.inMobile">
           <div ref="cover" class="cover-area">
             <img class="cover" :src="voiceInfo.coverImages[0]" />
           </div>
@@ -55,7 +55,7 @@
         </div>
 
         <!-- PC -->
-        <div class="pc-voice-detail-wrapper" v-if="!$store.state.inMobile">
+        <div class="pc-detail-wrapper" v-if="!$store.state.inMobile">
           <div ref="cover" class="cover-area">
             <img class="cover" :src="voiceInfo.coverImages[0]" />
           </div>
@@ -145,7 +145,7 @@ import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { showToast } from "@/utils/common";
 
 export default {
-  name: "voice-detail",
+  name: "detail",
 
   components: { playStatus, myTooltip },
 
@@ -307,5 +307,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/css/voice-detail";
+@import "@/assets/css/detail";
 </style>

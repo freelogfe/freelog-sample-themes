@@ -133,7 +133,7 @@ export default {
         return;
       }
 
-      switchPage("/content", { id: exhibitId });
+      switchPage("/reader", { id: exhibitId });
     };
 
     return {

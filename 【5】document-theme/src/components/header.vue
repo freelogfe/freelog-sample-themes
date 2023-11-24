@@ -4,9 +4,9 @@
   <!-- mobile -->
   <div class="mobile-header-wrapper" v-if="inMobile">
     <div class="header-left">
-      <i class="freelog fl-icon-xiaoshuomulu" @click="openDirectory()" v-if="route.path === '/home'"></i>
+      <i class="freelog fl-icon-xiaoshuomulu" @click="openDirectory()" v-if="route.path === '/reader'"></i>
 
-      <div class="back-btn" @click="locationHistory.length === 1 ? switchPage('/home') : routerBack()" v-else>
+      <div class="back-btn" @click="locationHistory.length === 1 ? switchPage('/reader') : routerBack()" v-else>
         <img class="back-arrow" src="../assets/images/arrow.png" />
         <div class="back-label">
           {{ locationHistory.length === 1 ? "首页" : "返回" }}
@@ -52,8 +52,8 @@
           <div class="menu-btns">
             <div
               class="btn"
-              :class="{ active: route.path === '/home' }"
-              @click="route.path !== '/home' && switchPage('/home')"
+              :class="{ active: route.path === '/reader' }"
+              @click="route.path !== '/reader' && switchPage('/reader')"
             >
               <i class="freelog fl-icon-shouye"></i>
               <div class="btn-label">首页</div>
@@ -79,7 +79,7 @@
     <img
       class="logo"
       :src="selfConfig.logoImage || require('../assets/images/logo.png')"
-      @click="switchPage('/home')"
+      @click="switchPage('/reader')"
     />
 
     <!-- 已登录区域 -->

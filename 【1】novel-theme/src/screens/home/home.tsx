@@ -11,10 +11,11 @@ import { Footer } from "../../components/footer/footer";
 import { LoginBtn } from "../../components/login-btn/login-btn";
 import CSSTransition from "react-transition-group/CSSTransition";
 import { Loader } from "../../components/loader/loader";
+import { getUrlParams } from "../../utils/common";
 
 /** 首页 */
 export const HomeScreen = (props: any) => {
-  const { tags, keywords } = props.match.params;
+  const { tags, keywords } = getUrlParams(props.location.search);
   const { inMobile } = useContext(globalContext);
   const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
   const [novelList, setNovelList] = useState<ExhibitItem[]>([]);
@@ -41,7 +42,7 @@ export const HomeScreen = (props: any) => {
         skip: skip.current,
         limit: 30,
       };
-      if (tags !== "全部") queryParams.tags = tags;
+      if (tags) queryParams.tags = tags;
       if (keywords) queryParams.keywords = keywords;
 
       const list = await getExhibitListByPaging(queryParams);
@@ -114,8 +115,14 @@ const HomeBody = (props: {
   const [filterBoxShow, setFilterBoxShow] = useState(false);
 
   const selectTag = (tag: string) => {
-    let url = `/home/${tag}`;
-    if (keywords) url += `/${keywords}`;
+    if (!tag && !keywords) {
+      history.switchPage("/home");
+      return;
+    }
+
+    let url = `/home?`;
+    if (tag) url += `tags=${tag}`;
+    if (keywords) url += `${tag ? "&" : ""}keywords=${keywords}`;
     history.switchPage(url);
   };
 
@@ -195,10 +202,10 @@ const HomeBody = (props: {
             </div>
             <div className="tags-box">
               <div
-                className={`tag ${tags === "全部" && "active"}`}
+                className={`tag ${!tags && "active"}`}
                 onClick={() => {
                   setFilterBoxShow(false);
-                  selectTag("全部");
+                  selectTag("");
                 }}
               >
                 全部
@@ -259,8 +266,8 @@ const HomeBody = (props: {
             <div className="filter-bar-bg"></div>
 
             <div
-              className={`category-btn ${tags === "全部" && "active"} ${myloading && "disabled"}`}
-              onClick={() => selectTag("全部")}
+              className={`category-btn ${!tags && "active"} ${myloading && "disabled"}`}
+              onClick={() => selectTag("")}
             >
               全部
             </div>

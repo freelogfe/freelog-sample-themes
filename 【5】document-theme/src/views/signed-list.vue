@@ -95,7 +95,7 @@ export default {
           return;
         }
 
-        switchPage("/home", { id: exhibitId });
+        switchPage("/reader", { id: exhibitId });
       },
     };
 

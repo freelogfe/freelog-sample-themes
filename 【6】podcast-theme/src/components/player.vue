@@ -37,7 +37,7 @@
                 class="title voice-title"
                 @click="
                   $router.myPush({
-                    path: '/voice-detail',
+                    path: '/detail',
                     query: { id: item.exhibitId },
                   })
                 "
@@ -174,7 +174,7 @@
                         <span
                           @click="
                             $router.myPush({
-                              path: '/voice-detail',
+                              path: '/detail',
                               query: { id: playingInfo.exhibitId },
                             })
                           "

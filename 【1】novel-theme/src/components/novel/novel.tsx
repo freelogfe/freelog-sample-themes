@@ -26,12 +26,12 @@ export const Novel = (props: {
       return;
     }
 
-    history.switchPage(path + data.exhibitId);
+    history.switchPage(`${path}?id=${data.exhibitId}`);
   };
 
   return mode === 4 ? (
     // 移动端书架小说组件
-    <div className="mobile-shelf-novel-wrapper" onClick={() => toPath("/detail/")}>
+    <div className="mobile-shelf-novel-wrapper" onClick={() => toPath("/detail")}>
       <div className="book-cover-box">
         <img
           className={`book-cover ${![0, 4].includes(data.defaulterIdentityType) && "opacity-40p"}`}
@@ -56,7 +56,7 @@ export const Novel = (props: {
     </div>
   ) : (
     // 普通小说组件
-    <div className={`novel-wrapper ${inMobile ? "in-mobile" : "in-pc"}`} onClick={() => toPath("/detail/")}>
+    <div className={`novel-wrapper ${inMobile ? "in-mobile" : "in-pc"}`} onClick={() => toPath("/detail")}>
       <div className="novel-content">
         <div className="book-cover-box">
           <img
@@ -110,7 +110,7 @@ export const Novel = (props: {
             className={`main-btn btn ${![0, 4].includes(data.defaulterIdentityType) && "disabled"}`}
             onClick={(e) => {
               e.stopPropagation();
-              toPath("/reader/");
+              toPath("/reader");
             }}
           >
             立即阅读

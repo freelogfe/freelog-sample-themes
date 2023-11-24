@@ -3,12 +3,16 @@ import { RouteRecordRaw } from "vue-router";
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
-    redirect: { name: "home" },
+    redirect: { name: "reader" },
   },
   {
-    path: "/home",
-    name: "home",
-    component: () => import("../views/home.vue"),
+    path: "/:pathMatch(.*)",
+    redirect: "/reader",
+  },
+  {
+    path: "/reader",
+    name: "reader",
+    component: () => import("../views/reader.vue"),
   },
   {
     path: "/signedList",
