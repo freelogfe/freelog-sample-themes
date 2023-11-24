@@ -311,26 +311,24 @@ export const useMyPlay = {
       return;
     }
 
-    const { isIOS, initUrl, playingInfo, playing } = store.state;
+    const { initUrl, playingInfo, playing } = store.state;
 
-    if (isIOS) {
-      if (initUrl) {
-        setTimeout(() => {
-          store.commit("setData", { key: "initUrl", value: null });
-        }, 0);
-      } else if (initUrl === "") {
-        // 使用任意 url 初始化播放器
-        store.commit("setData", {
-          key: "initUrl",
-          value: "http://file.testfreelog.com/exhibits/64d1ed97cc4a64002f632b0d",
-        });
-        this.playOrPause(exhibit, type);
-        return;
-      }
+    if (initUrl) {
+      setTimeout(() => {
+        store.commit("setData", { key: "initUrl", value: null });
+      }, 0);
+    } else if (initUrl === "") {
+      // 部分设备（已知部分 ios）上无法直接播放音频，需要先使用任意 url 初始化播放器，才可播放音频
+      store.commit("setData", {
+        key: "initUrl",
+        value: "https://file.testfreelog.com/exhibits/64d1ed97cc4a64002f632b0d",
+      });
+      this.playOrPause(exhibit, type);
+      return;
     }
 
     const { defaulterIdentityType, url, exhibitId } = exhibit;
-    if (playingInfo && defaulterIdentityType === 0) {
+    if (playingInfo && defaulterIdentityType === 0 && url) {
       const { exhibitId: id, url: playingUrl } = playingInfo;
       if (exhibitId === id && playing && type === "normal" && playingUrl === url) {
         // 暂停

@@ -9,10 +9,6 @@ const routes = [
     redirect: { name: "home" },
   },
   {
-    path: "/:pathMatch(.*)",
-    redirect: "/home",
-  },
-  {
     path: "/home",
     name: "home",
     component: () => import("../views/home.vue"),
@@ -46,6 +42,10 @@ const routes = [
     name: "search-list",
     component: () => import("../views/search-list.vue"),
     meta: { keepAlive: true },
+  },
+  {
+    path: "/:pathMatch(.*)",
+    redirect: { name: "home" },
   },
 ];
 
