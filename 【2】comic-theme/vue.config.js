@@ -24,9 +24,9 @@ module.exports = {
       "Access-Control-Allow-Origin": "*",
     },
     https: true,
-    ca: fs.readFileSync("localhost+1.pem"),
-    key: fs.readFileSync("localhost+1-key.pem"),
-    cert: fs.readFileSync("localhost+1.crt"),
+    ca: fs.readFileSync("../localhost+1.pem"),
+    key: fs.readFileSync("../localhost+1-key.pem"),
+    cert: fs.readFileSync("../localhost+1.crt"),
   },
   // 自定义webpack配置
   configureWebpack: {
