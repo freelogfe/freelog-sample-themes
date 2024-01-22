@@ -1,8 +1,5 @@
 ## 待办
 
-- https 是否可以通过 webpack 修改解决？
-  会出现不安全提示，需要手动点“高级”=>“信任”才能访问。
-
 - 路由映射
   export async function bootstrap() {
     freelogApp.mapShareUrl({
