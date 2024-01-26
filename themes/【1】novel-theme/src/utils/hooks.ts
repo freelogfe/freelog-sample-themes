@@ -212,6 +212,7 @@ export const useMyHistory = () => {
 
   /** 跳转页面 */
   const switchPage = (path: string) => {
+    console.log(9999,path)
     history.push(path);
   };
 
