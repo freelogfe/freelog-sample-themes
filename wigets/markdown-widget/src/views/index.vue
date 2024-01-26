@@ -17,7 +17,7 @@ import { ExhibitItem } from "@/api/interface";
 import { getExhibitDepFileStream, getSelfConfig } from "@/api/freelog";
 import { reactive, toRefs, watch } from "vue";
 import { useStore } from "@/store";
-
+import { freelogApp } from "freelog-runtime"
 export default {
   name: "markdown-widget",
 

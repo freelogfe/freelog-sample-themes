@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts">
-import { reactive, toRefs } from "@vue/reactivity";
+import { reactive, toRefs } from "vue";
 import { ExhibitItem } from "@/api/interface";
 import { shareBtns } from "@/api/data";
 import { showToast } from "@/utils/common";
@@ -51,7 +51,7 @@ import { storeToRefs } from "pinia";
 import { getCurrentUrl, getSelfConfig, pushMessage4Task } from "@/api/freelog";
 
 export default {
-  name: "share",
+  name: "Share-C",
 
   components: {
     QrcodeVue,

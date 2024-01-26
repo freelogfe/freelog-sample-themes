@@ -1,3 +1,5 @@
+import { freelogApp } from "freelog-runtime"
+window.freelogApp = freelogApp
 const MyWindow: any = window;
 
 /** 获取插件配置数据 */

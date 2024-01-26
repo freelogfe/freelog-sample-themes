@@ -59,6 +59,7 @@ export const ReaderScreen = (props: any) => {
       container: document.getElementById("share"),
       topExhibitData: themeData,
       config: { exhibit: book, type: "小说" },
+      widget_entry: "https://localhost:8200"
     });
   };
 
@@ -74,7 +75,7 @@ export const ReaderScreen = (props: any) => {
       container: document.getElementById("markdown"),
       topExhibitData: themeData,
       config: { exhibitInfo, content, fontSize: myFontSize },
-      // widget_entry: "http://localhost:8202/",
+      widget_entry: "https://localhost:8201",
     });
   };
 
@@ -99,7 +100,7 @@ export const ReaderScreen = (props: any) => {
         // eslint-disable-next-line
         for (const key in widgetList.current) {
           // eslint-disable-next-line
-          await widgetList.current[key].unmount();
+          // await widgetList.current[key].unmount();
         }
       })();
     };

@@ -12,41 +12,31 @@ myWindow.FREELOG_RESOURCENAME = "ZhuC/share-widget";
 let instance: any = null;
 let router = null;
 
-function render(props: any = {}) {
-  const { container } = props;
+function render() {
   router = createRouter({
-    history: createMemoryHistory(process.env.BASE_URL),
+    history: createMemoryHistory("/"),
     routes,
   });
   instance = createApp(App).use(router).use(createPinia());
-  instance.mount(container ? container.querySelector("#share-widget-app") : "#share-widget-app");
+  instance.mount(document.querySelector("#share-widget-app"));
 }
-
-if (!myWindow.__POWERED_BY_FREELOG__) {
+ 
+if (window.__POWERED_BY_WUJIE__) {
+  window.__WUJIE_MOUNT = () => {
+    window.$wujie?.props.registerApi({
+      setData: (key: string, value: any) => {
+        const store = useStore();
+        store.setData(key, value);
+      },
+    });
+    render();
+  };
+  window.__WUJIE_UNMOUNT = () => {
+    instance.unmount();
+    instance._container.innerHTML = "";
+    instance = null;
+    router = null;
+  };
+} else {
   render();
-}
-
-export async function bootstrap() {
-  console.log("widget bootstraped");
-}
-
-export async function mount(props: any) {
-  props.registerApi({
-    setData: (key: string, value: any) => {
-      const store = useStore();
-      store.setData(key, value);
-    },
-  });
-  render(props);
-  if (instance.config) {
-    instance.config.globalProperties.$onGlobalStateChange = props.onGlobalStateChange;
-    instance.config.globalProperties.$setGlobalState = props.setGlobalState;
-  }
-}
-
-export async function unmount() {
-  instance.unmount();
-  instance._container.innerHTML = "";
-  instance = null;
-  router = null;
 }

@@ -94,11 +94,13 @@ const DetailBody = () => {
     const themeData = await getSubDep();
     const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-展品分享");
     if (!widget) return;
+    console.log(8888, widget)
     shareWidget.current = await mountWidget({
       widget,
       container: document.getElementById("share"),
       topExhibitData: themeData,
       config: { exhibit: novel, type: "小说" },
+      widget_entry: "https://localhost:8200"
     });
   };
 
@@ -115,7 +117,7 @@ const DetailBody = () => {
     return () => {
       if (inMobile) return;
       (async function unmountWidget() {
-        await shareWidget.current.unmount();
+        // await shareWidget.current.unmount();
       })();
     };
     // eslint-disable-next-line
