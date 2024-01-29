@@ -52,7 +52,7 @@ export const ReaderScreen = (props: any) => {
 
     if (widgetList.current.share) await widgetList.current.share.unmount();
     const themeData = await getSubDep();
-    const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-展品分享");
+    const widget = themeData.subDep.find((item: any) => item.name === "Nodeconsumer/分享插件");
     if (!widget) return;
     widgetList.current.share = await mountWidget({
       widget,
@@ -66,7 +66,7 @@ export const ReaderScreen = (props: any) => {
   /** 加载 markdown 插件 */
   const mountMarkdownWidget = async (exhibitInfo: ExhibitItem, content: string) => {
     const themeData = await getSubDep();
-    const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-markdown解析");
+    const widget = themeData.subDep.find((item: any) => item.name === "Nodeconsumer/文档插件");
     if (!widget) return;
     const myFontSize = Number(localStorage.getItem("fontSize")) || 22;
     setFontSize(myFontSize);

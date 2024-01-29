@@ -1,3 +1,6 @@
+import { freelogApp } from "freelog-runtime"
+// @ts-ignore
+window.freelogApp = freelogApp
 const MyWindow: any = window;
 
 /** 获取展品列表请求参数 */

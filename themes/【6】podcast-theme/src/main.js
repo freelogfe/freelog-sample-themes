@@ -8,6 +8,8 @@ import ElementUI from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import vView from "vue-view-lazy";
 import * as filters from "@/utils/filter";
+import { freelogApp } from "freelog-runtime"
+freelogApp.onLogin(() => freelogApp.reload());
 
 Vue.use(vView);
 Vue.use(ElementUI);

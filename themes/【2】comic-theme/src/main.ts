@@ -5,45 +5,41 @@ import App from "./App.vue";
 import routes from "./router";
 import store from "./store";
 import lazyPlugin from "vue3-lazy";
+import { freelogApp } from "freelog-runtime"
 
 const myWindow: any = window;
 
 myWindow.FREELOG_RESOURCENAME = "ZhuC/comic-theme";
-myWindow.freelogApp.onLogin(() => myWindow.location.reload());
+freelogApp.onLogin(() => freelogApp.reload());
 
 let instance: any = null;
 let router = null;
 
-function render(props: any = {}) {
-  const { container } = props;
+function render() {
   router = createRouter({
-    history: createWebHistory(process.env.BASE_URL),
+    history: createWebHistory("/"),
     routes,
   });
   instance = createApp(App).use(router).use(store).use(lazyPlugin, {});
-  instance.mount(container ? container.querySelector("#app") : "#app");
+  instance.mount(document.querySelector("#app"));
   store.dispatch("initStoreData");
 }
 
-if (!myWindow.__POWERED_BY_FREELOG__) {
-  render();
-}
-
-export async function bootstrap() {
-  console.log("vue app bootstraped");
-}
-
-export async function mount(props: { onGlobalStateChange: any; setGlobalState: any }) {
-  render(props);
-  if (instance.config) {
-    instance.config.globalProperties.$onGlobalStateChange = props.onGlobalStateChange;
-    instance.config.globalProperties.$setGlobalState = props.setGlobalState;
-  }
-}
-
-export async function unmount() {
+function unmount() {
   instance.unmount();
   instance._container.innerHTML = "";
   instance = null;
   router = null;
+}
+
+if (window.__POWERED_BY_WUJIE__) {
+  let instance;
+  window.__WUJIE_MOUNT = () => {
+    render()
+  };
+  window.__WUJIE_UNMOUNT = () => {
+    unmount();
+  };
+} else {
+  render()
 }

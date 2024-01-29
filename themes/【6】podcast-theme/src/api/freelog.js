@@ -1,3 +1,6 @@
+import { freelogApp } from "freelog-runtime"
+// @ts-ignore
+window.freelogApp = freelogApp
 /** 获取展品列表 */
 export const getExhibitListByPaging = (query) => {
   return window.freelogApp.getExhibitListByPaging(query);

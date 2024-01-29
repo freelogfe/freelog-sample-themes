@@ -8,11 +8,12 @@ import hljs from "highlight.js";
 import "highlight.js/styles/a11y-dark.css";
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
+import { freelogApp } from "freelog-runtime"
 
 const myWindow: any = window;
 
 myWindow.FREELOG_RESOURCENAME = "ZhuC/document-theme";
-myWindow.freelogApp.onLogin(() => myWindow.location.reload());
+freelogApp.onLogin(() => freelogApp.reload());
 
 let instance: any = null;
 let router = null;
@@ -20,7 +21,7 @@ let router = null;
 function render(props: any = {}) {
   const { container } = props;
   router = createRouter({
-    history: createWebHistory(process.env.BASE_URL),
+    history: createWebHistory("/"),
     routes,
   });
   instance = createApp(App).use(router).use(store).use(ElementPlus);
