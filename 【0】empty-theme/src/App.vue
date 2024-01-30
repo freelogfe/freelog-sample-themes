@@ -63,7 +63,7 @@ export default defineComponent({
         if (deviceWidth <= 500) inMobile = true;
       }
 
-      return inMobile;
+      data.inMobile = inMobile;
     };
 
     judgeDevice();
@@ -169,6 +169,7 @@ body,
   color: #999;
   font-size: 14px;
   line-height: 1.5;
+  display: flex;
 }
 
 .mobile .btn {
