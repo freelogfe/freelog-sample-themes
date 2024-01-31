@@ -1,4 +1,4 @@
-const MyWindow: any = window;
+import { freelogApp } from "freelog-runtime";
 
 /** 获取展品列表请求参数 */
 export interface GetExhibitListByPagingParams {
@@ -13,7 +13,7 @@ export interface GetExhibitListByPagingParams {
 /** 搜索展品请求参数 */
 export interface GetExhibitListByIdParams {
   exhibitIds: string; // 展品id，多个使用","隔开
-  isLoadVersionProperty?: string; // 是否加载版本信息
+  isLoadVersionProperty?: 0 | 1; // 是否加载版本信息
 }
 
 /** 获取展品信息请求参数 */
@@ -40,7 +40,7 @@ export interface MountWidgetParams {
  * @param query GetExhibitListByPagingParams
  */
 export const getExhibitListByPaging = (query: GetExhibitListByPagingParams) => {
-  return MyWindow.freelogApp.getExhibitListByPaging(query);
+  return freelogApp.getExhibitListByPaging(query);
 };
 
 /**
@@ -48,7 +48,7 @@ export const getExhibitListByPaging = (query: GetExhibitListByPagingParams) => {
  * @param query GetExhibitListByIdParams
  */
 export const getExhibitListById = (query: GetExhibitListByIdParams) => {
-  return MyWindow.freelogApp.getExhibitListById(query);
+  return freelogApp.getExhibitListById(query);
 };
 
 /**
@@ -57,7 +57,7 @@ export const getExhibitListById = (query: GetExhibitListByIdParams) => {
  * @param query GetExhibitInfoParams
  */
 export const getExhibitInfo = (id: string, query: GetExhibitInfoParams = {}) => {
-  return MyWindow.freelogApp.getExhibitInfo(id, query);
+  return freelogApp.getExhibitInfo(id, query);
 };
 
 /**
@@ -65,7 +65,7 @@ export const getExhibitInfo = (id: string, query: GetExhibitInfoParams = {}) => 
  * @param query GetSignStatisticsParams
  */
 export const getSignStatistics = (query: GetSignStatisticsParams) => {
-  return MyWindow.freelogApp.getSignStatistics(query);
+  return freelogApp.getSignStatistics(query);
 };
 
 /**
@@ -73,7 +73,7 @@ export const getSignStatistics = (query: GetSignStatisticsParams) => {
  * @param ids 展品id（用英文逗号隔开）
  */
 export const getExhibitSignCount = (ids: string) => {
-  return MyWindow.freelogApp.getExhibitSignCount(ids);
+  return freelogApp.getExhibitSignCount(ids);
 };
 
 /**
@@ -87,7 +87,7 @@ export const getExhibitFileStream = (
   exhibitId: string,
   options: { returnUrl?: boolean; config?: any; subFilePath?: string }
 ) => {
-  return MyWindow.freelogApp.getExhibitFileStream(exhibitId, options);
+  return freelogApp.getExhibitFileStream(exhibitId, options);
 };
 
 /**
@@ -95,7 +95,7 @@ export const getExhibitFileStream = (
  * @param exhibitIds 展品id
  */
 export const getExhibitAuthStatus = async (exhibitIds: string) => {
-  return MyWindow.freelogApp.getExhibitAuthStatus(exhibitIds);
+  return freelogApp.getExhibitAuthStatus(exhibitIds);
 };
 
 /**
@@ -103,42 +103,42 @@ export const getExhibitAuthStatus = async (exhibitIds: string) => {
  * @param exhibitId 展品id
  */
 export const addAuth = async (exhibitId: string) => {
-  return MyWindow.freelogApp.addAuth(exhibitId, { immediate: true });
+  return freelogApp.addAuth(exhibitId, { immediate: true });
 };
 
 /** 获取当前登录的用户信息 */
 export const getCurrentUser = () => {
-  return MyWindow.freelogApp.getCurrentUser();
+  return freelogApp.getCurrentUser();
 };
 
 /** 获取用户存储数据 */
 export const getUserData = async (key: string) => {
-  return MyWindow.freelogApp.getUserData(key);
+  return freelogApp.getUserData(key);
 };
 
 /** 更新用户存储数据 */
 export const setUserData = async (key: string, data: any) => {
-  return MyWindow.freelogApp.setUserData(key, data);
+  return freelogApp.setUserData(key, data);
 };
 
 /** 唤起登录弹窗 */
 export const callLogin = async () => {
-  return MyWindow.freelogApp.callLogin();
+  return freelogApp.callLogin();
 };
 
 /** 唤起登出弹窗 */
 export const callLoginOut = async () => {
-  return MyWindow.freelogApp.callLoginOut();
+  return freelogApp.callLoginOut();
 };
 
 /** 获取主题自定义选项配置 */
 export const getSelfConfig = async () => {
-  return MyWindow.freelogApp.getSelfConfig();
+  return freelogApp.getSelfConfig();
 };
 
 /** 获取节点主题展品数据 */
 export const getSubDep = () => {
-  return MyWindow.freelogApp.getSubDep();
+  return freelogApp.getSubDep();
 };
 
 /**
@@ -146,15 +146,15 @@ export const getSubDep = () => {
  * @param query MountWidgetParams
  */
 export const mountWidget = (query: MountWidgetParams) => {
-  return MyWindow.freelogApp.mountWidget(query);
+  return freelogApp.mountWidget(query);
 };
 
 /** 获取节点主题展品数据 */
 export const getCurrentUrl = () => {
-  return MyWindow.location.currentURL;
+  return (window as any).location.currentURL;
 };
 
 /** 推送任务消息埋点 */
 export const pushMessage4Task = (data: { taskConfigCode: string; meta?: any }) => {
-  return MyWindow.freelogApp.pushMessage4Task(data);
+  return freelogApp.pushMessage4Task(data);
 };

@@ -5,45 +5,29 @@ import App from "./App.vue";
 import routes from "./router";
 import store from "./store";
 import lazyPlugin from "vue3-lazy";
+import { freelogApp } from "freelog-runtime";
 
-const myWindow: any = window;
+// const myWindow: any = window;
+// freelogApp.setSelfResourceNameForDev("ZhuC/comic-theme");
+// myWindow.freelogApp.onLogin(() => myWindow.location.reload());
 
-myWindow.FREELOG_RESOURCENAME = "ZhuC/comic-theme";
-myWindow.freelogApp.onLogin(() => myWindow.location.reload());
+freelogApp.onLogin(() => window.location.reload());
+const router = createRouter({ history: createWebHistory(), routes });
+createApp(App).use(router).use(store).use(lazyPlugin, {}).mount("#app");
+store.dispatch("initStoreData");
 
-let instance: any = null;
-let router = null;
-
-function render(props: any = {}) {
-  const { container } = props;
-  router = createRouter({
-    history: createWebHistory(process.env.BASE_URL),
-    routes,
-  });
-  instance = createApp(App).use(router).use(store).use(lazyPlugin, {});
-  instance.mount(container ? container.querySelector("#app") : "#app");
-  store.dispatch("initStoreData");
-}
-
-if (!myWindow.__POWERED_BY_FREELOG__) {
-  render();
-}
-
-export async function bootstrap() {
-  console.log("vue app bootstraped");
-}
-
-export async function mount(props: { onGlobalStateChange: any; setGlobalState: any }) {
-  render(props);
-  if (instance.config) {
-    instance.config.globalProperties.$onGlobalStateChange = props.onGlobalStateChange;
-    instance.config.globalProperties.$setGlobalState = props.setGlobalState;
-  }
-}
-
-export async function unmount() {
-  instance.unmount();
-  instance._container.innerHTML = "";
-  instance = null;
-  router = null;
-}
+// if (myWindow.__POWERED_BY_WUJIE__) {
+//   let instance: any;
+//   myWindow.__WUJIE_MOUNT = () => {
+//     const router = createRouter({ history: createWebHistory(), routes });
+//     instance = createApp(App).use(router).use(store).use(lazyPlugin, {}).mount("#app");
+//     store.dispatch("initStoreData");
+//   };
+//   myWindow.__WUJIE_UNMOUNT = () => {
+//     instance.unmount();
+//   };
+// } else {
+//   const router = createRouter({ history: createWebHistory(), routes });
+//   createApp(App).use(router).use(store).use(lazyPlugin, {}).mount("#app");
+//   store.dispatch("initStoreData");
+// }
