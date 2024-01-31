@@ -168,6 +168,7 @@ export default {
         document.execCommand("Copy");
         showToast("链接复制成功～");
         pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: data.articleData?.exhibitId } });
+        pushMessage4Task({ taskConfigCode: "TS000804", meta: { presentableId: data.articleData?.exhibitId } });
       },
 
       /** 获取授权 */

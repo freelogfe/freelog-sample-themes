@@ -230,6 +230,7 @@ export default {
         document.execCommand("Copy");
         showToast("链接复制成功～");
         pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: data.comicInfo.exhibitId } });
+        pushMessage4Task({ taskConfigCode: "TS000804", meta: { presentableId: data.comicInfo.exhibitId } });
       },
 
       /** 通知插件更新数据 */

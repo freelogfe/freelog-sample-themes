@@ -145,6 +145,7 @@ export default {
         }, 2300);
       }
       pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: this.shareInfo.exhibit.exhibitId } });
+      pushMessage4Task({ taskConfigCode: "TS000804", meta: { presentableId: this.shareInfo.exhibit.exhibitId } });
     },
   },
 };

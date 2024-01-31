@@ -277,6 +277,7 @@ export default {
         document.execCommand("Copy");
         showToast("链接复制成功～");
         pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: this.voiceInfo?.exhibitId } });
+        pushMessage4Task({ taskConfigCode: "TS000804", meta: { presentableId: this.voiceInfo?.exhibitId } });
       } else {
         this.$store.commit("setData", { key: "shareInfo", value: { show: true, exhibit: this.voiceInfo } });
       }
