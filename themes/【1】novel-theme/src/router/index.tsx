@@ -71,9 +71,7 @@ const RouterView = () => {
     const root = document.getElementById("root");
     root?.setAttribute("style", `--gradientColor: ${theme.gradientColor}; --deriveColor: ${theme.deriveColor}`);
   };
-  console.log(88888)
   useEffect(() => {
-    console.log(234234234)
     initGlobalData();
   }, []);
 
