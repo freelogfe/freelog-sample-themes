@@ -1,8 +1,8 @@
-const MyWindow: any = window;
+import { freelogApp } from "freelog-runtime";
 
 /** 获取插件配置数据 */
 export const getSelfConfig = async () => {
-  return MyWindow.freelogApp.getSelfConfig();
+  return freelogApp.getSelfConfig();
 };
 
 /**
@@ -14,11 +14,17 @@ export const getSelfConfig = async () => {
  * @param config axios的config 目前仅支持"onUploadProgress", "onDownloadProgress", "responseType"
  */
 export const getExhibitDepFileStream = (
-  exhibitId: string | number,
+  exhibitId: string,
   parentNid: string,
   subArticleIdOrName: string,
   returnUrl?: boolean,
   config?: any
 ) => {
-  return MyWindow.freelogApp.getExhibitDepFileStream(exhibitId, parentNid, subArticleIdOrName, returnUrl, config);
+  return freelogApp.getExhibitDepFileStream(
+    exhibitId,
+    parentNid,
+    subArticleIdOrName,
+    returnUrl,
+    config
+  );
 };

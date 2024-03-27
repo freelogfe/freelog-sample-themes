@@ -52,7 +52,9 @@ export const ReaderScreen = (props: any) => {
 
     if (widgetList.current.share) await widgetList.current.share.unmount();
     const themeData = await getSubDep();
-    const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-展品分享");
+    const widget = themeData.subDep.find(
+      (item: any) => item.name === "ZhuC/Freelog插件-展品分享"
+    );
     if (!widget) return;
     widgetList.current.share = await mountWidget({
       widget,
@@ -63,9 +65,14 @@ export const ReaderScreen = (props: any) => {
   };
 
   /** 加载 markdown 插件 */
-  const mountMarkdownWidget = async (exhibitInfo: ExhibitItem, content: string) => {
+  const mountMarkdownWidget = async (
+    exhibitInfo: ExhibitItem,
+    content: string
+  ) => {
     const themeData = await getSubDep();
-    const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-markdown解析");
+    const widget = themeData.subDep.find(
+      (item: any) => item.name === "ZhuC/Freelog插件-markdown解析"
+    );
     if (!widget) return;
     const myFontSize = Number(localStorage.getItem("fontSize")) || 22;
     setFontSize(myFontSize);
@@ -74,13 +81,16 @@ export const ReaderScreen = (props: any) => {
       container: document.getElementById("markdown"),
       topExhibitData: themeData,
       config: { exhibitInfo, content, fontSize: myFontSize },
-      // widget_entry: "http://localhost:8202/",
+      widget_entry: "https://localhost:8202",
     });
   };
 
   /** 通知插件更新数据 */
   const setWidgetData = (widget: string, key: string, value: any) => {
-    if (widgetList.current[widget] && widgetList.current[widget].getApi().setData) {
+    if (
+      widgetList.current[widget] &&
+      widgetList.current[widget].getApi().setData
+    ) {
       widgetList.current[widget].getApi().setData(key, value);
     }
   };
@@ -140,10 +150,18 @@ export const ReaderScreen = (props: any) => {
     <readerContext.Provider value={context}>
       <div
         className={`reader-wrapper ${inMobile && "in-mobile"}`}
-        style={{ backgroundImage: `url(${BgImage})`, backgroundColor: theme?.bgColor }}
+        style={{
+          backgroundImage: `url(${BgImage})`,
+          backgroundColor: theme?.bgColor,
+        }}
         onClick={() => clickPage()}
       >
-        <CSSTransition in={(inMobile && mobileBarShow) || !inMobile} classNames="slide-up" timeout={150} unmountOnExit>
+        <CSSTransition
+          in={(inMobile && mobileBarShow) || !inMobile}
+          classNames="slide-up"
+          timeout={150}
+          unmountOnExit
+        >
           <Header readerHeader={true} />
         </CSSTransition>
         <ReaderBody />
@@ -157,15 +175,26 @@ export const ReaderScreen = (props: any) => {
 const ReaderBody = () => {
   const history = useMyHistory();
   const { userData } = useContext(globalContext);
-  const { inMobile, book, id, theme, mountMarkdownWidget, loading, setLoading } = useContext(readerContext);
+  const {
+    inMobile,
+    book,
+    id,
+    theme,
+    mountMarkdownWidget,
+    loading,
+    setLoading,
+  } = useContext(readerContext);
   const [content, setContent] = useState<string>("");
-  const [defaulterIdentityType, setDefaulterIdentityType] = useState<number | null>(null);
+  const [defaulterIdentityType, setDefaulterIdentityType] = useState<
+    number | null
+  >(null);
 
   /** 获取小说内容 */
   const getContent = useCallback(async () => {
     let authErrType;
     const statusInfo = await getExhibitAuthStatus(id);
-    if (statusInfo.data.data) authErrType = statusInfo.data.data[0].defaulterIdentityType;
+    if (statusInfo.data.data)
+      authErrType = statusInfo.data.data[0].defaulterIdentityType;
     setDefaulterIdentityType(authErrType);
 
     if (authErrType === 0) {
@@ -211,7 +240,9 @@ const ReaderBody = () => {
     // mobile
     return (
       <div
-        className={`mobile-body-wrapper ${theme?.type === 1 ? "dark" : "light"}`}
+        className={`mobile-body-wrapper ${
+          theme?.type === 1 ? "dark" : "light"
+        }`}
         style={
           {
             backgroundImage: `url(${BgImage})`,
@@ -222,16 +253,26 @@ const ReaderBody = () => {
         {defaulterIdentityType === 0 && <div id="markdown" />}
         {![null, 0, 4].includes(defaulterIdentityType) ? (
           <div className="auth-box">
-            <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
+            <img
+              className="auth-link-abnormal"
+              src={AuthLinkAbnormal}
+              alt="授权链异常"
+            />
             <div className="auth-link-tip">授权链异常，无法查看</div>
-            <div className="home-btn" onClick={() => history.switchPage("/home")}>
+            <div
+              className="home-btn"
+              onClick={() => history.switchPage("/home")}
+            >
               进入首页
             </div>
           </div>
-        ) : defaulterIdentityType && (defaulterIdentityType === 4 || userData?.isLogin === false) ? (
+        ) : defaulterIdentityType &&
+          (defaulterIdentityType === 4 || userData?.isLogin === false) ? (
           <div className="lock-box">
             <img className="lock" src={Lock} alt="未授权" />
-            <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+            <div className="lock-tip">
+              展品未开放授权，继续浏览请签约并获取授权
+            </div>
             <div className="get-btn" onClick={() => getAuth()}>
               获得授权
             </div>
@@ -245,7 +286,10 @@ const ReaderBody = () => {
       <div className="body-wrapper">
         <div className="breadcrumbs-wrapper">
           <div className="breadcrumbs-item">
-            <div className="second-text-btn" onClick={() => history.switchPage(`/detail?id=${id}`)}>
+            <div
+              className="second-text-btn"
+              onClick={() => history.switchPage(`/detail?id=${id}`)}
+            >
               {book?.exhibitTitle}
             </div>
           </div>
@@ -263,16 +307,26 @@ const ReaderBody = () => {
           {defaulterIdentityType === 0 && <div id="markdown" />}
           {![null, 0, 4].includes(defaulterIdentityType) ? (
             <div className="auth-box">
-              <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
+              <img
+                className="auth-link-abnormal"
+                src={AuthLinkAbnormal}
+                alt="授权链异常"
+              />
               <div className="auth-link-tip">授权链异常，无法查看</div>
-              <div className="home-btn" onClick={() => history.switchPage("/home")}>
+              <div
+                className="home-btn"
+                onClick={() => history.switchPage("/home")}
+              >
                 进入首页
               </div>
             </div>
-          ) : defaulterIdentityType && (defaulterIdentityType === 4 || userData?.isLogin === false) ? (
+          ) : defaulterIdentityType &&
+            (defaulterIdentityType === 4 || userData?.isLogin === false) ? (
             <div className="lock-box">
               <img className="lock" src={Lock} alt="未授权" />
-              <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+              <div className="lock-tip">
+                展品未开放授权，继续浏览请签约并获取授权
+              </div>
               <div className="get-btn" onClick={() => getAuth()}>
                 获得授权
               </div>
@@ -369,12 +423,18 @@ const OperaterBtns = () => {
   }, [scrollTop]);
 
   useEffect(() => {
-    document.body.style.overflowY = (fontSizePopupShow || themePopupShow) && inMobile ? "hidden" : "auto";
+    document.body.style.overflowY =
+      (fontSizePopupShow || themePopupShow) && inMobile ? "hidden" : "auto";
   }, [fontSizePopupShow, themePopupShow, inMobile]);
 
   return inMobile ? (
     // mobile
-    <CSSTransition in={mobileBarShow} classNames="slide-down" timeout={150} unmountOnExit>
+    <CSSTransition
+      in={mobileBarShow}
+      classNames="slide-down"
+      timeout={150}
+      unmountOnExit
+    >
       <div className="mobile-operater-wrapper">
         {isCollected ? (
           <div
@@ -434,8 +494,14 @@ const OperaterBtns = () => {
         </div>
 
         {fontSizePopupShow && (
-          <div className="operater-popup" onClick={() => setFontSizePopupShow(false)}>
-            <div className="fontsize-popup" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="operater-popup"
+            onClick={() => setFontSizePopupShow(false)}
+          >
+            <div
+              className="fontsize-popup"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="fontsize-label" onClick={() => changeFontSize(0)}>
                 A-
               </div>
@@ -448,12 +514,17 @@ const OperaterBtns = () => {
         )}
 
         {themePopupShow && (
-          <div className="operater-popup" onClick={() => setThemePopupShow(false)}>
+          <div
+            className="operater-popup"
+            onClick={() => setThemePopupShow(false)}
+          >
             <div className="theme-popup" onClick={(e) => e.stopPropagation()}>
               {readerThemeList.map((item) => {
                 return (
                   <div
-                    className={`theme-btn ${theme.bookColor === item.bookColor && "active"}`}
+                    className={`theme-btn ${
+                      theme.bookColor === item.bookColor && "active"
+                    }`}
                     key={item.bookColor}
                     style={{ backgroundColor: item.bookColor }}
                     onClick={() => {
@@ -513,7 +584,9 @@ const OperaterBtns = () => {
           }}
           slot={
             <div
-              className={`operater-popup ${theme?.type === 1 ? "dark" : "light"}`}
+              className={`operater-popup ${
+                theme?.type === 1 ? "dark" : "light"
+              }`}
               style={{ width: fontSizePopupShow ? "162px" : "0" }}
             >
               <div className="fontsize-label" onClick={() => changeFontSize(0)}>
@@ -534,11 +607,16 @@ const OperaterBtns = () => {
             setThemePopupShow(true);
           }}
           slot={
-            <div className="operater-popup" style={{ width: themePopupShow ? "228px" : "0" }}>
+            <div
+              className="operater-popup"
+              style={{ width: themePopupShow ? "228px" : "0" }}
+            >
               {readerThemeList.map((item) => {
                 return (
                   <div
-                    className={`theme-btn ${theme.bookColor === item.bookColor && "active"}`}
+                    className={`theme-btn ${
+                      theme.bookColor === item.bookColor && "active"
+                    }`}
                     key={item.bookColor}
                     style={{ backgroundColor: item.bookColor }}
                     onClick={() => {
@@ -563,7 +641,12 @@ const OperaterBtns = () => {
 };
 
 /** 功能操作按钮 */
-const OperateBtn = (props: { icon?: string; text?: string; slot?: any; onClick?: (e: any) => void }) => {
+const OperateBtn = (props: {
+  icon?: string;
+  text?: string;
+  slot?: any;
+  onClick?: (e: any) => void;
+}) => {
   const { icon, text, slot, onClick } = props;
   const { theme } = useContext(readerContext);
 
