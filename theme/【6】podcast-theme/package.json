@@ -10,7 +10,7 @@
     "core-js": "^3.6.5",
     "element-ui": "^2.15.8",
     "qrcode.vue": "1.7.0",
-    "vue": "^2.6.11",
+    "vue": "^2.7.16",
     "vue-router": "^3.2.0",
     "vue-view-lazy": "^0.0.6",
     "vuex": "^4.1.0"
@@ -22,15 +22,6 @@
     "@vue/cli-service": "~4.5.15",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
-    "vue-template-compiler": "^2.6.11"
-  },
-  "pnpm": {
-    "packageExtensions": {
-      "vue-template-compiler": {
-        "peerDependencies": {
-          "vue": "^2.6.11"
-        }
-      }
-    }
+    "vue-template-compiler": "^2.7.16"
   }
 }
