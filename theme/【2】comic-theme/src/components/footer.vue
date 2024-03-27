@@ -24,6 +24,8 @@
 </template>
 
 <script lang="ts">
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { useStore } from "vuex";
 import { freelogEntrances } from "@/api/data";
 import { toRefs } from "vue";

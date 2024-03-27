@@ -9,6 +9,7 @@ export interface ExhibitItem {
   intro: string;
   createDate: string;
   updateDate: string;
+  onlineStatus: any;
   signCount: number;
   height: number;
   content: string;

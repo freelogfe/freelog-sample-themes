@@ -826,6 +826,7 @@ export default {
       const themeData = await getSubDep();
       const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-展品分享");
       if (!widget) return;
+      // eslint-disable-next-line require-atomic-updates
       data.shareWidget = await mountWidget({
         widget,
         container: document.getElementById("share"),

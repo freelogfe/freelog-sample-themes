@@ -5,8 +5,8 @@ importers:
   .:
     dependencies:
       freelog-runtime:
-        specifier: ^3.0.2
-        version: 3.0.2
+        specifier: ^3.4.0
+        version: 3.4.0
 
   theme/【0】empty-theme:
     dependencies:
@@ -134,6 +134,9 @@ importers:
       fs-extra:
         specifier: ^9.0.1
         version: 9.0.1
+      history:
+        specifier: ^5.3.0
+        version: 5.3.0
       html-webpack-plugin:
         specifier: 4.5.0
         version: 4.5.0(webpack@4.44.2)
@@ -273,6 +276,12 @@ importers:
 
   theme/【2】comic-theme:
     dependencies:
+      '@vue/reactivity':
+        specifier: ^3.4.21
+        version: 3.4.21
+      '@vue/runtime-core':
+        specifier: ^3.4.21
+        version: 3.4.21
       ant-design-vue:
         specifier: ^3.2.20
         version: 3.2.20(vue@3.0.0)
@@ -298,8 +307,8 @@ importers:
         specifier: ^1.0.0-alpha.1
         version: 1.0.0-alpha.1(vue@3.0.0)
       vuex:
-        specifier: ^4.0.0-0
-        version: 4.0.0-alpha.1(vue@3.0.0)
+        specifier: ^4.1.0
+        version: 4.1.0(vue@3.0.0)
     devDependencies:
       '@typescript-eslint/eslint-plugin':
         specifier: ^4.18.0
@@ -349,6 +358,12 @@ importers:
 
   theme/【3】gallery-theme:
     dependencies:
+      '@vue/reactivity':
+        specifier: ^3.4.21
+        version: 3.4.21
+      '@vue/runtime-core':
+        specifier: ^3.4.21
+        version: 3.4.21
       core-js:
         specifier: ^3.6.5
         version: 3.6.5
@@ -362,8 +377,8 @@ importers:
         specifier: ^1.0.0-alpha.1
         version: 1.0.0-alpha.1(vue@3.0.0)
       vuex:
-        specifier: ^4.0.0-0
-        version: 4.0.0-alpha.1(vue@3.0.0)
+        specifier: ^4.1.0
+        version: 4.1.0(vue@3.0.0)
     devDependencies:
       '@types/node':
         specifier: ^20.11.30
@@ -422,6 +437,12 @@ importers:
 
   theme/【4】blog-theme:
     dependencies:
+      '@vue/reactivity':
+        specifier: ^3.4.21
+        version: 3.4.21
+      '@vue/runtime-core':
+        specifier: ^3.4.21
+        version: 3.4.21
       core-js:
         specifier: ^3.6.5
         version: 3.6.5
@@ -441,8 +462,8 @@ importers:
         specifier: ^1.0.0-alpha.1
         version: 1.0.0-alpha.1(vue@3.0.0)
       vuex:
-        specifier: ^4.0.0-0
-        version: 4.0.0-alpha.1(vue@3.0.0)
+        specifier: ^4.1.0
+        version: 4.1.0(vue@3.0.0)
     devDependencies:
       '@types/showdown':
         specifier: ^1.9.4
@@ -507,6 +528,12 @@ importers:
 
   theme/【5】document-theme:
     dependencies:
+      '@vue/reactivity':
+        specifier: ^3.4.21
+        version: 3.4.21
+      '@vue/runtime-core':
+        specifier: ^3.4.21
+        version: 3.4.21
       axios:
         specifier: ^0.27.2
         version: 0.27.2
@@ -532,12 +559,15 @@ importers:
         specifier: ^1.0.0-alpha.1
         version: 1.0.0-alpha.1(vue@3.0.0)
       vuex:
-        specifier: ^4.0.0-0
-        version: 4.0.0-alpha.1(vue@3.0.0)
+        specifier: ^4.1.0
+        version: 4.1.0(vue@3.0.0)
     devDependencies:
       '@types/showdown':
         specifier: ^1.9.4
         version: 1.9.4
+      '@types/webpack-env':
+        specifier: ^1.18.4
+        version: 1.18.4
       '@typescript-eslint/eslint-plugin':
         specifier: ^4.18.0
         version: 4.18.0(@typescript-eslint/parser@4.18.0)(eslint@6.7.2)(typescript@4.1.5)
@@ -614,8 +644,8 @@ importers:
         specifier: ^0.0.6
         version: 0.0.6
       vuex:
-        specifier: ^3.4.0
-        version: 3.4.0(vue@2.6.11)
+        specifier: ^4.1.0
+        version: 4.1.0(vue@2.6.11)
     devDependencies:
       '@vue/cli-plugin-babel':
         specifier: ~4.5.15
@@ -656,10 +686,16 @@ importers:
       vue-router:
         specifier: ^4.0.0-0
         version: 4.0.0-329e962(vue@3.0.0)
+      vuex:
+        specifier: ^4.1.0
+        version: 4.1.0(vue@3.0.0)
     devDependencies:
       '@types/showdown':
         specifier: ^1.9.4
         version: 1.9.4
+      '@types/webpack-env':
+        specifier: ^1.18.4
+        version: 1.18.4
       '@typescript-eslint/eslint-plugin':
         specifier: ^4.18.0
         version: 4.18.0(@typescript-eslint/parser@4.18.0)(eslint@6.7.2)(typescript@4.1.5)
@@ -717,6 +753,12 @@ importers:
 
   widget/share-widget:
     dependencies:
+      '@vue/reactivity':
+        specifier: ^3.4.21
+        version: 3.4.21
+      '@vue/runtime-core':
+        specifier: ^3.4.21
+        version: 3.4.21
       core-js:
         specifier: ^3.6.5
         version: 3.6.5
@@ -732,6 +774,9 @@ importers:
       vue-router:
         specifier: ^4.0.0-0
         version: 4.0.0-329e962(vue@3.0.0)
+      vuex:
+        specifier: ^4.1.0
+        version: 4.1.0(vue@3.0.0)
     devDependencies:
       '@typescript-eslint/eslint-plugin':
         specifier: ^4.18.0
@@ -4824,11 +4869,24 @@ packages:
     dependencies:
       '@vue/shared': 3.0.0
 
+  /@vue/reactivity@3.4.21:
+    resolution: {integrity: sha512-UhenImdc0L0/4ahGCyEzc/pZNwVgcglGy9HVzJ1Bq2Mm9qXOpP8RyNTjookw/gOCUlXSEtuZ2fUg5nrHcoqJcw==}
+    dependencies:
+      '@vue/shared': 3.4.21
+    dev: false
+
   /@vue/runtime-core@3.0.0:
     resolution: {integrity: sha512-3ABMLeA0ZbeVNLbGGLXr+pNUwqXILOqz8WCVGfDWwQb+jW114Cm8djOHVVDoqdvRETQvDf8yHSUmpKHZpQuTkA==}
     dependencies:
       '@vue/reactivity': 3.0.0
       '@vue/shared': 3.0.0
+
+  /@vue/runtime-core@3.4.21:
+    resolution: {integrity: sha512-pQthsuYzE1XcGZznTKn73G0s14eCJcjaLvp3/DKeYWoFacD9glJoqlNBxt3W2c5S40t6CCcpPf+jG01N3ULyrA==}
+    dependencies:
+      '@vue/reactivity': 3.4.21
+      '@vue/shared': 3.4.21
+    dev: false
 
   /@vue/runtime-dom@3.0.0:
     resolution: {integrity: sha512-f312n5w9gK6mVvkDSj6/Xnot1XjlKXzFBYybmoy6ahAVC8ExbQ+LOWti1IZM/adU8VMNdKaw7Q53Hxz3y5jX8g==}
@@ -5640,7 +5698,7 @@ packages:
   /babel-plugin-macros@2.8.0:
     resolution: {integrity: sha512-SEP5kJpfGYqYKpBrj5XU3ahw5p5GOHJ0U5ssOSQ/WBVdwkD2Dzlce95exQTs3jOVWPPKLBN2rlEWkCK7dSmLvg==}
     dependencies:
-      '@babel/runtime': 7.12.1
+      '@babel/runtime': 7.24.1
       cosmiconfig: 6.0.0
       resolve: 1.18.1
     dev: false
@@ -9184,8 +9242,8 @@ packages:
     engines: {node: '>=10'}
     dev: false
 
-  /freelog-runtime@3.0.2:
-    resolution: {integrity: sha512-J8TvZP63PiPj9wwYhE0ZSpGNAt+UsLQnImc77cdcdnAIlU4WMZlNtHPBbqyul0kXeW39A4ATcI7pXTZSQNzjAA==}
+  /freelog-runtime@3.4.0:
+    resolution: {integrity: sha512-vwyX+YJwa34puOemZotXArwhKFVNG1HkRxf0hIuwFlm1r2pOQpGBS3CP9ty6Jn+p/eWTU6301denz5SBvP3Thw==}
     engines: {node: '>=10'}
     dev: false
 
@@ -9651,7 +9709,6 @@ packages:
     resolution: {integrity: sha512-ZqaKwjjrAYUYfLG+htGaIIZ4nioX2L70ZUMIFysS3xvBsSG4x/n1V6TXV3N8ZYNuFGlDirFg32T7B6WOUPDYcQ==}
     dependencies:
       '@babel/runtime': 7.24.1
-    dev: true
 
   /hmac-drbg@1.0.1:
     resolution: {integrity: sha512-Tti3gMqLdZfhOQY1Mzf/AanLiqh1WTiJgEj26ZuYQ9fbkLomzGchCws4FyrSd4VkpBfiNhaE1On+lOz894jvXg==}
@@ -16569,19 +16626,21 @@ packages:
       '@vue/runtime-dom': 3.0.0
       '@vue/shared': 3.0.0
 
-  /vuex@3.4.0(vue@2.6.11):
-    resolution: {integrity: sha512-ajtqwEW/QhnrBZQsZxCLHThZZaa+Db45c92Asf46ZDXu6uHXgbfVuBaJ4gzD2r4UX0oMJHstFwd2r2HM4l8umg==}
+  /vuex@4.1.0(vue@2.6.11):
+    resolution: {integrity: sha512-hmV6UerDrPcgbSy9ORAtNXDr9M4wlNP4pEFKye4ujJF8oqgFFuxDCdOLS3eNoRTtq5O3hoBDh9Doj1bQMYHRbQ==}
     peerDependencies:
-      vue: ^2.0.0
+      vue: ^3.2.0
     dependencies:
+      '@vue/devtools-api': 6.6.1
       vue: 2.6.11
     dev: false
 
-  /vuex@4.0.0-alpha.1(vue@3.0.0):
-    resolution: {integrity: sha512-J08Mtcjx2JOyTL+XnXQqqBDyyHpTRFSJvnjkB7FPj0FWFZSpT0atkv3Wp75UxkPAgw3+SCR2tLdr1mm0cBhGjA==}
+  /vuex@4.1.0(vue@3.0.0):
+    resolution: {integrity: sha512-hmV6UerDrPcgbSy9ORAtNXDr9M4wlNP4pEFKye4ujJF8oqgFFuxDCdOLS3eNoRTtq5O3hoBDh9Doj1bQMYHRbQ==}
     peerDependencies:
-      vue: ^3.0.0-alpha.8
+      vue: ^3.2.0
     dependencies:
+      '@vue/devtools-api': 6.6.1
       vue: 3.0.0
     dev: false
 

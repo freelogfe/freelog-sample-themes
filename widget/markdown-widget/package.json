@@ -12,10 +12,12 @@
     "highlight.js": "^11.8.0",
     "pinia": "^2.1.4",
     "vue": "^3.0.0",
-    "vue-router": "^4.0.0-0"
+    "vue-router": "^4.0.0-0",
+    "vuex": "^4.1.0"
   },
   "devDependencies": {
     "@types/showdown": "^1.9.4",
+    "@types/webpack-env": "^1.18.4",
     "@typescript-eslint/eslint-plugin": "^4.18.0",
     "@typescript-eslint/parser": "^4.18.0",
     "@vue/cli-plugin-babel": "~4.5.15",

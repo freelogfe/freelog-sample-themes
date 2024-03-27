@@ -1,7 +1,10 @@
 <!-- 签约列表页 -->
 
 <template>
-  <div class="signed-list-wrapper" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
+  <div
+    class="signed-list-wrapper"
+    :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }"
+  >
     <my-header />
 
     <div class="content" v-if="userData.isLogin && mySignedList">
@@ -9,12 +12,21 @@
         <div class="signed-list-title">已签约文档</div>
 
         <div class="search-box">
-          <input class="search-input input-none" v-model="searchKey" placeholder="搜索" @keyup="search($event)" />
+          <input
+            class="search-input input-none"
+            v-model="searchKey"
+            placeholder="搜索"
+            @keyup="search($event)"
+          />
           <i class="freelog fl-icon-content"></i>
         </div>
       </div>
 
-      <div class="document-box" v-for="item in mySignedList" :key="item.exhibitId">
+      <div
+        class="document-box"
+        v-for="item in mySignedList"
+        :key="item.exhibitId"
+      >
         <div class="document-title-box">
           <img
             class="auth-link-abnormal"
@@ -24,19 +36,26 @@
           <div class="offline" v-if="item.onlineStatus === 0">已下架</div>
           <div
             class="document-title"
-            :style="{ opacity: [0, 4].includes(item.defaulterIdentityType) ? 1 : 0.4 }"
+            :style="{
+              opacity: [0, 4].includes(item.defaulterIdentityType) ? 1 : 0.4,
+            }"
             :title="item.exhibitTitle"
             @click="clickDocument(item)"
           >
             {{ item.exhibitTitle }}
           </div>
         </div>
-        <div class="tag" :class="item.defaulterIdentityType < 4 ? 'is-auth' : 'not-auth'">
+        <div
+          class="tag"
+          :class="item.defaulterIdentityType < 4 ? 'is-auth' : 'not-auth'"
+        >
           <span v-if="item.defaulterIdentityType < 4">已授权</span>
           <span v-else>未授权</span>
         </div>
       </div>
-      <div class="tip" v-if="mySignedList.length === 0">暂无数据，快去签约文档吧～</div>
+      <div class="tip" v-if="mySignedList.length === 0">
+        暂无数据，快去签约文档吧～
+      </div>
     </div>
 
     <div class="not-login-content" v-if="userData.isLogin === false">
@@ -64,14 +83,16 @@ export default {
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
-    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
+    "theme-entrance": defineAsyncComponent(
+      () => import("../components/theme-entrance.vue")
+    ),
   },
 
   setup() {
     const store = useStore();
     const { switchPage } = useMyRouter();
     const { mySignedList, getMySignedList } = useMySignedList();
-
+            
     const data = reactive({
       searchKey: "",
     });
@@ -99,7 +120,13 @@ export default {
       },
     };
 
-    return { callLogin, ...toRefs(store.state), mySignedList, ...toRefs(data), ...methods };
+    return {
+      callLogin,
+      ...toRefs(store.state),
+      mySignedList,
+      ...toRefs(data),
+      ...methods,
+    };
   },
 };
 </script>

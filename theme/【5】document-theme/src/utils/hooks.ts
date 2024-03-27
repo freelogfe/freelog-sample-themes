@@ -51,7 +51,10 @@ export const useMyLocationHistory = () => {
       const { locationHistory } = store.state;
       if (!locationHistory.length) {
         locationHistory.push(current);
-        store.commit("setData", { key: "locationHistory", value: locationHistory });
+        store.commit("setData", {
+          key: "locationHistory",
+          value: locationHistory,
+        });
         return;
       }
 
@@ -60,7 +63,10 @@ export const useMyLocationHistory = () => {
       } else {
         locationHistory.pop();
       }
-      store.commit("setData", { key: "locationHistory", value: locationHistory });
+      store.commit("setData", {
+        key: "locationHistory",
+        value: locationHistory,
+      });
     },
     { immediate: true, deep: true }
   );
@@ -69,7 +75,7 @@ export const useMyLocationHistory = () => {
 /** 展品列表 hook */
 export const useGetList = (inList = false) => {
   const store = useStore();
-  const data = reactive({
+  const data:any = reactive({
     listData: <ExhibitItem[]>[],
     loading: false,
     total: 0,
@@ -77,13 +83,18 @@ export const useGetList = (inList = false) => {
   });
 
   /** 获取展品列表 */
-  const getList = async (params: Partial<GetExhibitListByPagingParams> = {}, init = false) => {
+  const getList = async (
+    params: Partial<GetExhibitListByPagingParams> = {},
+    init = false
+  ) => {
     if (data.loading) return;
     if (data.total === data.listData.length && !init) return;
 
     data.loading = true;
     data.skip = init ? 0 : data.skip + 100;
-    const sort = sortMappings.find((item) => item.label === store.state.selfConfig.sort);
+    const sort = sortMappings.find(
+      (item) => item.label === store.state.selfConfig.sort
+    );
     const queryParams: GetExhibitListByPagingParams = {
       skip: data.skip,
       articleResourceTypes: "文章",
@@ -99,13 +110,19 @@ export const useGetList = (inList = false) => {
       const statusInfo = await getExhibitAuthStatus(ids);
       dataList.forEach((item: ExhibitItem) => {
         const index = statusInfo.data.data.findIndex(
-          (resultItem: { exhibitId: string }) => resultItem.exhibitId === item.exhibitId
+          (resultItem: { exhibitId: string }) =>
+            resultItem.exhibitId === item.exhibitId
         );
-        if (index !== -1) item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+        if (index !== -1)
+          item.defaulterIdentityType =
+            statusInfo.data.data[index].defaulterIdentityType;
       });
     }
+    // eslint-disable-next-line require-atomic-updates
     data.listData = init ? dataList : [...data.listData, ...dataList];
-    inList && store.commit("setData", { key: "listData", value: data.listData });
+    inList &&
+      store.commit("setData", { key: "listData", value: data.listData });
+    // eslint-disable-next-line require-atomic-updates
     data.total = totalItem;
     setTimeout(() => {
       data.loading = false;
@@ -143,21 +160,28 @@ export const useMySignedList = () => {
     if (!store.state.userData.isLogin) return;
 
     const signedList: any = await getSignStatistics({ keywords });
-    const ids = signedList.data.data.map((item: SignedItem) => item.subjectId).join();
+    const ids = signedList.data.data
+      .map((item: SignedItem) => item.subjectId)
+      .join();
 
     if (!ids) {
       data.mySignedList = [];
       return;
     }
 
-    const [list, statusList] = await Promise.all([getExhibitListById({ exhibitIds: ids }), getExhibitAuthStatus(ids)]);
+    const [list, statusList] = await Promise.all([
+      getExhibitListById({ exhibitIds: ids }),
+      getExhibitAuthStatus(ids),
+    ]);
     list.data.data.forEach((item: ExhibitItem) => {
       const statusItem = statusList.data.data.find(
         (status: { exhibitId: string }) => status.exhibitId === item.exhibitId
       );
       item.defaulterIdentityType = statusItem.defaulterIdentityType;
     });
-    data.mySignedList = list.data.data.filter((item: ExhibitItem) => !item.articleInfo.resourceType.includes("主题"));
+    data.mySignedList = list.data.data.filter(
+      (item: ExhibitItem) => !item.articleInfo.resourceType.includes("主题")
+    );
   };
 
   getMySignedList();

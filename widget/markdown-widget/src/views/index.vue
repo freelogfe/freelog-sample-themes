@@ -1,3 +1,4 @@
+<!-- eslint-disable require-atomic-updates -->
 <template>
   <div
     class="markdown-wrapper"
@@ -8,7 +9,14 @@
     v-if="exhibitInfo?.versionInfo.exhibitProperty.mime === 'text/markdown'"
   ></div>
 
-  <div id="content" class="txt-wrapper" :style="{ '--fontSize': fontSize }" v-else>{{ content }}</div>
+  <div
+    id="content"
+    class="txt-wrapper"
+    :style="{ '--fontSize': fontSize }"
+    v-else
+  >
+    {{ content }}
+  </div>
 </template>
 
 <script lang="ts">
@@ -63,21 +71,27 @@ export default {
         html = data.content;
       }
 
-      const deps = dependencyTree.filter((_: any, index: number) => index !== 0);
+      const deps = dependencyTree.filter(
+        (_: any, index: number) => index !== 0
+      );
       let promiseArr = [] as Promise<any>[];
-      deps.forEach((dep: { resourceType: string; parentNid: any; articleId: any }) => {
-        if (!data.exhibitInfo) return;
+      deps.forEach(
+        (dep: { resourceType: string; parentNid: any; articleId: any }) => {
+          if (!data.exhibitInfo) return;
 
-        const isMediaResource =
-          dep.resourceType.includes("图片") || dep.resourceType.includes("视频") || dep.resourceType.includes("音频");
-        const depContent: Promise<any> = getExhibitDepFileStream(
-          data.exhibitInfo.exhibitId,
-          dep.parentNid,
-          dep.articleId,
-          isMediaResource
-        );
-        promiseArr.push(depContent);
-      });
+          const isMediaResource =
+            dep.resourceType.includes("图片") ||
+            dep.resourceType.includes("视频") ||
+            dep.resourceType.includes("音频");
+          const depContent: Promise<any> = getExhibitDepFileStream(
+            data.exhibitInfo.exhibitId,
+            dep.parentNid,
+            dep.articleId,
+            isMediaResource
+          );
+          promiseArr.push(depContent);
+        }
+      );
 
       await Promise.all(promiseArr).then((res) => {
         res.forEach((dep, index) => {
@@ -86,12 +100,18 @@ export default {
             if (!dep.headers["content-type"].startsWith("text")) return;
 
             // 返回数据是对象，切有data属性，说明该依赖未非媒体资源
-            const reg = new RegExp(`{{freelog://${deps[index].articleName}}}`, "g");
+            const reg = new RegExp(
+              `{{freelog://${deps[index].articleName}}}`,
+              "g"
+            );
             const data = md2Html(dep.data);
             html = html.replace(reg, data);
           } else {
             // 媒体资源
-            const reg = new RegExp(`src=['"]freelog://${deps[index].articleName}['"]`, "g");
+            const reg = new RegExp(
+              `src=['"]freelog://${deps[index].articleName}['"]`,
+              "g"
+            );
             html = html.replace(reg, `src="${dep}"`);
           }
         });
@@ -101,6 +121,7 @@ export default {
       html = html.replace(/<video/g, '<video controlslist="nodownload"');
       html = html.replace(/<audio/g, '<audio controlslist="nodownload"');
 
+      // eslint-disable-next-line require-atomic-updates
       data.content = html;
     };
 

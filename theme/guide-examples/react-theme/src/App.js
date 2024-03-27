@@ -8,25 +8,15 @@ function App() {
     const subData = await window.freelogApp.getSubDep();
     subData.subDep.some(async (sub, index) => {
       if (index === 1) return true;
-      app = await window.freelogApp.mountWidget(
-        sub,
-        document.getElementById("freelog-single2"),
-        subData,
-        "",
-        "",
-        "http://localhost:7001"
-      );
-      // 插件加载完成
-      app.mountPromise.then(() => {
-        // 卸载与重载
-        // app.unmount.then(() => {
-        //   app.mount.then(() => {
-        //   })
-        // })
-      })
+      app = await window.freelogApp.mountWidget({
+        widget: sub,
+        container: document.getElementById("freelog-single2"),
+        topExhibitData: subData,
+        widget_entry: "http://localhost:7001"
+      });
     });
   }
-  const add = ()=>{
+  const add = () => {
     app.getApi().changeMe()
   }
   // 加载展品类型的插件
@@ -52,7 +42,7 @@ function App() {
   mountExhibitWidget()
   return (
     <div className="App">
-      <button onClick={add}>点我加1</button> 
+      <button onClick={add}>点我加1</button>
       <div id="freelog-single"></div>
     </div>
   );

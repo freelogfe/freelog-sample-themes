@@ -2,7 +2,11 @@
 
 <template>
   <!-- 移动端收藏漫画组件 -->
-  <div class="mobile-shelf-comic-wrapper" @click="toPath('/detail')" v-if="mode === 4">
+  <div
+    class="mobile-shelf-comic-wrapper"
+    @click="toPath('/detail')"
+    v-if="mode === 4"
+  >
     <div class="comic-cover-box">
       <img
         class="comic-cover"
@@ -19,12 +23,18 @@
         src="../assets/images/auth-link-abnormal.png"
         v-if="![0, 4].includes(data.defaulterIdentityType)"
       />
-      <div class="name" :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">
+      <div
+        class="name"
+        :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
+      >
         {{ data.exhibitTitle }}
       </div>
     </div>
 
-    <div class="comic-author" :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">
+    <div
+      class="comic-author"
+      :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
+    >
       {{ data.articleInfo.articleOwnerName }}
     </div>
   </div>
@@ -40,7 +50,9 @@
       <div class="comic-cover-box">
         <img
           class="comic-cover"
-          :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
+          :class="{
+            'opacity-40p': ![0, 4].includes(data.defaulterIdentityType),
+          }"
           :src="data.coverImages[0]"
           :alt="data.exhibitTitle"
         />
@@ -60,20 +72,42 @@
             alt="未授权"
             v-if="mode !== 3 && data.defaulterIdentityType >= 4"
           />
-          <div class="comic-name" :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">
+          <div
+            class="comic-name"
+            :class="{
+              'opacity-40p': ![0, 4].includes(data.defaulterIdentityType),
+            }"
+          >
             {{ data.exhibitTitle }}
           </div>
-          <div class="tag is-auth" v-if="mode === 3 && data.defaulterIdentityType < 4 && !inMobile">已授权</div>
-          <div class="tag not-auth" v-if="mode === 3 && data.defaulterIdentityType >= 4 && !inMobile">未授权</div>
+          <div
+            class="tag is-auth"
+            v-if="mode === 3 && data.defaulterIdentityType < 4 && !inMobile"
+          >
+            已授权
+          </div>
+          <div
+            class="tag not-auth"
+            v-if="mode === 3 && data.defaulterIdentityType >= 4 && !inMobile"
+          >
+            未授权
+          </div>
         </div>
 
-        <div class="comic-author" :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">
+        <div
+          class="comic-author"
+          :class="{
+            'opacity-40p': ![0, 4].includes(data.defaulterIdentityType),
+          }"
+        >
           {{ data.articleInfo.articleOwnerName }}
         </div>
 
         <div
           class="tags"
-          :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
+          :class="{
+            'opacity-40p': ![0, 4].includes(data.defaulterIdentityType),
+          }"
           v-if="!(mode === 3 && inMobile)"
         >
           <tags :tags="data.tags" />
@@ -104,7 +138,13 @@
         立即阅读
       </div>
 
-      <div class="warning-btn btn last-btn" @click.stop="deleteCollection()" v-if="mode === 2">取消收藏</div>
+      <div
+        class="warning-btn btn last-btn"
+        @click.stop="deleteCollection()"
+        v-if="mode === 2"
+      >
+        取消收藏
+      </div>
     </div>
   </div>
 </template>
@@ -127,7 +167,10 @@ export default {
   // mode: 1-默认首页 2-收藏 3-签约记录 4-移动端首页收藏
   props: ["mode", "data", "operateShelf"],
 
-  setup(props: { data: ExhibitItem; operateShelf: (data: ExhibitItem) => void }) {
+  setup(props: {
+    data: ExhibitItem;
+    operateShelf: (data: ExhibitItem) => void;
+  }) {
     const store = useStore();
     const { switchPage } = useMyRouter();
     let deleting = false;
@@ -427,11 +470,19 @@ export default {
   &.in-pc {
     border-radius: 6px;
     padding: 10px;
-    background: linear-gradient(90deg, rgba(0, 0, 0, 0.04) 0%, rgba(255, 255, 255, 0.1) 100%);
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.04) 0%,
+      rgba(255, 255, 255, 0.1) 100%
+    );
     cursor: pointer;
 
     &:hover {
-      background: linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0%, rgba(255, 255, 255, 0.1) 100%);
+      background: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.08) 0%,
+        rgba(255, 255, 255, 0.1) 100%
+      );
     }
 
     .comic-cover-box {

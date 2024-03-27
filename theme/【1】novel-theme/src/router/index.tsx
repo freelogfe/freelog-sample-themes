@@ -21,9 +21,9 @@ interface Global {
 
 /** 当前登录用户数据 */
 interface UserData {
-  username: string;
-  headImage: string;
-  mobile: string;
+  username?: string;
+  headImage?: string;
+  mobile?: string;
   isLogin: boolean;
 }
 
