@@ -5,13 +5,12 @@ import App from "./App.vue";
 import routes from "./router";
 import store from "./store";
 import lazyPlugin from "vue3-lazy";
-import { freelogApp } from "freelog-runtime";
+import { freelogApp,initFreelogApp } from "freelog-runtime";
 
 // const myWindow: any = window;
 // freelogApp.setSelfResourceNameForDev("ZhuC/comic-theme");
 // myWindow.freelogApp.onLogin(() => myWindow.location.reload());
 
-freelogApp.onLogin(() => window.location.reload());
 // const router = createRouter({ history: createWebHistory(), routes });
 // createApp(App).use(router).use(store).use(lazyPlugin, {}).mount("#app");
 // store.dispatch("initStoreData");
@@ -32,7 +31,6 @@ freelogApp.onLogin(() => window.location.reload());
 //   store.dispatch("initStoreData");
 // }
 // myWindow.FREELOG_RESOURCENAME = "ZhuC/gallery-theme";
-freelogApp.onLogin(() => freelogApp.reload());
 
 let instance: any = null;
 let router = null;
@@ -49,6 +47,8 @@ function render() {
 
 // 👇 将渲染操作放入 mount 函数，子应用初始化时会自动执行
 window.mount = () => {
+  initFreelogApp()
+  freelogApp.onLogin(() => window.location.reload());
   render();
 };
 

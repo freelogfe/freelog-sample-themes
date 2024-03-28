@@ -7,10 +7,9 @@ import store from "./store";
 import lazyPlugin from "vue3-lazy";
 import hljs from "highlight.js";
 import "highlight.js/styles/a11y-dark.css";
-import { freelogApp } from "freelog-runtime";
+import { freelogApp, initFreelogApp } from "freelog-runtime";
 
 // myWindow.FREELOG_RESOURCENAME = "ZhuC/blog-theme";
-freelogApp.onLogin(() => freelogApp.reload());
 
 let instance: any = null;
 let router = null;
@@ -40,6 +39,9 @@ function render() {
 
 // 👇 将渲染操作放入 mount 函数，子应用初始化时会自动执行
 window.mount = () => {
+  initFreelogApp()
+  freelogApp.onLogin(() => freelogApp.reload());
+
   render();
 };
 

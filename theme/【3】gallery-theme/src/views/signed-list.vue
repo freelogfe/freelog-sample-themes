@@ -43,7 +43,7 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, reactive, toRefs } from "@vue/runtime-core";
+import { defineAsyncComponent, reactive, toRefs } from "vue";
 import { useMyRouter, useMySignedList, useMyWaterfall } from "../utils/hooks";
 import { useStore } from "vuex";
 import { onUnmounted, watch } from "vue";
@@ -52,7 +52,7 @@ import { ExhibitItem } from "../api/interface";
 import { showToast } from "@/utils/common";
 
 export default {
-  name: "signed-list",
+  name: "SignedList",
 
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),

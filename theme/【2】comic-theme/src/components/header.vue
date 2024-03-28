@@ -265,7 +265,7 @@ import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
 
 export default {
-  name: "my-header",
+  name: "MyHeader",
 
   props: {
     homeHeader: {

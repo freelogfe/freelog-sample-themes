@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Router, Route, Switch, Redirect } from "react-router-dom";
-import { createBrowserHistory } from "history";
+import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
+// import { createBrowserHistory } from "history";
 import { HomeScreen } from "../screens/home/home";
 import { ShelfScreen } from "../screens/shelf/shelf";
 import { SignedListScreen } from "../screens/signed-list/signed-list";
@@ -33,7 +33,7 @@ interface Theme {
   deriveColor: string;
 }
 
-const history = createBrowserHistory();
+// const history = createBrowserHistory();
 
 const routeList = [
   { name: "home", path: "/home", component: HomeScreen },
@@ -71,14 +71,13 @@ const RouterView = () => {
     const root = document.getElementById("root");
     root?.setAttribute("style", `--gradientColor: ${theme.gradientColor}; --deriveColor: ${theme.deriveColor}`);
   };
-
   useEffect(() => {
     initGlobalData();
   }, []);
 
   return (
     <globalContext.Provider value={{ inMobile, userData, selfConfig, theme, locationHistory }}>
-      <Router history={history}>
+      <BrowserRouter>
         <Switch>
           <Route path="/" exact render={() => <Redirect to="/home" />} />
           {routeList.map((route) => (
@@ -86,7 +85,7 @@ const RouterView = () => {
           ))}
           <Route path="*" exact render={() => <Redirect to="/home" />} />
         </Switch>
-      </Router>
+      </BrowserRouter>
     </globalContext.Provider>
   );
 };

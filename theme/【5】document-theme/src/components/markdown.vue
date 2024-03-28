@@ -4,15 +4,15 @@
 
 <script lang="ts">
 import showdown from "showdown";
-import { ref } from "@vue/reactivity";
-import { nextTick, watch } from "@vue/runtime-core";
+import { ref } from "vue";
+import { nextTick, watch } from "vue";
 import { ExhibitItem } from "@/api/interface";
 import { getExhibitDepFileStream, pushMessage4Task } from "@/api/freelog";
 import { SetupContext } from "vue";
 import { useStore } from "vuex";
-
+import { freelogApp  } from "freelog-runtime";
 export default {
-  name: "my-markdown",
+  name: "MyMarkdown",
 
   props: ["data"],
 
@@ -108,7 +108,7 @@ export default {
 
     /** 视频播放时长记录 */
     const videoPlayDuration = () => {
-      const nodeIsOfficial = (window as any).location.currentURL.startsWith("https://freelog3.freelog.com");
+      const nodeIsOfficial = freelogApp.getCurrentUrl().startsWith("https://freelog3.freelog.com");
       const docIsOfficial = props.data.exhibitId === "62ce6f8a456ff0002e32915f";
       // 只在官方帮助中心节点且《快速上手》文档功能生效
       if (!nodeIsOfficial || !docIsOfficial) return;

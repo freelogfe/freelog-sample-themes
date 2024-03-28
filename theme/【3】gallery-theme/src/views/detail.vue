@@ -244,7 +244,7 @@ import { useStore } from "vuex";
 import { showToast } from "@/utils/common";
 
 export default {
-  name: "detail",
+  name: "DetailComp",
 
   props: ["id"],
 
@@ -459,7 +459,8 @@ export default {
 
       if (data.shareWidget) await data.shareWidget.unmount();
       const themeData = await getSubDep();
-      const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-展品分享");
+      const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-展品分享" || 
+ item.name.includes("分享插件"));
       if (!widget) return;
       const type = data.exhibitInfo?.articleInfo.resourceType.includes("图片") ? "图片" : "视频";
       data.shareWidget = await mountWidget({

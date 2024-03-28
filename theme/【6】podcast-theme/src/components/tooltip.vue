@@ -15,7 +15,7 @@
 
 <script>
 export default {
-  name: "my-tooltip",
+  name: "MyTooltip",
 
   props: {
     /** 组件类名 */

@@ -18,7 +18,7 @@ import list from "@/components/list";
 import { getExhibitAuthStatus, getExhibitListByPaging, getExhibitSignCount } from "@/api/freelog";
 
 export default {
-  name: "voice-list",
+  name: "VoiceList",
 
   components: {
     list,

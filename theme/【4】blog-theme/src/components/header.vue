@@ -284,7 +284,7 @@ import { callLogin, callLoginOut, getNodeInfo } from "@/api/freelog";
 import { useStore } from "vuex";
 
 export default {
-  name: "my-header",
+  name: "MyHeader",
 
   props: {
     homeHeader: {

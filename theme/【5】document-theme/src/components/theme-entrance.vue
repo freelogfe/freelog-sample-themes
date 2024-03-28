@@ -17,7 +17,7 @@ import { freelogEntrances } from "@/api/data";
 import { toRefs } from "vue";
 
 export default {
-  name: "theme-entrance",
+  name: "ThemeEntrance",
 
   setup() {
     const themeEntrance = freelogEntrances[2];

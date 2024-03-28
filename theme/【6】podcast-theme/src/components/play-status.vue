@@ -19,7 +19,7 @@
 
 <script>
 export default {
-  name: "play-status",
+  name: "PlayStatus",
 
   props: {
     /** 是否播放中 */

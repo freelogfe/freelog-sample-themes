@@ -210,7 +210,7 @@
 import { callLogin, callLoginOut } from "@/api/freelog";
 
 export default {
-  name: "my-header",
+  name: "MyHeader",
 
   data() {
     return {

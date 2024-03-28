@@ -158,7 +158,7 @@ import { showToast } from "../utils/common";
 import { ExhibitItem } from "@/api/interface";
 
 export default {
-  name: "comic",
+  name: "ComicComp",
 
   components: {
     tags: defineAsyncComponent(() => import("../components/tags.vue")),

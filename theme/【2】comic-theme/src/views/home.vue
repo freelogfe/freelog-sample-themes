@@ -161,7 +161,7 @@ import { useGetList, useMyRouter, useMyScroll, useMyShelf } from "../utils/hooks
 import { useStore } from "vuex";
 
 export default {
-  name: "home",
+  name: "HomeComp",
 
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),

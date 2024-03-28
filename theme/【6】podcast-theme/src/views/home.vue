@@ -157,7 +157,7 @@ import {
 } from "@/api/freelog";
 
 export default {
-  name: "home",
+  name: "HomeComp",
 
   components: {
     voice,

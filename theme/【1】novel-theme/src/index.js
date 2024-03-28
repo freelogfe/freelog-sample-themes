@@ -3,16 +3,17 @@ import "./index.scss";
 import reportWebVitals from "./reportWebVitals";
 import "./public-path";
 import RouterView from "./router";
-import { freelogApp } from "freelog-runtime"
+import { freelogApp, initFreelogApp } from "freelog-runtime"
 // window.FREELOG_RESOURCENAME = "ZhuC/novel-theme";
-freelogApp.onLogin(() => {
-  freelogApp.reload();
-});
 
 reportWebVitals();
 
 // 👇 将渲染操作放入 mount 函数，子应用初始化时会自动执行
 window.mount = () => {
+  initFreelogApp()
+  freelogApp.onLogin(() => {
+    freelogApp.reload();
+  });
   ReactDOM.render(<RouterView />, document.getElementById("root"));
 };
 

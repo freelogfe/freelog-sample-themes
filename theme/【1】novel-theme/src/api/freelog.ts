@@ -32,6 +32,8 @@ export interface MountWidgetParams {
   topExhibitData: any; // 主题展品数据
   config?: any; // 配置数据
   widget_entry?: string; // 插件本地运行 url
+  seq?: number;
+  renderWidgetOptions?: any;
 }
 
 /**

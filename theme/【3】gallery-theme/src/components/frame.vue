@@ -128,7 +128,7 @@
 </template>
 
 <script lang="ts">
-import { computed, reactive, toRefs } from "@vue/reactivity";
+import { computed, reactive, toRefs } from "vue";
 import { defineAsyncComponent, watch } from "vue";
 import { addAuth } from "@/api/freelog";
 import { ExhibitItem } from "@/api/interface";
@@ -136,7 +136,7 @@ import { useStore } from "vuex";
 import { getSignCount } from "@/utils/common";
 
 export default {
-  name: "frame",
+  name: "FrameComp",
 
   props: ["data", "inSignedList"],
 

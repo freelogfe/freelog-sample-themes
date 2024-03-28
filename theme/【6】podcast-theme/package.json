@@ -7,21 +7,22 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
-    "core-js": "^3.6.5",
-    "element-ui": "^2.15.8",
+    "core-js": "^3.36.1",
+    "element-ui": "^2.15.14",
     "qrcode.vue": "1.7.0",
     "vue": "^2.7.16",
-    "vue-router": "^3.2.0",
+    "vue-router": "^3.6.5",
     "vue-view-lazy": "^0.0.6",
     "vuex": "^4.1.0"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.5.15",
-    "@vue/cli-plugin-router": "~4.5.15",
-    "@vue/cli-plugin-vuex": "~4.5.15",
-    "@vue/cli-service": "~4.5.15",
-    "sass": "^1.26.5",
+    "sass": "^1.72.0",
     "sass-loader": "^8.0.2",
-    "vue-template-compiler": "^2.7.16"
+    "vue-template-compiler": "^2.7.16",
+    "@vue/cli-plugin-babel": "~5.0.8",
+    "@vue/cli-plugin-pwa": "~5.0.8",
+    "@vue/cli-plugin-router": "~5.0.8",
+    "@vue/cli-plugin-vuex": "~5.0.8",
+    "@vue/cli-service": "~5.0.8"
   }
 }

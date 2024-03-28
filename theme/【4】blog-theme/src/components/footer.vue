@@ -29,7 +29,7 @@ import { freelogEntrances } from "@/api/data";
 import { toRefs } from "vue";
 
 export default {
-  name: "my-footer",
+  name: "MyFooter",
 
   setup() {
     const store = useStore();

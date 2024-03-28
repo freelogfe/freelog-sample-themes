@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, reactive, toRefs } from "@vue/runtime-core";
+import { defineAsyncComponent, reactive, toRefs } from "vue";
 import { useMySignedList } from "../utils/hooks";
 import { useStore } from "vuex";
 import { callLogin } from "@/api/freelog";

@@ -17,7 +17,7 @@
 import list from "@/components/list";
 
 export default {
-  name: "sign-list",
+  name: "SignList",
 
   components: { list },
 

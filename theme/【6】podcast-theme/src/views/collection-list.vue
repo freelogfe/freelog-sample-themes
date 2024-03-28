@@ -16,7 +16,7 @@
 import list from "@/components/list";
 
 export default {
-  name: "collect-list",
+  name: "CollectList",
 
   components: { list },
 

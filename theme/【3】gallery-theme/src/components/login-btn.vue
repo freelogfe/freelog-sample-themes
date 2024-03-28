@@ -14,11 +14,11 @@
 <script lang="ts">
 import { useStore } from "vuex";
 import { callLogin } from "@/api/freelog";
-import { reactive, watch } from "@vue/runtime-core";
+import { reactive, watch } from "vue";
 import { toRefs } from "vue";
 
 export default {
-  name: "login-btn",
+  name: "LoginBtn",
 
   setup() {
     const store = useStore();

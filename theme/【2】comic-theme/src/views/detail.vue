@@ -8,9 +8,15 @@
     <div class="mobile-content" v-if="inMobile">
       <div
         class="auth-link-abnormal-tip"
-        v-if="comicInfo.defaulterIdentityType && ![0, 4].includes(comicInfo.defaulterIdentityType)"
+        v-if="
+          comicInfo.defaulterIdentityType &&
+          ![0, 4].includes(comicInfo.defaulterIdentityType)
+        "
       >
-        <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+        <img
+          class="auth-link-abnormal"
+          src="../assets/images/auth-link-abnormal.png"
+        />
         <div class="tip-text">授权链异常，无法查看</div>
       </div>
 
@@ -53,20 +59,30 @@
         </div>
 
         <div class="comic-date-info">
-          <div class="date-info">创建时间：{{ formatDate(comicInfo?.createDate) }}</div>
+          <div class="date-info">
+            创建时间：{{ formatDate(comicInfo?.createDate) }}
+          </div>
 
-          <div class="date-info">最近更新：{{ formatDate(comicInfo?.updateDate) }}</div>
+          <div class="date-info">
+            最近更新：{{ formatDate(comicInfo?.updateDate) }}
+          </div>
         </div>
 
         <div class="operate-btns">
           <div
             class="btn main-btn mobile"
-            :class="{ disabled: ![0, 4].includes(comicInfo.defaulterIdentityType) }"
+            :class="{
+              disabled: ![0, 4].includes(comicInfo.defaulterIdentityType),
+            }"
             @click="switchPage('/reader', { id: comicInfo?.exhibitId })"
           >
             立即阅读
           </div>
-          <div class="btn" :class="isCollected ? 'delete' : 'collect-btn mobile'" @click="operateShelf(comicInfo)">
+          <div
+            class="btn"
+            :class="isCollected ? 'delete' : 'collect-btn mobile'"
+            @click="operateShelf(comicInfo)"
+          >
             {{ isCollected ? "取消收藏" : "加入收藏" }}
           </div>
         </div>
@@ -78,12 +94,22 @@
       <div class="comic-intro">
         <div class="intro-title">内容简介</div>
 
-        <div class="intro" :class="introState === 1 ? 'fold' : 'unfold'" v-if="comicInfo?.exhibitIntro">
+        <div
+          class="intro"
+          :class="introState === 1 ? 'fold' : 'unfold'"
+          v-if="comicInfo?.exhibitIntro"
+        >
           <div ref="introContent" class="intro-content">
             {{ comicInfo?.exhibitIntro }}
           </div>
 
-          <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">...查看全部</div>
+          <div
+            class="view-all-btn"
+            @click="introState = 3"
+            v-if="introState === 1"
+          >
+            ...查看全部
+          </div>
         </div>
         <div class="no-intro-tip" v-else>暂无简介</div>
       </div>
@@ -92,12 +118,22 @@
     </div>
 
     <!-- PC -->
-    <div class="content" @mouseover="setWidgetData('show', false)" v-if="!inMobile">
+    <div
+      class="content"
+      @mouseover="setWidgetData('show', false)"
+      v-if="!inMobile"
+    >
       <div
         class="auth-link-abnormal-tip"
-        v-if="comicInfo.defaulterIdentityType && ![0, 4].includes(comicInfo.defaulterIdentityType)"
+        v-if="
+          comicInfo.defaulterIdentityType &&
+          ![0, 4].includes(comicInfo.defaulterIdentityType)
+        "
       >
-        <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+        <img
+          class="auth-link-abnormal"
+          src="../assets/images/auth-link-abnormal.png"
+        />
         <div class="tip-text">授权链异常，无法查看</div>
       </div>
 
@@ -114,7 +150,9 @@
           </div>
 
           <div class="comic-content">
-            <div class="comic-name" :title="comicInfo?.exhibitTitle">{{ comicInfo?.exhibitTitle }}</div>
+            <div class="comic-name" :title="comicInfo?.exhibitTitle">
+              {{ comicInfo?.exhibitTitle }}
+            </div>
 
             <div class="comic-author">
               {{ comicInfo?.articleInfo?.articleOwnerName }}
@@ -124,27 +162,40 @@
               <tags :tags="comicInfo?.tags" />
             </div>
 
-            <div class="create-date">创建时间：{{ formatDate(comicInfo?.createDate) }}</div>
+            <div class="create-date">
+              创建时间：{{ formatDate(comicInfo?.createDate) }}
+            </div>
 
-            <div class="update-date">最近更新：{{ formatDate(comicInfo?.updateDate) }}</div>
+            <div class="update-date">
+              最近更新：{{ formatDate(comicInfo?.updateDate) }}
+            </div>
 
             <div class="btns-box">
               <div class="operate-btns">
                 <div
                   class="btn main-btn"
-                  :class="{ disabled: ![0, 4].includes(comicInfo.defaulterIdentityType) }"
+                  :class="{
+                    disabled: ![0, 4].includes(comicInfo.defaulterIdentityType),
+                  }"
                   @click="switchPage('/reader', { id: comicInfo?.exhibitId })"
                 >
                   立即阅读
                 </div>
-                <div class="btn" :class="isCollected ? 'warning-btn' : 'collect-btn'" @click="operateShelf(comicInfo)">
+                <div
+                  class="btn"
+                  :class="isCollected ? 'warning-btn' : 'collect-btn'"
+                  @click="operateShelf(comicInfo)"
+                >
                   {{ isCollected ? "取消收藏" : "加入收藏" }}
                 </div>
               </div>
 
               <div class="other-btns">
                 <div class="sign-count">{{ comicInfo?.signCount }}人签约</div>
-                <div class="share-btn" @mouseover.stop="setWidgetData('show', true)">
+                <div
+                  class="share-btn"
+                  @mouseover.stop="setWidgetData('show', true)"
+                >
                   <span class="share-btn-text" :class="{ active: shareShow }">
                     <i class="freelog fl-icon-fenxiang"></i>
                     分享给更多人
@@ -161,12 +212,22 @@
         <div class="comic-intro">
           <div class="intro-title">内容简介</div>
 
-          <div class="intro" :class="introState === 1 ? 'fold' : 'unfold'" v-if="comicInfo?.exhibitIntro">
+          <div
+            class="intro"
+            :class="introState === 1 ? 'fold' : 'unfold'"
+            v-if="comicInfo?.exhibitIntro"
+          >
             <div ref="introContent" class="intro-content">
               {{ comicInfo?.exhibitIntro }}
             </div>
 
-            <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">...查看全部</div>
+            <div
+              class="view-all-btn"
+              @click="introState = 3"
+              v-if="introState === 1"
+            >
+              ...查看全部
+            </div>
           </div>
           <div class="no-intro-tip" v-else>暂无简介</div>
         </div>
@@ -181,7 +242,7 @@
 
 <script lang="ts">
 import { useMyRouter, useMyShelf } from "../utils/hooks";
-import { defineAsyncComponent, reactive, ref, toRefs, watch } from "@vue/runtime-core";
+import { defineAsyncComponent, reactive, ref, toRefs, watch } from "vue";
 import { ExhibitItem } from "@/api/interface";
 import {
   getExhibitInfo,
@@ -197,13 +258,17 @@ import { formatDate, showToast } from "@/utils/common";
 import { onBeforeUnmount } from "vue";
 
 export default {
-  name: "detail",
+  name: "detailComp",
 
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
-    "login-btn": defineAsyncComponent(() => import("../components/login-btn.vue")),
-    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
+    "login-btn": defineAsyncComponent(
+      () => import("../components/login-btn.vue")
+    ),
+    "theme-entrance": defineAsyncComponent(
+      () => import("../components/theme-entrance.vue")
+    ),
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
   },
 
@@ -229,7 +294,10 @@ export default {
         input.select();
         document.execCommand("Copy");
         showToast("链接复制成功～");
-        pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: data.comicInfo.exhibitId } });
+        pushMessage4Task({
+          taskConfigCode: "TS000077",
+          meta: { presentableId: data.comicInfo.exhibitId },
+        });
       },
 
       /** 通知插件更新数据 */
@@ -261,7 +329,11 @@ export default {
       if (store.state.inMobile) return;
 
       const themeData = await getSubDep();
-      const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-展品分享");
+      const widget = themeData.subDep.find(
+        (item: any) =>
+          item.name === "ZhuC/Freelog插件-展品分享" ||
+          item.name.includes("分享插件")
+      );
       if (!widget) return;
       // eslint-disable-next-line require-atomic-updates
       data.shareWidget = await mountWidget({
@@ -269,6 +341,7 @@ export default {
         container: document.getElementById("share"),
         topExhibitData: themeData,
         config: { exhibit: data.comicInfo, type: "漫画" },
+        widget_entry: "https://localhost:8200",
       });
     };
 

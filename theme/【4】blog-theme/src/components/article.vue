@@ -112,7 +112,7 @@ import { ExhibitItem } from "../api/interface";
 import { showToast } from "@/utils/common";
 
 export default {
-  name: "my-article",
+  name: "MyArticle",
 
   components: {
     tags: defineAsyncComponent(() => import("../components/tags.vue")),

@@ -24,7 +24,7 @@ import list from "@/components/list";
 import { getExhibitAuthStatus, getExhibitListByPaging, getExhibitSignCount } from "@/api/freelog";
 
 export default {
-  name: "search-list",
+  name: "SearchList",
 
   components: {
     list,

@@ -84,7 +84,10 @@ const DetailBody = () => {
     input.select();
     document.execCommand("Copy");
     showToast("链接复制成功～");
-    pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: novel.exhibitId } });
+    pushMessage4Task({
+      taskConfigCode: "TS000077",
+      meta: { presentableId: novel.exhibitId },
+    });
   };
 
   /** 加载分享插件 */
@@ -92,13 +95,18 @@ const DetailBody = () => {
     if (inMobile) return;
 
     const themeData = await getSubDep();
-    const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-展品分享");
+    const widget = themeData.subDep.find(
+      (item: any) =>
+        item.name === "ZhuC/Freelog插件-展品分享" ||
+        item.name.includes("分享插件")
+    );
     if (!widget) return;
     shareWidget.current = await mountWidget({
       widget,
       container: document.getElementById("share"),
       topExhibitData: themeData,
       config: { exhibit: novel, type: "小说" },
+      widget_entry: "https://localhost:8200",
     });
   };
 
@@ -137,7 +145,11 @@ const DetailBody = () => {
         <>
           {![0, 4].includes(novel.defaulterIdentityType) && (
             <div className="auth-link-abnormal-tip">
-              <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
+              <img
+                className="auth-link-abnormal"
+                src={AuthLinkAbnormal}
+                alt="授权链异常"
+              />
               <div className="tip-text">授权链异常，无法查看</div>
             </div>
           )}
@@ -145,14 +157,20 @@ const DetailBody = () => {
           <div className="novel-info">
             <div className="novel-base-info">
               <div className="novel-cover">
-                <img className="novel-cover-image" src={novel.coverImages[0]} alt={novel.exhibitTitle} />
+                <img
+                  className="novel-cover-image"
+                  src={novel.coverImages[0]}
+                  alt={novel.exhibitTitle}
+                />
               </div>
 
               <div className="novel-content">
                 <div className="content-top">
                   <div className="novel-name">{novel.exhibitTitle}</div>
 
-                  <div className="novel-author">{novel.articleInfo.articleOwnerName}</div>
+                  <div className="novel-author">
+                    {novel.articleInfo.articleOwnerName}
+                  </div>
 
                   <div className="tags">
                     <Tags data={novel.tags || []} />
@@ -167,26 +185,41 @@ const DetailBody = () => {
                       分享给更多人
                     </span>
                   </div>
-                  <input id="href" className="hidden-input" value={href} readOnly />
+                  <input
+                    id="href"
+                    className="hidden-input"
+                    value={href}
+                    readOnly
+                  />
                 </div>
               </div>
             </div>
 
             <div className="novel-date-info">
-              <div className="date-info">创建时间：{formatDate(novel.createDate)}</div>
+              <div className="date-info">
+                创建时间：{formatDate(novel.createDate)}
+              </div>
 
-              <div className="date-info">最近更新：{formatDate(novel.updateDate)}</div>
+              <div className="date-info">
+                最近更新：{formatDate(novel.updateDate)}
+              </div>
             </div>
 
             <div className="operate-btns">
               <div
-                className={`btn main-btn mobile ${![0, 4].includes(novel.defaulterIdentityType) && "disabled"}`}
-                onClick={() => history.switchPage(`/reader?id=${novel.exhibitId}`)}
+                className={`btn main-btn mobile ${
+                  ![0, 4].includes(novel.defaulterIdentityType) && "disabled"
+                }`}
+                onClick={() =>
+                  history.switchPage(`/reader?id=${novel.exhibitId}`)
+                }
               >
                 立即阅读
               </div>
               <div
-                className={`btn ${isCollected ? "delete" : "collect-btn mobile"}`}
+                className={`btn ${
+                  isCollected ? "delete" : "collect-btn mobile"
+                }`}
                 onClick={() => operateShelf(novel)}
               >
                 {isCollected ? "移出书架" : "加入书架"}
@@ -204,7 +237,10 @@ const DetailBody = () => {
                 </div>
 
                 {introState === 1 && (
-                  <div className="view-all-btn" onClick={() => setIntroState(3)}>
+                  <div
+                    className="view-all-btn"
+                    onClick={() => setIntroState(3)}
+                  >
                     ...查看全部
                   </div>
                 )}
@@ -224,39 +260,60 @@ const DetailBody = () => {
           {/* 授权链异常提示 */}
           {![0, 4].includes(novel.defaulterIdentityType) && (
             <div className="auth-link-abnormal-tip">
-              <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
+              <img
+                className="auth-link-abnormal"
+                src={AuthLinkAbnormal}
+                alt="授权链异常"
+              />
               <div className="tip-text">授权链异常，无法查看</div>
             </div>
           )}
           {/* 书籍信息 */}
           <div className="novel-info">
             <div className="novel-cover">
-              <img className="novel-cover-image" src={novel.coverImages[0]} alt={novel.exhibitTitle} />
+              <img
+                className="novel-cover-image"
+                src={novel.coverImages[0]}
+                alt={novel.exhibitTitle}
+              />
             </div>
 
             <div className="novel-content">
               <div className="novel-name">{novel.exhibitTitle}</div>
 
-              <div className="novel-author">{novel.articleInfo.articleOwnerName}</div>
+              <div className="novel-author">
+                {novel.articleInfo.articleOwnerName}
+              </div>
 
               <div className="tags">
                 <Tags data={novel.tags || []} />
               </div>
 
-              <div className="create-date">创建时间：{formatDate(novel.createDate)}</div>
+              <div className="create-date">
+                创建时间：{formatDate(novel.createDate)}
+              </div>
 
-              <div className="update-date">最近更新：{formatDate(novel.updateDate)}</div>
+              <div className="update-date">
+                最近更新：{formatDate(novel.updateDate)}
+              </div>
 
               <div className="btns-box">
                 <div className="operate-btns">
                   <div
-                    className={`btn main-btn ${![0, 4].includes(novel.defaulterIdentityType) && "disabled"}`}
-                    onClick={() => history.switchPage(`/reader?id=${novel.exhibitId}`)}
+                    className={`btn main-btn ${
+                      ![0, 4].includes(novel.defaulterIdentityType) &&
+                      "disabled"
+                    }`}
+                    onClick={() =>
+                      history.switchPage(`/reader?id=${novel.exhibitId}`)
+                    }
                   >
                     立即阅读
                   </div>
                   <div
-                    className={`btn ${isCollected ? "warning-btn" : "collect-btn"}`}
+                    className={`btn ${
+                      isCollected ? "warning-btn" : "collect-btn"
+                    }`}
                     onClick={() => operateShelf(novel)}
                   >
                     {isCollected ? "移出书架" : "加入书架"}
@@ -295,7 +352,10 @@ const DetailBody = () => {
                 </div>
 
                 {introState === 1 && (
-                  <div className="view-all-btn" onClick={() => setIntroState(3)}>
+                  <div
+                    className="view-all-btn"
+                    onClick={() => setIntroState(3)}
+                  >
                     ...查看全部
                   </div>
                 )}

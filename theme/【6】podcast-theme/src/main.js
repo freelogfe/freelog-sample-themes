@@ -8,8 +8,7 @@ import ElementUI from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import vView from "vue-view-lazy";
 import * as filters from "@/utils/filter";
-import { freelogApp } from "freelog-runtime";
-freelogApp.onLogin(() => freelogApp.reload());
+import { freelogApp, initFreelogApp } from "freelog-runtime";
 
 Vue.use(vView);
 Vue.use(ElementUI);
@@ -81,6 +80,9 @@ function render() {
 
 // 👇 将渲染操作放入 mount 函数，子应用初始化时会自动执行
 window.mount = () => {
+  initFreelogApp()
+  freelogApp.onLogin(() => freelogApp.reload());
+
   render();
 };
 

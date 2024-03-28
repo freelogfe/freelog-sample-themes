@@ -163,7 +163,7 @@ import { useStore } from "vuex";
 import { ExhibitItem } from "@/api/interface";
 
 export default {
-  name: "reader-header",
+  name: "ReaderHeader",
 
   emits: ["changeBarShow"],
 

@@ -156,7 +156,7 @@ import { ExhibitItem } from "@/api/interface";
 import { showToast } from "@/utils/common";
 
 export default {
-  name: "home",
+  name: "HomoComp",
 
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),

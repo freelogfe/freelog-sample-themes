@@ -987,7 +987,7 @@
       height: 100%;
       display: flex;
       justify-content: center;
-
+      
       .content-body {
         position: relative;
         width: 780px;
@@ -1312,6 +1312,7 @@
 
       .content-area {
         flex: 1;
+        overflow-y: auto;
         min-width: calc(780px + 140px);
       }
 

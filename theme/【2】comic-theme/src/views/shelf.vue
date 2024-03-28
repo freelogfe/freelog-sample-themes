@@ -37,13 +37,13 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, toRefs } from "@vue/runtime-core";
+import { defineAsyncComponent, toRefs } from "vue";
 import { useMyRouter, useMyShelf } from "../utils/hooks";
 import { useStore } from "vuex";
 import { callLogin } from "@/api/freelog";
 
 export default {
-  name: "shelf",
+  name: "ShelfComp",
 
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),

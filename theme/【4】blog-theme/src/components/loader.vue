@@ -15,7 +15,11 @@
     </div>
   </div>
 </template>
-
+<script lang="ts">
+export default {
+  name: "LoderComp",
+}
+</script>
 <style lang="scss" scoped>
 .loader-wrapper {
   position: relative;

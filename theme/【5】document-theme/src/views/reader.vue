@@ -635,7 +635,7 @@ import { relativeTime } from "@/utils/common";
 import { showToast } from "@/utils/common";
 
 export default {
-  name: "reader",
+  name: "ReaderComp",
 
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
@@ -944,7 +944,8 @@ export default {
       if (data.shareWidget) await data.shareWidget.unmount();
       const themeData = await getSubDep();
       const widget = themeData.subDep.find(
-        (item: any) => item.name === "ZhuC/Freelog插件-展品分享"
+        (item: any) => item.name === "ZhuC/Freelog插件-展品分享" || 
+ item.name.includes("分享插件")
       );
       if (!widget) return;
       // eslint-disable-next-line require-atomic-updates

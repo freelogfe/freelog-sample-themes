@@ -48,7 +48,7 @@
 import voice from "@/components/voice";
 
 export default {
-  name: "list",
+  name: "ListComp",
 
   components: {
     voice,

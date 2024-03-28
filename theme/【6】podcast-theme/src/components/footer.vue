@@ -36,7 +36,7 @@
 import { freelogEntrances } from "@/api/data";
 
 export default {
-  name: "my-footer",
+  name: "MyFooter",
 
   data() {
     return {

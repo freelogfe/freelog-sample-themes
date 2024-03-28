@@ -113,7 +113,7 @@ import { useStore } from "vuex";
 import { useMyLocationHistory, useMyRouter } from "../utils/hooks";
 
 export default {
-  name: "my-header",
+  name: "MyHeader",
 
   emits: ["openDirectory"],
 

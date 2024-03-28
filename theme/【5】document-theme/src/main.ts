@@ -8,10 +8,9 @@ import hljs from "highlight.js";
 import "highlight.js/styles/a11y-dark.css";
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
-import { freelogApp } from "freelog-runtime";
+import { freelogApp, initFreelogApp } from "freelog-runtime";
 
 // myWindow.FREELOG_RESOURCENAME = "ZhuC/document-theme";
-freelogApp.onLogin(() => freelogApp.reload());
 
 let instance: any = null;
 let router = null;
@@ -41,6 +40,9 @@ function render() {
 
 // 👇 将渲染操作放入 mount 函数，子应用初始化时会自动执行
 window.mount = () => {
+  initFreelogApp();
+  freelogApp.onLogin(() => freelogApp.reload());
+
   render();
 };
 

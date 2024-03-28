@@ -165,7 +165,7 @@ import myTooltip from "@/components/tooltip";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 
 export default {
-  name: "voice",
+  name: "VoiceComp",
 
   props: {
     /** 声音信息 */

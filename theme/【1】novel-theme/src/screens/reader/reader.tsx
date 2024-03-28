@@ -49,19 +49,30 @@ export const ReaderScreen = (props: any) => {
   /** 加载分享插件 */
   const mountShareWidget = async () => {
     if (inMobile) return;
-
     if (widgetList.current.share) await widgetList.current.share.unmount();
     const themeData = await getSubDep();
     const widget = themeData.subDep.find(
-      (item: any) => item.name === "ZhuC/Freelog插件-展品分享"
+      (item: any) =>
+        item.name === "ZhuC/Freelog插件-展品分享" ||
+        item.name.includes("分享插件")
     );
+    console.log(widget, 2234);
     if (!widget) return;
     widgetList.current.share = await mountWidget({
       widget,
       container: document.getElementById("share"),
       topExhibitData: themeData,
       config: { exhibit: book, type: "小说" },
+      widget_entry: "https://localhost:8200",
+      seq: 2,
+      renderWidgetOptions: {},
     });
+    widgetList.current.share.addDataListener((data: any) => {
+      console.log("来自子插件my-app的数据", data);
+
+      return "返回值1";
+    });
+    console.log(widgetList.current.share);
   };
 
   /** 加载 markdown 插件 */
@@ -81,7 +92,7 @@ export const ReaderScreen = (props: any) => {
       container: document.getElementById("markdown"),
       topExhibitData: themeData,
       config: { exhibitInfo, content, fontSize: myFontSize },
-      widget_entry: "https://localhost:8202",
+      widget_entry: "https://localhost:8201",
     });
   };
 
@@ -413,7 +424,6 @@ const OperaterBtns = () => {
 
   useEffect(() => {
     if (changingFontSize.current) return;
-
     setWidgetData("share", "show", false);
     if (fontSizePopupShow) setFontSizePopupShow(false);
     if (themePopupShow) setThemePopupShow(false);

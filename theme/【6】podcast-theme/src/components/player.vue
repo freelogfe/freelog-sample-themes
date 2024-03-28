@@ -294,7 +294,7 @@ import { useMyAuth, useMyPlay, useMyCollection } from "@/utils/hooks";
 import { secondsToHMS, showToast } from "@/utils/common";
 
 export default {
-  name: "my-player",
+  name: "MyPlayer",
 
   components: {
     playStatus,

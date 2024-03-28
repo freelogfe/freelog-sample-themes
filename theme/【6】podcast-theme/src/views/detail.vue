@@ -145,7 +145,7 @@ import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { showToast } from "@/utils/common";
 
 export default {
-  name: "detail",
+  name: "DetailComp",
 
   components: { playStatus, myTooltip },
 

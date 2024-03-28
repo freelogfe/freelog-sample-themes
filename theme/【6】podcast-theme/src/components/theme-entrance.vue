@@ -15,7 +15,7 @@
 import { freelogEntrances } from "@/api/data";
 
 export default {
-  name: "theme-entrance",
+  name: "RhemeEntrance",
 
   data() {
     return {

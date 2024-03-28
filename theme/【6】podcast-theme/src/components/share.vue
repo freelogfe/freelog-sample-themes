@@ -56,7 +56,7 @@ import QrcodeVue from "qrcode.vue";
 import { pushMessage4Task } from "@/api/freelog";
 
 export default {
-  name: "share",
+  name: "ShareComp",
 
   components: {
     QrcodeVue,

@@ -21,7 +21,7 @@ import { useStore } from "vuex";
 import { toRefs } from "vue";
 
 export default {
-  name: "tags",
+  name: "TagsComp",
 
   props: {
     tags: {
