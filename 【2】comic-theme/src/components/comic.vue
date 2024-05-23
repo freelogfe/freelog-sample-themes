@@ -135,7 +135,7 @@ export default {
     const methods = {
       /** 跳转页面 */
       toPath(path: string) {
-        const { exhibitId, defaulterIdentityType } = props.data;
+        const { exhibitId, defaulterIdentityType = -1 } = props.data;
 
         if (![0, 4].includes(defaulterIdentityType)) {
           showToast("授权链异常，无法查看");

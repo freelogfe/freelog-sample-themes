@@ -1,8 +1,8 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { getSelfConfig, getCurrentUser, getUserData, setUserData } from "@/api/freelog";
 import { judgeDevice, judgeIOSDevice } from "@/utils/common";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
+import { freelogApp } from "freelog-runtime";
 
 Vue.use(Vuex);
 
@@ -36,11 +36,11 @@ export default new Vuex.Store({
   actions: {
     /** 初始化 store */
     async initStoreData(context) {
-      const [userData, selfConfig, collectionIdList = [], playingId] = await Promise.all([
-        getCurrentUser(),
-        getSelfConfig(),
-        getUserData("collectionIdList"),
-        getUserData("playingId"),
+      const userData = freelogApp.getCurrentUser();
+      const [selfConfig, collectionIdList = [], playingId] = await Promise.all([
+        freelogApp.getSelfProperty(),
+        freelogApp.getUserData("collectionIdList"),
+        freelogApp.getUserData("playingId"),
       ]);
 
       // 是否移动端设备
@@ -72,14 +72,14 @@ export default new Vuex.Store({
       let playIdList = [];
       if (context.state.userData.isLogin) {
         // 登录时播放列表取用户数据
-        playIdList = await getUserData("playIdList");
+        playIdList = await freelogApp.getUserData("playIdList");
 
         // 如果此时本地有播放列表，那需要自动添加至用户数据
         const list = localStorage.getItem("playIdList") || "[]";
         const localPlayIdList = JSON.parse(list);
         if (localPlayIdList.length) {
           playIdList = [...new Set([...playIdList, ...localPlayIdList])];
-          setUserData("playIdList", playIdList);
+          freelogApp.setUserData("playIdList", playIdList);
           localStorage.setItem("playIdList", "[]");
         }
       } else {

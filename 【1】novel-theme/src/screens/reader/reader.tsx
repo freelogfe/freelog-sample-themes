@@ -5,14 +5,6 @@ import BgImage from "../../assets/images/reader-bg.png";
 import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
 import { useState, useEffect, useCallback } from "react";
 import { ExhibitItem, ThemeItem } from "../../api/interface";
-import {
-  addAuth,
-  getExhibitAuthStatus,
-  getExhibitFileStream,
-  getExhibitInfo,
-  getSubDep,
-  mountWidget,
-} from "../../api/freelog";
 import { readerThemeList } from "../../api/data";
 import { BackTop } from "../../components/back-top/back-top";
 import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
@@ -22,6 +14,7 @@ import { showToast } from "../../components/toast/toast";
 import CSSTransition from "react-transition-group/CSSTransition";
 import { Loader } from "../../components/loader/loader";
 import { getUrlParams } from "../../utils/common";
+import { freelogApp } from "freelog-runtime";
 
 export const readerContext = React.createContext<any>({});
 
@@ -42,7 +35,7 @@ export const ReaderScreen = (props: any) => {
   /** 获取小说信息 */
   const getNovelInfo = useCallback(async () => {
     setLoading(true);
-    const exhibitInfo = await getExhibitInfo(id, { isLoadVersionProperty: 1 });
+    const exhibitInfo = await freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 });
     setBook(exhibitInfo.data.data);
   }, [id]);
 
@@ -51,38 +44,57 @@ export const ReaderScreen = (props: any) => {
     if (inMobile) return;
 
     if (widgetList.current.share) await widgetList.current.share.unmount();
-    const themeData = await getSubDep();
-    const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-展品分享");
-    if (!widget) return;
-    widgetList.current.share = await mountWidget({
-      widget,
-      container: document.getElementById("share"),
-      topExhibitData: themeData,
-      config: { exhibit: book, type: "小说" },
-    });
+
+    const subDeps = await freelogApp.getSelfDependencyTree();
+    const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-展品分享");
+    if (!widgetData) return;
+
+    const { articleId, parentNid, nid } = widgetData;
+    const topExhibitId = freelogApp.getTopExhibitId();
+
+    const params = {
+      articleId,
+      parentNid,
+      nid,
+      topExhibitId,
+      container: document.getElementById("share")!,
+      renderWidgetOptions: {
+        data: { exhibit: book, type: "小说", routerType: "content" },
+      },
+      // widget_entry: "https://localhost:8201",
+    };
+    widgetList.current.share = await freelogApp.mountArticleWidget(params);
   };
 
   /** 加载 markdown 插件 */
   const mountMarkdownWidget = async (exhibitInfo: ExhibitItem, content: string) => {
-    const themeData = await getSubDep();
-    const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-markdown解析");
-    if (!widget) return;
+    const subDeps = await freelogApp.getSelfDependencyTree();
+    const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-markdown解析");
+    if (!widgetData) return;
+
+    const { articleId, parentNid, nid } = widgetData;
+    const topExhibitId = freelogApp.getTopExhibitId();
+
     const myFontSize = Number(localStorage.getItem("fontSize")) || 22;
     setFontSize(myFontSize);
-    widgetList.current.markdown = await mountWidget({
-      widget,
-      container: document.getElementById("markdown"),
-      topExhibitData: themeData,
-      config: { exhibitInfo, content, fontSize: myFontSize },
-      // widget_entry: "http://localhost:8202/",
-    });
+
+    const params = {
+      articleId,
+      parentNid,
+      nid,
+      topExhibitId,
+      container: document.getElementById("markdown")!,
+      renderWidgetOptions: {
+        data: { exhibitInfo, content, fontSize: myFontSize },
+      },
+      // widget_entry: "https://localhost:8202",
+    };
+    widgetList.current.markdown = await freelogApp.mountArticleWidget(params);
   };
 
   /** 通知插件更新数据 */
   const setWidgetData = (widget: string, key: string, value: any) => {
-    if (widgetList.current[widget] && widgetList.current[widget].getApi().setData) {
-      widgetList.current[widget].getApi().setData(key, value);
-    }
+    widgetList.current[widget]?.setData({ [key]: value });
   };
 
   /** 点击页面（关闭所有打开的弹窗） */
@@ -163,14 +175,14 @@ const ReaderBody = () => {
 
   /** 获取小说内容 */
   const getContent = useCallback(async () => {
-    let authErrType;
-    const statusInfo = await getExhibitAuthStatus(id);
+    let authErrType: any = -1;
+    const statusInfo = await freelogApp.getExhibitAuthStatus(id);
     if (statusInfo.data.data) authErrType = statusInfo.data.data[0].defaulterIdentityType;
-    setDefaulterIdentityType(authErrType);
+    setDefaulterIdentityType(authErrType!);
 
     if (authErrType === 0) {
       // 已签约并且授权链无异常
-      const info: any = await getExhibitFileStream(id);
+      const info: any = await freelogApp.getExhibitFileStream(id);
       if (!info) {
         setLoading(false);
         return;
@@ -187,7 +199,7 @@ const ReaderBody = () => {
 
   /** 获取授权 */
   const getAuth = async () => {
-    const authResult = await addAuth(id);
+    const authResult = await freelogApp.addAuth(id, { immediate: true });
     const { status } = authResult;
     if (status === 0) getContent();
   };

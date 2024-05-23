@@ -130,10 +130,10 @@
 <script lang="ts">
 import { computed, reactive, toRefs } from "@vue/reactivity";
 import { defineAsyncComponent, watch } from "vue";
-import { addAuth } from "@/api/freelog";
 import { ExhibitItem } from "@/api/interface";
 import { useStore } from "vuex";
 import { getSignCount } from "@/utils/common";
+import { freelogApp } from "freelog-runtime";
 
 export default {
   name: "frame",
@@ -148,22 +148,24 @@ export default {
     const store = useStore();
     const data = reactive({
       modalShow: false,
-      defaulterIdentityType: props.data.defaulterIdentityType,
+      defaulterIdentityType: -1,
     });
     /** 是否授权 */
-    const isAuth = computed(() => data.defaulterIdentityType < 4);
+    const isAuth = computed(
+      () => data.defaulterIdentityType === 0 || (data.defaulterIdentityType && data.defaulterIdentityType < 4)
+    );
     /** 授权链异常 */
     const authLinkAbnormal = computed(() => ![0, 4].includes(data.defaulterIdentityType));
 
     const methods = {
       /** 获取用户头像 */
-      getAvatarUrl(id: any) {
+      getAvatarUrl(id: number) {
         return `https://image.freelog.com/avatar/${id}`;
       },
 
       /** 授权 */
       async getAuth(id: string) {
-        const authResult = await addAuth(id);
+        const authResult = await freelogApp.addAuth(id, { immediate: true });
         const { status } = authResult;
         if (status === 0) data.defaulterIdentityType = 0;
       },
@@ -172,8 +174,9 @@ export default {
     watch(
       () => props.data.defaulterIdentityType,
       (cur) => {
-        data.defaulterIdentityType = cur;
-      }
+        if (cur === 0 || cur) data.defaulterIdentityType = cur;
+      },
+      { immediate: true }
     );
 
     return {

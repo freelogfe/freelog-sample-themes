@@ -28,7 +28,6 @@ module.exports = {
     key: fs.readFileSync("../localhost+1-key.pem"),
     cert: fs.readFileSync("../localhost+1.crt"),
   },
-  // 自定义webpack配置
   configureWebpack: {
     resolve: {
       alias: {
@@ -36,10 +35,8 @@ module.exports = {
       },
     },
     output: {
-      // 把子应用打包成 umd 库格式
-      library: `${name}-[name]`,
-      libraryTarget: "umd",
       jsonpFunction: `webpackJsonp_${name}`,
+      globalObject: "window",
     },
   },
 };

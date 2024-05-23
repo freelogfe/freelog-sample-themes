@@ -1,15 +1,8 @@
-import {
-  getExhibitAuthStatus,
-  getExhibitListById,
-  getExhibitListByPaging,
-  GetExhibitListByPagingParams,
-  getExhibitSignCount,
-  getSignStatistics,
-} from "@/api/freelog";
-import { onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
+import { nextTick, onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { ExhibitItem } from "../api/interface";
+import { freelogApp } from "freelog-runtime";
 
 /** 路由 hook */
 export const useMyRouter = () => {
@@ -36,7 +29,7 @@ export const useMyRouter = () => {
   };
 
   /** 获取当前路由 */
-  const getCurrentPath: () => any = () => {
+  const getCurrentPath = () => {
     return router.currentRoute.value.fullPath;
   };
 
@@ -72,6 +65,8 @@ export const useMyLocationHistory = () => {
 
 /** 展品列表 hook */
 export const useGetList = () => {
+  const store = useStore();
+
   const data = reactive({
     listData: <ExhibitItem[]>[],
     loading: false,
@@ -81,25 +76,24 @@ export const useGetList = () => {
   });
 
   /** 获取展品列表 */
-  const getList = async (params: Partial<GetExhibitListByPagingParams> = {}, init = false) => {
+  const getList = async (params: any = {}, init = false) => {
     if (data.myLoading) return;
     if (data.total === data.listData.length && !init) return;
 
+    store.commit("setData", { key: "homeLoading", value: true });
     if (init) data.loading = true;
     data.myLoading = true;
     data.skip = init ? 0 : data.skip + 40;
-    const queryParams: GetExhibitListByPagingParams = {
-      skip: data.skip,
-      articleResourceTypes: "图片,视频",
-      limit: params.limit || 40,
-      ...params,
-    };
-    const list = await getExhibitListByPaging(queryParams);
+    const queryParams = { skip: data.skip, articleResourceTypes: "图片,视频", limit: params.limit || 40, ...params };
+    const list = await freelogApp.getExhibitListByPaging(queryParams);
     const { dataList, totalItem } = list.data.data;
     if (dataList.length !== 0) {
-      const ids = dataList.map((item: ExhibitItem) => item.exhibitId).join();
-      const [signCountData, statusInfo] = await Promise.all([getExhibitSignCount(ids), getExhibitAuthStatus(ids)]);
-      dataList.forEach((item: ExhibitItem) => {
+      const ids = dataList.map((item) => item.exhibitId).join();
+      const [signCountData, statusInfo] = await Promise.all([
+        freelogApp.getExhibitSignCount(ids),
+        freelogApp.getExhibitAuthStatus(ids),
+      ]);
+      (dataList as ExhibitItem[]).forEach((item) => {
         let index;
         index = signCountData.data.data.findIndex(
           (resultItem: { subjectId: string }) => resultItem.subjectId === item.exhibitId
@@ -110,6 +104,8 @@ export const useGetList = () => {
         );
         if (index !== -1) item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
       });
+    } else {
+      store.commit("setData", { key: "homeLoading", value: false });
     }
     data.listData = init ? dataList : [...data.listData, ...dataList];
     data.total = totalItem;
@@ -180,7 +176,7 @@ export const useMySignedList = () => {
 
   const store = useStore();
   const data = reactive({
-    mySignedList: <ExhibitItem[] | null>null,
+    mySignedList: <ExhibitItem[]>[],
     loading: false,
   });
 
@@ -189,7 +185,7 @@ export const useMySignedList = () => {
     // 用户未登录
     if (!store.state.userData.isLogin) return;
 
-    const signedList: any = await getSignStatistics({ keywords });
+    const signedList = await freelogApp.getSignStatistics({ keywords });
     const ids = signedList.data.data.map((item: SignedItem) => item.subjectId).join();
 
     if (!ids) {
@@ -198,17 +194,17 @@ export const useMySignedList = () => {
     }
 
     const [list, signCountData, statusList] = await Promise.all([
-      getExhibitListById({ exhibitIds: ids }),
-      getExhibitSignCount(ids),
-      getExhibitAuthStatus(ids),
+      freelogApp.getExhibitListById({ exhibitIds: ids }),
+      freelogApp.getExhibitSignCount(ids),
+      freelogApp.getExhibitAuthStatus(ids),
     ]);
-    list.data.data.forEach((item: ExhibitItem) => {
-      const signCountItem = signCountData.data.data.find((signCount: any) => signCount.subjectId === item.exhibitId);
-      item.signCount = signCountItem.count;
-      const statusItem = statusList.data.data.find((status: any) => status.exhibitId === item.exhibitId);
-      item.defaulterIdentityType = statusItem.defaulterIdentityType;
+    (list.data.data as ExhibitItem[]).forEach((item) => {
+      const signCountItem = signCountData.data.data.find((signCount) => signCount.subjectId === item.exhibitId);
+      item.signCount = signCountItem?.count;
+      const statusItem = statusList.data.data.find((status) => status.exhibitId === item.exhibitId);
+      item.defaulterIdentityType = statusItem?.defaulterIdentityType;
     });
-    data.mySignedList = list.data.data.filter((item: ExhibitItem) => !item.articleInfo.resourceType.includes("主题"));
+    data.mySignedList = list.data.data.filter((item) => !item.articleInfo.resourceType.includes("主题"));
   };
 
   getMySignedList();
@@ -224,8 +220,8 @@ export const useMyWaterfall = () => {
   const store = useStore();
   const data = reactive({
     listNumber: 0,
-    waterfall: {} as any,
     waterfallList: ["first", "second", "third", "fourth", "fifth"],
+    waterfall: {} as Record<string, ExhibitItem[]>,
   });
   let heightList: number[] = [];
 
@@ -247,7 +243,7 @@ export const useMyWaterfall = () => {
     heightList = [];
     data.waterfall = {};
     for (let i = 0; i < data.listNumber; i++) {
-      data.waterfall[data.waterfallList[i]] = [] as ExhibitItem[];
+      data.waterfall[data.waterfallList[i]] = [];
     }
   };
 
@@ -263,8 +259,12 @@ export const useMyWaterfall = () => {
       }
 
       data.waterfall[data.waterfallList[minHeightItemIndex]].push(listData[i]);
-      heightList[minHeightItemIndex] = (heightList[minHeightItemIndex] || 0) + ((listData[i] as any).height || 0);
+      heightList[minHeightItemIndex] = (heightList[minHeightItemIndex] || 0) + (listData[i].height || 0);
     }
+
+    nextTick(() => {
+      store.commit("setData", { key: "homeLoading", value: false });
+    });
   };
 
   return {

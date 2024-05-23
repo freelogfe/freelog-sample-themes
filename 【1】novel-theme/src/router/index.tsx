@@ -6,9 +6,9 @@ import { ShelfScreen } from "../screens/shelf/shelf";
 import { SignedListScreen } from "../screens/signed-list/signed-list";
 import { DetailScreen } from "../screens/detail/detail";
 import { ReaderScreen } from "../screens/reader/reader";
-import { getSelfConfig, getCurrentUser } from "../api/freelog";
 import { judgeDevice } from "../utils/common";
 import { themeList } from "../api/data";
+import { freelogApp } from "freelog-runtime";
 
 /** 全局数据 */
 interface Global {
@@ -60,8 +60,8 @@ const RouterView = () => {
 
   /** 初始化全局数据 */
   const initGlobalData = async () => {
-    const userData = await getCurrentUser();
-    const selfConfig = await getSelfConfig();
+    const userData: any = freelogApp.getCurrentUser();
+    const selfConfig = await freelogApp.getSelfProperty();
     const theme = themeList[selfConfig.theme];
     setUserData(userData ? Object.assign(userData, { isLogin: true }) : { isLogin: false });
     setSelfConfig(selfConfig);

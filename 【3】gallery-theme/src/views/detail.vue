@@ -115,7 +115,7 @@
     </transition>
 
     <transition name="slide-up">
-      <div ref="scrollArea" class="content-card" @click.stop @mouseover="setWidgetData('show', false)" v-if="currentId">
+      <div ref="scrollArea" class="content-card" @click.stop v-if="currentId">
         <div class="content-area">
           <div class="title-box">
             <div class="box-left">
@@ -123,7 +123,11 @@
               <div class="offline" v-if="exhibitInfo?.onlineStatus === 0">已下架</div>
             </div>
 
-            <div class="share-btn" @mouseover.stop="setWidgetData('show', true)">
+            <div
+              class="share-btn"
+              @mouseenter.stop="setShareWidgetShow(true)"
+              @mouseleave.stop="setShareWidgetShow(false)"
+            >
               <span class="share-btn-text" :class="{ active: shareShow }">
                 <i class="freelog fl-icon-fenxiang"></i>分享
               </span>
@@ -227,21 +231,12 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, onUnmounted, reactive, ref, SetupContext, toRefs, watch } from "vue";
+import { SetupContext, defineAsyncComponent, onUnmounted, reactive, ref, toRefs, watch } from "vue";
 import { ExhibitItem } from "../api/interface";
 import { useGetList, useMyRouter, useMyWaterfall } from "../utils/hooks";
-import {
-  addAuth,
-  getExhibitAuthStatus,
-  getExhibitFileStream,
-  getExhibitInfo,
-  getSubDep,
-  mountWidget,
-  getCurrentUrl,
-  pushMessage4Task,
-} from "@/api/freelog";
 import { useStore } from "vuex";
 import { showToast } from "@/utils/common";
+import { WidgetController, freelogApp } from "freelog-runtime";
 
 export default {
   name: "detail",
@@ -258,7 +253,7 @@ export default {
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
   },
 
-  setup(props: { id: string }, context: SetupContext<Record<string, any>>) {
+  setup(props: { id: string }, context: SetupContext) {
     const store = useStore();
     const { route, query, switchPage } = useMyRouter();
     const datasOfGetList = useGetList();
@@ -276,7 +271,7 @@ export default {
       recommendShow: false,
       shareShow: false,
       href: "",
-      shareWidget: null as any,
+      shareWidget: null as WidgetController | null,
     });
 
     const methods = {
@@ -286,11 +281,11 @@ export default {
         input.select();
         document.execCommand("Copy");
         showToast("链接复制成功～");
-        pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: data.exhibitInfo?.exhibitId } });
+        // freelogApp.pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: data.exhibitInfo?.exhibitId } });
       },
 
       /** 获取用户头像 */
-      getAvatarUrl(id: any) {
+      getAvatarUrl(id: number) {
         return `https://image.freelog.com/avatar/${id}`;
       },
 
@@ -324,7 +319,7 @@ export default {
       /** 授权 */
       async getAuth() {
         window.removeEventListener("keyup", keyup);
-        const authResult = await addAuth(data.currentId);
+        const authResult = await freelogApp.addAuth(data.currentId, { immediate: true });
         window.addEventListener("keyup", keyup);
         const { status } = authResult;
         if (status === 0) {
@@ -333,11 +328,9 @@ export default {
         }
       },
 
-      /** 通知插件更新数据 */
-      setWidgetData(key: string, value: any) {
-        if (data.shareWidget && data.shareWidget.getApi().setData) {
-          data.shareWidget.getApi().setData(key, value);
-        }
+      /** 控制分享弹窗显示 */
+      setShareWidgetShow(value: boolean) {
+        data.shareWidget?.setData({ show: value });
       },
     };
 
@@ -354,29 +347,28 @@ export default {
       data.loading = true;
 
       const [exhibitInfo, statusInfo] = await Promise.all([
-        getExhibitInfo(data.currentId, { isLoadVersionProperty: 1 }),
-        getExhibitAuthStatus(data.currentId),
+        freelogApp.getExhibitInfo(data.currentId, { isLoadVersionProperty: 1 }),
+        freelogApp.getExhibitAuthStatus(data.currentId),
       ]);
-      data.exhibitInfo = {
-        ...exhibitInfo.data.data,
-        defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
-      } as ExhibitItem;
+      const { defaulterIdentityType = -1 } = statusInfo.data.data[0];
 
-      data.href = getCurrentUrl();
+      data.exhibitInfo = { ...exhibitInfo.data.data, defaulterIdentityType };
+
+      data.href = freelogApp.getCurrentUrl();
       mountShareWidget();
 
-      if (![0, 4].includes(data.exhibitInfo.defaulterIdentityType)) {
+      if (![0, 4].includes(defaulterIdentityType)) {
         // 授权链异常
         data.loading = false;
-      } else if (data.exhibitInfo.defaulterIdentityType === 0) {
+      } else if (defaulterIdentityType === 0) {
         // 已签约并且授权链无异常
-        const info: any = await getExhibitFileStream(data.currentId, true);
+        const info = await freelogApp.getExhibitFileStream(data.currentId, { returnUrl: true });
         if (!info) {
           data.loading = false;
           return;
         }
 
-        const resourceType = data.exhibitInfo.articleInfo.resourceType;
+        const resourceType = data.exhibitInfo?.articleInfo.resourceType || ([] as string[]);
         if (resourceType.includes("图片")) {
           const img = new Image();
           img.src = info;
@@ -404,7 +396,7 @@ export default {
           // onloadeddata 在 ios 不触发，onprogress 为了解决 ios 无法播放视频问题
           video.onprogress = ready;
         }
-      } else if (data.exhibitInfo.defaulterIdentityType === 4) {
+      } else if (defaulterIdentityType === 4) {
         // 未签约并且授权链无异常
         data.loading = false;
         methods.getAuth();
@@ -412,7 +404,7 @@ export default {
         data.loading = false;
       }
 
-      datasOfGetList.getList({ tags: data.exhibitInfo.tags.join(","), limit: 20 }, true);
+      datasOfGetList.getList({ tags: data.exhibitInfo?.tags.join(","), limit: 20 }, true);
     };
 
     /** 根据资源宽高比决定显示模式 */
@@ -437,7 +429,7 @@ export default {
     const waterfallResize = () => {
       getListNumber();
       initWaterfall();
-      setWaterFall(datasOfGetList.listData.value.filter((item) => item.exhibitId !== data.currentId));
+      setWaterFall(datasOfGetList.listData.value.filter((item) => item.exhibitId !== data.currentId) as ExhibitItem[]);
       data.recommendShow = datasOfGetList.listData.value.length !== 0;
     };
 
@@ -457,17 +449,31 @@ export default {
     const mountShareWidget = async () => {
       if (store.state.inMobile) return;
 
+      const container = document.getElementById("share");
+      if (!container) return;
+
       if (data.shareWidget) await data.shareWidget.unmount();
-      const themeData = await getSubDep();
-      const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-展品分享");
-      if (!widget) return;
+
+      const subDeps = await freelogApp.getSelfDependencyTree();
+      const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-展品分享");
+      if (!widgetData) return;
+
+      const { articleId, parentNid, nid } = widgetData;
+      const topExhibitId = freelogApp.getTopExhibitId();
+
       const type = data.exhibitInfo?.articleInfo.resourceType.includes("图片") ? "图片" : "视频";
-      data.shareWidget = await mountWidget({
-        widget,
-        container: document.getElementById("share"),
-        topExhibitData: themeData,
-        config: { exhibit: data.exhibitInfo, type },
-      });
+      const params = {
+        articleId,
+        parentNid,
+        nid,
+        topExhibitId,
+        container,
+        renderWidgetOptions: {
+          data: { exhibit: data.exhibitInfo, type, routerType: "detail" },
+        },
+        // widget_entry: "https://localhost:8201",
+      };
+      data.shareWidget = await freelogApp.mountArticleWidget(params);
     };
 
     watch(
@@ -504,7 +510,7 @@ export default {
           setTimeout(() => {
             if (store.state.inMobile) {
               const app = document.getElementById("app");
-              (app as any).scrollTop = 0;
+              app && (app.scrollTop = 0);
             }
             if (scrollArea.value) scrollArea.value.scrollTop = 0;
           }, 0);
@@ -517,7 +523,7 @@ export default {
 
     watch(
       () => datasOfGetList.listData.value,
-      async (cur: ExhibitItem[]) => {
+      async (cur: any) => {
         initWaterfall();
 
         const { inMobile } = store.state;
@@ -541,7 +547,7 @@ export default {
             cur[i].height = height < minHeight ? minHeight : height;
             num++;
 
-            if (num === cur.length) setWaterFall(cur.filter((item) => item.exhibitId !== data.currentId));
+            if (num === cur.length) setWaterFall(cur.filter((item: ExhibitItem) => item.exhibitId !== data.currentId));
           };
         }
         data.recommendShow = cur.length > 1;

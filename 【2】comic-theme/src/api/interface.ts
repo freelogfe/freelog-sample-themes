@@ -1,20 +1,13 @@
-// 展品
-export interface ExhibitItem {
-  exhibitId: string;
-  exhibitTitle: string;
-  exhibitIntro: string;
-  coverImages: string[];
-  tags: string[];
-  articleInfo: { articleId: string; articleOwnerName: string; resourceType: string };
-  versionInfo: { exhibitProperty: { intro: string } };
-  intro: string;
-  createDate: string;
-  updateDate: string;
-  signCount: number;
-  defaulterIdentityType: number;
+import { ExhibitInfo } from "freelog-runtime";
+
+/** 展品 */
+export interface ExhibitItem extends ExhibitInfo {
+  signCount?: number;
+  defaulterIdentityType?: number;
+  comicMode?: number;
 }
 
-// 内容图片
+/** 内容图片 */
 export interface ContentImage {
   name: string;
   size: number;
@@ -23,13 +16,13 @@ export interface ContentImage {
   height: number;
 }
 
-// freelog 相关入口
+/** freelog 相关入口 */
 export interface freelogEntranceItem {
   label: string;
   url: string;
 }
 
-// 分享按钮
+/** 分享按钮 */
 export interface shareBtnItem {
   id: string;
   name: string;

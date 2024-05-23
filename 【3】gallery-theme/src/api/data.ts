@@ -1,7 +1,7 @@
 import { freelogEntranceItem } from "./interface";
 
 /** 节点主题色 */
-export const themeList: any = {
+export const themeList: Record<string, { gradientColor: string; deriveColor: string }> = {
   酷黑: { gradientColor: "linear-gradient(135deg, #222222, #353535)", deriveColor: "#222222" },
   炫丽: { gradientColor: "linear-gradient(135deg, #C127FF, #35A3C5)", deriveColor: "#C127FF" },
   活力: { gradientColor: "linear-gradient(135deg, #F08840, #F0C23F)", deriveColor: "#F08840" },

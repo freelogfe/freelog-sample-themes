@@ -156,7 +156,7 @@
 </template>
 
 <script lang="ts">
-import { reactive, toRefs, watch } from "vue";
+import { SetupContext, reactive, toRefs, watch } from "vue";
 import { useMyLocationHistory, useMyRouter } from "../utils/hooks";
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
@@ -169,7 +169,7 @@ export default {
 
   props: ["comicInfo", "show"],
 
-  setup(props: { comicInfo: ExhibitItem; show: boolean }, context: any) {
+  setup(props: { comicInfo: ExhibitItem; show: boolean }, context: SetupContext) {
     const store = useStore();
     const { switchPage, routerBack } = useMyRouter();
 

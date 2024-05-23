@@ -1,18 +1,17 @@
 import "./public-path";
-import { createApp } from "vue";
-import App from "./App.vue";
+import { App, createApp } from "vue";
+import AppPage from "./App.vue";
 
 const myWindow: any = window;
-let app: any = null;
+let app: App<Element> | null = null;
 
 myWindow.mount = () => {
-  app = createApp(App);
+  app = createApp(AppPage);
   app.mount("#app");
 };
 
 myWindow.unmount = () => {
-  app.unmount();
-  app._container.innerHTML = "";
+  app?.unmount();
   app = null;
 };
 

@@ -1,16 +1,7 @@
-import {
-  callLogin,
-  addAuth,
-  setUserData,
-  getExhibitListById,
-  getExhibitSignCount,
-  getExhibitAuthStatus,
-  getSignStatistics,
-  getExhibitInfo,
-  getExhibitFileStream,
-} from "@/api/freelog";
+import { callLogin } from "@/api/freelog";
 import { showToast } from "./common";
 import store from "@/store";
+import { freelogApp } from "freelog-runtime";
 
 /** 授权 hook */
 export const useMyAuth = {
@@ -20,7 +11,7 @@ export const useMyAuth = {
     if (!store.state.userData.isLogin) return;
 
     const result = [];
-    const signedList = await getSignStatistics();
+    const signedList = await freelogApp.getSignStatistics();
     const idList = signedList.data.data.map((item) => item.subjectId);
     if (!idList.length) {
       store.commit("setData", { key: "signedList", value: [] });
@@ -29,9 +20,9 @@ export const useMyAuth = {
 
     const ids = idList.join();
     const [list, countList, statusList] = await Promise.all([
-      getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
-      getExhibitSignCount(ids),
-      getExhibitAuthStatus(ids),
+      freelogApp.getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
+      freelogApp.getExhibitSignCount(ids),
+      freelogApp.getExhibitAuthStatus(ids),
     ]);
     idList.forEach((id) => {
       const signedItem = list.data.data.find((item) => item.exhibitId === id);
@@ -54,7 +45,7 @@ export const useMyAuth = {
    */
   async getAuth(data, play = false) {
     const { exhibitId } = data;
-    const authResult = await addAuth(exhibitId);
+    const authResult = await freelogApp.addAuth(exhibitId, { immediate: true });
     const { status } = authResult;
     if (status !== 0) return;
     data.defaulterIdentityType = 0;
@@ -74,9 +65,9 @@ export const useMyAuth = {
 
     if (play) {
       useMyPlay.addToPlayList(exhibitId);
-      setUserData("playingId", exhibitId);
+      freelogApp.setUserData("playingId", exhibitId);
       // 已授权未获取 url
-      const url = await getExhibitFileStream(exhibitId, true);
+      const url = await freelogApp.getExhibitFileStream(exhibitId, { returnUrl: true });
       data.url = url;
       store.commit("setData", { key: "playingInfo", value: data });
       store.commit("setData", { key: "playing", value: true });
@@ -99,9 +90,9 @@ export const useMyCollection = {
 
     const ids = idList.join();
     const [list, countList, statusList] = await Promise.all([
-      getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
-      getExhibitSignCount(ids),
-      getExhibitAuthStatus(ids),
+      freelogApp.getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
+      freelogApp.getExhibitSignCount(ids),
+      freelogApp.getExhibitAuthStatus(ids),
     ]);
     idList.forEach((id) => {
       const collectionItem = list.data.data.find((item) => item.exhibitId === id);
@@ -144,7 +135,7 @@ export const useMyCollection = {
       collectionIdList.unshift(exhibitId);
       collectionList.unshift(data);
     }
-    const res = await setUserData("collectionIdList", collectionIdList);
+    const res = await freelogApp.setUserData("collectionIdList", collectionIdList);
     if (res.data.msg === "success") {
       store.commit("setData", { key: "collectionIdList", value: collectionIdList });
       store.commit("setData", { key: "collectionList", value: collectionList });
@@ -167,8 +158,8 @@ export const useMyPlay = {
 
     const ids = idList.join();
     const [list, statusList] = await Promise.all([
-      getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
-      getExhibitAuthStatus(ids),
+      freelogApp.getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
+      freelogApp.getExhibitAuthStatus(ids),
     ]);
     idList.forEach((id) => {
       const playItem = list.data.data.find((item) => item.exhibitId === id);
@@ -212,7 +203,7 @@ export const useMyPlay = {
       if (playIdList.includes(id)) return;
 
       playIdList.unshift(id);
-      const res = await setUserData("playIdList", playIdList);
+      const res = await freelogApp.setUserData("playIdList", playIdList);
 
       if (res.data.msg === "success") {
         store.commit("setData", { key: "playIdList", value: playIdList });
@@ -256,7 +247,7 @@ export const useMyPlay = {
       const playIdList = [...store.state.playIdList];
       const index = playIdList.findIndex((item) => item === id);
       playIdList.splice(index, 1);
-      const res = await setUserData("playIdList", playIdList);
+      const res = await freelogApp.setUserData("playIdList", playIdList);
 
       if (res.data.msg === "success") {
         const playList = store.state.playList;
@@ -291,7 +282,7 @@ export const useMyPlay = {
       store.commit("setData", { key: "playingInfo", value: null });
     } else {
       // 已登录时取用户数据
-      const res = await setUserData("playIdList", []);
+      const res = await freelogApp.setUserData("playIdList", []);
       if (res.data.msg === "success") {
         store.commit("setData", { key: "playIdList", value: [] });
         store.commit("setData", { key: "playList", value: [] });
@@ -357,22 +348,22 @@ export const useMyPlay = {
       return;
     } else if (!url) {
       // 已授权未获取 url
-      const url = await getExhibitFileStream(exhibitId, true);
+      const url = await freelogApp.getExhibitFileStream(exhibitId, { returnUrl: true });
       exhibit.url = url;
     }
 
     useMyPlay.addToPlayList(exhibitId);
     store.commit("setData", { key: "playingInfo", value: exhibit });
     store.commit("setData", { key: "playing", value: true });
-    setUserData("playingId", exhibitId);
+    freelogApp.setUserData("playingId", exhibitId);
   },
 
   /** 获取播放数据 */
   async getPlayingInfo(id) {
     const [info, statusInfo, url] = await Promise.all([
-      getExhibitInfo(id, { isLoadVersionProperty: 1 }),
-      getExhibitAuthStatus(id),
-      getExhibitFileStream(id, true),
+      freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+      freelogApp.getExhibitAuthStatus(id),
+      freelogApp.getExhibitFileStream(id, { returnUrl: true }),
     ]);
     info.data.data.defaulterIdentityType = statusInfo.data.data[0].defaulterIdentityType;
     info.data.data.url = url;

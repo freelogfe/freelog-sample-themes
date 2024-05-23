@@ -32,7 +32,7 @@ export default defineComponent({
 
   setup() {
     const data = reactive({
-      inMobile: null as boolean | null,
+      inMobile: <boolean | null>null,
     });
 
     const assetsData = {

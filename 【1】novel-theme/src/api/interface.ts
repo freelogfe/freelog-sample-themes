@@ -1,24 +1,11 @@
+import { ExhibitInfo } from "freelog-runtime";
+
 /** 展品 */
-export interface ExhibitItem {
-  exhibitId: string;
-  exhibitTitle: string;
-  coverImages: string[];
-  tags: string[];
-  articleInfo: { articleOwnerName: string; resourceType: string };
-  versionInfo: {
-    exhibitProperty: {
-      intro: string;
-      mime: string;
-    };
-    dependencyTree: { resourceType: string; parentNid: string; articleId: string; articleName: string }[];
-  };
-  intro: string;
-  createDate: string;
-  updateDate: string;
-  signCount: number;
-  onlineStatus: number;
-  defaulterIdentityType: number;
+export interface ExhibitItem extends ExhibitInfo {
+  signCount?: number;
+  defaulterIdentityType?: number;
 }
+
 
 /** 主题 */
 export interface ThemeItem {

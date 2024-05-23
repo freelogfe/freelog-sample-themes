@@ -62,15 +62,19 @@ export default {
       }
     }
 
-    &::-webkit-scrollbar {
-      width: 5px;
-      background-color: rgba(0, 0, 0, 0.2);
-    }
-
     &::-webkit-scrollbar-thumb {
       width: 5px;
       border-radius: 5px;
-      background-color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.3);
+      transition: all 0.2s linear;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.5);
+      }
+    }
+
+    &::-webkit-scrollbar-track {
+      background-color: #222;
     }
   }
 

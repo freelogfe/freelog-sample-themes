@@ -28,7 +28,6 @@ module.exports = {
     key: fs.readFileSync("../localhost+1-key.pem"),
     cert: fs.readFileSync("../localhost+1.crt"),
   },
-  // 自定义webpack配置
   configureWebpack: {
     resolve: {
       alias: {

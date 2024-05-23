@@ -1,15 +1,9 @@
 import { sortMappings } from "@/api/data";
-import {
-  getExhibitAuthStatus,
-  getExhibitListById,
-  getExhibitListByPaging,
-  GetExhibitListByPagingParams,
-  getSignStatistics,
-} from "@/api/freelog";
 import { onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { ExhibitItem } from "../api/interface";
+import { freelogApp } from "freelog-runtime";
 
 /** 路由 hook */
 export const useMyRouter = () => {
@@ -32,7 +26,7 @@ export const useMyRouter = () => {
   };
 
   /** 获取当前路由 */
-  const getCurrentPath: () => any = () => {
+  const getCurrentPath = () => {
     return router.currentRoute.value.fullPath;
   };
 
@@ -77,14 +71,14 @@ export const useGetList = (inList = false) => {
   });
 
   /** 获取展品列表 */
-  const getList = async (params: Partial<GetExhibitListByPagingParams> = {}, init = false) => {
+  const getList = async (params: any = {}, init = false) => {
     if (data.loading) return;
     if (data.total === data.listData.length && !init) return;
 
     data.loading = true;
     data.skip = init ? 0 : data.skip + 100;
     const sort = sortMappings.find((item) => item.label === store.state.selfConfig.sort);
-    const queryParams: GetExhibitListByPagingParams = {
+    const queryParams = {
       skip: data.skip,
       articleResourceTypes: "文章",
       limit: params.limit || 100,
@@ -92,16 +86,19 @@ export const useGetList = (inList = false) => {
       isLoadVersionProperty: 1,
       ...params,
     };
-    const list = await getExhibitListByPaging(queryParams);
+    const list = await freelogApp.getExhibitListByPaging(queryParams);
     const { dataList, totalItem } = list.data.data;
     if (dataList.length !== 0) {
-      const ids = dataList.map((item: ExhibitItem) => item.exhibitId).join();
-      const statusInfo = await getExhibitAuthStatus(ids);
-      dataList.forEach((item: ExhibitItem) => {
+      const ids = dataList.map((item) => item.exhibitId).join();
+      const statusInfo = await freelogApp.getExhibitAuthStatus(ids);
+      (dataList as ExhibitItem[]).forEach((item) => {
         const index = statusInfo.data.data.findIndex(
           (resultItem: { exhibitId: string }) => resultItem.exhibitId === item.exhibitId
         );
-        if (index !== -1) item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+        if (index === -1) return;
+
+        const { defaulterIdentityType = -1 } = statusInfo.data.data[index];
+        item.defaulterIdentityType = defaulterIdentityType;
       });
     }
     data.listData = init ? dataList : [...data.listData, ...dataList];
@@ -142,7 +139,7 @@ export const useMySignedList = () => {
     // 用户未登录
     if (!store.state.userData.isLogin) return;
 
-    const signedList: any = await getSignStatistics({ keywords });
+    const signedList = await freelogApp.getSignStatistics({ keywords });
     const ids = signedList.data.data.map((item: SignedItem) => item.subjectId).join();
 
     if (!ids) {
@@ -150,14 +147,20 @@ export const useMySignedList = () => {
       return;
     }
 
-    const [list, statusList] = await Promise.all([getExhibitListById({ exhibitIds: ids }), getExhibitAuthStatus(ids)]);
-    list.data.data.forEach((item: ExhibitItem) => {
+    const [list, statusList] = await Promise.all([
+      freelogApp.getExhibitListById({ exhibitIds: ids }),
+      freelogApp.getExhibitAuthStatus(ids),
+    ]);
+    (list.data.data as ExhibitItem[]).forEach((item) => {
       const statusItem = statusList.data.data.find(
         (status: { exhibitId: string }) => status.exhibitId === item.exhibitId
       );
-      item.defaulterIdentityType = statusItem.defaulterIdentityType;
+      if (!statusItem) return;
+
+      const { defaulterIdentityType = -1 } = statusItem;
+      item.defaulterIdentityType = defaulterIdentityType;
     });
-    data.mySignedList = list.data.data.filter((item: ExhibitItem) => !item.articleInfo.resourceType.includes("主题"));
+    data.mySignedList = list.data.data.filter((item) => !item.articleInfo.resourceType.includes("主题"));
   };
 
   getMySignedList();

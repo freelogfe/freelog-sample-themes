@@ -5,16 +5,8 @@
     <!-- mobile -->
     <div class="mobile-home-wrapper" v-if="$store.state.inMobile">
       <div class="node-avatar">
-        <img
-          class="avatar-img"
-          :src="nodeInfo.nodeLogo"
-          v-if="nodeInfo.nodeLogo"
-        />
-        <img
-          class="default-avatar"
-          src="../assets/images/default-avatar.png"
-          v-else
-        />
+        <img class="avatar-img" :src="nodeInfo.nodeLogo" v-if="nodeInfo.nodeLogo" />
+        <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
         <div class="node-info" @click="nodeInfoPopupShow = true">
           <div class="node-title">{{ nodeInfo.nodeTitle }}</div>
           <div class="node-intro" v-html="nodeInfo.nodeShortDescription"></div>
@@ -22,11 +14,7 @@
       </div>
 
       <transition name="fade">
-        <div
-          class="node-info-popup"
-          @click="nodeInfoPopupShow = false"
-          v-if="nodeInfoPopupShow"
-        >
+        <div class="node-info-popup" @click="nodeInfoPopupShow = false" v-if="nodeInfoPopupShow">
           <div class="node-title">{{ nodeInfo.nodeTitle }}</div>
           <div class="node-desc" v-html="nodeInfo.nodeShortDescription"></div>
         </div>
@@ -42,16 +30,10 @@
             </div>
           </div>
           <div class="voice-list">
-            <voice
-              :data="item"
-              v-for="item in listData"
-              :key="item.exhibitId"
-            />
+            <voice :data="item" v-for="item in listData" :key="item.exhibitId" />
           </div>
           <div class="view-more" v-if="total > 10">
-            <div class="view-more-btn" @click="$router.myPush('/voice-list')">
-              查看更多声音
-            </div>
+            <div class="view-more-btn" @click="$router.myPush('/voice-list')">查看更多声音</div>
           </div>
         </div>
 
@@ -80,26 +62,14 @@
     <div class="pc-home-wrapper" v-if="$store.state.inMobile === false">
       <div class="top-area">
         <div class="node-avatar">
-          <img
-            class="avatar-img"
-            :src="nodeInfo.nodeLogo"
-            v-if="nodeInfo.nodeLogo"
-          />
-          <img
-            class="default-avatar"
-            src="../assets/images/default-avatar.png"
-            v-else
-          />
+          <img class="avatar-img" :src="nodeInfo.nodeLogo" v-if="nodeInfo.nodeLogo" />
+          <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
         </div>
         <div class="node-info">
           <div class="node-title" :title="nodeInfo.nodeTitle">
             {{ nodeInfo.nodeTitle }}
           </div>
-          <div
-            class="node-intro"
-            v-html="nodeInfo.nodeShortDescription"
-            :title="nodeInfo.nodeShortDescription"
-          ></div>
+          <div class="node-intro" v-html="nodeInfo.nodeShortDescription" :title="nodeInfo.nodeShortDescription"></div>
         </div>
       </div>
 
@@ -113,16 +83,10 @@
             </div>
           </div>
           <div class="voice-list">
-            <voice
-              :data="item"
-              v-for="item in listData"
-              :key="item.exhibitId"
-            />
+            <voice :data="item" v-for="item in listData" :key="item.exhibitId" />
           </div>
           <div class="view-more" v-if="total > 10">
-            <div class="text-btn" @click="$router.myPush('/voice-list')">
-              查看更多声音
-            </div>
+            <div class="text-btn" @click="$router.myPush('/voice-list')">查看更多声音</div>
           </div>
         </div>
 
@@ -149,12 +113,7 @@
 
 <script>
 import voice from "@/components/voice";
-import {
-  getExhibitAuthStatus,
-  getExhibitListByPaging,
-  getExhibitSignCount,
-  getNodeInfo,
-} from "@/api/freelog";
+import { freelogApp } from "freelog-runtime";
 
 export default {
   name: "home",
@@ -190,7 +149,7 @@ export default {
   },
 
   created() {
-    this.nodeInfo = getNodeInfo();
+    this.nodeInfo = freelogApp.nodeInfo;
     this.getList();
   },
 
@@ -223,27 +182,20 @@ export default {
         isLoadVersionProperty: 1,
         limit: 10,
       };
-      const list = await getExhibitListByPaging(queryParams);
+      const list = await freelogApp.getExhibitListByPaging(queryParams);
       const { dataList, totalItem } = list.data.data;
       if (dataList.length !== 0) {
         const ids = dataList.map((item) => item.exhibitId).join();
         const [signCountData, statusInfo] = await Promise.all([
-          getExhibitSignCount(ids),
-          getExhibitAuthStatus(ids),
+          freelogApp.getExhibitSignCount(ids),
+          freelogApp.getExhibitAuthStatus(ids),
         ]);
         dataList.forEach((item) => {
           let index;
-          index = signCountData.data.data.findIndex(
-            (resultItem) => resultItem.subjectId === item.exhibitId
-          );
-          if (index !== -1)
-            item.signCount = signCountData.data.data[index].count;
-          index = statusInfo.data.data.findIndex(
-            (resultItem) => resultItem.exhibitId === item.exhibitId
-          );
-          if (index !== -1)
-            item.defaulterIdentityType =
-              statusInfo.data.data[index].defaulterIdentityType;
+          index = signCountData.data.data.findIndex((resultItem) => resultItem.subjectId === item.exhibitId);
+          if (index !== -1) item.signCount = signCountData.data.data[index].count;
+          index = statusInfo.data.data.findIndex((resultItem) => resultItem.exhibitId === item.exhibitId);
+          if (index !== -1) item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
         });
       }
       this.listData = dataList;
@@ -482,13 +434,8 @@ export default {
       }
 
       ::v-deep .el-skeleton.is-animated .el-skeleton__item {
-        background: linear-gradient(
-            90deg,
-            rgb(70, 70, 70) 25%,
-            rgb(50, 50, 50) 37%,
-            rgb(70, 70, 70) 63%
-          )
-          0% 0% / 400% 100%;
+        background: linear-gradient(90deg, rgb(70, 70, 70) 25%, rgb(50, 50, 50) 37%, rgb(70, 70, 70) 63%) 0% 0% / 400%
+          100%;
       }
     }
   }
@@ -699,13 +646,8 @@ export default {
       }
 
       ::v-deep .el-skeleton.is-animated .el-skeleton__item {
-        background: linear-gradient(
-            90deg,
-            rgb(70, 70, 70) 25%,
-            rgb(50, 50, 50) 37%,
-            rgb(70, 70, 70) 63%
-          )
-          0% 0% / 400% 100%;
+        background: linear-gradient(90deg, rgb(70, 70, 70) 25%, rgb(50, 50, 50) 37%, rgb(70, 70, 70) 63%) 0% 0% / 400%
+          100%;
       }
     }
   }

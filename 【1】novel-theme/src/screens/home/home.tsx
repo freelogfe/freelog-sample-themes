@@ -1,7 +1,6 @@
 import "./home.scss";
 import { useState, useEffect, useCallback, useRef, useContext } from "react";
 import { Header } from "../../components/header/header";
-import { getExhibitAuthStatus, getExhibitListByPaging, GetExhibitListByPagingParams } from "../../api/freelog";
 import { ExhibitItem } from "../../api/interface";
 import { Novel } from "../../components/novel/novel";
 import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
@@ -12,6 +11,7 @@ import { LoginBtn } from "../../components/login-btn/login-btn";
 import CSSTransition from "react-transition-group/CSSTransition";
 import { Loader } from "../../components/loader/loader";
 import { getUrlParams } from "../../utils/common";
+import { freelogApp } from "freelog-runtime";
 
 /** 首页 */
 export const HomeScreen = (props: any) => {
@@ -37,21 +37,17 @@ export const HomeScreen = (props: any) => {
       if (init) setLoading(true);
       setMyloading(true);
       skip.current = init ? 0 : skip.current + 30;
-      const queryParams: GetExhibitListByPagingParams = {
-        articleResourceTypes: "文章",
-        skip: skip.current,
-        limit: 30,
-      };
+      const queryParams: any = { articleResourceTypes: "文章", skip: skip.current, limit: 30 };
       if (tags) queryParams.tags = tags;
       if (keywords) queryParams.keywords = keywords;
 
-      const list = await getExhibitListByPaging(queryParams);
+      const list = await freelogApp.getExhibitListByPaging(queryParams);
       const { dataList, totalItem } = list.data.data;
       if (dataList.length !== 0) {
-        const ids = dataList.map((item: ExhibitItem) => item.exhibitId).join();
-        const statusInfo = await getExhibitAuthStatus(ids);
+        const ids = dataList.map((item) => item.exhibitId).join();
+        const statusInfo = await freelogApp.getExhibitAuthStatus(ids);
         if (statusInfo.data.data) {
-          dataList.forEach((item: ExhibitItem) => {
+          (dataList as ExhibitItem[]).forEach((item) => {
             const index = statusInfo.data.data.findIndex(
               (resultItem: { exhibitId: string }) => resultItem.exhibitId === item.exhibitId
             );

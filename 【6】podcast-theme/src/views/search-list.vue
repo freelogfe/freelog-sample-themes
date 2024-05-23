@@ -21,7 +21,7 @@
 
 <script>
 import list from "@/components/list";
-import { getExhibitAuthStatus, getExhibitListByPaging, getExhibitSignCount } from "@/api/freelog";
+import { freelogApp } from "freelog-runtime";
 
 export default {
   name: "search-list",
@@ -100,11 +100,14 @@ export default {
         limit: 20,
         keywords: this.keywords,
       };
-      const list = await getExhibitListByPaging(queryParams);
+      const list = await freelogApp.getExhibitListByPaging(queryParams);
       const { dataList, totalItem } = list.data.data;
       if (dataList.length !== 0) {
         const ids = dataList.map((item) => item.exhibitId).join();
-        const [signCountData, statusInfo] = await Promise.all([getExhibitSignCount(ids), getExhibitAuthStatus(ids)]);
+        const [signCountData, statusInfo] = await Promise.all([
+          freelogApp.getExhibitSignCount(ids),
+          freelogApp.getExhibitAuthStatus(ids),
+        ]);
         dataList.forEach((item) => {
           let index;
           index = signCountData.data.data.findIndex((resultItem) => resultItem.subjectId === item.exhibitId);

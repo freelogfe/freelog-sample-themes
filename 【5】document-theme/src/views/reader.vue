@@ -204,7 +204,7 @@
     </div>
 
     <!-- PC -->
-    <div class="home-body" @click="setWidgetData('show', false)" v-if="!inMobile">
+    <div class="home-body" @click="setShareWidgetShow(false)" v-if="!inMobile">
       <!-- 列表条 -->
       <div class="list-bar">
         <el-skeleton class="list-skeleton" :rows="2" animated v-if="loading" />
@@ -446,7 +446,7 @@
       </div>
 
       <div class="fixed-btns">
-        <div class="fixed-btn" @click.stop="setWidgetData('show', true)">
+        <div class="fixed-btn" @click.stop="setShareWidgetShow(true)">
           <div id="share" class="share-wrapper" />
           <i class="freelog fl-icon-fenxiang"></i>
         </div>
@@ -469,20 +469,10 @@
 import { computed, defineAsyncComponent, onBeforeUnmount, reactive, ref, toRefs, watch } from "vue";
 import { useStore } from "vuex";
 import { useGetList, useMyRouter, useMyScroll, useSearchHistory } from "../utils/hooks";
-import {
-  addAuth,
-  getExhibitFileStream,
-  getExhibitSignCount,
-  getExhibitInfo,
-  getExhibitAuthStatus,
-  mountWidget,
-  getSubDep,
-  getCurrentUrl,
-  pushMessage4Task,
-} from "@/api/freelog";
 import { ExhibitItem } from "@/api/interface";
 import { relativeTime } from "@/utils/common";
 import { showToast } from "@/utils/common";
+import { WidgetController, freelogApp } from "freelog-runtime";
 
 export default {
   name: "reader",
@@ -519,7 +509,7 @@ export default {
       directoryShow: false,
       viewOffline: false, // 查看已下架展品
       href: "",
-      shareWidget: null as any,
+      shareWidget: null as WidgetController | null,
     });
 
     const currentIndex = computed(() => {
@@ -533,7 +523,7 @@ export default {
         input.select();
         document.execCommand("Copy");
         showToast("链接复制成功～");
-        pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: data.documentData?.exhibitId } });
+        // freelogApp.pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: data.documentData?.exhibitId } });
       },
 
       /** 输入搜索词 */
@@ -561,7 +551,7 @@ export default {
       },
 
       /** 搜索框快捷键 */
-      inputKeyUp(e: { keyCode: any }) {
+      inputKeyUp(e: { keyCode: number }) {
         switch (e.keyCode) {
           case 13:
             // 回车
@@ -602,7 +592,7 @@ export default {
 
       /** 获取授权 */
       async getAuth(item: ExhibitItem) {
-        const authResult = await addAuth(item.exhibitId);
+        const authResult = await freelogApp.addAuth(item.exhibitId, { immediate: true });
         const { status } = authResult;
         if (status === 0) {
           item.defaulterIdentityType = 0;
@@ -641,7 +631,7 @@ export default {
 
       /** 点击文档 */
       clickDocument(item: ExhibitItem) {
-        const { exhibitId, defaulterIdentityType } = item;
+        const { exhibitId, defaulterIdentityType = -1 } = item;
 
         if (![0, 4].includes(defaulterIdentityType)) {
           showToast("授权链异常，无法查看");
@@ -651,11 +641,9 @@ export default {
         switchPage("/reader", { id: exhibitId });
       },
 
-      /** 通知插件更新数据 */
-      setWidgetData(key: string, value: any) {
-        if (data.shareWidget && data.shareWidget.getApi().setData) {
-          data.shareWidget.getApi().setData(key, value);
-        }
+      /** 控制分享弹窗显示 */
+      setShareWidgetShow(value: boolean) {
+        data.shareWidget?.setData({ show: value });
       },
     };
 
@@ -671,12 +659,15 @@ export default {
     const getDocumentData = async () => {
       data.myLoading = true;
       const exhibitId = data.currentId;
-      let documentData: any = datasOfGetList.listData.value.find((item) => item.exhibitId === exhibitId);
+      let documentData = datasOfGetList.listData.value.find((item) => item.exhibitId === exhibitId) as ExhibitItem;
       data.viewOffline = false;
 
-      const requestArr = [getExhibitSignCount(exhibitId)];
+      const requestArr: Promise<any>[] = [freelogApp.getExhibitSignCount(exhibitId)];
       if (!documentData) {
-        requestArr.push(getExhibitInfo(exhibitId, { isLoadVersionProperty: 1 }), getExhibitAuthStatus(exhibitId));
+        requestArr.push(
+          freelogApp.getExhibitInfo(exhibitId, { isLoadVersionProperty: 1 }),
+          freelogApp.getExhibitAuthStatus(exhibitId)
+        );
         const [signCountData, exhibitInfo, statusInfo] = await Promise.all(requestArr);
         documentData = {
           ...exhibitInfo.data.data,
@@ -690,7 +681,7 @@ export default {
       }
 
       data.documentData = documentData;
-      data.href = getCurrentUrl();
+      data.href = freelogApp.getCurrentUrl();
       mountShareWidget();
       scrollToTop("auto");
       data.directoryList = [];
@@ -704,7 +695,7 @@ export default {
         return;
       }
 
-      const info: any = await getExhibitFileStream(exhibitId);
+      const info = await freelogApp.getExhibitFileStream(exhibitId);
       if (!info) {
         endMyLoading();
         return;
@@ -751,16 +742,30 @@ export default {
     const mountShareWidget = async () => {
       if (store.state.inMobile) return;
 
+      const container = document.getElementById("share");
+      if (!container) return;
+
       if (data.shareWidget) await data.shareWidget.unmount();
-      const themeData = await getSubDep();
-      const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-展品分享");
-      if (!widget) return;
-      data.shareWidget = await mountWidget({
-        widget,
-        container: document.getElementById("share"),
-        topExhibitData: themeData,
-        config: { exhibit: data.documentData, type: "文档" },
-      });
+
+      const subDeps = await freelogApp.getSelfDependencyTree();
+      const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-展品分享");
+      if (!widgetData) return;
+
+      const { articleId, parentNid, nid } = widgetData;
+      const topExhibitId = freelogApp.getTopExhibitId();
+
+      const params = {
+        articleId,
+        parentNid,
+        nid,
+        topExhibitId,
+        container,
+        renderWidgetOptions: {
+          data: { exhibit: data.documentData, type: "文档", routerType: "content" },
+        },
+        // widget_entry: "https://localhost:8201",
+      };
+      data.shareWidget = await freelogApp.mountArticleWidget(params);
     };
 
     watch(
@@ -812,7 +817,7 @@ export default {
     watch(
       () => scrollTop.value,
       (cur) => {
-        methods.setWidgetData("show", false);
+        methods.setShareWidgetShow(false);
 
         for (let i = data.directoryList.length - 1; i >= 0; i--) {
           if (cur >= data.directoryList[i].offsetTop) {

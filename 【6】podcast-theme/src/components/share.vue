@@ -53,7 +53,7 @@
 <script>
 import { shareBtns } from "@/api/data";
 import QrcodeVue from "qrcode.vue";
-import { pushMessage4Task } from "@/api/freelog";
+import { freelogApp } from "freelog-runtime";
 
 export default {
   name: "share",
@@ -96,7 +96,7 @@ export default {
   methods: {
     /** 初始化分享组件 */
     initShare() {
-      const url = window.location.currentURL;
+      const url = freelogApp.getShareUrl(this.shareInfo.exhibit.exhibitId, "detail");
       this.href = url;
       this.shareText = `我在freelog发现一个不错的声音：\n《${this.shareInfo.exhibit.exhibitTitle}》\n${url}`;
       if (!this.shareInfo.show) this.qrcodeShow = false;
@@ -144,7 +144,7 @@ export default {
           this.copySuccess = false;
         }, 2300);
       }
-      pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: this.shareInfo.exhibit.exhibitId } });
+      // freelogApp.pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: this.shareInfo.exhibit.exhibitId } });
     },
   },
 };

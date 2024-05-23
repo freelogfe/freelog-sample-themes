@@ -208,7 +208,7 @@ export default {
     };
 
     /** 获取展品列表 */
-    const getData = () => {
+    const getData = async () => {
       data.searchData = query.value;
       datasOfGetList.clearData();
       datasOfGetList.getList(data.searchData, true);

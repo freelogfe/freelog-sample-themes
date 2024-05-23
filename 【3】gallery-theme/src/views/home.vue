@@ -15,9 +15,9 @@
         </div>
       </div>
 
-      <my-loader v-if="loading" />
+      <my-loader v-if="homeLoading" />
 
-      <template v-if="!loading">
+      <template v-if="!homeLoading">
         <div class="frame-list">
           <div class="waterfall" v-for="list in listNumber" :key="list">
             <my-frame
@@ -31,7 +31,9 @@
         </div>
 
         <div className="tip" v-show="total === 0">当前节点暂无数据，请稍后查看</div>
-        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部 —</div>
+        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total && noMore">
+          — 已加载全部 —
+        </div>
       </template>
 
       <transition name="fade">
@@ -120,9 +122,9 @@
         </div>
       </div>
 
-      <my-loader v-if="loading" />
+      <my-loader v-if="homeLoading" />
 
-      <template v-if="!loading">
+      <template v-if="!homeLoading">
         <div class="frame-list">
           <div class="waterfall" v-for="list in listNumber" :key="list">
             <my-frame
@@ -136,7 +138,7 @@
         </div>
 
         <div className="tip" v-show="total === 0">当前节点暂无数据，请稍后查看</div>
-        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部 —</div>
+        <div className="tip no-more" v-show="total !== 0 && listData.length === total && noMore">— 已加载全部 —</div>
       </template>
     </div>
 
@@ -184,6 +186,7 @@ export default {
       },
       currentId: null as null | string,
       filterBoxShow: false,
+      noMore: false,
     });
 
     const methods = {
@@ -213,7 +216,7 @@ export default {
 
       /** 点击图片/视频组件 */
       clickFrame(item: ExhibitItem) {
-        const { exhibitId, defaulterIdentityType } = item;
+        const { exhibitId, defaulterIdentityType = -1 } = item;
 
         if (![0, 4].includes(defaulterIdentityType)) {
           showToast("授权链异常，无法查看");
@@ -258,7 +261,7 @@ export default {
     const waterfallResize = () => {
       getListNumber();
       initWaterfall();
-      setWaterFall(datasOfGetList.listData.value);
+      setWaterFall(datasOfGetList.listData.value as ExhibitItem[]);
     };
 
     /** 根据链接判断是否进入详情页或打开内容弹窗 */
@@ -301,7 +304,7 @@ export default {
 
     watch(
       () => datasOfGetList.listData.value,
-      async (cur: ExhibitItem[], pre: ExhibitItem[]) => {
+      async (cur: any, pre: any) => {
         if (datasOfGetList.skip.value === 0) initWaterfall();
 
         const index = datasOfGetList.skip.value;
@@ -333,8 +336,19 @@ export default {
             num++;
 
             if (num === cur.length - pre.length) setWaterFall(cur, index);
-          }
+          };
         }
+      }
+    );
+
+    watch(
+      () => store.state.homeLoading,
+      (cur) => {
+        if (cur) return;
+
+        setTimeout(() => {
+          data.noMore = true;
+        }, 500);
       }
     );
 

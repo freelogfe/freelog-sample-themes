@@ -3,27 +3,21 @@ import "./index.scss";
 import reportWebVitals from "./reportWebVitals";
 import "./public-path";
 import RouterView from "./router";
-
-window.FREELOG_RESOURCENAME = "ZhuC/novel-theme";
-window.freelogApp.onLogin(() => {
-  window.location.reload();
-});
+import { initFreelogApp } from "freelog-runtime";
 
 reportWebVitals();
 
-export async function bootstrap() {
-  console.log("react app bootstraped");
-}
-
-export async function mount() {
+window.mount = () => {
+  initFreelogApp();
   ReactDOM.render(<RouterView />, document.getElementById("root"));
-}
+};
 
-export async function unmount(props) {
-  const { container } = props;
-  ReactDOM.unmountComponentAtNode(container ? container.querySelector("#root") : document.getElementById("root"));
-}
+// 👇 将卸载操作放入 unmount 函数，就是上面步骤2中的卸载函数
+window.unmount = () => {
+  ReactDOM.unmountComponentAtNode(document.getElementById("root"));
+};
 
-if (!window.__POWERED_BY_FREELOG__) {
-  bootstrap().then(mount);
+// 如果不在运行时环境，则直接执行mount渲染
+if (!window.__MICRO_APP_ENVIRONMENT__) {
+  window.mount();
 }
