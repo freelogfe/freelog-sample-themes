@@ -32,7 +32,7 @@ export default defineComponent({
 
   setup() {
     const data = reactive({
-      inMobile: null as boolean | null,
+      inMobile: <boolean | null>null,
     });
 
     const assetsData = {
@@ -85,20 +85,16 @@ export default defineComponent({
   -moz-osx-font-smoothing: grayscale;
   font-size: 14px;
   color: #222;
+  background-color: #fff;
   text-align: left;
-  width: 100vh;
+  width: 100vw;
   height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
-html,
-body,
-#app {
-  width: 100%;
-  height: 100%;
+body {
   margin: 0;
-  background-color: #fff;
 }
 
 .app-wrapper {

@@ -1,6 +1,6 @@
 import { themeList } from "@/api/data";
-import { getSelfConfig, getCurrentUser } from "@/api/freelog";
 import { judgeDevice } from "@/utils/common";
+import { freelogApp } from "freelog-runtime";
 import { createStore } from "vuex";
 
 /** 当前登录用户数据 */
@@ -43,8 +43,8 @@ export default createStore({
   actions: {
     /** 初始化 store */
     async initData(context) {
-      const userData = await getCurrentUser();
-      const selfConfig = await getSelfConfig();
+      const userData = freelogApp.getCurrentUser();
+      const selfConfig = await freelogApp.getSelfProperty();
       const inMobile = judgeDevice();
       const theme = themeList[selfConfig.theme];
       context.commit("setData", {

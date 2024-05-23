@@ -280,8 +280,9 @@
 <script lang="ts">
 import { computed, reactive, ref, toRefs, watch } from "vue";
 import { useMyLocationHistory, useMyRouter, useSearchHistory } from "../utils/hooks";
-import { callLogin, callLoginOut, getNodeInfo } from "@/api/freelog";
+import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
+import { freelogApp } from "freelog-runtime";
 
 export default {
   name: "my-header",
@@ -302,7 +303,7 @@ export default {
   },
 
   setup(props: { homeHeader: boolean }) {
-    const nodeInfo = getNodeInfo();
+    const nodeInfo = freelogApp.nodeInfo;
     const store = useStore();
     const { query, route, switchPage, routerBack } = useMyRouter();
     const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
@@ -363,7 +364,7 @@ export default {
       },
 
       /** 搜索框快捷键 */
-      inputKeyUp(e: { keyCode: any }) {
+      inputKeyUp(e: { keyCode: number }) {
         switch (e.keyCode) {
           case 13:
             // 回车

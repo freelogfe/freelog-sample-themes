@@ -1,19 +1,10 @@
-import {
-  callLogin,
-  getExhibitAuthStatus,
-  getExhibitListById,
-  getExhibitListByPaging,
-  GetExhibitListByPagingParams,
-  getExhibitSignCount,
-  getSignStatistics,
-  getUserData,
-  setUserData,
-} from "@/api/freelog";
+import { callLogin } from "@/api/freelog";
 import { ExhibitItem } from "@/api/interface";
 import { onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { showToast } from "./common";
+import { freelogApp } from "freelog-runtime";
 
 /** 路由 hook */
 export const useMyRouter = () => {
@@ -35,12 +26,7 @@ export const useMyRouter = () => {
     router.back();
   };
 
-  /** 获取当前路由 */
-  const getCurrentPath: () => any = () => {
-    return router.currentRoute.value.fullPath;
-  };
-
-  return { route, router, query, switchPage, routerBack, getCurrentPath };
+  return { route, router, query, switchPage, routerBack };
 };
 
 /** 路由历史 hook */
@@ -82,7 +68,7 @@ export const useMyShelf = (id?: string) => {
   const getMyShelf = async () => {
     if (!store.state.userData.isLogin) return;
 
-    const ids = await getUserData("shelf");
+    const ids = await freelogApp.getUserData("shelf");
 
     const shelfIds = (ids || []).sort();
     const storeShelfIds = store.state.shelfIds.sort();
@@ -109,14 +95,14 @@ export const useMyShelf = (id?: string) => {
 
     const exhibitIds = ids.join(",");
     const [list, statusList] = await Promise.all([
-      getExhibitListById({ exhibitIds }),
-      getExhibitAuthStatus(exhibitIds),
+      freelogApp.getExhibitListById({ exhibitIds }),
+      freelogApp.getExhibitAuthStatus(exhibitIds),
     ]);
-    list.data.data.forEach((item: ExhibitItem) => {
+    (list.data.data as ExhibitItem[]).forEach((item) => {
       const statusItem = statusList.data.data.find(
         (status: { exhibitId: string }) => status.exhibitId === item.exhibitId
       );
-      item.defaulterIdentityType = statusItem.defaulterIdentityType;
+      item.defaulterIdentityType = statusItem?.defaulterIdentityType;
     });
     store.commit("setData", { key: "myShelf", value: list.data.data });
   };
@@ -144,7 +130,7 @@ export const useMyShelf = (id?: string) => {
     } else {
       shelfIds.push(exhibit.exhibitId);
     }
-    const res = await setUserData("shelf", shelfIds);
+    const res = await freelogApp.setUserData("shelf", shelfIds);
     if (res.data.errCode === 0) {
       showToast(isThisCollected ? `已将漫画从收藏中移除～` : `已将漫画加入收藏～`);
       getMyShelf();
@@ -220,25 +206,23 @@ export const useGetList = () => {
   });
 
   /** 获取展品列表 */
-  const getList = async (params: Partial<GetExhibitListByPagingParams> = {}, init = false) => {
+  const getList = async (params: any = {}, init = false) => {
     if (data.myLoading) return;
     if (data.total === data.listData.length && !init) return;
 
     if (init) data.loading = true;
     data.myLoading = true;
     data.skip = init ? 0 : data.skip + 30;
-    const queryParams: GetExhibitListByPagingParams = {
-      skip: data.skip,
-      articleResourceTypes: "漫画",
-      limit: params.limit || 30,
-      ...params,
-    };
-    const list = await getExhibitListByPaging(queryParams);
+    const queryParams = { skip: data.skip, articleResourceTypes: "漫画", limit: params.limit || 30, ...params };
+    const list = await freelogApp.getExhibitListByPaging(queryParams);
     const { dataList, totalItem } = list.data.data;
     if (dataList.length !== 0) {
-      const ids = dataList.map((item: ExhibitItem) => item.exhibitId).join();
-      const [signCountData, statusInfo] = await Promise.all([getExhibitSignCount(ids), getExhibitAuthStatus(ids)]);
-      dataList.forEach((item: ExhibitItem) => {
+      const ids = dataList.map((item) => item.exhibitId).join();
+      const [signCountData, statusInfo] = await Promise.all([
+        freelogApp.getExhibitSignCount(ids),
+        freelogApp.getExhibitAuthStatus(ids),
+      ]);
+      (dataList as ExhibitItem[]).forEach((item) => {
         let index;
         index = signCountData.data.data.findIndex(
           (resultItem: { subjectId: string }) => resultItem.subjectId === item.exhibitId
@@ -271,11 +255,6 @@ export const useGetList = () => {
 
 /** 签约列表 hook */
 export const useMySignedList = () => {
-  interface SignedItem {
-    subjectId: string;
-    isAuth: boolean;
-  }
-
   const store = useStore();
   const data = reactive({
     mySignedList: <ExhibitItem[] | null>null,
@@ -287,22 +266,25 @@ export const useMySignedList = () => {
     // 用户未登录
     if (!store.state.userData.isLogin) return;
 
-    const signedList: any = await getSignStatistics({ keywords });
-    const ids = signedList.data.data.map((item: SignedItem) => item.subjectId).join();
+    const signedList = await freelogApp.getSignStatistics({ keywords });
+    const ids = signedList.data.data.map((item) => item.subjectId).join();
 
     if (!ids) {
       data.mySignedList = [];
       return;
     }
 
-    const [list, statusList] = await Promise.all([getExhibitListById({ exhibitIds: ids }), getExhibitAuthStatus(ids)]);
-    list.data.data.forEach((item: ExhibitItem) => {
+    const [list, statusList] = await Promise.all([
+      freelogApp.getExhibitListById({ exhibitIds: ids }),
+      freelogApp.getExhibitAuthStatus(ids),
+    ]);
+    (list.data.data as ExhibitItem[]).forEach((item) => {
       const statusItem = statusList.data.data.find(
         (status: { exhibitId: string }) => status.exhibitId === item.exhibitId
       );
-      item.defaulterIdentityType = statusItem.defaulterIdentityType;
+      item.defaulterIdentityType = statusItem?.defaulterIdentityType;
     });
-    data.mySignedList = list.data.data.filter((item: ExhibitItem) => !item.articleInfo.resourceType.includes("主题"));
+    data.mySignedList = list.data.data.filter((item) => !item.articleInfo.resourceType.includes("主题"));
   };
 
   getMySignedList();

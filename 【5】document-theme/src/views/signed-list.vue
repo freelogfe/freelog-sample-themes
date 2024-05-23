@@ -90,7 +90,7 @@ export default {
       clickDocument(item: ExhibitItem) {
         const { exhibitId, defaulterIdentityType } = item;
 
-        if (![0, 4].includes(defaulterIdentityType)) {
+        if (![0, 4].includes(defaulterIdentityType || -1)) {
           showToast("授权链异常，无法查看");
           return;
         }

@@ -229,7 +229,7 @@
             "
           />
 
-          <operate-btn icon="fl-icon-fenxiang" :theme="theme" @click.stop="setWidgetData('show', true)">
+          <operate-btn icon="fl-icon-fenxiang" :theme="theme" @click.stop="setShareWidgetShow(true)">
             <div id="share" class="share-wrapper" />
           </operate-btn>
 
@@ -398,17 +398,10 @@ import { toRefs } from "@vue/reactivity";
 import { useMyRouter, useMyScroll, useMyShelf } from "../utils/hooks";
 import { defineAsyncComponent, nextTick, onBeforeUnmount, reactive, watch } from "vue";
 import { ContentImage, ExhibitItem } from "@/api/interface";
-import {
-  addAuth,
-  getExhibitAuthStatus,
-  getExhibitFileStream,
-  getExhibitInfo,
-  getSubDep,
-  mountWidget,
-} from "@/api/freelog";
 import { useStore } from "vuex";
 import { Swipe, SwipeItem } from "vant";
 import "vant/lib/index.css";
+import { WidgetController, freelogApp } from "freelog-runtime";
 
 export default {
   name: "reader",
@@ -480,13 +473,13 @@ export default {
       directionTipShow: false,
       barShow: false,
       jumping: false,
-      shareWidget: null as any,
+      shareWidget: null as WidgetController | null,
     });
 
     const methods = {
       /** 点击页面 */
       clickPage() {
-        this.setWidgetData("show", false);
+        this.setShareWidgetShow(false);
         if (store.state.inMobile) {
           data.barShow = !data.barShow;
           if (data.modeMenuShow) data.modeMenuShow = false;
@@ -517,7 +510,7 @@ export default {
 
       /** 获取授权 */
       async getAuth() {
-        const authResult = await addAuth(id);
+        const authResult = await freelogApp.addAuth(id, { immediate: true });
         const { status } = authResult;
         if (status === 0) {
           getContent();
@@ -702,38 +695,37 @@ export default {
         this.jump();
       },
 
-      /** 通知插件更新数据 */
-      setWidgetData(key: string, value: any) {
-        if (data.shareWidget && data.shareWidget.getApi().setData) {
-          data.shareWidget.getApi().setData(key, value);
-        }
+      /** 控制分享弹窗显示 */
+      setShareWidgetShow(value: boolean) {
+        data.shareWidget?.setData({ show: value });
       },
     };
 
     /** 获取漫画信息 */
     const getComicInfo = async () => {
-      const exhibitInfo = await getExhibitInfo(id, { isLoadVersionProperty: 1 });
-      data.comicInfo = exhibitInfo.data.data;
+      const exhibitInfo = await freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 });
+      let comicMode;
       const { resourceType } = exhibitInfo.data.data.articleInfo;
       if (resourceType[2] === "条漫") {
-        data.comicMode = 1;
+        comicMode = 1;
       } else if (resourceType[2] === "日漫") {
-        data.comicMode = 3;
+        comicMode = 3;
       } else {
-        data.comicMode = 2;
+        comicMode = 2;
       }
+      data.comicInfo = { ...exhibitInfo.data.data, comicMode };
       getContent();
     };
 
     /** 获取漫画内容 */
     const getContent = async () => {
       data.loading = true;
-      const statusInfo = await getExhibitAuthStatus(id);
+      const statusInfo = await freelogApp.getExhibitAuthStatus(id);
       if (statusInfo.data.data) data.comicInfo.defaulterIdentityType = statusInfo.data.data[0].defaulterIdentityType;
 
       if (data.comicInfo.defaulterIdentityType === 0) {
         // 已签约并且授权链无异常
-        const info: any = await getExhibitFileStream(id, { subFilePath: "index.json" });
+        const info = await freelogApp.getExhibitFileStream(id, { subFilePath: "index.json" });
         if (info.status !== 200 || info.data.list.length === 0) {
           data.loading = false;
           mountShareWidget();
@@ -742,7 +734,7 @@ export default {
 
         const requestList: Promise<any>[] = [];
         info.data.list.forEach((item: ContentImage) => {
-          const request = getExhibitFileStream(id, { subFilePath: item.name, returnUrl: true });
+          const request = freelogApp.getExhibitFileStream(id, { subFilePath: item.name, returnUrl: true });
           requestList.push(request);
         });
         const results = await Promise.all([...requestList]);
@@ -807,8 +799,8 @@ export default {
     };
 
     /** 快捷键 */
-    const keyup = (e: KeyboardEvent) => {
-      const target: any = e.target;
+    const keyup = (e: any) => {
+      const { target } = e;
       if (target && target.nodeName === "INPUT") return;
 
       if (e.key === "ArrowLeft") {
@@ -823,15 +815,26 @@ export default {
       if (store.state.inMobile) return;
 
       if (data.shareWidget) await data.shareWidget.unmount();
-      const themeData = await getSubDep();
-      const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-展品分享");
-      if (!widget) return;
-      data.shareWidget = await mountWidget({
-        widget,
-        container: document.getElementById("share"),
-        topExhibitData: themeData,
-        config: { exhibit: data.comicInfo, type: "漫画" },
-      });
+
+      const subDeps = await freelogApp.getSelfDependencyTree();
+      const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-展品分享");
+      if (!widgetData) return;
+
+      const { articleId, parentNid, nid } = widgetData;
+      const topExhibitId = freelogApp.getTopExhibitId();
+
+      const params = {
+        articleId,
+        parentNid,
+        nid,
+        topExhibitId,
+        container: document.getElementById("share") as HTMLElement,
+        renderWidgetOptions: {
+          data: { exhibit: data.comicInfo, type: "漫画", routerType: "content" },
+        },
+        // widget_entry: "https://localhost:8201",
+      };
+      data.shareWidget = await freelogApp.mountArticleWidget(params);
     };
 
     watch(

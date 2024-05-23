@@ -1,7 +1,7 @@
 <!-- 阅读页 -->
 
 <template>
-  <div class="reader-wrapper" :class="{ 'in-mobile': inMobile }" @mouseover="setWidgetData('show', false)">
+  <div class="reader-wrapper" :class="{ 'in-mobile': inMobile }">
     <my-header readerHeader />
 
     <!-- mobile -->
@@ -58,7 +58,11 @@
       <div class="article-card">
         <div class="title-share">
           <div class="article-title">{{ articleData?.exhibitTitle }}</div>
-          <div class="share-btn" @mouseover.stop="setWidgetData('show', true)">
+          <div
+            class="share-btn"
+            @mouseenter.stop="setShareWidgetShow(true)"
+            @mouseleave.stop="setShareWidgetShow(false)"
+          >
             <span class="share-btn-text" :class="{ active: shareShow }">
               <i class="freelog fl-icon-fenxiang"></i>分享
             </span>
@@ -114,23 +118,13 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, onBeforeUnmount, reactive, toRefs, watch } from "vue";
+import { defineAsyncComponent, nextTick, onBeforeUnmount, reactive, toRefs, watch } from "vue";
 import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
 import { ExhibitItem } from "@/api/interface";
-import {
-  addAuth,
-  getExhibitAuthStatus,
-  getExhibitFileStream,
-  getExhibitInfo,
-  getExhibitSignCount,
-  getSubDep,
-  mountWidget,
-  getCurrentUrl,
-  pushMessage4Task,
-} from "@/api/freelog";
 import { formatDate } from "@/utils/common";
 import { useStore } from "vuex";
 import { showToast } from "@/utils/common";
+import { WidgetController, freelogApp } from "freelog-runtime";
 
 export default {
   name: "reader",
@@ -156,8 +150,8 @@ export default {
       recommendList: [] as ExhibitItem[],
       shareShow: false,
       href: "",
-      shareWidget: null as any,
-      markdownWidget: null as any,
+      shareWidget: null as WidgetController | null,
+      markdownWidget: null as WidgetController | null,
     });
 
     const methods = {
@@ -167,13 +161,13 @@ export default {
         input.select();
         document.execCommand("Copy");
         showToast("链接复制成功～");
-        pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: data.articleData?.exhibitId } });
+        // freelogApp.pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: data.articleData?.exhibitId } });
       },
 
       /** 获取授权 */
       async getAuth() {
         const { id } = query.value;
-        const authResult = await addAuth(id);
+        const authResult = await freelogApp.addAuth(id, { immediate: true });
         const { status } = authResult;
         if (status === 0) {
           getData();
@@ -181,36 +175,37 @@ export default {
         }
       },
 
-      /** 通知插件更新数据 */
-      setWidgetData(key: string, value: any) {
-        if (data.shareWidget && data.shareWidget.getApi().setData) {
-          data.shareWidget.getApi().setData(key, value);
-        }
+      /** 控制分享弹窗显示 */
+      setShareWidgetShow(value: boolean) {
+        data.shareWidget?.setData({ show: value });
       },
     };
 
     /** 获取文章信息与内容 */
     const getData = async () => {
+      scrollTo(0, "auto");
+
       data.contentLoading = true;
       const { id } = query.value;
 
       const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
-        getExhibitInfo(id, { isLoadVersionProperty: 1 }),
-        getExhibitSignCount(id),
-        getExhibitAuthStatus(id),
+        freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+        freelogApp.getExhibitSignCount(id),
+        freelogApp.getExhibitAuthStatus(id),
       ]);
+      const { defaulterIdentityType } = statusInfo.data.data[0];
       data.articleData = {
         ...exhibitInfo.data.data,
         signCount: signCountData.data.data[0].count,
-        defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
-      } as ExhibitItem;
+        defaulterIdentityType,
+      };
 
-      data.href = getCurrentUrl();
+      data.href = freelogApp.getCurrentUrl();
       mountShareWidget();
 
-      if (data.articleData.defaulterIdentityType === 0) {
+      if (defaulterIdentityType === 0) {
         // 已签约并且授权链无异常
-        const info: any = await getExhibitFileStream(id);
+        const info = await freelogApp.getExhibitFileStream(id);
         if (!info) {
           data.contentLoading = false;
           return;
@@ -220,15 +215,17 @@ export default {
           content: info.data,
           exhibitInfo: exhibitInfo.data.data,
         };
-      } else if (data.articleData.defaulterIdentityType === 4) {
+      } else if (defaulterIdentityType === 4) {
         // 标的物未签约，自动弹出授权弹窗
         methods.getAuth();
       }
 
       data.contentLoading = false;
-      if (data.articleData.defaulterIdentityType === 0) mountMarkdownWidget();
+      nextTick(() => {
+        mountMarkdownWidget();
+      });
       await datasOfGetList.getList({ limit: 4 }, true);
-      const recommendList = datasOfGetList.listData.value.filter((item: ExhibitItem) => item.exhibitId !== id);
+      const recommendList = datasOfGetList.listData.value.filter((item) => item.exhibitId !== id);
       data.recommendList = recommendList.filter((_: any, index: number) => index < 4);
     };
 
@@ -243,29 +240,56 @@ export default {
     const mountShareWidget = async () => {
       if (store.state.inMobile) return;
 
+      const container = document.getElementById("share");
+      if (!container) return;
+
       if (data.shareWidget) await data.shareWidget.unmount();
-      const themeData = await getSubDep();
-      const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-展品分享");
-      if (!widget) return;
-      data.shareWidget = await mountWidget({
-        widget,
-        container: document.getElementById("share"),
-        topExhibitData: themeData,
-        config: { exhibit: data.articleData, type: "博客" },
-      });
+
+      const subDeps = await freelogApp.getSelfDependencyTree();
+      const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-展品分享");
+      if (!widgetData) return;
+
+      const { articleId, parentNid, nid } = widgetData;
+      const topExhibitId = freelogApp.getTopExhibitId();
+
+      const params = {
+        articleId,
+        parentNid,
+        nid,
+        topExhibitId,
+        container,
+        renderWidgetOptions: {
+          data: { exhibit: data.articleData, type: "博客", routerType: "content" },
+        },
+        // widget_entry: "https://localhost:8201",
+      };
+      data.shareWidget = await freelogApp.mountArticleWidget(params);
     };
 
     /** 加载 markdown 插件 */
     const mountMarkdownWidget = async () => {
-      const themeData = await getSubDep();
-      const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-markdown解析");
-      if (!widget) return;
-      data.markdownWidget = await mountWidget({
-        widget,
-        container: document.getElementById("markdown"),
-        topExhibitData: themeData,
-        config: { exhibitInfo: data.contentInfo?.exhibitInfo, content: data.contentInfo?.content },
-      });
+      const container = document.getElementById("markdown");
+      if (!container) return;
+
+      const subDeps = await freelogApp.getSelfDependencyTree();
+      const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-markdown解析");
+      if (!widgetData) return;
+
+      const { articleId, parentNid, nid } = widgetData;
+      const topExhibitId = freelogApp.getTopExhibitId();
+
+      const params = {
+        articleId,
+        parentNid,
+        nid,
+        topExhibitId,
+        container,
+        renderWidgetOptions: {
+          data: { exhibitInfo: data.contentInfo?.exhibitInfo, content: data.contentInfo?.content },
+        },
+        // widget_entry: "https://localhost:8202",
+      };
+      data.markdownWidget = await freelogApp.mountArticleWidget(params);
     };
 
     watch(
@@ -274,7 +298,6 @@ export default {
         const path = getCurrentPath();
         if (!path.startsWith("/reader")) return;
 
-        scrollTo(0, "auto");
         data.articleData = null;
         data.contentInfo = null;
         data.recommendList = [];

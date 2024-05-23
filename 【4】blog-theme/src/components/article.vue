@@ -126,7 +126,7 @@ export default {
 
     /** 点击文章组件 */
     const clickArticle = () => {
-      const { exhibitId, defaulterIdentityType } = props.data;
+      const { exhibitId, defaulterIdentityType = -1 } = props.data;
 
       if (![0, 4].includes(defaulterIdentityType)) {
         showToast("授权链异常，无法查看");

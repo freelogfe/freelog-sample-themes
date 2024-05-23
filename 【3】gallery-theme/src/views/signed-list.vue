@@ -85,7 +85,7 @@ export default {
 
       /** 点击图片/视频组件 */
       clickFrame(item: ExhibitItem) {
-        const { exhibitId, defaulterIdentityType } = item;
+        const { exhibitId, defaulterIdentityType = -1 } = item;
 
         if (![0, 4].includes(defaulterIdentityType)) {
           showToast("授权链异常，无法查看");
@@ -105,7 +105,7 @@ export default {
     const waterfallResize = () => {
       getListNumber();
       initWaterfall();
-      setWaterFall(mySignedList.value || []);
+      setWaterFall((mySignedList.value || []) as ExhibitItem[]);
     };
 
     /** 根据链接判断是否进入详情页或打开内容弹窗 */

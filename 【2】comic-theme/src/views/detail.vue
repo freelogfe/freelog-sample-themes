@@ -92,7 +92,7 @@
     </div>
 
     <!-- PC -->
-    <div class="content" @mouseover="setWidgetData('show', false)" v-if="!inMobile">
+    <div class="content" v-if="!inMobile">
       <div
         class="auth-link-abnormal-tip"
         v-if="comicInfo.defaulterIdentityType && ![0, 4].includes(comicInfo.defaulterIdentityType)"
@@ -144,7 +144,11 @@
 
               <div class="other-btns">
                 <div class="sign-count">{{ comicInfo?.signCount }}人签约</div>
-                <div class="share-btn" @mouseover.stop="setWidgetData('show', true)">
+                <div
+                  class="share-btn"
+                  @mouseenter.stop="setShareWidgetShow(true)"
+                  @mouseleave.stop="setShareWidgetShow(false)"
+                >
                   <span class="share-btn-text" :class="{ active: shareShow }">
                     <i class="freelog fl-icon-fenxiang"></i>
                     分享给更多人
@@ -183,18 +187,10 @@
 import { useMyRouter, useMyShelf } from "../utils/hooks";
 import { defineAsyncComponent, reactive, ref, toRefs, watch } from "@vue/runtime-core";
 import { ExhibitItem } from "@/api/interface";
-import {
-  getExhibitInfo,
-  getExhibitSignCount,
-  getExhibitAuthStatus,
-  mountWidget,
-  getSubDep,
-  getCurrentUrl,
-  pushMessage4Task,
-} from "@/api/freelog";
 import { useStore } from "vuex";
 import { formatDate, showToast } from "@/utils/common";
 import { onBeforeUnmount } from "vue";
+import { WidgetController, freelogApp } from "freelog-runtime";
 
 export default {
   name: "detail",
@@ -219,7 +215,7 @@ export default {
       shareShow: false,
       introState: 0,
       href: "",
-      shareWidget: null as any,
+      shareWidget: null as WidgetController | null,
     });
 
     const methods = {
@@ -229,30 +225,31 @@ export default {
         input.select();
         document.execCommand("Copy");
         showToast("链接复制成功～");
-        pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: data.comicInfo.exhibitId } });
+        // freelogApp.pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: data.comicInfo.exhibitId } });
       },
 
-      /** 通知插件更新数据 */
-      setWidgetData(key: string, value: any) {
-        if (data.shareWidget && data.shareWidget.getApi().setData) {
-          data.shareWidget.getApi().setData(key, value);
-        }
+      /** 控制分享弹窗显示 */
+      setShareWidgetShow(value: boolean) {
+        data.shareWidget?.setData({ show: value });
       },
     };
 
     /** 获取漫画信息 */
     const getComicInfo = async (id: string) => {
       const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
-        getExhibitInfo(id, { isLoadVersionProperty: 1 }),
-        getExhibitSignCount(id),
-        getExhibitAuthStatus(id),
+        freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+        freelogApp.getExhibitSignCount(id),
+        freelogApp.getExhibitAuthStatus(id),
       ]);
+      const { count } = signCountData.data.data[0];
+      const { defaulterIdentityType = -1 } = statusInfo.data.data[0];
       data.comicInfo = {
         ...exhibitInfo.data.data,
-        signCount: signCountData.data.data[0].count,
-        defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
+        signCount: count,
+        defaulterIdentityType,
       };
-      data.href = getCurrentUrl();
+      data.href = freelogApp.getCurrentUrl();
+
       mountShareWidget();
     };
 
@@ -260,15 +257,28 @@ export default {
     const mountShareWidget = async () => {
       if (store.state.inMobile) return;
 
-      const themeData = await getSubDep();
-      const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-展品分享");
-      if (!widget) return;
-      data.shareWidget = await mountWidget({
-        widget,
-        container: document.getElementById("share"),
-        topExhibitData: themeData,
-        config: { exhibit: data.comicInfo, type: "漫画" },
-      });
+      const container = document.getElementById("share");
+      if (!container) return;
+
+      const subDeps = await freelogApp.getSelfDependencyTree();
+      const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-展品分享");
+      if (!widgetData) return;
+
+      const { articleId, parentNid, nid } = widgetData;
+      const topExhibitId = freelogApp.getTopExhibitId();
+
+      const params = {
+        articleId,
+        parentNid,
+        nid,
+        topExhibitId,
+        container,
+        renderWidgetOptions: {
+          data: { exhibit: data.comicInfo, type: "漫画", routerType: "detail" },
+        },
+        // widget_entry: "https://localhost:8201",
+      };
+      data.shareWidget = await freelogApp.mountArticleWidget(params);
     };
 
     watch(

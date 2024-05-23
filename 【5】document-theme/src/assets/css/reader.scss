@@ -631,12 +631,12 @@
             padding: 0 39px;
             box-sizing: border-box;
             transition: all 0.2s linear;
-            border: 1px solid #e4e4e4;
+            border: 1px solid #e4e4e4 !important;
 
             &:hover,
             &:focus,
             &.in-focus {
-              border: 1px solid #2784ff;
+              border: 1px solid #2784ff !important;
             }
 
             &::-webkit-input-placeholder {

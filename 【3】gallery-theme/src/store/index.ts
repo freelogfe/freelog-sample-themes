@@ -1,7 +1,7 @@
 import { themeList } from "@/api/data";
-import { getSelfConfig, getCurrentUser } from "@/api/freelog";
 import { ExhibitItem } from "@/api/interface";
 import { judgeDevice, judgeIOSDevice } from "@/utils/common";
+import { freelogApp } from "freelog-runtime";
 import { createStore } from "vuex";
 
 /** 用户信息 */
@@ -34,6 +34,7 @@ export default createStore({
     listData: [] as ExhibitItem[],
     locationHistory: [] as HistoryItem[],
     authIds: [] as string[], // 授权集合，用于刷新列表授权状态
+    homeLoading: false
   },
 
   mutations: {
@@ -46,8 +47,8 @@ export default createStore({
   actions: {
     /** 初始化 store */
     async initStoreData(context) {
-      const userData = await getCurrentUser();
-      const selfConfig = await getSelfConfig();
+      const userData = freelogApp.getCurrentUser();
+      const selfConfig = await freelogApp.getSelfProperty();
       const inMobile = judgeDevice();
       const isIOS = judgeIOSDevice();
       const theme = themeList[selfConfig.theme];

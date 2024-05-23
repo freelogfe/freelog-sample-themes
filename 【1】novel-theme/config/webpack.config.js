@@ -213,10 +213,8 @@ module.exports = function (webpackEnv) {
       // this defaults to 'window', but by setting it to 'this' then
       // module chunks which are built will work in web workers as well.
       globalObject: "this",
-      // 把子应用打包成 umd 库格式
-      library: `novel-theme-[name]`,
-      libraryTarget: "umd",
       jsonpFunction: `webpackJsonp_novel-theme`,
+      globalObject: "window",
     },
     optimization: {
       minimize: isEnvProduction,

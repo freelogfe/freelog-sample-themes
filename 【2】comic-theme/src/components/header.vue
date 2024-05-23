@@ -341,7 +341,7 @@ export default {
       },
 
       /** 搜索框键盘快捷键 */
-      inputKeyUp(e: { keyCode: any }) {
+      inputKeyUp(e: KeyboardEvent) {
         switch (e.keyCode) {
           case 13:
             // 回车

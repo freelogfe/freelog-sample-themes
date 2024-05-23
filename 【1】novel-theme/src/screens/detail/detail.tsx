@@ -4,15 +4,6 @@ import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
 import { useState, useEffect, useCallback } from "react";
 import { Header } from "../../components/header/header";
 import { ExhibitItem } from "../../api/interface";
-import {
-  getCurrentUrl,
-  getExhibitAuthStatus,
-  getExhibitInfo,
-  getExhibitSignCount,
-  getSubDep,
-  mountWidget,
-  pushMessage4Task,
-} from "../../api/freelog";
 import { formatDate, getUrlParams } from "../../utils/common";
 import { Tags } from "../../components/tags/tags";
 import { useMyHistory, useMyShelf } from "../../utils/hooks";
@@ -21,6 +12,7 @@ import { ThemeEntrance } from "../../components/theme-entrance/theme-entrance";
 import { LoginBtn } from "../../components/login-btn/login-btn";
 import { globalContext } from "../../router";
 import { showToast } from "../../components/toast/toast";
+import { freelogApp } from "freelog-runtime";
 
 const detailContext = React.createContext<any>({});
 
@@ -32,9 +24,9 @@ export const DetailScreen = (props: any) => {
   /** 获取小说信息 */
   const getNovelInfo = useCallback(async () => {
     const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
-      getExhibitInfo(id, { isLoadVersionProperty: 1 }),
-      getExhibitSignCount(id),
-      getExhibitAuthStatus(id),
+      freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+      freelogApp.getExhibitSignCount(id),
+      freelogApp.getExhibitAuthStatus(id),
     ]);
     const bookInfo = {
       ...exhibitInfo.data.data,
@@ -84,33 +76,44 @@ const DetailBody = () => {
     input.select();
     document.execCommand("Copy");
     showToast("链接复制成功～");
-    pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: novel.exhibitId } });
+    // freelogApp.pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: novel.exhibitId } });
   };
 
   /** 加载分享插件 */
   const mountShareWidget = async () => {
     if (inMobile) return;
 
-    const themeData = await getSubDep();
-    const widget = themeData.subDep.find((item: any) => item.name === "ZhuC/Freelog插件-展品分享");
-    if (!widget) return;
-    shareWidget.current = await mountWidget({
-      widget,
-      container: document.getElementById("share"),
-      topExhibitData: themeData,
-      config: { exhibit: novel, type: "小说" },
-    });
+    const container = document.getElementById("share");
+    if (!container) return;
+
+    const subDeps = await freelogApp.getSelfDependencyTree();
+    const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-展品分享");
+    if (!widgetData) return;
+
+    const { articleId, parentNid, nid } = widgetData;
+    const topExhibitId = freelogApp.getTopExhibitId();
+
+    const params = {
+      articleId,
+      parentNid,
+      nid,
+      topExhibitId,
+      container,
+      renderWidgetOptions: {
+        data: { exhibit: novel, type: "小说", routerType: "detail" },
+      },
+      // widget_entry: "https://localhost:8201",
+    };
+    shareWidget.current = await freelogApp.mountArticleWidget(params);
   };
 
-  /** 通知插件更新数据 */
-  const setWidgetData = (key: string, value: any) => {
-    if (shareWidget.current && shareWidget.current.getApi().setData) {
-      shareWidget.current.getApi().setData(key, value);
-    }
+  /** 控制分享弹窗显示 */
+  const setShareWidgetShow = (value: boolean) => {
+    shareWidget.current?.setData({ show: value });
   };
 
   useEffect(() => {
-    setHref(getCurrentUrl());
+    setHref(freelogApp.getCurrentUrl());
 
     return () => {
       if (inMobile) return;
@@ -218,7 +221,7 @@ const DetailBody = () => {
     </div>
   ) : (
     // PC
-    <div className="content" onMouseOver={() => setWidgetData("show", false)}>
+    <div className="content">
       {novel && (
         <div className="content-box">
           {/* 授权链异常提示 */}
@@ -269,7 +272,11 @@ const DetailBody = () => {
                     className="share-btn"
                     onMouseOver={(e) => {
                       e.stopPropagation();
-                      setWidgetData("show", true);
+                      setShareWidgetShow(true);
+                    }}
+                    onMouseLeave={(e) => {
+                      e.stopPropagation();
+                      setShareWidgetShow(false);
                     }}
                   >
                     <span className="share-btn-text">

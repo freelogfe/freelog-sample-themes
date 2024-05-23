@@ -134,15 +134,9 @@
 <script>
 import playStatus from "@/components/play-status";
 import myTooltip from "@/components/tooltip";
-import {
-  getExhibitInfo,
-  getExhibitSignCount,
-  getExhibitAuthStatus,
-  getCurrentUrl,
-  pushMessage4Task,
-} from "@/api/freelog";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { showToast } from "@/utils/common";
+import { freelogApp } from "freelog-runtime";
 
 export default {
   name: "detail",
@@ -276,7 +270,7 @@ export default {
         input.select();
         document.execCommand("Copy");
         showToast("链接复制成功～");
-        pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: this.voiceInfo?.exhibitId } });
+        // freelogApp.pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: this.voiceInfo?.exhibitId } });
       } else {
         this.$store.commit("setData", { key: "shareInfo", value: { show: true, exhibit: this.voiceInfo } });
       }
@@ -286,16 +280,16 @@ export default {
     async getVoiceInfo() {
       this.voiceInfo = null;
       const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
-        getExhibitInfo(this.id, { isLoadVersionProperty: 1 }),
-        getExhibitSignCount(this.id),
-        getExhibitAuthStatus(this.id),
+        freelogApp.getExhibitInfo(this.id, { isLoadVersionProperty: 1 }),
+        freelogApp.getExhibitSignCount(this.id),
+        freelogApp.getExhibitAuthStatus(this.id),
       ]);
       this.voiceInfo = {
         ...exhibitInfo.data.data,
         signCount: signCountData.data.data[0].count,
         defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
       };
-      this.href = getCurrentUrl();
+      this.href = freelogApp.getCurrentUrl();
     },
 
     /** 授权 */

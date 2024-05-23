@@ -1,59 +1,51 @@
 import "./public-path";
-import { createApp } from "vue";
-import { createRouter, createWebHistory } from "vue-router";
-import App from "./App.vue";
+import { App, createApp } from "vue";
+import * as VueRouter from "vue-router";
+import AppPage from "./App.vue";
 import routes from "./router";
 import store from "./store";
 import lazyPlugin from "vue3-lazy";
 import hljs from "highlight.js";
 import "highlight.js/styles/a11y-dark.css";
+import { initFreelogApp } from "freelog-runtime";
 
 const myWindow: any = window;
+let app: App<Element> | null = null;
+let router: VueRouter.Router | null = null;
+let history: VueRouter.RouterHistory | null = null;
 
-myWindow.FREELOG_RESOURCENAME = "ZhuC/blog-theme";
-myWindow.freelogApp.onLogin(() => myWindow.location.reload());
+myWindow.mount = () => {
+  initFreelogApp();
 
-let instance: any = null;
-let router = null;
-
-function render(props: any = {}) {
-  const { container } = props;
-  router = createRouter({
-    history: createWebHistory(process.env.BASE_URL),
+  history = VueRouter.createWebHistory();
+  router = VueRouter.createRouter({
+    history,
     routes,
   });
-  instance = createApp(App).use(router).use(store).use(lazyPlugin, {});
-  instance.mount(container ? container.querySelector("#app") : "#app");
+
+  app = createApp(AppPage);
+  app.use(router).use(store).use(lazyPlugin, {});
+  app.mount("#app");
   store.dispatch("initData");
 
   // 定义⾃定义指令 highlight 代码⾼亮
-  instance.directive("highlight", function (el: { querySelectorAll: (arg0: string) => any }) {
+  hljs.configure({ ignoreUnescapedHTML: true });
+  app.directive("highlight", (el) => {
     const blocks = el.querySelectorAll("pre code");
     blocks.forEach((block: any) => {
       hljs.highlightBlock(block);
     });
   });
-}
+};
 
-if (!myWindow.__POWERED_BY_FREELOG__) {
-  render();
-}
-
-export async function bootstrap() {
-  console.log("vue app bootstraped");
-}
-
-export async function mount(props: { onGlobalStateChange: any; setGlobalState: any }) {
-  render(props);
-  if (instance.config) {
-    instance.config.globalProperties.$onGlobalStateChange = props.onGlobalStateChange;
-    instance.config.globalProperties.$setGlobalState = props.setGlobalState;
-  }
-}
-
-export async function unmount() {
-  instance.unmount();
-  instance._container.innerHTML = "";
-  instance = null;
+myWindow.unmount = () => {
+  app?.unmount();
+  history?.destroy();
+  app = null;
   router = null;
+  history = null;
+};
+
+if (!myWindow.__MICRO_APP_ENVIRONMENT__) {
+  myWindow.mount();
 }

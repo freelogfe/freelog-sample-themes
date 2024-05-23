@@ -7,9 +7,9 @@ import showdown from "showdown";
 import { ref } from "@vue/reactivity";
 import { nextTick, watch } from "@vue/runtime-core";
 import { ExhibitItem } from "@/api/interface";
-import { getExhibitDepFileStream, pushMessage4Task } from "@/api/freelog";
 import { SetupContext } from "vue";
 import { useStore } from "vuex";
+import { ExhibitVersionInfo, freelogApp } from "freelog-runtime";
 
 export default {
   name: "my-markdown",
@@ -37,27 +37,26 @@ export default {
 
     const getContent = async () => {
       let html = "";
-      const { exhibitProperty, dependencyTree } = props.data.versionInfo;
-      if (exhibitProperty.mime === "text/markdown") {
+      const { exhibitProperty, dependencyTree } = props.data.versionInfo as ExhibitVersionInfo;
+      if (exhibitProperty?.mime === "text/markdown") {
         // markdown 文件，以 markdown 解析
         const converter = new showdown.Converter();
-        html = converter.makeHtml(props.data.content);
+        html = converter.makeHtml(props.data.content || "");
       } else {
-        html = props.data.content;
+        html = props.data.content || "";
         html = html.replace(/\n/g, "<br/>");
       }
 
       const deps = dependencyTree.filter((_: any, index: number) => index !== 0);
       let promiseArr = [] as Promise<any>[];
-      deps.forEach((dep: { resourceType: string; parentNid: any; articleId: any }) => {
+      deps.forEach((dep) => {
         const isMediaResource =
           dep.resourceType.includes("图片") || dep.resourceType.includes("视频") || dep.resourceType.includes("音频");
-        const depContent: Promise<any> = getExhibitDepFileStream(
-          props.data.exhibitId,
-          dep.parentNid,
-          dep.articleId,
-          isMediaResource
-        );
+        const depContent = freelogApp.getExhibitDepFileStream(props.data.exhibitId, {
+          parentNid: dep.parentNid,
+          subArticleId: dep.articleId,
+          returnUrl: isMediaResource,
+        });
         promiseArr.push(depContent);
       });
 
@@ -100,15 +99,29 @@ export default {
       nextTick(() => {
         const elements = [...contentBody.value.children];
         const titles = elements.filter((item: HTMLElement) => ["H1", "H2", "H3"].includes(item.nodeName));
-        context.emit("getDirectory", titles);
 
         if (store.state.userData.isLogin) videoPlayDuration();
+
+        /** 所有图片加载完成再进行标题跳转，否则会因为图片未加载时高度问题造成滚动条移动到错误位置 */
+        const imgs = [...document.getElementsByTagName("img")].filter((item) => !item.className);
+        let num = imgs.length;
+        imgs.forEach((img) => {
+          img.onload = () => {
+            num--;
+            if (num === 0) context.emit("getDirectory", titles);
+          };
+          img.onerror = () => {
+            num--;
+            if (num === 0) context.emit("getDirectory", titles);
+          };
+        });
       });
     };
 
     /** 视频播放时长记录 */
     const videoPlayDuration = () => {
-      const nodeIsOfficial = (window as any).location.currentURL.startsWith("https://freelog3.freelog.com");
+      const currentURL = freelogApp.getCurrentUrl();
+      const nodeIsOfficial = currentURL.startsWith("https://freelog3.freelog.com");
       const docIsOfficial = props.data.exhibitId === "62ce6f8a456ff0002e32915f";
       // 只在官方帮助中心节点且《快速上手》文档功能生效
       if (!nodeIsOfficial || !docIsOfficial) return;
@@ -163,7 +176,7 @@ export default {
 
     /** 内测任务完成 */
     const completeTask = () => {
-      pushMessage4Task({ taskConfigCode: "TS000011" });
+      // freelogApp.pushMessage4Task({ taskConfigCode: "TS000011" });
     };
 
     watch(
