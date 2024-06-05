@@ -1,7 +1,7 @@
 import "./back-top.scss";
 import CSSTransition from "react-transition-group/CSSTransition";
 import { useMyScroll } from "../../utils/hooks";
-import { ReactChild } from "react";
+import React, { ReactChild } from "react";
 
 /** 回到顶部控件 */
 export const BackTop = (props: { children: ReactChild; onClick?: () => void }) => {
@@ -16,7 +16,9 @@ export const BackTop = (props: { children: ReactChild; onClick?: () => void }) =
 
   return (
     <CSSTransition in={scrollTop > 300} classNames="fade" timeout={500} unmountOnExit onClick={() => backToTop()}>
-      {children}
+      <React.Fragment>
+        {children}
+      </React.Fragment>
     </CSSTransition>
   );
 };
