@@ -372,12 +372,13 @@ export default {
     },
 
     "$store.state.inMobile"(cur) {
+      const appElement = document.getElementById("app");
       if (cur) {
-        app.addEventListener("touchend", () => {
+        appElement.addEventListener("touchend", () => {
           this.slidingProgress = false;
         });
       } else {
-        app.addEventListener("mouseup", () => {
+        appElement.addEventListener("mouseup", () => {
           this.slidingProgress = false;
         });
       }
