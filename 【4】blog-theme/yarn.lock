@@ -4579,7 +4579,7 @@ flush-write-stream@^1.0.0:
     inherits "^2.0.3"
     readable-stream "^2.3.6"
 
-follow-redirects@^1.0.0:
+follow-redirects@^1.0.0, follow-redirects@^1.14.0:
   version "1.15.6"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.6.tgz#7f815c0cda4249c74ff09e95ef97c23b5fd0399b"
   integrity sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==
@@ -4590,11 +4590,6 @@ for-each@^0.3.3:
   integrity sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==
   dependencies:
     is-callable "^1.1.3"
-
-follow-redirects@^1.14.0:
-  version "1.15.6"
-  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.6.tgz#7f815c0cda4249c74ff09e95ef97c23b5fd0399b"
-  integrity sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==
 
 for-in@^1.0.2:
   version "1.0.2"
@@ -4658,10 +4653,10 @@ fragment-cache@^0.2.1:
   dependencies:
     map-cache "^0.2.2"
 
-freelog-runtime@^3.8.4:
-  version "3.8.4"
-  resolved "https://registry.yarnpkg.com/freelog-runtime/-/freelog-runtime-3.8.4.tgz#c369e12176f1f592d64130a19dd52b2eb2a4e36f"
-  integrity sha512-qECXBMWYWvj5A5k2rgqxrulHHVOSlEBKOV0WPWRP72xB4M+4QOJKmtcl1iR4Z3SGC9gKd5VWFBE2U4+0MWMEIg==
+freelog-runtime@^3.8.5:
+  version "3.8.5"
+  resolved "https://registry.npmmirror.com/freelog-runtime/-/freelog-runtime-3.8.5.tgz#eddd2c725b4540a52d480c5cb27fd3a25c640a14"
+  integrity sha512-LfOtYLrRCsqt+BwtvE4+L1jZGmJZ/3i7vdQiE3zUIwt/GtnhSEOg0GGpJomSPt6Kv/ZhClPsQY8aem0OX8sfOw==
   dependencies:
     axios "^0.21.1"
 
