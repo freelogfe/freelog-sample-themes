@@ -105,7 +105,7 @@ const HomeBody = (props: {
 }) => {
   const { novelList, searching, total, tags, keywords, loading, myloading } = props;
   const { inMobile, userData, selfConfig } = useContext(globalContext);
-  const tagsList: string[] = selfConfig.tags?.split(",");
+  const tagsList: string[] = selfConfig.tags?.split(",").filter(Boolean);
   const { myShelf } = useMyShelf();
   const history = useMyHistory();
   const [filterBoxShow, setFilterBoxShow] = useState(false);
@@ -138,8 +138,8 @@ const HomeBody = (props: {
 
             <div className="book-list-box">
               {myShelf.map((item) => {
-                return (
-                  <div className="book-box" key={item.exhibitId}>
+                return (                  
+                <div className="book-box" key={item.exhibitId}>
                     <Novel mode={4} data={item}></Novel>
                   </div>
                 );
