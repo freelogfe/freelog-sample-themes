@@ -68,7 +68,8 @@ export const useMyShelf = (id?: string) => {
   const getMyShelf = async () => {
     if (!store.state.userData.isLogin) return;
 
-    const ids = await freelogApp.getUserData("shelf");
+    const res = await freelogApp.getUserData("shelf");
+    const ids = res?.data?.data || [];
 
     const shelfIds = (ids || []).sort();
     const storeShelfIds = store.state.shelfIds.sort();
