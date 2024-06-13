@@ -18,10 +18,11 @@ export const useMyShelf = (id?: string) => {
     // 用户未登录
     if (!userData?.isLogin) return;
 
-    const ids = await freelogApp.getUserData("shelf");
+    const res = await freelogApp.getUserData("shelf");
+    const ids = res?.data?.data || [];
     setShelfIds(ids || []);
 
-    if (!ids || ids.length === 0) {
+    if (!ids || ids.length === 0) { 
       setMyShelf([]);
       return;
     }
