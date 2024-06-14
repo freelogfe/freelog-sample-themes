@@ -37,11 +37,14 @@ export default new Vuex.Store({
     /** 初始化 store */
     async initStoreData(context) {
       const userData = freelogApp.getCurrentUser();
-      const [selfConfig, collectionIdList = [], playingId] = await Promise.all([
+      const [selfConfig, collectionIdListResponse, playingIdResponse] = await Promise.all([
         freelogApp.getSelfProperty(),
         freelogApp.getUserData("collectionIdList"),
         freelogApp.getUserData("playingId"),
       ]);
+
+      const collectionIdList = collectionIdListResponse?.data?.data || []; 
+      const playingId = playingIdResponse?.data?.data;
 
       // 是否移动端设备
       const inMobile = judgeDevice();
@@ -72,7 +75,8 @@ export default new Vuex.Store({
       let playIdList = [];
       if (context.state.userData.isLogin) {
         // 登录时播放列表取用户数据
-        playIdList = await freelogApp.getUserData("playIdList");
+        const playIdListResponse = await freelogApp.getUserData("playIdList");
+        playIdList = playIdListResponse?.data?.data || [];
 
         // 如果此时本地有播放列表，那需要自动添加至用户数据
         const list = localStorage.getItem("playIdList") || "[]";
