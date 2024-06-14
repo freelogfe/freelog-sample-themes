@@ -329,7 +329,7 @@ export default {
         if (!cur || !this.$store.state.inMobile) return;
 
         if (!this.infoAreaWidth) {
-          this.infoAreaWidth = this.$refs.infoArea.clientWidth;
+          this.infoAreaWidth = this.$refs.infoArea?.clientWidth;
         }
 
         if (this.playingInfo) {
@@ -634,6 +634,7 @@ export default {
       if (this.playList && this.playList.length > 1) {
         const index = this.playList.findIndex((item) => item.exhibitId === this.playingInfo.exhibitId);
         const basicX = -this.infoAreaWidth * index;
+        console.log("this.$refs",this.$refs)
         const areaWidth = this.$refs.infoArea.clientWidth;
         const offset = basicX - this.touchMoveX;
         if (Math.abs(offset) < (areaWidth * 2) / 5) {
