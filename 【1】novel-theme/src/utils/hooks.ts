@@ -99,8 +99,8 @@ export const useMySignedList = () => {
     if (!userData?.isLogin) return;
 
     const signedList = await freelogApp.getSignStatistics({ keywords });
-    const ids: string = signedList.data.data.map((item: SignedItem) => item.subjectId).join();
-
+    const ids: string = signedList?.data?.data.map((item: SignedItem) => item.subjectId).join();
+    
     if (!ids) {
       setMySignedList([]);
       return;
