@@ -160,7 +160,7 @@ export default {
     "$route.query.id": {
       handler(cur) {
         if (!cur) return;
-
+        const app = document.getElementById("app");
         app.scroll({ top: 0 });
         this.id = cur;
         this.getVoiceInfo();
