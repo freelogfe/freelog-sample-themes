@@ -114,7 +114,7 @@
           <tags :tags="data.tags" v-if="data.tags.length" />
           <div class="footer-info">
             <div class="author-info">
-              <img class="avatar" :src="getAvatarUrl(data.userId)" />
+              <img class="avatar" :src="getAvatarUrl(data.articleInfo.articleOwnerId)" />
               <div class="author-name" :title="data.articleInfo.articleOwnerName">
                 {{ data.articleInfo.articleOwnerName }}
               </div>
