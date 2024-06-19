@@ -545,6 +545,7 @@ export default {
     clearPlayList() {
       useMyPlay.clearPlayList();
       this.confirmDialogShow = false;
+      this.$refs.player.currentTime = 0;
     },
 
     /** 授权 */
