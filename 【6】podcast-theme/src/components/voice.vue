@@ -124,7 +124,7 @@
           <transition name="slide-right">
             <div
               class="info-item"
-              v-if="$store.state.playingInfo && $store.state.playingInfo.exhibitId === data.exhibitId"
+              v-if="$store.state.playing && $store.state.playingInfo && $store.state.playingInfo.exhibitId === data.exhibitId"
             >
               <play-status :playing="playing" />
               <div class="progress">

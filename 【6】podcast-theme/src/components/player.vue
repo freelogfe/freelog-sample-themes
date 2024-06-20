@@ -511,6 +511,11 @@ export default {
 
     /** 播放完成 */
     endVoice() {
+      if(this.playList.length === 1){
+        this.$store.commit("setData", { key: "playing", value: false });
+        this.$store.commit("setData", { key: "progress", value: 0 });
+        return;
+      }
       this.nextVoice();
     },
 
