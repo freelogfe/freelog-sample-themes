@@ -714,7 +714,8 @@ export default {
         comicMode = 2;
       }
       data.comicInfo = { ...exhibitInfo.data.data, comicMode };
-      getContent();
+      data.comicMode= comicMode
+       getContent();
     };
 
     /** 获取漫画内容 */
@@ -893,7 +894,7 @@ export default {
       window.removeEventListener("keyup", keyup);
       await data.shareWidget?.unmount();
     });
-
+    
     getComicInfo();
 
     return {
