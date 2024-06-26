@@ -126,6 +126,10 @@ export const ReaderScreen = (props: any) => {
     setWidgetData("markdown", "fontSize", fontSize);
   }, [fontSize]);
 
+  useEffect(() => {
+    setWidgetData("markdown", "themeColor", theme);
+  }, [theme]);
+
   const context = {
     id,
     inMobile,
