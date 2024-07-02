@@ -36,7 +36,7 @@ export const useMyLocationHistory = () => {
 
   watch(
     () => router,
-    (cur) => {
+    cur => {
       const { current, replaced } = cur.options.history.state;
       const { locationHistory } = store.state;
       if (!locationHistory.length) {
@@ -61,7 +61,7 @@ export const useMyShelf = (id?: string) => {
   const store = useStore();
 
   const data = reactive({
-    isCollected: false,
+    isCollected: false
   });
 
   /** 获取收藏数据 */
@@ -97,9 +97,9 @@ export const useMyShelf = (id?: string) => {
     const exhibitIds = ids.join(",");
     const [list, statusList] = await Promise.all([
       freelogApp.getExhibitListById({ exhibitIds }),
-      freelogApp.getExhibitAuthStatus(exhibitIds),
+      freelogApp.getExhibitAuthStatus(exhibitIds)
     ]);
-    (list.data.data as ExhibitItem[]).forEach((item) => {
+    (list.data.data as ExhibitItem[]).forEach(item => {
       const statusItem = statusList.data.data.find(
         (status: { exhibitId: string }) => status.exhibitId === item.exhibitId
       );
@@ -157,7 +157,7 @@ export const useMyShelf = (id?: string) => {
 /** 搜索 hook */
 export const useSearchHistory = () => {
   const data = reactive({
-    searchHistory: [] as string[],
+    searchHistory: [] as string[]
   });
 
   /** 获取搜索历史 */
@@ -170,7 +170,7 @@ export const useSearchHistory = () => {
   const searchWord = (keywords = "") => {
     keywords = keywords.trim();
     if (!keywords) return;
-    const index = data.searchHistory.findIndex((item) => item === keywords);
+    const index = data.searchHistory.findIndex(item => item === keywords);
     if (index !== -1) data.searchHistory.splice(index, 1);
     if (data.searchHistory.length === 10) data.searchHistory.pop();
     data.searchHistory.unshift(keywords);
@@ -179,7 +179,7 @@ export const useSearchHistory = () => {
 
   /** 删除搜索词 */
   const deleteWord = (keywords: string) => {
-    const index = data.searchHistory.findIndex((item) => item === keywords);
+    const index = data.searchHistory.findIndex(item => item === keywords);
     if (index === -1) return;
     data.searchHistory.splice(index, 1);
     localStorage.setItem("searchHistory", JSON.stringify(data.searchHistory));
@@ -203,7 +203,7 @@ export const useGetList = () => {
     loading: false,
     myLoading: false,
     total: 0,
-    skip: 0,
+    skip: 0
   });
 
   /** 获取展品列表 */
@@ -214,16 +214,21 @@ export const useGetList = () => {
     if (init) data.loading = true;
     data.myLoading = true;
     data.skip = init ? 0 : data.skip + 30;
-    const queryParams = { skip: data.skip, articleResourceTypes: "漫画", limit: params.limit || 30, ...params };
+    const queryParams = {
+      skip: data.skip,
+      articleResourceTypes: "漫画",
+      limit: params.limit || 30,
+      ...params
+    };
     const list = await freelogApp.getExhibitListByPaging(queryParams);
     const { dataList, totalItem } = list.data.data;
     if (dataList.length !== 0) {
-      const ids = dataList.map((item) => item.exhibitId).join();
+      const ids = dataList.map(item => item.exhibitId).join();
       const [signCountData, statusInfo] = await Promise.all([
         freelogApp.getExhibitSignCount(ids),
-        freelogApp.getExhibitAuthStatus(ids),
+        freelogApp.getExhibitAuthStatus(ids)
       ]);
-      (dataList as ExhibitItem[]).forEach((item) => {
+      (dataList as ExhibitItem[]).forEach(item => {
         let index;
         index = signCountData.data.data.findIndex(
           (resultItem: { subjectId: string }) => resultItem.subjectId === item.exhibitId
@@ -232,7 +237,8 @@ export const useGetList = () => {
         index = statusInfo.data.data.findIndex(
           (resultItem: { exhibitId: string }) => resultItem.exhibitId === item.exhibitId
         );
-        if (index !== -1) item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+        if (index !== -1)
+          item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
       });
     }
     data.listData = init ? dataList : [...data.listData, ...dataList];
@@ -250,7 +256,7 @@ export const useGetList = () => {
   return {
     ...toRefs(data),
     getList,
-    clearData,
+    clearData
   };
 };
 
@@ -259,7 +265,7 @@ export const useMySignedList = () => {
   const store = useStore();
   const data = reactive({
     mySignedList: <ExhibitItem[] | null>null,
-    loading: false,
+    loading: false
   });
 
   /** 获取已签约列表 */
@@ -268,7 +274,7 @@ export const useMySignedList = () => {
     if (!store.state.userData.isLogin) return;
 
     const signedList = await freelogApp.getSignStatistics({ keywords });
-    const ids = signedList.data.data.map((item) => item.subjectId).join();
+    const ids = signedList.data.data.map(item => item.subjectId).join();
 
     if (!ids) {
       data.mySignedList = [];
@@ -277,22 +283,24 @@ export const useMySignedList = () => {
 
     const [list, statusList] = await Promise.all([
       freelogApp.getExhibitListById({ exhibitIds: ids }),
-      freelogApp.getExhibitAuthStatus(ids),
+      freelogApp.getExhibitAuthStatus(ids)
     ]);
-    (list.data.data as ExhibitItem[]).forEach((item) => {
+    (list.data.data as ExhibitItem[]).forEach(item => {
       const statusItem = statusList.data.data.find(
         (status: { exhibitId: string }) => status.exhibitId === item.exhibitId
       );
       item.defaulterIdentityType = statusItem?.defaulterIdentityType;
     });
-    data.mySignedList = list.data.data.filter((item) => !item.articleInfo.resourceType.includes("主题"));
+    data.mySignedList = list.data.data.filter(
+      item => !item.articleInfo.resourceType.includes("主题")
+    );
   };
 
   getMySignedList();
 
   return {
     ...toRefs(data),
-    getMySignedList,
+    getMySignedList
   };
 };
 
@@ -303,7 +311,7 @@ export const useMyScroll = () => {
   const data = reactive({
     scrollTop: 0,
     clientHeight: 0,
-    scrollHeight: 0,
+    scrollHeight: 0
   });
 
   /** 页面滚动 */
@@ -331,6 +339,6 @@ export const useMyScroll = () => {
   return {
     ...toRefs(data),
     scrollTo,
-    scrollToTop,
+    scrollToTop
   };
 };
