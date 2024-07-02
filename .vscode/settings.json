@@ -4,9 +4,11 @@
     "prettier.singleQuote": false,
     "prettier.trailingComma": "none",
     "prettier.arrowParens": "avoid",
+    "prettier.printWidth": 100,
     "[vue]": {
       "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
+    "typescript.format.enable": false,
     "[typescript]": {
       "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
@@ -15,6 +17,5 @@
     },
     "cSpell.words": [],
     "typescript.tsdk": "node_modules/typescript/lib",
-    "prettier.printWidth": 100
   }
   
