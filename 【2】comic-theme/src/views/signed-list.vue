@@ -9,7 +9,12 @@
         <div class="signed-list-title">已签约漫画</div>
 
         <div class="search-box">
-          <input class="search-input input-none" v-model="searchKey" placeholder="搜索" @keyup="search($event)" />
+          <input
+            class="search-input input-none"
+            v-model="searchKey"
+            placeholder="搜索"
+            @keyup="search($event)"
+          />
           <i class="freelog fl-icon-content"></i>
         </div>
       </div>
@@ -47,7 +52,7 @@ export default {
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     "login-btn": defineAsyncComponent(() => import("../components/login-btn.vue")),
     "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
-    comic: defineAsyncComponent(() => import("../components/comic.vue")),
+    comic: defineAsyncComponent(() => import("../components/comic.vue"))
   },
 
   setup() {
@@ -55,7 +60,7 @@ export default {
     const { mySignedList, getMySignedList } = useMySignedList();
 
     const data = reactive({
-      searchKey: "",
+      searchKey: ""
     });
 
     const methods = {
@@ -66,11 +71,11 @@ export default {
         } else if (e.keyCode === 27) {
           data.searchKey = "";
         }
-      },
+      }
     };
 
     return { callLogin, ...toRefs(store.state), mySignedList, ...toRefs(data), ...methods };
-  },
+  }
 };
 </script>
 

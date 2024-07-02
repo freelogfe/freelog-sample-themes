@@ -66,7 +66,11 @@
           >
             立即阅读
           </div>
-          <div class="btn" :class="isCollected ? 'delete' : 'collect-btn mobile'" @click="operateShelf(comicInfo)">
+          <div
+            class="btn"
+            :class="isCollected ? 'delete' : 'collect-btn mobile'"
+            @click="operateShelf(comicInfo)"
+          >
             {{ isCollected ? "取消收藏" : "加入收藏" }}
           </div>
         </div>
@@ -78,12 +82,18 @@
       <div class="comic-intro">
         <div class="intro-title">内容简介</div>
 
-        <div class="intro" :class="introState === 1 ? 'fold' : 'unfold'" v-if="comicInfo?.exhibitIntro">
+        <div
+          class="intro"
+          :class="introState === 1 ? 'fold' : 'unfold'"
+          v-if="comicInfo?.exhibitIntro"
+        >
           <div ref="introContent" class="intro-content">
             {{ comicInfo?.exhibitIntro }}
           </div>
 
-          <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">...查看全部</div>
+          <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">
+            ...查看全部
+          </div>
         </div>
         <div class="no-intro-tip" v-else>暂无简介</div>
       </div>
@@ -114,7 +124,9 @@
           </div>
 
           <div class="comic-content">
-            <div class="comic-name" :title="comicInfo?.exhibitTitle">{{ comicInfo?.exhibitTitle }}</div>
+            <div class="comic-name" :title="comicInfo?.exhibitTitle">
+              {{ comicInfo?.exhibitTitle }}
+            </div>
 
             <div class="comic-author">
               {{ comicInfo?.articleInfo?.articleOwnerName }}
@@ -137,7 +149,11 @@
                 >
                   立即阅读
                 </div>
-                <div class="btn" :class="isCollected ? 'warning-btn' : 'collect-btn'" @click="operateShelf(comicInfo)">
+                <div
+                  class="btn"
+                  :class="isCollected ? 'warning-btn' : 'collect-btn'"
+                  @click="operateShelf(comicInfo)"
+                >
                   {{ isCollected ? "取消收藏" : "加入收藏" }}
                 </div>
               </div>
@@ -165,12 +181,18 @@
         <div class="comic-intro">
           <div class="intro-title">内容简介</div>
 
-          <div class="intro" :class="introState === 1 ? 'fold' : 'unfold'" v-if="comicInfo?.exhibitIntro">
+          <div
+            class="intro"
+            :class="introState === 1 ? 'fold' : 'unfold'"
+            v-if="comicInfo?.exhibitIntro"
+          >
             <div ref="introContent" class="intro-content">
               {{ comicInfo?.exhibitIntro }}
             </div>
 
-            <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">...查看全部</div>
+            <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">
+              ...查看全部
+            </div>
           </div>
           <div class="no-intro-tip" v-else>暂无简介</div>
         </div>
@@ -200,7 +222,7 @@ export default {
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     "login-btn": defineAsyncComponent(() => import("../components/login-btn.vue")),
     "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
-    tags: defineAsyncComponent(() => import("../components/tags.vue")),
+    tags: defineAsyncComponent(() => import("../components/tags.vue"))
   },
 
   setup() {
@@ -215,7 +237,7 @@ export default {
       shareShow: false,
       introState: 0,
       href: "",
-      shareWidget: null as WidgetController | null,
+      shareWidget: null as WidgetController | null
     });
 
     const methods = {
@@ -231,7 +253,7 @@ export default {
       /** 控制分享弹窗显示 */
       setShareWidgetShow(value: boolean) {
         data.shareWidget?.setData({ show: value });
-      },
+      }
     };
 
     /** 获取漫画信息 */
@@ -239,14 +261,14 @@ export default {
       const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
         freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
         freelogApp.getExhibitSignCount(id),
-        freelogApp.getExhibitAuthStatus(id),
+        freelogApp.getExhibitAuthStatus(id)
       ]);
       const { count } = signCountData.data.data[0];
       const { defaulterIdentityType = -1 } = statusInfo.data.data[0];
       data.comicInfo = {
         ...exhibitInfo.data.data,
         signCount: count,
-        defaulterIdentityType,
+        defaulterIdentityType
       };
       data.href = freelogApp.getCurrentUrl();
 
@@ -261,7 +283,7 @@ export default {
       if (!container) return;
 
       const subDeps = await freelogApp.getSelfDependencyTree();
-      const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-展品分享");
+      const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-展品分享");
       if (!widgetData) return;
 
       const { articleId, parentNid, nid } = widgetData;
@@ -274,8 +296,8 @@ export default {
         topExhibitId,
         container,
         renderWidgetOptions: {
-          data: { exhibit: data.comicInfo, type: "漫画", routerType: "detail" },
-        },
+          data: { exhibit: data.comicInfo, type: "漫画", routerType: "detail" }
+        }
         // widget_entry: "https://localhost:8201",
       };
       data.shareWidget = await freelogApp.mountArticleWidget(params);
@@ -305,9 +327,9 @@ export default {
       operateShelf,
       introContent,
       ...toRefs(data),
-      ...methods,
+      ...methods
     };
-  },
+  }
 };
 </script>
 
