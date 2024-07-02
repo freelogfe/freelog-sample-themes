@@ -1,5 +1,4 @@
 <!-- 首页 -->
-
 <template>
   <div class="home-wrapper">
     <my-header :homeHeader="!searching" :mobileSearching="!!(inMobile && searching)" />
@@ -8,7 +7,7 @@
     <div class="mobile-home-body" v-if="inMobile">
       <div
         class="shelf-comic-list"
-        v-if="!searching && userData.isLogin && myShelf && myShelf.length !== 0"
+        v-if="!searching && userData?.isLogin && myShelf && myShelf.length !== 0"
       >
         <div class="shelf-header">
           <div class="box-title">我的收藏</div>
@@ -111,7 +110,7 @@
     <div class="home-body" v-if="!inMobile">
       <div
         class="comic-list"
-        v-if="!searching && userData.isLogin && myShelf && myShelf.length !== 0"
+        v-if="!searching && userData?.isLogin && myShelf && myShelf.length !== 0"
       >
         <div class="shelf-header">
           <div class="box-title">我的收藏</div>
@@ -191,8 +190,9 @@ import {
   toRefs,
   watch
 } from "vue";
-import { useGetList, useMyRouter, useMyScroll, useMyShelf } from "../utils/hooks";
 import { useStore } from "vuex";
+import { useGetList, useMyRouter, useMyScroll, useMyShelf } from "@/utils/hooks";
+import { State } from "@/store/index";
 
 export default {
   name: "home",
@@ -207,7 +207,7 @@ export default {
   },
 
   setup() {
-    const store = useStore();
+    const store = useStore<State>();
     const tagsList: string[] = store.state.selfConfig.tags?.split(",");
     const { query, route, router, switchPage } = useMyRouter();
     const { scrollTop, clientHeight, scrollHeight, scrollTo } = useMyScroll();
@@ -265,8 +265,9 @@ export default {
         if (
           data.searchData.keywords === query.value.keywords &&
           data.searchData.tags === query.value.tags
-        )
+        ) {
           return;
+        }
 
         getData();
       }
@@ -282,7 +283,9 @@ export default {
 
         authIds.forEach((id: string) => {
           const index = datasOfGetList.listData.value.findIndex(item => item.exhibitId === id);
-          if (index !== -1) datasOfGetList.listData.value[index].defaulterIdentityType = 0;
+          if (index !== -1) {
+            datasOfGetList.listData.value[index].defaulterIdentityType = 0;
+          }
         });
         store.commit("setData", { key: "authIds", value: [] });
       } else {
