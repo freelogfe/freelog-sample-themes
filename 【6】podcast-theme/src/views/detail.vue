@@ -10,7 +10,11 @@
             <img class="cover" :src="voiceInfo.coverImages[0]" />
           </div>
           <div class="title-area">
-            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="authLinkAbnormal" />
+            <img
+              class="auth-link-abnormal"
+              src="../assets/images/auth-link-abnormal.png"
+              v-if="authLinkAbnormal"
+            />
             <i
               class="freelog fl-icon-suoding lock"
               @click.stop="getAuth()"
@@ -29,9 +33,15 @@
               <i class="freelog fl-icon-yonghu"></i>
               <div class="item-value">{{ voiceInfo.signCount | signCount }}</div>
             </div>
-            <div class="duration">时长{{ voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}</div>
+            <div class="duration">
+              时长{{ voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
+            </div>
           </div>
-          <div class="play-voice-btn" :class="{ disabled: btnList[0].disabled }" @click="playOrPause()">
+          <div
+            class="play-voice-btn"
+            :class="{ disabled: btnList[0].disabled }"
+            @click="playOrPause()"
+          >
             <i class="freelog" :class="btnList[0].icon"></i>
             <div class="label">{{ btnList[0].title }}</div>
           </div>
@@ -62,7 +72,11 @@
 
           <div class="right-area">
             <div class="title-area">
-              <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="authLinkAbnormal" />
+              <img
+                class="auth-link-abnormal"
+                src="../assets/images/auth-link-abnormal.png"
+                v-if="authLinkAbnormal"
+              />
               <i
                 class="freelog fl-icon-suoding lock"
                 @click.stop="getAuth()"
@@ -98,7 +112,9 @@
                     <div class="progress">
                       <span>{{ ($store.state.progress * 1000) | secondsToHMS }}</span>
                       <span class="progress-divider">/</span>
-                      <span>{{ voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}</span>
+                      <span>{{
+                        voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS
+                      }}</span>
                     </div>
                   </div>
                 </transition>
@@ -152,7 +168,7 @@ export default {
       addAnimation: false,
       coverLeft: 0,
       coverTop: 0,
-      href: "",
+      href: ""
     };
   },
 
@@ -165,26 +181,26 @@ export default {
         this.id = cur;
         this.getVoiceInfo();
       },
-      immediate: true,
+      immediate: true
     },
 
     "$store.state.collectionIdList": {
       handler() {
         this.isCollected = useMyCollection.ifExist(this.id);
       },
-      immediate: true,
+      immediate: true
     },
 
     "$store.state.playIdList": {
       handler() {
         this.isInPlayList = useMyPlay.ifExist(this.id);
       },
-      immediate: true,
+      immediate: true
     },
 
     "$store.state.authIdList"(cur) {
       if (cur.includes(this.voiceInfo.exhibitId)) this.voiceInfo.defaulterIdentityType = 0;
-    },
+    }
   },
 
   computed: {
@@ -221,22 +237,24 @@ export default {
             : "fl-icon-bofang-daibiankuang",
           title: !this.ifSupportMime ? "无法播放" : this.playing ? "暂停" : "播放",
           operate: this.playOrPause,
-          disabled: !this.ifSupportMime,
+          disabled: !this.ifSupportMime
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
           title: "加入播放列表",
           operate: this.addToPlayList,
-          disabled: this.isInPlayList || !this.ifSupportMime,
+          disabled: this.isInPlayList || !this.ifSupportMime
         },
         {
-          icon: this.isCollected ? "fl-icon-shoucangxiaoshuoyishoucang" : "fl-icon-shoucangxiaoshuo",
+          icon: this.isCollected
+            ? "fl-icon-shoucangxiaoshuoyishoucang"
+            : "fl-icon-shoucangxiaoshuo",
           title: this.isCollected ? "取消收藏" : "收藏",
-          operate: this.operateCollect,
+          operate: this.operateCollect
         },
-        { icon: "fl-icon-fenxiang", title: "分享", operate: this.share },
+        { icon: "fl-icon-fenxiang", title: "分享", operate: this.share }
       ];
-    },
+    }
   },
 
   methods: {
@@ -272,7 +290,10 @@ export default {
         showToast("链接复制成功～");
         // freelogApp.pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: this.voiceInfo?.exhibitId } });
       } else {
-        this.$store.commit("setData", { key: "shareInfo", value: { show: true, exhibit: this.voiceInfo } });
+        this.$store.commit("setData", {
+          key: "shareInfo",
+          value: { show: true, exhibit: this.voiceInfo }
+        });
       }
     },
 
@@ -282,12 +303,12 @@ export default {
       const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
         freelogApp.getExhibitInfo(this.id, { isLoadVersionProperty: 1 }),
         freelogApp.getExhibitSignCount(this.id),
-        freelogApp.getExhibitAuthStatus(this.id),
+        freelogApp.getExhibitAuthStatus(this.id)
       ]);
       this.voiceInfo = {
         ...exhibitInfo.data.data,
         signCount: signCountData.data.data[0].count,
-        defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
+        defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType
       };
       this.href = freelogApp.getCurrentUrl();
     },
@@ -295,8 +316,8 @@ export default {
     /** 授权 */
     async getAuth() {
       useMyAuth.getAuth(this.voiceInfo);
-    },
-  },
+    }
+  }
 };
 </script>
 

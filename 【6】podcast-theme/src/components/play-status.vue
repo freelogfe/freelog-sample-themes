@@ -25,18 +25,18 @@ export default {
     /** 是否播放中 */
     playing: {
       type: Boolean,
-      default: false,
+      default: false
     },
     /** 描述文本 */
     desc: {
-      type: String,
+      type: String
     },
     /** 颜色 */
     color: {
       type: String,
-      default: "#2784FF",
-    },
-  },
+      default: "#2784FF"
+    }
+  }
 };
 </script>
 

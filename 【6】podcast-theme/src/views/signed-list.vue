@@ -46,7 +46,7 @@ export default {
     scroll() {
       const scrollTop = app.scrollTop || 0;
       sessionStorage.setItem("signedListScroll", scrollTop);
-    },
-  },
+    }
+  }
 };
 </script>

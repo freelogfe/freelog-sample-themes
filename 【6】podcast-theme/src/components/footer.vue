@@ -7,7 +7,9 @@
       <div class="btns-area">
         <div
           class="second-text-btn mobile"
-          v-for="(item, index) in freelogEntrances.filter((_, entrancesIndex) => entrancesIndex < 2)"
+          v-for="(item, index) in freelogEntrances.filter(
+            (_, entrancesIndex) => entrancesIndex < 2
+          )"
           :key="item.label"
           @click="toPage(item.url)"
         >
@@ -40,7 +42,7 @@ export default {
 
   data() {
     return {
-      freelogEntrances,
+      freelogEntrances
     };
   },
 
@@ -48,8 +50,8 @@ export default {
     /** 打开新标签页 */
     toPage(url) {
       window.open(url);
-    },
-  },
+    }
+  }
 };
 </script>
 

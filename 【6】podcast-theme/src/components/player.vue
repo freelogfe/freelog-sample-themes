@@ -38,7 +38,7 @@
                 @click="
                   $router.myPush({
                     path: '/detail',
-                    query: { id: item.exhibitId },
+                    query: { id: item.exhibitId }
                   })
                 "
               >
@@ -88,11 +88,22 @@
           <div class="popup-title">
             播放列表<span v-if="playList">（{{ playList.length }}）</span>
           </div>
-          <div class="clear-btn" @click="confirmDialogShow = true" v-if="playList && playList.length">清空列表</div>
+          <div
+            class="clear-btn"
+            @click="confirmDialogShow = true"
+            v-if="playList && playList.length"
+          >
+            清空列表
+          </div>
         </div>
         <div class="voice-list" v-if="playList">
           <template v-if="playList.length">
-            <div class="voice-item" v-for="item in playList" :key="item.exhibitId" @click="playOrPauseList(item)">
+            <div
+              class="voice-item"
+              v-for="item in playList"
+              :key="item.exhibitId"
+              @click="playOrPauseList(item)"
+            >
               <div class="left-area">
                 <div class="title-area">
                   <img
@@ -149,7 +160,12 @@
     <!-- PC -->
     <template v-if="$store.state.inMobile === false">
       <transition name="slide-up-fade">
-        <div class="pc-player-wrapper" @mouseover="clearCloseTimer()" @mouseout="animation()" v-if="show">
+        <div
+          class="pc-player-wrapper"
+          @mouseover="clearCloseTimer()"
+          @mouseout="animation()"
+          v-if="show"
+        >
           <div class="player-wrapper">
             <div class="left-area">
               <i
@@ -175,7 +191,7 @@
                           @click="
                             $router.myPush({
                               path: '/detail',
-                              query: { id: playingInfo.exhibitId },
+                              query: { id: playingInfo.exhibitId }
                             })
                           "
                         >
@@ -238,13 +254,23 @@
           <div class="top-area">
             <div class="popup-title">播放列表</div>
             <div class="top-right">
-              <div class="text-btn clear-btn" @click="clearPlayList()" v-if="playList.length">清空列表</div>
-              <i class="text-btn freelog fl-icon-zhankaigengduo" @click="playListPopupShow = false"></i>
+              <div class="text-btn clear-btn" @click="clearPlayList()" v-if="playList.length">
+                清空列表
+              </div>
+              <i
+                class="text-btn freelog fl-icon-zhankaigengduo"
+                @click="playListPopupShow = false"
+              ></i>
             </div>
           </div>
           <div class="voice-list" v-if="playList">
             <template v-if="playList.length">
-              <div class="voice-item" v-for="item in playList" :key="item.exhibitId" @click="playOrPauseList(item)">
+              <div
+                class="voice-item"
+                v-for="item in playList"
+                :key="item.exhibitId"
+                @click="playOrPauseList(item)"
+              >
                 <div class="left-area">
                   <img
                     class="icon"
@@ -274,7 +300,10 @@
                   <div class="duration" v-else>
                     {{ item.versionInfo.exhibitProperty.duration | secondsToHMS }}
                   </div>
-                  <i class="text-btn freelog fl-icon-guanbi" @click.stop="deleteVoice(item.exhibitId)"></i>
+                  <i
+                    class="text-btn freelog fl-icon-guanbi"
+                    @click.stop="deleteVoice(item.exhibitId)"
+                  ></i>
                 </div>
               </div>
             </template>
@@ -298,7 +327,7 @@ export default {
 
   components: {
     playStatus,
-    myTooltip,
+    myTooltip
   },
 
   data() {
@@ -316,7 +345,7 @@ export default {
       infoAreaWidth: 0,
       startTouchX: 0,
       touchMoveX: 0,
-      closeTimer: null,
+      closeTimer: null
     };
   },
 
@@ -333,11 +362,11 @@ export default {
         }
 
         if (this.playingInfo) {
-          const index = cur.findIndex((item) => item.exhibitId === this.playingInfo.exhibitId);
+          const index = cur.findIndex(item => item.exhibitId === this.playingInfo.exhibitId);
           this.touchMoveX = -this.infoAreaWidth * index;
         }
       },
-      immediate: true,
+      immediate: true
     },
 
     "$store.state.playingInfo": {
@@ -346,11 +375,13 @@ export default {
         this.playingInfo = cur;
 
         if (this.playList && this.$store.state.inMobile) {
-          const index = this.playList.findIndex((item) => item.exhibitId === this.playingInfo.exhibitId);
+          const index = this.playList.findIndex(
+            item => item.exhibitId === this.playingInfo.exhibitId
+          );
           this.touchMoveX = -this.infoAreaWidth * index;
         }
       },
-      deep: true,
+      deep: true
     },
 
     "$store.state.playing"(cur) {
@@ -387,7 +418,7 @@ export default {
     volume(cur) {
       this.$refs.player.volume = cur / 100;
       localStorage.setItem("volume", cur);
-    },
+    }
   },
 
   computed: {
@@ -423,17 +454,17 @@ export default {
         {
           icon: "fl-icon-shangyishou1",
           operate: this.preVoice,
-          disabled: this.$store.state.playList.length <= 1,
+          disabled: this.$store.state.playList.length <= 1
         },
         {
           icon: this.playing ? "fl-icon-zanting-daibiankuang" : "fl-icon-bofang-daibiankuang",
-          operate: this.playOrPause,
+          operate: this.playOrPause
         },
         {
           icon: "fl-icon-xiayishou1",
           operate: this.nextVoice,
-          disabled: this.$store.state.playList.length <= 1,
-        },
+          disabled: this.$store.state.playList.length <= 1
+        }
       ];
     },
 
@@ -445,23 +476,25 @@ export default {
           icon: this.volume ? "fl-icon-yinliang" : "fl-icon-jingyin",
           operate: () => {
             this.volumePopupShow = !this.volumePopupShow;
-          },
+          }
         },
         {
           name: "collect",
-          icon: this.isCollected ? "fl-icon-shoucangxiaoshuoyishoucang" : "fl-icon-shoucangxiaoshuo",
-          operate: this.operateCollect,
+          icon: this.isCollected
+            ? "fl-icon-shoucangxiaoshuoyishoucang"
+            : "fl-icon-shoucangxiaoshuo",
+          operate: this.operateCollect
         },
         {
           name: "playList",
           icon: "fl-icon-xiaoshuomulu1",
           operate: () => {
             this.playListPopupShow = !this.playListPopupShow;
-          },
+          }
         },
-        { name: "showBtn", icon: "fl-icon-shouqi1", operate: this.closePlayer },
+        { name: "showBtn", icon: "fl-icon-shouqi1", operate: this.closePlayer }
       ];
-    },
+    }
   },
 
   created() {
@@ -511,7 +544,7 @@ export default {
 
     /** 播放完成 */
     endVoice() {
-      if(this.playList.length === 1){
+      if (this.playList.length === 1) {
         this.$store.commit("setData", { key: "playing", value: false });
         this.$store.commit("setData", { key: "progress", value: 0 });
         return;
@@ -560,13 +593,17 @@ export default {
 
     /** 监听点击区域 */
     clickListener() {
-      document.addEventListener("click", (e) => {
+      document.addEventListener("click", e => {
         if (!this.show || this.$store.state.inMobile) return;
 
         if (this.volumePopupShow) {
           const volumePopup = this.$refs.volumePopup;
           const volume = this.$refs.volume[0];
-          if (app.contains(e.target) && !volumePopup.contains(e.target) && !volume.contains(e.target)) {
+          if (
+            app.contains(e.target) &&
+            !volumePopup.contains(e.target) &&
+            !volume.contains(e.target)
+          ) {
             this.volumePopupShow = false;
           }
         }
@@ -574,7 +611,11 @@ export default {
         if (this.playListPopupShow) {
           const playListPopup = this.$refs.playListPopup;
           const playList = this.$refs.playList[0];
-          if (app.contains(e.target) && !playListPopup.contains(e.target) && !playList.contains(e.target)) {
+          if (
+            app.contains(e.target) &&
+            !playListPopup.contains(e.target) &&
+            !playList.contains(e.target)
+          ) {
             this.playListPopupShow = false;
           }
         }
@@ -628,7 +669,9 @@ export default {
     /** 划动声音 */
     touchMove(e) {
       if (this.playList && this.playList.length > 1) {
-        const index = this.playList.findIndex((item) => item.exhibitId === this.playingInfo.exhibitId);
+        const index = this.playList.findIndex(
+          item => item.exhibitId === this.playingInfo.exhibitId
+        );
         const basicX = -this.infoAreaWidth * index;
         const offset = e.changedTouches[0].clientX - this.startTouchX;
         this.touchMoveX = basicX + offset * 1.5;
@@ -638,9 +681,11 @@ export default {
     /** 结束划动声音 */
     touchEnd() {
       if (this.playList && this.playList.length > 1) {
-        const index = this.playList.findIndex((item) => item.exhibitId === this.playingInfo.exhibitId);
+        const index = this.playList.findIndex(
+          item => item.exhibitId === this.playingInfo.exhibitId
+        );
         const basicX = -this.infoAreaWidth * index;
-        console.log("this.$refs",this.$refs)
+        console.log("this.$refs", this.$refs);
         const areaWidth = this.$refs.infoArea.clientWidth;
         const offset = basicX - this.touchMoveX;
         if (Math.abs(offset) < (areaWidth * 2) / 5) {
@@ -675,8 +720,8 @@ export default {
         clearTimeout(this.closeTimer);
         this.closeTimer = null;
       }
-    },
-  },
+    }
+  }
 };
 </script>
 

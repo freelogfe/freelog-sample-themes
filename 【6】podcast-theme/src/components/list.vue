@@ -7,10 +7,18 @@
 
     <template v-if="!loading">
       <div class="voice-list" v-if="list && total !== 0">
-        <voice :data="item" :statusShow="statusShow" :authShow="authShow" v-for="item in list" :key="item.exhibitId" />
+        <voice
+          :data="item"
+          :statusShow="statusShow"
+          :authShow="authShow"
+          v-for="item in list"
+          :key="item.exhibitId"
+        />
         <div class="no-more-tip" v-if="list.length === total && noMoreTip">{{ noMoreTip }}</div>
       </div>
-      <div class="no-data-tip" v-if="total === 0 || (total === null && !list.length)">{{ noDataTip }}</div>
+      <div class="no-data-tip" v-if="total === 0 || (total === null && !list.length)">
+        {{ noDataTip }}
+      </div>
     </template>
 
     <template v-else>
@@ -51,7 +59,7 @@ export default {
   name: "list",
 
   components: {
-    voice,
+    voice
   },
 
   props: {
@@ -60,49 +68,49 @@ export default {
       type: Array,
       default: () => {
         return [];
-      },
+      }
     },
     /** 数据总条目数 */
     total: {
       type: Number,
-      default: null,
+      default: null
     },
     /** 数据是否加载中 */
     loading: {
       type: Boolean,
-      default: false,
+      default: false
     },
     /** 列表标题 */
     title: {
       type: String,
-      default: "",
+      default: ""
     },
     /** 搜索列表标题 */
     searchTitle: {
       type: String,
-      default: "",
+      default: ""
     },
     /** 无更多数据提示文本 */
     noMoreTip: {
       type: String,
-      default: "",
+      default: ""
     },
     /** 无数据提示文本 */
     noDataTip: {
       type: String,
-      default: "",
+      default: ""
     },
     /** 是否显示上线状态 */
     statusShow: {
       type: Boolean,
-      default: false,
+      default: false
     },
     /** 是否显示授权状态 */
     authShow: {
       type: Boolean,
-      default: false,
-    },
-  },
+      default: false
+    }
+  }
 };
 </script>
 
@@ -240,8 +248,13 @@ export default {
     }
 
     ::v-deep .el-skeleton.is-animated .el-skeleton__item {
-      background: linear-gradient(90deg, rgb(70, 70, 70) 25%, rgb(50, 50, 50) 37%, rgb(70, 70, 70) 63%) 0% 0% / 400%
-        100%;
+      background: linear-gradient(
+          90deg,
+          rgb(70, 70, 70) 25%,
+          rgb(50, 50, 50) 37%,
+          rgb(70, 70, 70) 63%
+        )
+        0% 0% / 400% 100%;
     }
   }
 
@@ -286,8 +299,13 @@ export default {
     }
 
     ::v-deep .el-skeleton.is-animated .el-skeleton__item {
-      background: linear-gradient(90deg, rgb(70, 70, 70) 25%, rgb(50, 50, 50) 37%, rgb(70, 70, 70) 63%) 0% 0% / 400%
-        100%;
+      background: linear-gradient(
+          90deg,
+          rgb(70, 70, 70) 25%,
+          rgb(50, 50, 50) 37%,
+          rgb(70, 70, 70) 63%
+        )
+        0% 0% / 400% 100%;
     }
   }
 }

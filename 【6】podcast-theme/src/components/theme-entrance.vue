@@ -3,7 +3,9 @@
 <template>
   <div
     class="theme-entrance-wrapper"
-    :class="{ show: $store.state.inMobile === false && $store.state.selfConfig.entranceShow === '显示' }"
+    :class="{
+      show: $store.state.inMobile === false && $store.state.selfConfig.entranceShow === '显示'
+    }"
     @click="toTheme()"
   >
     <i class="freelog fl-icon-shiyongzhuti text-center"></i>
@@ -19,7 +21,7 @@ export default {
 
   data() {
     return {
-      themeEntrance: freelogEntrances[2],
+      themeEntrance: freelogEntrances[2]
     };
   },
 
@@ -27,8 +29,8 @@ export default {
     /** 打开主题资源详情页 */
     toTheme() {
       window.open(this.themeEntrance.url);
-    },
-  },
+    }
+  }
 };
 </script>
 

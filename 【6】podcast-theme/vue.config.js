@@ -18,25 +18,25 @@ module.exports = {
     port,
     overlay: {
       warnings: false,
-      errors: true,
+      errors: true
     },
     headers: {
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": "*"
     },
     https: true,
     ca: fs.readFileSync("../localhost+1.pem"),
     key: fs.readFileSync("../localhost+1-key.pem"),
-    cert: fs.readFileSync("../localhost+1.crt"),
+    cert: fs.readFileSync("../localhost+1.crt")
   },
   configureWebpack: {
     resolve: {
       alias: {
-        "@": resolve("src"),
-      },
+        "@": resolve("src")
+      }
     },
     output: {
       jsonpFunction: `webpackJsonp_${name}`,
-      globalObject: "window",
-    },
-  },
+      globalObject: "window"
+    }
+  }
 };

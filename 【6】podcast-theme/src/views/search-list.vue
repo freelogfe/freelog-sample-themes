@@ -27,7 +27,7 @@ export default {
   name: "search-list",
 
   components: {
-    list,
+    list
   },
 
   data() {
@@ -36,14 +36,14 @@ export default {
       listData: [],
       loading: false,
       myLoading: false,
-      total: 0,
+      total: 0
     };
   },
 
   watch: {
     "$store.state.authIdList"(cur) {
-      cur.forEach((id) => {
-        const item = this.listData.find((data) => data.exhibitId === id);
+      cur.forEach(id => {
+        const item = this.listData.find(data => data.exhibitId === id);
         item.defaulterIdentityType = 0;
       });
     },
@@ -55,8 +55,8 @@ export default {
         this.keywords = cur;
         this.getList(true);
       },
-      immediate: true,
-    },
+      immediate: true
+    }
   },
 
   created() {
@@ -100,22 +100,27 @@ export default {
         articleResourceTypes: "音频",
         isLoadVersionProperty: 1,
         limit: 20,
-        keywords: this.keywords,
+        keywords: this.keywords
       };
       const list = await freelogApp.getExhibitListByPaging(queryParams);
       const { dataList, totalItem } = list.data.data;
       if (dataList.length !== 0) {
-        const ids = dataList.map((item) => item.exhibitId).join();
+        const ids = dataList.map(item => item.exhibitId).join();
         const [signCountData, statusInfo] = await Promise.all([
           freelogApp.getExhibitSignCount(ids),
-          freelogApp.getExhibitAuthStatus(ids),
+          freelogApp.getExhibitAuthStatus(ids)
         ]);
-        dataList.forEach((item) => {
+        dataList.forEach(item => {
           let index;
-          index = signCountData.data.data.findIndex((resultItem) => resultItem.subjectId === item.exhibitId);
+          index = signCountData.data.data.findIndex(
+            resultItem => resultItem.subjectId === item.exhibitId
+          );
           if (index !== -1) item.signCount = signCountData.data.data[index].count;
-          index = statusInfo.data.data.findIndex((resultItem) => resultItem.exhibitId === item.exhibitId);
-          if (index !== -1) item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+          index = statusInfo.data.data.findIndex(
+            resultItem => resultItem.exhibitId === item.exhibitId
+          );
+          if (index !== -1)
+            item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
         });
       }
       this.listData = init ? dataList : [...this.listData, ...dataList];
@@ -133,7 +138,7 @@ export default {
       if (scrollTop + clientHeight < scrollHeight - 200) return;
 
       this.getList();
-    },
-  },
+    }
+  }
 };
 </script>
