@@ -15,8 +15,14 @@ export const BackTop = (props: { children: TransitionChildren; onClick?: () => v
   };
 
   return (
-    <CSSTransition in={scrollTop > 300} classNames="fade" timeout={500} unmountOnExit onClick={backToTop}>
-        {children}
+    <CSSTransition
+      in={scrollTop > 300}
+      classNames="fade"
+      timeout={500}
+      unmountOnExit
+      onClick={backToTop}
+    >
+      {children}
     </CSSTransition>
   );
 };

@@ -41,7 +41,7 @@ const SignedListBody = () => {
               className="search-input input-none"
               value={searchKey}
               placeholder="搜索"
-              onChange={(e) => setSearchKey((e.target.value || "").trim())}
+              onChange={e => setSearchKey((e.target.value || "").trim())}
               onKeyUp={(e: { keyCode: number }) => {
                 e.keyCode === 13 && getMySignedList(searchKey);
                 e.keyCode === 27 && setSearchKey("");
@@ -51,7 +51,7 @@ const SignedListBody = () => {
           </div>
         </div>
 
-        {mySignedList.map((item) => {
+        {mySignedList.map(item => {
           return (
             <div className="book-box" key={item.exhibitId}>
               <Novel mode={3} data={item} />

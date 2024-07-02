@@ -40,7 +40,7 @@ const routeList = [
   { name: "shelf", path: "/shelf", component: ShelfScreen },
   { name: "signedList", path: "/signedList", component: SignedListScreen },
   { name: "detail", path: "/detail", component: DetailScreen },
-  { name: "reader", path: "/reader", component: ReaderScreen },
+  { name: "reader", path: "/reader", component: ReaderScreen }
 ];
 
 export const globalContext = React.createContext<Global>({
@@ -48,7 +48,7 @@ export const globalContext = React.createContext<Global>({
   userData: null,
   selfConfig: {},
   theme: { gradientColor: "", deriveColor: "" },
-  locationHistory: [],
+  locationHistory: []
 });
 
 const RouterView = () => {
@@ -69,7 +69,10 @@ const RouterView = () => {
     setTheme(theme);
 
     const root = document.getElementById("root");
-    root?.setAttribute("style", `--gradientColor: ${theme.gradientColor}; --deriveColor: ${theme.deriveColor}`);
+    root?.setAttribute(
+      "style",
+      `--gradientColor: ${theme.gradientColor}; --deriveColor: ${theme.deriveColor}`
+    );
   };
 
   useEffect(() => {
@@ -81,7 +84,7 @@ const RouterView = () => {
       <Router history={history}>
         <Switch>
           <Route path="/" exact render={() => <Redirect to="/home" />} />
-          {routeList.map((route) => (
+          {routeList.map(route => (
             <Route path={route.path} component={route.component} key={route.name}></Route>
           ))}
           <Route path="*" exact render={() => <Redirect to="/home" />} />

@@ -9,7 +9,8 @@ export const ThemeEntrance = () => {
 
   return (
     <div
-      className={`theme-entrance-wrapper ${!inMobile && selfConfig.entranceShow === "显示" && "show"}`}
+      className={`theme-entrance-wrapper 
+      ${!inMobile && selfConfig.entranceShow === "显示" && "show"}`}
       style={{ boxShadow: `0px 2px 10px 0px ${theme.deriveColor}40` }}
       onClick={() => window.open(themeEntrance.url)}
     >

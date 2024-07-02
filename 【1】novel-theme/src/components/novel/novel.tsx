@@ -50,17 +50,24 @@ export const Novel = (props: {
         </div>
       </div>
 
-      <div className={`book-author ${![0, 4].includes(data.defaulterIdentityType!) && "opacity-40p"}`}>
+      <div
+        className={`book-author ${![0, 4].includes(data.defaulterIdentityType!) && "opacity-40p"}`}
+      >
         {data.articleInfo.articleOwnerName}
       </div>
     </div>
   ) : (
     // 普通小说组件
-    <div className={`novel-wrapper ${inMobile ? "in-mobile" : "in-pc"}`} onClick={() => toPath("/detail")}>
+    <div
+      className={`novel-wrapper ${inMobile ? "in-mobile" : "in-pc"}`}
+      onClick={() => toPath("/detail")}
+    >
       <div className="novel-content">
         <div className="book-cover-box">
           <img
-            className={`book-cover ${![0, 4].includes(data.defaulterIdentityType!) && "opacity-40p"}`}
+            className={`book-cover ${
+              ![0, 4].includes(data.defaulterIdentityType!) && "opacity-40p"
+            }`}
             src={data.coverImages[0]}
             alt={data.exhibitTitle}
           />
@@ -72,26 +79,44 @@ export const Novel = (props: {
             {![0, 4].includes(data.defaulterIdentityType!) && (
               <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
             )}
-            {mode !== 3 && data.defaulterIdentityType! >= 4 && <img className="lock" src={Lock} alt="未授权" />}
-            <div className={`book-name ${![0, 4].includes(data.defaulterIdentityType!) && "opacity-40p"}`}>
+            {mode !== 3 && data.defaulterIdentityType! >= 4 && (
+              <img className="lock" src={Lock} alt="未授权" />
+            )}
+            <div
+              className={`book-name ${
+                ![0, 4].includes(data.defaulterIdentityType!) && "opacity-40p"
+              }`}
+            >
               {data.exhibitTitle}
             </div>
-            {mode === 3 && data.defaulterIdentityType! < 4 && !inMobile && <div className="tag is-auth">已授权</div>}
-            {mode === 3 && data.defaulterIdentityType! >= 4 && !inMobile && <div className="tag not-auth">未授权</div>}
+            {mode === 3 && data.defaulterIdentityType! < 4 && !inMobile && (
+              <div className="tag is-auth">已授权</div>
+            )}
+            {mode === 3 && data.defaulterIdentityType! >= 4 && !inMobile && (
+              <div className="tag not-auth">未授权</div>
+            )}
           </div>
 
-          <div className={`book-author ${![0, 4].includes(data.defaulterIdentityType!) && "opacity-40p"}`}>
+          <div
+            className={`book-author ${
+              ![0, 4].includes(data.defaulterIdentityType!) && "opacity-40p"
+            }`}
+          >
             {data.articleInfo.articleOwnerName}
           </div>
 
           {!(mode === 3 && inMobile) && (
-            <div className={`tags ${![0, 4].includes(data.defaulterIdentityType!) && "opacity-40p"}`}>
+            <div
+              className={`tags ${![0, 4].includes(data.defaulterIdentityType!) && "opacity-40p"}`}
+            >
               <Tags data={data.tags} />
             </div>
           )}
 
           {mode === 3 && inMobile && (
-            <div className={`auth-tag ${data?.defaulterIdentityType! < 4 ? "is-auth" : "not-auth"}`}>
+            <div
+              className={`auth-tag ${data?.defaulterIdentityType! < 4 ? "is-auth" : "not-auth"}`}
+            >
               {data.defaulterIdentityType! < 4 ? "已授权" : "未授权"}
             </div>
           )}
@@ -107,8 +132,10 @@ export const Novel = (props: {
 
         {[2, 3].includes(mode) && (
           <div
-            className={`main-btn btn ${![0, 4].includes(data.defaulterIdentityType!) && "disabled"}`}
-            onClick={(e) => {
+            className={`main-btn btn ${
+              ![0, 4].includes(data.defaulterIdentityType!) && "disabled"
+            }`}
+            onClick={e => {
               e.stopPropagation();
               toPath("/reader");
             }}
@@ -120,7 +147,7 @@ export const Novel = (props: {
         {mode === 2 && (
           <div
             className="warning-btn btn"
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation();
               if (!deleteBook.current) {
                 deleteBook.current = true;

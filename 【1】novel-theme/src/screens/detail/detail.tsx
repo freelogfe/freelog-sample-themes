@@ -26,12 +26,12 @@ export const DetailScreen = (props: any) => {
     const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
       freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
       freelogApp.getExhibitSignCount(id),
-      freelogApp.getExhibitAuthStatus(id),
+      freelogApp.getExhibitAuthStatus(id)
     ]);
     const bookInfo = {
       ...exhibitInfo.data.data,
       signCount: signCountData.data.data[0].count,
-      defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
+      defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType
     };
 
     setNovel(bookInfo);
@@ -87,7 +87,7 @@ const DetailBody = () => {
     if (!container) return;
 
     const subDeps = await freelogApp.getSelfDependencyTree();
-    const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-展品分享");
+    const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-展品分享");
     if (!widgetData) return;
 
     const { articleId, parentNid, nid } = widgetData;
@@ -100,8 +100,8 @@ const DetailBody = () => {
       topExhibitId,
       container,
       renderWidgetOptions: {
-        data: { exhibit: novel, type: "小说", routerType: "detail" },
-      },
+        data: { exhibit: novel, type: "小说", routerType: "detail" }
+      }
       // widget_entry: "https://localhost:8201",
     };
     shareWidget.current = await freelogApp.mountArticleWidget(params);
@@ -148,7 +148,11 @@ const DetailBody = () => {
           <div className="novel-info">
             <div className="novel-base-info">
               <div className="novel-cover">
-                <img className="novel-cover-image" src={novel.coverImages[0]} alt={novel.exhibitTitle} />
+                <img
+                  className="novel-cover-image"
+                  src={novel.coverImages[0]}
+                  alt={novel.exhibitTitle}
+                />
               </div>
 
               <div className="novel-content">
@@ -183,7 +187,8 @@ const DetailBody = () => {
 
             <div className="operate-btns">
               <div
-                className={`btn main-btn mobile ${![0, 4].includes(novel.defaulterIdentityType) && "disabled"}`}
+                className={`btn main-btn mobile
+                ${![0, 4].includes(novel.defaulterIdentityType) && "disabled"}`}
                 onClick={() => history.switchPage(`/reader?id=${novel.exhibitId}`)}
               >
                 立即阅读
@@ -234,7 +239,11 @@ const DetailBody = () => {
           {/* 书籍信息 */}
           <div className="novel-info">
             <div className="novel-cover">
-              <img className="novel-cover-image" src={novel.coverImages[0]} alt={novel.exhibitTitle} />
+              <img
+                className="novel-cover-image"
+                src={novel.coverImages[0]}
+                alt={novel.exhibitTitle}
+              />
             </div>
 
             <div className="novel-content">
@@ -253,7 +262,8 @@ const DetailBody = () => {
               <div className="btns-box">
                 <div className="operate-btns">
                   <div
-                    className={`btn main-btn ${![0, 4].includes(novel.defaulterIdentityType) && "disabled"}`}
+                    className={`btn main-btn 
+                    ${![0, 4].includes(novel.defaulterIdentityType) && "disabled"}`}
                     onClick={() => history.switchPage(`/reader?id=${novel.exhibitId}`)}
                   >
                     立即阅读
@@ -270,11 +280,11 @@ const DetailBody = () => {
                   <div className="sign-count">{novel.signCount}人签约</div>
                   <div
                     className="share-btn"
-                    onMouseOver={(e) => {
+                    onMouseOver={e => {
                       e.stopPropagation();
                       setShareWidgetShow(true);
                     }}
-                    onMouseLeave={(e) => {
+                    onMouseLeave={e => {
                       e.stopPropagation();
                       setShareWidgetShow(false);
                     }}

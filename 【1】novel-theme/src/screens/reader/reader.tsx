@@ -46,7 +46,7 @@ export const ReaderScreen = (props: any) => {
     if (widgetList.current.share) await widgetList.current.share.unmount();
 
     const subDeps = await freelogApp.getSelfDependencyTree();
-    const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-展品分享");
+    const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-展品分享");
     if (!widgetData) return;
 
     const { articleId, parentNid, nid } = widgetData;
@@ -59,8 +59,8 @@ export const ReaderScreen = (props: any) => {
       topExhibitId,
       container: document.getElementById("share")!,
       renderWidgetOptions: {
-        data: { exhibit: book, type: "小说", routerType: "content" },
-      },
+        data: { exhibit: book, type: "小说", routerType: "content" }
+      }
       // widget_entry: "https://localhost:8201",
     };
     widgetList.current.share = await freelogApp.mountArticleWidget(params);
@@ -69,7 +69,7 @@ export const ReaderScreen = (props: any) => {
   /** 加载 markdown 插件 */
   const mountMarkdownWidget = async (exhibitInfo: ExhibitItem, content: string) => {
     const subDeps = await freelogApp.getSelfDependencyTree();
-    const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-markdown解析");
+    const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-markdown解析");
     if (!widgetData) return;
 
     const { articleId, parentNid, nid } = widgetData;
@@ -85,8 +85,8 @@ export const ReaderScreen = (props: any) => {
       topExhibitId,
       container: document.getElementById("markdown")!,
       renderWidgetOptions: {
-        data: { exhibitInfo, content, fontSize: myFontSize },
-      },
+        data: { exhibitInfo, content, fontSize: myFontSize }
+      }
       // widget_entry: "https://localhost:8202",
     };
     widgetList.current.markdown = await freelogApp.mountArticleWidget(params);
@@ -149,7 +149,7 @@ export const ReaderScreen = (props: any) => {
     setLoading,
     mountShareWidget,
     mountMarkdownWidget,
-    setWidgetData,
+    setWidgetData
   };
 
   return (
@@ -159,7 +159,12 @@ export const ReaderScreen = (props: any) => {
         style={{ backgroundImage: `url(${BgImage})`, backgroundColor: theme?.bgColor }}
         onClick={() => clickPage()}
       >
-        <CSSTransition in={(inMobile && mobileBarShow) || !inMobile} classNames="slide-up" timeout={150} unmountOnExit>
+        <CSSTransition
+          in={(inMobile && mobileBarShow) || !inMobile}
+          classNames="slide-up"
+          timeout={150}
+          unmountOnExit
+        >
           <Header readerHeader={true} />
         </CSSTransition>
         <ReaderBody />
@@ -173,7 +178,8 @@ export const ReaderScreen = (props: any) => {
 const ReaderBody = () => {
   const history = useMyHistory();
   const { userData } = useContext(globalContext);
-  const { inMobile, book, id, theme, mountMarkdownWidget, loading, setLoading } = useContext(readerContext);
+  const { inMobile, book, id, theme, mountMarkdownWidget, loading, setLoading } =
+    useContext(readerContext);
   const [content, setContent] = useState<string>("");
   const [defaulterIdentityType, setDefaulterIdentityType] = useState<number | null>(null);
 
@@ -231,7 +237,7 @@ const ReaderBody = () => {
         style={
           {
             backgroundImage: `url(${BgImage})`,
-            backgroundColor: theme?.bookColor,
+            backgroundColor: theme?.bookColor
           } as any
         }
       >
@@ -244,7 +250,8 @@ const ReaderBody = () => {
               进入首页
             </div>
           </div>
-        ) : defaulterIdentityType && (defaulterIdentityType === 4 || userData?.isLogin === false) ? (
+        ) : defaulterIdentityType &&
+          (defaulterIdentityType === 4 || userData?.isLogin === false) ? (
           <div className="lock-box">
             <img className="lock" src={Lock} alt="未授权" />
             <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
@@ -272,7 +279,7 @@ const ReaderBody = () => {
           style={
             {
               backgroundImage: `url(${BgImage})`,
-              backgroundColor: theme?.bookColor,
+              backgroundColor: theme?.bookColor
             } as any
           }
         >
@@ -285,7 +292,8 @@ const ReaderBody = () => {
                 进入首页
               </div>
             </div>
-          ) : defaulterIdentityType && (defaulterIdentityType === 4 || userData?.isLogin === false) ? (
+          ) : defaulterIdentityType &&
+            (defaulterIdentityType === 4 || userData?.isLogin === false) ? (
             <div className="lock-box">
               <img className="lock" src={Lock} alt="未授权" />
               <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
@@ -319,7 +327,7 @@ const OperaterBtns = () => {
     mobileBarShow,
     setMobileBarShow,
     mountShareWidget,
-    setWidgetData,
+    setWidgetData
   } = useContext(readerContext);
   const { isCollected, operateShelf } = useMyShelf(book?.exhibitId);
   const [href, setHref] = useState("");
@@ -385,7 +393,8 @@ const OperaterBtns = () => {
   }, [scrollTop]);
 
   useEffect(() => {
-    document.body.style.overflowY = (fontSizePopupShow || themePopupShow) && inMobile ? "hidden" : "auto";
+    document.body.style.overflowY =
+      (fontSizePopupShow || themePopupShow) && inMobile ? "hidden" : "auto";
   }, [fontSizePopupShow, themePopupShow, inMobile]);
 
   return inMobile ? (
@@ -451,7 +460,7 @@ const OperaterBtns = () => {
 
         {fontSizePopupShow && (
           <div className="operater-popup" onClick={() => setFontSizePopupShow(false)}>
-            <div className="fontsize-popup" onClick={(e) => e.stopPropagation()}>
+            <div className="fontsize-popup" onClick={e => e.stopPropagation()}>
               <div className="fontsize-label" onClick={() => changeFontSize(0)}>
                 A-
               </div>
@@ -465,8 +474,8 @@ const OperaterBtns = () => {
 
         {themePopupShow && (
           <div className="operater-popup" onClick={() => setThemePopupShow(false)}>
-            <div className="theme-popup" onClick={(e) => e.stopPropagation()}>
-              {readerThemeList.map((item) => {
+            <div className="theme-popup" onClick={e => e.stopPropagation()}>
+              {readerThemeList.map(item => {
                 return (
                   <div
                     className={`theme-btn ${theme.bookColor === item.bookColor && "active"}`}
@@ -551,7 +560,7 @@ const OperaterBtns = () => {
           }}
           slot={
             <div className="operater-popup" style={{ width: themePopupShow ? "228px" : "0" }}>
-              {readerThemeList.map((item) => {
+              {readerThemeList.map(item => {
                 return (
                   <div
                     className={`theme-btn ${theme.bookColor === item.bookColor && "active"}`}
@@ -579,7 +588,12 @@ const OperaterBtns = () => {
 };
 
 /** 功能操作按钮 */
-const OperateBtn = (props: { icon?: string; text?: string; slot?: any; onClick?: (e: any) => void }) => {
+const OperateBtn = (props: {
+  icon?: string;
+  text?: string;
+  slot?: any;
+  onClick?: (e: any) => void;
+}) => {
   const { icon, text, slot, onClick } = props;
   const { theme } = useContext(readerContext);
 
@@ -587,7 +601,7 @@ const OperateBtn = (props: { icon?: string; text?: string; slot?: any; onClick?:
     <div
       className={`operate-btn-wrapper ${theme?.type === 1 ? "dark" : "light"}`}
       style={{ backgroundColor: theme?.bookColor }}
-      onClick={(e) => e.stopPropagation()}
+      onClick={e => e.stopPropagation()}
     >
       {slot}
       {icon && <i className={`freelog ${icon}`} onClick={onClick}></i>}

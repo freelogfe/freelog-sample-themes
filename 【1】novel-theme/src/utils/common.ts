@@ -43,7 +43,7 @@ export const getUrlParams = (str: string) => {
   str = decodeURIComponent(str);
   const result: Record<string, string> = {};
   const paramsArr = str.replace("?", "").split("&");
-  paramsArr.forEach((item) => {
+  paramsArr.forEach(item => {
     const [key, value] = item.split("=");
     result[key] = value;
   });

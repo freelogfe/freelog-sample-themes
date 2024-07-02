@@ -44,18 +44,19 @@ export const HomeScreen = (props: any) => {
       const list = await freelogApp.getExhibitListByPaging(queryParams);
       const { dataList, totalItem } = list.data.data;
       if (dataList.length !== 0) {
-        const ids = dataList.map((item) => item.exhibitId).join();
+        const ids = dataList.map(item => item.exhibitId).join();
         const statusInfo = await freelogApp.getExhibitAuthStatus(ids);
         if (statusInfo.data.data) {
-          (dataList as ExhibitItem[]).forEach((item) => {
+          (dataList as ExhibitItem[]).forEach(item => {
             const index = statusInfo.data.data.findIndex(
               (resultItem: { exhibitId: string }) => resultItem.exhibitId === item.exhibitId
             );
-            if (index !== -1) item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+            if (index !== -1)
+              item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
           });
         }
       }
-      setNovelList((pre) => (init ? dataList : [...pre, ...dataList]));
+      setNovelList(pre => (init ? dataList : [...pre, ...dataList]));
       setTotal(totalItem);
       if (init) setLoading(false);
       setMyloading(false);
@@ -76,7 +77,11 @@ export const HomeScreen = (props: any) => {
 
   return (
     <div className="home-wrapper">
-      <Header homeHeader={!searching} mobileSearching={(inMobile && searching) || false} defaultSearchKey={keywords} />
+      <Header
+        homeHeader={!searching}
+        mobileSearching={(inMobile && searching) || false}
+        defaultSearchKey={keywords}
+      />
       <HomeBody
         novelList={novelList}
         searching={searching}
@@ -137,9 +142,9 @@ const HomeBody = (props: {
             </div>
 
             <div className="book-list-box">
-              {myShelf.map((item) => {
-                return (                  
-                <div className="book-box" key={item.exhibitId}>
+              {myShelf.map(item => {
+                return (
+                  <div className="book-box" key={item.exhibitId}>
                     <Novel mode={4} data={item}></Novel>
                   </div>
                 );
@@ -152,7 +157,10 @@ const HomeBody = (props: {
           {searching ? (
             <div className="search-box-title">
               <div className="box-title">查询到{novelList.length}个相关结果</div>
-              <div className={`text-btn mobile ${myloading && "disabled"}`} onClick={() => setFilterBoxShow(true)}>
+              <div
+                className={`text-btn mobile ${myloading && "disabled"}`}
+                onClick={() => setFilterBoxShow(true)}
+              >
                 <i className="freelog fl-icon-shaixuan"></i>
                 <div className="filter-label">筛选</div>
               </div>
@@ -160,7 +168,10 @@ const HomeBody = (props: {
           ) : (
             <div className="box-header">
               <div className="box-title">精选小说</div>
-              <div className={`text-btn mobile ${myloading && "disabled"}`} onClick={() => setFilterBoxShow(true)}>
+              <div
+                className={`text-btn mobile ${myloading && "disabled"}`}
+                onClick={() => setFilterBoxShow(true)}
+              >
                 <i className="freelog fl-icon-shaixuan"></i>
                 <div className="filter-label">筛选</div>
               </div>
@@ -170,7 +181,7 @@ const HomeBody = (props: {
           {loading && <Loader />}
 
           {!loading &&
-            novelList.map((item) => {
+            novelList.map(item => {
               return (
                 <div key={item.exhibitId} className="book-box">
                   <Novel data={item}></Novel>
@@ -178,7 +189,9 @@ const HomeBody = (props: {
               );
             })}
 
-          {!loading && novelList.length === 0 && <div className="tip">当前节点暂无任何书籍，请稍后查看</div>}
+          {!loading && novelList.length === 0 && (
+            <div className="tip">当前节点暂无任何书籍，请稍后查看</div>
+          )}
 
           {!loading && novelList.length !== 0 && novelList.length === total && (
             <div className="tip no-more">— 已加载全部书籍 —</div>
@@ -207,7 +220,7 @@ const HomeBody = (props: {
                 全部
               </div>
               <div className="tags-box-list">
-                {tagsList.map((item) => (
+                {tagsList.map(item => (
                   <div
                     className={`tag ${tags === item && "active"}`}
                     key={item}
@@ -241,7 +254,7 @@ const HomeBody = (props: {
             </div>
 
             <div className="book-list-box">
-              {myShelf.map((item) => {
+              {myShelf.map(item => {
                 return (
                   <div className="book-box" key={item.exhibitId}>
                     <Novel data={item}></Novel>
@@ -268,7 +281,7 @@ const HomeBody = (props: {
               全部
             </div>
 
-            {tagsList.map((item) => {
+            {tagsList.map(item => {
               return (
                 <div
                   className={`category-btn ${tags === item && "active"} ${myloading && "disabled"}`}
@@ -285,7 +298,7 @@ const HomeBody = (props: {
 
           {!loading && (
             <div className="book-list-box">
-              {novelList.map((item) => {
+              {novelList.map(item => {
                 return (
                   <div key={item.exhibitId} className="book-box">
                     <Novel data={item}></Novel>
@@ -294,7 +307,9 @@ const HomeBody = (props: {
               })}
             </div>
           )}
-          {!loading && novelList.length === 0 && <div className="tip">当前节点暂无任何书籍，请稍后查看</div>}
+          {!loading && novelList.length === 0 && (
+            <div className="tip">当前节点暂无任何书籍，请稍后查看</div>
+          )}
           {!loading && novelList.length !== 0 && novelList.length === total && (
             <div className="tip no-more">— 已加载全部书籍 —</div>
           )}

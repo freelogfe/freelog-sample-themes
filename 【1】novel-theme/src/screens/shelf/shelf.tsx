@@ -27,7 +27,10 @@ export const ShelfScreen = () => {
 };
 
 /** 书架页主体内容 */
-const ShelfBody = (props: { shelfList: ExhibitItem[] | null; operateShelf: (data: ExhibitItem) => void }) => {
+const ShelfBody = (props: {
+  shelfList: ExhibitItem[] | null;
+  operateShelf: (data: ExhibitItem) => void;
+}) => {
   const { userData, inMobile } = useContext(globalContext);
   const { shelfList, operateShelf } = props;
   const history = useMyHistory();
@@ -37,7 +40,7 @@ const ShelfBody = (props: { shelfList: ExhibitItem[] | null; operateShelf: (data
       <div className="content">
         <div className="shelf-title">我的书架</div>
 
-        {shelfList.map((item) => {
+        {shelfList.map(item => {
           return (
             <div className="book-box" key={item.exhibitId}>
               <Novel mode={2} data={item} operateShelf={operateShelf} />
