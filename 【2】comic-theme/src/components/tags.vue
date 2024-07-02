@@ -16,22 +16,23 @@
 </template>
 
 <script lang="ts">
-import { useMyRouter } from "@/utils/hooks";
+import { PropType, toRefs } from "vue";
 import { useStore } from "vuex";
-import { toRefs } from "vue";
+import { useMyRouter } from "@/utils/hooks";
+import { State } from "@/store/index";
 
 export default {
   name: "tags",
 
   props: {
     tags: {
-      type: Array,
-      default: () => [],
-    },
+      type: Array as PropType<string[]>,
+      default: () => []
+    }
   },
 
   setup() {
-    const store = useStore();
+    const store = useStore<State>();
     const { switchPage } = useMyRouter();
 
     const methods = {
@@ -39,14 +40,14 @@ export default {
       searchTag(tag: string) {
         const query: { tags: string } = { tags: tag };
         switchPage("/home", query);
-      },
+      }
     };
 
     return {
       ...toRefs(store.state),
-      ...methods,
+      ...methods
     };
-  },
+  }
 };
 </script>
 

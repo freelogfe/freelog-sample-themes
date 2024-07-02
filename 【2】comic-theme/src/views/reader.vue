@@ -60,7 +60,7 @@
 
           <div
             class="lock-box"
-            v-else-if="comicInfo.defaulterIdentityType === 4 || userData.isLogin === false"
+            v-else-if="comicInfo.defaulterIdentityType === 4 || userData?.isLogin === false"
           >
             <img class="lock" src="../assets/images/lock.png" alt="未授权" />
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
@@ -235,7 +235,7 @@
 
           <div
             class="lock-box"
-            v-else-if="comicInfo.defaulterIdentityType === 4 || userData.isLogin === false"
+            v-else-if="comicInfo.defaulterIdentityType === 4 || userData?.isLogin === false"
           >
             <img class="lock" src="../assets/images/lock.png" alt="未授权" />
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
@@ -434,14 +434,15 @@
 </template>
 
 <script lang="tsx">
-import { toRefs } from "@vue/reactivity";
-import { useMyRouter, useMyScroll, useMyShelf } from "../utils/hooks";
 import { defineAsyncComponent, nextTick, onBeforeUnmount, reactive, watch } from "vue";
-import { ContentImage, ExhibitItem } from "@/api/interface";
 import { useStore } from "vuex";
 import { Swipe, SwipeItem } from "vant";
-import "vant/lib/index.css";
+import { toRefs } from "@vue/reactivity";
 import { WidgetController, freelogApp } from "freelog-runtime";
+import { useMyRouter, useMyScroll, useMyShelf } from "@/utils/hooks";
+import { ContentImage, ExhibitItem } from "@/api/interface";
+import { State } from "@/store/index";
+import "vant/lib/index.css";
 
 export default {
   name: "reader",
@@ -459,7 +460,7 @@ export default {
     type modeType = "paging" | "scroll" | "single" | "double" | "normal" | "manga";
 
     const myTheme = localStorage.getItem("theme") || "light";
-    const store = useStore();
+    const store = useStore<State>();
     const { query, switchPage } = useMyRouter();
     const { id } = query.value;
     const { isCollected, operateShelf } = useMyShelf(id);
@@ -839,8 +840,8 @@ export default {
       const { authIds, myShelf } = store.state;
       authIds.push(id);
       store.commit("setData", { key: "authIds", value: authIds });
-      const index = myShelf.findIndex((item: ExhibitItem) => item.exhibitId === id);
-      if (index !== -1) {
+      const index = myShelf?.findIndex((item: ExhibitItem) => item.exhibitId === id) as number;
+      if (index !== -1 && myShelf) {
         myShelf[index].defaulterIdentityType = 0;
         store.commit("setData", { key: "myShelf", value: myShelf });
       }

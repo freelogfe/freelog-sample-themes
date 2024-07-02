@@ -4,7 +4,7 @@
   <div class="signed-list-wrapper" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
     <my-header />
 
-    <div class="content" v-if="userData.isLogin && mySignedList">
+    <div class="content" v-if="userData?.isLogin && mySignedList">
       <div class="content-header">
         <div class="signed-list-title">已签约漫画</div>
 
@@ -25,7 +25,7 @@
       <div class="tip" v-if="mySignedList.length === 0">暂无数据，快去签约漫画吧～</div>
     </div>
 
-    <div class="not-login-content" v-if="userData.isLogin === false">
+    <div class="not-login-content" v-if="userData?.isLogin === false">
       <div class="not-login-tip">此页面需登录浏览，请先登录</div>
       <div class="main-btn" @click="callLogin()" v-if="!inMobile">登录</div>
     </div>
@@ -40,9 +40,10 @@
 
 <script lang="ts">
 import { defineAsyncComponent, reactive, toRefs } from "@vue/runtime-core";
-import { useMySignedList } from "../utils/hooks";
 import { useStore } from "vuex";
 import { callLogin } from "@/api/freelog";
+import { useMySignedList } from "@/utils/hooks";
+import { State } from "@/store/index";
 
 export default {
   name: "signed-list",
@@ -56,7 +57,7 @@ export default {
   },
 
   setup() {
-    const store = useStore();
+    const store = useStore<State>();
     const { mySignedList, getMySignedList } = useMySignedList();
 
     const data = reactive({

@@ -1,5 +1,4 @@
 <!-- 移动端登录/注册按钮 -->
-
 <template>
   <div
     class="login-btn-wrapper main-btn mobile"
@@ -12,24 +11,25 @@
 </template>
 
 <script lang="ts">
-import { useStore } from "vuex";
-import { callLogin } from "@/api/freelog";
-import { reactive, watch } from "@vue/runtime-core";
 import { toRefs } from "vue";
+import { useStore } from "vuex";
+import { reactive, watch } from "@vue/runtime-core";
+import { callLogin } from "@/api/freelog";
+import { State } from "@/store/index";
 
 export default {
   name: "login-btn",
 
   setup() {
-    const store = useStore();
+    const store = useStore<State>();
     const data = reactive({
-      show: false,
+      show: false
     });
 
     watch(
       () => store.state.userData,
-      (cur) => {
-        data.show = !cur.isLogin;
+      cur => {
+        data.show = !cur?.isLogin;
       },
       { immediate: true }
     );
@@ -37,9 +37,9 @@ export default {
     return {
       callLogin,
       ...toRefs(store.state),
-      ...toRefs(data),
+      ...toRefs(data)
     };
-  },
+  }
 };
 </script>
 

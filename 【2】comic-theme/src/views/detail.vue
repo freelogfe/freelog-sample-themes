@@ -61,7 +61,7 @@
         <div class="operate-btns">
           <div
             class="btn main-btn mobile"
-            :class="{ disabled: ![0, 4].includes(comicInfo.defaulterIdentityType) }"
+            :class="{ disabled: ![0, 4].includes(comicInfo.defaulterIdentityType ?? -1) }"
             @click="switchPage('/reader', { id: comicInfo?.exhibitId })"
           >
             立即阅读
@@ -144,7 +144,7 @@
               <div class="operate-btns">
                 <div
                   class="btn main-btn"
-                  :class="{ disabled: ![0, 4].includes(comicInfo.defaulterIdentityType) }"
+                  :class="{ disabled: ![0, 4].includes(comicInfo.defaulterIdentityType ?? -1) }"
                   @click="switchPage('/reader', { id: comicInfo?.exhibitId })"
                 >
                   立即阅读
@@ -206,13 +206,14 @@
 </template>
 
 <script lang="ts">
-import { useMyRouter, useMyShelf } from "../utils/hooks";
-import { defineAsyncComponent, reactive, ref, toRefs, watch } from "@vue/runtime-core";
-import { ExhibitItem } from "@/api/interface";
-import { useStore } from "vuex";
-import { formatDate, showToast } from "@/utils/common";
 import { onBeforeUnmount } from "vue";
+import { useStore } from "vuex";
+import { defineAsyncComponent, reactive, ref, toRefs, watch } from "@vue/runtime-core";
 import { WidgetController, freelogApp } from "freelog-runtime";
+import { useMyRouter, useMyShelf } from "@/utils/hooks";
+import { formatDate, showToast } from "@/utils/common";
+import { ExhibitItem } from "@/api/interface";
+import { State } from "@/store/index";
 
 export default {
   name: "detail",
@@ -226,7 +227,7 @@ export default {
   },
 
   setup() {
-    const store = useStore();
+    const store = useStore<State>();
     const { query, switchPage, routerBack } = useMyRouter();
     const { id } = query.value;
     const { isCollected, operateShelf } = useMyShelf(id);

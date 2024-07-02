@@ -2,9 +2,13 @@
 
 <template>
   <!-- 移动端头部 -->
-  <div class="mobile-header-wrapper" :class="{ 'in-home': homeHeader }" v-if="inMobile && !mobileSearching">
+  <div
+    class="mobile-header-wrapper"
+    :class="{ 'in-home': homeHeader }"
+    v-if="inMobile && !mobileSearching"
+  >
     <!-- 顶部 -->
-    <div class="header-top" :class="{ logon: userData.isLogin }">
+    <div class="header-top" :class="{ logon: userData?.isLogin }">
       <img
         class="logo"
         :src="selfConfig.logoImage || require('../assets/images/logo.png')"
@@ -12,7 +16,11 @@
         @click="switchPage('/home')"
         v-if="homeHeader"
       />
-      <div class="header-top-left" @click="locationHistory.length === 1 ? switchPage('/home') : routerBack()" v-else>
+      <div
+        class="header-top-left"
+        @click="locationHistory.length === 1 ? switchPage('/home') : routerBack()"
+        v-else
+      >
         <img class="back-arrow" src="../assets/images/arrow.png" />
         <div class="back-label">
           {{ locationHistory.length === 1 ? "首页" : "返回" }}
@@ -20,7 +28,11 @@
       </div>
 
       <div class="header-top-right">
-        <i class="freelog fl-icon-content" @click="searchPopupShow = true" v-if="!homeHeader && !readerHeader"></i>
+        <i
+          class="freelog fl-icon-content"
+          @click="searchPopupShow = true"
+          v-if="!homeHeader && !readerHeader"
+        ></i>
 
         <img class="menu" src="../assets/images/menu.png" @click="userBoxShow = true" />
       </div>
@@ -42,9 +54,9 @@
             class="avatar"
             :src="userData?.headImage || require('../assets/images/default-avatar.png')"
             :alt="userData?.username || '未登录'"
-            @click="!userData.isLogin && callLogin()"
+            @click="!userData?.isLogin && callLogin()"
           />
-          <div class="username" @click="!userData.isLogin && callLogin()">
+          <div class="username" @click="!userData?.isLogin && callLogin()">
             {{ userData?.username || "未登录" }}
           </div>
           <div class="close-btn" @click="userBoxShow = false">
@@ -68,7 +80,7 @@
                 switchPage('/shelf');
                 userBoxShow = false;
               "
-              v-if="userData.isLogin"
+              v-if="userData?.isLogin"
             >
               <i class="freelog fl-icon-shujia"></i>
               <div class="btn-label">我的收藏</div>
@@ -80,18 +92,18 @@
                 switchPage('/signedList');
                 userBoxShow = false;
               "
-              v-if="userData.isLogin"
+              v-if="userData?.isLogin"
             >
               <i class="freelog fl-icon-lishi"></i>
               <div class="btn-label">已签约漫画</div>
             </div>
           </div>
 
-          <div class="footer-btn" @click="callLoginOut()" v-if="userData.isLogin">
+          <div class="footer-btn" @click="callLoginOut()" v-if="userData?.isLogin">
             <i class="freelog fl-icon-tuichu1"></i>
             <div class="btn-label">退出登录</div>
           </div>
-          <div class="footer-btn" v-if="!userData.isLogin">
+          <div class="footer-btn" v-if="!userData?.isLogin">
             <div class="main-btn mobile" @click="callLogin()">立即登录</div>
           </div>
         </div>
@@ -207,7 +219,10 @@
                   @mouseleave="searchWordCatch = null"
                 >
                   <div class="item-word">{{ item }}</div>
-                  <i class="freelog fl-icon-guanbi delete-btn" @click.stop="deleteSearchHistory(item)"></i>
+                  <i
+                    class="freelog fl-icon-guanbi delete-btn"
+                    @click.stop="deleteSearchHistory(item)"
+                  ></i>
                 </div>
               </div>
 
@@ -219,21 +234,21 @@
 
       <div class="header-right">
         <div class="nav-btn" @click="switchPage('/')">首页</div>
-        <div class="nav-btn" @click="switchPage('/shelf')" v-if="userData.isLogin">我的收藏</div>
+        <div class="nav-btn" @click="switchPage('/shelf')" v-if="userData?.isLogin">我的收藏</div>
 
         <div
           class="user-avatar"
           @mouseover="userBoxShow = true"
           @mouseleave="userBoxShow = false"
-          v-if="userData.isLogin"
+          v-if="userData?.isLogin"
         >
-          <img class="avatar" :src="userData.headImage" :alt="userData.username" />
+          <img class="avatar" :src="userData?.headImage" :alt="userData?.username" />
 
           <transition name="slide-down-scale">
             <div class="user-box" v-if="userBoxShow">
               <div class="user-box-body">
-                <img class="avatar" :src="userData.headImage" :alt="userData.username" />
-                <div class="username">{{ userData.username }}</div>
+                <img class="avatar" :src="userData?.headImage" :alt="userData?.username" />
+                <div class="username">{{ userData?.username }}</div>
                 <div
                   class="btn user-box-btn"
                   @click="
@@ -260,9 +275,10 @@
 
 <script lang="ts">
 import { computed, reactive, ref, toRefs, watch } from "vue";
-import { useMyLocationHistory, useMyRouter, useSearchHistory } from "../utils/hooks";
-import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
+import { callLogin, callLoginOut } from "@/api/freelog";
+import { useMyLocationHistory, useMyRouter, useSearchHistory } from "@/utils/hooks";
+import { State } from "@/store/index";
 
 export default {
   name: "my-header",
@@ -270,32 +286,34 @@ export default {
   props: {
     homeHeader: {
       type: Boolean,
-      default: false,
+      default: false
     },
     readerHeader: {
       type: Boolean,
-      default: false,
+      default: false
     },
     mobileSearching: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
 
   setup(props: { homeHeader: boolean }) {
-    const store = useStore();
+    const store = useStore<State>();
     const { query, route, switchPage, routerBack } = useMyRouter();
     const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
     const searchInput = ref();
     const searchHistoryPopup = ref();
-    const mySearchHistory = computed(() => searchHistory.value.filter((item) => item.includes(data.searchKey)));
+    const mySearchHistory = computed(() =>
+      searchHistory.value.filter(item => item.includes(data.searchKey))
+    );
 
     const data = reactive({
       searchKey: "",
       userBoxShow: false,
       searchPopupShow: false,
       searchHistoryShow: false,
-      searchWordCatch: null as number | null,
+      searchWordCatch: null as number | null
     });
 
     const methods = {
@@ -383,7 +401,7 @@ export default {
       /** 注册 */
       register() {
         window.open("https://user.freelog.com/logon");
-      },
+      }
     };
 
     /** 根据点击区域判断历史搜索框是否关闭 */
@@ -413,7 +431,7 @@ export default {
 
     watch(
       () => data.searchHistoryShow,
-      (cur) => {
+      cur => {
         if (cur) {
           document.addEventListener("click", ifCloseHistoryPopup);
         } else {
@@ -441,9 +459,9 @@ export default {
       deleteWord,
       clearHistory,
       ...toRefs(data),
-      ...methods,
+      ...methods
     };
-  },
+  }
 };
 </script>
 

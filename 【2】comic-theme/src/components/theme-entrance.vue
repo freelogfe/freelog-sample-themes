@@ -13,30 +13,31 @@
 </template>
 
 <script lang="ts">
+import { toRefs } from "vue";
 import { useStore } from "vuex";
 import { freelogEntrances } from "@/api/data";
-import { toRefs } from "vue";
+import { State } from "@/store/index";
 
 export default {
   name: "theme-entrance",
 
   setup() {
     const themeEntrance = freelogEntrances[2];
-    const store = useStore();
+    const store = useStore<State>();
 
     const methods = {
       /** 打开主题资源详情页 */
       toTheme() {
         window.open(themeEntrance.url);
-      },
+      }
     };
 
     return {
       themeEntrance,
       ...toRefs(store.state),
-      ...methods,
+      ...methods
     };
-  },
+  }
 };
 </script>
 

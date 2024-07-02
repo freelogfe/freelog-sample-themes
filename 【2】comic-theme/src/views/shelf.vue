@@ -4,7 +4,7 @@
   <div class="shelf-wrapper" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
     <my-header />
 
-    <div class="content" v-if="userData.isLogin">
+    <div class="content" v-if="userData?.isLogin">
       <div class="shelf-title">我的漫画</div>
 
       <template v-if="myShelf && myShelf.length !== 0">
@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <div class="not-login-content" v-if="userData.isLogin === false">
+    <div class="not-login-content" v-if="userData?.isLogin === false">
       <div class="not-login-tip">此页面需登录浏览，请先登录</div>
       <div class="main-btn" @click="callLogin()" v-if="!inMobile">登录</div>
     </div>
@@ -40,9 +40,10 @@
 
 <script lang="ts">
 import { defineAsyncComponent, toRefs } from "@vue/runtime-core";
-import { useMyRouter, useMyShelf } from "../utils/hooks";
 import { useStore } from "vuex";
 import { callLogin } from "@/api/freelog";
+import { useMyRouter, useMyShelf } from "@/utils/hooks";
+import { State } from "@/store/index";
 
 export default {
   name: "shelf",
@@ -56,7 +57,7 @@ export default {
   },
 
   setup() {
-    const store = useStore();
+    const store = useStore<State>();
     const { switchPage } = useMyRouter();
     const { operateShelf } = useMyShelf();
 
