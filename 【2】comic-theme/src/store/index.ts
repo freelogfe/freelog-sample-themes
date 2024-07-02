@@ -33,14 +33,14 @@ export default createStore({
     locationHistory: [] as HistoryItem[],
     shelfIds: [] as string[],
     myShelf: null as ExhibitItem[] | null,
-    authIds: [] as string[], // 授权集合，用于刷新列表授权状态
+    authIds: [] as string[] // 授权集合，用于刷新列表授权状态
   },
 
   mutations: {
     /** 更新数据 */
     setData(state: any, payload: any) {
       state[payload.key] = payload.value;
-    },
+    }
   },
 
   actions: {
@@ -52,7 +52,7 @@ export default createStore({
       const theme = themeList[selfConfig.theme];
       context.commit("setData", {
         key: "userData",
-        value: userData ? { ...userData, isLogin: true } : { isLogin: false },
+        value: userData ? { ...userData, isLogin: true } : { isLogin: false }
       });
       context.commit("setData", { key: "selfConfig", value: selfConfig });
       context.commit("setData", { key: "inMobile", value: inMobile });
@@ -60,9 +60,12 @@ export default createStore({
       context.commit("setData", { key: "locationHistory", value: [] });
 
       const app = document.getElementById("app");
-      app?.setAttribute("style", `--gradientColor: ${theme.gradientColor}; --deriveColor: ${theme.deriveColor}`);
-    },
+      app?.setAttribute(
+        "style",
+        `--gradientColor: ${theme.gradientColor}; --deriveColor: ${theme.deriveColor}`
+      );
+    }
   },
 
-  modules: {},
+  modules: {}
 });

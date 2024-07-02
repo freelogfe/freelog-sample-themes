@@ -6,7 +6,10 @@
 
     <!-- mobile -->
     <div class="mobile-home-body" v-if="inMobile">
-      <div class="shelf-comic-list" v-if="!searching && userData.isLogin && myShelf && myShelf.length !== 0">
+      <div
+        class="shelf-comic-list"
+        v-if="!searching && userData.isLogin && myShelf && myShelf.length !== 0"
+      >
         <div class="shelf-header">
           <div class="box-title">我的收藏</div>
           <div class="more-shelf" @click="switchPage('/shelf')">
@@ -25,14 +28,22 @@
       <div class="comic-list">
         <div class="search-box-title" v-if="searching">
           <div class="box-title">查询到{{ listData.length }}个相关结果</div>
-          <div class="text-btn mobile" :class="{ disabled: myLoading }" @click="filterBoxShow = true">
+          <div
+            class="text-btn mobile"
+            :class="{ disabled: myLoading }"
+            @click="filterBoxShow = true"
+          >
             <i className="freelog fl-icon-shaixuan"></i>
             <div class="filter-label">筛选</div>
           </div>
         </div>
         <div class="box-header" v-else>
           <div class="box-title">精选漫画</div>
-          <div class="text-btn mobile" :class="{ disabled: myLoading }" @click="filterBoxShow = true">
+          <div
+            class="text-btn mobile"
+            :class="{ disabled: myLoading }"
+            @click="filterBoxShow = true"
+          >
             <i className="freelog fl-icon-shaixuan"></i>
             <div class="filter-label">筛选</div>
           </div>
@@ -47,7 +58,9 @@
 
           <div class="tip" v-if="listData.length === 0">当前节点暂无任何漫画，请稍后查看</div>
 
-          <div class="tip no-more" v-if="listData.length !== 0 && listData.length === total">— 已加载全部漫画 —</div>
+          <div class="tip no-more" v-if="listData.length !== 0 && listData.length === total">
+            — 已加载全部漫画 —
+          </div>
         </template>
       </div>
 
@@ -96,7 +109,10 @@
 
     <!-- PC -->
     <div class="home-body" v-if="!inMobile">
-      <div class="comic-list" v-if="!searching && userData.isLogin && myShelf && myShelf.length !== 0">
+      <div
+        class="comic-list"
+        v-if="!searching && userData.isLogin && myShelf && myShelf.length !== 0"
+      >
         <div class="shelf-header">
           <div class="box-title">我的收藏</div>
           <div class="shelf-header-right">
@@ -105,7 +121,11 @@
         </div>
 
         <div class="comic-list-box">
-          <div class="comic-box" v-for="item in myShelf.filter((_, index) => index < 6)" :key="item.exhibitId">
+          <div
+            class="comic-box"
+            v-for="item in myShelf.filter((_, index) => index < 6)"
+            :key="item.exhibitId"
+          >
             <comic :data="item" />
           </div>
         </div>
@@ -118,7 +138,11 @@
         <div class="filter-bar">
           <div class="filter-bar-bg"></div>
 
-          <div class="category-btn" :class="{ active: !searchData.tags, disabled: myLoading }" @click="selectTag()">
+          <div
+            class="category-btn"
+            :class="{ active: !searchData.tags, disabled: myLoading }"
+            @click="selectTag()"
+          >
             全部
           </div>
 
@@ -144,7 +168,9 @@
 
           <div class="tip" v-if="listData.length === 0">当前节点暂无任何漫画，请稍后查看</div>
 
-          <div class="tip no-more" v-if="listData.length !== 0 && listData.length === total">— 已加载全部漫画 —</div>
+          <div class="tip no-more" v-if="listData.length !== 0 && listData.length === total">
+            — 已加载全部漫画 —
+          </div>
         </template>
       </div>
     </div>
@@ -156,7 +182,15 @@
 </template>
 
 <script lang="ts">
-import { computed, defineAsyncComponent, onActivated, onDeactivated, reactive, toRefs, watch } from "vue";
+import {
+  computed,
+  defineAsyncComponent,
+  onActivated,
+  onDeactivated,
+  reactive,
+  toRefs,
+  watch
+} from "vue";
 import { useGetList, useMyRouter, useMyScroll, useMyShelf } from "../utils/hooks";
 import { useStore } from "vuex";
 
@@ -169,7 +203,7 @@ export default {
     "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
     "login-btn": defineAsyncComponent(() => import("../components/login-btn.vue")),
     "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
-    comic: defineAsyncComponent(() => import("../components/comic.vue")),
+    comic: defineAsyncComponent(() => import("../components/comic.vue"))
   },
 
   setup() {
@@ -182,7 +216,7 @@ export default {
 
     const data = reactive({
       searchData: {} as { keywords?: string; tags?: string },
-      filterBoxShow: false,
+      filterBoxShow: false
     });
 
     /** 是否搜索中 */
@@ -204,7 +238,7 @@ export default {
         if (tag) query.tags = tag;
         if (keywords) query.keywords = keywords;
         switchPage("/home", query);
-      },
+      }
     };
 
     /** 获取展品列表 */
@@ -216,7 +250,7 @@ export default {
 
     watch(
       () => scrollTop.value,
-      (cur) => {
+      cur => {
         if (route.path !== "/home") return;
         if (cur + clientHeight.value !== scrollHeight.value) return;
 
@@ -228,7 +262,11 @@ export default {
       () => query.value,
       () => {
         if (route.path !== "/home") return;
-        if (data.searchData.keywords === query.value.keywords && data.searchData.tags === query.value.tags) return;
+        if (
+          data.searchData.keywords === query.value.keywords &&
+          data.searchData.tags === query.value.tags
+        )
+          return;
 
         getData();
       }
@@ -243,7 +281,7 @@ export default {
         if (authIds.length === 0) return;
 
         authIds.forEach((id: string) => {
-          const index = datasOfGetList.listData.value.findIndex((item) => item.exhibitId === id);
+          const index = datasOfGetList.listData.value.findIndex(item => item.exhibitId === id);
           if (index !== -1) datasOfGetList.listData.value[index].defaulterIdentityType = 0;
         });
         store.commit("setData", { key: "authIds", value: [] });
@@ -265,9 +303,9 @@ export default {
       ...datasOfGetList,
       ...toRefs(data),
       ...methods,
-      searching,
+      searching
     };
-  },
+  }
 };
 </script>
 
