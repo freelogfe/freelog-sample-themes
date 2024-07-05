@@ -1,20 +1,20 @@
-import React, { useContext, useRef } from "react";
-import "./reader.scss";
+import React, { useContext, useRef, useState, useEffect, useCallback } from "react";
+import { freelogApp } from "freelog-runtime";
+import CSSTransition from "react-transition-group/CSSTransition";
+import { globalContext } from "../../router";
+import { BackTop } from "../../components/back-top/back-top";
+import { Header } from "../../components/header/header";
+import { CatalogueModal } from "../../components/catalogue-modal/catalogue-modal";
+import { showToast } from "../../components/toast/toast";
+import { Loader } from "../../components/loader/loader";
+import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
+import { getUrlParams } from "../../utils/common";
+import { ExhibitItem, ThemeItem } from "../../api/interface";
+import { readerThemeList } from "../../api/data";
 import Lock from "../../assets/images/lock.png";
 import BgImage from "../../assets/images/reader-bg.png";
 import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
-import { useState, useEffect, useCallback } from "react";
-import { ExhibitItem, ThemeItem } from "../../api/interface";
-import { readerThemeList } from "../../api/data";
-import { BackTop } from "../../components/back-top/back-top";
-import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
-import { Header } from "../../components/header/header";
-import { globalContext } from "../../router";
-import { showToast } from "../../components/toast/toast";
-import CSSTransition from "react-transition-group/CSSTransition";
-import { Loader } from "../../components/loader/loader";
-import { getUrlParams } from "../../utils/common";
-import { freelogApp } from "freelog-runtime";
+import "./reader.scss";
 
 export const readerContext = React.createContext<any>({});
 
@@ -25,11 +25,12 @@ export const ReaderScreen = (props: any) => {
   const myTheme = JSON.parse(localStorage.getItem("theme") || "null");
   const [book, setBook] = useState<ExhibitItem | null>(null);
   const [fontSize, setFontSize] = useState(22);
-  const [theme, setTheme] = useState<ThemeItem>(myTheme || readerThemeList[0]);
+  const [theme, setTheme] = useState<ThemeItem>(myTheme?.bgColor ? myTheme : readerThemeList[0]);
   const [fontSizePopupShow, setFontSizePopupShow] = useState(false);
   const [themePopupShow, setThemePopupShow] = useState(false);
   const [mobileBarShow, setMobileBarShow] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [modalStatus, setModalStatus] = useState(false);
   const widgetList = useRef<any>({});
 
   /** 获取小说信息 */
@@ -139,6 +140,8 @@ export const ReaderScreen = (props: any) => {
     setFontSize,
     theme,
     setTheme,
+    modalStatus,
+    setModalStatus,
     fontSizePopupShow,
     setFontSizePopupShow,
     themePopupShow,
@@ -169,6 +172,10 @@ export const ReaderScreen = (props: any) => {
         </CSSTransition>
         <ReaderBody />
         <OperaterBtns />
+        {/* 目录弹窗 */}
+        {modalStatus && (
+          <CatalogueModal modalStatus closeCatalogueModal={() => setModalStatus(false)} />
+        )}
       </div>
     </readerContext.Provider>
   );
@@ -320,6 +327,7 @@ const OperaterBtns = () => {
     setFontSize,
     theme,
     setTheme,
+    setModalStatus,
     fontSizePopupShow,
     setFontSizePopupShow,
     themePopupShow,
@@ -401,6 +409,19 @@ const OperaterBtns = () => {
     // mobile
     <CSSTransition in={mobileBarShow} classNames="slide-down" timeout={150} unmountOnExit>
       <div className="mobile-operater-wrapper">
+        {/* 目录 */}
+        <div
+          className="operater-btn"
+          onClick={() => {
+            closeAllPopup();
+            setModalStatus(true);
+          }}
+        >
+          <i className="freelog fl-icon-xiaoshuomulu"></i>
+          <div className="operater-btn-label">目录</div>
+        </div>
+
+        {/* 收藏 */}
         {isCollected ? (
           <div
             className="operater-btn"
@@ -425,6 +446,7 @@ const OperaterBtns = () => {
           </div>
         )}
 
+        {/* 分享 */}
         <div
           className="operater-btn"
           onClick={() => {
@@ -436,6 +458,7 @@ const OperaterBtns = () => {
           <div className="operater-btn-label">分享</div>
         </div>
 
+        {/* 字号 */}
         <div
           className="operater-btn"
           onClick={() => {
@@ -447,6 +470,7 @@ const OperaterBtns = () => {
           <div className="operater-btn-label">字号</div>
         </div>
 
+        {/* 切换背景颜色 */}
         <div
           className="operater-btn"
           onClick={() => {
@@ -501,6 +525,16 @@ const OperaterBtns = () => {
     // PC
     <div className="operater-wrapper">
       <div className="operater-btns-box">
+        {/* 目录 */}
+        <OperateBtn
+          icon="fl-icon-xiaoshuomulu"
+          onClick={() => {
+            closeAllPopup();
+            setModalStatus(true);
+          }}
+        />
+
+        {/* 收藏 */}
         {isCollected ? (
           <OperateBtn
             icon="fl-icon-shoucangxiaoshuoyishoucang"
@@ -519,6 +553,7 @@ const OperaterBtns = () => {
           />
         )}
 
+        {/* 分享 */}
         <OperateBtn
           icon="fl-icon-fenxiang"
           onClick={() => {
@@ -530,6 +565,7 @@ const OperaterBtns = () => {
           slot={<div id="share" className="share-wrapper" />}
         />
 
+        {/* 字号 */}
         <OperateBtn
           text="A"
           onClick={() => {
@@ -552,6 +588,7 @@ const OperaterBtns = () => {
           }
         />
 
+        {/* 切换背景颜色 */}
         <OperateBtn
           icon="fl-icon-beijingyanse"
           onClick={() => {
@@ -579,6 +616,7 @@ const OperaterBtns = () => {
           }
         />
 
+        {/* 回到顶部 */}
         <BackTop onClick={() => closeAllPopup()}>
           <OperateBtn icon="fl-icon-huidaodingbu" />
         </BackTop>

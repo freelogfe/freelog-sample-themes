@@ -1,18 +1,21 @@
-import React, { useContext, useRef } from "react";
-import "./detail.scss";
-import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
-import { useState, useEffect, useCallback } from "react";
+import React, { useContext, useRef, useState, useEffect, useCallback } from "react";
+import { freelogApp } from "freelog-runtime";
+import { globalContext } from "../../router";
 import { Header } from "../../components/header/header";
-import { ExhibitItem } from "../../api/interface";
-import { formatDate, getUrlParams } from "../../utils/common";
 import { Tags } from "../../components/tags/tags";
-import { useMyHistory, useMyShelf } from "../../utils/hooks";
 import { Footer } from "../../components/footer/footer";
 import { ThemeEntrance } from "../../components/theme-entrance/theme-entrance";
 import { LoginBtn } from "../../components/login-btn/login-btn";
-import { globalContext } from "../../router";
 import { showToast } from "../../components/toast/toast";
-import { freelogApp } from "freelog-runtime";
+
+import { ExhibitItem } from "../../api/interface";
+import { formatDate, getUrlParams } from "../../utils/common";
+import { useMyHistory, useMyShelf } from "../../utils/hooks";
+import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
+import Lock from "../../assets/images/mini-lock.png";
+import RightArrow from "../../assets/images/right-arrow.png";
+
+import "./detail.scss";
 
 const detailContext = React.createContext<any>({});
 
@@ -118,7 +121,7 @@ const DetailBody = () => {
     return () => {
       if (inMobile) return;
       (async function unmountWidget() {
-        await shareWidget.current.unmount();
+        await shareWidget.current?.unmount();
       })();
     };
     // eslint-disable-next-line
@@ -221,6 +224,39 @@ const DetailBody = () => {
               <div className="no-intro-tip">暂无简介</div>
             )}
           </div>
+          {/* 目录 */}
+          <div className="novel-catalogue">
+            <div className="title-container">
+              <span className="title">目录</span>
+            </div>
+
+            <div className="sub-directory-container">
+              <div className="sub">
+                <span className="sub-title">第一话</span>
+                {/* 使用变量 */}
+                {!true ? (
+                  <img className="sub-lock" src={Lock} alt="未授权" />
+                ) : (
+                  <img src={RightArrow} />
+                )}
+              </div>
+              <div className="sub">
+                <span className="sub-title">第一话</span>
+              </div>
+              <div className="sub">
+                <span className="sub-title">第一话</span>
+              </div>
+              <div className="sub">
+                <span className="sub-title">第一话</span>
+              </div>
+              <div className="sub">
+                <span className="sub-title">第一话</span>
+              </div>
+              <div className="sub">
+                <span className="sub-title">第一话</span>
+              </div>
+            </div>
+          </div>
         </>
       )}
     </div>
@@ -320,6 +356,43 @@ const DetailBody = () => {
             ) : (
               <div className="no-intro-tip">暂无简介</div>
             )}
+          </div>
+
+          {/* 目录 */}
+          <div className="novel-catalogue">
+            <div className="title-container">
+              <span className="title">目录</span>
+              <span className="count">(12章)</span>
+            </div>
+
+            <div className="sub-directory-container">
+              <div className="sub">
+                <span className="sub-title">第一话</span>
+                {/* 使用变量 */}
+                {!true ? (
+                  <img className="sub-lock" src={Lock} alt="未授权" />
+                ) : (
+                  inMobile && <img src={RightArrow} />
+                )}
+              </div>
+              <div className="sub">
+                <span className="sub-title">第一话</span>
+              </div>
+              <div className="sub">
+                <span className="sub-title">第一话</span>
+              </div>
+              <div className="sub">
+                <span className="sub-title">第一话</span>
+              </div>
+              <div className="sub">
+                <span className="sub-title">第一话</span>
+              </div>
+              <div className="sub">
+                <span className="sub-title">第一话</span>
+              </div>
+            </div>
+
+            <div className="tip no-more">— 已加载全部章节 —</div>
           </div>
         </div>
       )}
