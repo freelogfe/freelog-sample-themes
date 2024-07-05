@@ -63,6 +63,11 @@
             alt="未授权"
             v-if="mode !== 3 && data.defaulterIdentityType >= 4"
           />
+          <!-- TODO 使用变量 -->
+          <div
+            class="comic-status"
+            :class="`${![0, 4].includes(data.defaulterIdentityType) ? 'on-going' : 'on-going'}`"
+          />
           <div
             class="comic-name"
             :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
@@ -322,6 +327,26 @@ export default {
           width: 16px;
           height: 16px;
           margin-right: 10px;
+        }
+
+        .comic-status {
+          width: 40px;
+          height: 18px;
+          margin-right: 5px;
+          background-repeat: no-repeat;
+          background-size: 100% 100%;
+
+          &.on-going {
+            background-image: url("../assets/images/status/on-going.png");
+          }
+
+          &.completed {
+            background-image: url("../assets/images/status/completed.png");
+          }
+
+          &.single-episode {
+            background-image: url("../assets/images/status/single-episode.png");
+          }
         }
 
         .comic-name {

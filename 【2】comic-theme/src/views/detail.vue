@@ -98,6 +98,30 @@
         <div class="no-intro-tip" v-else>暂无简介</div>
       </div>
 
+      <!-- TODO 使用变量 -->
+      <div class="divider"></div>
+
+      <!-- 目录 -->
+      <div class="comic-catalogue">
+        <div class="title-container">
+          <span class="title">目录</span>
+        </div>
+
+        <div class="sub-directory-container">
+          <div class="sub">
+            <span class="sub-title">第一话</span>
+            <!-- TODO 使用变量 -->
+            <img v-if="true" src="../assets/images/right-arrow.png" />
+            <img v-else class="sub-lock" src="../assets/images/mini-lock.png" alt="未授权" />
+          </div>
+          <div class="sub"><span class="sub-title">第一话</span></div>
+          <div class="sub"><span class="sub-title">第一话</span></div>
+          <div class="sub"><span class="sub-title">第一话</span></div>
+          <div class="sub"><span class="sub-title">第一话</span></div>
+          <div class="sub"><span class="sub-title">第一话</span></div>
+        </div>
+      </div>
+
       <login-btn />
     </div>
 
@@ -178,9 +202,9 @@
         </div>
 
         <!-- 漫画简介 -->
-        <div class="comic-intro">
+        <!-- TODO 使用变量 -->
+        <div class="comic-intro" :class="true && 'need-border'">
           <div class="intro-title">内容简介</div>
-
           <div
             class="intro"
             :class="introState === 1 ? 'fold' : 'unfold'"
@@ -195,6 +219,28 @@
             </div>
           </div>
           <div class="no-intro-tip" v-else>暂无简介</div>
+        </div>
+
+        <!-- 目录 -->
+        <div class="comic-catalogue">
+          <div class="title-container">
+            <span class="title">目录</span>
+            <span class="count">(12话)</span>
+          </div>
+
+          <div class="sub-directory-container">
+            <div class="sub">
+              <span class="sub-title">第一话</span>
+              <img class="sub-lock" src="../assets/images/mini-lock.png" alt="未授权" />
+            </div>
+            <div class="sub"><span class="sub-title">第一话</span></div>
+            <div class="sub"><span class="sub-title">第一话</span></div>
+            <div class="sub"><span class="sub-title">第一话</span></div>
+            <div class="sub"><span class="sub-title">第一话</span></div>
+            <div class="sub"><span class="sub-title">第一话</span></div>
+          </div>
+
+          <div className="tip no-more">— 已加载全部章节 —</div>
         </div>
       </div>
     </div>

@@ -249,6 +249,55 @@
         margin-top: 20px;
       }
     }
+
+    .comic-catalogue {
+      padding: 20px;
+      padding-bottom: 0px;
+      .title-container {
+        display: flex;
+        align-items: ce;
+        justify-content: space-between;
+        .title {
+          font-weight: 600;
+          font-size: 16px;
+          color: #222222;
+          line-height: 22px;
+        }
+      }
+
+      .sub-directory-container {
+        padding: 20px 0 19px 0;
+        .sub {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 14px 0 15px 0;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+          &:nth-child(1) {
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+          }
+
+          .sub-title {
+            font-weight: 400;
+            font-size: 14px;
+            color: #222222;
+            line-height: 20px;
+          }
+
+          img {
+            width: 7px;
+            height: 12px;
+            cursor: pointer;
+          }
+
+          .sub-lock {
+            width: 16px;
+            height: 16px;
+          }
+        }
+      }
+    }
   }
 
   // PC
@@ -442,6 +491,10 @@
       padding: 25px 0;
       // border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
+      &.need-border {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      }
+
       .intro-title {
         font-size: 16px;
         line-height: 22px;
@@ -493,6 +546,64 @@
         color: #999999;
         line-height: 20px;
         margin-top: 25px;
+      }
+    }
+
+    .comic-catalogue {
+      padding: 24px 0 29px 0;
+      .title-container {
+        .title {
+          font-weight: 600;
+          font-size: 16px;
+          color: #222222;
+          line-height: 22px;
+        }
+        .count {
+          font-weight: 400;
+          font-size: 16px;
+          color: #999999;
+          line-height: 22px;
+          margin-left: 10px;
+        }
+      }
+
+      .sub-directory-container {
+        margin-top: 25px;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0 40px;
+
+        .sub {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          width: 280px;
+          padding: 14px 0 15px 0;
+          font-weight: 400;
+          font-size: 14px;
+          color: #222222;
+          line-height: 20px;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+          .sub-title {
+            cursor: pointer;
+          }
+
+          .sub-lock {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+          }
+        }
+      }
+
+      .tip {
+        margin-top: 29px;
+        font-weight: 400;
+        font-size: 14px;
+        color: #999999;
+        line-height: 20px;
+        text-align: center;
       }
     }
   }

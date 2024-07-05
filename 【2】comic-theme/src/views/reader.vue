@@ -69,12 +69,15 @@
         </template>
       </div>
 
+      <!-- 控制栏 👇 -->
       <transition name="fade-down">
         <div class="mobile-operater-wrapper" @touchmove.prevent v-show="barShow">
-          <div class="operate-btn" @click.stop="modeMenuShow = true">
-            <i class="freelog fl-icon-shujia1"></i>
-            <div class="operater-btn-label">阅读模式</div>
+          <!-- 目录 -->
+          <div class="operate-btn" @click.stop="catalogueModal = true">
+            <i class="freelog fl-icon-xiaoshuomulu1"></i>
+            <div class="operater-btn-label">目录</div>
           </div>
+          <!-- 收藏 -->
           <div class="operate-btn" @click="operateShelf(comicInfo)">
             <i
               class="freelog"
@@ -82,9 +85,15 @@
             ></i>
             <div class="operater-btn-label">{{ isCollected ? "取消收藏" : "加入收藏" }}</div>
           </div>
+          <!-- 阅读模式 -->
+          <div class="operate-btn" @click.stop="modeMenuShow = true">
+            <i class="freelog fl-icon-shujia1"></i>
+            <div class="operater-btn-label">阅读模式</div>
+          </div>
         </div>
       </transition>
 
+      <!-- 3种阅读模式 -->
       <transition name="fade-down">
         <div class="mobile-mode-menu" @touchmove.prevent @click.stop v-if="modeMenuShow && barShow">
           <div class="menu-title">阅读模式</div>
@@ -246,6 +255,17 @@
 
       <div class="operater-wrapper">
         <div class="operater-btns-box">
+          <!-- 目录 -->
+          <operate-btn
+            :icon="theme === 'light' ? 'fl-icon-xiaoshuomulu' : 'fl-icon-xiaoshuomulu'"
+            :theme="theme"
+            @click="
+              clickPage();
+              setCatalogueModal();
+            "
+          />
+
+          <!-- 收藏 -->
           <operate-btn
             :icon="isCollected ? 'fl-icon-shoucangxiaoshuoyishoucang' : 'fl-icon-shoucangxiaoshuo'"
             :theme="theme"
@@ -255,6 +275,7 @@
             "
           />
 
+          <!-- 分享 -->
           <operate-btn
             icon="fl-icon-fenxiang"
             :theme="theme"
@@ -263,6 +284,7 @@
             <div id="share" class="share-wrapper" />
           </operate-btn>
 
+          <!-- 切换模式 -->
           <operate-btn
             :icon="theme === 'light' ? 'fl-icon-rijianmoshi' : 'fl-icon-yejianmoshi'"
             :theme="theme"
@@ -272,6 +294,7 @@
             "
           />
 
+          <!-- 回到顶部 -->
           <back-top>
             <div class="back-top">
               <operate-btn icon="fl-icon-huidaodingbu" :theme="theme" />
@@ -430,6 +453,44 @@
         <div class="direction">{{ mode[2] === "normal" ? "从左向右" : "从右向左" }}</div>
       </div>
     </template>
+
+    <!-- mobile & PC 目录弹窗 -->
+    <teleport to="#modal">
+      <transition name="fade">
+        <div
+          id="modal"
+          class="catalogue-modal"
+          @click="catalogueModal = false"
+          v-if="catalogueModal"
+        ></div>
+      </transition>
+    </teleport>
+    <teleport to="#modal">
+      <transition :name="inMobile ? 'slide-right' : 'slide-left'">
+        <div class="catalogue-box-body" :class="!inMobile && 'pc'" v-if="catalogueModal">
+          <div class="title-wrapper">
+            <span class="title">XX的孩子</span>
+            <div class="close-btn" @click="catalogueModal = false">
+              <i class="freelog fl-icon-guanbi"></i>
+            </div>
+          </div>
+          <div class="sub-catalogue-wrapper">
+            <div class="sub">
+              <div class="sub-title">第一话</div>
+              <img v-if="true" src="@/assets/images/right-arrow.png" />
+              <img v-else class="sub-lock" src="@/assets/images/mini-lock.png" alt="未授权" />
+            </div>
+            <div class="sub"><span class="sub-title">第一话</span></div>
+            <div class="sub"><span class="sub-title">第一话</span></div>
+            <div class="sub"><span class="sub-title">第一话</span></div>
+            <div class="sub"><span class="sub-title">第一话</span></div>
+            <div class="sub"><span class="sub-title">第一话</span></div>
+
+            <div className="tip no-more">— 已加载全部章节 —</div>
+          </div>
+        </div>
+      </transition>
+    </teleport>
   </div>
 </template>
 
@@ -514,7 +575,8 @@ export default {
       directionTipShow: false,
       barShow: false,
       jumping: false,
-      shareWidget: null as WidgetController | null
+      shareWidget: null as WidgetController | null,
+      catalogueModal: false
     });
 
     const methods = {
@@ -547,6 +609,11 @@ export default {
       setTheme() {
         data.theme = data.theme === "light" ? "dark" : "light";
         localStorage.setItem("theme", data.theme);
+      },
+
+      /** 控制目录弹窗 */
+      setCatalogueModal() {
+        data.catalogueModal = !data.catalogueModal;
       },
 
       /** 获取授权 */
