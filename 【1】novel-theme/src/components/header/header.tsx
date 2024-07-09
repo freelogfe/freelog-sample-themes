@@ -43,7 +43,7 @@ export const Header = (props: {
         if (searchWordCatch !== null) setSearchKey(mySearchHistory[searchWordCatch]);
         setSearchWordCatch(null);
         setSearchHistoryShow(false);
-        setSearch((pre) => pre + 1);
+        setSearch(pre => pre + 1);
         break;
       case 27:
         // esc
@@ -95,11 +95,12 @@ export const Header = (props: {
   }, [search]);
 
   useEffect(() => {
-    document.body.style.overflowY = (userBoxShow || searchPopupShow) && inMobile ? "hidden" : "auto";
+    document.body.style.overflowY =
+      (userBoxShow || searchPopupShow) && inMobile ? "hidden" : "auto";
   }, [userBoxShow, searchPopupShow, inMobile]);
 
   useEffect(() => {
-    setMySearchHistory(searchHistory.filter((item) => item.includes(searchKey)));
+    setMySearchHistory(searchHistory.filter(item => item.includes(searchKey)));
   }, [searchHistory, searchKey]);
 
   useEffect(() => {
@@ -132,7 +133,9 @@ export const Header = (props: {
           ) : (
             <div
               className="header-top-left"
-              onClick={() => (locationHistory.length === 1 ? history.switchPage("/home") : history.back())}
+              onClick={() =>
+                locationHistory.length === 1 ? history.switchPage("/home") : history.back()
+              }
             >
               <img className="back-arrow" src={BackArrow} alt="" />
               {locationHistory.length === 1 ? (
@@ -183,7 +186,9 @@ export const Header = (props: {
               <div className="menu-btns">
                 <div
                   className={`btn ${history.pathname.startsWith("/home") && "active"}`}
-                  onClick={() => !history.pathname.startsWith("/home") && history.switchPage("/home")}
+                  onClick={() =>
+                    !history.pathname.startsWith("/home") && history.switchPage("/home")
+                  }
                 >
                   <i className="freelog fl-icon-shouye"></i>
                   <div className="btn-label">首页</div>
@@ -232,10 +237,10 @@ export const Header = (props: {
                   className={`search-input input-none ${searchKey && "in-focus"}`}
                   value={searchKey}
                   autoFocus={true}
-                  onChange={(e) => setSearchKey((e.target.value || "").trim())}
+                  onChange={e => setSearchKey((e.target.value || "").trim())}
                   onKeyUp={(e: { keyCode: number }) => {
                     e.keyCode === 13 && setSearchPopupShow(false);
-                    e.keyCode === 13 && setSearch((pre) => pre + 1);
+                    e.keyCode === 13 && setSearch(pre => pre + 1);
                     e.keyCode === 27 && setSearchKey("");
                   }}
                 />
@@ -256,20 +261,20 @@ export const Header = (props: {
                   </div>
                 </div>
                 <div className="search-history-box-list">
-                  {searchHistory.map((item) => (
+                  {searchHistory.map(item => (
                     <div
                       className="tag"
                       key={item}
                       onClick={() => {
                         setSearchPopupShow(false);
                         setSearchKey(item);
-                        setSearch((pre) => pre + 1);
+                        setSearch(pre => pre + 1);
                       }}
                     >
                       {item}
                       <i
                         className="freelog fl-icon-guanbi"
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
                           deleteWord(item);
                         }}
@@ -292,13 +297,13 @@ export const Header = (props: {
             className={`search-input input-none ${searchKey && "in-focus"}`}
             value={searchKey}
             maxLength={100}
-            onChange={(e) => {
+            onChange={e => {
               setSearchKey((e.target.value || "").trim());
               !e.target.value && history.switchPage("/home");
               !e.target.value && setSearchPopupShow(true);
             }}
             onKeyUp={(e: { keyCode: number }) => {
-              e.keyCode === 13 && setSearch((pre) => pre + 1);
+              e.keyCode === 13 && setSearch(pre => pre + 1);
             }}
           />
           <i className="freelog fl-icon-content"></i>
@@ -330,7 +335,7 @@ export const Header = (props: {
                 className={`search-input input-none ${searchKey && "in-focus"}`}
                 value={searchKey}
                 maxLength={100}
-                onChange={(e) => {
+                onChange={e => {
                   setSearchKey((e.target.value || "").trim());
                   setSearchHistoryShow(true);
                   setSearchWordCatch(null);
@@ -344,7 +349,7 @@ export const Header = (props: {
                   className="freelog fl-icon-guanbi text-btn clear-btn"
                   onClick={() => {
                     setSearchKey("");
-                    setSearch((pre) => pre + 1);
+                    setSearch(pre => pre + 1);
                   }}
                 ></i>
               )}
@@ -363,7 +368,7 @@ export const Header = (props: {
                         key={item}
                         onClick={() => {
                           setSearchKey(item);
-                          setSearch((pre) => pre + 1);
+                          setSearch(pre => pre + 1);
                         }}
                         onMouseMove={() => setSearchWordCatch(index)}
                         onMouseLeave={() => setSearchWordCatch(null)}
@@ -371,7 +376,7 @@ export const Header = (props: {
                         <div className="item-word">{item}</div>
                         <i
                           className="freelog fl-icon-guanbi delete-btn"
-                          onClick={(e) => {
+                          onClick={e => {
                             e.stopPropagation();
                             deleteWord(item);
                           }}
@@ -406,12 +411,20 @@ export const Header = (props: {
               >
                 <img className="avatar" src={userData.headImage} alt={userData.username} />
 
-                <CSSTransition in={userBoxShow} classNames="slide-down-scale" timeout={200} unmountOnExit>
+                <CSSTransition
+                  in={userBoxShow}
+                  classNames="slide-down-scale"
+                  timeout={200}
+                  unmountOnExit
+                >
                   <div className="user-box">
                     <div className="user-box-body">
                       <img className="avatar" src={userData.headImage} alt={userData.username} />
                       <div className="username">{userData.username}</div>
-                      <div className="btn user-box-btn" onClick={() => history.switchPage("/signedList")}>
+                      <div
+                        className="btn user-box-btn"
+                        onClick={() => history.switchPage("/signedList")}
+                      >
                         已签约书籍
                       </div>
                       <div className="btn user-box-btn" onClick={() => callLoginOut()}>
@@ -426,7 +439,10 @@ export const Header = (props: {
                 <div className="btn header-login-btn" onClick={() => callLogin()}>
                   登录
                 </div>
-                <div className="btn header-register-btn" onClick={() => window.open("https://user.freelog.com/logon")}>
+                <div
+                  className="btn header-register-btn"
+                  onClick={() => window.open("https://user.freelog.com/logon")}
+                >
                   注册
                 </div>
               </div>

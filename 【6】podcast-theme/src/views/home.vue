@@ -69,7 +69,11 @@
           <div class="node-title" :title="nodeInfo.nodeTitle">
             {{ nodeInfo.nodeTitle }}
           </div>
-          <div class="node-intro" v-html="nodeInfo.nodeShortDescription" :title="nodeInfo.nodeShortDescription"></div>
+          <div
+            class="node-intro"
+            v-html="nodeInfo.nodeShortDescription"
+            :title="nodeInfo.nodeShortDescription"
+          ></div>
         </div>
       </div>
 
@@ -119,7 +123,7 @@ export default {
   name: "home",
 
   components: {
-    voice,
+    voice
   },
 
   data() {
@@ -128,24 +132,24 @@ export default {
       loading: false,
       total: 0,
       nodeInfo: {},
-      nodeInfoPopupShow: false,
+      nodeInfoPopupShow: false
     };
   },
 
   watch: {
     "$store.state.authIdList"(cur) {
-      cur.forEach((id) => {
-        const item = this.listData.find((data) => data.exhibitId === id);
+      cur.forEach(id => {
+        const item = this.listData.find(data => data.exhibitId === id);
         if (item) item.defaulterIdentityType = 0;
       });
-    },
+    }
   },
 
   computed: {
     /** 自定义配置 */
     selfConfig() {
       return this.$store.state.selfConfig;
-    },
+    }
   },
 
   created() {
@@ -154,6 +158,7 @@ export default {
   },
 
   activated() {
+    const app = document.getElementById("app");
     const { routerMode } = this.$store.state;
     if (routerMode === 1) {
       // push 过来，滚动条回到顶部
@@ -168,6 +173,7 @@ export default {
   },
 
   deactivated() {
+    const app = document.getElementById("app");
     app.removeEventListener("scroll", this.scroll);
   },
 
@@ -180,22 +186,27 @@ export default {
       const queryParams = {
         articleResourceTypes: "音频",
         isLoadVersionProperty: 1,
-        limit: 10,
+        limit: 10
       };
       const list = await freelogApp.getExhibitListByPaging(queryParams);
       const { dataList, totalItem } = list.data.data;
       if (dataList.length !== 0) {
-        const ids = dataList.map((item) => item.exhibitId).join();
+        const ids = dataList.map(item => item.exhibitId).join();
         const [signCountData, statusInfo] = await Promise.all([
           freelogApp.getExhibitSignCount(ids),
-          freelogApp.getExhibitAuthStatus(ids),
+          freelogApp.getExhibitAuthStatus(ids)
         ]);
-        dataList.forEach((item) => {
+        dataList.forEach(item => {
           let index;
-          index = signCountData.data.data.findIndex((resultItem) => resultItem.subjectId === item.exhibitId);
+          index = signCountData.data.data.findIndex(
+            resultItem => resultItem.subjectId === item.exhibitId
+          );
           if (index !== -1) item.signCount = signCountData.data.data[index].count;
-          index = statusInfo.data.data.findIndex((resultItem) => resultItem.exhibitId === item.exhibitId);
-          if (index !== -1) item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+          index = statusInfo.data.data.findIndex(
+            resultItem => resultItem.exhibitId === item.exhibitId
+          );
+          if (index !== -1)
+            item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
         });
       }
       this.listData = dataList;
@@ -207,8 +218,8 @@ export default {
     scroll() {
       const scrollTop = app.scrollTop || 0;
       sessionStorage.setItem("homeScroll", scrollTop);
-    },
-  },
+    }
+  }
 };
 </script>
 
@@ -434,8 +445,13 @@ export default {
       }
 
       ::v-deep .el-skeleton.is-animated .el-skeleton__item {
-        background: linear-gradient(90deg, rgb(70, 70, 70) 25%, rgb(50, 50, 50) 37%, rgb(70, 70, 70) 63%) 0% 0% / 400%
-          100%;
+        background: linear-gradient(
+            90deg,
+            rgb(70, 70, 70) 25%,
+            rgb(50, 50, 50) 37%,
+            rgb(70, 70, 70) 63%
+          )
+          0% 0% / 400% 100%;
       }
     }
   }
@@ -646,8 +662,13 @@ export default {
       }
 
       ::v-deep .el-skeleton.is-animated .el-skeleton__item {
-        background: linear-gradient(90deg, rgb(70, 70, 70) 25%, rgb(50, 50, 50) 37%, rgb(70, 70, 70) 63%) 0% 0% / 400%
-          100%;
+        background: linear-gradient(
+            90deg,
+            rgb(70, 70, 70) 25%,
+            rgb(50, 50, 50) 37%,
+            rgb(70, 70, 70) 63%
+          )
+          0% 0% / 400% 100%;
       }
     }
   }

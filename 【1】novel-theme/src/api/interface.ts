@@ -6,7 +6,6 @@ export interface ExhibitItem extends ExhibitInfo {
   defaulterIdentityType?: number;
 }
 
-
 /** 主题 */
 export interface ThemeItem {
   bookColor: string;

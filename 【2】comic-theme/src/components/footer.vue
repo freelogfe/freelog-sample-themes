@@ -16,7 +16,12 @@
 
   <!-- PC -->
   <div class="footer-wrapper" v-if="!inMobile">
-    <div class="second-text-btn" v-for="(item, index) in freelogEntrances" :key="item.label" @click="toPage(item.url)">
+    <div
+      class="second-text-btn"
+      v-for="(item, index) in freelogEntrances"
+      :key="item.label"
+      @click="toPage(item.url)"
+    >
       <i :class="item.label" v-if="index === 0"></i>
       <span v-else>{{ item.label }}</span>
     </div>
@@ -24,29 +29,30 @@
 </template>
 
 <script lang="ts">
+import { toRefs } from "vue";
 import { useStore } from "vuex";
 import { freelogEntrances } from "@/api/data";
-import { toRefs } from "vue";
+import { State } from "@/store/index";
 
 export default {
   name: "my-footer",
 
   setup() {
-    const store = useStore();
+    const store = useStore<State>();
 
     const methods = {
       /** 打开新标签页 */
       toPage(url: string) {
         window.open(url);
-      },
+      }
     };
 
     return {
       freelogEntrances,
       ...toRefs(store.state),
-      ...methods,
+      ...methods
     };
-  },
+  }
 };
 </script>
 

@@ -9,7 +9,8 @@ export const LoginBtn = () => {
 
   return (
     <div
-      className={`login-btn-wrapper main-btn mobile ${(userData?.isLogin || !inMobile) && "hidden"}`}
+      className={`login-btn-wrapper main-btn mobile 
+      ${(userData?.isLogin || !inMobile) && "hidden"}`}
       style={{ boxShadow: `0px 2px 10px 0px ${theme.deriveColor}40` }}
       onClick={() => callLogin()}
     >

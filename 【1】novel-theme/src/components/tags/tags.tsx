@@ -11,12 +11,12 @@ export const Tags = (props: { data: string[] }) => {
 
   return (
     <div className="tag-wrapper">
-      {data.map((tag) => (
+      {data.map(tag => (
         <div
           className={`tag ${inMobile ? "in-mobile" : "in-pc"}`}
           key={tag}
           title={`搜索“${tag}”`}
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             history.switchPage(`/home?tags=${tag}`);
           }}

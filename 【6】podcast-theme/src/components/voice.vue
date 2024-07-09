@@ -3,7 +3,11 @@
 <template>
   <div class="voice-wrapper">
     <!-- mobile -->
-    <div class="mobile-voice-wrapper" :class="{ unplayable: !ifSupportMime }" v-if="$store.state.inMobile">
+    <div
+      class="mobile-voice-wrapper"
+      :class="{ unplayable: !ifSupportMime }"
+      v-if="$store.state.inMobile"
+    >
       <div
         ref="cover"
         class="cover-area"
@@ -14,15 +18,32 @@
         <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
         <div class="unplayable-tip" v-if="!ifSupportMime">无法播放</div>
       </div>
-      <div class="info-area" @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })">
+      <div
+        class="info-area"
+        @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
+      >
         <div class="title-area">
-          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="authLinkAbnormal" />
-          <i class="freelog fl-icon-suoding lock" @click.stop="getAuth()" v-if="data.defaulterIdentityType >= 4"></i>
+          <img
+            class="auth-link-abnormal"
+            src="../assets/images/auth-link-abnormal.png"
+            v-if="authLinkAbnormal"
+          />
+          <i
+            class="freelog fl-icon-suoding lock"
+            @click.stop="getAuth()"
+            v-if="data.defaulterIdentityType >= 4"
+          ></i>
           <template v-if="authShow">
-            <div class="tag is-auth" :class="{ 'opacity-40': authLinkAbnormal }" v-if="data.defaulterIdentityType < 4">
+            <div
+              class="tag is-auth"
+              :class="{ 'opacity-40': authLinkAbnormal }"
+              v-if="data.defaulterIdentityType < 4"
+            >
               已授权
             </div>
-            <div class="tag not-auth" :class="{ 'opacity-40': authLinkAbnormal }" v-else>未授权</div>
+            <div class="tag not-auth" :class="{ 'opacity-40': authLinkAbnormal }" v-else>
+              未授权
+            </div>
           </template>
           <div class="title" :class="{ 'opacity-40': authLinkAbnormal }">
             {{ data.exhibitTitle }}
@@ -43,10 +64,18 @@
         </div>
       </div>
       <div class="btns-area" :class="{ opacity: authLinkAbnormal }">
-        <i class="freelog" :class="{ [btnList[0].icon]: true, disabled: btnList[0].disabled }" @click="playOrPause()" />
+        <i
+          class="freelog"
+          :class="{ [btnList[0].icon]: true, disabled: btnList[0].disabled }"
+          @click="playOrPause()"
+        />
         <i class="freelog fl-icon-gengduo_yuandian_zongxiang" @click="moreMenuShow = true" />
       </div>
-      <div class="cover-to-add" :class="{ animation: addAnimation }" :style="{ '--top': coverTop + 'px' }">
+      <div
+        class="cover-to-add"
+        :class="{ animation: addAnimation }"
+        :style="{ '--top': coverTop + 'px' }"
+      >
         <img class="cover" :src="data.coverImages[0]" />
       </div>
 
@@ -74,7 +103,11 @@
     </div>
 
     <!-- PC -->
-    <div class="pc-voice-wrapper" :class="{ unplayable: !ifSupportMime }" v-if="$store.state.inMobile === false">
+    <div
+      class="pc-voice-wrapper"
+      :class="{ unplayable: !ifSupportMime }"
+      v-if="$store.state.inMobile === false"
+    >
       <div
         ref="cover"
         class="cover-area"
@@ -85,21 +118,42 @@
         <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
         <div class="btn-modal" v-if="ifSupportMime">
           <div class="btn" @click.stop="playOrPause()">
-            <i class="freelog" :class="playing ? 'fl-icon-zanting' : 'fl-icon-bofang-sanjiaoxing'"></i>
+            <i
+              class="freelog"
+              :class="playing ? 'fl-icon-zanting' : 'fl-icon-bofang-sanjiaoxing'"
+            ></i>
           </div>
         </div>
       </div>
       <div class="info-area">
         <div class="title-area">
-          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="authLinkAbnormal" />
-          <i class="freelog fl-icon-suoding lock" @click.stop="getAuth()" v-if="data.defaulterIdentityType >= 4"></i>
+          <img
+            class="auth-link-abnormal"
+            src="../assets/images/auth-link-abnormal.png"
+            v-if="authLinkAbnormal"
+          />
+          <i
+            class="freelog fl-icon-suoding lock"
+            @click.stop="getAuth()"
+            v-if="data.defaulterIdentityType >= 4"
+          ></i>
           <template v-if="authShow">
-            <div class="tag is-auth" :class="{ 'opacity-40': authLinkAbnormal }" v-if="data.defaulterIdentityType < 4">
+            <div
+              class="tag is-auth"
+              :class="{ 'opacity-40': authLinkAbnormal }"
+              v-if="data.defaulterIdentityType < 4"
+            >
               已授权
             </div>
-            <div class="tag not-auth" :class="{ 'opacity-40': authLinkAbnormal }" v-else>未授权</div>
+            <div class="tag not-auth" :class="{ 'opacity-40': authLinkAbnormal }" v-else>
+              未授权
+            </div>
           </template>
-          <my-tooltip class="title" :class="{ 'opacity-40': authLinkAbnormal }" :content="data.exhibitTitle">
+          <my-tooltip
+            class="title"
+            :class="{ 'opacity-40': authLinkAbnormal }"
+            :content="data.exhibitTitle"
+          >
             <span @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })">
               {{ data.exhibitTitle }}
             </span>
@@ -124,7 +178,11 @@
           <transition name="slide-right">
             <div
               class="info-item"
-              v-if="$store.state.playingInfo && $store.state.playingInfo.exhibitId === data.exhibitId"
+              v-if="
+                $store.state.playing &&
+                $store.state.playingInfo &&
+                $store.state.playingInfo.exhibitId === data.exhibitId
+              "
             >
               <play-status :playing="playing" />
               <div class="progress">
@@ -173,23 +231,23 @@ export default {
       type: Object,
       default: () => {
         return {};
-      },
+      }
     },
     /** 是否显示上线状态 */
     statusShow: {
       type: Boolean,
-      default: false,
+      default: false
     },
     /** 是否显示授权状态 */
     authShow: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
 
   components: {
     playStatus,
-    myTooltip,
+    myTooltip
   },
 
   data() {
@@ -199,7 +257,7 @@ export default {
       coverLeft: 0,
       coverTop: 0,
       isCollected: false,
-      isInPlayList: false,
+      isInPlayList: false
     };
   },
 
@@ -208,14 +266,14 @@ export default {
       handler() {
         this.isCollected = useMyCollection.ifExist(this.data.exhibitId);
       },
-      immediate: true,
+      immediate: true
     },
     "$store.state.playIdList": {
       handler() {
         this.isInPlayList = useMyPlay.ifExist(this.data.exhibitId);
       },
-      immediate: true,
-    },
+      immediate: true
+    }
   },
 
   computed: {
@@ -247,20 +305,22 @@ export default {
             : "fl-icon-bofang-daibiankuang",
           title: this.playing ? "暂停" : "播放",
           operate: this.playOrPause,
-          disabled: !this.ifSupportMime,
+          disabled: !this.ifSupportMime
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
           title: "加入播放列表",
           operate: this.addToPlayList,
-          disabled: this.isInPlayList || !this.ifSupportMime,
+          disabled: this.isInPlayList || !this.ifSupportMime
         },
         {
-          icon: this.isCollected ? "fl-icon-shoucangxiaoshuoyishoucang" : "fl-icon-shoucangxiaoshuo",
+          icon: this.isCollected
+            ? "fl-icon-shoucangxiaoshuoyishoucang"
+            : "fl-icon-shoucangxiaoshuo",
           title: this.isCollected ? "取消收藏" : "收藏",
-          operate: this.operateCollect,
+          operate: this.operateCollect
         },
-        { icon: "fl-icon-fenxiang", title: "分享", operate: this.share },
+        { icon: "fl-icon-fenxiang", title: "分享", operate: this.share }
       ];
     },
 
@@ -275,22 +335,24 @@ export default {
             : "fl-icon-bofang-daibiankuang",
           label: !this.ifSupportMime ? "无法播放" : this.playing ? "暂停声音" : "播放声音",
           operate: this.playOrPause,
-          disabled: !this.ifSupportMime,
+          disabled: !this.ifSupportMime
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
           label: "加入播放列表",
           operate: this.addToPlayList,
-          disabled: this.isInPlayList || !this.ifSupportMime,
+          disabled: this.isInPlayList || !this.ifSupportMime
         },
         { icon: "fl-icon-danji", label: "查看声音详情", operate: this.toVoiceDetail },
         {
-          icon: this.isCollected ? "fl-icon-shoucangxiaoshuoyishoucang" : "fl-icon-shoucangxiaoshuo",
+          icon: this.isCollected
+            ? "fl-icon-shoucangxiaoshuoyishoucang"
+            : "fl-icon-shoucangxiaoshuo",
           label: this.isCollected ? "取消收藏" : "收藏",
-          operate: this.operateCollect,
-        },
+          operate: this.operateCollect
+        }
       ];
-    },
+    }
   },
 
   methods: {
@@ -325,14 +387,17 @@ export default {
 
     /** 分享 */
     share() {
-      this.$store.commit("setData", { key: "shareInfo", value: { show: true, exhibit: this.data } });
+      this.$store.commit("setData", {
+        key: "shareInfo",
+        value: { show: true, exhibit: this.data }
+      });
     },
 
     /** 授权 */
     async getAuth() {
       useMyAuth.getAuth(this.data);
-    },
-  },
+    }
+  }
 };
 </script>
 

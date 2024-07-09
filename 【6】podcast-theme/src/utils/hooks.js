@@ -12,7 +12,7 @@ export const useMyAuth = {
 
     const result = [];
     const signedList = await freelogApp.getSignStatistics();
-    const idList = signedList.data.data.map((item) => item.subjectId);
+    const idList = signedList.data.data.map(item => item.subjectId);
     if (!idList.length) {
       store.commit("setData", { key: "signedList", value: [] });
       return;
@@ -22,17 +22,17 @@ export const useMyAuth = {
     const [list, countList, statusList] = await Promise.all([
       freelogApp.getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
       freelogApp.getExhibitSignCount(ids),
-      freelogApp.getExhibitAuthStatus(ids),
+      freelogApp.getExhibitAuthStatus(ids)
     ]);
-    idList.forEach((id) => {
-      const signedItem = list.data.data.find((item) => item.exhibitId === id);
+    idList.forEach(id => {
+      const signedItem = list.data.data.find(item => item.exhibitId === id);
       if (!signedItem || signedItem.articleInfo.resourceType.includes("主题")) return;
-      const countItem = countList.data.data.find((item) => item.subjectId === id);
-      const statusItem = statusList.data.data.find((item) => item.exhibitId === id);
+      const countItem = countList.data.data.find(item => item.subjectId === id);
+      const statusItem = statusList.data.data.find(item => item.exhibitId === id);
       result.push({
         ...signedItem,
         signCount: countItem.count,
-        defaulterIdentityType: statusItem.defaulterIdentityType,
+        defaulterIdentityType: statusItem.defaulterIdentityType
       });
     });
     store.commit("setData", { key: "signedList", value: result });
@@ -53,9 +53,9 @@ export const useMyAuth = {
     // 同步收藏列表、签约列表、播放列表相应展品的授权状态，更新授权列表
     const { collectionList, signedList, playList, authIdList } = store.state;
     signedList.unshift(data);
-    const collectionItem = collectionList.find((item) => item.exhibitId === exhibitId);
+    const collectionItem = collectionList.find(item => item.exhibitId === exhibitId);
     if (collectionItem) collectionItem.defaulterIdentityType = 0;
-    const playItem = playList.find((item) => item.exhibitId === exhibitId);
+    const playItem = playList.find(item => item.exhibitId === exhibitId);
     if (playItem) playItem.defaulterIdentityType = 0;
     authIdList.push(exhibitId);
     store.commit("setData", { key: "collectionList", value: collectionList });
@@ -72,7 +72,7 @@ export const useMyAuth = {
       store.commit("setData", { key: "playingInfo", value: data });
       store.commit("setData", { key: "playing", value: true });
     }
-  },
+  }
 };
 
 /** 收藏 hook */
@@ -92,17 +92,17 @@ export const useMyCollection = {
     const [list, countList, statusList] = await Promise.all([
       freelogApp.getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
       freelogApp.getExhibitSignCount(ids),
-      freelogApp.getExhibitAuthStatus(ids),
+      freelogApp.getExhibitAuthStatus(ids)
     ]);
-    idList.forEach((id) => {
-      const collectionItem = list.data.data.find((item) => item.exhibitId === id);
+    idList.forEach(id => {
+      const collectionItem = list.data.data.find(item => item.exhibitId === id);
       if (!collectionItem) return;
-      const signCountItem = countList.data.data.find((item) => item.subjectId === id);
-      const statusItem = statusList.data.data.find((item) => item.exhibitId === id);
+      const signCountItem = countList.data.data.find(item => item.subjectId === id);
+      const statusItem = statusList.data.data.find(item => item.exhibitId === id);
       result.push({
         ...collectionItem,
         signCount: signCountItem.count,
-        defaulterIdentityType: statusItem.defaulterIdentityType,
+        defaulterIdentityType: statusItem.defaulterIdentityType
       });
     });
     store.commit("setData", { key: "collectionList", value: result });
@@ -126,9 +126,9 @@ export const useMyCollection = {
     const isCollected = collectionIdList.includes(exhibitId);
     if (isCollected) {
       // 取消收藏
-      const idIndex = collectionIdList.findIndex((item) => item === exhibitId);
+      const idIndex = collectionIdList.findIndex(item => item === exhibitId);
       collectionIdList.splice(idIndex, 1);
-      const index = collectionList.findIndex((item) => item.exhibitId === exhibitId);
+      const index = collectionList.findIndex(item => item.exhibitId === exhibitId);
       collectionList.splice(index, 1);
     } else {
       // 收藏
@@ -142,7 +142,7 @@ export const useMyCollection = {
     } else {
       showToast("操作失败");
     }
-  },
+  }
 };
 
 /** 播放 hook */
@@ -159,12 +159,12 @@ export const useMyPlay = {
     const ids = idList.join();
     const [list, statusList] = await Promise.all([
       freelogApp.getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
-      freelogApp.getExhibitAuthStatus(ids),
+      freelogApp.getExhibitAuthStatus(ids)
     ]);
-    idList.forEach((id) => {
-      const playItem = list.data.data.find((item) => item.exhibitId === id);
+    idList.forEach(id => {
+      const playItem = list.data.data.find(item => item.exhibitId === id);
       if (!playItem) return;
-      const statusItem = statusList.data.data.find((item) => item.exhibitId === id);
+      const statusItem = statusList.data.data.find(item => item.exhibitId === id);
       result.push({ ...playItem, defaulterIdentityType: statusItem.defaulterIdentityType });
     });
     store.commit("setData", { key: "playList", value: result });
@@ -223,12 +223,12 @@ export const useMyPlay = {
       // 未登录时取本地
       const list = localStorage.getItem("playIdList") || "[]";
       const playIdList = JSON.parse(list);
-      const idIndex = playIdList.findIndex((item) => item === id);
+      const idIndex = playIdList.findIndex(item => item === id);
       playIdList.splice(idIndex, 1);
       localStorage.setItem("playIdList", JSON.stringify(playIdList));
 
       const playList = store.state.playList;
-      const index = playList.findIndex((item) => item.exhibitId === id);
+      const index = playList.findIndex(item => item.exhibitId === id);
       playList.splice(index, 1);
 
       store.commit("setData", { key: "playIdList", value: playIdList });
@@ -245,13 +245,13 @@ export const useMyPlay = {
     } else {
       // 已登录时取用户数据
       const playIdList = [...store.state.playIdList];
-      const index = playIdList.findIndex((item) => item === id);
+      const index = playIdList.findIndex(item => item === id);
       playIdList.splice(index, 1);
       const res = await freelogApp.setUserData("playIdList", playIdList);
 
       if (res.data.msg === "success") {
         const playList = store.state.playList;
-        const index = playList.findIndex((item) => item.exhibitId === id);
+        const index = playList.findIndex(item => item.exhibitId === id);
         playList.splice(index, 1);
 
         store.commit("setData", { key: "playIdList", value: playIdList });
@@ -312,7 +312,7 @@ export const useMyPlay = {
       // 部分设备（已知部分 ios）上无法直接播放音频，需要先使用任意 url 初始化播放器，才可播放音频
       store.commit("setData", {
         key: "initUrl",
-        value: "https://file.testfreelog.com/exhibits/64d1ed97cc4a64002f632b0d",
+        value: "https://file.testfreelog.com/exhibits/64d1ed97cc4a64002f632b0d"
       });
       this.playOrPause(exhibit, type);
       return;
@@ -363,7 +363,7 @@ export const useMyPlay = {
     const [info, statusInfo, url] = await Promise.all([
       freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
       freelogApp.getExhibitAuthStatus(id),
-      freelogApp.getExhibitFileStream(id, { returnUrl: true }),
+      freelogApp.getExhibitFileStream(id, { returnUrl: true })
     ]);
     info.data.data.defaulterIdentityType = statusInfo.data.data[0].defaulterIdentityType;
     info.data.data.url = url;
@@ -375,7 +375,7 @@ export const useMyPlay = {
     let preVoiceInfo = null;
     const { playList, playingInfo } = store.state;
     const id = data ? data.exhibitId : playingInfo.exhibitId;
-    const index = playList.findIndex((item) => item.exhibitId === id);
+    const index = playList.findIndex(item => item.exhibitId === id);
     if (index === 0) {
       preVoiceInfo = playList[playList.length - 1];
     } else {
@@ -389,12 +389,12 @@ export const useMyPlay = {
     let nextVoiceInfo = null;
     const { playList, playingInfo } = store.state;
     const id = data ? data.exhibitId : playingInfo.exhibitId;
-    const index = playList.findIndex((item) => item.exhibitId === id);
+    const index = playList.findIndex(item => item.exhibitId === id);
     if (index === playList.length - 1) {
       nextVoiceInfo = playList[0];
     } else {
       nextVoiceInfo = playList[index + 1];
     }
     useMyPlay.playOrPause(nextVoiceInfo, "nextVoice");
-  },
+  }
 };

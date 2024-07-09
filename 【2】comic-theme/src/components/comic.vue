@@ -24,7 +24,10 @@
       </div>
     </div>
 
-    <div class="comic-author" :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">
+    <div
+      class="comic-author"
+      :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
+    >
       {{ data.articleInfo.articleOwnerName }}
     </div>
   </div>
@@ -60,14 +63,27 @@
             alt="未授权"
             v-if="mode !== 3 && data.defaulterIdentityType >= 4"
           />
-          <div class="comic-name" :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">
+          <div
+            class="comic-name"
+            :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
+          >
             {{ data.exhibitTitle }}
           </div>
-          <div class="tag is-auth" v-if="mode === 3 && data.defaulterIdentityType < 4 && !inMobile">已授权</div>
-          <div class="tag not-auth" v-if="mode === 3 && data.defaulterIdentityType >= 4 && !inMobile">未授权</div>
+          <div class="tag is-auth" v-if="mode === 3 && data.defaulterIdentityType < 4 && !inMobile">
+            已授权
+          </div>
+          <div
+            class="tag not-auth"
+            v-if="mode === 3 && data.defaulterIdentityType >= 4 && !inMobile"
+          >
+            未授权
+          </div>
         </div>
 
-        <div class="comic-author" :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">
+        <div
+          class="comic-author"
+          :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
+        >
           {{ data.articleInfo.articleOwnerName }}
         </div>
 
@@ -104,31 +120,33 @@
         立即阅读
       </div>
 
-      <div class="warning-btn btn last-btn" @click.stop="deleteCollection()" v-if="mode === 2">取消收藏</div>
+      <div class="warning-btn btn last-btn" @click.stop="deleteCollection()" v-if="mode === 2">
+        取消收藏
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { formatDate } from "@/utils/common";
 import { defineAsyncComponent, toRefs } from "vue";
-import { useMyRouter } from "@/utils/hooks";
 import { useStore } from "vuex";
-import { showToast } from "../utils/common";
+import { showToast, formatDate } from "@/utils/common";
+import { useMyRouter } from "@/utils/hooks";
 import { ExhibitItem } from "@/api/interface";
+import { State } from "@/store/index";
 
 export default {
   name: "comic",
 
   components: {
-    tags: defineAsyncComponent(() => import("../components/tags.vue")),
+    tags: defineAsyncComponent(() => import("../components/tags.vue"))
   },
 
   // mode: 1-默认首页 2-收藏 3-签约记录 4-移动端首页收藏
   props: ["mode", "data", "operateShelf"],
 
   setup(props: { data: ExhibitItem; operateShelf: (data: ExhibitItem) => void }) {
-    const store = useStore();
+    const store = useStore<State>();
     const { switchPage } = useMyRouter();
     let deleting = false;
 
@@ -152,15 +170,15 @@ export default {
           const { data, operateShelf } = props;
           operateShelf(data);
         }
-      },
+      }
     };
 
     return {
       ...toRefs(store.state),
       ...methods,
-      formatDate,
+      formatDate
     };
-  },
+  }
 };
 </script>
 

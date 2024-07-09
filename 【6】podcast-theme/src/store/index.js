@@ -25,23 +25,26 @@ export default new Vuex.Store({
     initUrl: "", // 播放器初始化 url（用于解决 IOS 无法异步播放声音问题）
     progress: 0, // 当前播放进度
     authIdList: [], // 已授权 id 集合（用于刷新首页列表、声音列表、搜索结果列表、详情页授权状态）
-    searchKey: "", // 搜索关键词
+    searchKey: "" // 搜索关键词
   },
   mutations: {
     /** 更新数据 */
     setData(state, payload) {
       state[payload.key] = payload.value;
-    },
+    }
   },
   actions: {
     /** 初始化 store */
     async initStoreData(context) {
       const userData = freelogApp.getCurrentUser();
-      const [selfConfig, collectionIdList = [], playingId] = await Promise.all([
+      const [selfConfig, collectionIdListResponse, playingIdResponse] = await Promise.all([
         freelogApp.getSelfProperty(),
         freelogApp.getUserData("collectionIdList"),
-        freelogApp.getUserData("playingId"),
+        freelogApp.getUserData("playingId")
       ]);
+
+      const collectionIdList = collectionIdListResponse?.data?.data || [];
+      const playingId = playingIdResponse?.data?.data;
 
       // 是否移动端设备
       const inMobile = judgeDevice();
@@ -56,7 +59,7 @@ export default new Vuex.Store({
       // 当前登录用户数据
       context.commit("setData", {
         key: "userData",
-        value: userData ? { ...userData, isLogin: true } : { isLogin: false },
+        value: userData ? { ...userData, isLogin: true } : { isLogin: false }
       });
 
       // 自定义选项
@@ -72,7 +75,8 @@ export default new Vuex.Store({
       let playIdList = [];
       if (context.state.userData.isLogin) {
         // 登录时播放列表取用户数据
-        playIdList = await freelogApp.getUserData("playIdList");
+        const playIdListResponse = await freelogApp.getUserData("playIdList");
+        playIdList = playIdListResponse?.data?.data || [];
 
         // 如果此时本地有播放列表，那需要自动添加至用户数据
         const list = localStorage.getItem("playIdList") || "[]";
@@ -105,7 +109,7 @@ export default new Vuex.Store({
 
       // 如果有之前播放的声音，且声音依然存在于播放列表中，则获取声音信息
       if (playingId && playIdList.includes(playingId)) useMyPlay.getPlayingInfo(playingId);
-    },
+    }
   },
-  modules: {},
+  modules: {}
 });

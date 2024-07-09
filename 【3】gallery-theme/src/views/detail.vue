@@ -71,7 +71,7 @@
         <tags :tags="exhibitInfo?.tags" v-if="exhibitInfo?.tags.length" />
         <div class="bottom-bar">
           <div class="author-info">
-            <img class="author-avatar" :src="getAvatarUrl(exhibitInfo?.userId)" v-if="exhibitInfo?.userId" />
+            <img class="author-avatar" :src="getAvatarUrl(exhibitInfo?.articleInfo.articleOwnerId)" v-if="exhibitInfo?.articleInfo.articleOwnerId" />
             <div class="author-name">
               {{ exhibitInfo?.articleInfo.articleOwnerName }}
             </div>
@@ -136,7 +136,7 @@
             </div>
           </div>
           <div class="exhibit-info">
-            <img class="author-avatar" :src="getAvatarUrl(exhibitInfo?.userId)" v-if="exhibitInfo?.userId" />
+            <img class="author-avatar" :src="getAvatarUrl(exhibitInfo?.articleInfo.articleOwnerId)" v-if="exhibitInfo?.articleInfo.articleOwnerId" />
             <div class="author-name">
               {{ exhibitInfo?.articleInfo.articleOwnerName }}
             </div>

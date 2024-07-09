@@ -59,7 +59,7 @@ export default {
   name: "share",
 
   components: {
-    QrcodeVue,
+    QrcodeVue
   },
 
   data() {
@@ -71,7 +71,7 @@ export default {
       qrcodeShow: false,
       qrcodeInfo: { name: "", url: "" },
       copySuccess: false,
-      animation: "enter",
+      animation: "enter"
     };
   },
 
@@ -83,14 +83,14 @@ export default {
       if (!cur) return;
 
       this.initShare();
-    },
+    }
   },
 
   computed: {
     /** 分享信息 */
     shareInfo() {
       return this.$store.state.shareInfo;
-    },
+    }
   },
 
   methods: {
@@ -120,10 +120,14 @@ export default {
         window.open(shareWeb);
       } else if (item.id === "weibo") {
         // 微博
-        window.open(`https://service.weibo.com/share/share.php?title=${this.shareText}&pic=${image}`);
+        window.open(
+          `https://service.weibo.com/share/share.php?title=${this.shareText}&pic=${image}`
+        );
       } else if (item.id === "douban") {
         // 豆瓣
-        window.open(`https://www.douban.com/share/service?url=${url}&title=${title}&image=${image}`);
+        window.open(
+          `https://www.douban.com/share/service?url=${url}&title=${title}&image=${image}`
+        );
       } else if (["qq", "wechat"].includes(item.id)) {
         // qq、微信
         this.qrcodeInfo = { name: item.name, url };
@@ -145,8 +149,8 @@ export default {
         }, 2300);
       }
       // freelogApp.pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: this.shareInfo.exhibit.exhibitId } });
-    },
-  },
+    }
+  }
 };
 </script>
 

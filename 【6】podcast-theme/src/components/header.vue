@@ -144,7 +144,11 @@
             @focus="searchHistoryShow = true"
           />
           <i class="freelog fl-icon-content"></i>
-          <i class="freelog fl-icon-guanbi text-btn clear-btn" @click="searchKey = ''" v-show="searchKey"></i>
+          <i
+            class="freelog fl-icon-guanbi text-btn clear-btn"
+            @click="searchKey = ''"
+            v-show="searchKey"
+          ></i>
 
           <transition name="fade">
             <div
@@ -163,7 +167,10 @@
                   @mouseleave="searchWordCatch = null"
                 >
                   <div class="item-word">{{ item }}</div>
-                  <i class="freelog fl-icon-guanbi delete-btn" @click.stop="deleteSearchHistory(item)"></i>
+                  <i
+                    class="freelog fl-icon-guanbi delete-btn"
+                    @click.stop="deleteSearchHistory(item)"
+                  ></i>
                 </div>
               </div>
 
@@ -222,8 +229,8 @@ export default {
       tabList: [
         { value: "/home", label: "首页" },
         { value: "/voice-list", label: "声音" },
-        { value: "/collection-list", label: "收藏" },
-      ],
+        { value: "/collection-list", label: "收藏" }
+      ]
     };
   },
 
@@ -243,7 +250,7 @@ export default {
       } else {
         document.removeEventListener("click", this.ifCloseHistoryPopup);
       }
-    },
+    }
   },
 
   computed: {
@@ -259,7 +266,7 @@ export default {
 
     /** 搜索历史选项 */
     mySearchHistory() {
-      return this.searchHistory.filter((item) => item.includes(this.searchKey));
+      return this.searchHistory.filter(item => item.includes(this.searchKey));
     },
 
     /** 菜单按钮群 */
@@ -271,11 +278,16 @@ export default {
           icon: "fl-icon-shoucangxiaoshuo",
           label: "我的收藏",
           hidden: !this.userData.isLogin,
-          path: "/collection-list",
+          path: "/collection-list"
         },
-        { icon: "fl-icon-lishi", label: "签约记录", hidden: !this.userData.isLogin, path: "/signed-list" },
+        {
+          icon: "fl-icon-lishi",
+          label: "签约记录",
+          hidden: !this.userData.isLogin,
+          path: "/signed-list"
+        }
       ];
-    },
+    }
   },
 
   created() {
@@ -389,7 +401,7 @@ export default {
     searchWord() {
       const keywords = this.searchKey.trim();
       if (!keywords) return;
-      const index = this.searchHistory.findIndex((item) => item === keywords);
+      const index = this.searchHistory.findIndex(item => item === keywords);
       if (index !== -1) this.searchHistory.splice(index, 1);
       if (this.searchHistory.length === 10) this.searchHistory.pop();
       this.searchHistory.unshift(keywords);
@@ -398,7 +410,7 @@ export default {
 
     /** 删除搜索词 */
     deleteWord(keywords) {
-      const index = this.searchHistory.findIndex((item) => item === keywords);
+      const index = this.searchHistory.findIndex(item => item === keywords);
       if (index === -1) return;
       this.searchHistory.splice(index, 1);
       localStorage.setItem("searchHistory", JSON.stringify(this.searchHistory));
@@ -420,8 +432,8 @@ export default {
       } else {
         this.$refs.searchInput.focus();
       }
-    },
-  },
+    }
+  }
 };
 </script>
 

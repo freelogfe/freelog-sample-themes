@@ -10,7 +10,7 @@
   "dependencies": {
     "ant-design-vue": "^3.2.20",
     "core-js": "^3.6.5",
-    "freelog-runtime": "^3.8.4",
+    "freelog-runtime": "^3.8.5",
     "qrcode.vue": "^3.3.3",
     "vant": "^4.6.0",
     "vue": "^3.0.0",

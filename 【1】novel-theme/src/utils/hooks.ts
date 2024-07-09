@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useContext } from "react";
 import { useHistory } from "react-router";
-import {  callLogin } from "../api/freelog";
+import { callLogin } from "../api/freelog";
 import { showToast } from "../components/toast/toast";
 import { globalContext } from "../router";
 import { ExhibitItem } from "../api/interface";
@@ -18,7 +18,8 @@ export const useMyShelf = (id?: string) => {
     // 用户未登录
     if (!userData?.isLogin) return;
 
-    const ids = await freelogApp.getUserData("shelf");
+    const res = await freelogApp.getUserData("shelf");
+    const ids = res?.data?.data || [];
     setShelfIds(ids || []);
 
     if (!ids || ids.length === 0) {
@@ -29,12 +30,14 @@ export const useMyShelf = (id?: string) => {
     const exhibitIds = ids.join();
     const [list, statusList] = await Promise.all([
       freelogApp.getExhibitListById({ exhibitIds }),
-      freelogApp.getExhibitAuthStatus(exhibitIds),
+      freelogApp.getExhibitAuthStatus(exhibitIds)
     ]);
     ids.forEach((id: string) => {
-      const book = list.data.data.find((item) => item.exhibitId === id) as ExhibitItem;
+      const book = list.data.data.find(item => item.exhibitId === id) as ExhibitItem;
       if (!book) return;
-      const statusItem = statusList.data.data.find((item: { exhibitId: string }) => item.exhibitId === id);
+      const statusItem = statusList.data.data.find(
+        (item: { exhibitId: string }) => item.exhibitId === id
+      );
       book.defaulterIdentityType = statusItem?.defaulterIdentityType;
     });
     setMyShelf(list.data.data);
@@ -56,7 +59,7 @@ export const useMyShelf = (id?: string) => {
     const isThisCollected = ifExistInShelf(exhibit.exhibitId);
 
     if (isThisCollected) {
-      const index = shelfIds.findIndex((item) => item === exhibit.exhibitId);
+      const index = shelfIds.findIndex(item => item === exhibit.exhibitId);
       shelfIds.splice(index, 1);
     } else {
       shelfIds.push(exhibit.exhibitId);
@@ -98,7 +101,7 @@ export const useMySignedList = () => {
     if (!userData?.isLogin) return;
 
     const signedList = await freelogApp.getSignStatistics({ keywords });
-    const ids: string = signedList.data.data.map((item: SignedItem) => item.subjectId).join();
+    const ids: string = signedList?.data?.data.map((item: SignedItem) => item.subjectId).join();
 
     if (!ids) {
       setMySignedList([]);
@@ -107,7 +110,7 @@ export const useMySignedList = () => {
 
     const [list, statusList] = await Promise.all([
       freelogApp.getExhibitListById({ exhibitIds: ids }),
-      freelogApp.getExhibitAuthStatus(ids),
+      freelogApp.getExhibitAuthStatus(ids)
     ]);
     list.data.data.forEach((item: ExhibitItem) => {
       const statusItem = statusList.data.data.find(
@@ -116,7 +119,9 @@ export const useMySignedList = () => {
       item.defaulterIdentityType = statusItem?.defaulterIdentityType;
     });
 
-    setMySignedList(list.data.data.filter((item: ExhibitItem) => !item.articleInfo.resourceType.includes("主题")));
+    setMySignedList(
+      list.data.data.filter((item: ExhibitItem) => !item.articleInfo.resourceType.includes("主题"))
+    );
   };
 
   useEffect(() => {
@@ -141,7 +146,7 @@ export const useSearchHistory = () => {
   const searchWord = (keywords = "") => {
     keywords = keywords.trim();
     if (!keywords) return;
-    const index = searchHistory.findIndex((item) => item === keywords);
+    const index = searchHistory.findIndex(item => item === keywords);
     if (index !== -1) searchHistory.splice(index, 1);
     if (searchHistory.length === 10) searchHistory.pop();
     searchHistory.unshift(keywords);
@@ -151,7 +156,7 @@ export const useSearchHistory = () => {
 
   /** 删除搜索词 */
   const deleteWord = (keywords: string) => {
-    const index = searchHistory.findIndex((item) => item === keywords);
+    const index = searchHistory.findIndex(item => item === keywords);
     if (index === -1) return;
     searchHistory.splice(index, 1);
     localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
@@ -199,7 +204,7 @@ export const useMyScroll = () => {
     scrollTop,
     clientHeight,
     scrollHeight,
-    scrollToTop,
+    scrollToTop
   };
 };
 

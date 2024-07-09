@@ -8,7 +8,7 @@
       'in-pc': !inMobile,
       'scroll-mode': contentImgList.length !== 0 && mode[0] === 'scroll',
       light: theme === 'light',
-      dark: theme === 'dark',
+      dark: theme === 'dark'
     }"
     @click="clickPage()"
   >
@@ -29,7 +29,11 @@
               @change="swipePage"
               :lazy-render="true"
             >
-              <my-swipe-item class="swipe-image-box" v-for="item in mobilePagingList" :key="item.name">
+              <my-swipe-item
+                class="swipe-image-box"
+                v-for="item in mobilePagingList"
+                :key="item.name"
+              >
                 <img class="swipe-image" :src="item.url" oncontextmenu="return false" />
               </my-swipe-item>
             </my-swipe>
@@ -54,7 +58,10 @@
             <div class="home-btn" @click="switchPage('/home')">进入首页</div>
           </div>
 
-          <div class="lock-box" v-else-if="comicInfo.defaulterIdentityType === 4 || userData.isLogin === false">
+          <div
+            class="lock-box"
+            v-else-if="comicInfo.defaulterIdentityType === 4 || userData?.isLogin === false"
+          >
             <img class="lock" src="../assets/images/lock.png" alt="未授权" />
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
             <div class="get-btn" @click="getAuth()">获取授权</div>
@@ -98,7 +105,11 @@
               <i class="freelog fl-icon-xiangxia left"></i>
               <div class="btn-label">日漫模式</div>
             </div>
-            <div class="menu-btn" :class="{ active: mode[0] === 'scroll' }" @click="changeMode('scroll', 0)">
+            <div
+              class="menu-btn"
+              :class="{ active: mode[0] === 'scroll' }"
+              @click="changeMode('scroll', 0)"
+            >
               <i class="freelog fl-icon-xiangxia"></i>
               <div class="btn-label">滚动模式</div>
             </div>
@@ -115,7 +126,9 @@
             <!-- 条漫/页漫、双页模式、非跨页匹配、当前为首页时，首页左侧显示空屏 -->
             <div
               class="blank-screen"
-              v-if="[1, 2].includes(comicMode) && mode[1] === 'double' && !amend && currentPage === 1"
+              v-if="
+                [1, 2].includes(comicMode) && mode[1] === 'double' && !amend && currentPage === 1
+              "
             ></div>
             <!-- 日漫、双页模式、页数不为1且当前为尾页/页数为1且跨页匹配时，尾页左侧显示空屏 -->
             <div
@@ -141,7 +154,11 @@
               <img class="content-image" :src="nextUrl" />
             </div>
             <!-- 当前页 -->
-            <div class="content-image-box" :class="{ single: mode[1] === 'single' }" v-if="currentUrl">
+            <div
+              class="content-image-box"
+              :class="{ single: mode[1] === 'single' }"
+              v-if="currentUrl"
+            >
               <img class="content-image" :src="currentUrl" />
             </div>
             <!-- 条漫/页漫、双页模式、跨页匹配/非跨页匹配且当前不为首页、当前页不为尾页时，当前页右侧显示下一页 -->
@@ -178,20 +195,26 @@
               @click="leftSwitchPage()"
               v-if="
                 (currentPage !== 1 && mode[2] === 'normal') ||
-                (currentPage < contentImgList.length - (mode[1] === 'single' ? 0 : 1) && mode[2] === 'manga')
+                (currentPage < contentImgList.length - (mode[1] === 'single' ? 0 : 1) &&
+                  mode[2] === 'manga')
               "
             ></div>
             <div
               class="next-btn"
               @click="rightSwitchPage()"
               v-if="
-                (currentPage < contentImgList.length - (mode[1] === 'single' ? 0 : 1) && mode[2] === 'normal') ||
+                (currentPage < contentImgList.length - (mode[1] === 'single' ? 0 : 1) &&
+                  mode[2] === 'normal') ||
                 (currentPage !== 1 && mode[2] === 'manga')
               "
             ></div>
           </div>
 
-          <div class="scroll-mode-area" :style="{ height: totalHeight + 'px' }" v-else-if="mode[0] === 'scroll'">
+          <div
+            class="scroll-mode-area"
+            :style="{ height: totalHeight + 'px' }"
+            v-else-if="mode[0] === 'scroll'"
+          >
             <img
               class="content-image"
               :style="{ height: item.height + 'px' }"
@@ -210,7 +233,10 @@
             <div class="home-btn" @click="switchPage('/home')">进入首页</div>
           </div>
 
-          <div class="lock-box" v-else-if="comicInfo.defaulterIdentityType === 4 || userData.isLogin === false">
+          <div
+            class="lock-box"
+            v-else-if="comicInfo.defaulterIdentityType === 4 || userData?.isLogin === false"
+          >
             <img class="lock" src="../assets/images/lock.png" alt="未授权" />
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
             <div class="get-btn" @click="getAuth()">获取授权</div>
@@ -229,7 +255,11 @@
             "
           />
 
-          <operate-btn icon="fl-icon-fenxiang" :theme="theme" @click.stop="setShareWidgetShow(true)">
+          <operate-btn
+            icon="fl-icon-fenxiang"
+            :theme="theme"
+            @click.stop="setShareWidgetShow(true)"
+          >
             <div id="share" class="share-wrapper" />
           </operate-btn>
 
@@ -330,7 +360,13 @@
             <!-- 日漫、翻页模式、双页模式、非跨页匹配、当前为首页时，右侧显示空屏页码 -->
             <span
               class="page-number"
-              v-if="comicMode === 3 && mode[0] === 'paging' && mode[1] === 'double' && !amend && currentPage === 1"
+              v-if="
+                comicMode === 3 &&
+                mode[0] === 'paging' &&
+                mode[1] === 'double' &&
+                !amend &&
+                currentPage === 1
+              "
             >
               -
             </span>
@@ -384,7 +420,11 @@
       <div class="paging-tip" v-if="directionTipShow">
         <img
           class="img"
-          :src="require(`../assets/images/${mode[2] === 'normal' ? 'left-to-right' : 'right-to-left'}.png`)"
+          :src="
+            require(`../assets/images/${
+              mode[2] === 'normal' ? 'left-to-right' : 'right-to-left'
+            }.png`)
+          "
         />
         <div class="desc">当前翻页方向</div>
         <div class="direction">{{ mode[2] === "normal" ? "从左向右" : "从右向左" }}</div>
@@ -394,14 +434,15 @@
 </template>
 
 <script lang="tsx">
-import { toRefs } from "@vue/reactivity";
-import { useMyRouter, useMyScroll, useMyShelf } from "../utils/hooks";
 import { defineAsyncComponent, nextTick, onBeforeUnmount, reactive, watch } from "vue";
-import { ContentImage, ExhibitItem } from "@/api/interface";
 import { useStore } from "vuex";
 import { Swipe, SwipeItem } from "vant";
-import "vant/lib/index.css";
+import { toRefs } from "@vue/reactivity";
 import { WidgetController, freelogApp } from "freelog-runtime";
+import { useMyRouter, useMyScroll, useMyShelf } from "@/utils/hooks";
+import { ContentImage, ExhibitItem } from "@/api/interface";
+import { State } from "@/store/index";
+import "vant/lib/index.css";
 
 export default {
   name: "reader",
@@ -412,14 +453,14 @@ export default {
     "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
     "back-top": defineAsyncComponent(() => import("../components/back-top.vue")),
     "my-swipe": Swipe,
-    "my-swipe-item": SwipeItem,
+    "my-swipe-item": SwipeItem
   },
 
   setup() {
     type modeType = "paging" | "scroll" | "single" | "double" | "normal" | "manga";
 
     const myTheme = localStorage.getItem("theme") || "light";
-    const store = useStore();
+    const store = useStore<State>();
     const { query, switchPage } = useMyRouter();
     const { id } = query.value;
     const { isCollected, operateShelf } = useMyShelf(id);
@@ -431,23 +472,23 @@ export default {
         title: "阅读模式",
         btns: [
           { label: "翻页", value: "paging" },
-          { label: "滚动", value: "scroll" },
-        ],
+          { label: "滚动", value: "scroll" }
+        ]
       },
       {
         title: "页面模式",
         btns: [
           { label: "单页", value: "single" },
-          { label: "双页", value: "double" },
-        ],
+          { label: "双页", value: "double" }
+        ]
       },
       {
         title: "翻页方向",
         btns: [
           { label: "普通模式", value: "normal" },
-          { label: "日漫模式", value: "manga" },
-        ],
-      },
+          { label: "日漫模式", value: "manga" }
+        ]
+      }
     ];
 
     let barShowTimer: any = null;
@@ -473,7 +514,7 @@ export default {
       directionTipShow: false,
       barShow: false,
       jumping: false,
-      shareWidget: null as WidgetController | null,
+      shareWidget: null as WidgetController | null
     });
 
     const methods = {
@@ -612,7 +653,10 @@ export default {
           page = 1;
           data.nextUrl = data.contentImgList[1].url;
         } else if (value) {
-          page = data.currentPage === data.contentImgList.length ? data.currentPage - 1 : data.currentPage + 1;
+          page =
+            data.currentPage === data.contentImgList.length
+              ? data.currentPage - 1
+              : data.currentPage + 1;
         } else {
           page = data.currentPage - 1;
         }
@@ -684,7 +728,7 @@ export default {
           const app = document.getElementById("app");
           WIDTH = app?.clientWidth || 0;
         }
-        data.contentImgList.forEach((item) => {
+        data.contentImgList.forEach(item => {
           data.pagePointList.push(data.totalHeight);
           const { width, height } = item;
           const currentHeight = (WIDTH / width) * height;
@@ -698,7 +742,7 @@ export default {
       /** 控制分享弹窗显示 */
       setShareWidgetShow(value: boolean) {
         data.shareWidget?.setData({ show: value });
-      },
+      }
     };
 
     /** 获取漫画信息 */
@@ -714,6 +758,7 @@ export default {
         comicMode = 2;
       }
       data.comicInfo = { ...exhibitInfo.data.data, comicMode };
+      data.comicMode = comicMode;
       getContent();
     };
 
@@ -721,7 +766,8 @@ export default {
     const getContent = async () => {
       data.loading = true;
       const statusInfo = await freelogApp.getExhibitAuthStatus(id);
-      if (statusInfo.data.data) data.comicInfo.defaulterIdentityType = statusInfo.data.data[0].defaulterIdentityType;
+      if (statusInfo.data.data)
+        data.comicInfo.defaulterIdentityType = statusInfo.data.data[0].defaulterIdentityType;
 
       if (data.comicInfo.defaulterIdentityType === 0) {
         // 已签约并且授权链无异常
@@ -734,7 +780,10 @@ export default {
 
         const requestList: Promise<any>[] = [];
         info.data.list.forEach((item: ContentImage) => {
-          const request = freelogApp.getExhibitFileStream(id, { subFilePath: item.name, returnUrl: true });
+          const request = freelogApp.getExhibitFileStream(id, {
+            subFilePath: item.name,
+            returnUrl: true
+          });
           requestList.push(request);
         });
         const results = await Promise.all([...requestList]);
@@ -791,8 +840,8 @@ export default {
       const { authIds, myShelf } = store.state;
       authIds.push(id);
       store.commit("setData", { key: "authIds", value: authIds });
-      const index = myShelf.findIndex((item: ExhibitItem) => item.exhibitId === id);
-      if (index !== -1) {
+      const index = myShelf?.findIndex((item: ExhibitItem) => item.exhibitId === id) as number;
+      if (index !== -1 && myShelf) {
         myShelf[index].defaulterIdentityType = 0;
         store.commit("setData", { key: "myShelf", value: myShelf });
       }
@@ -817,7 +866,7 @@ export default {
       if (data.shareWidget) await data.shareWidget.unmount();
 
       const subDeps = await freelogApp.getSelfDependencyTree();
-      const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-展品分享");
+      const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-展品分享");
       if (!widgetData) return;
 
       const { articleId, parentNid, nid } = widgetData;
@@ -830,8 +879,8 @@ export default {
         topExhibitId,
         container: document.getElementById("share") as HTMLElement,
         renderWidgetOptions: {
-          data: { exhibit: data.comicInfo, type: "漫画", routerType: "content" },
-        },
+          data: { exhibit: data.comicInfo, type: "漫画", routerType: "content" }
+        }
         // widget_entry: "https://localhost:8201",
       };
       data.shareWidget = await freelogApp.mountArticleWidget(params);
@@ -839,7 +888,7 @@ export default {
 
     watch(
       () => scrollTop.value,
-      (cur) => {
+      cur => {
         if (data.mode[0] !== "scroll") return;
 
         if (data.barShow && !data.jumping) {
@@ -868,7 +917,7 @@ export default {
 
     watch(
       () => data.currentPage,
-      (cur) => {
+      cur => {
         data.currentUrl = "";
         data.nextUrl = "";
         const { contentImgList } = data;
@@ -903,9 +952,9 @@ export default {
       operateShelf,
       modeMenu,
       ...toRefs(data),
-      ...methods,
+      ...methods
     };
-  },
+  }
 };
 </script>
 

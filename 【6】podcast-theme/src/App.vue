@@ -27,11 +27,11 @@ export default {
     myFooter,
     myPlayer,
     themeEntrance,
-    share,
+    share
   },
 
   created() {
-    this.$router.afterEach((to) => {
+    this.$router.afterEach(to => {
       // 将第一个路由记入路由历史
       const { locationHistory } = this.$store.state;
       if (locationHistory.length) return;
@@ -41,7 +41,7 @@ export default {
       this.$store.commit("setData", { key: "locationHistory", value: locationHistory });
       this.$store.commit("setData", { key: "routerMode", value: 1 });
     });
-  },
+  }
 };
 </script>
 

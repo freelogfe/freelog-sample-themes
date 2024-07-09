@@ -2,10 +2,18 @@
 
 <template>
   <!-- 移动端头部 -->
-  <div class="mobile-reader-header-wrapper" :class="{ show: headerShow }" @click.stop v-if="inMobile">
+  <div
+    class="mobile-reader-header-wrapper"
+    :class="{ show: headerShow }"
+    @click.stop
+    v-if="inMobile"
+  >
     <!-- header顶部 -->
-    <div class="header-top" :class="{ logon: userData.isLogin }">
-      <div class="header-top-left" @click="locationHistory.length === 1 ? switchPage('/home') : routerBack()">
+    <div class="header-top" :class="{ logon: userData?.isLogin }">
+      <div
+        class="header-top-left"
+        @click="locationHistory.length === 1 ? switchPage('/home') : routerBack()"
+      >
         <img class="back-arrow" src="../assets/images/arrow.png" />
         <div class="back-label">
           {{ locationHistory.length === 1 ? "首页" : "返回" }}
@@ -17,7 +25,9 @@
 
     <!-- 展品标题 -->
     <div class="comic-name">
-      <span @click="switchPage('/detail', { id: comicInfo.exhibitId })">{{ comicInfo.exhibitTitle }}</span>
+      <span @click="switchPage('/detail', { id: comicInfo.exhibitId })">{{
+        comicInfo.exhibitTitle
+      }}</span>
     </div>
 
     <!-- 用户弹窗 -->
@@ -34,9 +44,9 @@
               class="avatar"
               :src="userData?.headImage || require('../assets/images/default-avatar.png')"
               :alt="userData?.username || '未登录'"
-              @click="!userData.isLogin && callLogin()"
+              @click="!userData?.isLogin && callLogin()"
             />
-            <div class="username" @click="!userData.isLogin && callLogin()">
+            <div class="username" @click="!userData?.isLogin && callLogin()">
               {{ userData?.username || "未登录" }}
             </div>
             <div class="close-btn" @click="userBoxShow = false">
@@ -55,7 +65,7 @@
                   switchPage('/shelf');
                   userBoxShow = false;
                 "
-                v-if="userData.isLogin"
+                v-if="userData?.isLogin"
               >
                 <i class="freelog fl-icon-shujia"></i>
                 <div class="btn-label">我的收藏</div>
@@ -66,18 +76,18 @@
                   switchPage('/signedList');
                   userBoxShow = false;
                 "
-                v-if="userData.isLogin"
+                v-if="userData?.isLogin"
               >
                 <i class="freelog fl-icon-lishi"></i>
                 <div class="btn-label">已签约漫画</div>
               </div>
             </div>
 
-            <div class="footer-btn" @click="callLoginOut()" v-if="userData.isLogin">
+            <div class="footer-btn" @click="callLoginOut()" v-if="userData?.isLogin">
               <i class="freelog fl-icon-tuichu1"></i>
               <div class="btn-label">退出登录</div>
             </div>
-            <div class="footer-btn" v-if="!userData.isLogin">
+            <div class="footer-btn" v-if="!userData?.isLogin">
               <div class="main-btn mobile" @click="callLogin()">立即登录</div>
             </div>
           </div>
@@ -115,13 +125,13 @@
 
         <div class="header-right">
           <div class="nav-btn" @click="switchPage('/')">首页</div>
-          <div class="nav-btn" @click="switchPage('/shelf')" v-if="userData.isLogin">我的收藏</div>
+          <div class="nav-btn" @click="switchPage('/shelf')" v-if="userData?.isLogin">我的收藏</div>
 
           <div
             class="user-avatar"
             @mouseover="userBoxShow = true"
             @mouseleave="userBoxShow = false"
-            v-if="userData.isLogin"
+            v-if="userData?.isLogin"
           >
             <img class="avatar" :src="userData.headImage" :alt="userData.username" />
 
@@ -157,11 +167,11 @@
 
 <script lang="ts">
 import { SetupContext, reactive, toRefs, watch } from "vue";
-import { useMyLocationHistory, useMyRouter } from "../utils/hooks";
-import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
+import { callLogin, callLoginOut } from "@/api/freelog";
 import { ExhibitItem } from "@/api/interface";
-
+import { useMyLocationHistory, useMyRouter } from "@/utils/hooks";
+import { State } from "@/store/index";
 export default {
   name: "reader-header",
 
@@ -169,8 +179,11 @@ export default {
 
   props: ["comicInfo", "show"],
 
-  setup(props: { comicInfo: ExhibitItem; show: boolean }, context: SetupContext) {
-    const store = useStore();
+  setup(
+    props: { comicInfo: ExhibitItem; show: boolean },
+    context: SetupContext<["changeBarShow"]>
+  ) {
+    const store = useStore<State>();
     const { switchPage, routerBack } = useMyRouter();
 
     const data = reactive({
@@ -178,7 +191,7 @@ export default {
       userBoxShow: false,
       searchPopupShow: false,
       searchHistoryShow: false,
-      searchWordCatch: null as number | null,
+      searchWordCatch: null as number | null
     });
 
     const methods = {
@@ -190,12 +203,12 @@ export default {
       /** 改变 header 显示状态 */
       changeShow(value: boolean) {
         context.emit("changeBarShow", value);
-      },
+      }
     };
 
     watch(
       () => props.show,
-      (cur) => {
+      cur => {
         data.headerShow = cur;
       }
     );
@@ -210,9 +223,9 @@ export default {
       ...props,
       ...toRefs(store.state),
       ...toRefs(data),
-      ...methods,
+      ...methods
     };
-  },
+  }
 };
 </script>
 

@@ -29,7 +29,7 @@ export const formatDate = (time, format = "YYYY-MM-DD hh:mm:ss") => {
  * 相对时间
  * @param time 时间戳、字符串日期等等
  */
-export const relativeTime = (time) => {
+export const relativeTime = time => {
   if (!time) return;
 
   const timeStamp = new Date(time).getTime();
@@ -70,7 +70,7 @@ export const relativeTime = (time) => {
  * 秒转为时分秒
  * @param time 时间（毫秒数）
  */
-export const secondsToHMS = (time) => {
+export const secondsToHMS = time => {
   if (!time) return "00:00";
 
   let result = "";
@@ -89,12 +89,13 @@ export const secondsToHMS = (time) => {
  * 签约量显示规则（小于10000显示原数字，等于10000显示1万，大于10000显示1万+）
  * @param count 签约量
  */
-export const getSignCount = (count) => {
+export const getSignCount = count => {
   if (!count) return 0;
 
   const LIMIT = 10000;
   if (count < LIMIT) return count;
-  else if (count >= LIMIT && count < LIMIT ** 2) return (Math.floor((count / LIMIT) * 10) / 10).toFixed(1) + "w";
+  else if (count >= LIMIT && count < LIMIT ** 2)
+    return (Math.floor((count / LIMIT) * 10) / 10).toFixed(1) + "w";
   else return (Math.floor((count / LIMIT ** 2) * 10) / 10).toFixed(1) + "亿";
 };
 
@@ -121,7 +122,7 @@ export const judgeIOSDevice = () => {
 
 /** 弹出轻提示 */
 let timeout = null;
-export const showToast = (msg) => {
+export const showToast = msg => {
   const toast = document.getElementById("toast-wrapper");
   if (toast) document.body.removeChild(toast);
   if (timeout) clearTimeout(timeout);

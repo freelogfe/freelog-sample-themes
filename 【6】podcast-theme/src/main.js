@@ -13,7 +13,7 @@ import { initFreelogApp } from "freelog-runtime";
 Vue.use(vView);
 Vue.use(ElementUI);
 
-Object.keys(filters).forEach((key) => {
+Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key]);
 });
 
@@ -24,11 +24,11 @@ const originalPush = VueRouter.prototype.push;
 // 修改原型对象中的 push 方法
 VueRouter.prototype.push = function push(location) {
   // 不 push 到当前路由
-  return originalPush.call(this, location).catch((err) => err);
+  return originalPush.call(this, location).catch(err => err);
 };
 
 /** 重写 router 对象中的 push */
-VueRouter.prototype.myPush = (location) => {
+VueRouter.prototype.myPush = location => {
   const { locationHistory } = store.state;
   const str = JSON.stringify(location);
   // push 到当前路由，禁止
@@ -58,7 +58,7 @@ let router = null;
 window.mount = () => {
   initFreelogApp();
   router = new VueRouter({ base: "/", mode: "history", routes });
-  app = new Vue({ router, store, render: (h) => h(App) }).$mount("#app");
+  app = new Vue({ router, store, render: h => h(App) }).$mount("#app");
   store.dispatch("initStoreData");
 };
 

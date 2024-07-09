@@ -14,7 +14,11 @@ export const Footer = () => {
         {freelogEntrances
           .filter((_, entrancesIndex) => entrancesIndex < 2)
           .map((item, index) => (
-            <div className="second-text-btn mobile" key={item.label} onClick={() => window.open(item.url)}>
+            <div
+              className="second-text-btn mobile"
+              key={item.label}
+              onClick={() => window.open(item.url)}
+            >
               {index === 0 ? <i className={item.label}></i> : <span>{item.label}</span>}
             </div>
           ))}
