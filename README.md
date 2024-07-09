@@ -13,3 +13,5 @@
 - document-theme: 文档主题 by Vue3
 
 - podcast-theme: 播客主题 by Vue2
+
+- music-theme: 音乐主题 by Vue3
