@@ -51,8 +51,9 @@ export const HomeScreen = (props: any) => {
             const index = statusInfo.data.data.findIndex(
               (resultItem: { exhibitId: string }) => resultItem.exhibitId === item.exhibitId
             );
-            if (index !== -1)
+            if (index !== -1) {
               item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+            }
           });
         }
       }

@@ -1,4 +1,5 @@
 import React, { useContext, useRef, useState, useEffect, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { freelogApp } from "freelog-runtime";
 import CSSTransition from "react-transition-group/CSSTransition";
 import { globalContext } from "../../router";
@@ -21,6 +22,9 @@ export const readerContext = React.createContext<any>({});
 /** 阅读页 */
 export const ReaderScreen = (props: any) => {
   const { id } = getUrlParams(props.location.search);
+  const { collection } = getUrlParams(props.location.search);
+  const { subId } = getUrlParams(props.location.search);
+
   const { inMobile } = useContext(globalContext);
   const myTheme = JSON.parse(localStorage.getItem("theme") || "null");
   const [book, setBook] = useState<ExhibitItem | null>(null);
@@ -133,6 +137,8 @@ export const ReaderScreen = (props: any) => {
 
   const context = {
     id,
+    collection,
+    subId,
     inMobile,
     book,
     setBook,
@@ -174,7 +180,11 @@ export const ReaderScreen = (props: any) => {
         <OperaterBtns />
         {/* 目录弹窗 */}
         {modalStatus && (
-          <CatalogueModal modalStatus closeCatalogueModal={() => setModalStatus(false)} />
+          <CatalogueModal
+            modalStatus
+            closeCatalogueModal={() => setModalStatus(false)}
+            book={book}
+          />
         )}
       </div>
     </readerContext.Provider>
@@ -184,22 +194,31 @@ export const ReaderScreen = (props: any) => {
 /** 阅读页主体内容 */
 const ReaderBody = () => {
   const history = useMyHistory();
+  const location = useLocation();
   const { userData } = useContext(globalContext);
-  const { inMobile, book, id, theme, mountMarkdownWidget, loading, setLoading } =
+  const { inMobile, book, id, collection, subId, theme, mountMarkdownWidget, loading, setLoading } =
     useContext(readerContext);
+
   const [content, setContent] = useState<string>("");
   const [defaulterIdentityType, setDefaulterIdentityType] = useState<number | null>(null);
 
   /** 获取小说内容 */
   const getContent = useCallback(async () => {
     let authErrType: any = -1;
-    const statusInfo = await freelogApp.getExhibitAuthStatus(id);
-    if (statusInfo.data.data) authErrType = statusInfo.data.data[0].defaulterIdentityType;
+
+    const statusInfo = collection
+      ? await freelogApp.getCollectionSubAuth(id, { itemIds: subId })
+      : await freelogApp.getExhibitAuthStatus(id);
+    if (statusInfo.data.data) {
+      authErrType = statusInfo.data.data[0].defaulterIdentityType;
+    }
     setDefaulterIdentityType(authErrType!);
 
     if (authErrType === 0) {
       // 已签约并且授权链无异常
-      const info: any = await freelogApp.getExhibitFileStream(id);
+      const info: any = collection
+        ? await freelogApp.getCollectionSubFileStream(id, subId)
+        : await freelogApp.getExhibitFileStream(id);
       if (!info) {
         setLoading(false);
         return;
@@ -212,7 +231,7 @@ const ReaderBody = () => {
 
     setLoading(false);
     // eslint-disable-next-line
-  }, [id]);
+  }, [id, subId]);
 
   /** 获取授权 */
   const getAuth = async () => {
@@ -224,7 +243,7 @@ const ReaderBody = () => {
   useEffect(() => {
     getContent();
     // eslint-disable-next-line
-  }, [id]);
+  }, [id, location]);
 
   useEffect(() => {
     if (book && content) {
