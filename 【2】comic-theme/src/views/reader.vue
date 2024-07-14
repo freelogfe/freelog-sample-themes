@@ -523,7 +523,7 @@ export default {
     const myTheme = localStorage.getItem("theme") || "light";
     const store = useStore<State>();
     const { query, switchPage } = useMyRouter();
-    const { id } = query.value;
+    const { id, collection, subId } = query.value;
     const { isCollected, operateShelf } = useMyShelf(id);
     const { scrollTo, scrollTop, clientHeight } = useMyScroll();
 
@@ -832,13 +832,18 @@ export default {
     /** 获取漫画内容 */
     const getContent = async () => {
       data.loading = true;
-      const statusInfo = await freelogApp.getExhibitAuthStatus(id);
-      if (statusInfo.data.data)
+      const statusInfo = collection
+        ? await (freelogApp as any).getCollectionSubAuth(id, { itemIds: subId })
+        : await freelogApp.getExhibitAuthStatus(id);
+      if (statusInfo.data.data) {
         data.comicInfo.defaulterIdentityType = statusInfo.data.data[0].defaulterIdentityType;
+      }
 
       if (data.comicInfo.defaulterIdentityType === 0) {
         // 已签约并且授权链无异常
-        const info = await freelogApp.getExhibitFileStream(id, { subFilePath: "index.json" });
+        const info = collection
+          ? await (freelogApp as any).getCollectionSubFileStream(id, subId)
+          : await freelogApp.getExhibitFileStream(id, { subFilePath: "index.json" });
         if (info.status !== 200 || info.data.list.length === 0) {
           data.loading = false;
           mountShareWidget();
@@ -853,7 +858,9 @@ export default {
           });
           requestList.push(request);
         });
+        console.log("requestList", requestList);
         const results = await Promise.all([...requestList]);
+        console.log("results", results);
         info.data.list.forEach((item: ContentImage, index: number) => {
           item.url = results[index];
         });
