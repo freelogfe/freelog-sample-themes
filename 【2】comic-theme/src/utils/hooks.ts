@@ -305,8 +305,8 @@ export const useMySignedList = () => {
 };
 
 /** 页面滚动 hook */
-export const useMyScroll = () => {
-  const scrollArea = document.getElementById("app");
+export const useMyScroll = (target?: string) => {
+  const scrollArea = document.getElementById(target || "app");
 
   const data = reactive({
     scrollTop: 0,

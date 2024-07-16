@@ -73,7 +73,11 @@
       <transition name="fade-down">
         <div class="mobile-operater-wrapper" @touchmove.prevent v-show="barShow">
           <!-- 目录 -->
-          <div class="operate-btn" @click.stop="catalogueModal = true">
+          <div
+            class="operate-btn"
+            @click.stop="catalogueModal = true"
+            v-if="comicInfo.collectionList?.length"
+          >
             <i class="freelog fl-icon-xiaoshuomulu1"></i>
             <div class="operater-btn-label">目录</div>
           </div>
@@ -148,7 +152,9 @@
                 ((contentImgList.length !== 1 && currentPage === contentImgList.length) ||
                   (contentImgList.length === 1 && amend))
               "
-            ></div>
+            >
+              Japan you
+            </div>
             <!-- 日漫、双页模式、跨页匹配/非跨页匹配且当前不为首页、当前页不为尾页时，当前页左侧显示下一页 -->
             <div
               class="content-image-box"
@@ -192,7 +198,9 @@
                 ((contentImgList.length !== 1 && currentPage === contentImgList.length) ||
                   (contentImgList.length === 1 && amend))
               "
-            ></div>
+            >
+              Default you
+            </div>
             <!-- 日漫、双页模式、非跨页匹配、当前为首页时，首页右侧显示空屏 -->
             <div
               class="blank-screen"
@@ -257,6 +265,7 @@
         <div class="operater-btns-box">
           <!-- 目录 -->
           <operate-btn
+            v-if="comicInfo.collectionList?.length"
             :icon="theme === 'light' ? 'fl-icon-xiaoshuomulu' : 'fl-icon-xiaoshuomulu'"
             :theme="theme"
             @click="
@@ -467,26 +476,46 @@
     </teleport>
     <teleport to="#modal">
       <transition :name="inMobile ? 'slide-right' : 'slide-left'">
-        <div class="catalogue-box-body" :class="!inMobile && 'pc'" v-if="catalogueModal">
+        <div
+          id="catalogue-box-body"
+          class="catalogue-box-body"
+          :class="!inMobile && 'pc'"
+          v-if="catalogueModal"
+        >
           <div class="title-wrapper">
-            <span class="title">XX的孩子</span>
+            <span class="title">{{ comicInfo.exhibitTitle }}</span>
             <div class="close-btn" @click="catalogueModal = false">
               <i class="freelog fl-icon-guanbi"></i>
             </div>
           </div>
-          <div class="sub-catalogue-wrapper">
-            <div class="sub">
-              <div class="sub-title">第一话</div>
-              <img v-if="true" src="@/assets/images/right-arrow.png" />
+          <div class="sub-catalogue-wrapper" id="sub-catalogue-wrapper">
+            <div
+              class="sub"
+              v-for="item in comicInfo.collectionList"
+              :key="item.itemId"
+              @click="
+                switchPage('/reader', {
+                  id: comicInfo?.exhibitId,
+                  collection: true,
+                  subId: item.itemId
+                });
+                setCatalogueModal();
+              "
+            >
+              <span class="sub-title">{{ item.itemTitle }}</span>
+              <img
+                v-if="[0, 4].includes(item.defaulterIdentityType)"
+                src="@/assets/images/right-arrow.png"
+              />
               <img v-else class="sub-lock" src="@/assets/images/mini-lock.png" alt="未授权" />
             </div>
-            <div class="sub"><span class="sub-title">第一话</span></div>
-            <div class="sub"><span class="sub-title">第一话</span></div>
-            <div class="sub"><span class="sub-title">第一话</span></div>
-            <div class="sub"><span class="sub-title">第一话</span></div>
-            <div class="sub"><span class="sub-title">第一话</span></div>
 
-            <div className="tip no-more">— 已加载全部章节 —</div>
+            <div
+              className="tip no-more"
+              v-if="comicInfo?.collectionList?.length === collectionTotal"
+            >
+              — 已加载全部章节 —
+            </div>
           </div>
         </div>
       </transition>
@@ -501,7 +530,7 @@ import { Swipe, SwipeItem } from "vant";
 import { toRefs } from "@vue/reactivity";
 import { WidgetController, freelogApp } from "freelog-runtime";
 import { useMyRouter, useMyScroll, useMyShelf } from "@/utils/hooks";
-import { ContentImage, ExhibitItem } from "@/api/interface";
+import { CollectionList, ContentImage, ExhibitItem } from "@/api/interface";
 import { State } from "@/store/index";
 import "vant/lib/index.css";
 
@@ -576,7 +605,9 @@ export default {
       barShow: false,
       jumping: false,
       shareWidget: null as WidgetController | null,
-      catalogueModal: false
+      catalogueModal: false,
+      collectionCurrent: 0,
+      collectionTotal: 0
     });
 
     const methods = {
@@ -815,8 +846,10 @@ export default {
     /** 获取漫画信息 */
     const getComicInfo = async () => {
       const exhibitInfo = await freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 });
+      let tempCollectionList: CollectionList[] = [];
       let comicMode;
-      const { resourceType } = exhibitInfo.data.data.articleInfo;
+      const { resourceType, articleType } = exhibitInfo.data.data.articleInfo;
+
       if (resourceType[2] === "条漫") {
         comicMode = 1;
       } else if (resourceType[2] === "日漫") {
@@ -824,16 +857,61 @@ export default {
       } else {
         comicMode = 2;
       }
-      data.comicInfo = { ...exhibitInfo.data.data, comicMode };
+      if (articleType === 2) {
+        const dataList = await getCollectionList(true);
+        tempCollectionList = dataList;
+      }
+      data.comicInfo = { ...exhibitInfo.data.data, comicMode, collectionList: tempCollectionList };
       data.comicMode = comicMode;
       getContent();
     };
 
     /** 获取漫画内容 */
-    const getContent = async () => {
+    const getCollectionList = async (
+      init = false,
+      currentCollection?: any[],
+      currentTotal?: number
+    ) => {
+      try {
+        if (currentCollection && currentCollection.length >= Number(currentTotal)) {
+          return;
+        }
+
+        data.collectionCurrent = init ? 0 : data.collectionCurrent + 30;
+
+        const subList = await (freelogApp as any).getCollectionSubList(id, {
+          skip: data.collectionCurrent,
+          limit: 30
+        });
+        const { dataList, totalItem } = subList.data.data;
+        data.collectionTotal = totalItem;
+
+        if (dataList.length !== 0) {
+          const ids = dataList.map((item: any) => item.itemId).join();
+          const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
+          if (statusInfo.data.data) {
+            (dataList as CollectionList[]).forEach(item => {
+              const index = statusInfo.data.data.findIndex(
+                (resultItem: { itemId: string }) => resultItem.itemId === item.itemId
+              );
+              if (index !== -1) {
+                item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+              }
+            });
+          }
+          return dataList;
+        }
+      } catch (error) {
+        console.error("Failed to get collection list", error);
+        return [];
+      }
+    };
+
+    /** 获取漫画内容 */
+    const getContent = async (updateSubId?: string) => {
       data.loading = true;
       const statusInfo = collection
-        ? await (freelogApp as any).getCollectionSubAuth(id, { itemIds: subId })
+        ? await (freelogApp as any).getCollectionSubAuth(id, { itemIds: updateSubId || subId })
         : await freelogApp.getExhibitAuthStatus(id);
       if (statusInfo.data.data) {
         data.comicInfo.defaulterIdentityType = statusInfo.data.data[0].defaulterIdentityType;
@@ -842,7 +920,10 @@ export default {
       if (data.comicInfo.defaulterIdentityType === 0) {
         // 已签约并且授权链无异常
         const info = collection
-          ? await (freelogApp as any).getCollectionSubFileStream(id, subId)
+          ? await (freelogApp as any).getCollectionSubInsideFile(id, {
+              itemId: updateSubId || subId,
+              subFilePath: "index.json"
+            })
           : await freelogApp.getExhibitFileStream(id, { subFilePath: "index.json" });
         if (info.status !== 200 || info.data.list.length === 0) {
           data.loading = false;
@@ -852,15 +933,20 @@ export default {
 
         const requestList: Promise<any>[] = [];
         info.data.list.forEach((item: ContentImage) => {
-          const request = freelogApp.getExhibitFileStream(id, {
-            subFilePath: item.name,
-            returnUrl: true
-          });
+          const request = collection
+            ? (freelogApp as any).getCollectionSubInsideFile(id, {
+                itemId: updateSubId || subId,
+                subFilePath: item.name,
+                returnUrl: true
+              })
+            : freelogApp.getExhibitFileStream(id, {
+                subFilePath: item.name,
+                returnUrl: true
+              });
+
           requestList.push(request);
         });
-        console.log("requestList", requestList);
         const results = await Promise.all([...requestList]);
-        console.log("results", results);
         info.data.list.forEach((item: ContentImage, index: number) => {
           item.url = results[index];
         });
@@ -999,6 +1085,43 @@ export default {
           data.currentUrl = contentImgList[cur - 1].url;
           if (contentImgList[cur]) {
             data.nextUrl = contentImgList[cur].url;
+          }
+        });
+      }
+    );
+
+    // 监听单品id，更新单品详情
+    watch(
+      () => query.value.subId,
+      cur => {
+        if (data.comicInfo.collectionList?.length) {
+          getContent(cur);
+        }
+      }
+    );
+
+    // 监听目录弹窗的滚动
+    watch(
+      () => data.catalogueModal,
+      cur => {
+        if (!cur) {
+          return;
+        }
+        const { collectionList } = data.comicInfo;
+        nextTick(() => {
+          const {
+            scrollTop: modalScrollTop1,
+            clientHeight: modalClientHeight,
+            scrollHeight: modalScrollHeight
+          } = useMyScroll("catalogue-box-body");
+
+          if (modalScrollTop1.value + modalClientHeight.value === modalScrollHeight.value) {
+            (async () => {
+              const dataList = await getCollectionList(false, collectionList, data.collectionTotal);
+              if (Array.isArray(dataList) && Array.isArray(collectionList)) {
+                data.comicInfo.collectionList = [...collectionList, ...dataList];
+              }
+            })();
           }
         });
       }

@@ -63,10 +63,15 @@
             alt="未授权"
             v-if="mode !== 3 && data.defaulterIdentityType >= 4"
           />
-          <!-- TODO 使用变量 -->
           <div
             class="comic-status"
-            :class="`${![0, 4].includes(data.defaulterIdentityType) ? 'on-going' : 'on-going'}`"
+            :class="
+              data.articleInfo?.articleType === 1
+                ? 'single-episode'
+                : data.serializeStatus === 0
+                ? 'on-going'
+                : 'completed'
+            "
           />
           <div
             class="comic-name"

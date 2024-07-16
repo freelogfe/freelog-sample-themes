@@ -6,7 +6,6 @@ export interface CollectionList {
   itemTitle: string;
   sortId: number;
   createDate: string;
-  createData: string;
   articleInfo: ExhibitInfo;
   defaulterIdentityType: number;
 }
@@ -17,6 +16,7 @@ export interface ExhibitItem extends ExhibitInfo {
   defaulterIdentityType?: number;
   comicMode?: number;
   collectionList?: CollectionList[];
+  serializeStatus?: number;
 }
 
 /** 内容图片 */
