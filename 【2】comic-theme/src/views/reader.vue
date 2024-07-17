@@ -34,7 +34,56 @@
                 v-for="item in mobilePagingList"
                 :key="item.name"
               >
-                <img class="swipe-image" :src="item.url" oncontextmenu="return false" />
+                <div v-if="item.name === 'RecommendFakeUrl'" class="paging-recommend-box">
+                  <div class="no-more">— 已加载全部内容 —</div>
+
+                  <p class="more">更多漫画</p>
+                  <div class="recommend-item-wrap">
+                    <div class="recommend-item">
+                      <div class="cover-image">
+                        <img src="" alt="" />
+                      </div>
+                      <span class="title">标题</span>
+                      <span class="name">名字</span>
+                    </div>
+                    <div class="recommend-item">
+                      <div class="cover-image">
+                        <img src="" alt="" />
+                      </div>
+                      <span class="title">标题</span>
+                      <span class="name">名字</span>
+                    </div>
+                    <div class="recommend-item">
+                      <div class="cover-image">
+                        <img src="" alt="" />
+                      </div>
+                      <span class="title">标题</span>
+                      <span class="name">名字</span>
+                    </div>
+                    <div class="recommend-item">
+                      <div class="cover-image">
+                        <img src="" alt="" />
+                      </div>
+                      <span class="title">标题</span>
+                      <span class="name">名字</span>
+                    </div>
+                    <div class="recommend-item">
+                      <div class="cover-image">
+                        <img src="" alt="" />
+                      </div>
+                      <span class="title">标题</span>
+                      <span class="name">名字</span>
+                    </div>
+                    <div class="recommend-item">
+                      <div class="cover-image">
+                        <img src="" alt="" />
+                      </div>
+                      <span class="title">标题</span>
+                      <span class="name">名字</span>
+                    </div>
+                  </div>
+                </div>
+                <img v-else class="swipe-image" :src="item.url" oncontextmenu="return false" />
               </my-swipe-item>
             </my-swipe>
           </template>
@@ -48,6 +97,55 @@
               v-for="item in contentImgList"
               :key="item.name"
             />
+            <div class="scroll-recommend-box">
+              <div class="no-more">— 已加载全部内容 —</div>
+
+              <p class="more">更多漫画</p>
+              <div class="recommend-item-wrap">
+                <div class="recommend-item">
+                  <div class="cover-image">
+                    <img src="" alt="" />
+                  </div>
+                  <span class="title">标题</span>
+                  <span class="name">名字</span>
+                </div>
+                <div class="recommend-item">
+                  <div class="cover-image">
+                    <img src="" alt="" />
+                  </div>
+                  <span class="title">标题</span>
+                  <span class="name">名字</span>
+                </div>
+                <div class="recommend-item">
+                  <div class="cover-image">
+                    <img src="" alt="" />
+                  </div>
+                  <span class="title">标题</span>
+                  <span class="name">名字</span>
+                </div>
+                <div class="recommend-item">
+                  <div class="cover-image">
+                    <img src="" alt="" />
+                  </div>
+                  <span class="title">标题</span>
+                  <span class="name">名字</span>
+                </div>
+                <div class="recommend-item">
+                  <div class="cover-image">
+                    <img src="" alt="" />
+                  </div>
+                  <span class="title">标题</span>
+                  <span class="name">名字</span>
+                </div>
+                <div class="recommend-item">
+                  <div class="cover-image">
+                    <img src="" alt="" />
+                  </div>
+                  <span class="title">标题</span>
+                  <span class="name">名字</span>
+                </div>
+              </div>
+            </div>
           </template>
         </template>
 
@@ -72,6 +170,15 @@
       <!-- 控制栏 👇 -->
       <transition name="fade-down">
         <div class="mobile-operater-wrapper" @touchmove.prevent v-show="barShow">
+          <!-- 前一话 -->
+          <div
+            class="operate-btn"
+            @click="previousChapter()"
+            v-if="comicInfo.collectionList?.length && currentSortID !== 1"
+          >
+            <i class="freelog fl-icon-xiangxiazhankai pre-btn"></i>
+            <div class="operater-btn-label">前一话</div>
+          </div>
           <!-- 目录 -->
           <div
             class="operate-btn"
@@ -93,6 +200,15 @@
           <div class="operate-btn" @click.stop="modeMenuShow = true">
             <i class="freelog fl-icon-shujia1"></i>
             <div class="operater-btn-label">阅读模式</div>
+          </div>
+          <!-- 下一话 -->
+          <div
+            class="operate-btn"
+            @click="nextChapter()"
+            v-if="comicInfo.collectionList?.length && currentSortID !== collectionTotal"
+          >
+            <i class="freelog fl-icon-xiangxiazhankai next-btn"></i>
+            <div class="operater-btn-label">下一话</div>
           </div>
         </div>
       </transition>
@@ -153,7 +269,22 @@
                   (contentImgList.length === 1 && amend))
               "
             >
-              Japan you
+              <div class="recommend-box">
+                <div class="no-more">— 已加载全部内容 —</div>
+                <p class="more">更多漫画</p>
+                <div class="recommend-item">
+                  <div class="cover-image">
+                    <img src="" alt="" />
+                  </div>
+                  <div class="recommend-info">
+                    <span class="name">标题</span>
+                    <span class="type">类型</span>
+                    <div class="tags-wrap">
+                      <div class="tag">标签</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <!-- 日漫、双页模式、跨页匹配/非跨页匹配且当前不为首页、当前页不为尾页时，当前页左侧显示下一页 -->
             <div
@@ -199,7 +330,22 @@
                   (contentImgList.length === 1 && amend))
               "
             >
-              Default you
+              <div class="recommend-box">
+                <div class="no-more">— 已加载全部内容 —</div>
+                <p class="more">更多漫画</p>
+                <div class="recommend-item">
+                  <div class="cover-image">
+                    <img src="" alt="" />
+                  </div>
+                  <div class="recommend-info">
+                    <span class="name">标题</span>
+                    <span class="type">类型</span>
+                    <div class="tags-wrap">
+                      <div class="tag">标签</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <!-- 日漫、双页模式、非跨页匹配、当前为首页时，首页右侧显示空屏 -->
             <div
@@ -240,6 +386,89 @@
               v-for="item in contentImgList"
               :key="item.name"
             />
+            <div class="pc-scroll-recommend-box">
+              <div class="no-more">— 已加载全部内容 —</div>
+              <p class="more">更多漫画</p>
+              <div class="recommend-item-wrap">
+                <div class="recommend-item">
+                  <div class="cover-image">
+                    <img src="" alt="" />
+                  </div>
+                  <div class="recommend-info">
+                    <span class="name">标题</span>
+                    <span class="type">类型</span>
+                    <div class="tags-wrap">
+                      <div class="tag">标签</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="recommend-item">
+                  <div class="cover-image">
+                    <img src="" alt="" />
+                  </div>
+                  <div class="recommend-info">
+                    <span class="name">标题</span>
+                    <span class="type">类型</span>
+                    <div class="tags-wrap">
+                      <div class="tag">标签</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="recommend-item">
+                  <div class="cover-image">
+                    <img src="" alt="" />
+                  </div>
+                  <div class="recommend-info">
+                    <span class="name">标题</span>
+                    <span class="type">类型</span>
+                    <div class="tags-wrap">
+                      <div class="tag">标签</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="recommend-item">
+                  <div class="cover-image">
+                    <img src="" alt="" />
+                  </div>
+                  <div class="recommend-info">
+                    <span class="name">标题</span>
+                    <span class="type">类型</span>
+                    <div class="tags-wrap">
+                      <div class="tag">标签</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="recommend-item">
+                  <div class="cover-image">
+                    <img src="" alt="" />
+                  </div>
+                  <div class="recommend-info">
+                    <span class="name">标题</span>
+                    <span class="type">类型</span>
+                    <div class="tags-wrap">
+                      <div class="tag">标签</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="recommend-item">
+                  <div class="cover-image">
+                    <img src="" alt="" />
+                  </div>
+                  <div class="recommend-info">
+                    <span class="name">标题</span>
+                    <span class="type">类型</span>
+                    <div class="tags-wrap">
+                      <div class="tag">标签</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </template>
 
@@ -411,11 +640,29 @@
               更改跨页匹配
             </div>
           </div>
+
+          <!-- 跳转 | （上&下）一话 -->
           <div class="jumper">
+            <div
+              v-if="comicInfo.collectionList?.length && currentSortID !== 1"
+              class="jump-chapter ghost-btn"
+              @click="previousChapter()"
+            >
+              上一话
+            </div>
             <input class="page-number" v-model="jumpPage" @keyup.enter="jump()" />
             <div class="page-total">/ {{ contentImgList.length }}</div>
-            <div class="jump ghost-btn" @click="jump()">跳转</div>
+            <div class="jump ghost-btn" @click="jump()">跳转{{ currentSortID }}</div>
+            <div
+              v-if="comicInfo.collectionList?.length && currentSortID !== collectionTotal"
+              class="jump-chapter ghost-btn"
+              @click="nextChapter()"
+            >
+              下一话
+            </div>
           </div>
+
+          <!-- 阅读模式 -->
           <div class="mode ghost-btn" @click="modeMenuShow = !modeMenuShow">
             <i class="freelog fl-icon-shujia1" />
             阅读模式
@@ -524,7 +771,7 @@
 </template>
 
 <script lang="tsx">
-import { defineAsyncComponent, nextTick, onBeforeUnmount, reactive, watch } from "vue";
+import { defineAsyncComponent, nextTick, onBeforeUnmount, reactive, watch, computed } from "vue";
 import { useStore } from "vuex";
 import { Swipe, SwipeItem } from "vant";
 import { toRefs } from "@vue/reactivity";
@@ -772,6 +1019,51 @@ export default {
         data.jumpPage = page;
       },
 
+      // 上一话
+      previousChapter() {
+        const preSortID = currentSortID.value - 1;
+        const filterData = data.comicInfo.collectionList?.filter(
+          i => i.sortId === preSortID
+        ) as CollectionList[];
+        const preSubID = filterData[0].itemId;
+
+        switchPage("/reader", {
+          id: data.comicInfo?.exhibitId,
+          collection: true,
+          subId: preSubID
+        });
+      },
+
+      // 下一话
+      async nextChapter() {
+        const nextSortID = currentSortID.value + 1;
+        let filterData = data.comicInfo.collectionList?.filter(
+          i => i.sortId === nextSortID
+        ) as CollectionList[];
+        let nextSubID = filterData[0].itemId;
+
+        // 获取漫画目录
+        if (!filterData.length) {
+          const { collectionList } = data.comicInfo;
+          const dataList = await getCollectionList(false, collectionList, data.collectionTotal);
+
+          if (Array.isArray(dataList) && Array.isArray(collectionList)) {
+            data.comicInfo.collectionList = [...collectionList, ...dataList];
+          }
+
+          filterData = data.comicInfo.collectionList?.filter(
+            i => i.sortId === nextSortID
+          ) as CollectionList[];
+          nextSubID = filterData[0].itemId;
+        }
+
+        switchPage("/reader", {
+          id: data.comicInfo?.exhibitId,
+          collection: true,
+          subId: nextSubID
+        });
+      },
+
       /** 跳转 */
       jump() {
         let jumpPageNum = Number(String(data.jumpPage).replace(/[^0-9]/g, ""));
@@ -866,7 +1158,7 @@ export default {
       getContent();
     };
 
-    /** 获取漫画内容 */
+    /** 获取漫画目录 */
     const getCollectionList = async (
       init = false,
       currentCollection?: any[],
@@ -913,6 +1205,7 @@ export default {
       const statusInfo = collection
         ? await (freelogApp as any).getCollectionSubAuth(id, { itemIds: updateSubId || subId })
         : await freelogApp.getExhibitAuthStatus(id);
+
       if (statusInfo.data.data) {
         data.comicInfo.defaulterIdentityType = statusInfo.data.data[0].defaulterIdentityType;
       }
@@ -925,6 +1218,7 @@ export default {
               subFilePath: "index.json"
             })
           : await freelogApp.getExhibitFileStream(id, { subFilePath: "index.json" });
+
         if (info.status !== 200 || info.data.list.length === 0) {
           data.loading = false;
           mountShareWidget();
@@ -982,11 +1276,17 @@ export default {
       let currentIndex = 0;
       if (pagingType === "normal") {
         // 普通模式下（从左向右）
-        data.mobilePagingList = [...data.contentImgList];
+        data.mobilePagingList = [
+          ...data.contentImgList,
+          { name: "RecommendFakeUrl", size: 0, url: "RecommendFakeUrl", width: 0, height: 0 }
+        ];
         currentIndex = data.currentPage - 1;
       } else if (pagingType === "manga") {
         // 日漫模式下（从右向左）
-        data.mobilePagingList = [...data.contentImgList].reverse();
+        data.mobilePagingList = [
+          ...data.contentImgList,
+          { name: "RecommendFakeUrl", size: 0, url: "RecommendFakeUrl", width: 0, height: 0 }
+        ].reverse();
         currentIndex = data.mobilePagingList.length - data.currentPage;
       }
       nextTick(() => {
@@ -1082,9 +1382,9 @@ export default {
         data.nextUrl = "";
         const { contentImgList } = data;
         nextTick(() => {
-          data.currentUrl = contentImgList[cur - 1].url;
+          data.currentUrl = contentImgList[cur - 1]?.url || "";
           if (contentImgList[cur]) {
-            data.nextUrl = contentImgList[cur].url;
+            data.nextUrl = contentImgList[cur]?.url || "";
           }
         });
       }
@@ -1127,6 +1427,17 @@ export default {
       }
     );
 
+    const currentSortID = computed(() => {
+      const currentSubID = query.value.subId;
+      const filterData = data.comicInfo.collectionList?.filter(
+        i => i.itemId === currentSubID
+      ) as CollectionList[];
+
+      const targetID = filterData.length && filterData[0].sortId;
+
+      return targetID;
+    });
+
     onBeforeUnmount(async () => {
       if (barShowTimer) {
         clearTimeout(barShowTimer);
@@ -1149,7 +1460,8 @@ export default {
       operateShelf,
       modeMenu,
       ...toRefs(data),
-      ...methods
+      ...methods,
+      currentSortID
     };
   }
 };
