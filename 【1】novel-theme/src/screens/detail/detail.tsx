@@ -255,7 +255,7 @@ const DetailBody = (props: { total: number }) => {
                 className={`btn main-btn mobile
                 ${![0, 4].includes(novel.defaulterIdentityType) && "disabled"}`}
                 onClick={() => {
-                  collectionList.length
+                  collectionList?.length
                     ? history.switchPage(
                         `/reader?collection=${true}&id=${novel.exhibitId}&subId=${
                           collectionList[0].itemId
@@ -373,7 +373,7 @@ const DetailBody = (props: { total: number }) => {
                     className={`btn main-btn 
                     ${![0, 4].includes(novel.defaulterIdentityType) && "disabled"}`}
                     onClick={() => {
-                      collectionList.length
+                      collectionList?.length
                         ? history.switchPage(
                             `/reader?collection=${true}&id=${novel.exhibitId}&subId=${
                               collectionList[0].itemId

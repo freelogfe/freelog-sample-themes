@@ -24,7 +24,6 @@ export const ReaderScreen = (props: any) => {
   const { id } = getUrlParams(props.location.search);
   const { collection } = getUrlParams(props.location.search);
   const { subId } = getUrlParams(props.location.search);
-
   const { inMobile } = useContext(globalContext);
   const myTheme = JSON.parse(localStorage.getItem("theme") || "null");
   const [book, setBook] = useState<ExhibitItem | null>(null);
@@ -38,6 +37,8 @@ export const ReaderScreen = (props: any) => {
   const [modalStatus, setModalStatus] = useState(false);
   const [total, setTotal] = useState<number>(0);
   const [collectionList, setCollectionList] = useState<CollectionList[]>([]);
+  const [currentSortId, setCurrentSortId] = useState<number>(0);
+  const location = useLocation();
   const skip = useRef(0);
   const widgetList = useRef<any>({});
 
@@ -46,7 +47,6 @@ export const ReaderScreen = (props: any) => {
     setLoading(true);
     const exhibitInfo = await freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 });
     const { articleType } = exhibitInfo.data.data.articleInfo;
-    console.log("这里的数据", articleType);
     if (articleType === 2) {
       getCollectionList(true);
     }
@@ -55,7 +55,7 @@ export const ReaderScreen = (props: any) => {
 
   // 获取合集下的单品列表
   const getCollectionList = useCallback(
-    async (init = false) => {
+    async (init = false, skipChapter = 0) => {
       try {
         if (!init && collectionList.length >= total) {
           return;
@@ -64,7 +64,7 @@ export const ReaderScreen = (props: any) => {
         skip.current = init ? 0 : skip.current + 30;
 
         const subList = await freelogApp.getCollectionSubList(id, {
-          skip: skip.current,
+          skip: skipChapter ? skipChapter : skip.current,
           limit: 30
         });
         const { dataList, totalItem } = subList.data.data;
@@ -93,6 +93,15 @@ export const ReaderScreen = (props: any) => {
     },
     [id]
   );
+
+  // 获取单品详细信息
+  const getCollectionInfo = async () => {
+    const res = await freelogApp.getCollectionSubInfo(id, { itemId: subId });
+    const { sortId } = res.data.data;
+
+    getCollectionList(false, sortId - 15 < 0 ? 0 : sortId - 15);
+    setCurrentSortId(sortId);
+  };
 
   /** 加载分享插件 */
   const mountShareWidget = async () => {
@@ -157,7 +166,8 @@ export const ReaderScreen = (props: any) => {
     setWidgetData("share", "show", false);
     if (fontSizePopupShow) setFontSizePopupShow(false);
     if (themePopupShow) setThemePopupShow(false);
-    if (!changeChapterPopupShow) setChangeChapterPopupShow(true);
+    // if (!changeChapterPopupShow) setChangeChapterPopupShow(true);
+    !changeChapterPopupShow ? setChangeChapterPopupShow(true) : setChangeChapterPopupShow(false);
     if (inMobile) setMobileBarShow(true);
   };
 
@@ -177,6 +187,10 @@ export const ReaderScreen = (props: any) => {
     getNovelInfo();
     // eslint-disable-next-line
   }, [id]);
+
+  useEffect(() => {
+    getCollectionInfo();
+  }, [location]);
 
   useEffect(() => {
     setWidgetData("markdown", "fontSize", fontSize);
@@ -211,7 +225,10 @@ export const ReaderScreen = (props: any) => {
     setLoading,
     mountShareWidget,
     mountMarkdownWidget,
-    setWidgetData
+    setWidgetData,
+    currentSortId,
+    total,
+    collectionList
   };
 
   return (
@@ -253,11 +270,34 @@ const ReaderBody = () => {
   const history = useMyHistory();
   const location = useLocation();
   const { userData } = useContext(globalContext);
-  const { inMobile, book, id, collection, subId, theme, mountMarkdownWidget, loading, setLoading } =
-    useContext(readerContext);
+  const {
+    inMobile,
+    book,
+    id,
+    collection,
+    subId,
+    theme,
+    mountMarkdownWidget,
+    loading,
+    setLoading,
+    currentSortId,
+    total,
+    collectionList
+  } = useContext(readerContext);
 
   const [content, setContent] = useState<string>("");
   const [defaulterIdentityType, setDefaulterIdentityType] = useState<number | null>(null);
+
+  const preSubId =
+    (collection &&
+      currentSortId !== 0 &&
+      collectionList.filter(i => i.sortId === currentSortId - 1)[0]?.itemId) ||
+    0;
+  const nextSubId =
+    (collection &&
+      currentSortId !== total &&
+      collectionList.filter(i => i.sortId === currentSortId + 1)[0]?.itemId) ||
+    0;
 
   /** 获取小说内容 */
   const getContent = useCallback(async () => {
@@ -460,9 +500,32 @@ const ReaderBody = () => {
                 } as any
               }
             >
-              <div className="pre disabled">上一章</div>
-              <div className="detail">书籍详情</div>
-              <div className="next">下一章</div>
+              <div
+                className={`pre ${currentSortId === 1 && "disabled"}`}
+                onClick={() => {
+                  history.switchPage(
+                    `/reader?collection=${true}&id=${book.exhibitId}&subId=${preSubId}`
+                  );
+                }}
+              >
+                上一章
+              </div>
+              <div
+                className="detail"
+                onClick={() => history.switchPage(`/detail?id=${book?.exhibitId}`)}
+              >
+                书籍详情
+              </div>
+              <div
+                className={`next ${currentSortId === total && "disabled"}`}
+                onClick={() => {
+                  history.switchPage(
+                    `/reader?collection=${true}&id=${book.exhibitId}&subId=${nextSubId}`
+                  );
+                }}
+              >
+                下一章
+              </div>
             </div>
 
             {/* 更多书籍 */}
@@ -538,12 +601,27 @@ const OperaterBtns = () => {
     setMobileBarShow,
     mountShareWidget,
     setWidgetData,
+    currentSortId,
+    total,
+    collectionList,
     collection
   } = useContext(readerContext);
+  const history = useMyHistory();
   const { isCollected, operateShelf } = useMyShelf(book?.exhibitId);
   const [href, setHref] = useState("");
   let changingFontSize = useRef(false);
   let changingFontSizeTimer = useRef<any>(null);
+
+  const preSubId =
+    (collection &&
+      currentSortId !== 0 &&
+      collectionList.filter(i => i.sortId === currentSortId - 1)[0]?.itemId) ||
+    0;
+  const nextSubId =
+    (collection &&
+      currentSortId !== total &&
+      collectionList.filter(i => i.sortId === currentSortId + 1)[0]?.itemId) ||
+    0;
 
   /** 改变字体大小 */
   const changeFontSize = (type: number) => {
@@ -572,6 +650,7 @@ const OperaterBtns = () => {
     setWidgetData("share", "show", false);
     setFontSizePopupShow(false);
     setThemePopupShow(false);
+    setChangeChapterPopupShow(false);
   };
 
   /** 移动端分享 */
@@ -660,7 +739,8 @@ const OperaterBtns = () => {
         {/* 分享 */}
         <div
           className="operater-btn"
-          onClick={() => {
+          onClick={e => {
+            e.stopPropagation();
             closeAllPopup();
             share();
           }}
@@ -672,7 +752,8 @@ const OperaterBtns = () => {
         {/* 字号 */}
         <div
           className="operater-btn"
-          onClick={() => {
+          onClick={e => {
+            e.stopPropagation();
             closeAllPopup();
             setFontSizePopupShow(true);
           }}
@@ -684,7 +765,9 @@ const OperaterBtns = () => {
         {/* 切换背景颜色 */}
         <div
           className="operater-btn"
-          onClick={() => {
+          onClick={e => {
+            e.stopPropagation();
+
             closeAllPopup();
             setThemePopupShow(true);
           }}
@@ -733,11 +816,27 @@ const OperaterBtns = () => {
         {collection && changeChapterPopupShow && (
           <div className="operater-popup chapter" onClick={() => setChangeChapterPopupShow(false)}>
             <div className="chapter-popup" onClick={e => e.stopPropagation()}>
-              <div className="chapter-label" onClick={() => changeFontSize(0)}>
+              <div
+                className={`chapter-label ${currentSortId === 1 && "disabled"}`}
+                onClick={() => {
+                  history.switchPage(
+                    `/reader?collection=${true}&id=${book.exhibitId}&subId=${preSubId}`
+                  );
+                }}
+              >
                 上一章
               </div>
-              <div className="chapter-value">补充1/{fontSize}</div>
-              <div className="chapter-label" onClick={() => changeFontSize(1)}>
+              <div className="chapter-value">
+                {currentSortId}/{total}
+              </div>
+              <div
+                className={`chapter-label ${currentSortId === total && "disabled"}`}
+                onClick={() => {
+                  history.switchPage(
+                    `/reader?collection=${true}&id=${book.exhibitId}&subId=${nextSubId}`
+                  );
+                }}
+              >
                 下一章
               </div>
             </div>
