@@ -364,12 +364,18 @@
 
       .sub-directory-container {
         padding: 20px 0 19px 0;
+
         .sub {
           display: flex;
           align-items: center;
           justify-content: space-between;
           padding: 14px 0 15px 0;
           border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+          &:hover,
+          &:active {
+            background: rgba(0, 0, 0, 0.02);
+          }
 
           &:nth-child(1) {
             border-top: 1px solid rgba(0, 0, 0, 0.1);
@@ -733,6 +739,12 @@
           color: #222222;
           line-height: 20px;
           border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+          &:hover,
+          &:active {
+            background: rgba(0, 0, 0, 0.02);
+          }
+
           .sub-title {
             cursor: pointer;
           }

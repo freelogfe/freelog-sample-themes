@@ -827,7 +827,8 @@ const OperaterBtns = () => {
                 上一章
               </div>
               <div className="chapter-value">
-                {currentSortId}/{total}
+                <span className="current">{currentSortId}</span>
+                <span className="total">/{total}</span>
               </div>
               <div
                 className={`chapter-label ${currentSortId === total && "disabled"}`}
