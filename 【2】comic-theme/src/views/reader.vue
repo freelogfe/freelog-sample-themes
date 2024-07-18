@@ -652,7 +652,7 @@
             </div>
             <input class="page-number" v-model="jumpPage" @keyup.enter="jump()" />
             <div class="page-total">/ {{ contentImgList.length }}</div>
-            <div class="jump ghost-btn" @click="jump()">跳转{{ currentSortID }}</div>
+            <div class="jump ghost-btn" @click="jump()">跳转</div>
             <div
               v-if="comicInfo.collectionList?.length && currentSortID !== collectionTotal"
               class="jump-chapter ghost-btn"
@@ -1021,11 +1021,13 @@ export default {
 
       // 上一话
       previousChapter() {
-        const preSortID = currentSortID.value - 1;
-        const filterData = data.comicInfo.collectionList?.filter(
-          i => i.sortId === preSortID
-        ) as CollectionList[];
-        const preSubID = filterData[0].itemId;
+        const { collectionList } = data.comicInfo;
+
+        const preSubID =
+          (collection &&
+            currentSortID.value !== 0 &&
+            collectionList?.filter(i => i.sortId === currentSortID.value - 1)[0]?.itemId) ||
+          0;
 
         switchPage("/reader", {
           id: data.comicInfo?.exhibitId,
@@ -1036,26 +1038,13 @@ export default {
 
       // 下一话
       async nextChapter() {
-        const nextSortID = currentSortID.value + 1;
-        let filterData = data.comicInfo.collectionList?.filter(
-          i => i.sortId === nextSortID
-        ) as CollectionList[];
-        let nextSubID = filterData[0].itemId;
+        const { collectionList } = data.comicInfo;
 
-        // 获取漫画目录
-        if (!filterData.length) {
-          const { collectionList } = data.comicInfo;
-          const dataList = await getCollectionList(false, collectionList, data.collectionTotal);
-
-          if (Array.isArray(dataList) && Array.isArray(collectionList)) {
-            data.comicInfo.collectionList = [...collectionList, ...dataList];
-          }
-
-          filterData = data.comicInfo.collectionList?.filter(
-            i => i.sortId === nextSortID
-          ) as CollectionList[];
-          nextSubID = filterData[0].itemId;
-        }
+        const nextSubID =
+          (collection &&
+            currentSortID.value !== data.collectionTotal &&
+            collectionList?.filter(i => i.sortId === currentSortID.value + 1)[0]?.itemId) ||
+          0;
 
         switchPage("/reader", {
           id: data.comicInfo?.exhibitId,
@@ -1138,7 +1127,6 @@ export default {
     /** 获取漫画信息 */
     const getComicInfo = async () => {
       const exhibitInfo = await freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 });
-      let tempCollectionList: CollectionList[] = [];
       let comicMode;
       const { resourceType, articleType } = exhibitInfo.data.data.articleInfo;
 
@@ -1150,29 +1138,25 @@ export default {
         comicMode = 2;
       }
       if (articleType === 2) {
-        const dataList = await getCollectionList(true);
-        tempCollectionList = dataList;
+        getCollectionList(true);
       }
-      data.comicInfo = { ...exhibitInfo.data.data, comicMode, collectionList: tempCollectionList };
+      data.comicInfo = { ...exhibitInfo.data.data, comicMode };
       data.comicMode = comicMode;
       getContent();
     };
 
     /** 获取漫画目录 */
-    const getCollectionList = async (
-      init = false,
-      currentCollection?: any[],
-      currentTotal?: number
-    ) => {
+    const getCollectionList = async (init = false, skipChapter = 0) => {
       try {
-        if (currentCollection && currentCollection.length >= Number(currentTotal)) {
+        const { collectionList } = data.comicInfo;
+        if (!init && (collectionList?.length ?? 0 >= data.collectionTotal)) {
           return;
         }
 
         data.collectionCurrent = init ? 0 : data.collectionCurrent + 30;
 
         const subList = await (freelogApp as any).getCollectionSubList(id, {
-          skip: data.collectionCurrent,
+          skip: skipChapter ? skipChapter : data.collectionCurrent,
           limit: 30
         });
         const { dataList, totalItem } = subList.data.data;
@@ -1191,11 +1175,13 @@ export default {
               }
             });
           }
-          return dataList;
+
+          data.comicInfo.collectionList = collectionList
+            ? [...collectionList, ...dataList]
+            : [...dataList];
         }
       } catch (error) {
         console.error("Failed to get collection list", error);
-        return [];
       }
     };
 
@@ -1267,6 +1253,14 @@ export default {
         // 移动端翻页模式下处理图片顺序
         if (store.state.inMobile) dealListInPagingMobile();
       }
+    };
+
+    // 获取单品详细信息
+    const getCollectionInfo = async () => {
+      const res = await (freelogApp as any).getCollectionSubInfo(id, { itemId: subId });
+      const { sortId } = res.data.data;
+
+      getCollectionList(false, sortId - 15 < 0 ? 0 : sortId - 15);
     };
 
     /** 移动端翻页模式下处理图片顺序 */
@@ -1396,6 +1390,7 @@ export default {
       cur => {
         if (data.comicInfo.collectionList?.length) {
           getContent(cur);
+          getCollectionInfo();
         }
       }
     );
@@ -1410,18 +1405,13 @@ export default {
         const { collectionList } = data.comicInfo;
         nextTick(() => {
           const {
-            scrollTop: modalScrollTop1,
+            scrollTop: modalScrollTop,
             clientHeight: modalClientHeight,
             scrollHeight: modalScrollHeight
           } = useMyScroll("catalogue-box-body");
 
-          if (modalScrollTop1.value + modalClientHeight.value === modalScrollHeight.value) {
-            (async () => {
-              const dataList = await getCollectionList(false, collectionList, data.collectionTotal);
-              if (Array.isArray(dataList) && Array.isArray(collectionList)) {
-                data.comicInfo.collectionList = [...collectionList, ...dataList];
-              }
-            })();
+          if (modalScrollTop.value + modalClientHeight.value === modalScrollHeight.value) {
+            getCollectionList(false);
           }
         });
       }
