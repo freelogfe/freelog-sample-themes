@@ -1402,7 +1402,6 @@ export default {
         if (!cur) {
           return;
         }
-        const { collectionList } = data.comicInfo;
         nextTick(() => {
           const {
             scrollTop: modalScrollTop,
