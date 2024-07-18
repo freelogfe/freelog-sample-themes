@@ -24,17 +24,19 @@ export const DetailScreen = (props: any) => {
   const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
   const { id } = getUrlParams(props.location.search);
   const [novel, setNovel] = useState<ExhibitItem | null>(null);
-  const [showCollectionList, setShowCollectionList] = useState<boolean>(false);
   const [total, setTotal] = useState<number>(0);
   const skip = useRef(0);
 
   // 获取合集下的单品列表
   const getCollectionList = useCallback(
-    async (currentNovel?: ExhibitItem | null, currentTotal?: number) => {
+    async (init = false) => {
       try {
-        if (currentNovel && currentNovel.collectionList.length >= Number(currentTotal)) {
+        if (!init && (novel?.collectionList?.length ?? 0) >= total) {
           return;
         }
+
+        skip.current = init ? 0 : skip.current + 30;
+
         const subList = await freelogApp.getCollectionSubList(id, {
           skip: skip.current,
           limit: 30
@@ -55,11 +57,14 @@ export const DetailScreen = (props: any) => {
               }
             });
           }
-          return dataList;
+
+          setNovel((pre: any) => ({
+            ...pre,
+            collectionList: pre?.collectionList ? [...pre?.collectionList, ...dataList] : dataList
+          }));
         }
       } catch (error) {
         console.error("Failed to get collection list", error);
-        return [];
       }
     },
     [id]
@@ -75,18 +80,14 @@ export const DetailScreen = (props: any) => {
       ]);
 
       const articleType = exhibitInfo.data.data.articleInfo.articleType;
-      let tempCollectionList = [];
       if (articleType === 2) {
-        setShowCollectionList(true);
-        const dataList = await getCollectionList();
-        tempCollectionList = dataList;
+        getCollectionList(true);
       }
 
       const bookInfo = {
         ...exhibitInfo.data.data,
         signCount: signCountData.data.data[0]?.count ?? 0,
-        defaulterIdentityType: statusInfo.data.data[0]?.defaulterIdentityType ?? null,
-        collectionList: tempCollectionList
+        defaulterIdentityType: statusInfo.data.data[0]?.defaulterIdentityType ?? null
       };
 
       setNovel(bookInfo);
@@ -102,20 +103,8 @@ export const DetailScreen = (props: any) => {
   }, []);
 
   useEffect(() => {
-    if (showCollectionList && scrollTop + clientHeight === scrollHeight) {
-      skip.current = skip.current + 30;
-
-      (async () => {
-        const dataList = await getCollectionList(novel, total);
-        if (Array.isArray(dataList)) {
-          setNovel((pre: any) => {
-            return {
-              ...pre,
-              collectionList: [...pre.collectionList, ...dataList]
-            };
-          });
-        }
-      })();
+    if (novel?.collectionList?.length && scrollTop + clientHeight === scrollHeight) {
+      getCollectionList(false);
     }
   }, [scrollTop, clientHeight, scrollHeight]);
 

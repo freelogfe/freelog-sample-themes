@@ -10,7 +10,7 @@ import { showToast } from "../../components/toast/toast";
 import { Loader } from "../../components/loader/loader";
 import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
 import { getUrlParams } from "../../utils/common";
-import { ExhibitItem, ThemeItem } from "../../api/interface";
+import { CollectionList, ExhibitItem, ThemeItem } from "../../api/interface";
 import { readerThemeList } from "../../api/data";
 import Lock from "../../assets/images/lock.png";
 import BgImage from "../../assets/images/reader-bg.png";
@@ -32,17 +32,67 @@ export const ReaderScreen = (props: any) => {
   const [theme, setTheme] = useState<ThemeItem>(myTheme?.bgColor ? myTheme : readerThemeList[0]);
   const [fontSizePopupShow, setFontSizePopupShow] = useState(false);
   const [themePopupShow, setThemePopupShow] = useState(false);
+  const [changeChapterPopupShow, setChangeChapterPopupShow] = useState<boolean>(false);
   const [mobileBarShow, setMobileBarShow] = useState(true);
   const [loading, setLoading] = useState(true);
   const [modalStatus, setModalStatus] = useState(false);
+  const [total, setTotal] = useState<number>(0);
+  const [collectionList, setCollectionList] = useState<CollectionList[]>([]);
+  const skip = useRef(0);
   const widgetList = useRef<any>({});
 
   /** 获取小说信息 */
   const getNovelInfo = useCallback(async () => {
     setLoading(true);
     const exhibitInfo = await freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 });
+    const { articleType } = exhibitInfo.data.data.articleInfo;
+    console.log("这里的数据", articleType);
+    if (articleType === 2) {
+      getCollectionList(true);
+    }
     setBook(exhibitInfo.data.data);
   }, [id]);
+
+  // 获取合集下的单品列表
+  const getCollectionList = useCallback(
+    async (init = false) => {
+      try {
+        if (!init && collectionList.length >= total) {
+          return;
+        }
+
+        skip.current = init ? 0 : skip.current + 30;
+
+        const subList = await freelogApp.getCollectionSubList(id, {
+          skip: skip.current,
+          limit: 30
+        });
+        const { dataList, totalItem } = subList.data.data;
+        setTotal(totalItem);
+
+        if (dataList.length !== 0) {
+          const ids = dataList.map(item => item.itemId).join();
+          const statusInfo = await freelogApp.getCollectionSubAuth(id, { itemIds: ids });
+          if (statusInfo.data.data) {
+            (dataList as CollectionList[]).forEach(item => {
+              const index = statusInfo.data.data.findIndex(
+                (resultItem: { itemId: string }) => resultItem.itemId === item.itemId
+              );
+              if (index !== -1) {
+                item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+              }
+            });
+          }
+          // return dataList;
+
+          setCollectionList(pre => [...pre, ...dataList]);
+        }
+      } catch (error) {
+        console.error("Failed to get collection list", error);
+      }
+    },
+    [id]
+  );
 
   /** 加载分享插件 */
   const mountShareWidget = async () => {
@@ -107,6 +157,7 @@ export const ReaderScreen = (props: any) => {
     setWidgetData("share", "show", false);
     if (fontSizePopupShow) setFontSizePopupShow(false);
     if (themePopupShow) setThemePopupShow(false);
+    if (!changeChapterPopupShow) setChangeChapterPopupShow(true);
     if (inMobile) setMobileBarShow(true);
   };
 
@@ -152,6 +203,8 @@ export const ReaderScreen = (props: any) => {
     setFontSizePopupShow,
     themePopupShow,
     setThemePopupShow,
+    changeChapterPopupShow,
+    setChangeChapterPopupShow,
     mobileBarShow,
     setMobileBarShow,
     loading,
@@ -178,12 +231,16 @@ export const ReaderScreen = (props: any) => {
         </CSSTransition>
         <ReaderBody />
         <OperaterBtns />
+
         {/* 目录弹窗 */}
         {modalStatus && (
           <CatalogueModal
             modalStatus
-            closeCatalogueModal={() => setModalStatus(false)}
             book={book}
+            collectionList={collectionList}
+            total={total}
+            closeCatalogueModal={() => setModalStatus(false)}
+            getCollectionList={getCollectionList}
           />
         )}
       </div>
@@ -217,7 +274,7 @@ const ReaderBody = () => {
     if (authErrType === 0) {
       // 已签约并且授权链无异常
       const info: any = collection
-        ? await freelogApp.getCollectionSubFileStream(id, subId)
+        ? await freelogApp.getCollectionSubFileStream(id, { itemId: subId })
         : await freelogApp.getExhibitFileStream(id);
       if (!info) {
         setLoading(false);
@@ -267,7 +324,12 @@ const ReaderBody = () => {
           } as any
         }
       >
-        {defaulterIdentityType === 0 && <div id="markdown" />}
+        {defaulterIdentityType === 0 && (
+          <React.Fragment>
+            <div id="markdown" />
+            {collection && <div className="no-more">— 已加载全部章节 —</div>}
+          </React.Fragment>
+        )}
         {![null, 0, 4].includes(defaulterIdentityType) ? (
           <div className="auth-box">
             <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
@@ -286,6 +348,59 @@ const ReaderBody = () => {
             </div>
           </div>
         ) : null}
+
+        {/* 合集-上一章节-下一章节 */}
+        {collection && (
+          <React.Fragment>
+            {/* 更多书籍 */}
+            <div className="more">更多书籍</div>
+            <div className="recommend-box">
+              <div className="recommend-item">
+                <div className="cover-image">
+                  <img src="" alt="" />
+                </div>
+
+                <div className="recommend-info">
+                  <span className="title">Title</span>
+                  <span className="name">Name</span>
+                </div>
+              </div>
+
+              <div className="recommend-item">
+                <div className="cover-image">
+                  <img src="" alt="" />
+                </div>
+
+                <div className="recommend-info">
+                  <span className="title">Title</span>
+                  <span className="name">Name</span>
+                </div>
+              </div>
+
+              <div className="recommend-item">
+                <div className="cover-image">
+                  <img src="" alt="" />
+                </div>
+
+                <div className="recommend-info">
+                  <span className="title">Title</span>
+                  <span className="name">Name</span>
+                </div>
+              </div>
+
+              <div className="recommend-item">
+                <div className="cover-image">
+                  <img src="" alt="" />
+                </div>
+
+                <div className="recommend-info">
+                  <span className="title">Title</span>
+                  <span className="name">Name</span>
+                </div>
+              </div>
+            </div>
+          </React.Fragment>
+        )}
       </div>
     );
   } else if (inMobile === false) {
@@ -299,7 +414,7 @@ const ReaderBody = () => {
             </div>
           </div>
         </div>
-
+        {/* 内容 */}
         <div
           className={`content ${theme?.type === 1 ? "dark" : "light"}`}
           style={
@@ -309,7 +424,12 @@ const ReaderBody = () => {
             } as any
           }
         >
-          {defaulterIdentityType === 0 && <div id="markdown" />}
+          {defaulterIdentityType === 0 && (
+            <React.Fragment>
+              <div id="markdown" />
+              {collection && <div className="no-more">— 已加载全部章节 —</div>}
+            </React.Fragment>
+          )}
           {![null, 0, 4].includes(defaulterIdentityType) ? (
             <div className="auth-box">
               <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
@@ -329,6 +449,67 @@ const ReaderBody = () => {
             </div>
           ) : null}
         </div>
+        {/* 合集-上一章节-下一章节 */}
+        {collection && (
+          <React.Fragment>
+            <div
+              className="pre-next-chapter"
+              style={
+                {
+                  backgroundColor: theme?.bookColor
+                } as any
+              }
+            >
+              <div className="pre disabled">上一章</div>
+              <div className="detail">书籍详情</div>
+              <div className="next">下一章</div>
+            </div>
+
+            {/* 更多书籍 */}
+            <div className="more">更多书籍</div>
+            <div className="recommend-box">
+              <div className="recommend-item">
+                <div className="cover-image">
+                  <img src="" alt="" />
+                </div>
+
+                <div className="recommend-info">
+                  <span className="title">Title</span>
+                  <span className="name">Name</span>
+                  <div className="tags-wrap">
+                    <div className="tag">外国文学</div>
+                  </div>
+                </div>
+              </div>
+              <div className="recommend-item">
+                <div className="cover-image">
+                  <img src="" alt="" />
+                </div>
+
+                <div className="recommend-info">
+                  <span className="title">Title</span>
+                  <span className="name">Name</span>
+                  <div className="tags-wrap">
+                    <div className="tag">外国文学</div>
+                  </div>
+                </div>
+              </div>
+              <div className="recommend-item">
+                <div className="cover-image">
+                  <img src="" alt="" />
+                </div>
+
+                <div className="recommend-info">
+                  <span className="title">Title</span>
+                  <span className="name">Name</span>
+                  <div className="tags-wrap">
+                    <div className="tag">外国文学</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </React.Fragment>
+        )}
       </div>
     );
   } else {
@@ -351,10 +532,13 @@ const OperaterBtns = () => {
     setFontSizePopupShow,
     themePopupShow,
     setThemePopupShow,
+    changeChapterPopupShow,
+    setChangeChapterPopupShow,
     mobileBarShow,
     setMobileBarShow,
     mountShareWidget,
-    setWidgetData
+    setWidgetData,
+    collection
   } = useContext(readerContext);
   const { isCollected, operateShelf } = useMyShelf(book?.exhibitId);
   const [href, setHref] = useState("");
@@ -414,8 +598,14 @@ const OperaterBtns = () => {
     setWidgetData("share", "show", false);
     if (fontSizePopupShow) setFontSizePopupShow(false);
     if (themePopupShow) setThemePopupShow(false);
-    if (scrollTop === 0 && !mobileBarShow) setMobileBarShow(true);
-    if (scrollTop !== 0 && mobileBarShow) setMobileBarShow(false);
+    if (scrollTop === 0 && !mobileBarShow) {
+      setMobileBarShow(true);
+      setChangeChapterPopupShow(true);
+    }
+    if (scrollTop !== 0 && mobileBarShow) {
+      setMobileBarShow(false);
+      setChangeChapterPopupShow(false);
+    }
     // eslint-disable-next-line
   }, [scrollTop]);
 
@@ -429,16 +619,18 @@ const OperaterBtns = () => {
     <CSSTransition in={mobileBarShow} classNames="slide-down" timeout={150} unmountOnExit>
       <div className="mobile-operater-wrapper">
         {/* 目录 */}
-        <div
-          className="operater-btn"
-          onClick={() => {
-            closeAllPopup();
-            setModalStatus(true);
-          }}
-        >
-          <i className="freelog fl-icon-xiaoshuomulu"></i>
-          <div className="operater-btn-label">目录</div>
-        </div>
+        {collection && (
+          <div
+            className="operater-btn"
+            onClick={() => {
+              closeAllPopup();
+              setModalStatus(true);
+            }}
+          >
+            <i className="freelog fl-icon-xiaoshuomulu"></i>
+            <div className="operater-btn-label">目录</div>
+          </div>
+        )}
 
         {/* 收藏 */}
         {isCollected ? (
@@ -537,6 +729,21 @@ const OperaterBtns = () => {
           </div>
         )}
 
+        {/* 上一章 | 下一章 */}
+        {collection && changeChapterPopupShow && (
+          <div className="operater-popup chapter" onClick={() => setChangeChapterPopupShow(false)}>
+            <div className="chapter-popup" onClick={e => e.stopPropagation()}>
+              <div className="chapter-label" onClick={() => changeFontSize(0)}>
+                上一章
+              </div>
+              <div className="chapter-value">补充1/{fontSize}</div>
+              <div className="chapter-label" onClick={() => changeFontSize(1)}>
+                下一章
+              </div>
+            </div>
+          </div>
+        )}
+
         <input id="href" className="hidden-input" value={href} readOnly />
       </div>
     </CSSTransition>
@@ -545,13 +752,15 @@ const OperaterBtns = () => {
     <div className="operater-wrapper">
       <div className="operater-btns-box">
         {/* 目录 */}
-        <OperateBtn
-          icon="fl-icon-xiaoshuomulu"
-          onClick={() => {
-            closeAllPopup();
-            setModalStatus(true);
-          }}
-        />
+        {collection && (
+          <OperateBtn
+            icon="fl-icon-xiaoshuomulu"
+            onClick={() => {
+              closeAllPopup();
+              setModalStatus(true);
+            }}
+          />
+        )}
 
         {/* 收藏 */}
         {isCollected ? (

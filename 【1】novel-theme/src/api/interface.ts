@@ -16,7 +16,7 @@ export interface CollectionList {
 export interface ExhibitItem extends ExhibitInfo {
   signCount?: number;
   defaulterIdentityType?: number;
-  collectionList: CollectionList[];
+  collectionList?: CollectionList[];
 }
 
 /** 主题 */
