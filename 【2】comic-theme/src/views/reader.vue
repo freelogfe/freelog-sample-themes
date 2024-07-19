@@ -1199,7 +1199,7 @@ export default {
       if (data.comicInfo.defaulterIdentityType === 0) {
         // 已签约并且授权链无异常
         const info = collection
-          ? await (freelogApp as any).getCollectionSubInsideFile(id, {
+          ? await (freelogApp as any).getCollectionSubFileStream(id, {
               itemId: updateSubId || subId,
               subFilePath: "index.json"
             })
@@ -1214,7 +1214,7 @@ export default {
         const requestList: Promise<any>[] = [];
         info.data.list.forEach((item: ContentImage) => {
           const request = collection
-            ? (freelogApp as any).getCollectionSubInsideFile(id, {
+            ? (freelogApp as any).getCollectionSubFileStream(id, {
                 itemId: updateSubId || subId,
                 subFilePath: item.name,
                 returnUrl: true
