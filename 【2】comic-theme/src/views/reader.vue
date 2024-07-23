@@ -39,47 +39,17 @@
 
                   <p class="more">更多漫画</p>
                   <div class="recommend-item-wrap">
-                    <div class="recommend-item">
+                    <div
+                      class="recommend-item"
+                      v-for="item in recommendList.slice(0, 6)"
+                      :key="item.exhibitId"
+                      @click="toDetailFromRecommend(item.exhibitId)"
+                    >
                       <div class="cover-image">
-                        <img src="" alt="" />
+                        <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
                       </div>
-                      <span class="title">标题</span>
-                      <span class="name">名字</span>
-                    </div>
-                    <div class="recommend-item">
-                      <div class="cover-image">
-                        <img src="" alt="" />
-                      </div>
-                      <span class="title">标题</span>
-                      <span class="name">名字</span>
-                    </div>
-                    <div class="recommend-item">
-                      <div class="cover-image">
-                        <img src="" alt="" />
-                      </div>
-                      <span class="title">标题</span>
-                      <span class="name">名字</span>
-                    </div>
-                    <div class="recommend-item">
-                      <div class="cover-image">
-                        <img src="" alt="" />
-                      </div>
-                      <span class="title">标题</span>
-                      <span class="name">名字</span>
-                    </div>
-                    <div class="recommend-item">
-                      <div class="cover-image">
-                        <img src="" alt="" />
-                      </div>
-                      <span class="title">标题</span>
-                      <span class="name">名字</span>
-                    </div>
-                    <div class="recommend-item">
-                      <div class="cover-image">
-                        <img src="" alt="" />
-                      </div>
-                      <span class="title">标题</span>
-                      <span class="name">名字</span>
+                      <span class="title">{{ item.exhibitTitle }}</span>
+                      <span class="name">{{ item.articleInfo?.articleOwnerName }}</span>
                     </div>
                   </div>
                 </div>
@@ -102,47 +72,17 @@
 
               <p class="more">更多漫画</p>
               <div class="recommend-item-wrap">
-                <div class="recommend-item">
+                <div
+                  class="recommend-item"
+                  v-for="item in recommendList.slice(0, 6)"
+                  :key="item.exhibitId"
+                  @click="toDetailFromRecommend(item.exhibitId)"
+                >
                   <div class="cover-image">
-                    <img src="" alt="" />
+                    <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
                   </div>
-                  <span class="title">标题</span>
-                  <span class="name">名字</span>
-                </div>
-                <div class="recommend-item">
-                  <div class="cover-image">
-                    <img src="" alt="" />
-                  </div>
-                  <span class="title">标题</span>
-                  <span class="name">名字</span>
-                </div>
-                <div class="recommend-item">
-                  <div class="cover-image">
-                    <img src="" alt="" />
-                  </div>
-                  <span class="title">标题</span>
-                  <span class="name">名字</span>
-                </div>
-                <div class="recommend-item">
-                  <div class="cover-image">
-                    <img src="" alt="" />
-                  </div>
-                  <span class="title">标题</span>
-                  <span class="name">名字</span>
-                </div>
-                <div class="recommend-item">
-                  <div class="cover-image">
-                    <img src="" alt="" />
-                  </div>
-                  <span class="title">标题</span>
-                  <span class="name">名字</span>
-                </div>
-                <div class="recommend-item">
-                  <div class="cover-image">
-                    <img src="" alt="" />
-                  </div>
-                  <span class="title">标题</span>
-                  <span class="name">名字</span>
+                  <span class="title">{{ item.exhibitTitle }}</span>
+                  <span class="name">{{ item.articleInfo?.articleOwnerName }}</span>
                 </div>
               </div>
             </div>
@@ -272,15 +212,27 @@
               <div class="recommend-box">
                 <div class="no-more">— 已加载全部内容 —</div>
                 <p class="more">更多漫画</p>
-                <div class="recommend-item">
+                <div
+                  class="recommend-item"
+                  v-for="item in recommendList.slice(0, 4)"
+                  :key="item.exhibitId"
+                  @click="toDetailFromRecommend(item.exhibitId)"
+                >
                   <div class="cover-image">
-                    <img src="" alt="" />
+                    <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
                   </div>
                   <div class="recommend-info">
-                    <span class="name">标题</span>
-                    <span class="type">类型</span>
+                    <span class="name">{{ item.exhibitTitle }}</span>
+                    <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
                     <div class="tags-wrap">
-                      <div class="tag">标签</div>
+                      <div
+                        class="tag"
+                        v-for="(tag, index) in item.tags"
+                        :key="index"
+                        @click.stop="searchTag(tag)"
+                      >
+                        {{ tag }}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -306,6 +258,34 @@
               v-if="currentUrl"
             >
               <img class="content-image" :src="currentUrl" />
+              <!-- 单页-推荐 -->
+              <div class="recommend-box" v-if="!nextUrl && mode[1] === 'single'">
+                <div class="no-more">— 已加载全部内容 —</div>
+                <p class="more">更多漫画</p>
+                <div
+                  class="recommend-item"
+                  v-for="item in recommendList.slice(0, 4)"
+                  :key="item.exhibitId"
+                >
+                  <div class="cover-image">
+                    <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                  </div>
+                  <div class="recommend-info">
+                    <span class="name">{{ item.exhibitTitle }}</span>
+                    <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
+                    <div class="tags-wrap">
+                      <div
+                        class="tag"
+                        v-for="(tag, index) in item.tags"
+                        :key="index"
+                        @click.stop="searchTag(tag)"
+                      >
+                        {{ tag }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <!-- 条漫/页漫、双页模式、跨页匹配/非跨页匹配且当前不为首页、当前页不为尾页时，当前页右侧显示下一页 -->
             <div
@@ -333,15 +313,27 @@
               <div class="recommend-box">
                 <div class="no-more">— 已加载全部内容 —</div>
                 <p class="more">更多漫画</p>
-                <div class="recommend-item">
+                <div
+                  class="recommend-item"
+                  v-for="item in recommendList.slice(0, 4)"
+                  :key="item.exhibitId"
+                  @click="toDetailFromRecommend(item.exhibitId)"
+                >
                   <div class="cover-image">
-                    <img src="" alt="" />
+                    <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
                   </div>
                   <div class="recommend-info">
-                    <span class="name">标题</span>
-                    <span class="type">类型</span>
+                    <span class="name">{{ item.exhibitTitle }}</span>
+                    <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
                     <div class="tags-wrap">
-                      <div class="tag">标签</div>
+                      <div
+                        class="tag"
+                        v-for="(tag, index) in item.tags"
+                        :key="index"
+                        @click.stop="searchTag(tag)"
+                      >
+                        {{ tag }}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -390,80 +382,27 @@
               <div class="no-more">— 已加载全部内容 —</div>
               <p class="more">更多漫画</p>
               <div class="recommend-item-wrap">
-                <div class="recommend-item">
+                <div
+                  class="recommend-item"
+                  v-for="item in recommendList.slice(0, 6)"
+                  :key="item.exhibitId"
+                  @click="toDetailFromRecommend(item.exhibitId)"
+                >
                   <div class="cover-image">
-                    <img src="" alt="" />
+                    <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
                   </div>
                   <div class="recommend-info">
-                    <span class="name">标题</span>
-                    <span class="type">类型</span>
+                    <span class="name">{{ item.exhibitTitle }}</span>
+                    <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
                     <div class="tags-wrap">
-                      <div class="tag">标签</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="recommend-item">
-                  <div class="cover-image">
-                    <img src="" alt="" />
-                  </div>
-                  <div class="recommend-info">
-                    <span class="name">标题</span>
-                    <span class="type">类型</span>
-                    <div class="tags-wrap">
-                      <div class="tag">标签</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="recommend-item">
-                  <div class="cover-image">
-                    <img src="" alt="" />
-                  </div>
-                  <div class="recommend-info">
-                    <span class="name">标题</span>
-                    <span class="type">类型</span>
-                    <div class="tags-wrap">
-                      <div class="tag">标签</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="recommend-item">
-                  <div class="cover-image">
-                    <img src="" alt="" />
-                  </div>
-                  <div class="recommend-info">
-                    <span class="name">标题</span>
-                    <span class="type">类型</span>
-                    <div class="tags-wrap">
-                      <div class="tag">标签</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="recommend-item">
-                  <div class="cover-image">
-                    <img src="" alt="" />
-                  </div>
-                  <div class="recommend-info">
-                    <span class="name">标题</span>
-                    <span class="type">类型</span>
-                    <div class="tags-wrap">
-                      <div class="tag">标签</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="recommend-item">
-                  <div class="cover-image">
-                    <img src="" alt="" />
-                  </div>
-                  <div class="recommend-info">
-                    <span class="name">标题</span>
-                    <span class="type">类型</span>
-                    <div class="tags-wrap">
-                      <div class="tag">标签</div>
+                      <div
+                        class="tag"
+                        v-for="(tag, index) in item.tags"
+                        :key="index"
+                        @click.stop="searchTag(tag)"
+                      >
+                        {{ tag }}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -854,7 +793,8 @@ export default {
       shareWidget: null as WidgetController | null,
       catalogueModal: false,
       collectionCurrent: 0,
-      collectionTotal: 0
+      collectionTotal: 0,
+      recommendList: [] as ExhibitItem[]
     });
 
     const methods = {
@@ -1021,6 +961,8 @@ export default {
 
       // 上一话
       previousChapter() {
+        data.currentPage = 1;
+        data.jumpPage = 1;
         const { collectionList } = data.comicInfo;
 
         const preSubID =
@@ -1038,6 +980,8 @@ export default {
 
       // 下一话
       async nextChapter() {
+        data.currentPage = 1;
+        data.jumpPage = 1;
         const { collectionList } = data.comicInfo;
 
         const nextSubID =
@@ -1121,6 +1065,19 @@ export default {
       /** 控制分享弹窗显示 */
       setShareWidgetShow(value: boolean) {
         data.shareWidget?.setData({ show: value });
+      },
+
+      /** 跳转详情 */
+      toDetailFromRecommend(exhibitId: string) {
+        switchPage("/detail", {
+          id: exhibitId
+        });
+      },
+
+      /** 搜索标签 */
+      searchTag(tag: string) {
+        const query: { tags: string } = { tags: tag };
+        switchPage("/home", query);
       }
     };
 
@@ -1143,6 +1100,7 @@ export default {
       data.comicInfo = { ...exhibitInfo.data.data, comicMode };
       data.comicMode = comicMode;
       getContent();
+      getRecommendList();
     };
 
     /** 获取漫画目录 */
@@ -1252,6 +1210,19 @@ export default {
         if (comicReadMode) data.mode = JSON.parse(comicReadMode);
         // 移动端翻页模式下处理图片顺序
         if (store.state.inMobile) dealListInPagingMobile();
+      }
+    };
+
+    /** 获取推荐列表 */
+    const getRecommendList = async () => {
+      const res = await (freelogApp as any).getExhibitRecommend(id, {
+        recommendNorm: "resourceType",
+        size: 10
+      });
+      const { data: recommendData } = res.data;
+
+      if (recommendData.length !== 0) {
+        data.recommendList = recommendData;
       }
     };
 
@@ -1392,6 +1363,13 @@ export default {
           getContent(cur);
           getCollectionInfo();
         }
+      }
+    );
+
+    watch(
+      () => query.value.id,
+      () => {
+        getComicInfo();
       }
     );
 

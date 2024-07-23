@@ -38,6 +38,7 @@ export const ReaderScreen = (props: any) => {
   const [total, setTotal] = useState<number>(0);
   const [collectionList, setCollectionList] = useState<CollectionList[]>([]);
   const [currentSortId, setCurrentSortId] = useState<number>(0);
+  const [recommendList, setRecommendList] = useState<ExhibitItem[]>([]);
   const location = useLocation();
   const skip = useRef(0);
   const widgetList = useRef<any>({});
@@ -50,6 +51,7 @@ export const ReaderScreen = (props: any) => {
     if (articleType === 2) {
       getCollectionList(true);
     }
+    getRecommendList();
     setBook(exhibitInfo.data.data);
   }, [id]);
 
@@ -93,6 +95,18 @@ export const ReaderScreen = (props: any) => {
     },
     [id]
   );
+
+  /** 获取推荐列表 */
+  const getRecommendList = async () => {
+    const res = await freelogApp.getExhibitRecommend(id, {
+      recommendNorm: "resourceType",
+      size: 10
+    });
+    const { data: recommendData } = res.data;
+    const sliceData = recommendData.slice(0, 6);
+
+    setRecommendList(sliceData);
+  };
 
   // 获取单品详细信息
   const getCollectionInfo = async () => {
@@ -228,7 +242,8 @@ export const ReaderScreen = (props: any) => {
     setWidgetData,
     currentSortId,
     total,
-    collectionList
+    collectionList,
+    recommendList
   };
 
   return (
@@ -282,7 +297,8 @@ const ReaderBody = () => {
     setLoading,
     currentSortId,
     total,
-    collectionList
+    collectionList,
+    recommendList
   } = useContext(readerContext);
 
   const [content, setContent] = useState<string>("");
@@ -337,6 +353,11 @@ const ReaderBody = () => {
     if (status === 0) getContent();
   };
 
+  /** 跳转详情 */
+  const toDetailFromRecommend = (exhibitId: string) => {
+    history.switchPage(`/detail?id=${exhibitId}`);
+  };
+
   useEffect(() => {
     getContent();
     // eslint-disable-next-line
@@ -388,56 +409,52 @@ const ReaderBody = () => {
             </div>
           </div>
         ) : null}
+        {/* 更多书籍 */}
+        <div className="more">更多书籍</div>
+        <div className="recommend-box">
+          {recommendList.map((item: ExhibitItem) => {
+            return (
+              <div
+                className="recommend-item"
+                key={item.exhibitId}
+                onClick={() => toDetailFromRecommend(item.exhibitId)}
+              >
+                <div className="cover-image">
+                  <img src={item.coverImages[0]} alt={item.exhibitTitle} />
+                </div>
 
+                <div className="recommend-info">
+                  <span className="title">{item.exhibitTitle}</span>
+                  <span className="name">{item?.articleInfo?.articleOwnerName}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
         {/* 合集-上一章节-下一章节 */}
         {collection && (
           <React.Fragment>
             {/* 更多书籍 */}
             <div className="more">更多书籍</div>
             <div className="recommend-box">
-              <div className="recommend-item">
-                <div className="cover-image">
-                  <img src="" alt="" />
-                </div>
+              {recommendList.map((item: ExhibitItem) => {
+                return (
+                  <div
+                    className="recommend-item"
+                    key={item.exhibitId}
+                    onClick={() => toDetailFromRecommend(item.exhibitId)}
+                  >
+                    <div className="cover-image">
+                      <img src={item.coverImages[0]} alt={item.exhibitTitle} />
+                    </div>
 
-                <div className="recommend-info">
-                  <span className="title">Title</span>
-                  <span className="name">Name</span>
-                </div>
-              </div>
-
-              <div className="recommend-item">
-                <div className="cover-image">
-                  <img src="" alt="" />
-                </div>
-
-                <div className="recommend-info">
-                  <span className="title">Title</span>
-                  <span className="name">Name</span>
-                </div>
-              </div>
-
-              <div className="recommend-item">
-                <div className="cover-image">
-                  <img src="" alt="" />
-                </div>
-
-                <div className="recommend-info">
-                  <span className="title">Title</span>
-                  <span className="name">Name</span>
-                </div>
-              </div>
-
-              <div className="recommend-item">
-                <div className="cover-image">
-                  <img src="" alt="" />
-                </div>
-
-                <div className="recommend-info">
-                  <span className="title">Title</span>
-                  <span className="name">Name</span>
-                </div>
-              </div>
+                    <div className="recommend-info">
+                      <span className="title">{item.exhibitTitle}</span>
+                      <span className="name">{item?.articleInfo?.articleOwnerName}</span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </React.Fragment>
         )}
@@ -489,6 +506,43 @@ const ReaderBody = () => {
             </div>
           ) : null}
         </div>
+        <div className="more">更多书籍</div>
+        <div className="recommend-box">
+          {recommendList.map((item: ExhibitItem) => {
+            return (
+              <div
+                className="recommend-item"
+                key={item.exhibitId}
+                onClick={() => toDetailFromRecommend(item.exhibitId)}
+              >
+                <div className="cover-image">
+                  <img src={item.coverImages[0]} alt={item.exhibitTitle} />
+                </div>
+
+                <div className="recommend-info">
+                  <span className="title">{item.exhibitTitle}</span>
+                  <span className="name">{item?.articleInfo?.articleOwnerName}</span>
+                  <div className="tags-wrap">
+                    {item.tags.map((tag: string, index: number) => {
+                      return (
+                        <div
+                          className="tag"
+                          key={index}
+                          onClick={e => {
+                            e.stopPropagation();
+                            history.switchPage(`/home?tags=${tag}`);
+                          }}
+                        >
+                          {tag}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
         {/* 合集-上一章节-下一章节 */}
         {collection && (
           <React.Fragment>
@@ -531,45 +585,40 @@ const ReaderBody = () => {
             {/* 更多书籍 */}
             <div className="more">更多书籍</div>
             <div className="recommend-box">
-              <div className="recommend-item">
-                <div className="cover-image">
-                  <img src="" alt="" />
-                </div>
+              {recommendList.map((item: ExhibitItem) => {
+                return (
+                  <div
+                    className="recommend-item"
+                    key={item.exhibitId}
+                    onClick={() => toDetailFromRecommend(item.exhibitId)}
+                  >
+                    <div className="cover-image">
+                      <img src={item.coverImages[0]} alt={item.exhibitTitle} />
+                    </div>
 
-                <div className="recommend-info">
-                  <span className="title">Title</span>
-                  <span className="name">Name</span>
-                  <div className="tags-wrap">
-                    <div className="tag">外国文学</div>
+                    <div className="recommend-info">
+                      <span className="title">{item.exhibitTitle}</span>
+                      <span className="name">{item?.articleInfo?.articleOwnerName}</span>
+                      <div className="tags-wrap">
+                        {item.tags.map((tag: string, index: number) => {
+                          return (
+                            <div
+                              className="tag"
+                              key={index}
+                              onClick={e => {
+                                e.stopPropagation();
+                                history.switchPage(`/home?tags=${tag}`);
+                              }}
+                            >
+                              {tag}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div className="recommend-item">
-                <div className="cover-image">
-                  <img src="" alt="" />
-                </div>
-
-                <div className="recommend-info">
-                  <span className="title">Title</span>
-                  <span className="name">Name</span>
-                  <div className="tags-wrap">
-                    <div className="tag">外国文学</div>
-                  </div>
-                </div>
-              </div>
-              <div className="recommend-item">
-                <div className="cover-image">
-                  <img src="" alt="" />
-                </div>
-
-                <div className="recommend-info">
-                  <span className="title">Title</span>
-                  <span className="name">Name</span>
-                  <div className="tags-wrap">
-                    <div className="tag">外国文学</div>
-                  </div>
-                </div>
-              </div>
+                );
+              })}
             </div>
           </React.Fragment>
         )}
