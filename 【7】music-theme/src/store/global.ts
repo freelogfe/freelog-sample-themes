@@ -1,9 +1,64 @@
 import { defineStore } from "pinia";
+// @ts-ignore
+import { judgeDevice, judgeIOSDevice } from "@/utils/common";
+// @ts-ignore
+import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
+import { freelogApp } from "freelog-runtime";
+
+interface UserData {
+  isLogin: boolean | null;
+  [key: string]: any;
+}
+
+interface ShareInfo {
+  show: boolean;
+  exhibit: any | null;
+}
+
+interface State {
+  count: number;
+  inMobile: boolean | null;
+  isIOS: boolean | null;
+  userData: UserData;
+  selfConfig: Record<string, any>;
+  locationHistory: string[];
+  routerMode: string;
+  shareInfo: ShareInfo;
+  signedList: any[] | null;
+  collectionIdList: string[];
+  collectionList: any[] | null;
+  playIdList: string[];
+  playList: any[] | null;
+  playingInfo: any | null;
+  playing: boolean;
+  initUrl: string;
+  progress: number;
+  authIdList: string[];
+  searchKey: string;
+}
 
 export const useGlobalStore = defineStore("global", {
-  state: () => {
+  state: (): State => {
     return {
-      count: 0
+      count: 0,
+      inMobile: null, // 是否移动端设备
+      isIOS: null, // 是否 IOS 设备
+      userData: { isLogin: null }, // 当前登录的用户数据
+      selfConfig: {}, // 自定义配置
+      locationHistory: [], // 历史路由
+      routerMode: "push", // 当前路由模式 1-push 2-back
+      shareInfo: { show: false, exhibit: null }, // 分享数据
+      signedList: null, // 签约列表
+      collectionIdList: [], // 收藏列表(id)
+      collectionList: null, // 收藏列表
+      playIdList: [], // 播放列表(id)
+      playList: null, // 播放列表
+      playingInfo: null, // 播放中的声音信息
+      playing: false, // 是否在播放中
+      initUrl: "", // 播放器初始化 url（用于解决 IOS 无法异步播放声音问题）
+      progress: 0, // 当前播放进度
+      authIdList: [], // 已授权 id 集合（用于刷新首页列表、声音列表、搜索结果列表、详情页授权状态）
+      searchKey: "" // 搜索关键词
     };
   },
   getters: {
@@ -12,6 +67,82 @@ export const useGlobalStore = defineStore("global", {
   actions: {
     increment() {
       this.count++;
+    },
+    setData<K extends keyof State>(payload: { key: K; value: State[K] }) {
+      this.$state[payload.key] = payload.value;
+    },
+    /** 初始化 store */
+    async initStoreData() {
+      const userData = freelogApp.getCurrentUser();
+      const [selfConfig, collectionIdListResponse, playingIdResponse] = await Promise.all([
+        freelogApp.getSelfProperty(),
+        freelogApp.getUserData("collectionIdList"),
+        freelogApp.getUserData("playingId")
+      ]);
+      const collectionIdList = collectionIdListResponse?.data?.data || [];
+      const playingId = playingIdResponse?.data?.data;
+
+      // 是否移动端设备
+      const inMobile = judgeDevice();
+      this.inMobile = inMobile;
+      console.log("inMobile", inMobile);
+
+      if (inMobile) {
+        // 是否 IOS 设备
+        const isIOS = judgeIOSDevice();
+        this.isIOS = isIOS;
+      }
+
+      // 当前登录用户数据
+      this.userData = userData ? { ...userData, isLogin: true } : { isLogin: false };
+
+      // 自定义选项
+      this.selfConfig = selfConfig;
+
+      // 获取签约列表
+      useMyAuth.getSignedList();
+
+      // 收藏列表
+      this.collectionIdList = collectionIdList || [];
+
+      // 播放列表
+      let playIdList = [];
+      if (this.userData.isLogin) {
+        // 登录时播放列表取用户数据
+        const playIdListResponse = await freelogApp.getUserData("playIdList");
+        playIdList = playIdListResponse?.data?.data || [];
+
+        // 如果此时本地有播放列表，那需要自动添加至用户数据
+        const list = localStorage.getItem("playIdList") || "[]";
+        const localPlayIdList = JSON.parse(list);
+        if (localPlayIdList.length) {
+          playIdList = [...new Set([...playIdList, ...localPlayIdList])];
+          freelogApp.setUserData("playIdList", playIdList);
+          localStorage.setItem("playIdList", "[]");
+        }
+      } else {
+        // 未登录时播放列表取本地
+        const list = localStorage.getItem("playIdList") || "[]";
+        playIdList = JSON.parse(list);
+      }
+      this.playIdList = playIdList || [];
+
+      // 如果有收藏/播放列表，则获取相应数据
+      const promises = [];
+      if (collectionIdList.length) {
+        promises.push(useMyCollection.getCollectionList());
+      } else {
+        this.collectionList = [];
+      }
+      if (playIdList && playIdList.length) {
+        promises.push(useMyPlay.getPlayList());
+      } else {
+        this.playList = [];
+      }
+      if (promises.length) Promise.all(promises);
+
+      // 如果有之前播放的声音，且声音依然存在于播放列表中，则获取声音信息
+      if (playingId && playIdList.includes(playingId)) useMyPlay.getPlayingInfo(playingId);
     }
   }
 });

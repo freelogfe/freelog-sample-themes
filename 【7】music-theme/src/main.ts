@@ -1,5 +1,8 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
+import { useGlobalStore } from "@/store/global";
+import { initFreelogApp } from "freelog-runtime";
+
 import App from "./App.vue";
 import router from "./router";
 
@@ -12,6 +15,11 @@ window.mount = () => {
   app.use(pinia);
   app.use(router);
   app.mount("#app");
+
+  initFreelogApp();
+
+  const store = useGlobalStore();
+  store.initStoreData();
 };
 
 window.unmount = () => {};
