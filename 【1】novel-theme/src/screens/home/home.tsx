@@ -37,7 +37,11 @@ export const HomeScreen = (props: any) => {
       if (init) setLoading(true);
       setMyloading(true);
       skip.current = init ? 0 : skip.current + 30;
-      const queryParams: any = { articleResourceTypes: "文章", skip: skip.current, limit: 30 };
+      const queryParams: any = {
+        articleResourceTypes: "文章,连载小说",
+        skip: skip.current,
+        limit: 30
+      };
       if (tags) queryParams.tags = tags;
       if (keywords) queryParams.keywords = keywords;
 
