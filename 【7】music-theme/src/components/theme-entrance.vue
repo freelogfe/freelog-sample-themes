@@ -3,7 +3,7 @@
   <div
     class="theme-entrance-wrapper"
     :class="{
-      show: store.inMobile === false && store.selfConfig.entranceShow === '显示'
+      show: store.inMobile === false && store.selfConfig.options_entranceShow === '显示'
     }"
     @click="toTheme()"
   >

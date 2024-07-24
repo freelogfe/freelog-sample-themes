@@ -97,9 +97,6 @@ router.afterEach(to => {
   // 将第一个路由记入路由历史
   const store = useGlobalStore();
   const { locationHistory } = store;
-
-  console.log("locationHistory", locationHistory);
-
   if (locationHistory.length) return;
 
   const { path, query } = to;
