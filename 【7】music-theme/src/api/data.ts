@@ -1,5 +1,17 @@
+export interface FreelogEntrancesss {
+  label: string;
+  url: string;
+}
+
+export interface ShareButton {
+  id: string;
+  name: string;
+  icon: string;
+  bgColor: string;
+}
+
 /** freelog 相关入口 */
-export const freelogEntrances = [
+export const freelogEntrances: FreelogEntrancesss[] = [
   { label: "freelog fl-icon-a-featherlogo5", url: "https://www.freelog.com/" },
   {
     label: "关于freelog",
@@ -13,7 +25,7 @@ export const freelogEntrances = [
 ];
 
 /** 分享按钮 */
-export const shareBtns = [
+export const shareBtns: ShareButton[] = [
   {
     id: "qqZone",
     name: "QQ空间",

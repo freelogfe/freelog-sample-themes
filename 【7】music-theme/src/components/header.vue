@@ -1,5 +1,4 @@
 <!-- 页面头部 -->
-
 <template>
   <div class="header-wrapper">
     <!-- mobile -->
@@ -192,7 +191,7 @@
             class="btn user-box-btn"
             @click="
               userBoxShow = false;
-              $router.myPush('/signed-list');
+              $router.myPush({ path: '/signed-list' });
             "
           >
             签约记录
@@ -218,20 +217,20 @@ import { useGlobalStore } from "@/store/global";
 import { callLogin, callLoginOut } from "@/api/freelog";
 
 export default {
-  name: "my-header",
+  name: "freelog-header",
 
   data() {
     const store = useGlobalStore();
 
     return {
       searchKey: "",
-      searchHistory: [],
+      searchHistory: [] as string[],
       userBoxShow: false,
       searchHistoryShow: false,
-      searchWordCatch: null,
+      searchWordCatch: null as number | null,
       tabList: [
         { value: "/home", label: "首页" },
-        { value: "/voice-list", label: "声音" },
+        { value: "/voice-list", label: "音乐" },
         { value: "/collection-list", label: "收藏" }
       ],
       store
@@ -241,11 +240,13 @@ export default {
   watch: {
     "$route.path"(cur) {
       this.$nextTick(() => {
-        const store = useGlobalStore();
-        const { inMobile, routerMode } = store;
+        const { inMobile, routerMode } = this.store;
         if (cur !== "/search-list" || !inMobile) return;
         this.searchHistoryShow = routerMode === 1 || routerMode !== 2;
-        if (routerMode === 1) this.$refs.searchInput.focus();
+        if (routerMode === 1) {
+          const searchInput = this.$refs.searchInput as HTMLInputElement | null;
+          searchInput?.focus();
+        }
       });
     },
 
@@ -282,7 +283,7 @@ export default {
     menuBtnList() {
       return [
         { icon: "fl-icon-shouye", label: "首页", path: "/home" },
-        { icon: "fl-icon-danji", label: "声音", path: "/voice-list" },
+        { icon: "fl-icon-danji", label: "音乐", path: "/voice-list" },
         {
           icon: "fl-icon-shoucangxiaoshuo",
           label: "我的收藏",
@@ -309,17 +310,18 @@ export default {
 
     /** 返回 */
     back() {
-      const ONLY_PAGE = this.$store.state.locationHistory.length === 1;
+      const { locationHistory } = this.store;
+      const ONLY_PAGE = locationHistory.length === 1;
       if (ONLY_PAGE) {
-        this.$router.myPush("/home");
+        this.$router.myPush({ path: "/home" });
       } else {
         this.$router.back();
       }
     },
 
     /** 切换 tab 页 */
-    toPage(path) {
-      this.$router.myPush(path);
+    toPage(path: string) {
+      this.$router.myPush({ path });
       this.searchKey = "";
       this.userBoxShow = false;
     },
@@ -332,13 +334,13 @@ export default {
     },
 
     /** 点击历史搜索词 */
-    clickSearchHistory(item) {
+    clickSearchHistory(item: string) {
       this.searchKey = item;
       this.search();
     },
 
     /** 删除历史搜索词 */
-    deleteSearchHistory(item) {
+    deleteSearchHistory(item: string) {
       this.deleteWord(item);
     },
 
@@ -350,19 +352,20 @@ export default {
       }
 
       this.searchWord();
-      this.$store.commit("setData", { key: "searchKey", value: this.searchKey });
+      this.store.setData({ key: "searchKey", value: this.searchKey });
+
       this.searchHistoryShow = false;
-      if (!this.$store.state.inMobile) this.$router.myPush({ path: "/search-list" });
+      if (!this.store.inMobile) this.$router.myPush({ path: "/search-list" });
     },
 
     /** 搜索历史关键词 */
-    selectTag(item) {
+    selectTag(item: string) {
       this.searchKey = item;
       this.search();
     },
 
     /** 搜索框快捷键 */
-    inputKeyUp(e) {
+    inputKeyUp(e: KeyboardEvent) {
       switch (e.keyCode) {
         case 13:
           // 回车
@@ -418,7 +421,7 @@ export default {
     },
 
     /** 删除搜索词 */
-    deleteWord(keywords) {
+    deleteWord(keywords: string) {
       const index = this.searchHistory.findIndex(item => item === keywords);
       if (index === -1) return;
       this.searchHistory.splice(index, 1);
@@ -432,14 +435,20 @@ export default {
     },
 
     /** 根据点击区域判断历史搜索框是否关闭 */
-    ifCloseHistoryPopup(e) {
-      if (!this.$refs.searchInput || !this.$refs.searchHistoryPopup) return;
-      const clickInput = this.$refs.searchInput.contains(e.target);
-      const clickPopup = this.$refs.searchHistoryPopup.contains(e.target);
+    ifCloseHistoryPopup(e: MouseEvent) {
+      // 使用类型断言将 this.$refs 中的元素声明为 HTML 元素
+      const searchInput = this.$refs.searchInput as HTMLInputElement | null;
+      const searchHistoryPopup = this.$refs.searchHistoryPopup as HTMLElement | null;
+
+      if (!searchInput || !searchHistoryPopup) return;
+
+      const clickInput = searchInput.contains(e.target as Node);
+      const clickPopup = searchHistoryPopup.contains(e.target as Node);
+
       if (!clickInput && !clickPopup) {
         this.searchHistoryShow = false;
       } else {
-        this.$refs.searchInput.focus();
+        searchInput.focus();
       }
     }
   }

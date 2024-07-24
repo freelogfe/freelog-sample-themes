@@ -2,18 +2,27 @@
 import { storeToRefs } from "pinia";
 import { useGlobalStore } from "@/store/global";
 
-import myHeader from "@/components/header.vue";
+import FreelogHeader from "@/components/header.vue";
+import FreelogFooter from "@/components/footer.vue";
+import FreelogThemeEntrance from "@/components/theme-entrance.vue";
+import FreelogShare from "@/components/share.vue";
 
-const { store } = useGlobalStore();
+const store = useGlobalStore();
 const { inMobile } = storeToRefs(store);
 </script>
 
 <template>
   <div id="music-theme" :class="{ pc: inMobile === false, mobile: inMobile }">
     <div class="page-wrapper">
-      <myHeader />
-      <RouterView />
+      <FreelogHeader />
+      <keep-alive>
+        <router-view class="router-view" :key="$route.path" v-if="$route.meta.keepAlive" />
+      </keep-alive>
+      <router-view class="router-view" v-if="!$route.meta.keepAlive" />
+      <FreelogFooter />
     </div>
+    <FreelogThemeEntrance />
+    <FreelogShare />
   </div>
 </template>
 

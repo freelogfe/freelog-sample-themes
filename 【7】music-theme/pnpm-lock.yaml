@@ -14,6 +14,9 @@ dependencies:
   pinia:
     specifier: ^2.1.7
     version: 2.1.7(typescript@5.5.3)(vue@3.4.31)
+  qrcode.vue:
+    specifier: 1.7.0
+    version: 1.7.0(vue@3.4.31)
   vue:
     specifier: ^3.4.29
     version: 3.4.31(typescript@5.5.3)
@@ -1353,6 +1356,14 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /qrcode.vue@1.7.0(vue@3.4.31):
+    resolution: {integrity: sha512-R7t6Y3fDDtcU7L4rtqwGUDP9xD64gJhIwpfjhRCTKmBoYF6SS49PIJHRJ048cse6OI7iwTwgyy2C46N9Ygoc6g==}
+    peerDependencies:
+      vue: ^2.0.0
+    dependencies:
+      vue: 3.4.31(typescript@5.5.3)
+    dev: false
 
   /queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}

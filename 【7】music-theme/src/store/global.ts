@@ -15,14 +15,14 @@ interface ShareInfo {
   exhibit: any | null;
 }
 
-interface State {
+export interface State {
   count: number;
   inMobile: boolean | null;
   isIOS: boolean | null;
   userData: UserData;
   selfConfig: Record<string, any>;
   locationHistory: string[];
-  routerMode: string;
+  routerMode: number;
   shareInfo: ShareInfo;
   signedList: any[] | null;
   collectionIdList: string[];
@@ -46,7 +46,7 @@ export const useGlobalStore = defineStore("global", {
       userData: { isLogin: null }, // 当前登录的用户数据
       selfConfig: {}, // 自定义配置
       locationHistory: [], // 历史路由
-      routerMode: "push", // 当前路由模式 1-push 2-back
+      routerMode: 1, // 当前路由模式 1-push 2-back
       shareInfo: { show: false, exhibit: null }, // 分享数据
       signedList: null, // 签约列表
       collectionIdList: [], // 收藏列表(id)

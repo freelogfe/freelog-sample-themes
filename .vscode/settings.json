@@ -18,7 +18,9 @@
     "[scss]": {
       "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
-    "cSpell.words": [],
+    "cSpell.words": [
+      "Freelog"
+    ],
     "typescript.tsdk": "node_modules/typescript/lib",
   }
   

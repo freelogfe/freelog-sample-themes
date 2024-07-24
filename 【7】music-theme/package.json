@@ -13,7 +13,8 @@
     "freelog-runtime": "^3.8.9",
     "pinia": "^2.1.7",
     "vue": "^3.4.29",
-    "vue-router": "^4.4.0"
+    "vue-router": "^4.4.0",
+    "qrcode.vue": "1.7.0"
   },
   "devDependencies": {
     "@types/node": "^20.14.10",
