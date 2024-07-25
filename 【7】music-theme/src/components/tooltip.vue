@@ -4,7 +4,7 @@
     :popper-class="popperClass"
     effect="dark"
     placement="bottom-start"
-    :visible-arrow="false"
+    :show-arrow="false"
     :open-delay="300"
     :content="content"
   >

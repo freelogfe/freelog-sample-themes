@@ -188,7 +188,7 @@
         </div>
       </div>
       <div class="btns-area" :class="{ opacity: authLinkAbnormal }">
-        <my-tooltip
+        <myTooltip
           class="text-btn"
           :class="{ disabled: item.disabled }"
           :content="item.title"
@@ -196,7 +196,7 @@
           :key="item.title"
         >
           <i class="freelog" :class="item.icon" @click="item.operate" />
-        </my-tooltip>
+        </myTooltip>
       </div>
       <div class="duration">{{ data.versionInfo.exhibitProperty.duration | secondsToHMS }}</div>
       <div
@@ -259,13 +259,13 @@ export default {
   },
 
   watch: {
-    "$store.state.collectionIdList": {
+    "store.collectionIdList": {
       handler() {
         this.isCollected = useMyCollection.ifExist(this.data.exhibitId);
       },
       immediate: true
     },
-    "$store.state.playIdList": {
+    "store.playIdList": {
       handler() {
         this.isInPlayList = useMyPlay.ifExist(this.data.exhibitId);
       },
@@ -384,7 +384,7 @@ export default {
 
     /** 分享 */
     share() {
-      this.$store.commit("setData", {
+      this.store.setData({
         key: "shareInfo",
         value: { show: true, exhibit: this.data }
       });

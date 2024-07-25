@@ -48,6 +48,7 @@ export const useMyAuth = {
    * @param play 授权成功是否播放
    */
   async getAuth(data, play = false) {
+    const store = useGlobalStore();
     const { exhibitId } = data;
     const authResult = await freelogApp.addAuth(exhibitId, { immediate: true });
     const { status } = authResult;
@@ -55,17 +56,18 @@ export const useMyAuth = {
     data.defaulterIdentityType = 0;
 
     // 同步收藏列表、签约列表、播放列表相应展品的授权状态，更新授权列表
-    const { collectionList, signedList, playList, authIdList } = store.state;
+    const { collectionList, signedList, playList, authIdList } = store;
     signedList.unshift(data);
     const collectionItem = collectionList.find(item => item.exhibitId === exhibitId);
     if (collectionItem) collectionItem.defaulterIdentityType = 0;
     const playItem = playList.find(item => item.exhibitId === exhibitId);
     if (playItem) playItem.defaulterIdentityType = 0;
     authIdList.push(exhibitId);
-    store.commit("setData", { key: "collectionList", value: collectionList });
-    store.commit("setData", { key: "signedList", value: signedList });
-    store.commit("setData", { key: "playList", value: playList });
-    store.commit("setData", { key: "authIdList", value: authIdList });
+
+    store.setData({ key: "collectionList", value: collectionList });
+    store.setData({ key: "signedList", value: signedList });
+    store.setData({ key: "playList", value: playList });
+    store.setData({ key: "authIdList", value: authIdList });
 
     if (play) {
       useMyPlay.addToPlayList(exhibitId);
@@ -73,8 +75,8 @@ export const useMyAuth = {
       // 已授权未获取 url
       const url = await freelogApp.getExhibitFileStream(exhibitId, { returnUrl: true });
       data.url = url;
-      store.commit("setData", { key: "playingInfo", value: data });
-      store.commit("setData", { key: "playing", value: true });
+      store.setData({ key: "playingInfo", value: data });
+      store.setData({ key: "playing", value: true });
     }
   }
 };
@@ -88,7 +90,7 @@ export const useMyCollection = {
     if (!userData.isLogin) return;
 
     const result = [];
-    const idList = store.state.collectionIdList;
+    const idList = store.collectionIdList;
     if (!idList.length) {
       store.setData({ key: "collectionList", value: [] });
       return;
@@ -116,19 +118,20 @@ export const useMyCollection = {
 
   /** 判断当前展品是否已被收藏 */
   ifExist(id) {
-    return store.state.collectionIdList.includes(id);
+    const store = useGlobalStore();
+    return store.collectionIdList.includes(id);
   },
 
   /** 操作收藏（如未收藏则收藏，反之取消收藏） */
   async operateCollect(data) {
-    if (!store.state.userData.isLogin) {
+    if (!store.userData.isLogin) {
       callLogin();
       return;
     }
 
     const { exhibitId } = data;
-    const collectionIdList = [...store.state.collectionIdList];
-    const collectionList = [...store.state.collectionList];
+    const collectionIdList = [...store.collectionIdList];
+    const collectionList = [...store.collectionList];
     const isCollected = collectionIdList.includes(exhibitId);
     if (isCollected) {
       // 取消收藏
@@ -143,8 +146,8 @@ export const useMyCollection = {
     }
     const res = await freelogApp.setUserData("collectionIdList", collectionIdList);
     if (res.data.msg === "success") {
-      store.commit("setData", { key: "collectionIdList", value: collectionIdList });
-      store.commit("setData", { key: "collectionList", value: collectionList });
+      store.setData({ key: "collectionIdList", value: collectionIdList });
+      store.setData({ key: "collectionList", value: collectionList });
     } else {
       showToast("操作失败");
     }
@@ -180,20 +183,24 @@ export const useMyPlay = {
 
   /** 判断当前展品是否已存在播放列表中 */
   ifExist(id) {
-    if (!store.state.userData.isLogin) {
+    const store = useGlobalStore();
+
+    if (!store.userData.isLogin) {
       // 未登录时播放列表取本地
       const list = localStorage.getItem("playIdList") || "[]";
       const playIdList = JSON.parse(list);
       return playIdList.includes(id);
     } else {
       // 已登录时播放列表取用户数据
-      return store.state.playIdList.includes(id);
+      return store.playIdList.includes(id);
     }
   },
 
   /** 加入播放列表 */
   async addToPlayList(id, callback) {
-    if (!store.state.userData.isLogin) {
+    const store = useGlobalStore();
+
+    if (!store.userData.isLogin) {
       // 未登录时存在本地
       const list = localStorage.getItem("playIdList") || "[]";
       const playIdList = JSON.parse(list);
@@ -202,19 +209,19 @@ export const useMyPlay = {
       playIdList.unshift(id);
 
       localStorage.setItem("playIdList", JSON.stringify(playIdList));
-      store.commit("setData", { key: "playIdList", value: playIdList });
+      store.setData({ key: "playIdList", value: playIdList });
       callback && callback();
       useMyPlay.getPlayList();
     } else {
       // 已登录时存在用户数据
-      const playIdList = [...store.state.playIdList];
+      const playIdList = [...store.playIdList];
       if (playIdList.includes(id)) return;
 
       playIdList.unshift(id);
       const res = await freelogApp.setUserData("playIdList", playIdList);
 
       if (res.data.msg === "success") {
-        store.commit("setData", { key: "playIdList", value: playIdList });
+        store.setData({ key: "playIdList", value: playIdList });
         callback && callback();
         useMyPlay.getPlayList();
       } else {
@@ -225,9 +232,10 @@ export const useMyPlay = {
 
   /** 移出播放列表 */
   async removeFromPlayList(id) {
-    const { playing, playingInfo } = store.state;
+    const store = useGlobalStore();
+    const { playing, playingInfo } = store;
 
-    if (!store.state.userData.isLogin) {
+    if (!store.userData.isLogin) {
       // 未登录时取本地
       const list = localStorage.getItem("playIdList") || "[]";
       const playIdList = JSON.parse(list);
@@ -235,12 +243,12 @@ export const useMyPlay = {
       playIdList.splice(idIndex, 1);
       localStorage.setItem("playIdList", JSON.stringify(playIdList));
 
-      const playList = store.state.playList;
+      const playList = store.playList;
       const index = playList.findIndex(item => item.exhibitId === id);
       playList.splice(index, 1);
 
-      store.commit("setData", { key: "playIdList", value: playIdList });
-      store.commit("setData", { key: "playList", value: playList });
+      store.setData({ key: "playIdList", value: playIdList });
+      store.setData({ key: "playList", value: playList });
 
       if (id !== playingInfo?.exhibitId) return;
       if (playing) {
@@ -248,22 +256,22 @@ export const useMyPlay = {
         useMyPlay.playOrPause(playList[index]);
       } else {
         // 如果移出的声音是当前正在暂停的声音，将播放中的声音信息置空
-        store.commit("setData", { key: "playingInfo", value: null });
+        store.setData({ key: "playingInfo", value: null });
       }
     } else {
       // 已登录时取用户数据
-      const playIdList = [...store.state.playIdList];
+      const playIdList = [...store.playIdList];
       const index = playIdList.findIndex(item => item === id);
       playIdList.splice(index, 1);
       const res = await freelogApp.setUserData("playIdList", playIdList);
 
       if (res.data.msg === "success") {
-        const playList = store.state.playList;
+        const playList = store.playList;
         const index = playList.findIndex(item => item.exhibitId === id);
         playList.splice(index, 1);
 
-        store.commit("setData", { key: "playIdList", value: playIdList });
-        store.commit("setData", { key: "playList", value: playList });
+        store.setData({ key: "playIdList", value: playIdList });
+        store.setData({ key: "playList", value: playList });
 
         if (id !== playingInfo?.exhibitId) return;
         if (playing) {
@@ -271,7 +279,7 @@ export const useMyPlay = {
           useMyPlay.playOrPause(playList[index]);
         } else {
           // 如果移出的声音是当前正在暂停的声音，将播放中的声音信息置空
-          store.commit("setData", { key: "playingInfo", value: null });
+          store.setData({ key: "playingInfo", value: null });
         }
       } else {
         showToast("操作失败");
@@ -281,21 +289,23 @@ export const useMyPlay = {
 
   /** 清空播放列表 */
   async clearPlayList() {
-    if (!store.state.userData.isLogin) {
+    const store = useGlobalStore();
+
+    if (!store.userData.isLogin) {
       // 未登录时取本地
       localStorage.setItem("playIdList", "[]");
-      store.commit("setData", { key: "playIdList", value: [] });
-      store.commit("setData", { key: "playList", value: [] });
-      store.commit("setData", { key: "playing", value: false });
-      store.commit("setData", { key: "playingInfo", value: null });
+      store.setData({ key: "playIdList", value: [] });
+      store.setData({ key: "playList", value: [] });
+      store.setData({ key: "playing", value: false });
+      store.setData({ key: "playingInfo", value: null });
     } else {
       // 已登录时取用户数据
       const res = await freelogApp.setUserData("playIdList", []);
       if (res.data.msg === "success") {
-        store.commit("setData", { key: "playIdList", value: [] });
-        store.commit("setData", { key: "playList", value: [] });
-        store.commit("setData", { key: "playing", value: false });
-        store.commit("setData", { key: "playingInfo", value: null });
+        store.setData({ key: "playIdList", value: [] });
+        store.setData({ key: "playList", value: [] });
+        store.setData({ key: "playing", value: false });
+        store.setData({ key: "playingInfo", value: null });
       } else {
         showToast("清空列表失败");
       }
@@ -304,21 +314,23 @@ export const useMyPlay = {
 
   /** 播放 */
   async playOrPause(exhibit, type = "normal") {
+    const store = useGlobalStore();
+
     if (!exhibit) {
-      store.commit("setData", { key: "playing", value: false });
-      store.commit("setData", { key: "playingInfo", value: null });
+      store.setData({ key: "playing", value: false });
+      store.setData({ key: "playingInfo", value: null });
       return;
     }
 
-    const { initUrl, playingInfo, playing } = store.state;
+    const { initUrl, playingInfo, playing } = store;
 
     if (initUrl) {
       setTimeout(() => {
-        store.commit("setData", { key: "initUrl", value: null });
+        store.setData({ key: "initUrl", value: null });
       }, 0);
     } else if (initUrl === "") {
       // 部分设备（已知部分 ios）上无法直接播放音频，需要先使用任意 url 初始化播放器，才可播放音频
-      store.commit("setData", {
+      store.setData({
         key: "initUrl",
         value: "https://file.testfreelog.com/exhibits/64d1ed97cc4a64002f632b0d"
       });
@@ -331,11 +343,11 @@ export const useMyPlay = {
       const { exhibitId: id, url: playingUrl } = playingInfo;
       if (exhibitId === id && playing && type === "normal" && playingUrl === url) {
         // 暂停
-        store.commit("setData", { key: "playing", value: false });
+        store.setData({ key: "playing", value: false });
         return;
       } else if (exhibitId === id && !playing && playingUrl) {
         // 之前暂停的声音继续播放
-        store.commit("setData", { key: "playing", value: true });
+        store.setData({ key: "playing", value: true });
         return;
       }
     }
@@ -361,8 +373,8 @@ export const useMyPlay = {
     }
 
     useMyPlay.addToPlayList(exhibitId);
-    store.commit("setData", { key: "playingInfo", value: exhibit });
-    store.commit("setData", { key: "playing", value: true });
+    store.setData({ key: "playingInfo", value: exhibit });
+    store.setData({ key: "playing", value: true });
     freelogApp.setUserData("playingId", exhibitId);
   },
 
@@ -381,8 +393,9 @@ export const useMyPlay = {
 
   /** 上一首 */
   preVoice(data) {
+    const store = useGlobalStore();
     let preVoiceInfo = null;
-    const { playList, playingInfo } = store.state;
+    const { playList, playingInfo } = store;
     const id = data ? data.exhibitId : playingInfo.exhibitId;
     const index = playList.findIndex(item => item.exhibitId === id);
     if (index === 0) {
@@ -395,8 +408,9 @@ export const useMyPlay = {
 
   /** 下一首 */
   nextVoice(data) {
+    const store = useGlobalStore();
     let nextVoiceInfo = null;
-    const { playList, playingInfo } = store.state;
+    const { playList, playingInfo } = store;
     const id = data ? data.exhibitId : playingInfo.exhibitId;
     const index = playList.findIndex(item => item.exhibitId === id);
     if (index === playList.length - 1) {

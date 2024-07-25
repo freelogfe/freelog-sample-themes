@@ -108,7 +108,7 @@ export default {
 
     /** 关闭分享弹窗 */
     closeShare() {
-      this.$store.commit("setData", { key: "shareInfo", value: { show: false, exhibit: {} } });
+      this.store.setData({ key: "shareInfo", value: { show: false, exhibit: {} } });
     },
 
     /** 分享 */
