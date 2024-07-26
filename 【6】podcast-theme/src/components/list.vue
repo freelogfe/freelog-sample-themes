@@ -13,6 +13,7 @@
           :authShow="authShow"
           v-for="item in list"
           :key="item.exhibitId"
+          mode="program"
         />
         <div class="no-more-tip" v-if="list.length === total && noMoreTip">{{ noMoreTip }}</div>
       </div>

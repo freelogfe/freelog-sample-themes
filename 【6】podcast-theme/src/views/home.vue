@@ -77,20 +77,34 @@
         </div>
       </div>
 
+      <!-- 热门节目 -->
+      <div class="hot-wrapper">
+        <div class="hot-header">
+          <div class="hot-title">热门节目</div>
+          <div class="hot-more" @click="$router.myPush('/program-list')">
+            <span class="text">所有节目</span>
+            <span class="freelog fl-icon-zhankaigengduo"></span>
+          </div>
+        </div>
+        <div class="hot-body">
+          <div class="hot-container">
+            <program :data="item" v-for="item in hotList" :key="item.exhibitId"></program>
+          </div>
+        </div>
+      </div>
+
       <template v-if="!loading">
         <div class="content-area" v-if="total">
           <div class="content-top">
-            <div class="top-title">声音（{{ total }}）</div>
-            <div class="view-all-btn" @click="$router.myPush('/voice-list')">
-              <span class="btn-label">全部</span>
-              <i class="freelog fl-icon-zhankaigengduo"></i>
-            </div>
+            <div class="top-title">最近更新</div>
           </div>
           <div class="voice-list">
             <voice :data="item" v-for="item in listData" :key="item.exhibitId" />
           </div>
           <div class="view-more" v-if="total > 10">
-            <div class="text-btn" @click="$router.myPush('/voice-list')">查看更多声音</div>
+            <div class="text-btn" @click="$router.myPush('/program-list')">
+              查看所有节目&nbsp;({{ total }})
+            </div>
           </div>
         </div>
 
@@ -117,13 +131,15 @@
 
 <script>
 import voice from "@/components/voice";
+import program from "@/components/program";
 import { freelogApp } from "freelog-runtime";
 
 export default {
   name: "home",
 
   components: {
-    voice
+    voice,
+    program
   },
 
   data() {
@@ -149,6 +165,9 @@ export default {
     /** 自定义配置 */
     selfConfig() {
       return this.$store.state.selfConfig;
+    },
+    hotList() {
+      return JSON.parse(JSON.stringify(this.listData.slice(0, 5)));
     }
   },
 
@@ -209,6 +228,7 @@ export default {
             item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
         });
       }
+      console.log(dataList);
       this.listData = dataList;
       this.total = totalItem;
       this.loading = false;
@@ -553,32 +573,32 @@ export default {
           opacity: 0.6;
         }
 
-        .view-all-btn {
-          color: rgba(255, 255, 255, 0.6);
-          display: flex;
-          align-items: center;
-          cursor: pointer;
-          transition: all 0.2s linear;
+        // .view-all-btn {
+        //   color: rgba(255, 255, 255, 0.6);
+        //   display: flex;
+        //   align-items: center;
+        //   cursor: pointer;
+        //   transition: all 0.2s linear;
 
-          &:hover {
-            color: #2784ff;
-          }
+        //   &:hover {
+        //     color: #2784ff;
+        //   }
 
-          &:active {
-            color: rgba(39, 132, 255, 0.8);
-          }
+        //   &:active {
+        //     color: rgba(39, 132, 255, 0.8);
+        //   }
 
-          .btn-label {
-            font-size: 14px;
-            font-weight: 600;
-            line-height: 20px;
-          }
+        //   .btn-label {
+        //     font-size: 14px;
+        //     font-weight: 600;
+        //     line-height: 20px;
+        //   }
 
-          .freelog {
-            font-size: 7px;
-            margin-left: 5px;
-          }
-        }
+        //   .freelog {
+        //     font-size: 7px;
+        //     margin-left: 5px;
+        //   }
+        // }
       }
 
       .voice-list {
@@ -669,6 +689,47 @@ export default {
             rgb(70, 70, 70) 63%
           )
           0% 0% / 400% 100%;
+      }
+    }
+
+    .hot-wrapper {
+      margin-top: 45px;
+      .hot-header {
+        height: 28px;
+        display: flex;
+        margin-bottom: 25px;
+        .hot-title {
+          font-weight: 600;
+          font-size: 20px;
+          color: #ffffff;
+          line-height: 28px;
+          margin-right: auto;
+          opacity: 0.6;
+        }
+        .hot-more {
+          align-self: flex-end;
+          display: flex;
+          align-items: center;
+          cursor: pointer;
+          .text {
+            height: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #ffffff;
+            line-height: 20px;
+            opacity: 0.6;
+          }
+          .freelog {
+            font-size: 12px;
+            margin-left: 5px;
+            opacity: 0.6;
+          }
+        }
+      }
+
+      .hot-container {
+        display: flex;
+        gap: 20px;
       }
     }
   }

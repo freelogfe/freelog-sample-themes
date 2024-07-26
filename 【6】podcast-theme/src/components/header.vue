@@ -228,7 +228,8 @@ export default {
       searchWordCatch: null,
       tabList: [
         { value: "/home", label: "首页" },
-        { value: "/voice-list", label: "声音" },
+        { value: "/program-list", label: "所有节目" },
+        // { value: "/voice-list", label: "声音" },
         { value: "/collection-list", label: "收藏" }
       ]
     };

@@ -9,6 +9,7 @@ import "element-ui/lib/theme-chalk/index.css";
 import vView from "vue-view-lazy";
 import * as filters from "@/utils/filter";
 import { initFreelogApp } from "freelog-runtime";
+import "@/directives";
 
 Vue.use(vView);
 Vue.use(ElementUI);

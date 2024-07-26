@@ -317,8 +317,13 @@
         box-sizing: border-box;
 
         ::v-deep .el-skeleton.is-animated .el-skeleton__item {
-          background: linear-gradient(90deg, rgb(70, 70, 70) 25%, rgb(50, 50, 50) 37%, rgb(70, 70, 70) 63%) 0% 0% / 400%
-            100%;
+          background: linear-gradient(
+              90deg,
+              rgb(70, 70, 70) 25%,
+              rgb(50, 50, 50) 37%,
+              rgb(70, 70, 70) 63%
+            )
+            0% 0% / 400% 100%;
         }
       }
 
@@ -716,7 +721,7 @@
     backdrop-filter: blur(25px);
     display: flex;
     flex-direction: column;
-
+    z-index: 9;
     .top-area {
       width: 100%;
       height: 48px;
@@ -852,8 +857,13 @@
       box-sizing: border-box;
 
       ::v-deep .el-skeleton.is-animated .el-skeleton__item {
-        background: linear-gradient(90deg, rgb(70, 70, 70) 25%, rgb(50, 50, 50) 37%, rgb(70, 70, 70) 63%) 0% 0% / 400%
-          100%;
+        background: linear-gradient(
+            90deg,
+            rgb(70, 70, 70) 25%,
+            rgb(50, 50, 50) 37%,
+            rgb(70, 70, 70) 63%
+          )
+          0% 0% / 400% 100%;
       }
     }
   }

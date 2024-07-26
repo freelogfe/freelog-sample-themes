@@ -293,8 +293,7 @@ export const useMyPlay = {
       }
     }
   },
-
-  /** 播放 */
+  /** 播放展品 */
   async playOrPause(exhibit, type = "normal") {
     if (!exhibit) {
       store.commit("setData", { key: "playing", value: false });
@@ -348,8 +347,25 @@ export const useMyPlay = {
       return;
     } else if (!url) {
       // 已授权未获取 url
-      const url = await freelogApp.getExhibitFileStream(exhibitId, { returnUrl: true });
-      exhibit.url = url;
+      if (exhibit.articleInfo.articleType === 2) {
+        // 1. 将合集的所有子作品加入播放列表
+        // 2. 播放合集的第一个子作品
+        // 获取所有子作品
+        // const res = await this.getListInCollection(exhibit.exhibitId);
+        // for (let index = res.length - 1; index >= 0; index--) {
+        //   const element = res[index];
+        //   console.log(element);
+        //   const url = await freelogApp.getCollectionSubFileStream(exhibit.exhibitId, {
+        //     itemId: element.itemId,
+        //     returnUrl: true
+        //   });
+        //   console.log(url);
+        //   // useMyPlay.addToPlayList(element.)
+        // }
+      } else {
+        const url = await freelogApp.getExhibitFileStream(exhibitId, { returnUrl: true });
+        exhibit.url = url;
+      }
     }
 
     useMyPlay.addToPlayList(exhibitId);
@@ -357,7 +373,6 @@ export const useMyPlay = {
     store.commit("setData", { key: "playing", value: true });
     freelogApp.setUserData("playingId", exhibitId);
   },
-
   /** 获取播放数据 */
   async getPlayingInfo(id) {
     const [info, statusInfo, url] = await Promise.all([
@@ -396,5 +411,18 @@ export const useMyPlay = {
       nextVoiceInfo = playList[index + 1];
     }
     useMyPlay.playOrPause(nextVoiceInfo, "nextVoice");
+  },
+  async getListInCollection(exhibitId) {
+    const res = await freelogApp.getCollectionSubList(exhibitId, {
+      sortType: 1,
+      skip: 0,
+      limit: 5,
+      isShowDetailInfo: 0
+    });
+    if (res.data.errCode === 0) {
+      return res.data.data.dataList;
+    } else {
+      return null;
+    }
   }
 };

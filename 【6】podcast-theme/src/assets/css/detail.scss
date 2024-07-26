@@ -213,7 +213,7 @@
   // PC
   .pc-detail-wrapper {
     padding-top: 20px;
-    padding-bottom: 120px;
+    padding-bottom: 30px;
     display: flex;
 
     .cover-area {
@@ -278,6 +278,25 @@
           white-space: nowrap;
           text-overflow: ellipsis;
           margin-left: 20px;
+        }
+
+        .single {
+          opacity: 0.32;
+          color: #fff;
+          font-size: 34px;
+        }
+
+        .multiple {
+          display: flex;
+          align-items: center;
+          .ing {
+            font-size: 34px;
+            color: #42c28c;
+          }
+          .end {
+            font-size: 34px;
+            color: #e9a923;
+          }
         }
       }
 
@@ -410,6 +429,51 @@
           bottom: -50px;
         }
       }
+    }
+  }
+
+  .pc-detail-list {
+    margin-bottom: 15px;
+    margin-left: 260px;
+    .shortCut {
+      font-weight: 600;
+      font-size: 20px;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 28px;
+      height: 28px;
+      margin-bottom: 15px;
+      span {
+        margin-left: 10px;
+      }
+    }
+    .list-container {
+      box-sizing: border-box;
+      width: 870px;
+      height: 640px;
+      padding: 20px;
+      border-radius: 15px;
+      background-color: rgba(255, 255, 255, 0.02);
+      overflow: hidden;
+      .list-item {
+        margin-bottom: 25px;
+        &:last-child {
+          margin-bottom: 0px;
+        }
+      }
+    }
+  }
+  .pc-detail-pagination {
+    margin-left: 260px;
+    margin-bottom: 15px;
+    text-align: center;
+    ::v-deep .el-pager li,
+    ::v-deep .btn-prev,
+    ::v-deep .btn-next,
+    ::v-deep .el-pagination__editor.el-input .el-input__inner {
+      background-color: transparent;
+    }
+    ::v-deep .el-pagination button:disabled {
+      color: rgba(255, 255, 255, 0.2);
     }
   }
 }

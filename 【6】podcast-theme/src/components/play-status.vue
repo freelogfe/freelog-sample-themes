@@ -1,7 +1,7 @@
 <!-- 播放状态（动画图标与描述） -->
 
 <template>
-  <div class="play-status" :style="{ '--color': color }">
+  <div class="play-status" :style="{ '--color': color }" :playing="playing">
     <div class="play-icon-wrapper">
       <div
         class="line"
@@ -10,7 +10,7 @@
         :key="item"
       ></div>
     </div>
-    <div class="play-text">
+    <div class="play-text" :playing="playing">
       <span v-if="desc">{{ desc }}</span>
       <span v-else>{{ playing ? "正在播放" : "已暂停" }}</span>
     </div>

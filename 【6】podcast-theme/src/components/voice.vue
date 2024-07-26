@@ -137,6 +137,20 @@
             @click.stop="getAuth()"
             v-if="data.defaulterIdentityType >= 4"
           ></i>
+          <template v-if="mode === 'program'">
+            <div
+              v-if="data.articleInfo.articleType === 1"
+              class="single freelog fl-icon-bokebiaoqian_danji"
+              :class="{ 'opacity-40': authLinkAbnormal }"
+            ></div>
+            <div v-else class="multiple" :class="{ 'opacity-40': authLinkAbnormal }">
+              <span
+                class="ing freelog fl-icon-bokebiaoqian_lianzaizhong"
+                v-if="data.articleInfo.serializeStatus === 0"
+              ></span>
+              <span class="end freelog fl-icon-bokebiaoqian_yiwanjie" v-else></span>
+            </div>
+          </template>
           <template v-if="authShow">
             <div
               class="tag is-auth"
@@ -167,6 +181,10 @@
             <i class="freelog fl-icon-gengxinshijian"></i>
             <div class="item-value">{{ data.updateDate | relativeTime }}</div>
           </div>
+          <div class="info-item" v-if="mode === 'program' && data.articleInfo.articleType === 2">
+            <i class="freelog fl-icon-danji"></i>
+            <div class="item-value">{{ data.signCount | signCount }}</div>
+          </div>
           <div class="info-item">
             <i class="freelog fl-icon-yonghu"></i>
             <div class="item-value">{{ data.signCount | signCount }}</div>
@@ -179,9 +197,7 @@
             <div
               class="info-item"
               v-if="
-                $store.state.playing &&
-                $store.state.playingInfo &&
-                $store.state.playingInfo.exhibitId === data.exhibitId
+                $store.state.playingInfo && $store.state.playingInfo.exhibitId === data.exhibitId
               "
             >
               <play-status :playing="playing" />
@@ -205,7 +221,12 @@
           <i class="freelog" :class="item.icon" @click="item.operate" />
         </my-tooltip>
       </div>
-      <div class="duration">{{ data.versionInfo.exhibitProperty.duration | secondsToHMS }}</div>
+      <div class="right-area">
+        <div v-if="data.articleInfo.articleType === 2" class="total">共5集</div>
+        <div v-else class="duration">
+          {{ data.versionInfo.exhibitProperty.duration | secondsToHMS }}
+        </div>
+      </div>
       <div
         class="cover-to-add"
         :class="{ animation: addAnimation }"
@@ -242,6 +263,11 @@ export default {
     authShow: {
       type: Boolean,
       default: false
+    },
+    /** 类型：节目/声音 */
+    mode: {
+      type: String,
+      default: "voice" // "voice" | 'program'
     }
   },
 
