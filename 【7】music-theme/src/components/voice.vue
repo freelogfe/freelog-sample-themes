@@ -144,58 +144,27 @@
               未授权
             </div>
           </template>
-          <my-tooltip
-            class="title"
-            :class="{ 'opacity-40': authLinkAbnormal }"
-            :content="data.exhibitTitle"
-          >
-            <span @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })">
+          <myTooltip :content="data.exhibitTitle">
+            <span
+              class="title"
+              :class="{ 'opacity-40': authLinkAbnormal }"
+              @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
+            >
               {{ data.exhibitTitle }}
             </span>
-          </my-tooltip>
+          </myTooltip>
         </div>
         <div class="intro" :class="{ 'opacity-40': authLinkAbnormal }">
           {{ data.exhibitIntro }}
         </div>
-        <div class="other-area" :class="{ 'opacity-40': authLinkAbnormal }">
-          <div class="info-item">
-            <i class="freelog fl-icon-gengxinshijian"></i>
-            <div class="item-value">{{ data.updateDate | relativeTime }}</div>
-          </div>
-          <div class="info-item">
-            <i class="freelog fl-icon-yonghu"></i>
-            <div class="item-value">{{ data.signCount | signCount }}</div>
-          </div>
-          <div class="info-item" v-if="!ifSupportMime">
-            <i class="freelog fl-icon-wufabofang"></i>
-            <div class="item-value">无法播放</div>
-          </div>
-          <transition name="slide-right">
-            <div
-              class="info-item"
-              v-if="
-                store.playing && store.playingInfo && store.playingInfo.exhibitId === data.exhibitId
-              "
-            >
-              <play-status :playing="playing" />
-              <div class="progress">
-                <span>{{ (store.progress * 1000) | secondsToHMS }}</span>
-                <span class="progress-divider">/</span>
-                <span>{{ data.versionInfo.exhibitProperty.duration | secondsToHMS }}</span>
-              </div>
-            </div>
-          </transition>
-        </div>
       </div>
       <div class="btns-area" :class="{ opacity: authLinkAbnormal }">
-        <myTooltip
-          class="text-btn"
-          :class="{ disabled: item.disabled }"
-          :content="item.title"
-          v-for="item in btnList"
-          :key="item.title"
-        >
-          <i class="freelog" :class="item.icon" @click="item.operate" />
+        <myTooltip :content="item.title" v-for="item in btnList" :key="item.title">
+          <i
+            class="freelog text-btn"
+            :class="[item.icon, { disabled: item.disabled }]"
+            @click="item.operate"
+          />
         </myTooltip>
       </div>
       <div class="duration">{{ data.versionInfo.exhibitProperty.duration | secondsToHMS }}</div>

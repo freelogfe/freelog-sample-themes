@@ -6,6 +6,11 @@
 
     <template v-if="!loading">
       <div class="voice-list" v-if="list && total !== 0">
+        <div class="voice-bar">
+          <div>歌名\歌手</div>
+          <div>专辑</div>
+          <div class="time">时长</div>
+        </div>
         <voice
           :data="item"
           :statusShow="statusShow"
@@ -174,6 +179,39 @@ export default {
 
     .voice-list {
       padding-bottom: 120px;
+
+      .voice-bar {
+        display: flex;
+        align-items: center;
+        background: #292929;
+        border-radius: 6px;
+        padding: 6px 10px;
+        margin-bottom: 15px;
+
+        div {
+          font-weight: 400;
+          font-size: 12px;
+          color: #ffffff;
+          line-height: 18px;
+          opacity: 0.4;
+
+          &:nth-child(1) {
+            min-width: 630px;
+            max-width: 720px;
+            flex: 1;
+          }
+
+          &:nth-child(2) {
+            min-width: 250px;
+            max-width: 340px;
+            flex: 1;
+          }
+        }
+
+        .time {
+          width: 120px;
+        }
+      }
 
       .voice-wrapper + .voice-wrapper {
         margin-top: 25px;

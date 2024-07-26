@@ -39,7 +39,7 @@ const { inMobile } = storeToRefs(store);
       padding-bottom: 48px;
 
       .router-view {
-        width: 1130px !important;
+        width: 1280px !important;
       }
     }
 
