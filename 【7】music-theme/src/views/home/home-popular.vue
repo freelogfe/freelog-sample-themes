@@ -94,7 +94,7 @@ const playOrPause = (item: Exhibit) => {
             <myTooltip content="加入播放列表">
               <i
                 class="freelog text-btn"
-                :class="['fl-icon-jiarubofangliebiao', { disabled: false }]"
+                :class="['fl-icon-jiarubofangliebiao', { disabled: useMyPlay.ifExist(item.exhibitId) || !ifSupportMime(item.versionInfo.exhibitProperty.mime as string) }]"
                 @click=""
               />
             </myTooltip>
