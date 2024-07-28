@@ -3,13 +3,20 @@
   <div class="list-wrapper" :class="store.inMobile ? 'mobile' : 'pc'">
     <div class="title" v-if="title">{{ title }}</div>
     <div class="search-title" v-if="searchTitle">{{ searchTitle }}</div>
+    <div class="music-album-tab" v-if="musicAlbumTab">
+      <div class="tab-box">
+        <div class="tab" :class="tab === 1 && 'active'" @click="changeTab(1)">音乐</div>
+        <div class="tab" :class="tab === 2 && 'active'" @click="changeTab(2)">专辑</div>
+      </div>
+      <div class="total" v-if="list?.length">共N{{}}首音乐 | 共N{{}}张专辑</div>
+    </div>
 
     <template v-if="!loading">
-      <div class="voice-list" v-if="list && total !== 0">
+      <div class="voice-list" v-if="tab === 1 && list.length && total !== 0">
         <div class="voice-bar">
-          <div>歌名\歌手</div>
-          <div>专辑</div>
-          <div class="time">时长</div>
+          <span>歌名\歌手</span>
+          <span>专辑</span>
+          <span>时长</span>
         </div>
         <voice
           :data="item"
@@ -19,6 +26,9 @@
           :key="item.exhibitId"
         />
         <div class="no-more-tip" v-if="list.length === total && noMoreTip">{{ noMoreTip }}</div>
+      </div>
+      <div v-else-if="tab === 2 && list.length && total !== 0">
+        <Album hasHeder="false" />
       </div>
       <div class="no-data-tip" v-if="total === 0 || (total === null && !list.length)">
         {{ noDataTip }}
@@ -59,12 +69,19 @@
 <script>
 import { useGlobalStore } from "@/store/global";
 import voice from "@/components/voice.vue";
+import Album from "@/components/album.vue";
+
+const TabEnum = {
+  Music: 1,
+  Album: 2
+};
 
 export default {
   name: "list",
 
   components: {
-    voice
+    voice,
+    Album
   },
 
   props: {
@@ -114,6 +131,16 @@ export default {
     authShow: {
       type: Boolean,
       default: false
+    },
+    /** 音乐 | 专辑 */
+    activeTab: {
+      type: String,
+      default: "Music"
+    },
+    /** 是否显示音乐，专辑Tab */
+    musicAlbumTab: {
+      type: Boolean,
+      default: true
     }
   },
 
@@ -121,8 +148,15 @@ export default {
     const store = useGlobalStore();
 
     return {
-      store
+      store,
+      tab: TabEnum[this.activeTab]
     };
+  },
+
+  methods: {
+    changeTab(tab) {
+      this.tab = tab;
+    }
   }
 };
 </script>
@@ -173,8 +207,69 @@ export default {
       color: #ffffff;
       line-height: 56px;
       opacity: 0.6;
-      margin-bottom: 50px;
+      margin-bottom: 40px;
       word-break: break-all;
+    }
+
+    .music-album-tab {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 20px;
+      .tab-box {
+        display: flex;
+        .tab {
+          position: relative;
+          line-height: 38px;
+          font-size: 14px;
+          font-weight: 600;
+          color: #ffffff;
+          opacity: 0.4;
+          transition: all 0.2s ease-out;
+          cursor: pointer;
+          transform: perspective(1px) translateZ(0);
+          margin-right: 40px;
+
+          &:last-of-type {
+            margin-right: 0;
+          }
+
+          &:before {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            left: 51%;
+            right: 51%;
+            bottom: 0;
+            background-color: #fff;
+            opacity: 1;
+            height: 2px;
+            border-radius: 2px;
+            transition: all 0.2s ease-out;
+          }
+
+          &:hover {
+            opacity: 0.8;
+          }
+
+          &.active {
+            opacity: 0.8;
+
+            &::before {
+              left: 0;
+              right: 0;
+            }
+          }
+        }
+      }
+
+      .total {
+        margin-top: 30px;
+        font-weight: 400;
+        font-size: 12px;
+        color: #ffffff;
+        line-height: 18px;
+        opacity: 0.4;
+      }
     }
 
     .voice-list {
@@ -182,13 +277,14 @@ export default {
 
       .voice-bar {
         display: flex;
+        justify-content: space-between;
         align-items: center;
         background: #292929;
         border-radius: 6px;
         padding: 6px 10px;
         margin-bottom: 15px;
 
-        div {
+        span {
           font-weight: 400;
           font-size: 12px;
           color: #ffffff;
@@ -196,20 +292,16 @@ export default {
           opacity: 0.4;
 
           &:nth-child(1) {
-            min-width: 630px;
-            max-width: 720px;
-            flex: 1;
+            width: 720px;
           }
 
           &:nth-child(2) {
-            min-width: 250px;
-            max-width: 340px;
-            flex: 1;
+            width: 340px;
           }
-        }
 
-        .time {
-          width: 120px;
+          &:nth-child(3) {
+            width: 120px;
+          }
         }
       }
 
@@ -223,8 +315,8 @@ export default {
     }
 
     .no-data-tip {
-      top: 98px;
-      height: calc(100vh - 98px);
+      top: 272px;
+      height: calc(100vh - 272px);
       font-size: 30px;
       line-height: 36px;
     }
@@ -248,8 +340,10 @@ export default {
     right: 0;
     color: rgba(255, 255, 255, 0.4);
     display: flex;
-    align-items: center;
+    // align-items: center;
+    padding-top: calc((100vh - 272px) * 0.4 - 18px);
     justify-content: center;
+    box-sizing: border-box;
   }
 
   .pc-skeleton {

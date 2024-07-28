@@ -45,7 +45,7 @@
           </div>
         </div>
         <div class="duration" :class="{ 'opacity-40': authLinkAbnormal }">
-          {{ data.versionInfo.exhibitProperty.duration | secondsToHMS }}
+          {{ data.versionInfo.exhibitProperty.duration }}
         </div>
         <div class="other-area" :class="{ 'opacity-40': authLinkAbnormal }">
           <div class="info-item">
@@ -103,71 +103,79 @@
       :class="{ unplayable: !ifSupportMime }"
       v-if="store.inMobile === false"
     >
-      <div
-        ref="cover"
-        class="cover-area"
-        :class="{ 'opacity-40': authLinkAbnormal }"
-        @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
-      >
-        <img class="cover" :src="data.coverImages[0]" />
-        <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
-        <div class="btn-modal" v-if="ifSupportMime">
-          <div class="btn" @click.stop="playOrPause()">
-            <i
-              class="freelog"
-              :class="playing ? 'fl-icon-zanting' : 'fl-icon-bofang-sanjiaoxing'"
-            ></i>
+      <div class="left-box">
+        <div
+          ref="cover"
+          class="cover-area"
+          :class="{ 'opacity-40': authLinkAbnormal }"
+          @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
+        >
+          <img class="cover" :src="data.coverImages[0]" />
+          <div class="offline" v-if="data.onlineStatus === 0 && statusShow">
+            <span>已下架</span>
+          </div>
+          <div class="btn-modal" v-if="ifSupportMime">
+            <div class="btn" @click.stop="playOrPause()">
+              <i
+                class="freelog"
+                :class="playing ? 'fl-icon-zanting' : 'fl-icon-bofang-sanjiaoxing'"
+              ></i>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="info-area">
-        <div class="title-area">
-          <img
-            class="auth-link-abnormal"
-            src="../assets/images/auth-link-abnormal.png"
-            v-if="authLinkAbnormal"
-          />
-          <i
-            class="freelog fl-icon-suoding lock"
-            @click.stop="getAuth()"
-            v-if="data.defaulterIdentityType >= 4"
-          ></i>
-          <template v-if="authShow">
-            <div
-              class="tag is-auth"
-              :class="{ 'opacity-40': authLinkAbnormal }"
-              v-if="data.defaulterIdentityType < 4"
-            >
-              已授权
-            </div>
-            <div class="tag not-auth" :class="{ 'opacity-40': authLinkAbnormal }" v-else>
-              未授权
-            </div>
-          </template>
-          <myTooltip :content="data.exhibitTitle">
-            <span
-              class="title"
-              :class="{ 'opacity-40': authLinkAbnormal }"
-              @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
-            >
-              {{ data.exhibitTitle }}
-            </span>
+        <div class="info-area">
+          <div class="title-area">
+            <img
+              class="auth-link-abnormal"
+              src="../assets/images/auth-link-abnormal.png"
+              v-if="authLinkAbnormal"
+            />
+            <i
+              class="freelog fl-icon-suoding lock"
+              @click.stop="getAuth()"
+              v-if="data.defaulterIdentityType >= 4"
+            ></i>
+            <template v-if="authShow">
+              <div
+                class="tag is-auth"
+                :class="{ 'opacity-40': authLinkAbnormal }"
+                v-if="data.defaulterIdentityType < 4"
+              >
+                已授权
+              </div>
+              <div class="tag not-auth" :class="{ 'opacity-40': authLinkAbnormal }" v-else>
+                未授权
+              </div>
+            </template>
+            <myTooltip :content="data.exhibitTitle">
+              <span
+                class="title"
+                :class="{ 'opacity-40': authLinkAbnormal }"
+                @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
+              >
+                {{ data.exhibitTitle }}
+              </span>
+            </myTooltip>
+          </div>
+          <div class="intro" :class="{ 'opacity-40': authLinkAbnormal }">
+            {{ data.exhibitIntro }}
+          </div>
+        </div>
+        <div class="btns-area" :class="{ opacity: authLinkAbnormal }">
+          <myTooltip :content="item.title" v-for="item in btnList" :key="item.title">
+            <i
+              class="freelog text-btn"
+              :class="[item.icon, { disabled: item.disabled }]"
+              @click="item.operate"
+            />
           </myTooltip>
         </div>
-        <div class="intro" :class="{ 'opacity-40': authLinkAbnormal }">
-          {{ data.exhibitIntro }}
-        </div>
       </div>
-      <div class="btns-area" :class="{ opacity: authLinkAbnormal }">
-        <myTooltip :content="item.title" v-for="item in btnList" :key="item.title">
-          <i
-            class="freelog text-btn"
-            :class="[item.icon, { disabled: item.disabled }]"
-            @click="item.operate"
-          />
-        </myTooltip>
+      <div class="middle-box">{{ data.articleInfo.articleType === 2 ? "合集" : "单曲" }}</div>
+      <div class="right-box">
+        <div class="duration">{{ data.versionInfo.exhibitProperty.duration }}</div>
       </div>
-      <div class="duration">{{ data.versionInfo.exhibitProperty.duration | secondsToHMS }}</div>
+
       <div
         class="cover-to-add"
         :class="{ animation: addAnimation }"

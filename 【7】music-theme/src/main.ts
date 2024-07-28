@@ -1,5 +1,6 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
+import vView from "vue-view-lazy";
 import { useGlobalStore } from "@/store/global";
 import { initFreelogApp } from "freelog-runtime";
 
@@ -14,6 +15,7 @@ window.mount = () => {
   const app = createApp(App);
   app.use(pinia);
   app.use(router);
+  app.use(vView);
   app.mount("#app");
 
   initFreelogApp();

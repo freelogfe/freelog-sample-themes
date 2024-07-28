@@ -314,13 +314,14 @@
   .pc-voice-wrapper {
     display: flex;
     align-items: center;
+    justify-content: space-between;
 
     &.unplayable {
       opacity: 0.4;
     }
 
     &:hover {
-      .btns-area {
+      .left-box .btns-area {
         opacity: 1;
 
         &.opacity {
@@ -329,243 +330,259 @@
       }
     }
 
-    .cover-area {
-      position: relative;
-      width: 100px;
-      height: 100px;
-      background: #222;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-sizing: border-box;
-      border-radius: 10px;
+    .left-box {
+      width: 730px;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      flex-shrink: 0;
-      transition: all 0.5s ease;
-      z-index: 1;
 
-      &:hover {
-        opacity: 1;
+      .cover-area {
+        position: relative;
+        width: 50px;
+        height: 50px;
+        background: #222;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-sizing: border-box;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        flex-shrink: 0;
+        transition: all 0.5s ease;
+        z-index: 1;
 
-        .btn-modal {
-          background: rgba(0, 0, 0, 0.2);
+        &:hover {
+          opacity: 1;
 
-          .btn {
-            opacity: 1;
+          .btn-modal {
+            background: rgba(0, 0, 0, 0.2);
+
+            .btn {
+              opacity: 1;
+            }
           }
         }
-      }
 
-      .cover {
-        height: 100%;
-      }
-
-      .offline {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 40px;
-        height: 20px;
-        background: rgba(0, 0, 0, 0.5);
-        border-radius: 0px 0px 4px 0px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        span {
-          font-size: 10px;
-          font-weight: 600;
-          color: #ffffff;
-          transform: scale(0.84);
+        .cover {
+          height: 100%;
         }
-      }
 
-      .btn-modal {
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.5s ease;
-
-        .btn {
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.4);
-          backdrop-filter: blur(1px);
+        .offline {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 40px;
+          height: 20px;
+          background: rgba(0, 0, 0, 0.5);
+          border-radius: 0px 0px 4px 0px;
           display: flex;
           align-items: center;
           justify-content: center;
-          opacity: 0;
+
+          span {
+            font-size: 10px;
+            font-weight: 600;
+            color: #ffffff;
+            transform: scale(0.84);
+          }
+        }
+
+        .btn-modal {
+          position: absolute;
+          inset: 0;
+          background: rgba(0, 0, 0, 0);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
           transition: all 0.5s ease;
 
-          &:hover {
-            background: #2784ff;
-          }
-
-          &:active {
+          .btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
             background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(1px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.5s ease;
+
+            &:hover {
+              background: #2784ff;
+            }
+
+            &:active {
+              background: rgba(255, 255, 255, 0.4);
+            }
+
+            .freelog {
+              font-size: 18px;
+              color: #fff;
+
+              &.fl-icon-bofang-sanjiaoxing {
+                margin-left: 5px;
+              }
+
+              &.fl-icon-zanting {
+                margin-left: 2px;
+              }
+            }
+          }
+        }
+      }
+
+      .info-area {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        margin-left: 20px;
+
+        .title-area {
+          width: 100%;
+          display: flex;
+          align-items: center;
+
+          .auth-link-abnormal {
+            width: 16px;
+            height: 16px;
+            margin-right: 5px;
           }
 
-          .freelog {
-            font-size: 18px;
-            color: #fff;
+          .lock {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-right: 5px;
+            cursor: pointer;
+          }
 
-            &.fl-icon-bofang-sanjiaoxing {
+          .tag {
+            flex-shrink: 0;
+            width: 56px;
+            height: 22px;
+            border-radius: 22px;
+            margin-right: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            &.is-auth {
+              background: #42c28c;
+            }
+
+            &.not-auth {
+              background: #e9a923;
+            }
+          }
+
+          .title {
+            flex: 1;
+            width: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 22px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            transition: all 0.2s linear;
+
+            &:hover {
+              color: #fff;
+              text-decoration: underline;
+              opacity: 1;
+            }
+          }
+        }
+
+        .intro {
+          width: 100%;
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.4);
+          line-height: 18px;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
+          overflow: hidden;
+        }
+
+        .other-area {
+          display: flex;
+          margin-top: 10px;
+
+          .info-item {
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.4);
+
+            & + .info-item {
+              margin-left: 20px;
+            }
+
+            .freelog {
+              font-size: 14px;
+            }
+
+            .item-value {
+              font-size: 12px;
+              line-height: 18px;
               margin-left: 5px;
             }
 
-            &.fl-icon-zanting {
-              margin-left: 2px;
+            .progress {
+              font-size: 12px;
+              color: #2784ff;
+              line-height: 18px;
+              margin-left: 10px;
+
+              .progress-divider {
+                margin: 0 2px;
+              }
             }
           }
         }
       }
-    }
 
-    .info-area {
-      width: 700px;
-      height: 100%;
-      margin-left: 20px;
-
-      .title-area {
-        width: 100%;
+      .btns-area {
+        flex: 1;
         display: flex;
         align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: all 0.5s ease;
 
-        .auth-link-abnormal {
-          width: 16px;
-          height: 16px;
-          margin-right: 5px;
-        }
-
-        .lock {
-          font-size: 16px;
-          color: rgba(255, 255, 255, 0.8);
-          margin-right: 5px;
-          cursor: pointer;
-        }
-
-        .tag {
+        .text-btn {
+          font-size: 20px;
           flex-shrink: 0;
-          width: 56px;
-          height: 22px;
-          border-radius: 22px;
-          margin-right: 5px;
-          font-size: 12px;
-          font-weight: 600;
-          color: #ffffff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
 
-          &.is-auth {
-            background: #42c28c;
-          }
-
-          &.not-auth {
-            background: #e9a923;
-          }
-        }
-
-        .title {
-          flex: 1;
-          width: 0;
-          font-size: 16px;
-          font-weight: 600;
-          color: rgba(255, 255, 255, 0.8);
-          line-height: 22px;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          cursor: pointer;
-          transition: all 0.2s linear;
-
-          &:hover {
-            color: #fff;
-            text-decoration: underline;
-            opacity: 1;
-          }
-        }
-      }
-
-      .intro {
-        width: 100%;
-        height: 40px;
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.4);
-        line-height: 20px;
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-        overflow: hidden;
-        margin-top: 10px;
-      }
-
-      .other-area {
-        display: flex;
-        margin-top: 10px;
-
-        .info-item {
-          display: flex;
-          align-items: center;
-          color: rgba(255, 255, 255, 0.4);
-
-          & + .info-item {
-            margin-left: 20px;
-          }
-
-          .freelog {
-            font-size: 14px;
-          }
-
-          .item-value {
-            font-size: 12px;
-            line-height: 18px;
-            margin-left: 5px;
-          }
-
-          .progress {
-            font-size: 12px;
-            color: #2784ff;
-            line-height: 18px;
-            margin-left: 10px;
-
-            .progress-divider {
-              margin: 0 2px;
-            }
+          & + .text-btn {
+            margin-left: 24px;
           }
         }
       }
     }
 
-    .btns-area {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: all 0.5s ease;
-
-      .text-btn {
-        font-size: 20px;
-        flex-shrink: 0;
-
-        & + .text-btn {
-          margin-left: 24px;
-        }
-      }
-    }
-
-    .duration {
-      font-size: 14px;
-      font-weight: 600;
+    .middle-box {
+      width: 340px;
+      font-weight: 400;
+      font-size: 12px;
+      line-height: 18px;
       color: rgba(255, 255, 255, 0.4);
-      flex-shrink: 0;
+    }
+
+    .right-box {
+      width: 130px;
+      .duration {
+        font-size: 12px;
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.4);
+        flex-shrink: 0;
+      }
     }
 
     .cover-to-add {

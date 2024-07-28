@@ -1,13 +1,13 @@
-<!-- 音乐列表页 -->
+<!-- 专辑列表页 -->
 <template>
-  <div class="voice-list-wrapper">
+  <div class="album-list-wrapper">
     <list
       :list="listData"
       :loading="loading"
       :total="total"
       :musicAlbumTab="false"
-      activeTab="Music"
-      title="所有音乐"
+      activeTab="Album"
+      title="所有专辑"
       noMoreTip="已加载全部"
       noDataTip="暂无任何声音"
     />
@@ -20,7 +20,7 @@ import { useGlobalStore } from "@/store/global";
 import list from "@/components/list.vue";
 
 export default {
-  name: "voice-list",
+  name: "album-list",
 
   components: {
     list

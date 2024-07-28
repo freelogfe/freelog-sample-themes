@@ -12,7 +12,7 @@ export const useMyAuth = {
     const { userData } = storeToRefs(store);
 
     // 用户未登录
-    if (userData.isLogin) return;
+    if (!userData.value.isLogin) return;
 
     const result = [];
     const signedList = await freelogApp.getSignStatistics();
@@ -87,7 +87,7 @@ export const useMyCollection = {
   async getCollectionList() {
     const store = useGlobalStore();
     const { userData } = storeToRefs(store);
-    if (!userData.isLogin) return;
+    if (!userData.value.isLogin) return;
 
     const result = [];
     const idList = store.collectionIdList;
@@ -124,6 +124,7 @@ export const useMyCollection = {
 
   /** 操作收藏（如未收藏则收藏，反之取消收藏） */
   async operateCollect(data) {
+    const store = useGlobalStore();
     if (!store.userData.isLogin) {
       callLogin();
       return;
@@ -161,7 +162,7 @@ export const useMyPlay = {
     const store = useGlobalStore();
     const { playIdList } = storeToRefs(store);
     const result = [];
-    const idList = playIdList;
+    const idList = playIdList.value;
     if (!idList.length) {
       store.setData({ key: "playList", value: [] });
       return;

@@ -34,16 +34,18 @@ img {
 }
 
 .text-btn {
-  color: rgba(39, 132, 255, 0.8);
+  color: rgba(255,255,255, 0.8);
   cursor: pointer;
   transition: all 0.2s linear;
 
   &:hover {
-    color: #2784ff !important;
+    color: #44D7B6;
+    opacity: 1;
   }
 
   &:active {
-    color: rgba(39, 132, 255, 0.8) !important;
+    color: #44D7B6;
+    opacity:  1;
   }
 
   &.mobile {
@@ -55,13 +57,13 @@ img {
     }
 
     &:active {
-      color: #2784ff !important;
+      color: #44D7B6 !important;
       pointer-events: auto;
     }
   }
 
   &.disabled {
-    color: rgba(39, 132, 255, 0.32);
+    color: rgba(255,255,255, 0.32);
     pointer-events: none;
   }
 }

@@ -26,6 +26,12 @@ const routes = [
     meta: { keepAlive: true }
   },
   {
+    path: "/album-list",
+    name: "album-list",
+    component: () => import("../views/album-list/index.vue"),
+    meta: { keepAlive: true }
+  },
+  {
     path: "/detail",
     name: "detail",
     component: () => import("../views/detail/index.vue")
@@ -97,6 +103,8 @@ router.afterEach(to => {
   // 将第一个路由记入路由历史
   const store = useGlobalStore();
   const { locationHistory } = store;
+  console.log("%c数据", "color:green; padding:10px; font-size: 15px", store);
+
   if (locationHistory.length) return;
 
   const { path, query } = to;

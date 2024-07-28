@@ -231,6 +231,7 @@ export default {
       tabList: [
         { value: "/home", label: "首页" },
         { value: "/voice-list", label: "音乐" },
+        { value: "/album-list", label: "专辑" },
         { value: "/collection-list", label: "收藏" }
       ],
       store

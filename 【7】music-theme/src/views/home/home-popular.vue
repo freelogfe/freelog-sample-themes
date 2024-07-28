@@ -1,18 +1,51 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { useGlobalStore } from "@/store/global";
 
+import myTooltip from "@/components/tooltip.vue";
 import MoreIcon from "@/assets/images/arrow.png";
 
+import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
+
+import { Exhibit } from "@/interface";
+
 const store = useGlobalStore();
+const router = useRouter();
 
-const popularData = ref<any[]>([1, 2, 3, 4, 5, 6, 7]);
+const props = defineProps<{
+  hasHeader: boolean;
+  data: Exhibit[];
+}>();
 
+const showMore = ref<boolean>(false);
 const changeIndex = (index: number): string => {
   if (index > 1 && index < 10) {
     return index.toString().padStart(2, "0");
   }
   return index.toString();
+};
+
+/** 授权链异常 */
+const authLinkAbnormal = (defaulterIdentityType: number) => {
+  return ![0, 4].includes(defaulterIdentityType);
+};
+
+/** 是否为支持格式 */
+const ifSupportMime = (mime: string) => {
+  const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
+  return supportMimeList.includes(mime);
+};
+
+/** 是否播放中 */
+const playing = (exhibitId: string) => {
+  const { playing, playingInfo } = store;
+  return playing && playingInfo.exhibitId === exhibitId;
+};
+
+/** 播放/暂停 */
+const playOrPause = (item: Exhibit) => {
+  useMyPlay.playOrPause(item);
 };
 </script>
 
@@ -21,7 +54,7 @@ const changeIndex = (index: number): string => {
     <!-- 热门头部 -->
     <div class="popular-header-box">
       <span class="title">热门音乐</span>
-      <div class="more">
+      <div class="more" @click="router.myPush({ path: '/voice-list' })">
         所有音乐
         <div class="more-icon">
           <img :src="MoreIcon" alt="更多" />
@@ -31,20 +64,58 @@ const changeIndex = (index: number): string => {
 
     <!-- 热门内容 -->
     <div class="popular-content-box">
-      <div class="content-item" v-for="(item, index) in popularData" :key="index">
+      <div class="content-item" v-for="(item, index) in props.data" :key="index">
         <div class="index">{{ changeIndex(index + 1) }}</div>
         <div class="info-box">
           <div class="cover-image">
-            <img
-              src="https://fastly.picsum.photos/id/886/170/170.jpg?hmac=pS3kuW8yXp5t8UX3v-vMkM3wA0fcbAeeSyo9NyUIQqs"
-              alt="歌曲封面"
-              srcset=""
-            />
+            <img :src="item.coverImages[0]" alt="歌曲封面" />
+            <div
+              class="btn-modal"
+              v-if="ifSupportMime(item.versionInfo.exhibitProperty.mime as string)"
+            >
+              <div class="btn" @click.stop="playOrPause(item)">
+                <i
+                  class="freelog"
+                  :class="
+                    playing(item.exhibitId) ? 'fl-icon-zanting' : 'fl-icon-bofang-sanjiaoxing'
+                  "
+                ></i>
+              </div>
+            </div>
           </div>
           <div class="info">
-            <span class="title">夏日的清晨，阳光洒在大地上，微风轻拂，给人带来宁静</span>
-            <span class="desc">夏日的清晨，阳光洒在大地上，微风轻拂，给人带来宁静</span>
-            <span class="type" :class="true && 'album'">单曲 | 合集名字</span>
+            <span class="title">{{ item.exhibitTitle }}</span>
+            <span class="desc">{{ item.exhibitIntro }}</span>
+            <span class="type" :class="item.articleInfo.articleType === 2 && 'album'">
+              {{ item.articleInfo.articleType === 2 ? item.exhibitTitle : "单曲" }}
+            </span>
+          </div>
+          <div class="btns-area" :class="{ opacity: authLinkAbnormal(item.defaulterIdentityType) }">
+            <myTooltip content="加入播放列表">
+              <i
+                class="freelog text-btn"
+                :class="['fl-icon-jiarubofangliebiao', { disabled: false }]"
+                @click=""
+              />
+            </myTooltip>
+            <myTooltip content="更多">
+              <i
+                class="freelog text-btn"
+                :class="['fl-icon-jiarubofangliebiao', { disabled: false }]"
+                @click="showMore = true"
+              />
+            </myTooltip>
+
+            <div class="more-btns" v-if="showMore" @mouseleave="showMore = false">
+              <div class="more-item">
+                <i class="freelog text-btn fl-icon-fenxiang" />
+                分享
+              </div>
+              <div class="more-item">
+                <i class="freelog text-btn fl-icon-shoucangxiaoshuo" />
+                收藏
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -55,7 +126,7 @@ const changeIndex = (index: number): string => {
 <style lang="less" scoped>
 .home-popular-wrap {
   width: 100%;
-  padding: 60px 80px;
+  padding: 60px 0;
   box-sizing: border-box;
 
   .popular-header-box {
@@ -80,6 +151,10 @@ const changeIndex = (index: number): string => {
       line-height: 20px;
       cursor: pointer;
 
+      &:hover {
+        opacity: 1;
+      }
+
       .more-icon {
         width: 7px;
         height: 13px;
@@ -98,13 +173,17 @@ const changeIndex = (index: number): string => {
     display: flex;
     flex-wrap: wrap;
     gap: 40px 30px;
-    min-width: 1100px;
     margin-top: 40px;
 
     .content-item {
       display: flex;
-      min-width: 340px;
-      max-width: 400px;
+      width: 400px;
+
+      &:hover {
+        .info-box .btns-area {
+          opacity: 1;
+        }
+      }
 
       .index {
         width: 40px;
@@ -114,6 +193,7 @@ const changeIndex = (index: number): string => {
         line-height: 22px;
         text-align: left;
         opacity: 0.2;
+        flex-shrink: 0;
       }
 
       .info-box {
@@ -121,6 +201,7 @@ const changeIndex = (index: number): string => {
         align-items: center;
 
         .cover-image {
+          position: relative;
           width: 70px;
           height: 70px;
           background: rgba(0, 0, 0, 0.2);
@@ -129,10 +210,70 @@ const changeIndex = (index: number): string => {
           overflow: hidden;
           cursor: pointer;
 
+          &:hover {
+            /* 使用兄弟选择器来改变 btns-area 的样式 */
+            // + .info + .btns-area {
+            //   opacity: 1;
+            // }
+
+            .btn-modal {
+              background: rgba(0, 0, 0, 0.2);
+
+              .btn {
+                opacity: 1;
+              }
+            }
+          }
+
           img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+          }
+
+          .btn-modal {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.5s ease;
+
+            .btn {
+              width: 48px;
+              height: 48px;
+              border-radius: 50%;
+              background: rgba(255, 255, 255, 0.4);
+              backdrop-filter: blur(1px);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              opacity: 0;
+              transition: all 0.5s ease;
+
+              &:hover {
+                background: #44d7b6;
+              }
+
+              &:active {
+                background: rgba(255, 255, 255, 0.4);
+              }
+
+              .freelog {
+                font-size: 18px;
+                color: #fff;
+
+                &.fl-icon-bofang-sanjiaoxing {
+                  margin-left: 5px;
+                }
+
+                &.fl-icon-zanting {
+                  margin-left: 2px;
+                }
+              }
+            }
           }
         }
 
@@ -142,7 +283,7 @@ const changeIndex = (index: number): string => {
           gap: 6px;
 
           .title {
-            width: 275px;
+            width: 196px;
             font-weight: 600;
             font-size: 16px;
             color: #ffffff;
@@ -155,11 +296,17 @@ const changeIndex = (index: number): string => {
 
             &:hover {
               color: #44d7b6;
+              opacity: 1;
+              text-decoration: underline;
+
+              .info-box .btns-area {
+                opacity: 1 !important;
+              }
             }
           }
 
           .desc {
-            width: 275px;
+            width: 196px;
             font-weight: 400;
             font-size: 12px;
             color: #ffffff;
@@ -185,17 +332,55 @@ const changeIndex = (index: number): string => {
             }
           }
         }
-      }
-    }
-  }
-}
 
-@media (max-width: 1440px) {
-  .home-popular-wrap {
-    .popular-content-box {
-      .title,
-      .desc {
-        width: 215px !important;
+        .btns-area {
+          position: relative;
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          transition: all 0.5s ease;
+
+          .text-btn {
+            font-size: 20px;
+            flex-shrink: 0;
+            margin-left: 20px;
+          }
+
+          .more-btns {
+            position: absolute;
+            right: 0;
+            top: 14px;
+            width: 91px;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.2);
+            box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            backdrop-filter: blur(25px);
+            overflow: hidden;
+
+            .more-item {
+              height: 50px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              cursor: pointer;
+
+              &:hover {
+                background: #44d7b6;
+              }
+
+              .text-btn {
+                margin-left: 0;
+                margin-right: 5px;
+                &:hover {
+                  color: rgba(255, 255, 255, 0.8);
+                }
+              }
+            }
+          }
+        }
       }
     }
   }

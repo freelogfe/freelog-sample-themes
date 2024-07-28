@@ -4,6 +4,7 @@ import { useGlobalStore } from "@/store/global";
 
 import FreelogHeader from "@/components/header.vue";
 import FreelogFooter from "@/components/footer.vue";
+import FreelogPlayer from "@/components/player.vue";
 import FreelogThemeEntrance from "@/components/theme-entrance.vue";
 import FreelogShare from "@/components/share.vue";
 
@@ -15,12 +16,26 @@ const { inMobile } = storeToRefs(store);
   <div id="music-theme" :class="{ pc: inMobile === false, mobile: inMobile }">
     <div class="page-wrapper">
       <FreelogHeader />
-      <keep-alive>
-        <router-view class="router-view" :key="$route.path" v-if="$route.meta.keepAlive" />
-      </keep-alive>
-      <router-view class="router-view" v-if="!$route.meta.keepAlive" />
-      <FreelogFooter />
+      <router-view v-slot="{ Component }">
+        <keep-alive>
+          <component
+            v-if="$route.meta.keepAlive"
+            :is="Component"
+            class="router-view"
+            :key="$route.path"
+          />
+        </keep-alive>
+        <component
+          v-if="!$route.meta.keepAlive"
+          :is="Component"
+          class="router-view"
+          :key="$route.path"
+        />
+      </router-view>
     </div>
+    <FreelogFooter />
+    <FreelogPlayer />
+
     <FreelogThemeEntrance />
     <FreelogShare />
   </div>
@@ -36,6 +51,7 @@ const { inMobile } = storeToRefs(store);
 
   &.pc {
     .page-wrapper {
+      box-sizing: border-box;
       padding-bottom: 48px;
 
       .router-view {

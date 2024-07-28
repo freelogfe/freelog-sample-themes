@@ -123,10 +123,12 @@ export const judgeIOSDevice = () => {
 /** 弹出轻提示 */
 let timeout = null;
 export const showToast = msg => {
+  console.log("来这里11");
+
   const toast = document.getElementById("toast-wrapper");
   if (toast) document.body.removeChild(toast);
   if (timeout) clearTimeout(timeout);
-
+  console.log("来这里");
   const div = document.createElement("div");
   div.className = "toast-wrapper";
   div.id = "toast-wrapper";
@@ -138,7 +140,7 @@ export const showToast = msg => {
   }, 2000);
 };
 
-// 获取assets静态资源
+/** 获取assets静态资源 */
 export const getAssetsFile = url => {
   return new URL(`../assets/images/${url}`, import.meta.url).href;
 };
