@@ -122,7 +122,7 @@
             <div
               class="duration"
               v-if="
-                voiceInfo.articleInfo?.articleType === 1 &&
+                voiceInfo?.articleInfo?.articleType === 1 &&
                 playingInfo.exhibitId !== voiceInfo?.exhibitId
               "
             >

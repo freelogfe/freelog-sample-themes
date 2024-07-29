@@ -11,6 +11,7 @@ import type { Exhibit } from "@/interface";
 
 const store = useGlobalStore();
 const listData = ref<Exhibit[]>([]);
+const collectionData = ref<Exhibit[]>([]);
 const total = ref<number>(0);
 const loading = ref<boolean>(false);
 
@@ -25,9 +26,11 @@ watch(
 );
 
 const popularData = computed(() => {
-  const data = listData.value
-    .filter(i => i.articleInfo?.articleType === 1)
-    .sort(i => Number(i.updateDate));
+  const traditionalExhibit = listData.value.filter(i => i.articleInfo?.articleType === 1);
+  const data = [...traditionalExhibit, ...collectionData.value]
+    .sort(i => Number(i.updateDate))
+    .slice(0, 10);
+
   return data;
 });
 
@@ -62,17 +65,74 @@ const getList = async () => {
       index = signCountData.data.data.findIndex(
         resultItem => resultItem.subjectId === item.exhibitId
       );
-      if (index !== -1) item.signCount = signCountData.data.data[index].count;
+      if (index !== -1) {
+        item.signCount = signCountData.data.data[index].count;
+      }
       index = statusInfo.data.data.findIndex(resultItem => resultItem.exhibitId === item.exhibitId);
-      index = statusInfo.data.data.findIndex(resultItem => resultItem.exhibitId === item.exhibitId);
-      if (index !== -1)
+      if (index !== -1) {
         item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+      }
+
+      // 获取合集里的单品列表
+      if (item.articleInfo.articleType === 2) {
+        getCollectionList(item.exhibitId, item.exhibitName);
+      }
     });
   }
 
   listData.value = dataList;
   total.value = totalItem;
   loading.value = false;
+};
+
+/** 获取合集里的单品列表 */
+let subTotal = 0;
+let subSkip = 0;
+let subTempData = [];
+
+const getCollectionList = async (collectionID: string, exhibitName: string) => {
+  const subList = await freelogApp.getCollectionSubList(collectionID, {
+    skip: subSkip,
+    limit: 1000
+  });
+  const { dataList, totalItem } = subList.data.data;
+  subTotal = totalItem;
+
+  if (dataList.length !== 0) {
+    const ids = dataList.map((item: any) => item.itemId).join();
+    const statusInfo = await (freelogApp as any).getCollectionSubAuth(collectionID, {
+      itemIds: ids
+    });
+
+    if (statusInfo.data.data) {
+      dataList.forEach((item: Exhibit) => {
+        const index = statusInfo.data.data.findIndex(
+          resultItem => resultItem.itemId === item.itemId
+        );
+        if (index !== -1) {
+          item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+        }
+
+        item.updateDate = item.articleInfo.latestVersionReleaseDate;
+        item.coverImages = item.articleInfo.coverImages;
+        item.exhibitTitle = item.itemTitle;
+        item.exhibitIntro = item.articleInfo.intro;
+        item.albumName = exhibitName;
+      });
+    }
+  }
+
+  subTempData.push(...dataList);
+  collectionData.value = [...collectionData.value, ...dataList];
+
+  if (subTempData.length < subTotal) {
+    subSkip = subSkip + 3000;
+    getCollectionList(collectionID);
+  } else {
+    subTotal = 0;
+    subSkip = 0;
+    subTempData = [];
+  }
 };
 
 onBeforeMount(() => {

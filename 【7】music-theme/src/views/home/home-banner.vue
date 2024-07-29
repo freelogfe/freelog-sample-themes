@@ -4,7 +4,6 @@ import { useGlobalStore } from "@/store/global";
 
 import VisitIcon from "@/assets/images/head-phone.png";
 import PcDefaultBanner from "@/assets/images/pc-default-banner.webp";
-import Test from "@/assets/images/test.webp";
 
 import MobileDefaultBanner from "@/assets/images/mobile-default-banner.webp";
 

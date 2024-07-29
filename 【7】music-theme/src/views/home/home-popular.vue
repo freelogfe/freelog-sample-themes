@@ -95,7 +95,7 @@ const getAuth = data => {
             <img :src="item.coverImages[0]" alt="歌曲封面" />
             <div
               class="btn-modal"
-              v-if="ifSupportMime(item.versionInfo.exhibitProperty.mime as string)"
+              v-if="ifSupportMime(item.versionInfo?.exhibitProperty?.mime as string)"
             >
               <div class="btn" @click.stop="playOrPause(item)">
                 <i
@@ -126,14 +126,14 @@ const getAuth = data => {
             </span>
             <span class="desc">{{ item.exhibitIntro }}</span>
             <span class="type" :class="item.articleInfo.articleType === 2 && 'album'">
-              {{ item.articleInfo.articleType === 2 ? item.exhibitTitle : "单曲" }}
+              {{ item.albumName || "单曲" }}
             </span>
           </div>
           <div class="btns-area" :class="{ opacity: authLinkAbnormal(item.defaulterIdentityType) }">
             <myTooltip content="加入播放列表">
               <i
                 class="freelog text-btn"
-                :class="['fl-icon-jiarubofangliebiao', { disabled: useMyPlay.ifExist(item.exhibitId) || (item.articleInfo.articleType === 1 && !ifSupportMime(item.versionInfo.exhibitProperty.mime as string)) }]"
+                :class="['fl-icon-jiarubofangliebiao', { disabled: useMyPlay.ifExist(item.exhibitId) || (item.articleInfo.articleType === 1 && !ifSupportMime(item.versionInfo?.exhibitProperty?.mime as string)) }]"
                 @click="addToPlayList(item.exhibitId)"
               />
             </myTooltip>
