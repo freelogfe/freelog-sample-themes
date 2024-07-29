@@ -125,7 +125,13 @@ const getAuth = data => {
               {{ item.exhibitTitle }}
             </span>
             <span class="desc">{{ item.exhibitIntro }}</span>
-            <span class="type" :class="item.articleInfo.articleType === 2 && 'album'">
+            <span
+              class="type"
+              :class="item.albumName && 'album'"
+              @click="
+                item.albumName && router.myPush({ path: '/detail', query: { id: item.exhibitId } })
+              "
+            >
               {{ item.albumName || "单曲" }}
             </span>
           </div>
@@ -389,6 +395,7 @@ const getAuth = data => {
 
               &:hover {
                 color: #44d7b6;
+                opacity: 1;
               }
             }
           }

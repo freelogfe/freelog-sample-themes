@@ -1,4 +1,4 @@
-<!-- 声音组件 -->
+<!-- 音乐组件 -->
 <template>
   <div class="voice-wrapper">
     <!-- mobile -->
@@ -178,13 +178,13 @@
         <div class="duration">{{ secondsToHMS(data.versionInfo.exhibitProperty.duration) }}</div>
       </div>
 
-      <div
+      <!-- <div
         class="cover-to-add"
         :class="{ animation: addAnimation }"
         :style="{ '--left': coverLeft + 'px', '--top': coverTop + 'px' }"
       >
         <img class="cover" :src="data.coverImages[0]" />
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -374,6 +374,7 @@ export default {
 
     /** 授权 */
     async getAuth() {
+      console.log("这里的授权", this.data);
       useMyAuth.getAuth(this.data);
     }
   }

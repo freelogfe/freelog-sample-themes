@@ -118,6 +118,7 @@ const getCollectionList = async (collectionID: string, exhibitName: string) => {
         item.exhibitTitle = item.itemTitle;
         item.exhibitIntro = item.articleInfo.intro;
         item.albumName = exhibitName;
+        item.exhibitId = collectionID;
       });
     }
   }

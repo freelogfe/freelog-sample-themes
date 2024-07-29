@@ -71,6 +71,11 @@ export default {
     app.addEventListener("scroll", this.scroll);
   },
 
+  deactivated() {
+    const app = document.getElementById("app");
+    app.removeEventListener("scroll", this.scroll);
+  },
+
   methods: {
     /** 获取声音列表 */
     async getList(init = false) {

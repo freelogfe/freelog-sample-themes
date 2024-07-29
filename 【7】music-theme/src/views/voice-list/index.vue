@@ -53,16 +53,6 @@ export default {
 
   activated() {
     const app = document.getElementById("app");
-    const { routerMode } = this.store;
-    if (routerMode === 1) {
-      // push 过来，滚动条回到顶部
-      app.scroll({ top: 0 });
-      sessionStorage.setItem("musicListScroll", 0);
-    } else if (routerMode === 2) {
-      // back 过来，滚动条回到之前位置
-      const scrollTop = sessionStorage.getItem("musicListScroll") || 0;
-      app.scroll({ top: scrollTop });
-    }
     app.addEventListener("scroll", this.scroll);
   },
 
