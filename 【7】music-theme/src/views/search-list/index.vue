@@ -57,35 +57,18 @@ export default {
 
         this.keywords = cur;
         this.getList(true);
-        console.log("还是这里");
       },
       immediate: true
     }
   },
 
   created() {
-    console.log("是这里吗");
     this.getList(true);
   },
 
   activated() {
     const app = document.getElementById("app");
-    const { routerMode } = this.store;
-    if (routerMode === 1) {
-      // push 过来，滚动条回到顶部
-      app.scroll({ top: 0 });
-      sessionStorage.setItem("searchListScroll", 0);
-    } else if (routerMode === 2) {
-      // back 过来，滚动条回到之前位置
-      const scrollTop = sessionStorage.getItem("searchListScroll") || 0;
-      app.scroll({ top: scrollTop });
-    }
     app.addEventListener("scroll", this.scroll);
-  },
-
-  deactivated() {
-    const app = document.getElementById("app");
-    app.removeEventListener("scroll", this.scroll);
   },
 
   methods: {
@@ -136,8 +119,8 @@ export default {
 
     /** 页面滚动 */
     scroll() {
+      const app = document.getElementById("app");
       const scrollTop = app.scrollTop || 0;
-      sessionStorage.setItem("searchListScroll", scrollTop);
       const clientHeight = app.clientHeight || 0;
       const scrollHeight = app.scrollHeight || 0;
       if (scrollTop + clientHeight < scrollHeight - 200) return;

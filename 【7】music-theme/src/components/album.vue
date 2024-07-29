@@ -54,7 +54,11 @@ const ifSupportMime = () => {
             </div>
           </div>
           <div class="info">
-            <span class="title">{{ item.exhibitTitle }}</span>
+            <span
+              class="title"
+              @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
+              >{{ item.exhibitTitle }}</span
+            >
 
             <div class="desc">
               <div class="time-box">

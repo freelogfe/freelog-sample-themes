@@ -45,6 +45,7 @@ const { inMobile } = storeToRefs(store);
 @import "@/assets/css/index.less";
 
 #music-theme {
+  position: relative;
   background-color: #222;
   color: #fff;
   font-size: 14px;

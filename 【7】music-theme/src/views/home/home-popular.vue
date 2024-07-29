@@ -5,6 +5,7 @@ import { useGlobalStore } from "@/store/global";
 
 import myTooltip from "@/components/tooltip.vue";
 import MoreIcon from "@/assets/images/arrow.png";
+import AuthLinkAbnormal from "@/assets/images/auth-link-abnormal.png";
 
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 
@@ -47,13 +48,36 @@ const playing = (exhibitId: string) => {
 const playOrPause = (item: Exhibit) => {
   useMyPlay.playOrPause(item);
 };
+
+/** 加入播放列表 */
+const addToPlayList = (exhibitId: string) => {
+  useMyPlay.addToPlayList(exhibitId);
+};
+
+/** 收藏/取消收藏 */
+const operateCollect = data => {
+  useMyCollection.operateCollect(data);
+};
+
+/** 分享 */
+const share = data => {
+  store.setData({
+    key: "shareInfo",
+    value: { show: true, exhibit: data }
+  });
+};
+
+/** 授权 */
+const getAuth = data => {
+  useMyAuth.getAuth(data);
+};
 </script>
 
 <template>
   <div class="home-popular-wrap">
     <!-- 热门头部 -->
     <div class="popular-header-box">
-      <span class="title">热门音乐</span>
+      <span class="title">推荐音乐</span>
       <div class="more" @click="router.myPush({ path: '/voice-list' })">
         所有音乐
         <div class="more-icon">
@@ -84,7 +108,22 @@ const playOrPause = (item: Exhibit) => {
             </div>
           </div>
           <div class="info">
-            <span class="title">{{ item.exhibitTitle }}</span>
+            <span
+              class="title"
+              @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
+            >
+              <img
+                class="auth-link-abnormal"
+                :src="AuthLinkAbnormal"
+                v-if="authLinkAbnormal(item.defaulterIdentityType)"
+              />
+              <i
+                class="freelog fl-icon-suoding lock"
+                @click.stop="getAuth(item)"
+                v-if="item.defaulterIdentityType >= 4"
+              ></i>
+              {{ item.exhibitTitle }}
+            </span>
             <span class="desc">{{ item.exhibitIntro }}</span>
             <span class="type" :class="item.articleInfo.articleType === 2 && 'album'">
               {{ item.articleInfo.articleType === 2 ? item.exhibitTitle : "单曲" }}
@@ -94,26 +133,33 @@ const playOrPause = (item: Exhibit) => {
             <myTooltip content="加入播放列表">
               <i
                 class="freelog text-btn"
-                :class="['fl-icon-jiarubofangliebiao', { disabled: useMyPlay.ifExist(item.exhibitId) || !ifSupportMime(item.versionInfo.exhibitProperty.mime as string) }]"
-                @click=""
+                :class="['fl-icon-jiarubofangliebiao', { disabled: useMyPlay.ifExist(item.exhibitId) || (item.articleInfo.articleType === 1 && !ifSupportMime(item.versionInfo.exhibitProperty.mime as string)) }]"
+                @click="addToPlayList(item.exhibitId)"
               />
             </myTooltip>
             <myTooltip content="更多">
               <i
                 class="freelog text-btn"
-                :class="['fl-icon-jiarubofangliebiao', { disabled: false }]"
+                :class="['fl-icon-gengduo_yuandian_zongxiang more-icon']"
                 @click="showMore = true"
               />
             </myTooltip>
 
             <div class="more-btns" v-if="showMore" @mouseleave="showMore = false">
-              <div class="more-item">
+              <div class="more-item" @click="share(item)">
                 <i class="freelog text-btn fl-icon-fenxiang" />
                 分享
               </div>
-              <div class="more-item">
-                <i class="freelog text-btn fl-icon-shoucangxiaoshuo" />
-                收藏
+              <div class="more-item" @click="operateCollect(item)">
+                <i
+                  class="freelog text-btn"
+                  :class="
+                    useMyCollection.ifExist(item.exhibitId)
+                      ? 'fl-icon-shoucangxiaoshuoyishoucang'
+                      : 'fl-icon-shoucangxiaoshuo'
+                  "
+                />
+                {{ useMyCollection.ifExist(item.exhibitId) ? "取消收藏" : "收藏" }}
               </div>
             </div>
           </div>
@@ -283,6 +329,8 @@ const playOrPause = (item: Exhibit) => {
           gap: 6px;
 
           .title {
+            display: flex;
+            align-items: center;
             width: 196px;
             font-weight: 600;
             font-size: 16px;
@@ -302,6 +350,19 @@ const playOrPause = (item: Exhibit) => {
               .info-box .btns-area {
                 opacity: 1 !important;
               }
+              .lock {
+                color: #ffffff;
+              }
+            }
+
+            .auth-link-abnormal {
+              width: 16px;
+              height: 16px;
+              margin-right: 5px;
+            }
+
+            .lock {
+              margin-right: 5px;
             }
           }
 
@@ -346,6 +407,10 @@ const playOrPause = (item: Exhibit) => {
             font-size: 20px;
             flex-shrink: 0;
             margin-left: 20px;
+          }
+
+          .more-icon {
+            transform: rotate(90deg);
           }
 
           .more-btns {

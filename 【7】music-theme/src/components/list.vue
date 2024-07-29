@@ -3,15 +3,27 @@
   <div class="list-wrapper" :class="store.inMobile ? 'mobile' : 'pc'">
     <div class="title" v-if="title">{{ title }}</div>
     <div class="search-title" v-if="searchTitle">{{ searchTitle }}</div>
+
+    <!-- 音乐 专辑 Tab -->
     <div class="music-album-tab" v-if="musicAlbumTab">
       <div class="tab-box">
         <div class="tab" :class="tab === 1 && 'active'" @click="changeTab(1)">音乐</div>
         <div class="tab" :class="tab === 2 && 'active'" @click="changeTab(2)">专辑</div>
       </div>
-      <div class="total" v-if="list?.length">共N{{}}首音乐 | 共N{{}}张专辑</div>
+      <div
+        class="total"
+        v-if="list?.length && ((tab === 1 && musicLength) || (tab === 2 && albumLength))"
+      >
+        {{
+          tab === 1
+            ? musicLength && `共${musicLength}首音乐`
+            : albumLength && `共${albumLength}张专辑`
+        }}
+      </div>
     </div>
 
     <template v-if="!loading">
+      <!-- 音乐 -->
       <div class="voice-list" v-if="tab === 1 && list.length && total !== 0">
         <div class="voice-bar">
           <span>歌名\歌手</span>
@@ -22,17 +34,17 @@
           :data="item"
           :statusShow="statusShow"
           :authShow="authShow"
-          v-for="item in list"
+          v-for="item in list.filter(i => i.articleInfo?.articleType === 1)"
           :key="item.exhibitId"
         />
         <div class="no-more-tip" v-if="list.length === total && noMoreTip">{{ noMoreTip }}</div>
       </div>
+      <!-- 专辑 -->
       <div v-else-if="tab === 2 && list.length && total !== 0">
-        <Album hasHeder="false" />
+        <Album hasHeder="false" :data="list.filter(i => i.articleInfo?.articleType === 2)" />
       </div>
-      <div class="no-data-tip" v-if="total === 0 || (total === null && !list.length)">
-        {{ noDataTip }}
-      </div>
+      <!-- 无数据 -->
+      <div class="no-data-tip" v-if="noDataMessage">{{ noDataMessage }}</div>
     </template>
 
     <template v-else>
@@ -151,6 +163,43 @@ export default {
       store,
       tab: TabEnum[this.activeTab]
     };
+  },
+
+  computed: {
+    musicLength() {
+      const data = this.list.filter(i => i.articleInfo?.articleType === 1);
+      return data.length;
+    },
+
+    albumLength() {
+      const data = this.list.filter(i => i.articleInfo?.articleType === 2);
+      return data.length;
+    },
+
+    noDataMessage() {
+      const isCollectionList = this.$route.name === "collection-list";
+      const isSearchList = this.$route.name === "search-list";
+
+      if (isCollectionList) {
+        if (this.tab === 1 && !this.musicLength) {
+          return "没有收藏任何音乐";
+        }
+        if (this.tab === 2 && !this.albumLength) {
+          return "没有收藏任何专辑";
+        }
+      } else if (isSearchList) {
+        if (this.tab === 1 && !this.musicLength) {
+          return "暂无任何结果";
+        }
+        if (this.tab === 2 && !this.albumLength) {
+          return "暂无任何结果";
+        }
+      } else if (this.total === 0 || (this.total === null && !this.list.length)) {
+        return this.noDataTip;
+      }
+
+      return null;
+    }
   },
 
   methods: {

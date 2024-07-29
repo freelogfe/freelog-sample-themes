@@ -25,7 +25,9 @@ watch(
 );
 
 const popularData = computed(() => {
-  const data = listData.value.sort(i => Number(i.updateDate));
+  const data = listData.value
+    .filter(i => i.articleInfo?.articleType === 1)
+    .sort(i => Number(i.updateDate));
   return data;
 });
 

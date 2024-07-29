@@ -3,6 +3,10 @@ import { storeToRefs } from "pinia";
 import { useGlobalStore } from "@/store/global";
 
 import VisitIcon from "@/assets/images/head-phone.png";
+import PcDefaultBanner from "@/assets/images/pc-default-banner.webp";
+import Test from "@/assets/images/test.webp";
+
+import MobileDefaultBanner from "@/assets/images/mobile-default-banner.webp";
 
 const store = useGlobalStore();
 
@@ -13,7 +17,7 @@ const { selfConfig } = storeToRefs(store);
   <div class="home-banner-wrap">
     <!-- 节点封面 -->
     <div class="node-banner">
-      <img :src="selfConfig.options_node_banner" alt="节点封面" />
+      <img :src="selfConfig.options_node_banner || PcDefaultBanner" alt="节点封面" />
     </div>
 
     <!-- 节点信息 -->
@@ -54,7 +58,7 @@ const { selfConfig } = storeToRefs(store);
 
   .node-info {
     position: absolute;
-    left: 80px;
+    left: calc((100% - 1280px) / 2);
     top: 188px;
 
     .avatar {

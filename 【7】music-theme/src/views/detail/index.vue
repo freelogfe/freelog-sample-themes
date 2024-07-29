@@ -29,7 +29,9 @@
           <i class="freelog fl-icon-yonghu"></i>
           <div class="item-value">{{ voiceInfo?.signCount }}</div>
         </div>
-        <div class="duration">时长{{ voiceInfo?.versionInfo.exhibitProperty.duration }}</div>
+        <div class="duration" v-if="voiceInfo.articleInfo?.articleType === 1">
+          时长{{ relativeTime(voiceInfo?.versionInfo.exhibitProperty.duration) }}
+        </div>
       </div>
 
       <div class="play-voice-btn" :class="{ disabled: btnList[0].disabled }" @click="playOrPause()">
@@ -78,10 +80,10 @@
         <div class="info-area">
           <div class="info-item">
             <i class="freelog fl-icon-gengxinshijian"></i>
-            <div class="item-value">{{ voiceInfo?.updateDate }}</div>
+            <div class="item-value">{{ relativeTime(voiceInfo?.updateDate) }}</div>
           </div>
           <div class="info-item">
-            <div class="item-value">收录于专辑</div>
+            <div class="item-value">{{}}收录于专辑</div>
             <div class="item-album">{{ "XXX" }}</div>
           </div>
         </div>
@@ -113,20 +115,26 @@
           </div>
         </div>
 
-        <div class="intro">213{{ voiceInfo?.exhibitIntro }}</div>
+        <div class="intro">{{ voiceInfo?.exhibitIntro }}</div>
 
         <div class="btns-area">
           <template v-if="playingInfo">
-            <div class="duration" v-if="playingInfo.exhibitId !== voiceInfo?.exhibitId">
-              时长{{ voiceInfo?.versionInfo.exhibitProperty.duration }}
+            <div
+              class="duration"
+              v-if="
+                voiceInfo.articleInfo?.articleType === 1 &&
+                playingInfo.exhibitId !== voiceInfo?.exhibitId
+              "
+            >
+              时长{{ secondsToHMS(voiceInfo?.versionInfo.exhibitProperty.duration) }}
             </div>
             <transition name="slide-right">
               <div class="playing-mark" v-if="playingInfo.exhibitId === voiceInfo?.exhibitId">
                 <play-status :playing="store.playing" />
                 <div class="progress">
-                  <span>{{ store.progress * 1000 }}</span>
+                  <span>{{ secondsToHMS(store.progress * 1000) }}</span>
                   <span class="progress-divider">/</span>
-                  <span>{{ voiceInfo.versionInfo.exhibitProperty.duration }}</span>
+                  <span>{{ secondsToHMS(voiceInfo.versionInfo.exhibitProperty.duration) }}</span>
                 </div>
               </div>
             </transition>
@@ -145,7 +153,7 @@
           </template>
         </div>
 
-        <div class="album-content">
+        <div class="album-content" v-if="voiceInfo?.articleInfo.articleType === 2">
           <div class="title">包含音乐（5）</div>
           <div class="content-item-wrap">
             <div class="content-item" v-for="(item, index) in [1, 2, 3, 4, 5]" :key="index">
@@ -176,7 +184,7 @@ import { freelogApp } from "freelog-runtime";
 import playStatus from "@/components/play-status.vue";
 import myTooltip from "@/components/tooltip.vue";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
-import { showToast } from "@/utils/common";
+import { showToast, relativeTime, secondsToHMS } from "@/utils/common";
 import { useGlobalStore } from "@/store/global";
 
 import AuthLinkAbnormalIcon from "@/assets/images/auth-link-abnormal.png";
@@ -199,14 +207,15 @@ export default {
       coverLeft: 0,
       coverTop: 0,
       href: "",
-      store
+      store,
+      relativeTime,
+      secondsToHMS
     };
   },
 
   watch: {
     "$route.query.id": {
       handler(cur) {
-        console.log("cur", cur);
         if (!cur) return;
         const app = document.getElementById("app");
         app.scroll({ top: 0 });
@@ -297,15 +306,7 @@ export default {
 
     /** 加入播放列表 */
     addToPlayList() {
-      useMyPlay.addToPlayList(this.id, () => {
-        const { offsetTop, offsetLeft } = this.$refs.cover;
-        this.coverLeft = offsetLeft;
-        this.coverTop = offsetTop - app.scrollTop;
-        this.addAnimation = true;
-        setTimeout(() => {
-          this.addAnimation = false;
-        }, 700);
-      });
+      useMyPlay.addToPlayList(this.id);
     },
 
     /** 收藏/取消收藏 */

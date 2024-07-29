@@ -171,9 +171,11 @@
           </myTooltip>
         </div>
       </div>
-      <div class="middle-box">{{ data.articleInfo.articleType === 2 ? "合集" : "单曲" }}</div>
+      <div class="middle-box">
+        {{ data.articleInfo.articleType === 2 ? data.exhibitTitle : "单曲" }}
+      </div>
       <div class="right-box">
-        <div class="duration">{{ data.versionInfo.exhibitProperty.duration }}</div>
+        <div class="duration">{{ secondsToHMS(data.versionInfo.exhibitProperty.duration) }}</div>
       </div>
 
       <div
@@ -191,6 +193,8 @@
 import playStatus from "@/components/play-status.vue";
 import myTooltip from "@/components/tooltip.vue";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
+import { secondsToHMS } from "@/utils/common";
+
 import { useGlobalStore } from "@/store/global";
 
 export default {
@@ -231,7 +235,8 @@ export default {
       coverTop: 0,
       isCollected: false,
       isInPlayList: false,
-      store
+      store,
+      secondsToHMS
     };
   },
 

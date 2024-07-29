@@ -127,7 +127,7 @@
                     v-if="playingInfo && playingInfo.exhibitId === item.exhibitId"
                   />
                   <div class="duration" v-else>
-                    {{ item.versionInfo.exhibitProperty.duration | secondsToHMS }}
+                    {{ secondsToHMS(item.versionInfo.exhibitProperty.duration) }}
                   </div>
                 </div>
               </div>
@@ -199,8 +199,8 @@
                       </my-tooltip>
                     </div>
                     <div class="progress-area">
-                      {{ (store.progress * 1000) | secondsToHMS }} /
-                      {{ playingInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
+                      {{ secondsToHMS(store.progress * 1000) }} /
+                      {{ secondsToHMS(playingInfo.versionInfo.exhibitProperty.duration) }}
                     </div>
                   </template>
                   <span class="no-data-title" v-else>暂无播放的声音</span>
@@ -297,7 +297,7 @@
                     v-if="playingInfo && playingInfo.exhibitId === item.exhibitId"
                   />
                   <div class="duration" v-else>
-                    {{ item.versionInfo.exhibitProperty.duration | secondsToHMS }}
+                    {{ secondsToHMS(item.versionInfo.exhibitProperty.duration) }}
                   </div>
                   <i
                     class="text-btn freelog fl-icon-guanbi"

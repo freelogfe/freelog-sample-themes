@@ -9,7 +9,7 @@
       activeTab="Music"
       title="所有音乐"
       noMoreTip="已加载全部"
-      noDataTip="暂无任何声音"
+      noDataTip="暂无任何音乐"
     />
   </div>
 </template>
@@ -57,10 +57,10 @@ export default {
     if (routerMode === 1) {
       // push 过来，滚动条回到顶部
       app.scroll({ top: 0 });
-      sessionStorage.setItem("voiceListScroll", 0);
+      sessionStorage.setItem("musicListScroll", 0);
     } else if (routerMode === 2) {
       // back 过来，滚动条回到之前位置
-      const scrollTop = sessionStorage.getItem("voiceListScroll") || 0;
+      const scrollTop = sessionStorage.getItem("musicListScroll") || 0;
       app.scroll({ top: scrollTop });
     }
     app.addEventListener("scroll", this.scroll);
@@ -88,8 +88,10 @@ export default {
       };
       const list = await freelogApp.getExhibitListByPaging(queryParams);
       const { dataList, totalItem } = list.data.data;
+
       if (dataList.length !== 0) {
         const ids = dataList.map(item => item.exhibitId).join();
+
         const [signCountData, statusInfo] = await Promise.all([
           freelogApp.getExhibitSignCount(ids),
           freelogApp.getExhibitAuthStatus(ids)
@@ -117,7 +119,7 @@ export default {
     scroll() {
       const app = document.getElementById("app");
       const scrollTop = app.scrollTop || 0;
-      sessionStorage.setItem("voiceListScroll", scrollTop);
+      sessionStorage.setItem("musicListScroll", scrollTop);
       const clientHeight = app.clientHeight || 0;
       const scrollHeight = app.scrollHeight || 0;
       if (scrollTop + clientHeight < scrollHeight - 200) return;

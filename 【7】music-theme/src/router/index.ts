@@ -103,7 +103,7 @@ router.afterEach(to => {
   // 将第一个路由记入路由历史
   const store = useGlobalStore();
   const { locationHistory } = store;
-  console.log("%c数据", "color:green; padding:10px; font-size: 15px", store);
+  console.log("%cPINIA数据", "color:green; padding:10px; font-size: 15px", store);
 
   if (locationHistory.length) return;
 

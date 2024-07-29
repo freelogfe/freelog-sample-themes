@@ -1,13 +1,7 @@
 <!-- 收藏列表页 -->
 <template>
   <div class="collect-list-wrapper">
-    <list
-      :list="store.collectionList"
-      :loading="!store.collectionList"
-      title="收藏"
-      noDataTip="暂无任何收藏"
-      statusShow
-    />
+    <list :list="store.collectionList" :loading="!store.collectionList" title="收藏" statusShow />
   </div>
 </template>
 

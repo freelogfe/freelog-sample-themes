@@ -240,6 +240,7 @@ export default {
 
   watch: {
     "$route.path"(cur) {
+      console.log("我要找bug", cur);
       this.$nextTick(() => {
         const { inMobile, routerMode } = this.store;
         if (cur !== "/search-list" || !inMobile) return;

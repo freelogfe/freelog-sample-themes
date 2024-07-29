@@ -9,7 +9,7 @@
       activeTab="Album"
       title="所有专辑"
       noMoreTip="已加载全部"
-      noDataTip="暂无任何声音"
+      noDataTip="暂无任何专辑"
     />
   </div>
 </template>
@@ -57,10 +57,10 @@ export default {
     if (routerMode === 1) {
       // push 过来，滚动条回到顶部
       app.scroll({ top: 0 });
-      sessionStorage.setItem("voiceListScroll", 0);
+      sessionStorage.setItem("albumListScroll", 0);
     } else if (routerMode === 2) {
       // back 过来，滚动条回到之前位置
-      const scrollTop = sessionStorage.getItem("voiceListScroll") || 0;
+      const scrollTop = sessionStorage.getItem("albumListScroll") || 0;
       app.scroll({ top: scrollTop });
     }
     app.addEventListener("scroll", this.scroll);
@@ -88,6 +88,7 @@ export default {
       };
       const list = await freelogApp.getExhibitListByPaging(queryParams);
       const { dataList, totalItem } = list.data.data;
+
       if (dataList.length !== 0) {
         const ids = dataList.map(item => item.exhibitId).join();
         const [signCountData, statusInfo] = await Promise.all([
@@ -107,17 +108,29 @@ export default {
             item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
         });
       }
+
       this.listData = init ? dataList : [...this.listData, ...dataList];
       this.total = totalItem;
       if (init) this.loading = false;
       this.myLoading = false;
+
+      // TODO 这里要改一下
+      this.getCollectionList();
+    },
+
+    /** 获取漫画目录 */
+    async getCollectionList(init = false, skipChapter = 0) {
+      const subList = await freelogApp.getCollectionSubList("66a485fd682471002fa0ea11", {
+        skip: 0
+      });
+      console.log("sbuList", subList);
     },
 
     /** 页面滚动 */
     scroll() {
       const app = document.getElementById("app");
       const scrollTop = app.scrollTop || 0;
-      sessionStorage.setItem("voiceListScroll", scrollTop);
+      sessionStorage.setItem("albumListScroll", scrollTop);
       const clientHeight = app.clientHeight || 0;
       const scrollHeight = app.scrollHeight || 0;
       if (scrollTop + clientHeight < scrollHeight - 200) return;
