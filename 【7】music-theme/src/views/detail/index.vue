@@ -142,7 +142,7 @@
                 <div class="progress">
                   <span>{{ secondsToHMS(store.progress * 1000) }}</span>
                   <span class="progress-divider">/</span>
-                  <span>{{ secondsToHMS(voiceInfo.versionInfo.exhibitProperty.duration) }}</span>
+                  <span>{{ secondsToHMS(voiceInfo?.versionInfo.exhibitProperty.duration) }}</span>
                 </div>
               </div>
             </transition>
@@ -283,7 +283,9 @@ export default {
     /** 是否播放中 */
     playing() {
       const { playing, playingInfo } = this.store;
-      return playing && playingInfo.exhibitId === this.voiceInfo.exhibitId;
+      const exhibit = this.voiceInfo.itemId || this.voiceInfo.exhibitId;
+
+      return playing && [playingInfo.exhibitId, playingInfo.itemId].includes(exhibit);
     },
 
     /** 播放中声音信息 */

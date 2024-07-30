@@ -339,7 +339,7 @@ export const useMyPlay = {
       return;
     }
 
-    const { defaulterIdentityType, url, exhibitId } = exhibit;
+    const { defaulterIdentityType, url, exhibitId, itemId } = exhibit;
     if (playingInfo && defaulterIdentityType === 0 && url) {
       const { exhibitId: id, url: playingUrl } = playingInfo;
       if (exhibitId === id && playing && type === "normal" && playingUrl === url) {
@@ -369,10 +369,14 @@ export const useMyPlay = {
       return;
     } else if (!url) {
       // 已授权未获取 url
-      const url = await freelogApp.getExhibitFileStream(exhibitId, { returnUrl: true });
+      const url = itemId
+        ? await freelogApp.getCollectionSubFileStream(exhibitId, {
+            itemId,
+            returnUrl: true
+          })
+        : await freelogApp.getExhibitFileStream(exhibitId, { returnUrl: true });
       exhibit.url = url;
     }
-
     useMyPlay.addToPlayList(exhibitId);
     store.setData({ key: "playingInfo", value: exhibit });
     store.setData({ key: "playing", value: true });

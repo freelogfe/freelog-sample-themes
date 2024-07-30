@@ -281,7 +281,8 @@ export default {
     /** 是否播放中 */
     playing() {
       const { playing, playingInfo } = this.store;
-      return playing && playingInfo.exhibitId === this.data.exhibitId;
+      const exhibit = this.data.itemId || this.data.exhibitId;
+      return playing && [playingInfo.exhibitId, playingInfo.itemId].includes(exhibit);
     },
 
     /** 操作按钮群 */

@@ -41,7 +41,7 @@ const ifSupportMime = (mime: string) => {
 /** 是否播放中 */
 const playing = (exhibitId: string) => {
   const { playing, playingInfo } = store;
-  return playing && playingInfo.exhibitId === exhibitId;
+  return playing && [playingInfo.exhibitId, playingInfo.itemId].includes(exhibitId);
 };
 
 /** 播放/暂停 */
