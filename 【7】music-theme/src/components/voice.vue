@@ -151,7 +151,12 @@
               <span
                 class="title"
                 :class="{ 'opacity-40': authLinkAbnormal }"
-                @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
+                @click="
+                  $router.myPush({
+                    path: '/detail',
+                    query: { id: data.exhibitId, subID: data.itemId, albumName: data.albumName }
+                  })
+                "
               >
                 {{ data.exhibitTitle }}
               </span>
@@ -171,11 +176,17 @@
           </myTooltip>
         </div>
       </div>
-      <div class="middle-box">
-        {{ data.articleInfo.articleType === 2 ? data.exhibitTitle : "单曲" }}
+      <div
+        class="middle-box"
+        :class="data.albumName && 'album'"
+        @click="
+          data.albumName && $router.myPush({ path: '/detail', query: { id: data.exhibitId } })
+        "
+      >
+        {{ data.albumName || "单曲" }}
       </div>
       <div class="right-box">
-        <div class="duration">{{ secondsToHMS(data.versionInfo.exhibitProperty.duration) }}</div>
+        <div class="duration">{{ secondsToHMS(data.versionInfo?.exhibitProperty?.duration) }}</div>
       </div>
 
       <!-- <div
@@ -264,7 +275,7 @@ export default {
     /** 是否为支持格式 */
     ifSupportMime() {
       const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
-      return supportMimeList.includes(this.data.versionInfo.exhibitProperty.mime);
+      return supportMimeList.includes(this.data.versionInfo?.exhibitProperty?.mime);
     },
 
     /** 是否播放中 */
@@ -342,6 +353,7 @@ export default {
 
     /** 播放/暂停 */
     playOrPause() {
+      console.log("this.data", this.data);
       useMyPlay.playOrPause(this.data);
     },
 

@@ -230,8 +230,65 @@
       overflow: hidden;
       flex-shrink: 0;
 
+      &:hover {
+        opacity: 1;
+
+        .btn-modal {
+          background: rgba(0, 0, 0, 0.2);
+
+          .btn {
+            opacity: 1;
+          }
+        }
+      }
+
       .cover {
         height: 100%;
+      }
+
+      .btn-modal {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.5s ease;
+
+        .btn {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.4);
+          backdrop-filter: blur(1px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          transition: all 0.5s ease;
+
+          &:hover {
+            background: #44d7b6;
+          }
+
+          &:active {
+            background: rgba(255, 255, 255, 0.4);
+          }
+
+          .freelog {
+            font-size: 18px;
+            color: #fff;
+
+            &.fl-icon-bofang-sanjiaoxing {
+              margin-left: 5px;
+            }
+
+            &.fl-icon-zanting {
+              margin-left: 2px;
+            }
+          }
+        }
       }
     }
 
@@ -422,6 +479,11 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 15px;
+
+            &:last-of-type {
+              margin-bottom: 0;
+            }
+
             .index {
               width: 40px;
               font-weight: 600;

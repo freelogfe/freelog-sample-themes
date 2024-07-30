@@ -101,7 +101,9 @@ const getAuth = data => {
                 <i
                   class="freelog"
                   :class="
-                    playing(item.exhibitId) ? 'fl-icon-zanting' : 'fl-icon-bofang-sanjiaoxing'
+                    playing(item.itemId || item.exhibitId)
+                      ? 'fl-icon-zanting'
+                      : 'fl-icon-bofang-sanjiaoxing'
                   "
                 ></i>
               </div>
@@ -110,7 +112,12 @@ const getAuth = data => {
           <div class="info">
             <span
               class="title"
-              @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
+              @click="
+                router.myPush({
+                  path: '/detail',
+                  query: { id: item.exhibitId, subID: item.itemId, albumName: item.albumName }
+                })
+              "
             >
               <img
                 class="auth-link-abnormal"

@@ -29,13 +29,13 @@ const popularData = computed(() => {
   const traditionalExhibit = listData.value.filter(i => i.articleInfo?.articleType === 1);
   const data = [...traditionalExhibit, ...collectionData.value]
     .sort(i => Number(i.updateDate))
-    .slice(0, 10);
+    .slice(0, 12);
 
   return data;
 });
 
 const albumData = computed(() => {
-  const data = listData.value.filter(i => i.articleInfo?.articleType === 2);
+  const data = listData.value.filter(i => i.articleInfo?.articleType === 2).slice(0, 5);
   return data;
 });
 
@@ -60,7 +60,8 @@ const getList = async () => {
       freelogApp.getExhibitAuthStatus(ids)
     ]);
 
-    dataList.forEach(item => {
+    // 使用for...of确保顺序执行
+    for (const item of dataList) {
       let index;
       index = signCountData.data.data.findIndex(
         resultItem => resultItem.subjectId === item.exhibitId
@@ -75,9 +76,10 @@ const getList = async () => {
 
       // 获取合集里的单品列表
       if (item.articleInfo.articleType === 2) {
-        getCollectionList(item.exhibitId, item.exhibitName);
+        console.log("item.articleInfo.articleType", item.articleInfo.articleType);
+        await getCollectionList(item.exhibitId, item.exhibitName, item.coverImages);
       }
-    });
+    }
   }
 
   listData.value = dataList;
@@ -90,10 +92,11 @@ let subTotal = 0;
 let subSkip = 0;
 let subTempData = [];
 
-const getCollectionList = async (collectionID: string, exhibitName: string) => {
+const getCollectionList = async (collectionID: string, exhibitName: string, images: string[]) => {
   const subList = await freelogApp.getCollectionSubList(collectionID, {
     skip: subSkip,
-    limit: 1000
+    limit: 1_000,
+    isShowDetailInfo: 1
   });
   const { dataList, totalItem } = subList.data.data;
   subTotal = totalItem;
@@ -114,7 +117,8 @@ const getCollectionList = async (collectionID: string, exhibitName: string) => {
         }
 
         item.updateDate = item.articleInfo.latestVersionReleaseDate;
-        item.coverImages = item.articleInfo.coverImages;
+        item.coverImages = images;
+        item.versionInfo = { exhibitProperty: item.articleInfo?.articleProperty };
         item.exhibitTitle = item.itemTitle;
         item.exhibitIntro = item.articleInfo.intro;
         item.albumName = exhibitName;
@@ -126,9 +130,12 @@ const getCollectionList = async (collectionID: string, exhibitName: string) => {
   subTempData.push(...dataList);
   collectionData.value = [...collectionData.value, ...dataList];
 
+  console.log("subTempData.length", subTempData, subTempData.length);
+  console.log("subTotal", subTotal);
+
   if (subTempData.length < subTotal) {
-    subSkip = subSkip + 3000;
-    getCollectionList(collectionID);
+    subSkip = subSkip + 1_000;
+    await getCollectionList(collectionID, exhibitName, images);
   } else {
     subTotal = 0;
     subSkip = 0;

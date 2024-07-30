@@ -2,7 +2,7 @@
 <template>
   <div class="voice-list-wrapper">
     <list
-      :list="listData"
+      :list="[...listData, ...collectionData]"
       :loading="loading"
       :total="total"
       :musicAlbumTab="false"
@@ -34,7 +34,11 @@ export default {
       loading: false,
       myLoading: false,
       total: null,
-      store
+      store,
+      subTotal: 0,
+      subSkip: 0,
+      subTempData: [],
+      collectionData: []
     };
   },
 
@@ -62,7 +66,7 @@ export default {
   },
 
   methods: {
-    /** 获取声音列表 */
+    /** 获取音乐列表 */
     async getList(init = false) {
       if (this.myLoading) return;
       if (this.total === this.listData.length && !init) return;
@@ -86,23 +90,84 @@ export default {
           freelogApp.getExhibitSignCount(ids),
           freelogApp.getExhibitAuthStatus(ids)
         ]);
-        dataList.forEach(item => {
+
+        // 使用for...of确保顺序执行
+        for (const item of dataList) {
           let index;
           index = signCountData.data.data.findIndex(
             resultItem => resultItem.subjectId === item.exhibitId
           );
-          if (index !== -1) item.signCount = signCountData.data.data[index].count;
+          if (index !== -1) {
+            item.signCount = signCountData.data.data[index].count;
+          }
           index = statusInfo.data.data.findIndex(
             resultItem => resultItem.exhibitId === item.exhibitId
           );
-          if (index !== -1)
+          if (index !== -1) {
             item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
-        });
+          }
+
+          // 获取合集里的单品列表
+          if (item.articleInfo.articleType === 2) {
+            console.log("item.articleInfo.articleType", item.articleInfo.articleType);
+            await this.getCollectionList(item.exhibitId, item.exhibitName, item.coverImages);
+          }
+        }
       }
+
       this.listData = init ? dataList : [...this.listData, ...dataList];
       this.total = totalItem;
       if (init) this.loading = false;
       this.myLoading = false;
+    },
+
+    /** 获取合集里的单品列表 */
+    async getCollectionList(collectionID, exhibitName, images) {
+      const subList = await freelogApp.getCollectionSubList(collectionID, {
+        skip: this.subSkip,
+        limit: 1_000,
+        isShowDetailInfo: 1
+      });
+      const { dataList, totalItem } = subList.data.data;
+      this.subTotal = totalItem;
+
+      if (dataList.length !== 0) {
+        const ids = dataList.map(item => item.itemId).join();
+        const statusInfo = await freelogApp.getCollectionSubAuth(collectionID, {
+          itemIds: ids
+        });
+
+        if (statusInfo.data.data) {
+          dataList.forEach(item => {
+            const index = statusInfo.data.data.findIndex(
+              resultItem => resultItem.itemId === item.itemId
+            );
+            if (index !== -1) {
+              item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+            }
+
+            item.updateDate = item.articleInfo.latestVersionReleaseDate;
+            item.coverImages = images;
+            item.versionInfo = { exhibitProperty: item.articleInfo?.articleProperty };
+            item.exhibitTitle = item.itemTitle;
+            item.exhibitIntro = item.articleInfo.intro;
+            item.albumName = exhibitName;
+            item.exhibitId = collectionID;
+          });
+        }
+      }
+
+      this.subTempData.push(...dataList);
+      this.collectionData = [...this.collectionData, ...dataList];
+
+      if (this.subTempData.length < this.subTotal) {
+        this.subSkip = this.subSkip + 1_000;
+        this.getCollectionList(collectionID, exhibitName, images);
+      } else {
+        this.subTotal = 0;
+        this.subSkip = 0;
+        this.subTempData = [];
+      }
     },
 
     /** 页面滚动 */

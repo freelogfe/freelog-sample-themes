@@ -61,6 +61,14 @@
     <div class="pc-detail-wrapper" v-if="!store.inMobile">
       <div ref="cover" class="cover-area">
         <img class="cover" :src="voiceInfo?.coverImages[0]" />
+        <div class="btn-modal" v-if="ifSupportMime">
+          <div class="btn" @click.stop="playOrPause()">
+            <i
+              class="freelog"
+              :class="playing ? 'fl-icon-zanting' : 'fl-icon-bofang-sanjiaoxing'"
+            ></i>
+          </div>
+        </div>
       </div>
 
       <div class="right-area">
@@ -82,9 +90,9 @@
             <i class="freelog fl-icon-gengxinshijian"></i>
             <div class="item-value">{{ relativeTime(voiceInfo?.updateDate) }}</div>
           </div>
-          <div class="info-item">
-            <div class="item-value">{{}}收录于专辑</div>
-            <div class="item-album">{{ "XXX" }}</div>
+          <div class="info-item" v-if="albumName">
+            <div class="item-value">收录于专辑</div>
+            <div class="item-album">{{ albumName }}</div>
           </div>
         </div>
 
@@ -126,7 +134,7 @@
                 playingInfo.exhibitId !== voiceInfo?.exhibitId
               "
             >
-              时长{{ secondsToHMS(voiceInfo?.versionInfo.exhibitProperty.duration) }}
+              时长{{ secondsToHMS(voiceInfo?.versionInfo?.exhibitProperty.duration) }}
             </div>
             <transition name="slide-right">
               <div class="playing-mark" v-if="playingInfo.exhibitId === voiceInfo?.exhibitId">
@@ -154,25 +162,25 @@
         </div>
 
         <div class="album-content" v-if="voiceInfo?.articleInfo.articleType === 2">
-          <div class="title">包含音乐（5）</div>
+          <div class="title">包含音乐（{{ collectionData.length }}）</div>
           <div class="content-item-wrap">
-            <div class="content-item" v-for="(item, index) in [1, 2, 3, 4, 5]" :key="index">
-              <div class="index">{{ index }}</div>
-              <div class="music">Music</div>
-              <div class="singer">Singer</div>
-              <div class="time">时间</div>
+            <div class="content-item" v-for="(item, index) in collectionData" :key="item.itemId">
+              <div class="index">{{ index + 1 }}</div>
+              <div class="music">{{ item.exhibitTitle }}</div>
+              <div class="singer">{{ item.intro }}</div>
+              <div class="time">{{ secondsToHMS(item.articleInfo.articleProperty.duration) }}</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div
+      <!-- <div
         class="cover-to-add"
         :class="{ animation: addAnimation }"
         :style="{ '--left': coverLeft + 'px', '--top': coverTop + 'px' }"
       >
         <img class="cover" :src="voiceInfo?.coverImages[0]" />
-      </div>
+      </div> -->
     </div>
   </div>
   <!-- </template> -->
@@ -200,6 +208,8 @@ export default {
     return {
       AuthLinkAbnormalIcon,
       id: "",
+      subID: "",
+      albumName: "",
       voiceInfo: null,
       isCollected: false,
       isInPlayList: false,
@@ -207,23 +217,37 @@ export default {
       coverLeft: 0,
       coverTop: 0,
       href: "",
+      collectionData: [],
       store,
       relativeTime,
-      secondsToHMS
+      secondsToHMS,
+      subTotal: 0,
+      subSkip: 0,
+      subTempData: []
     };
   },
 
   watch: {
-    "$route.query.id": {
+    "$route.query": {
       handler(cur) {
-        if (!cur) return;
         const app = document.getElementById("app");
         app.scroll({ top: 0 });
-        this.id = cur;
+        this.id = cur.id;
+        this.subID = cur.subID;
+        this.albumName = cur.albumName;
         this.getVoiceInfo();
       },
       immediate: true
     },
+
+    // "$route.query.subID": {
+    //   handler(cur) {
+    //     console.log("cur2", cur);
+    //     if (!cur) return;
+    //     this.subID = cur;
+    //   },
+    //   immediate: true
+    // },
 
     "store.collectionIdList": {
       handler() {
@@ -271,14 +295,31 @@ export default {
     btnList() {
       return [
         {
-          icon: !this.ifSupportMime
-            ? "fl-icon-wufabofang"
-            : this.playing
-            ? "fl-icon-zanting-daibiankuang"
-            : "fl-icon-bofang-daibiankuang",
-          title: !this.ifSupportMime ? "无法播放" : this.playing ? "暂停" : "播放",
+          icon:
+            this.voiceInfo?.articleInfo?.articleType === 1
+              ? !this.ifSupportMime
+                ? "fl-icon-wufabofang"
+                : this.playing
+                ? "fl-icon-zanting-daibiankuang"
+                : "fl-icon-bofang-daibiankuang"
+              : this.authLinkAbnormal
+              ? "fl-icon-zanting-daibiankuang"
+              : "fl-icon-bofang-daibiankuang",
+          title:
+            this.voiceInfo?.articleInfo?.articleType === 1
+              ? !this.ifSupportMime
+                ? "无法播放"
+                : this.playing
+                ? "暂停"
+                : "播放"
+              : this.authLinkAbnormal
+              ? "无法播放"
+              : "播放全部",
           operate: this.playOrPause,
-          disabled: !this.ifSupportMime
+          disabled:
+            this.voiceInfo?.articleInfo?.articleType === 1
+              ? !this.ifSupportMime
+              : this.authLinkAbnormal
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
@@ -329,25 +370,95 @@ export default {
       }
     },
 
-    /** 获取声音详情 */
+    /** 获取音乐详情 */
     async getVoiceInfo() {
       this.voiceInfo = null;
-      const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
-        freelogApp.getExhibitInfo(this.id, { isLoadVersionProperty: 1 }),
-        freelogApp.getExhibitSignCount(this.id),
-        freelogApp.getExhibitAuthStatus(this.id)
-      ]);
-      this.voiceInfo = {
-        ...exhibitInfo.data.data,
-        signCount: signCountData.data.data[0].count,
-        defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType
-      };
+      // 合集中的一个单品
+      if (this.subID) {
+        const [exhibitInfo, subInfo, subStatusInfo] = await Promise.all([
+          freelogApp.getExhibitInfo(this.id, { isLoadVersionProperty: 1 }),
+          freelogApp.getCollectionSubInfo(this.id, { itemId: this.subID }),
+          freelogApp.getCollectionSubAuth(this.id, { itemIds: this.subID })
+        ]);
+        this.voiceInfo = {
+          ...subInfo.data.data,
+          coverImages: exhibitInfo.data.data.coverImages,
+          versionInfo: { exhibitProperty: subInfo.data.data.articleInfo?.articleProperty },
+          defaulterIdentityType: subStatusInfo.data.data[0].defaulterIdentityType,
+          exhibitTitle: subInfo.data.data.itemTitle,
+          updateDate: subInfo.data.data.articleInfo?.latestVersionReleaseDate
+        };
+      } else {
+        // 普通展品
+        const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
+          freelogApp.getExhibitInfo(this.id, { isLoadVersionProperty: 1 }),
+          freelogApp.getExhibitSignCount(this.id),
+          freelogApp.getExhibitAuthStatus(this.id)
+        ]);
+        this.voiceInfo = {
+          ...exhibitInfo.data.data,
+          signCount: signCountData.data.data[0].count,
+          defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType
+        };
+
+        // 合集
+        const { articleInfo, exhibitName } = exhibitInfo.data.data;
+        if (articleInfo.articleType === 2) {
+          this.getCollectionList(this.id, exhibitName);
+        }
+      }
+
       this.href = freelogApp.getCurrentUrl();
     },
 
     /** 授权 */
     async getAuth() {
       useMyAuth.getAuth(this.voiceInfo);
+    },
+
+    /** 获取合集里的单品列表 */
+    async getCollectionList(collectionID, exhibitName) {
+      const subList = await freelogApp.getCollectionSubList(collectionID, {
+        skip: this.subSkip,
+        limit: 1_000,
+        isShowDetailInfo: 1
+      });
+      const { dataList, totalItem } = subList.data.data;
+      this.subTotal = totalItem;
+
+      if (dataList?.length !== 0) {
+        const ids = dataList.map(item => item.itemId).join();
+        const statusInfo = await freelogApp.getCollectionSubAuth(collectionID, {
+          itemIds: ids
+        });
+
+        if (statusInfo.data.data) {
+          dataList.forEach(item => {
+            const index = statusInfo.data.data.findIndex(
+              resultItem => resultItem.itemId === item.itemId
+            );
+            if (index !== -1) {
+              item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+            }
+
+            item.exhibitTitle = item.itemTitle;
+            item.exhibitIntro = item.articleInfo.intro;
+            item.exhibitId = collectionID;
+          });
+        }
+      }
+
+      this.subTempData.push(...dataList);
+      this.collectionData = [...this.collectionData, ...dataList];
+
+      if (this.subTempData.length < this.subTotal) {
+        this.subSkip = this.subSkip + 1_000;
+        this.getCollectionList(collectionID, exhibitName);
+      } else {
+        this.subTotal = 0;
+        this.subSkip = 0;
+        this.subTempData = [];
+      }
     }
   }
 };
