@@ -33,7 +33,7 @@ export default {
     /** 颜色 */
     color: {
       type: String,
-      default: "#2784FF"
+      default: "#44D7B6"
     }
   }
 };

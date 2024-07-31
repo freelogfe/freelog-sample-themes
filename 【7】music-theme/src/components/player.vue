@@ -285,9 +285,7 @@
                     <my-tooltip :content="item.exhibitTitle">
                       <span class="title voice-title">{{ item.exhibitTitle }}</span>
                     </my-tooltip>
-                    <my-tooltip :content="item.exhibitTitle">
-                      <span class="album album-title">{{ item.exhibitTitle }}</span>
-                    </my-tooltip>
+                    <span class="album album-title">{{ item.exhibitTitle }}</span>
                   </div>
                 </div>
 
