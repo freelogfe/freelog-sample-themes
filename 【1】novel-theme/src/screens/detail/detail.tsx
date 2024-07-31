@@ -37,7 +37,7 @@ export const DetailScreen = (props: any) => {
 
         skip.current = init ? 0 : skip.current + 30;
 
-        const subList = await freelogApp.getCollectionSubList(id, {
+        const subList = await (freelogApp as any).getCollectionSubList(id, {
           skip: skip.current,
           limit: 30
         });
@@ -45,8 +45,8 @@ export const DetailScreen = (props: any) => {
         setTotal(totalItem);
 
         if (dataList.length !== 0) {
-          const ids = dataList.map(item => item.itemId).join();
-          const statusInfo = await freelogApp.getCollectionSubAuth(id, { itemIds: ids });
+          const ids = dataList.map((item: any) => item.itemId).join();
+          const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
           if (statusInfo.data.data) {
             (dataList as ExhibitItem[]).forEach(item => {
               const index = statusInfo.data.data.findIndex(

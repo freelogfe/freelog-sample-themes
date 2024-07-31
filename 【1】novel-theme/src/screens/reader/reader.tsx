@@ -65,7 +65,7 @@ export const ReaderScreen = (props: any) => {
 
         skip.current = init ? 0 : skip.current + 30;
 
-        const subList = await freelogApp.getCollectionSubList(id, {
+        const subList = await (freelogApp as any).getCollectionSubList(id, {
           skip: skipChapter ? skipChapter : skip.current,
           limit: 30
         });
@@ -73,8 +73,8 @@ export const ReaderScreen = (props: any) => {
         setTotal(totalItem);
 
         if (dataList.length !== 0) {
-          const ids = dataList.map(item => item.itemId).join();
-          const statusInfo = await freelogApp.getCollectionSubAuth(id, { itemIds: ids });
+          const ids = dataList.map((item: any) => item.itemId).join();
+          const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
           if (statusInfo.data.data) {
             (dataList as CollectionList[]).forEach(item => {
               const index = statusInfo.data.data.findIndex(
@@ -98,7 +98,7 @@ export const ReaderScreen = (props: any) => {
 
   /** 获取推荐列表 */
   const getRecommendList = async () => {
-    const res = await freelogApp.getExhibitRecommend(id, {
+    const res = await (freelogApp as any).getExhibitRecommend(id, {
       recommendNorm: "resourceType",
       size: 10
     });
@@ -110,7 +110,7 @@ export const ReaderScreen = (props: any) => {
 
   // 获取单品详细信息
   const getCollectionInfo = async () => {
-    const res = await freelogApp.getCollectionSubInfo(id, { itemId: subId });
+    const res = await (freelogApp as any).getCollectionSubInfo(id, { itemId: subId });
     const { sortId } = res.data.data;
 
     getCollectionList(false, sortId - 15 < 0 ? 0 : sortId - 15);
@@ -307,12 +307,12 @@ const ReaderBody = () => {
   const preSubId =
     (collection &&
       currentSortId !== 0 &&
-      collectionList.filter(i => i.sortId === currentSortId - 1)[0]?.itemId) ||
+      collectionList.filter((i: any) => i.sortId === currentSortId - 1)[0]?.itemId) ||
     0;
   const nextSubId =
     (collection &&
       currentSortId !== total &&
-      collectionList.filter(i => i.sortId === currentSortId + 1)[0]?.itemId) ||
+      collectionList.filter((i: any) => i.sortId === currentSortId + 1)[0]?.itemId) ||
     0;
 
   /** 获取小说内容 */
@@ -320,7 +320,7 @@ const ReaderBody = () => {
     let authErrType: any = -1;
 
     const statusInfo = collection
-      ? await freelogApp.getCollectionSubAuth(id, { itemIds: subId })
+      ? await (freelogApp as any).getCollectionSubAuth(id, { itemIds: subId })
       : await freelogApp.getExhibitAuthStatus(id);
     if (statusInfo.data.data) {
       authErrType = statusInfo.data.data[0].defaulterIdentityType;
@@ -330,7 +330,7 @@ const ReaderBody = () => {
     if (authErrType === 0) {
       // 已签约并且授权链无异常
       const info: any = collection
-        ? await freelogApp.getCollectionSubFileStream(id, { itemId: subId })
+        ? await (freelogApp as any).getCollectionSubFileStream(id, { itemId: subId })
         : await freelogApp.getExhibitFileStream(id);
       if (!info) {
         setLoading(false);
@@ -664,12 +664,12 @@ const OperaterBtns = () => {
   const preSubId =
     (collection &&
       currentSortId !== 0 &&
-      collectionList.filter(i => i.sortId === currentSortId - 1)[0]?.itemId) ||
+      collectionList.filter((i: any) => i.sortId === currentSortId - 1)[0]?.itemId) ||
     0;
   const nextSubId =
     (collection &&
       currentSortId !== total &&
-      collectionList.filter(i => i.sortId === currentSortId + 1)[0]?.itemId) ||
+      collectionList.filter((i: any) => i.sortId === currentSortId + 1)[0]?.itemId) ||
     0;
 
   /** 改变字体大小 */

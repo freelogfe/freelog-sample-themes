@@ -216,6 +216,7 @@ export const useMyPlay = {
     } else {
       // 已登录时存在用户数据
       const playIdList = [...store.playIdList];
+      console.log("playIdList", playIdList);
       if (playIdList.includes(id)) return;
 
       playIdList.unshift(id);
