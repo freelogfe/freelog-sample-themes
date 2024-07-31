@@ -165,8 +165,23 @@
           <div class="title">包含音乐（{{ collectionData.length }}）</div>
           <div class="content-item-wrap">
             <div class="content-item" v-for="(item, index) in collectionData" :key="item.itemId">
-              <div class="index">{{ index + 1 }}</div>
-              <div class="music">{{ item.exhibitTitle }}</div>
+              <div class="index">{{ changeIndex(index + 1) }}</div>
+              <div class="music">
+                {{ item.exhibitTitle }}
+              </div>
+              <div class="album-sub-btns-area" :class="{ opacity: authLinkAbnormal }">
+                <myTooltip
+                  :content="btn.title"
+                  v-for="btn in albumSubBtnList(item)"
+                  :key="btn.title"
+                >
+                  <i
+                    class="freelog text-btn"
+                    :class="[btn.icon, { disabled: btn.disabled }]"
+                    @click="btn.operate"
+                  />
+                </myTooltip>
+              </div>
               <div class="singer">{{ item.intro }}</div>
               <div class="time">{{ secondsToHMS(item.articleInfo.articleProperty.duration) }}</div>
             </div>
@@ -342,6 +357,40 @@ export default {
   },
 
   methods: {
+    /** 是否为支持格式 */
+    ifSupportMimeSub(item) {
+      const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
+      return supportMimeList.includes(item.articleInfo.articleProperty.mime);
+    },
+    albumSubBtnList(item) {
+      console.log("item", item);
+      return [
+        {
+          icon: !this.ifSupportMimeSub(item)
+            ? "fl-icon-wufabofang"
+            : this.playing
+            ? "fl-icon-zanting-daibiankuang"
+            : "fl-icon-bofang-daibiankuang",
+          title: this.playing ? "暂停" : "播放",
+          operate: this.playOrPause,
+          disabled: !this.ifSupportMimeSub(item)
+        },
+        {
+          icon: "fl-icon-jiarubofangliebiao",
+          title: "加入播放列表",
+          operate: this.addToPlayList,
+          disabled: this.isInPlayList || !this.ifSupportMimeSub(item)
+        },
+        {
+          icon: this.isCollected
+            ? "fl-icon-shoucangxiaoshuoyishoucang"
+            : "fl-icon-shoucangxiaoshuo",
+          title: this.isCollected ? "取消收藏" : "收藏",
+          operate: this.operateCollect
+        },
+        { icon: "fl-icon-fenxiang", title: "分享", operate: this.share }
+      ];
+    },
     /** 播放/暂停 */
     playOrPause() {
       useMyPlay.playOrPause(this.voiceInfo);
@@ -461,6 +510,13 @@ export default {
         this.subSkip = 0;
         this.subTempData = [];
       }
+    },
+
+    changeIndex(index) {
+      if (index > 0 && index < 10) {
+        return index.toString().padStart(2, "0");
+      }
+      return index.toString();
     }
   }
 };

@@ -178,7 +178,11 @@
 
             <div class="main-area">
               <div class="cover-area">
-                <img class="cover" :src="playingInfo.coverImages[0]" v-if="playingInfo" />
+                <img
+                  class="cover"
+                  :src="playingInfo.coverImages && playingInfo.coverImages[0]"
+                  v-if="playingInfo"
+                />
                 <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
               </div>
               <div class="info-area">
@@ -283,9 +287,13 @@
                   ></i>
                   <div class="title-area">
                     <my-tooltip :content="item.exhibitTitle">
-                      <span class="title voice-title">{{ item.exhibitTitle }}</span>
+                      <span class="title voice-title">{{
+                        item.itemTitle || item.exhibitTitle
+                      }}</span>
                     </my-tooltip>
-                    <span class="album album-title">{{ item.exhibitTitle }}</span>
+                    <span class="album album-title" v-if="item.itemId">
+                      {{ item.exhibitTitle }}
+                    </span>
                   </div>
                 </div>
 
@@ -375,6 +383,8 @@ export default {
 
     "store.playingInfo": {
       handler(cur) {
+        console.log("cur", cur);
+
         this.store.setData({ key: "progress", value: 0 });
         this.playingInfo = cur;
 

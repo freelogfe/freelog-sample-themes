@@ -169,12 +169,15 @@ export const useMyPlay = {
 
     for (const item of idList) {
       if (item.itemId) {
-        const [subList, subStatusList] = await Promise.all([
+        const [list, subInfo, subStatusList] = await Promise.all([
+          freelogApp.getExhibitListById({ exhibitIds: item.exhibitId, isLoadVersionProperty: 1 }),
           freelogApp.getCollectionSubInfo(item.exhibitId, { itemId: item.itemId }),
           freelogApp.getCollectionSubAuth(item.exhibitId, { itemIds: item.itemId })
         ]);
         result.push({
-          ...subList.data.data[0],
+          ...subInfo.data.data,
+          coverImages: list.data.data[0].coverImages,
+          versionInfo: { exhibitProperty: subInfo.data.data.articleInfo.articleProperty },
           defaulterIdentityType: subStatusList.data.data[0].defaulterIdentityType
         });
       } else {

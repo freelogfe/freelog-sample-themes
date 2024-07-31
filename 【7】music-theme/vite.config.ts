@@ -20,8 +20,7 @@ export default defineConfig({
   ],
   server: {
     port: 8107,
-    host: true,
-    open: "https://192.168.2.8:8107/"
+    host: true
   },
   resolve: {
     alias: {
