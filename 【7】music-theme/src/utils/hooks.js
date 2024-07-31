@@ -49,7 +49,7 @@ export const useMyAuth = {
    */
   async getAuth(data, play = false) {
     const store = useGlobalStore();
-    const { exhibitId } = data;
+    const { exhibitId, itemId } = data;
     const authResult = await freelogApp.addAuth(exhibitId, { immediate: true });
     const { status } = authResult;
     if (status !== 0) return;
@@ -70,7 +70,7 @@ export const useMyAuth = {
     store.setData({ key: "authIdList", value: authIdList });
 
     if (play) {
-      useMyPlay.addToPlayList(exhibitId);
+      useMyPlay.addToPlayList({ exhibitId, itemId });
       freelogApp.setUserData("playingId", exhibitId);
       // 已授权未获取 url
       const url = await freelogApp.getExhibitFileStream(exhibitId, { returnUrl: true });
@@ -155,7 +155,6 @@ export const useMyCollection = {
   }
 };
 
-/** 播放 hook */
 export const useMyPlay = {
   /** 获取播放列表数据 */
   async getPlayList() {
@@ -168,17 +167,29 @@ export const useMyPlay = {
       return;
     }
 
-    const ids = idList.join();
-    const [list, statusList] = await Promise.all([
-      freelogApp.getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
-      freelogApp.getExhibitAuthStatus(ids)
-    ]);
-    idList.forEach(id => {
-      const playItem = list.data.data.find(item => item.exhibitId === id);
-      if (!playItem) return;
-      const statusItem = statusList.data.data.find(item => item.exhibitId === id);
-      result.push({ ...playItem, defaulterIdentityType: statusItem.defaulterIdentityType });
-    });
+    for (const item of idList) {
+      if (item.itemId) {
+        const [subList, subStatusList] = await Promise.all([
+          freelogApp.getCollectionSubInfo(item.exhibitId, { itemId: item.itemId }),
+          freelogApp.getCollectionSubAuth(item.exhibitId, { itemIds: item.itemId })
+        ]);
+        result.push({
+          ...subList.data.data[0],
+          defaulterIdentityType: subStatusList.data.data[0].defaulterIdentityType
+        });
+      } else {
+        const [list, statusList] = await Promise.all([
+          freelogApp.getExhibitListById({ exhibitIds: item.exhibitId, isLoadVersionProperty: 1 }),
+          freelogApp.getExhibitAuthStatus(item.exhibitId)
+        ]);
+
+        result.push({
+          ...list.data.data[0],
+          defaulterIdentityType: statusList.data.data[0].defaulterIdentityType
+        });
+      }
+    }
+
     store.setData({ key: "playList", value: result });
   },
 
@@ -198,16 +209,22 @@ export const useMyPlay = {
   },
 
   /** 加入播放列表 */
-  async addToPlayList(id, callback) {
+  async addToPlayList(obj, callback) {
     const store = useGlobalStore();
 
     if (!store.userData.isLogin) {
       // 未登录时存在本地
       const list = localStorage.getItem("playIdList") || "[]";
       const playIdList = JSON.parse(list);
-      if (playIdList.includes(id)) return;
+      if (
+        playIdList
+          .map(i => `${i.exhibitId}${i.itemId ?? ""}`)
+          .includes(`${obj.exhibitId}${obj.itemId ?? ""}`)
+      ) {
+        return;
+      }
 
-      playIdList.unshift(id);
+      playIdList.unshift(obj);
 
       localStorage.setItem("playIdList", JSON.stringify(playIdList));
       store.setData({ key: "playIdList", value: playIdList });
@@ -215,11 +232,17 @@ export const useMyPlay = {
       useMyPlay.getPlayList();
     } else {
       // 已登录时存在用户数据
-      const playIdList = [...store.playIdList];
-      console.log("playIdList", playIdList);
-      if (playIdList.includes(id)) return;
+      const { playIdList } = store;
 
-      playIdList.unshift(id);
+      if (
+        playIdList
+          .map(i => `${i.exhibitId}${i.itemId ?? ""}`)
+          .includes(`${obj.exhibitId}${obj.itemId ?? ""}`)
+      ) {
+        return;
+      }
+
+      playIdList.unshift(obj);
       const res = await freelogApp.setUserData("playIdList", playIdList);
 
       if (res.data.msg === "success") {
@@ -378,10 +401,10 @@ export const useMyPlay = {
         : await freelogApp.getExhibitFileStream(exhibitId, { returnUrl: true });
       exhibit.url = url;
     }
-    useMyPlay.addToPlayList(exhibitId);
+    useMyPlay.addToPlayList({ exhibitId, itemId });
     store.setData({ key: "playingInfo", value: exhibit });
     store.setData({ key: "playing", value: true });
-    freelogApp.setUserData("playingId", exhibitId);
+    freelogApp.setUserData("playingId", { exhibitId, itemId });
   },
 
   /** 获取播放数据 */

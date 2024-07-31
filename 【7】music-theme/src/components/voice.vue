@@ -360,7 +360,7 @@ export default {
 
     /** 加入播放列表 */
     addToPlayList() {
-      useMyPlay.addToPlayList(this.data.exhibitId, () => {
+      useMyPlay.addToPlayList({ exhibitId: this.data.exhibitId, itemId: this.data.itemId }, () => {
         const { offsetTop, offsetLeft } = this.$refs.cover;
         this.coverLeft = offsetLeft;
         this.coverTop = offsetTop - app.scrollTop;

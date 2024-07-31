@@ -349,7 +349,7 @@ export default {
 
     /** 加入播放列表 */
     addToPlayList() {
-      useMyPlay.addToPlayList(this.id);
+      useMyPlay.addToPlayList({ exhibitId: this.id, itemId: this.subID });
     },
 
     /** 收藏/取消收藏 */

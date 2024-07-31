@@ -76,7 +76,6 @@ const getList = async () => {
 
       // 获取合集里的单品列表
       if (item.articleInfo.articleType === 2) {
-        console.log("item.articleInfo.articleType", item.articleInfo.articleType);
         await getCollectionList(item.exhibitId, item.exhibitName, item.coverImages);
       }
     }
@@ -129,9 +128,6 @@ const getCollectionList = async (collectionID: string, exhibitName: string, imag
 
   subTempData.push(...dataList);
   collectionData.value = [...collectionData.value, ...dataList];
-
-  console.log("subTempData.length", subTempData, subTempData.length);
-  console.log("subTotal", subTotal);
 
   if (subTempData.length < subTotal) {
     subSkip = subSkip + 1_000;

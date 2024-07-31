@@ -46,12 +46,12 @@ const playing = (exhibitId: string) => {
 
 /** 播放/暂停 */
 const playOrPause = (item: Exhibit) => {
+  console.log("popular item", item);
   useMyPlay.playOrPause(item);
 };
-
 /** 加入播放列表 */
-const addToPlayList = (exhibitId: string) => {
-  useMyPlay.addToPlayList(exhibitId);
+const addToPlayList = (obj: { exhibitId: string; itemId: string }) => {
+  useMyPlay.addToPlayList(obj);
 };
 
 /** 收藏/取消收藏 */
@@ -147,7 +147,7 @@ const getAuth = data => {
               <i
                 class="freelog text-btn"
                 :class="['fl-icon-jiarubofangliebiao', { disabled: useMyPlay.ifExist(item.exhibitId) || (item.articleInfo.articleType === 1 && !ifSupportMime(item.versionInfo?.exhibitProperty?.mime as string)) }]"
-                @click="addToPlayList(item.exhibitId)"
+                @click="addToPlayList({ exhibitId: item.exhibitId, itemId: item.itemId })"
               />
             </myTooltip>
             <myTooltip content="更多">

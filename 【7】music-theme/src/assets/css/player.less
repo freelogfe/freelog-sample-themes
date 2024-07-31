@@ -317,8 +317,13 @@
         box-sizing: border-box;
 
         ::v-deep .el-skeleton.is-animated .el-skeleton__item {
-          background: linear-gradient(90deg, rgb(70, 70, 70) 25%, rgb(50, 50, 50) 37%, rgb(70, 70, 70) 63%) 0% 0% / 400%
-            100%;
+          background: linear-gradient(
+              90deg,
+              rgb(70, 70, 70) 25%,
+              rgb(50, 50, 50) 37%,
+              rgb(70, 70, 70) 63%
+            )
+            0% 0% / 400% 100%;
         }
       }
 
@@ -705,7 +710,7 @@
   }
 
   .pc-play-list-popup {
-    position: absolute;
+    position: fixed;
     right: calc(50% - 565px + 38px);
     bottom: 94px;
     width: 680px;
@@ -802,7 +807,8 @@
             display: flex;
 
             .title {
-              flex: 1;
+              // flex: 1;
+              width: 200px;
               overflow: hidden;
               white-space: nowrap;
               text-overflow: ellipsis;
@@ -813,6 +819,19 @@
 
               &.voice-title {
                 color: rgba(255, 255, 255, 0.8);
+              }
+            }
+
+            .album {
+              // flex: 1;
+              width: 200px;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              color: rgba(255, 255, 255, 0.2);
+
+              &.album-title {
+                margin-left: 15px;
               }
             }
           }
@@ -852,8 +871,13 @@
       box-sizing: border-box;
 
       ::v-deep .el-skeleton.is-animated .el-skeleton__item {
-        background: linear-gradient(90deg, rgb(70, 70, 70) 25%, rgb(50, 50, 50) 37%, rgb(70, 70, 70) 63%) 0% 0% / 400%
-          100%;
+        background: linear-gradient(
+            90deg,
+            rgb(70, 70, 70) 25%,
+            rgb(50, 50, 50) 37%,
+            rgb(70, 70, 70) 63%
+          )
+          0% 0% / 400% 100%;
       }
     }
   }

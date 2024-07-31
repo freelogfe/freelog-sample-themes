@@ -282,8 +282,11 @@
                     v-if="item.defaulterIdentityType >= 4"
                   ></i>
                   <div class="title-area">
-                    <my-tooltip class="title voice-title" :content="item.exhibitTitle">
-                      <span>{{ item.exhibitTitle }}</span>
+                    <my-tooltip :content="item.exhibitTitle">
+                      <span class="title voice-title">{{ item.exhibitTitle }}</span>
+                    </my-tooltip>
+                    <my-tooltip :content="item.exhibitTitle">
+                      <span class="album album-title">{{ item.exhibitTitle }}</span>
                     </my-tooltip>
                   </div>
                 </div>
@@ -292,12 +295,12 @@
                   <play-status
                     :playing="playing"
                     :desc="`${secondsToHMS(store.progress * 1000)} / ${secondsToHMS(
-                      item.versionInfo.exhibitProperty.duration
+                      item.versionInfo?.exhibitProperty.duration
                     )}`"
                     v-if="playingInfo && playingInfo.exhibitId === item.exhibitId"
                   />
                   <div class="duration" v-else>
-                    {{ secondsToHMS(item.versionInfo.exhibitProperty.duration) }}
+                    {{ secondsToHMS(item.versionInfo?.exhibitProperty.duration) }}
                   </div>
                   <i
                     class="text-btn freelog fl-icon-guanbi"
@@ -548,8 +551,8 @@ export default {
     /** 播放完成 */
     endVoice() {
       if (this.playList.length === 1) {
-        store.setData({ key: "playing", value: false });
-        store.setData({ key: "progress", value: 0 });
+        this.store.setData({ key: "playing", value: false });
+        this.store.setData({ key: "progress", value: 0 });
         return;
       }
       this.nextVoice();
