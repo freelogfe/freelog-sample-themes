@@ -260,7 +260,10 @@ export default {
     },
     "store.playIdList": {
       handler() {
-        this.isInPlayList = useMyPlay.ifExist(this.data.exhibitId);
+        this.isInPlayList = useMyPlay.ifExist({
+          exhibitId: this.data.exhibitId,
+          itemId: this.data.itemId
+        });
       },
       immediate: true
     }

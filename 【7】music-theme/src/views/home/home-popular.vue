@@ -146,7 +146,7 @@ const getAuth = data => {
             <myTooltip content="加入播放列表">
               <i
                 class="freelog text-btn"
-                :class="['fl-icon-jiarubofangliebiao', { disabled: useMyPlay.ifExist(item.exhibitId) || (item.articleInfo.articleType === 1 && !ifSupportMime(item.versionInfo?.exhibitProperty?.mime as string)) }]"
+                :class="['fl-icon-jiarubofangliebiao', { disabled: useMyPlay.ifExist({exhibitId:item.exhibitId,itemId:item.itemId}) || (item.articleInfo.articleType === 1 && !ifSupportMime(item.versionInfo?.exhibitProperty?.mime as string)) }]"
                 @click="addToPlayList({ exhibitId: item.exhibitId, itemId: item.itemId })"
               />
             </myTooltip>

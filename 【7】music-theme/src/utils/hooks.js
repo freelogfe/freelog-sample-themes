@@ -194,17 +194,21 @@ export const useMyPlay = {
   },
 
   /** 判断当前展品是否已存在播放列表中 */
-  ifExist(id) {
+  ifExist(obj) {
     const store = useGlobalStore();
 
     if (!store.userData.isLogin) {
       // 未登录时播放列表取本地
       const list = localStorage.getItem("playIdList") || "[]";
       const playIdList = JSON.parse(list);
-      return playIdList.includes(id);
+      return playIdList
+        .map(i => `${i.exhibitId}${i.itemId ?? ""}`)
+        .includes(`${obj.exhibitId}${obj.itemId ?? ""}`);
     } else {
       // 已登录时播放列表取用户数据
-      return store.playIdList.includes(id);
+      return store.playIdList
+        .map(i => `${i.exhibitId}${i.itemId ?? ""}`)
+        .includes(`${obj.exhibitId}${obj.itemId ?? ""}`);
     }
   },
 
