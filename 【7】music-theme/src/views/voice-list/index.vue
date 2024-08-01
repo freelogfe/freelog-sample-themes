@@ -109,7 +109,6 @@ export default {
 
           // 获取合集里的单品列表
           if (item.articleInfo.articleType === 2) {
-            console.log("item.articleInfo.articleType", item.articleInfo.articleType);
             await this.getCollectionList(item.exhibitId, item.exhibitName, item.coverImages);
           }
         }
