@@ -96,30 +96,42 @@ export const useMyCollection = {
       return;
     }
 
-    const ids = idList.join();
-    const [list, countList, statusList] = await Promise.all([
-      freelogApp.getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
-      freelogApp.getExhibitSignCount(ids),
-      freelogApp.getExhibitAuthStatus(ids)
-    ]);
-    idList.forEach(id => {
-      const collectionItem = list.data.data.find(item => item.exhibitId === id);
-      if (!collectionItem) return;
-      const signCountItem = countList.data.data.find(item => item.subjectId === id);
-      const statusItem = statusList.data.data.find(item => item.exhibitId === id);
-      result.push({
-        ...collectionItem,
-        signCount: signCountItem.count,
-        defaulterIdentityType: statusItem.defaulterIdentityType
-      });
-    });
+    for (const item of idList) {
+      if (item.itemId) {
+        const [list, subInfo, subStatusList] = await Promise.all([
+          freelogApp.getExhibitListById({ exhibitIds: item.exhibitId, isLoadVersionProperty: 1 }),
+          freelogApp.getCollectionSubInfo(item.exhibitId, { itemId: item.itemId }),
+          freelogApp.getCollectionSubAuth(item.exhibitId, { itemIds: item.itemId })
+        ]);
+        result.push({
+          ...subInfo.data.data,
+          coverImages: list.data.data[0].coverImages,
+          versionInfo: { exhibitProperty: subInfo.data.data.articleInfo.articleProperty },
+          defaulterIdentityType: subStatusList.data.data[0].defaulterIdentityType
+        });
+      } else {
+        const [list, statusList] = await Promise.all([
+          freelogApp.getExhibitListById({ exhibitIds: item.exhibitId, isLoadVersionProperty: 1 }),
+          freelogApp.getExhibitAuthStatus(item.exhibitId)
+        ]);
+
+        result.push({
+          ...list.data.data[0],
+          defaulterIdentityType: statusList.data.data[0].defaulterIdentityType
+        });
+      }
+    }
+
     store.setData({ key: "collectionList", value: result });
   },
 
   /** 判断当前展品是否已被收藏 */
-  ifExist(id) {
+  ifExist(obj) {
     const store = useGlobalStore();
-    return store.collectionIdList.includes(id);
+
+    return store.collectionIdList
+      .map(i => `${i.exhibitId}${i.itemId ?? ""}`)
+      .includes(`${obj.exhibitId}${obj.itemId ?? ""}`);
   },
 
   /** 操作收藏（如未收藏则收藏，反之取消收藏） */
@@ -130,19 +142,28 @@ export const useMyCollection = {
       return;
     }
 
-    const { exhibitId } = data;
+    const { exhibitId, itemId } = data;
+
     const collectionIdList = [...store.collectionIdList];
+    const combineCollectionIdList = store.collectionIdList.map(
+      i => `${i.exhibitId}${i.itemId ?? ""}`
+    );
     const collectionList = [...store.collectionList];
-    const isCollected = collectionIdList.includes(exhibitId);
+
+    const isCollected = combineCollectionIdList.includes(`${exhibitId}${itemId ?? ""}`);
     if (isCollected) {
       // 取消收藏
-      const idIndex = collectionIdList.findIndex(item => item === exhibitId);
+      const idIndex = combineCollectionIdList.findIndex(
+        item => item === `${exhibitId}${itemId ?? ""}`
+      );
       collectionIdList.splice(idIndex, 1);
-      const index = collectionList.findIndex(item => item.exhibitId === exhibitId);
+      const index = collectionList.findIndex(
+        item => `${item.exhibitId}${item.itemId ?? ""}` === `${exhibitId}${itemId ?? ""}`
+      );
       collectionList.splice(index, 1);
     } else {
       // 收藏
-      collectionIdList.unshift(exhibitId);
+      collectionIdList.unshift({ exhibitId, itemId });
       collectionList.unshift(data);
     }
     const res = await freelogApp.setUserData("collectionIdList", collectionIdList);
@@ -239,7 +260,7 @@ export const useMyPlay = {
       useMyPlay.getPlayList();
     } else {
       // 已登录时存在用户数据
-      const { playIdList } = store;
+      const playIdList = [...store.playIdList];
 
       if (
         playIdList

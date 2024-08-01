@@ -254,7 +254,10 @@ export default {
   watch: {
     "store.collectionIdList": {
       handler() {
-        this.isCollected = useMyCollection.ifExist(this.data.exhibitId);
+        this.isCollected = useMyCollection.ifExist({
+          exhibitId: this.data.exhibitId,
+          itemId: this.data.itemId
+        });
       },
       immediate: true
     },
@@ -266,6 +269,7 @@ export default {
         });
       },
       immediate: true
+      // deep: true
     }
   },
 
@@ -364,6 +368,7 @@ export default {
     /** 加入播放列表 */
     addToPlayList() {
       useMyPlay.addToPlayList({ exhibitId: this.data.exhibitId, itemId: this.data.itemId }, () => {
+        const app = document.getElementById("app");
         const { offsetTop, offsetLeft } = this.$refs.cover;
         this.coverLeft = offsetLeft;
         this.coverTop = offsetTop - app.scrollTop;

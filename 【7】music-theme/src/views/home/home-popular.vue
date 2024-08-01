@@ -167,12 +167,16 @@ const getAuth = data => {
                 <i
                   class="freelog text-btn"
                   :class="
-                    useMyCollection.ifExist(item.exhibitId)
+                    useMyCollection.ifExist({ exhibitId: item.exhibitId, itemId: item.itemId })
                       ? 'fl-icon-shoucangxiaoshuoyishoucang'
                       : 'fl-icon-shoucangxiaoshuo'
                   "
                 />
-                {{ useMyCollection.ifExist(item.exhibitId) ? "取消收藏" : "收藏" }}
+                {{
+                  useMyCollection.ifExist({ exhibitId: item.exhibitId, itemId: item.itemId })
+                    ? "取消收藏"
+                    : "收藏"
+                }}
               </div>
             </div>
           </div>

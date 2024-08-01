@@ -87,7 +87,6 @@ export const useGlobalStore = defineStore("global", {
       // 是否移动端设备
       const inMobile = judgeDevice();
       this.inMobile = inMobile;
-      console.log("inMobile", inMobile);
 
       if (inMobile) {
         // 是否 IOS 设备

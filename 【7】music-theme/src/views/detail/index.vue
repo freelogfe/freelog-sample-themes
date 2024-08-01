@@ -266,7 +266,7 @@ export default {
 
     "store.collectionIdList": {
       handler() {
-        this.isCollected = useMyCollection.ifExist(this.id);
+        this.isCollected = useMyCollection.ifExist({ exhibitId: this.id, itemId: this.itemId });
       },
       immediate: true
     },
@@ -363,7 +363,6 @@ export default {
       return supportMimeList.includes(item.articleInfo.articleProperty.mime);
     },
     albumSubBtnList(item) {
-      console.log("item", item);
       return [
         {
           icon: !this.ifSupportMimeSub(item)
