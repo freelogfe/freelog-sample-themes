@@ -303,7 +303,11 @@
                     :desc="`${secondsToHMS(store.progress * 1000)} / ${secondsToHMS(
                       item.versionInfo?.exhibitProperty.duration
                     )}`"
-                    v-if="playingInfo && playingInfo.exhibitId === item.exhibitId"
+                    v-if="
+                      playingInfo &&
+                      `${playingInfo.exhibitId}${playingInfo.itemId ?? ''}` ===
+                        `${item.exhibitId}${item.itemId ?? ''}`
+                    "
                   />
                   <div class="duration" v-else>
                     {{ secondsToHMS(item.versionInfo?.exhibitProperty.duration) }}

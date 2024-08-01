@@ -39,9 +39,12 @@ const ifSupportMime = (mime: string) => {
 };
 
 /** 是否播放中 */
-const playing = (exhibitId: string) => {
+const playing = (obj: { exhibitId: string; itemId: string }) => {
   const { playing, playingInfo } = store;
-  return playing && [playingInfo.exhibitId, playingInfo.itemId].includes(exhibitId);
+  const playingId = `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ""}`;
+  const exhibit = `${obj.exhibitId} ${obj.itemId ?? ""}`;
+
+  return playing && playingId === exhibit;
 };
 
 /** 播放/暂停 */
@@ -101,7 +104,7 @@ const getAuth = data => {
                 <i
                   class="freelog"
                   :class="
-                    playing(item.itemId || item.exhibitId)
+                    playing({ exhibitId: item.exhibitId, itemId: item.itemId })
                       ? 'fl-icon-zanting'
                       : 'fl-icon-bofang-sanjiaoxing'
                   "

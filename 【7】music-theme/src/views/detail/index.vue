@@ -298,9 +298,11 @@ export default {
     /** 是否播放中 */
     playing() {
       const { playing, playingInfo } = this.store;
-      const exhibit = this.voiceInfo.itemId || this.voiceInfo.exhibitId;
 
-      return playing && [playingInfo.exhibitId, playingInfo.itemId].includes(exhibit);
+      const playingId = `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ""}`;
+      const exhibit = `${this.voiceInfo.exhibitId} ${this.voiceInfo.itemId ?? ""}`;
+
+      return playing && playingId === exhibit;
     },
 
     /** 播放中声音信息 */
@@ -357,6 +359,25 @@ export default {
   },
 
   methods: {
+    isInPlayListSub(item) {
+      return useMyPlay.ifExist({ exhibitId: item.exhibitId, itemId: item.itemId });
+    },
+    isCollectedSub(item) {
+      return useMyCollection.ifExist({ exhibitId: item.exhibitId, itemId: item.itemId });
+    },
+    /** 是否播放中Sub */
+    playingSub(item) {
+      const { playing, playingInfo } = this.store;
+      const playingId = `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ""}`;
+      const exhibit = `${item.exhibitId}${item.itemId ?? ""}`;
+
+      return playing && playingId === exhibit;
+    },
+
+    /** 加入播放列表 */
+    addToPlayListSub(item) {
+      useMyPlay.addToPlayList({ exhibitId: item.exhibitId, itemId: item.itemId });
+    },
     /** 是否为支持格式 */
     ifSupportMimeSub(item) {
       const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
@@ -367,32 +388,32 @@ export default {
         {
           icon: !this.ifSupportMimeSub(item)
             ? "fl-icon-wufabofang"
-            : this.playing
+            : this.playingSub(item)
             ? "fl-icon-zanting-daibiankuang"
             : "fl-icon-bofang-daibiankuang",
-          title: this.playing ? "暂停" : "播放",
-          operate: this.playOrPause,
+          title: this.playingSub(item) ? "暂停" : "播放",
+          operate: () => this.playOrPause(item),
           disabled: !this.ifSupportMimeSub(item)
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
           title: "加入播放列表",
-          operate: this.addToPlayList,
-          disabled: this.isInPlayList || !this.ifSupportMimeSub(item)
+          operate: () => this.addToPlayListSub(item),
+          disabled: this.isInPlayListSub(item) || !this.ifSupportMimeSub(item)
         },
         {
-          icon: this.isCollected
+          icon: this.isCollectedSub(item)
             ? "fl-icon-shoucangxiaoshuoyishoucang"
             : "fl-icon-shoucangxiaoshuo",
-          title: this.isCollected ? "取消收藏" : "收藏",
-          operate: this.operateCollect
+          title: this.isCollectedSub(item) ? "取消收藏" : "收藏",
+          operate: () => this.operateCollect(item)
         },
         { icon: "fl-icon-fenxiang", title: "分享", operate: this.share }
       ];
     },
     /** 播放/暂停 */
-    playOrPause() {
-      useMyPlay.playOrPause(this.voiceInfo);
+    playOrPause(item) {
+      useMyPlay.playOrPause(item || this.voiceInfo);
     },
 
     /** 加入播放列表 */
@@ -401,8 +422,8 @@ export default {
     },
 
     /** 收藏/取消收藏 */
-    operateCollect() {
-      useMyCollection.operateCollect(this.voiceInfo);
+    operateCollect(item) {
+      useMyCollection.operateCollect(item || this.voiceInfo);
     },
 
     /** 分享 */
@@ -452,9 +473,10 @@ export default {
         };
 
         // 合集
-        const { articleInfo, exhibitName } = exhibitInfo.data.data;
+        const { articleInfo, exhibitName, coverImages } = exhibitInfo.data.data;
+        console.log("cove", coverImages);
         if (articleInfo.articleType === 2) {
-          this.getCollectionList(this.id, exhibitName);
+          this.getCollectionList(this.id, exhibitName, coverImages);
         }
       }
 
@@ -467,7 +489,7 @@ export default {
     },
 
     /** 获取合集里的单品列表 */
-    async getCollectionList(collectionID, exhibitName) {
+    async getCollectionList(collectionID, exhibitName, coverImages) {
       const subList = await freelogApp.getCollectionSubList(collectionID, {
         skip: this.subSkip,
         limit: 1_000,
@@ -494,6 +516,8 @@ export default {
             item.exhibitTitle = item.itemTitle;
             item.exhibitIntro = item.articleInfo.intro;
             item.exhibitId = collectionID;
+            item.coverImages = coverImages;
+            item.versionInfo = { exhibitProperty: item.articleInfo.articleProperty };
           });
         }
       }
@@ -503,7 +527,7 @@ export default {
 
       if (this.subTempData.length < this.subTotal) {
         this.subSkip = this.subSkip + 1_000;
-        this.getCollectionList(collectionID, exhibitName);
+        this.getCollectionList(collectionID, exhibitName, coverImages);
       } else {
         this.subTotal = 0;
         this.subSkip = 0;
