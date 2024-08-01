@@ -163,7 +163,7 @@
         <div
           class="pc-player-wrapper"
           @mouseover="clearCloseTimer()"
-          @mouseout="animation()"
+          @mouseout="handleMouseout"
           v-if="show"
         >
           <div class="player-wrapper">
@@ -577,7 +577,9 @@ export default {
 
   methods: {
     secondsToHMS,
-
+    handleMouseout() {
+      this.animation('kill')
+    },
     /** 关闭播放器 */
     closePlayer() {
       this.show = false;
@@ -776,13 +778,15 @@ export default {
     },
 
     /** 播放或加入播放列表时，播放器动画 */
-    animation() {
-      if (!this.show) this.show = true;
-      if (this.closeTimer) this.clearCloseTimer();
-      this.closeTimer = setTimeout(() => {
-        if (!this.playListPopupShow && !this.volumePopupShow) this.show = false;
-        this.closeTimer = null;
-      }, 3000);
+    animation(type) {
+      if (!this.show && !type) this.show = true;
+      if (this.closeTimer) this.clearCloseTimer()
+      if (this.show) {
+        this.closeTimer = setTimeout(() => {
+          if (!this.playListPopupShow && !this.volumePopupShow) this.show = false;
+          this.closeTimer = null;
+        }, 3000);
+      }
     },
 
     /** 清除自动隐藏计时器 */
