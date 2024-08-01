@@ -51,7 +51,7 @@
           ></span>
           <span class="end freelog fl-icon-bokebiaoqian_yiwanjie" v-else></span>
         </div>
-        <div class="title-txt" :class="{ 'opacity-40': authLinkAbnormal }">
+        <div class="title-txt" :class="{ 'opacity-40': authLinkAbnormal }" @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })">
           {{ data.exhibitTitle }}
         </div>
       </div>
@@ -77,7 +77,7 @@
 
 <script>
 import { freelogApp } from "freelog-runtime";
-import { useMyPlay } from "@/utils/hooks";
+import { useMyPlay, useMyAuth } from "@/utils/hooks";
 import playStatus from "@/components/play-status";
 import { relativeTime, signCount } from "@/utils/filter";
 
@@ -140,8 +140,11 @@ export default {
   methods: {
     /** 播放/暂停 */
     async playOrPause() {
-
-      useMyPlay.playOrPause(this.data);
+      if (this.data.articleInfo.articleType === 1) {
+        useMyPlay.playOrPause(this.data);
+      } else {
+        useMyPlay.playOrPause(this.data, "pool");
+      }
     },
     /** 获取某个合集里的列表 */
     async getListInCollection(exhibitId) {
@@ -153,7 +156,13 @@ export default {
       });
       if (res.data.errCode === 0) {
         this.collectionList = res.data.data.dataList;
+      } else {
+        console.warn(res.data);
       }
+    },
+    /** 授权 */
+    async getAuth() {
+      useMyAuth.getAuth(this.data);
     }
   }
 };
@@ -277,6 +286,11 @@ export default {
       margin: 10px 0px;
       align-items: center;
       height: 20px;
+      .auth-link-abnormal {
+        width: 16px;
+        height: 16px;
+        margin-right: 5px;
+      }
       .single {
         opacity: 0.32;
         font-size: 18px;

@@ -114,7 +114,7 @@
         :class="{ 'opacity-40': authLinkAbnormal }"
         @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
       >
-        <img class="cover" :src="data.coverImages[0]" />
+        <img class="cover" :src="computedCover" />
         <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
         <div class="btn-modal" v-if="ifSupportMime">
           <div class="btn" @click.stop="playOrPause()">
@@ -125,7 +125,7 @@
           </div>
         </div>
       </div>
-      <div class="info-area">
+      <div class="info-area" :class="{ 'in-detail-page': subMode === 'inDetailPage' }">
         <div class="title-area">
           <img
             class="auth-link-abnormal"
@@ -166,20 +166,20 @@
           <my-tooltip
             class="title"
             :class="{ 'opacity-40': authLinkAbnormal }"
-            :content="data.exhibitTitle"
+            :content="computedTitle"
           >
             <span @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })">
-              {{ data.exhibitTitle }}
+              {{ computedTitle }}
             </span>
           </my-tooltip>
         </div>
         <div class="intro" :class="{ 'opacity-40': authLinkAbnormal }">
-          {{ data.exhibitIntro }}
+          {{ computedIntro }}
         </div>
         <div class="other-area" :class="{ 'opacity-40': authLinkAbnormal }">
           <div class="info-item">
             <i class="freelog fl-icon-gengxinshijian"></i>
-            <div class="item-value">{{ data.updateDate | relativeTime }}</div>
+            <div class="item-value">{{ computedUpdate }}</div>
           </div>
           <div class="info-item" v-if="mode === 'program' && data.articleInfo.articleType === 2">
             <i class="freelog fl-icon-danji"></i>
@@ -194,17 +194,12 @@
             <div class="item-value">无法播放</div>
           </div>
           <transition name="slide-right">
-            <div
-              class="info-item"
-              v-if="
-                $store.state.playingInfo && $store.state.playingInfo.exhibitId === data.exhibitId
-              "
-            >
+            <div class="info-item" v-if="showPlayStatus">
               <play-status :playing="playing" />
               <div class="progress">
                 <span>{{ ($store.state.progress * 1000) | secondsToHMS }}</span>
                 <span class="progress-divider">/</span>
-                <span>{{ data.versionInfo.exhibitProperty.duration | secondsToHMS }}</span>
+                <span>{{ computedDuration }}</span>
               </div>
             </div>
           </transition>
@@ -222,9 +217,11 @@
         </my-tooltip>
       </div>
       <div class="right-area">
-        <div v-if="data.articleInfo.articleType === 2" class="total">共5集</div>
+        <div v-if="data.articleInfo.articleType === 2 && mode === 'program'" class="total">
+          共5集
+        </div>
         <div v-else class="duration">
-          {{ data.versionInfo.exhibitProperty.duration | secondsToHMS }}
+          {{ computedDuration }}
         </div>
       </div>
       <div
@@ -242,10 +239,10 @@
 import playStatus from "@/components/play-status";
 import myTooltip from "@/components/tooltip";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
+import { relativeTime, signCount, secondsToHMS } from "@/utils/filter";
 
 export default {
   name: "voice",
-
   props: {
     /** 声音信息 */
     data: {
@@ -268,6 +265,10 @@ export default {
     mode: {
       type: String,
       default: "voice" // "voice" | 'program'
+    },
+    subMode: {
+      type: String,
+      default: "other" // "inDetailPage" | "other" 只用于控制宽度使用
     }
   },
 
@@ -303,6 +304,102 @@ export default {
   },
 
   computed: {
+    /** 播放状态 */
+    showPlayStatus() {
+      if (this.data.articleInfo.articleType === 1) {
+        return (
+          this.$store.state.playingInfo &&
+          this.$store.state.playingInfo.exhibitId === this.data.exhibitId
+        );
+      } else {
+        if (this.mode === 'voice') {
+          return (
+            this.$store.state.playingInfo &&
+            this.$store.state.playingInfo.exhibitId === this.data.exhibitId &&
+            this.$store.state.playingInfo.child &&
+            this.$store.state.playingInfo.child.itemId &&
+            this.$store.state.playingInfo.child.itemId === this.data.child.itemId
+          );
+        } else {
+          return (
+            this.$store.state.playingInfo &&
+            this.$store.state.playingInfo.exhibitId === this.data.exhibitId
+          );
+        }
+      }
+    },
+    /** 时长 */
+    computedDuration() {
+      if (this.data.articleInfo.articleType === 1) {
+        return secondsToHMS(this.data.versionInfo.exhibitProperty.duration);
+      } else {
+        if (this.mode === 'voice'){
+          return secondsToHMS(this.data?.child?.articleInfo?.articleProperty?.duration);
+        } else {
+          return secondsToHMS(this.$store.state.playingInfo?.child?.articleInfo?.articleProperty?.duration)
+        }
+      }
+    },
+    /** 签约量 */
+    computedSign() {
+      if (this.data.articleInfo.articleType === 1) {
+        return signCount(this.data.signCount);
+      } else {
+        if (this.mode === 'voice') { 
+          return signCount(this.data?.child?.signCount);
+        } else {
+          return signCount(this.data.signCount);
+        }
+      }
+    },
+    /** 更新时间 */
+    computedUpdate() {
+      if (this.data.articleInfo.articleType === 1) {
+        return relativeTime(this.data.updateDate);
+      } else {
+        if (this.mode === 'voice') { 
+          return relativeTime(this.data?.child?.createDate);
+        } else {
+          return relativeTime(this.data.updateDate);          
+        }
+      }
+    },
+    /** 简介 */
+    computedIntro() {
+      if (this.data.articleInfo.articleType === 1) {
+        return this.data.exhibitIntro;
+      } else {
+        if (this.mode === 'voice') { 
+          return this.data?.child?.articleInfo?.intro || "";
+        } else {
+          return this.data.exhibitIntro;  
+        }
+      }
+    },
+    /** 标题 */
+    computedTitle() {
+      if (this.data.articleInfo.articleType === 1) {
+        return this.data.exhibitTitle;
+      } else {
+        if (this.mode === 'voice') { 
+          return this.data?.child?.itemTitle || "";
+        } else {
+          return this.data.exhibitTitle;
+        }
+      }
+    },
+    /** 封面 */
+    computedCover() {
+      if (this.data.articleInfo.articleType === 1) {
+        return this.data.coverImages[0];
+      } else {
+        if (this.mode === 'voice') {
+          return this.data?.child?.articleInfo?.coverImages[0];
+        } else {
+          return this.data.coverImages[0];
+        }
+      }
+    },
     /** 授权链异常 */
     authLinkAbnormal() {
       return ![0, 4].includes(this.data.defaulterIdentityType);
@@ -311,7 +408,15 @@ export default {
     /** 是否为支持格式 */
     ifSupportMime() {
       const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
-      return supportMimeList.includes(this.data.versionInfo.exhibitProperty.mime);
+      if (this.data.articleInfo.articleType === 1) {
+        return supportMimeList.includes(this.data.versionInfo.exhibitProperty.mime);
+      } else {
+        if (this.mode === 'voice') {
+          return supportMimeList.includes(this.data?.child?.articleInfo?.articleProperty?.mime);
+        } else {
+          return true
+        }
+      }
     },
 
     /** 是否播放中 */
@@ -389,7 +494,15 @@ export default {
 
     /** 播放/暂停 */
     playOrPause() {
-      useMyPlay.playOrPause(this.data);
+      if (this.data.articleInfo.articleType === 1) {
+        useMyPlay.playOrPause(this.data);
+      } else {
+        if (this.mode === 'voice') {
+          useMyPlay.playOrPause(this.data);
+        } else {
+          useMyPlay.playOrPause(this.data, 'pool');
+        }
+      }
     },
 
     /** 加入播放列表 */

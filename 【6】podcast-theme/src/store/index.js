@@ -25,12 +25,17 @@ export default new Vuex.Store({
     initUrl: "", // 播放器初始化 url（用于解决 IOS 无法异步播放声音问题）
     progress: 0, // 当前播放进度
     authIdList: [], // 已授权 id 集合（用于刷新首页列表、声音列表、搜索结果列表、详情页授权状态）
-    searchKey: "" // 搜索关键词
+    searchKey: "", // 搜索关键词
+    cachePool: {} // 合集id为key, 子作品详情列表为value
   },
   mutations: {
     /** 更新数据 */
     setData(state, payload) {
       state[payload.key] = payload.value;
+    },
+    /** 更新合集缓存数据 */
+    setCachePool(state, payload) {
+      state.cachePool[payload.key] = payload.value;
     }
   },
   actions: {

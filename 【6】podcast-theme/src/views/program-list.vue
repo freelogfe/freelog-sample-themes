@@ -2,13 +2,13 @@
   <div class="program-list-wrapper">
     <div class="plw-header">
       <label>所有节目</label>
-      <span>(7)</span>
+      <span>({{ total }})</span>
     </div>
     <div v-if="hotList.length" class="plw-body">
       <div class="plw-condition">
         <div class="left" v-clickOutside="dropDownShow">
           <div class="wrapper" @click="dropDownShow.value = !dropDownShow.value">
-            <span class="txt">最近更新</span>
+            <span class="txt">{{ currentSelect === 'update' ? "最近更新" : "最热门" }}</span>
             <div class="drop-trigger">
               <div class="triangle"></div>
             </div>
@@ -78,7 +78,8 @@ export default {
       currentSelect: "update", // "update" | "hot"
       currentMode: "card", // "card" | "list"
       listData: [],
-      nodeInfo: {}
+      nodeInfo: {},
+      total: 0
     };
   },
   created() {
@@ -90,19 +91,17 @@ export default {
       return JSON.parse(JSON.stringify(this.listData.slice()));
     }
   },
+  watch: {
+    currentSelect(newValue) {
+      this.sortList(newValue, this.listData)
+    }
+  },
   methods: {
     /** 获取展品列表 */
     async getList() {
       if (this.loading) return;
-
       this.loading = true;
-      const queryParams = {
-        articleResourceTypes: "音频",
-        isLoadVersionProperty: 1,
-        limit: 10
-      };
-      const list = await freelogApp.getExhibitListByPaging(queryParams);
-      const { dataList, totalItem } = list.data.data;
+      const dataList = await this.queryList()
       if (dataList.length !== 0) {
         const ids = dataList.map(item => item.exhibitId).join();
         const [signCountData, statusInfo] = await Promise.all([
@@ -122,11 +121,51 @@ export default {
             item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
         });
       }
-      console.log(dataList);
-      this.listData = dataList;
-      this.total = totalItem;
+      this.sortList('update', dataList)
+      this.total = dataList.length;
       this.loading = false;
+    },
+    /** 获取展品列表 */
+    async queryList(options = { skip: 0, limit: 2 }) {
+      let { skip, limit } = options
+      const result = []
+      const list = await freelogApp.getExhibitListByPaging({
+        ...options,
+        articleResourceTypes: "音频",
+        isLoadVersionProperty: 1,
+      });
+      const { dataList, totalItem } = list.data.data;
+      result.push(...dataList)
+      if (totalItem > (skip + 1) * limit) {
+        skip = (skip + 1) * limit
+        result.push(...await this.queryList({ skip })) 
+      }
+      return result
+    },
+    /** 获取展品列表 */
+    sortList(newValue, dataList) {
+      const result = dataList.sort((a, b) => {
+        let aTimeStamp, bTimeStamp
+        if (a.articleInfo.child) {
+          aTimeStamp = new Date(a.child.createDate).getTime()
+        } else {
+          aTimeStamp = new Date(a.updateDate).getTime()
+        }
+
+        if (b.articleInfo.child) {
+          bTimeStamp = new Date(b.child.createDate).getTime()
+        } else {
+          bTimeStamp = new Date(b.updateDate).getTime()
+        }
+        if (newValue === 'update') {
+          return bTimeStamp - aTimeStamp
+        } else {
+          return b.signCount - a.signCount
+        }
+      })
+      this.listData = result
     }
+
   }
 };
 </script>

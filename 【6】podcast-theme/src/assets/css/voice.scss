@@ -433,6 +433,10 @@
       height: 100%;
       margin-left: 20px;
 
+      &.in-detail-page {
+        width: 480px;
+      }
+
       .title-area {
         width: 100%;
         display: flex;

@@ -99,7 +99,7 @@
             <div class="top-title">最近更新</div>
           </div>
           <div class="voice-list">
-            <voice :data="item" v-for="item in listData" :key="item.exhibitId" />
+            <voice :data="item" v-for="item in lastestList" :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`" mode="voice" />
           </div>
           <div class="view-more" v-if="total > 10">
             <div class="text-btn" @click="$router.myPush('/program-list')">
@@ -148,7 +148,8 @@ export default {
       loading: false,
       total: 0,
       nodeInfo: {},
-      nodeInfoPopupShow: false
+      nodeInfoPopupShow: false,
+      lastestList: []
     };
   },
 
@@ -167,13 +168,18 @@ export default {
       return this.$store.state.selfConfig;
     },
     hotList() {
-      return JSON.parse(JSON.stringify(this.listData.slice(0, 5)));
+      const data = this.listData
+        .filter(ele => ele.articleInfo.articleType === 2)
+        .concat(this.listData.filter(ele => ele.articleInfo.articleType !== 2));
+      return JSON.parse(JSON.stringify(data.slice(0, 5)));
     }
   },
 
   created() {
     this.nodeInfo = freelogApp.nodeInfo;
-    this.getList();
+    this.getList().then((res) => {
+      this.getUpdatedList(res);
+    })
   },
 
   activated() {
@@ -197,6 +203,101 @@ export default {
   },
 
   methods: {
+    /** 获取展品列表 */
+    async getUpdatedList(list) {
+      const top = 10
+      const allexhibitIds = list.map(ele => ele.exhibitId).join(',')
+      const exhibitIds = list.filter(ele => ele.articleInfo.articleType === 2).map(ele => ele.exhibitId).join(',')
+      const [exhibitDetailList, authStatusList, exhibitSubList] = await Promise.all([
+        freelogApp.getExhibitListById({ exhibitIds: allexhibitIds, isLoadVersionProperty: 1 }),
+        freelogApp.getExhibitAuthStatus(allexhibitIds),
+        freelogApp.getCollectionsSubList(exhibitIds, {
+          sortType: -1, 
+          skip: 0,
+          limit: 10,
+          isShowDetailInfo: 1, 
+        })
+      ])
+
+      if (exhibitDetailList.data.errCode !== 0) {
+        console.warn(exhibitDetailList.data)
+      }
+      if (authStatusList.data.errCode !== 0) {
+        console.warn(authStatusList.data)
+      }
+      if (exhibitSubList.data.errCode !== 0) {
+        console.warn(exhibitSubList.data)
+      }
+
+      // 合集内的子作品: 扁平化处理
+      const flatSubList = []
+      exhibitSubList.data.data.forEach(ele => {
+        const exhibitDetail = exhibitDetailList.data.data.find(exhibit => exhibit.exhibitId === ele.exhibitId)
+        const authItem = authStatusList.data.data.find(exhibit => exhibit.exhibitId === ele.exhibitId)
+        if (ele.itemList.length) {
+          ele.itemList.forEach(innerEle => {
+            const data = JSON.parse(JSON.stringify({
+              ...exhibitDetail,
+              child: innerEle,
+              defaulterIdentityType: authItem.defaulterIdentityType,
+            }))
+            flatSubList.push(data)
+          })
+        } else {
+          const data = JSON.parse(JSON.stringify({
+            ...exhibitDetail,
+            defaulterIdentityType: authItem.defaulterIdentityType,
+          }))
+          flatSubList.push(data)
+        }
+      })
+
+      // 非合集数据
+      const notExhibitList = []
+      const notExhibitIds = list.filter(ele => ele.articleInfo.articleType === 1).map(ele => ele.exhibitId)
+      notExhibitIds.forEach(ele => {
+        const exhibitDetail = exhibitDetailList.data.data.find(exhibit => exhibit.exhibitId === ele)
+        const authItem = authStatusList.data.data.find(exhibit => exhibit.exhibitId === ele)
+        const data = {
+          ...exhibitDetail,
+          defaulterIdentityType: authItem.defaulterIdentityType,
+        }
+        notExhibitList.push(data)
+      })
+
+      // 合集内的子作品: 排序后取前top
+      const sortedflatSubListTop = flatSubList.sort((a, b) => {
+        const aTimeStamp = new Date(a.child.createDate).getTime()
+        const bTimeStamp = new Date(b.child.createDate).getTime()
+        return bTimeStamp - aTimeStamp
+      }).slice(0, top)
+
+      // 非合集数据: 排序后取前top
+      const sortedNotExhibitListTop = notExhibitList.sort((a, b) => {
+        const aTimeStamp = new Date(a.updateDate).getTime()
+        const bTimeStamp = new Date(b.updateDate).getTime()
+        return bTimeStamp - aTimeStamp
+      }).slice(0, top)
+      
+
+      const result = [].concat(sortedflatSubListTop, sortedNotExhibitListTop).sort((a, b) => {
+        let aTimeStamp, bTimeStamp
+        if (a.articleInfo.child) {
+          aTimeStamp = new Date(a.child.createDate).getTime()
+        } else {
+          aTimeStamp = new Date(a.updateDate).getTime()
+        }
+
+        if (b.articleInfo.child) {
+          bTimeStamp = new Date(b.child.createDate).getTime()
+        } else {
+          bTimeStamp = new Date(b.updateDate).getTime()
+        }
+        return bTimeStamp - aTimeStamp
+      }).slice(0, top)
+
+      this.lastestList = result
+    },
     /** 获取展品列表 */
     async getList() {
       if (this.loading) return;
@@ -228,12 +329,12 @@ export default {
             item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
         });
       }
-      console.log(dataList);
       this.listData = dataList;
       this.total = totalItem;
       this.loading = false;
+      console.log(dataList);
+      return dataList
     },
-
     /** 页面滚动 */
     scroll() {
       const scrollTop = app.scrollTop || 0;
@@ -711,18 +812,20 @@ export default {
           display: flex;
           align-items: center;
           cursor: pointer;
+          opacity: 0.6;
+          &:hover {
+            opacity: 1;
+          }
           .text {
             height: 20px;
             font-weight: 600;
             font-size: 14px;
             color: #ffffff;
             line-height: 20px;
-            opacity: 0.6;
           }
           .freelog {
             font-size: 12px;
             margin-left: 5px;
-            opacity: 0.6;
           }
         }
       }

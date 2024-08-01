@@ -4,7 +4,7 @@
   <div class="player-wrapper">
     <audio
       ref="player"
-      :src="$store.state.initUrl ? $store.state.initUrl : playingInfo ? playingInfo.url : ''"
+      :src="computedSrc"
       @loadedmetadata="loadedVoice()"
       @timeupdate="$store.state.initUrl === null && audioPlayUpdate()"
       @ended="$store.state.initUrl === null && endVoice()"
@@ -101,7 +101,7 @@
             <div
               class="voice-item"
               v-for="item in playList"
-              :key="item.exhibitId"
+              :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
               @click="playOrPauseList(item)"
             >
               <div class="left-area">
@@ -133,7 +133,7 @@
                 </div>
               </div>
 
-              <div class="delete-btn" @click.stop="deleteVoice(item.exhibitId)">
+              <div class="delete-btn" @click.stop="deleteVoice(item)">
                 <i class="text-btn mobile freelog fl-icon-guanbi"></i>
               </div>
             </div>
@@ -212,7 +212,7 @@
                     :class="{ 'no-voice': !playingInfo }"
                     v-model="$store.state.progress"
                     :min="0"
-                    :max="playingInfo && playingInfo.versionInfo.exhibitProperty.duration / 1000"
+                    :max="computedSlider"
                     :format-tooltip="() => secondsToHMS($store.state.progress * 1000)"
                     @change="changeProgress"
                   ></el-slider>
@@ -267,8 +267,8 @@
             <template v-if="playList.length">
               <div
                 class="voice-item"
-                v-for="item in playList"
-                :key="item.exhibitId"
+                v-for="(item, index) in playList"
+                :key="index"
                 @click="playOrPauseList(item)"
               >
                 <div class="left-area">
@@ -283,8 +283,8 @@
                     v-if="item.defaulterIdentityType >= 4"
                   ></i>
                   <div class="title-area">
-                    <my-tooltip class="title voice-title" :content="item.exhibitTitle">
-                      <span>{{ item.exhibitTitle }}</span>
+                    <my-tooltip class="title voice-title" :content="computedExhibitTitle(item)">
+                      <span>{{ computedExhibitTitle(item) }}</span>
                     </my-tooltip>
                   </div>
                 </div>
@@ -292,17 +292,15 @@
                 <div class="right-area">
                   <play-status
                     :playing="playing"
-                    :desc="`${secondsToHMS($store.state.progress * 1000)} / ${secondsToHMS(
-                      item.versionInfo.exhibitProperty.duration
-                    )}`"
-                    v-if="playingInfo && playingInfo.exhibitId === item.exhibitId"
+                    :desc="computedDuration(item)"
+                    v-if="computedPlayStatus(item)"
                   />
                   <div class="duration" v-else>
-                    {{ item.versionInfo.exhibitProperty.duration | secondsToHMS }}
+                    {{ computedFixDuration(item) }}
                   </div>
                   <i
                     class="text-btn freelog fl-icon-guanbi"
-                    @click.stop="deleteVoice(item.exhibitId)"
+                    @click.stop="deleteVoice(item)"
                   ></i>
                 </div>
               </div>
@@ -386,7 +384,6 @@ export default {
 
     "$store.state.playing"(cur) {
       if (!this.$store.state.playingInfo) return;
-
       if (cur) {
         this.playVoice();
       } else {
@@ -422,6 +419,78 @@ export default {
   },
 
   computed: {
+    /** 固定播放时长 */
+    computedSlider() {
+      if (this.playingInfo?.articleInfo?.articleType === 1) {
+        return this.playingInfo && this.playingInfo.versionInfo.exhibitProperty.duration / 1000
+      } else {
+        return this.playingInfo && this.playingInfo.child?.articleInfo?.articleProperty?.duration / 1000
+      }
+    },
+    /** 固定播放时长 */
+    computedFixDuration() {
+      return item => {
+        if (item.articleInfo.articleType === 1) {
+          return secondsToHMS(item.versionInfo.exhibitProperty.duration);
+        } else {
+          return secondsToHMS(item.child.articleInfo?.articleProperty?.duration);
+        }
+      };
+    },
+    /** 播放状态 */
+    computedPlayStatus() {
+      return item => {
+        if (this.playingInfo && this.playingInfo.articleInfo.articleType === 1) {
+          return this.playingInfo && this.playingInfo.exhibitId === item.exhibitId;
+        } else {
+          return (
+            this.playingInfo &&
+            this.playingInfo.exhibitId === item.exhibitId &&
+            this.playingInfo.child.itemId === item.child.itemId
+          );
+        }
+      };
+    },
+    /** 动态播放时长 */
+    computedDuration() {
+      return item => {
+        if (item.articleInfo.articleType === 1) {
+          return `${secondsToHMS(this.$store.state.progress * 1000)} / ${secondsToHMS(
+            item.versionInfo.exhibitProperty.duration
+          )}`;
+        } else {
+          return `${secondsToHMS(this.$store.state.progress * 1000)} / ${secondsToHMS(
+            item.child.articleInfo.articleProperty.duration
+          )}`;
+        }
+      };
+    },
+    /** 播放title */
+    computedExhibitTitle() {
+      return item => {
+        if (item.articleInfo.articleType === 1) {
+          return item.exhibitTitle;
+        } else {
+          return item?.child?.itemTitle || "";
+        }
+      };
+    },
+    /** 播放地址 */
+    computedSrc() {
+      if (this.$store.state.initUrl) {
+        return this.$store.state.initUrl;
+      } else {
+        if (this.playingInfo) {
+          if (this.playingInfo.articleInfo.articleType === 1) {
+            return this.playingInfo.url;
+          } else {
+            return this.playingInfo.child && this.playingInfo.child.url;
+          }
+        } else {
+          return "";
+        }
+      }
+    },
     /** 是否收藏 */
     isCollected() {
       const { collectionIdList, playingInfo } = this.$store.state;
@@ -575,8 +644,9 @@ export default {
     },
 
     /** 移出播放列表 */
-    deleteVoice(id) {
-      useMyPlay.removeFromPlayList(id);
+    deleteVoice(item) {
+      debugger
+      useMyPlay.removeFromPlayList(item);
     },
 
     /** 清空播放列表 */
@@ -593,6 +663,7 @@ export default {
 
     /** 监听点击区域 */
     clickListener() {
+      const app = document.getElementById("app");
       document.addEventListener("click", e => {
         if (!this.show || this.$store.state.inMobile) return;
 
