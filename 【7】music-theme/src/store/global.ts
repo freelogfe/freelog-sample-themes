@@ -74,6 +74,7 @@ export const useGlobalStore = defineStore("global", {
     /** 初始化 store */
     async initStoreData() {
       // freelogApp.setUserData("playIdList", []);
+      // freelogApp.setUserData("collectionIdList", []);
 
       const userData = freelogApp.getCurrentUser();
       const [selfConfig, collectionIdListResponse, playingIdResponse] = await Promise.all([

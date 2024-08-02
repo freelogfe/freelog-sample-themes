@@ -260,7 +260,7 @@ export const useMyPlay = {
       useMyPlay.getPlayList();
     } else {
       // 已登录时存在用户数据
-      const playIdList = [...store.playIdList];
+      const playIdList = store.playIdList;
 
       if (
         playIdList
@@ -313,7 +313,7 @@ export const useMyPlay = {
       }
     } else {
       // 已登录时取用户数据
-      const playIdList = [...store.playIdList];
+      const playIdList = store.playIdList;
       const index = playIdList.findIndex(item => item === id);
       playIdList.splice(index, 1);
       const res = await freelogApp.setUserData("playIdList", playIdList);
@@ -366,7 +366,7 @@ export const useMyPlay = {
   },
 
   /** 播放 */
-  async playOrPause(exhibit, type = "normal") {
+  async playOrPause(exhibit, type = "normal", callback) {
     const store = useGlobalStore();
 
     if (!exhibit) {
@@ -387,7 +387,7 @@ export const useMyPlay = {
         key: "initUrl",
         value: "https://file.testfreelog.com/exhibits/64d1ed97cc4a64002f632b0d"
       });
-      this.playOrPause(exhibit, type);
+      this.playOrPause(exhibit, type, callback);
       return;
     }
 
@@ -429,10 +429,11 @@ export const useMyPlay = {
         : await freelogApp.getExhibitFileStream(exhibitId, { returnUrl: true });
       exhibit.url = url;
     }
-    useMyPlay.addToPlayList({ exhibitId, itemId });
+    await useMyPlay.addToPlayList({ exhibitId, itemId });
     store.setData({ key: "playingInfo", value: exhibit });
     store.setData({ key: "playing", value: true });
     freelogApp.setUserData("playingId", { exhibitId, itemId });
+    callback && callback();
   },
 
   /** 获取播放数据 */
@@ -453,8 +454,10 @@ export const useMyPlay = {
     const store = useGlobalStore();
     let preVoiceInfo = null;
     const { playList, playingInfo } = store;
-    const id = data ? data.exhibitId : playingInfo.exhibitId;
-    const index = playList.findIndex(item => item.exhibitId === id);
+    const id = data
+      ? `${data.exhibitId}${data.itemId ?? ""}`
+      : `${playingInfo.exhibitId}${playingInfo.itemId ?? ""}`;
+    const index = playList.findIndex(item => `${item.exhibitId}${item.itemId ?? ""}` === id);
     if (index === 0) {
       preVoiceInfo = playList[playList.length - 1];
     } else {
@@ -468,8 +471,10 @@ export const useMyPlay = {
     const store = useGlobalStore();
     let nextVoiceInfo = null;
     const { playList, playingInfo } = store;
-    const id = data ? data.exhibitId : playingInfo.exhibitId;
-    const index = playList.findIndex(item => item.exhibitId === id);
+    const id = data
+      ? `${data.exhibitId}${data.itemId ?? ""}`
+      : `${playingInfo.exhibitId}${playingInfo.itemId ?? ""}`;
+    const index = playList.findIndex(item => `${item.exhibitId}${item.itemId ?? ""}` === id);
     if (index === playList.length - 1) {
       nextVoiceInfo = playList[0];
     } else {

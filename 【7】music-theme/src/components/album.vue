@@ -1,27 +1,114 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { freelogApp } from "freelog-runtime";
 import { useRouter } from "vue-router";
-
 import { relativeTime } from "@/utils/common.js";
-
+import { useMyPlay, useMyAuth } from "@/utils/hooks";
+// 图片
 import MoreIcon from "@/assets/images/arrow.png";
 import TimeIcon from "@/assets/images/time.png";
 import AlbumIcon from "@/assets/images/album.png";
+import AuthLinkAbnormal from "@/assets/images/auth-link-abnormal.png";
 import type { Exhibit } from "@/interface";
 
 const props = defineProps<{
   hasHeader: boolean;
   data: Exhibit[];
 }>();
-
 const router = useRouter();
+const collectionData = ref<Exhibit[]>([]);
 
-const authLinkAbnormal = () => {
-  return ![0, 4].includes(props.data.defaulterIdentityType);
+const authLinkAbnormal = (defaulterIdentityType: number) => {
+  return ![0, 4].includes(defaulterIdentityType);
+};
+
+/** 授权 */
+const getAuth = data => {
+  useMyAuth.getAuth(data);
 };
 
 const ifSupportMime = () => {
   return true;
+};
+
+// 播放▶专辑
+const playOrPause = async (exhibitId: string) => {
+  collectionData.value = [];
+  const exhibitInfo = await freelogApp.getExhibitListById({
+    exhibitIds: exhibitId,
+    isLoadVersionProperty: 1
+  });
+  const { exhibitName, coverImages } = exhibitInfo.data.data[0];
+
+  await getCollectionList({ exhibitId, exhibitName, coverImages });
+  // 首 先专辑默认第一首播放，其余的全部加入播放列表
+  const restCollectionData = collectionData.value.slice(1);
+  await useMyPlay.playOrPause(collectionData.value[0], "normal", async () => {
+    for (const iterator of restCollectionData) {
+      await useMyPlay.addToPlayList({ exhibitId: iterator.exhibitId, itemId: iterator.itemId });
+    }
+  });
+};
+
+/** 获取合集里的单品列表 */
+let subTotal = 0;
+let subSkip = 0;
+let subTempData = [];
+
+const getCollectionList = async (obj: {
+  exhibitId: string;
+  exhibitName: string;
+  coverImages: string[];
+}) => {
+  const subList = await freelogApp.getCollectionSubList(obj.exhibitId, {
+    skip: subSkip,
+    limit: 1_000,
+    isShowDetailInfo: 1
+  });
+  const { dataList, totalItem } = subList.data.data;
+  subTotal = totalItem;
+
+  if (dataList.length !== 0) {
+    const ids = dataList.map((item: any) => item.itemId).join();
+    const statusInfo = await (freelogApp as any).getCollectionSubAuth(obj.exhibitId, {
+      itemIds: ids
+    });
+
+    if (statusInfo.data.data) {
+      dataList.forEach((item: Exhibit) => {
+        const index = statusInfo.data.data.findIndex(
+          resultItem => resultItem.itemId === item.itemId
+        );
+        if (index !== -1) {
+          item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+        }
+
+        item.updateDate = item.articleInfo.latestVersionReleaseDate;
+        item.coverImages = obj.coverImages;
+        item.versionInfo = { exhibitProperty: item.articleInfo?.articleProperty };
+        item.exhibitTitle = item.itemTitle;
+        item.exhibitIntro = item.articleInfo.intro;
+        item.albumName = obj.exhibitName;
+        item.exhibitId = obj.exhibitId;
+      });
+    }
+  }
+
+  subTempData.push(...dataList);
+  collectionData.value = [...collectionData.value, ...dataList];
+
+  if (subTempData.length < subTotal) {
+    subSkip = subSkip + 1_000;
+    await getCollectionList({
+      exhibitId: obj.exhibitId,
+      exhibitName: obj.exhibitName,
+      coverImages: obj.coverImages
+    });
+  } else {
+    subTotal = 0;
+    subSkip = 0;
+    subTempData = [];
+  }
 };
 </script>
 
@@ -45,20 +132,29 @@ const ifSupportMime = () => {
           <div class="cover-image">
             <img :src="item.coverImages[0]" alt="歌曲封面" />
             <div class="btn-modal" v-if="ifSupportMime">
-              <div class="btn" @click.stop="playOrPause()">
-                <i
-                  class="freelog"
-                  :class="playing ? 'fl-icon-zanting' : 'fl-icon-bofang-sanjiaoxing'"
-                ></i>
+              <div class="btn" @click.stop="playOrPause(item.exhibitId)">
+                <i class="freelog" :class="'fl-icon-bofang-sanjiaoxing'"></i>
               </div>
             </div>
           </div>
           <div class="info">
-            <span
-              class="title"
-              @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
-              >{{ item.exhibitTitle }}</span
-            >
+            <div class="top-area">
+              <img
+                class="auth-link-abnormal"
+                :src="AuthLinkAbnormal"
+                v-if="authLinkAbnormal(item.defaulterIdentityType)"
+              />
+              <i
+                class="freelog fl-icon-suoding lock"
+                @click.stop="getAuth(item)"
+                v-if="item.defaulterIdentityType >= 4"
+              ></i>
+              <span
+                class="title"
+                @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
+                >{{ item.exhibitTitle }}</span
+              >
+            </div>
 
             <div class="desc">
               <div class="time-box">
@@ -216,18 +312,32 @@ const ifSupportMime = () => {
       .info {
         margin-top: 10px;
 
-        .title {
-          font-weight: 600;
-          font-size: 14px;
-          color: #ffffff;
-          line-height: 20px;
-          opacity: 0.8;
-          cursor: pointer;
+        .top-area {
+          display: flex;
+          .auth-link-abnormal {
+            width: 16px;
+            height: 16px;
+            margin-right: 5px;
+          }
 
-          &:hover {
-            text-decoration: underline;
-            color: #44d7b6;
-            opacity: 1;
+          .lock {
+            margin-right: 5px;
+            cursor: pointer;
+          }
+
+          .title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #ffffff;
+            line-height: 20px;
+            opacity: 0.8;
+            cursor: pointer;
+
+            &:hover {
+              text-decoration: underline;
+              color: #44d7b6;
+              opacity: 1;
+            }
           }
         }
 
