@@ -339,7 +339,8 @@ export default {
               : this.authLinkAbnormal
               ? "无法播放"
               : "播放全部",
-          operate: this.playOrPause,
+          operate:
+            this.voiceInfo?.articleInfo?.articleType === 1 ? this.playOrPause : this.playOrPauseAll,
           disabled:
             this.voiceInfo?.articleInfo?.articleType === 1
               ? !this.ifSupportMime
@@ -416,6 +417,22 @@ export default {
         { icon: "fl-icon-fenxiang", title: "分享", operate: this.share }
       ];
     },
+
+    /** 播放全部/暂停  */
+    async playOrPauseAll() {
+      // 首先专辑默认第一首播放，其余的全部加入播放列表
+      const restCollectionData = this.collectionData.slice(1);
+
+      await useMyPlay.playOrPause(this.collectionData[0], "normal", async () => {
+        if (!restCollectionData.length) {
+          return;
+        }
+        for (const iterator of restCollectionData) {
+          await useMyPlay.addToPlayList({ exhibitId: iterator.exhibitId, itemId: iterator.itemId });
+        }
+      });
+    },
+
     /** 播放/暂停 */
     playOrPause(item) {
       useMyPlay.playOrPause(item.itemId ? item : this.voiceInfo);

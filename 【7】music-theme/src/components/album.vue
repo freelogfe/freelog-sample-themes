@@ -10,16 +10,28 @@ import TimeIcon from "@/assets/images/time.png";
 import AlbumIcon from "@/assets/images/album.png";
 import AuthLinkAbnormal from "@/assets/images/auth-link-abnormal.png";
 import type { Exhibit } from "@/interface";
+import { useGlobalStore } from "@/store/global";
 
 const props = defineProps<{
   hasHeader: boolean;
   data: Exhibit[];
 }>();
 const router = useRouter();
+const store = useGlobalStore();
 const collectionData = ref<Exhibit[]>([]);
 
 const authLinkAbnormal = (defaulterIdentityType: number) => {
   return ![0, 4].includes(defaulterIdentityType);
+};
+
+const playing = (exhibitId: string) => {
+  const { playingInfo } = store;
+  if (exhibitId !== playingInfo?.exhibitId) {
+    return;
+  }
+  const albumItemIds = collectionData.value.map(i => `${i.exhibitId}${i.itemId}`);
+  const playingId = `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ""}`;
+  return albumItemIds.includes(playingId);
 };
 
 /** 授权 */
@@ -27,11 +39,7 @@ const getAuth = data => {
   useMyAuth.getAuth(data);
 };
 
-const ifSupportMime = () => {
-  return true;
-};
-
-// 播放▶专辑
+/** 播放▶专辑 */
 const playOrPause = async (exhibitId: string) => {
   collectionData.value = [];
   const exhibitInfo = await freelogApp.getExhibitListById({
@@ -41,9 +49,12 @@ const playOrPause = async (exhibitId: string) => {
   const { exhibitName, coverImages } = exhibitInfo.data.data[0];
 
   await getCollectionList({ exhibitId, exhibitName, coverImages });
-  // 首 先专辑默认第一首播放，其余的全部加入播放列表
+  // 首先专辑默认第一首播放，其余的全部加入播放列表
   const restCollectionData = collectionData.value.slice(1);
   await useMyPlay.playOrPause(collectionData.value[0], "normal", async () => {
+    if (!restCollectionData.length) {
+      return;
+    }
     for (const iterator of restCollectionData) {
       await useMyPlay.addToPlayList({ exhibitId: iterator.exhibitId, itemId: iterator.itemId });
     }
@@ -131,9 +142,15 @@ const getCollectionList = async (obj: {
         <div class="info-box">
           <div class="cover-image">
             <img :src="item.coverImages[0]" alt="歌曲封面" />
-            <div class="btn-modal" v-if="ifSupportMime">
+            <div class="btn-modal">
               <div class="btn" @click.stop="playOrPause(item.exhibitId)">
-                <i class="freelog" :class="'fl-icon-bofang-sanjiaoxing'"></i>
+                <!-- <i class="freelog" :class="'fl-icon-bofang-sanjiaoxing'"></i> -->
+                <i
+                  class="freelog"
+                  :class="
+                    playing(item.exhibitId) ? 'fl-icon-zanting' : 'fl-icon-bofang-sanjiaoxing'
+                  "
+                ></i>
               </div>
             </div>
           </div>
