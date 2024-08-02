@@ -45,7 +45,8 @@ export default {
     scroll() {
       const scrollTop = app.scrollTop || 0;
       sessionStorage.setItem("collectionListScroll", scrollTop);
-    }
+    },
+    
   }
 };
 </script>

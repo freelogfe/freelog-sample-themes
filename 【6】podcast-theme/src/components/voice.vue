@@ -183,7 +183,7 @@
           </div>
           <div class="info-item" v-if="mode === 'program' && data.articleInfo.articleType === 2">
             <i class="freelog fl-icon-danji"></i>
-            <div class="item-value">{{ data.signCount | signCount }}</div>
+            <div class="item-value">{{ data.totalItem }}</div>
           </div>
           <div class="info-item">
             <i class="freelog fl-icon-yonghu"></i>
@@ -218,7 +218,7 @@
       </div>
       <div class="right-area">
         <div v-if="data.articleInfo.articleType === 2 && mode === 'program'" class="total">
-          共5集
+          共{{ data.totalItem }}集
         </div>
         <div v-else class="duration">
           {{ computedDuration }}
@@ -506,17 +506,32 @@ export default {
     },
 
     /** 加入播放列表 */
-    addToPlayList() {
-      useMyPlay.addToPlayList(this.data.exhibitId, () => {
-        const { offsetTop, offsetLeft } = this.$refs.cover;
-        this.coverLeft = offsetLeft;
-        this.coverTop = offsetTop - app.scrollTop;
-        if (this.$store.state.inMobile) this.moreMenuShow = false;
-        this.addAnimation = true;
-        setTimeout(() => {
-          this.addAnimation = false;
-        }, 700);
-      });
+    async addToPlayList() {
+      const { articleInfo, exhibitId } = this.data
+      if (articleInfo.articleType === 2) {
+        const res = await useMyPlay.getListInCollection(exhibitId);
+        this.$store.commit("setCachePool", {
+          key: exhibitId,
+          value: JSON.parse(JSON.stringify(res))
+        });
+        await useMyPlay.addToPlayListBatch(exhibitId, res)
+      } else {
+        useMyPlay.addToPlayList({
+          id: exhibitId,
+          callback: () => {
+            const { offsetTop, offsetLeft } = this.$refs.cover;
+            this.coverLeft = offsetLeft;
+            this.coverTop = offsetTop - app.scrollTop;
+            if (this.$store.state.inMobile) this.moreMenuShow = false;
+            this.addAnimation = true;
+            setTimeout(() => {
+              this.addAnimation = false;
+            }, 700);
+          },
+          isExhibit: true
+        });
+      }
+      
     },
 
     /** 收藏/取消收藏 */

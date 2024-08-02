@@ -179,14 +179,14 @@
 
             <div class="main-area">
               <div class="cover-area">
-                <img class="cover" :src="playingInfo.coverImages[0]" v-if="playingInfo" />
+                <img class="cover" :src="computedCover" v-if="playingInfo" />
                 <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
               </div>
               <div class="info-area">
                 <div class="top-area">
                   <template v-if="playingInfo">
                     <div class="title-area">
-                      <my-tooltip class="title voice-title" :content="playingInfo.exhibitTitle">
+                      <my-tooltip class="title voice-title" :content="computedExhibitTitle(playingInfo)">
                         <span
                           @click="
                             $router.myPush({
@@ -195,13 +195,13 @@
                             })
                           "
                         >
-                          {{ playingInfo.exhibitTitle }}
+                          {{ computedExhibitTitle(playingInfo) }}
                         </span>
                       </my-tooltip>
                     </div>
                     <div class="progress-area">
                       {{ ($store.state.progress * 1000) | secondsToHMS }} /
-                      {{ playingInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
+                      {{ computedFixDuration(playingInfo) }}
                     </div>
                   </template>
                   <span class="no-data-title" v-else>暂无播放的声音</span>
@@ -419,6 +419,18 @@ export default {
   },
 
   computed: {
+     /** 封面 */
+     computedCover() {
+      if (this.playingInfo.articleInfo.articleType === 1) {
+        return this.playingInfo.coverImages[0];
+      } else {
+        if (this.playingInfo?.child?.articleInfo?.coverImages[0]) {
+          return this.playingInfo?.child?.articleInfo?.coverImages[0];
+        } else {
+          return this.playingInfo.coverImages[0];
+        }
+      }
+    },
     /** 固定播放时长 */
     computedSlider() {
       if (this.playingInfo?.articleInfo?.articleType === 1) {
@@ -430,10 +442,10 @@ export default {
     /** 固定播放时长 */
     computedFixDuration() {
       return item => {
-        if (item.articleInfo.articleType === 1) {
+        if (item && item.articleInfo && item.articleInfo.articleType === 1) {
           return secondsToHMS(item.versionInfo.exhibitProperty.duration);
         } else {
-          return secondsToHMS(item.child.articleInfo?.articleProperty?.duration);
+          return secondsToHMS(item?.child?.articleInfo?.articleProperty?.duration);
         }
       };
     },
@@ -454,7 +466,7 @@ export default {
     /** 动态播放时长 */
     computedDuration() {
       return item => {
-        if (item.articleInfo.articleType === 1) {
+        if (item && item.articleInfo && item.articleInfo.articleType === 1) {
           return `${secondsToHMS(this.$store.state.progress * 1000)} / ${secondsToHMS(
             item.versionInfo.exhibitProperty.duration
           )}`;
@@ -468,7 +480,7 @@ export default {
     /** 播放title */
     computedExhibitTitle() {
       return item => {
-        if (item.articleInfo.articleType === 1) {
+        if (item && item.articleInfo && item.articleInfo.articleType === 1) {
           return item.exhibitTitle;
         } else {
           return item?.child?.itemTitle || "";
@@ -615,10 +627,22 @@ export default {
 
     /** 播放完成 */
     endVoice() {
+      // 正在播放的数据
+      const { articleInfo, exhibitId, child } = this.$store.state.playingInfo
+      /* 场景: 播放一首A, 清空列表, 加入一首B到播放列表, 播放完A后要自动播放B)
+       * 解决方式: 若前后播放的是同一首时, 不自动播下一首
+       */
       if (this.playList.length === 1) {
-        this.$store.commit("setData", { key: "playing", value: false });
-        this.$store.commit("setData", { key: "progress", value: 0 });
-        return;
+        const { exhibitId: exhibitIdL, child: childL } = this.playList[0]
+        if (articleInfo.articleType === 1 && exhibitId === exhibitIdL) {
+          this.$store.commit("setData", { key: "playing", value: false });
+          this.$store.commit("setData", { key: "progress", value: 0 });
+          return;
+        } else if (articleInfo.articleType === 2 && exhibitId === exhibitIdL && child.itemId === childL.itemId) {
+          this.$store.commit("setData", { key: "playing", value: false });
+          this.$store.commit("setData", { key: "progress", value: 0 });
+          return
+        }
       }
       this.nextVoice();
     },
@@ -647,7 +671,6 @@ export default {
 
     /** 移出播放列表 */
     deleteVoice(item) {
-      debugger
       useMyPlay.removeFromPlayList(item);
     },
 
@@ -655,7 +678,8 @@ export default {
     clearPlayList() {
       useMyPlay.clearPlayList();
       this.confirmDialogShow = false;
-      this.$refs.player.currentTime = 0;
+      // 清空列表时, 继续播放最后一首
+      // this.$refs.player.currentTime = 0;
     },
 
     /** 授权 */

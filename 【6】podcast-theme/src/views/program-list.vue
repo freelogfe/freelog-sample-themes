@@ -102,6 +102,7 @@ export default {
       if (this.loading) return;
       this.loading = true;
       const dataList = await this.queryList()
+      await this.querySubNum(dataList)
       if (dataList.length !== 0) {
         const ids = dataList.map(item => item.exhibitId).join();
         const [signCountData, statusInfo] = await Promise.all([
@@ -164,8 +165,31 @@ export default {
         }
       })
       this.listData = result
+    },
+    /** 获取合集的子作品数量 */
+    async querySubNum(dataList) {
+      if (dataList.length === 0) return
+      const allPoolIds = dataList.filter(ele => ele.articleInfo.articleType === 2).map(ele => ele.exhibitId)
+      const allPoolIdsStr = allPoolIds.join(',')
+      const res = await freelogApp.getCollectionsSubList(allPoolIdsStr, {
+        sortType: 1, 
+        skip: 0,
+        limit: allPoolIds.length,
+        isShowDetailInfo: 1, 
+      });
+      if (res.data.errCode === 0) {
+        res.data.data.forEach(ele => {
+          dataList.forEach(inner => {
+            if (inner.exhibitId === ele.exhibitId) {
+              inner.totalItem = ele.totalItem
+            }
+          })
+        })
+        console.log(dataList)
+      } else {
+        console.warn(res.data)
+      }
     }
-
   }
 };
 </script>

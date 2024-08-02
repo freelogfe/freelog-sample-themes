@@ -61,9 +61,9 @@
           <i class="freelog fl-icon-gengxinshijian"></i>
           <div class="item-value">{{ data.updateDate | relativeTime }}</div>
         </div>
-        <div class="info-item">
+        <div class="info-item" v-if="data.articleInfo && data.articleInfo.articleType === 2">
           <i class="freelog fl-icon-danji"></i>
-          <div class="item-value">{{ data.signCount | signCount }}</div>
+          <div class="item-value">{{ data.totalItem }}</div>
         </div>
         <div class="info-item">
           <i class="freelog fl-icon-yonghu"></i>
