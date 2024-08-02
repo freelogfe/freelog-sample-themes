@@ -42,7 +42,7 @@ const ifSupportMime = (mime: string) => {
 const playing = (obj: { exhibitId: string; itemId: string }) => {
   const { playing, playingInfo } = store;
   const playingId = `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ""}`;
-  const exhibit = `${obj.exhibitId} ${obj.itemId ?? ""}`;
+  const exhibit = `${obj.exhibitId}${obj.itemId ?? ""}`;
 
   return playing && playingId === exhibit;
 };
