@@ -62,7 +62,7 @@
       <div ref="cover" class="cover-area">
         <img class="cover" :src="voiceInfo?.coverImages[0]" />
         <div class="btn-modal" v-if="ifSupportMime">
-          <div class="btn" @click.stop="playOrPause()">
+          <div class="btn" @click.stop="playOrPause">
             <i
               class="freelog"
               :class="playing ? 'fl-icon-zanting' : 'fl-icon-bofang-sanjiaoxing'"
@@ -137,7 +137,13 @@
               时长{{ secondsToHMS(voiceInfo?.versionInfo?.exhibitProperty.duration) }}
             </div>
             <transition name="slide-right">
-              <div class="playing-mark" v-if="playingInfo.exhibitId === voiceInfo?.exhibitId">
+              <div
+                class="playing-mark"
+                v-if="
+                  `${playingInfo.exhibitId}${playingInfo.itemId ?? ''}` ===
+                  `${voiceInfo?.exhibitId}${voiceInfo?.itemId ?? ''}`
+                "
+              >
                 <play-status :playing="store.playing" />
                 <div class="progress">
                   <span>{{ secondsToHMS(store.progress * 1000) }}</span>
@@ -298,9 +304,8 @@ export default {
     /** 是否播放中 */
     playing() {
       const { playing, playingInfo } = this.store;
-
       const playingId = `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ""}`;
-      const exhibit = `${this.voiceInfo.exhibitId} ${this.voiceInfo.itemId ?? ""}`;
+      const exhibit = `${this.voiceInfo.exhibitId}${this.voiceInfo.itemId ?? ""}`;
 
       return playing && playingId === exhibit;
     },
@@ -413,7 +418,7 @@ export default {
     },
     /** 播放/暂停 */
     playOrPause(item) {
-      useMyPlay.playOrPause(item || this.voiceInfo);
+      useMyPlay.playOrPause(item.itemId ? item : this.voiceInfo);
     },
 
     /** 加入播放列表 */
@@ -423,7 +428,7 @@ export default {
 
     /** 收藏/取消收藏 */
     operateCollect(item) {
-      useMyCollection.operateCollect(item || this.voiceInfo);
+      useMyCollection.operateCollect(item.itemId ? item : this.voiceInfo);
     },
 
     /** 分享 */
