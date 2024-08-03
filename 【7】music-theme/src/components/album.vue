@@ -40,15 +40,21 @@ const getAuth = data => {
 };
 
 /** 播放▶专辑 */
-const playOrPause = async (exhibitId: string) => {
+const playOrPause = async item => {
+  if (item.defaulterIdentityType === 4) {
+    useMyAuth.getAuth(item);
+    return;
+  }
+
   collectionData.value = [];
   const exhibitInfo = await freelogApp.getExhibitListById({
-    exhibitIds: exhibitId,
+    exhibitIds: item.exhibitId,
     isLoadVersionProperty: 1
   });
+
   const { exhibitName, coverImages } = exhibitInfo.data.data[0];
 
-  await getCollectionList({ exhibitId, exhibitName, coverImages });
+  await getCollectionList({ exhibitId: item.exhibitId, exhibitName, coverImages });
   // 首先专辑默认第一首播放，其余的全部加入播放列表
   const restCollectionData = collectionData.value.slice(1);
   await useMyPlay.playOrPause(collectionData.value[0], "normal", async () => {
@@ -58,6 +64,7 @@ const playOrPause = async (exhibitId: string) => {
     for (const iterator of restCollectionData) {
       await useMyPlay.addToPlayList({ exhibitId: iterator.exhibitId, itemId: iterator.itemId });
     }
+    // collectionData.value = [];
   });
 };
 
@@ -143,7 +150,7 @@ const getCollectionList = async (obj: {
           <div class="cover-image">
             <img :src="item.coverImages[0]" alt="歌曲封面" />
             <div class="btn-modal">
-              <div class="btn" @click.stop="playOrPause(item.exhibitId)">
+              <div class="btn" @click.stop="playOrPause(item)">
                 <!-- <i class="freelog" :class="'fl-icon-bofang-sanjiaoxing'"></i> -->
                 <i
                   class="freelog"
