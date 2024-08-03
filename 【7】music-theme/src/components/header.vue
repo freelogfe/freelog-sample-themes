@@ -115,97 +115,102 @@
 
     <!-- PC -->
     <div class="pc-header-wrapper" v-if="store.inMobile === false">
-      <div class="header-left">
-        <div
-          class="btn"
-          :class="{ active: currentPath === item.value }"
-          v-for="item in tabList"
-          :key="item.value"
-          @click="toPage(item.value)"
-        >
-          {{ item.value !== "/collection-list" || userData.isLogin ? item.label : "" }}
-        </div>
+      <div class="node-logo" v-if="store.nodeInfo.nodeLogo">
+        <img :src="store.nodeInfo.nodeLogo" alt="Logo" />
       </div>
-
-      <div class="header-right">
-        <!-- 搜索框 -->
-        <div class="search-box">
-          <input
-            ref="searchInput"
-            class="search-input input-none"
-            :class="{ 'in-focus': searchKey }"
-            v-model="searchKey"
-            :maxLength="100"
-            @input="searchKeyInput()"
-            @keyup="inputKeyUp($event)"
-            @focus="searchHistoryShow = true"
-          />
-          <i class="freelog fl-icon-content"></i>
-          <i
-            class="freelog fl-icon-guanbi text-btn clear-btn"
-            @click="searchKey = ''"
-            v-show="searchKey"
-          ></i>
-
-          <transition name="fade">
-            <div
-              ref="searchHistoryPopup"
-              class="search-history"
-              v-if="searchHistoryShow && mySearchHistory.length !== 0"
-            >
-              <div class="history-list">
-                <div
-                  class="history-item"
-                  :class="{ catch: searchWordCatch === index }"
-                  v-for="(item, index) in mySearchHistory"
-                  :key="item"
-                  @click="clickSearchHistory(item)"
-                  @mousemove="searchWordCatch = index"
-                  @mouseleave="searchWordCatch = null"
-                >
-                  <div class="item-word">{{ item }}</div>
-                  <i
-                    class="freelog fl-icon-guanbi delete-btn"
-                    @click.stop="deleteSearchHistory(item)"
-                  ></i>
-                </div>
-              </div>
-
-              <div class="text-btn" @click="clearHistory()">清空搜索记录</div>
-            </div>
-          </transition>
+      <div class="header-wrap" :style="{ width: store.nodeInfo.nodeLogo ? 'auto' : '100%' }">
+        <div class="header-left">
+          <div
+            class="btn"
+            :class="{ active: currentPath === item.value }"
+            v-for="item in tabList"
+            :key="item.value"
+            @click="toPage(item.value)"
+          >
+            {{ item.value !== "/collection-list" || userData.isLogin ? item.label : "" }}
+          </div>
         </div>
 
-        <el-popover
-          popper-class="header-user-box"
-          placement="bottom-end"
-          trigger="hover"
-          transition="slide-down-scale"
-          :show-arrow="false"
-          v-model:visible="userBoxShow"
-          v-if="userData.isLogin"
-        >
-          <img class="avatar" :src="userData.headImage" :alt="userData.username" />
-          <div class="username">{{ userData.username }}</div>
-          <div
-            class="btn user-box-btn"
-            @click="
-              userBoxShow = false;
-              $router.myPush({ path: '/signed-list' });
-            "
-          >
-            签约记录
+        <div class="header-right">
+          <!-- 搜索框 -->
+          <div class="search-box">
+            <input
+              ref="searchInput"
+              class="search-input input-none"
+              :class="{ 'in-focus': searchKey }"
+              v-model="searchKey"
+              :maxLength="100"
+              @input="searchKeyInput()"
+              @keyup="inputKeyUp($event)"
+              @focus="searchHistoryShow = true"
+            />
+            <i class="freelog fl-icon-content"></i>
+            <i
+              class="freelog fl-icon-guanbi text-btn clear-btn"
+              @click="searchKey = ''"
+              v-show="searchKey"
+            ></i>
+
+            <transition name="fade">
+              <div
+                ref="searchHistoryPopup"
+                class="search-history"
+                v-if="searchHistoryShow && mySearchHistory.length !== 0"
+              >
+                <div class="history-list">
+                  <div
+                    class="history-item"
+                    :class="{ catch: searchWordCatch === index }"
+                    v-for="(item, index) in mySearchHistory"
+                    :key="item"
+                    @click="clickSearchHistory(item)"
+                    @mousemove="searchWordCatch = index"
+                    @mouseleave="searchWordCatch = null"
+                  >
+                    <div class="item-word">{{ item }}</div>
+                    <i
+                      class="freelog fl-icon-guanbi delete-btn"
+                      @click.stop="deleteSearchHistory(item)"
+                    ></i>
+                  </div>
+                </div>
+
+                <div class="text-btn" @click="clearHistory()">清空搜索记录</div>
+              </div>
+            </transition>
           </div>
-          <div class="btn user-box-btn" @click="callLoginOut()">登出</div>
 
-          <template #reference>
+          <el-popover
+            popper-class="header-user-box"
+            placement="bottom-end"
+            trigger="hover"
+            transition="slide-down-scale"
+            :show-arrow="false"
+            v-model:visible="userBoxShow"
+            v-if="userData.isLogin"
+          >
             <img class="avatar" :src="userData.headImage" :alt="userData.username" />
-          </template>
-        </el-popover>
+            <div class="username">{{ userData.username }}</div>
+            <div
+              class="btn user-box-btn"
+              @click="
+                userBoxShow = false;
+                $router.myPush({ path: '/signed-list' });
+              "
+            >
+              签约记录
+            </div>
+            <div class="btn user-box-btn" @click="callLoginOut()">登出</div>
 
-        <div class="user-btns" v-if="userData.isLogin === false">
-          <div class="btn normal-btn" @click="callLogin()">登录</div>
-          <div class="btn header-register-btn" @click="register()">注册</div>
+            <template #reference>
+              <img class="avatar" :src="userData.headImage" :alt="userData.username" />
+            </template>
+          </el-popover>
+
+          <div class="user-btns" v-if="userData.isLogin === false">
+            <div class="btn normal-btn" @click="callLogin()">登录</div>
+            <div class="btn header-register-btn" @click="register()">注册</div>
+          </div>
         </div>
       </div>
     </div>

@@ -16,7 +16,6 @@ interface ShareInfo {
 }
 
 export interface State {
-  count: number;
   inMobile: boolean | null;
   isIOS: boolean | null;
   userData: UserData;
@@ -35,12 +34,12 @@ export interface State {
   progress: number;
   authIdList: string[];
   searchKey: string;
+  nodeInfo: Record<string, any>;
 }
 
 export const useGlobalStore = defineStore("global", {
   state: (): State => {
     return {
-      count: 0,
       inMobile: null, // 是否移动端设备
       isIOS: null, // 是否 IOS 设备
       userData: { isLogin: null }, // 当前登录的用户数据
@@ -58,16 +57,12 @@ export const useGlobalStore = defineStore("global", {
       initUrl: "", // 播放器初始化 url（用于解决 IOS 无法异步播放声音问题）
       progress: 0, // 当前播放进度
       authIdList: [], // 已授权 id 集合（用于刷新首页列表、声音列表、搜索结果列表、详情页授权状态）
-      searchKey: "" // 搜索关键词
+      searchKey: "", // 搜索关键词
+      nodeInfo: {}
     };
   },
-  getters: {
-    doubleCount: state => state.count * 2
-  },
+  getters: {},
   actions: {
-    increment() {
-      this.count++;
-    },
     setData<K extends keyof State>(payload: { key: K; value: State[K] }) {
       this.$state[payload.key] = payload.value;
     },
@@ -84,6 +79,9 @@ export const useGlobalStore = defineStore("global", {
       ]);
       const collectionIdList = collectionIdListResponse?.data?.data || [];
       const playingId = playingIdResponse?.data?.data;
+
+      // 节点信息
+      this.nodeInfo = freelogApp.nodeInfo;
 
       // 是否移动端设备
       const inMobile = judgeDevice();
