@@ -146,7 +146,7 @@ onBeforeMount(() => {
 
 <template>
   <HomeBanner />
-  <div class="home-popular-album-wrap">
+  <div class="home-popular-album-wrap" :class="{ pc: !store.inMobile, mobile: store.inMobile }">
     <HomePopular hasHeader :data="popularData" />
     <HomeAlbum hasHeader :data="albumData" />
   </div>
@@ -154,6 +154,12 @@ onBeforeMount(() => {
 
 <style lang="less" scoped>
 .home-popular-album-wrap {
-  width: 1280px;
+  &.pc {
+    width: 1280px;
+  }
+
+  &.mobile {
+    width: 100%;
+  }
 }
 </style>

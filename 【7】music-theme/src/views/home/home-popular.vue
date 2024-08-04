@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useGlobalStore } from "@/store/global";
 
@@ -20,6 +20,7 @@ const props = defineProps<{
 }>();
 
 const showMore = ref<boolean>(false);
+const moreMenuShow = ref<boolean>(false);
 const changeIndex = (index: number): string => {
   if (index > 1 && index < 10) {
     return index.toString().padStart(2, "0");
@@ -74,10 +75,41 @@ const share = data => {
 const getAuth = data => {
   useMyAuth.getAuth(data);
 };
+
+const menuBtnList = computed(() => {
+  /** 更多菜单按钮群 */
+  // return [
+  //   {
+  //     icon: !this.ifSupportMime
+  //       ? "fl-icon-wufabofang"
+  //       : this.playing
+  //       ? "fl-icon-zanting-daibiankuang"
+  //       : "fl-icon-bofang-daibiankuang",
+  //     label: !this.ifSupportMime ? "无法播放" : this.playing ? "暂停声音" : "播放声音",
+  //     operate: this.playOrPause,
+  //     disabled: !this.ifSupportMime
+  //   },
+  //   {
+  //     icon: "fl-icon-jiarubofangliebiao",
+  //     label: "加入播放列表",
+  //     operate: this.addToPlayList,
+  //     disabled: this.isInPlayList || !this.ifSupportMime
+  //   },
+  //   { icon: "fl-icon-danji", label: "查看声音详情", operate: this.toVoiceDetail },
+  //   {
+  //     icon: this.isCollected
+  //       ? "fl-icon-shoucangxiaoshuoyishoucang"
+  //       : "fl-icon-shoucangxiaoshuo",
+  //     label: this.isCollected ? "取消收藏" : "收藏",
+  //     operate: this.operateCollect
+  //   }
+  // ];
+});
 </script>
 
 <template>
-  <div class="home-popular-wrap">
+  <!-- PC -->
+  <div class="pc-home-popular-wrap" v-if="!store.inMobile">
     <!-- 热门头部 -->
     <div class="popular-header-box">
       <span class="title">推荐音乐</span>
@@ -187,10 +219,98 @@ const getAuth = data => {
       </div>
     </div>
   </div>
+
+  <!-- mobile -->
+  <div class="mobile-home-popular-wrap" v-else>
+    <!-- 热门头部 -->
+    <div class="popular-header-box">
+      <span class="title">推荐音乐</span>
+      <div class="more" @click="router.myPush({ path: '/voice-list' })">
+        所有音乐
+        <div class="more-icon">
+          <img :src="MoreIcon" alt="更多" />
+        </div>
+      </div>
+    </div>
+
+    <!-- 热门内容 -->
+    <div class="popular-content-box">
+      <div class="content-item" v-for="(item, index) in props.data" :key="index">
+        <div class="info-box">
+          <div class="cover-image" @click.stop="playOrPause(item)">
+            <img :src="item.coverImages[0]" alt="歌曲封面" />
+          </div>
+          <div class="info">
+            <span
+              class="title"
+              @click="
+                router.myPush({
+                  path: '/detail',
+                  query: { id: item.exhibitId, subID: item.itemId, albumName: item.albumName }
+                })
+              "
+            >
+              <img
+                class="auth-link-abnormal"
+                :src="AuthLinkAbnormal"
+                v-if="authLinkAbnormal(item.defaulterIdentityType)"
+              />
+              <i
+                class="freelog fl-icon-suoding lock"
+                @click.stop="getAuth(item)"
+                v-if="item.defaulterIdentityType >= 4"
+              ></i>
+              {{ item.exhibitTitle }}
+            </span>
+            <span class="desc">{{ item.exhibitIntro }}</span>
+            <span
+              class="type"
+              :class="item.albumName && 'album'"
+              @click="
+                item.albumName && router.myPush({ path: '/detail', query: { id: item.exhibitId } })
+              "
+            >
+              {{ item.albumName || "单曲" }}
+            </span>
+          </div>
+          <div class="btns-area" :class="{ opacity: authLinkAbnormal(item.defaulterIdentityType) }">
+            <!-- <i
+              class="freelog"
+              :class="{ [btnList[0].icon]: true, disabled: btnList[0].disabled }"
+              @click="playOrPause()"
+            /> -->
+            <i class="freelog fl-icon-gengduo_yuandian_zongxiang" @click="moreMenuShow = true" />
+          </div>
+          <!-- 更多菜单 -->
+          <transition name="fade">
+            <div class="modal" @click="moreMenuShow = false" v-if="moreMenuShow"></div>
+          </transition>
+          <transition name="slide-up-fade">
+            <div class="more-menu-card" v-if="moreMenuShow">
+              <!-- <div class="btns">
+                <div
+                  class="btn"
+                  :class="{ disabled: item.disabled }"
+                  v-for="item in menuBtnList"
+                  :key="item.label"
+                  @click="item.operate"
+                >
+                  <i class="freelog" :class="item.icon"></i>
+                  <div class="label">{{ item.label }}</div>
+                </div>
+              </div> -->
+              <div class="close-btn" @click="moreMenuShow = false">关闭</div>
+            </div>
+          </transition>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style lang="less" scoped>
-.home-popular-wrap {
+// PC
+.pc-home-popular-wrap {
   width: 100%;
   padding: 60px 0;
   box-sizing: border-box;
@@ -466,6 +586,165 @@ const getAuth = data => {
               }
             }
           }
+        }
+      }
+    }
+  }
+}
+
+// mobile
+.mobile-home-popular-wrap {
+  width: 100%;
+  padding: 40px 15px;
+  box-sizing: border-box;
+
+  .popular-header-box {
+    display: flex;
+    justify-content: space-between;
+
+    .title {
+      font-weight: 600;
+      font-size: 20px;
+      color: #ffffff;
+      line-height: 28px;
+      opacity: 0.6;
+    }
+
+    .more {
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+      font-size: 14px;
+      color: #ffffff;
+      opacity: 0.6;
+      line-height: 20px;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 1;
+      }
+
+      .more-icon {
+        width: 7px;
+        height: 13px;
+        margin-left: 5px;
+        transform: rotate(180deg);
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+    }
+  }
+
+  .popular-content-box {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 15px 0;
+    margin-top: 40px;
+
+    .content-item {
+      display: flex;
+
+      .info-box {
+        display: flex;
+        align-items: center;
+        width: 100%;
+
+        .cover-image {
+          position: relative;
+          width: 62px;
+          height: 62px;
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 6px;
+          margin-right: 10px;
+          overflow: hidden;
+          cursor: pointer;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+
+        .info {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+
+          .title {
+            display: flex;
+            align-items: center;
+            width: 196px;
+            font-weight: 600;
+            font-size: 16px;
+            color: #ffffff;
+            line-height: 22px;
+            opacity: 0.8;
+            cursor: pointer;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+
+            &:hover {
+              color: #44d7b6;
+              opacity: 1;
+              text-decoration: underline;
+
+              .info-box .btns-area {
+                opacity: 1 !important;
+              }
+              .lock {
+                color: #ffffff;
+              }
+            }
+
+            .auth-link-abnormal {
+              width: 16px;
+              height: 16px;
+              margin-right: 5px;
+            }
+
+            .lock {
+              margin-right: 5px;
+            }
+          }
+
+          .desc {
+            width: 196px;
+            font-weight: 400;
+            font-size: 12px;
+            color: #ffffff;
+            line-height: 18px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+
+          .type {
+            font-weight: 400;
+            font-size: 12px;
+            color: #ffffff;
+            line-height: 18px;
+            opacity: 0.4;
+
+            &.album {
+              cursor: pointer;
+
+              &:hover {
+                color: #44d7b6;
+                opacity: 1;
+              }
+            }
+          }
+        }
+
+        .btns-area {
+          transition: all 0.5s ease;
+          margin-left: auto;
         }
       }
     }
