@@ -453,16 +453,22 @@ export const useMyPlay = {
   preVoice(data) {
     const store = useGlobalStore();
     let preVoiceInfo = null;
-    const { playList, playingInfo } = store;
+    const { playList, playingInfo, playMode } = store;
     const id = data
       ? `${data.exhibitId}${data.itemId ?? ""}`
       : `${playingInfo.exhibitId}${playingInfo.itemId ?? ""}`;
     const index = playList.findIndex(item => `${item.exhibitId}${item.itemId ?? ""}` === id);
-    if (index === 0) {
-      preVoiceInfo = playList[playList.length - 1];
+
+    if (playMode === "NORMAL") {
+      if (index === 0) {
+        preVoiceInfo = playList[playList.length - 1];
+      } else {
+        preVoiceInfo = playList[index - 1];
+      }
     } else {
-      preVoiceInfo = playList[index - 1];
+      preVoiceInfo = playList[index];
     }
+
     useMyPlay.playOrPause(preVoiceInfo, "preVoice");
   },
 
@@ -470,16 +476,22 @@ export const useMyPlay = {
   nextVoice(data) {
     const store = useGlobalStore();
     let nextVoiceInfo = null;
-    const { playList, playingInfo } = store;
+    const { playList, playingInfo, playMode } = store;
     const id = data
       ? `${data.exhibitId}${data.itemId ?? ""}`
       : `${playingInfo.exhibitId}${playingInfo.itemId ?? ""}`;
     const index = playList.findIndex(item => `${item.exhibitId}${item.itemId ?? ""}` === id);
-    if (index === playList.length - 1) {
-      nextVoiceInfo = playList[0];
+
+    if (playMode === "NORMAL") {
+      if (index === playList.length - 1) {
+        nextVoiceInfo = playList[0];
+      } else {
+        nextVoiceInfo = playList[index + 1];
+      }
     } else {
-      nextVoiceInfo = playList[index + 1];
+      nextVoiceInfo = playList[index];
     }
+
     useMyPlay.playOrPause(nextVoiceInfo, "nextVoice");
   }
 };

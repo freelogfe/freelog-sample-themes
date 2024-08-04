@@ -35,6 +35,7 @@ export interface State {
   authIdList: string[];
   searchKey: string;
   nodeInfo: Record<string, any>;
+  playMode: string | null;
 }
 
 export const useGlobalStore = defineStore("global", {
@@ -58,7 +59,8 @@ export const useGlobalStore = defineStore("global", {
       progress: 0, // 当前播放进度
       authIdList: [], // 已授权 id 集合（用于刷新首页列表、声音列表、搜索结果列表、详情页授权状态）
       searchKey: "", // 搜索关键词
-      nodeInfo: {}
+      nodeInfo: {},
+      playMode: null // 播放模式，顺序播放、随机播放
     };
   },
   getters: {},
@@ -72,16 +74,21 @@ export const useGlobalStore = defineStore("global", {
       // freelogApp.setUserData("collectionIdList", []);
 
       const userData = freelogApp.getCurrentUser();
-      const [selfConfig, collectionIdListResponse, playingIdResponse] = await Promise.all([
-        freelogApp.getSelfProperty(),
-        freelogApp.getUserData("collectionIdList"),
-        freelogApp.getUserData("playingId")
-      ]);
+      const [selfConfig, collectionIdListResponse, playingIdResponse, playModeResponse] =
+        await Promise.all([
+          freelogApp.getSelfProperty(),
+          freelogApp.getUserData("collectionIdList"),
+          freelogApp.getUserData("playingId"),
+          freelogApp.getUserData("playMode")
+        ]);
       const collectionIdList = collectionIdListResponse?.data?.data || [];
       const playingId = playingIdResponse?.data?.data;
 
       // 节点信息
       this.nodeInfo = freelogApp.nodeInfo;
+
+      // 播放模式
+      this.playMode = playModeResponse?.data?.data || "NORMAL";
 
       // 是否移动端设备
       const inMobile = judgeDevice();

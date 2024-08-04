@@ -329,6 +329,7 @@
 </template>
 
 <script>
+import { freelogApp } from "freelog-runtime";
 import playStatus from "@/components/play-status.vue";
 import myTooltip from "@/components/tooltip.vue";
 import { useMyAuth, useMyPlay, useMyCollection } from "@/utils/hooks";
@@ -361,14 +362,28 @@ export default {
       startTouchX: 0,
       touchMoveX: 0,
       closeTimer: null,
+      modes: ["NORMAL", "RANDOM"], // 播放模式列表
+      currentModeIndex: 0, // 当前模式索引
+      currentRandomIndex: 0, // 当前随机播放索引
+      shuffledList: [], // 随机播放列表
       store
     };
   },
 
   watch: {
+    "store.playMode": {
+      handler(cur) {
+        this.currentModeIndex = this.modes.findIndex(f => f === cur);
+      }
+    },
     "store.playList": {
       handler(cur, pre) {
         this.playList = cur;
+        if (this.currentPlayMode === "RANDOM" && this.playList?.length) {
+          this.shuffledList = this.playList.slice();
+          this.shuffleArray(this.shuffledList);
+          this.currentRandomIndex = 0;
+        }
         // 加入播放列表，显示播放器动画
         if (cur && pre && cur.length - pre.length === 1) this.animation();
         if (!cur || !this.store.inMobile) return;
@@ -440,6 +455,11 @@ export default {
   },
 
   computed: {
+    /** 当前模式 */
+    currentPlayMode() {
+      return this.modes[this.currentModeIndex];
+    },
+
     /** 是否收藏 */
     isCollected() {
       const { collectionIdList, playingInfo } = this.store;
@@ -490,6 +510,13 @@ export default {
     rightBtnList() {
       return [
         {
+          name: "mode",
+          icon: this.currentPlayMode === "NORMAL" ? "fl-icon-daoru" : "fl-icon-zidingyishuxing",
+          operate: () => {
+            this.changePlayMode();
+          }
+        },
+        {
           name: "volume",
           icon: this.volume ? "fl-icon-yinliang" : "fl-icon-jingyin",
           operate: () => {
@@ -526,6 +553,20 @@ export default {
 
   methods: {
     secondsToHMS,
+    /** 更换播放模式 */
+    changePlayMode() {
+      this.currentModeIndex = (this.currentModeIndex + 1) % this.modes.length;
+      const mode = this.modes[this.currentModeIndex];
+      this.store.setData({ key: "playMode", value: mode });
+      freelogApp.setUserData("playMode", mode);
+    },
+
+    shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    },
 
     /** 关闭播放器 */
     closePlayer() {
@@ -551,13 +592,35 @@ export default {
     },
 
     /** 上一首 */
-    preVoice() {
-      useMyPlay.preVoice();
+    preVoice(data) {
+      if (this.currentPlayMode === "NORMAL") {
+        useMyPlay.preVoice();
+      } else {
+        this.currentRandomIndex = this.currentRandomIndex - 1;
+        // 重置当前随机播放索引
+        if (this.currentRandomIndex < 0) {
+          this.currentRandomIndex = this.shuffledList.length - 1;
+        }
+        useMyPlay.preVoice(this.shuffledList[this.currentRandomIndex]);
+      }
     },
 
     /** 下一首 */
-    nextVoice() {
-      useMyPlay.nextVoice();
+    nextVoice(data, type) {
+      if (this.currentPlayMode === "NORMAL") {
+        useMyPlay.nextVoice();
+      } else {
+        if (type === "AUTO") {
+          useMyPlay.nextVoice(data);
+        } else {
+          this.currentRandomIndex = this.currentRandomIndex + 1;
+          // 重置当前随机播放索引
+          if (this.currentRandomIndex >= this.shuffledList.length) {
+            this.currentRandomIndex = 0;
+          }
+          useMyPlay.nextVoice(this.shuffledList[this.currentRandomIndex]);
+        }
+      }
     },
 
     /** 播放完成 */
@@ -567,7 +630,17 @@ export default {
         this.store.setData({ key: "progress", value: 0 });
         return;
       }
-      this.nextVoice();
+
+      if (this.currentPlayMode === "NORMAL") {
+        this.nextVoice();
+      } else {
+        this.currentRandomIndex = this.currentModeIndex + 1;
+        // 重置当前随机播放索引
+        if (this.currentRandomIndex >= this.shuffledList.length) {
+          this.currentRandomIndex = 0;
+        }
+        this.nextVoice(this.shuffledList[this.currentRandomIndex], "AUTO");
+      }
     },
 
     /** 播放失败 */
