@@ -25,13 +25,13 @@ const authLinkAbnormal = (defaulterIdentityType: number) => {
 };
 
 const playing = (exhibitId: string) => {
-  const { playingInfo } = store;
+  const { playingInfo, playing } = store;
   if (exhibitId !== playingInfo?.exhibitId) {
     return;
   }
   const albumItemIds = collectionData.value.map(i => `${i.exhibitId}${i.itemId}`);
   const playingId = `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ""}`;
-  return albumItemIds.includes(playingId);
+  return playing && albumItemIds.includes(playingId);
 };
 
 /** 授权 */
@@ -41,8 +41,20 @@ const getAuth = data => {
 
 /** 播放▶专辑 */
 const playOrPause = async item => {
+  const { playingInfo } = store;
+
   if (item.defaulterIdentityType === 4) {
     useMyAuth.getAuth(item);
+    return;
+  }
+
+  if (item.exhibitId === playingInfo?.exhibitId) {
+    const playingData = collectionData.value.filter(
+      i =>
+        `${i.exhibitId}${i.itemId ?? ""}` === `${playingInfo.exhibitId}${playingInfo.itemId ?? ""}`
+    );
+
+    useMyPlay.playOrPause(playingData[0]);
     return;
   }
 
