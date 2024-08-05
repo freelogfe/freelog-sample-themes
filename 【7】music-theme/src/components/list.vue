@@ -25,7 +25,7 @@
     <template v-if="!loading">
       <!-- 音乐 -->
       <div class="voice-list" v-if="tab === 1 && list.length && total !== 0">
-        <div class="voice-bar">
+        <div class="voice-bar" v-if="!store.inMobile">
           <span>歌名\歌手</span>
           <span>专辑</span>
           <span>时长</span>
@@ -34,14 +34,19 @@
           :data="item"
           :statusShow="statusShow"
           :authShow="authShow"
-          v-for="item in list.filter(i => i.articleInfo?.articleType === 1)"
+          v-for="item in list.filter(i => i?.articleInfo?.articleType === 1)"
           :key="item.exhibitId"
         />
         <div class="no-more-tip" v-if="list.length === total && noMoreTip">{{ noMoreTip }}</div>
       </div>
       <!-- 专辑 -->
       <div v-else-if="tab === 2 && list.length && total !== 0">
-        <Album hasHeder="false" :data="list.filter(i => i.articleInfo?.articleType === 2)" />
+        <PCAlbum
+          v-if="!store.inMobile"
+          hasHeder="false"
+          :data="list.filter(i => i.articleInfo?.articleType === 2)"
+        />
+        <MobileAlbum v-else :data="list.filter(i => i.articleInfo?.articleType === 2)" />
       </div>
       <!-- 无数据 -->
       <div class="no-data-tip" v-if="noDataMessage">{{ noDataMessage }}</div>
@@ -81,7 +86,8 @@
 <script>
 import { useGlobalStore } from "@/store/global";
 import voice from "@/components/voice.vue";
-import Album from "@/components/album.vue";
+import PCAlbum from "@/components/album.vue";
+import MobileAlbum from "@/components/mobile-album.vue";
 
 const TabEnum = {
   Music: 1,
@@ -93,7 +99,8 @@ export default {
 
   components: {
     voice,
-    Album
+    PCAlbum,
+    MobileAlbum
   },
 
   props: {

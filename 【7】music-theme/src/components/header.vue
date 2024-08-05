@@ -290,6 +290,7 @@ export default {
     menuBtnList() {
       return [
         { icon: "fl-icon-shouye", label: "首页", path: "/home" },
+        { icon: "fl-icon-zhuanji", label: "专辑", path: "/album-list" },
         { icon: "fl-icon-danji", label: "音乐", path: "/voice-list" },
         {
           icon: "fl-icon-shoucangxiaoshuo",

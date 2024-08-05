@@ -9,7 +9,7 @@
         :class="{ 'opacity-40': authLinkAbnormal }"
         @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
       >
-        <img class="cover" v-view-lazy="data.coverImages[0]" />
+        <img class="cover" :src="data.coverImages[0]" />
         <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
         <div class="unplayable-tip" v-if="!ifSupportMime">无法播放</div>
       </div>
@@ -45,25 +45,21 @@
           </div>
         </div>
         <div class="duration" :class="{ 'opacity-40': authLinkAbnormal }">
-          {{ data.versionInfo.exhibitProperty.duration }}
+          {{ data.exhibitIntro }}
         </div>
         <div class="other-area" :class="{ 'opacity-40': authLinkAbnormal }">
           <div class="info-item">
             <i class="freelog fl-icon-gengxinshijian"></i>
-            <div class="item-value">{{ data.updateDate | relativeTime }}</div>
+            <div class="item-value">{{ relativeTime(data.updateDate) }}</div>
           </div>
           <div class="info-item">
             <i class="freelog fl-icon-yonghu"></i>
-            <div class="item-value">{{ data.signCount | signCount }}</div>
+            <div class="item-value">{{ data.signCount }}</div>
           </div>
         </div>
       </div>
       <div class="btns-area" :class="{ opacity: authLinkAbnormal }">
-        <i
-          class="freelog"
-          :class="{ [btnList[0].icon]: true, disabled: btnList[0].disabled }"
-          @click="playOrPause()"
-        />
+        <span class="time">{{ secondsToHMS(data.versionInfo?.exhibitProperty?.duration) }}</span>
         <i class="freelog fl-icon-gengduo_yuandian_zongxiang" @click="moreMenuShow = true" />
       </div>
       <div
@@ -204,8 +200,7 @@
 import playStatus from "@/components/play-status.vue";
 import myTooltip from "@/components/tooltip.vue";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
-import { secondsToHMS } from "@/utils/common";
-
+import { secondsToHMS, relativeTime } from "@/utils/common";
 import { useGlobalStore } from "@/store/global";
 
 export default {
@@ -247,7 +242,8 @@ export default {
       isCollected: false,
       isInPlayList: false,
       store,
-      secondsToHMS
+      secondsToHMS,
+      relativeTime
     };
   },
 
@@ -289,7 +285,7 @@ export default {
     playing() {
       const { playing, playingInfo } = this.store;
       const playingId = `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ""}`;
-      const exhibit = `${this.data.exhibitId} ${this.data.itemId ?? ""}`;
+      const exhibit = `${this.data.exhibitId}${this.data.itemId ?? ""}`;
       return playing && playingId === exhibit;
     },
 
@@ -332,7 +328,7 @@ export default {
             : this.playing
             ? "fl-icon-zanting-daibiankuang"
             : "fl-icon-bofang-daibiankuang",
-          label: !this.ifSupportMime ? "无法播放" : this.playing ? "暂停声音" : "播放声音",
+          label: !this.ifSupportMime ? "无法播放" : this.playing ? "暂停音乐" : "播放音乐",
           operate: this.playOrPause,
           disabled: !this.ifSupportMime
         },
@@ -342,7 +338,14 @@ export default {
           operate: this.addToPlayList,
           disabled: this.isInPlayList || !this.ifSupportMime
         },
-        { icon: "fl-icon-danji", label: "查看声音详情", operate: this.toVoiceDetail },
+        { icon: "fl-icon-danji", label: "查看音乐详情", operate: this.toVoiceDetail },
+        this.data?.itemId
+          ? {
+              icon: "fl-icon-zhuanji",
+              label: "查看专辑",
+              operate: this.toAlbumDetail
+            }
+          : null,
         {
           icon: this.isCollected
             ? "fl-icon-shoucangxiaoshuoyishoucang"
@@ -350,13 +353,18 @@ export default {
           label: this.isCollected ? "取消收藏" : "收藏",
           operate: this.operateCollect
         }
-      ];
+      ].filter(Boolean);
     }
   },
 
   methods: {
     /** 查看声音详情 */
     toVoiceDetail() {
+      this.$router.myPush({ path: "/detail", query: { id: this.data.exhibitId } });
+    },
+
+    /** 查看专辑详情 */
+    toAlbumDetail() {
       this.$router.myPush({ path: "/detail", query: { id: this.data.exhibitId } });
     },
 

@@ -64,7 +64,7 @@
               :show-text="false"
             />
           </div>
-          <i class="freelog fl-icon-jiarubofangliebiao" @click="openPlayList()"></i>
+          <i class="freelog fl-icon-xiaoshuomulu1" @click="openPlayList()"></i>
         </div>
         <div class="progress-box" @touchstart="slidingProgress = true">
           <el-slider

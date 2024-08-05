@@ -126,12 +126,12 @@
         font-size: 14px;
         line-height: 20px;
         color: rgba(255, 255, 255, 0.4);
-        margin-top: 5px;
+        margin-top: 2px;
       }
 
       .other-area {
         display: flex;
-        margin-top: 5px;
+        margin-top: 2px;
 
         .info-item {
           display: flex;
@@ -161,6 +161,11 @@
       align-items: center;
       justify-content: center;
       margin-left: 20px;
+      opacity: 0.4;
+
+      .time {
+        margin-right: 15px;
+      }
 
       .freelog {
         font-size: 20px;
@@ -201,10 +206,13 @@
 
       .btns {
         width: 100%;
-        height: 150px;
+        padding: 30px 33px;
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
-        justify-content: center;
+        gap: 30px 44px;
+        justify-content: space-between;
+        box-sizing: border-box;
 
         .btn {
           display: flex;
@@ -227,7 +235,7 @@
           }
 
           & + .btn {
-            margin-left: 44px;
+            // margin-left: 44px;
           }
 
           .freelog {

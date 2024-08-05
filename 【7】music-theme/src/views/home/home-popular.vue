@@ -1,19 +1,18 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useGlobalStore } from "@/store/global";
 
 import myTooltip from "@/components/tooltip.vue";
+import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
+import { secondsToHMS } from "@/utils/common";
+
 import MoreIcon from "@/assets/images/arrow.png";
 import AuthLinkAbnormal from "@/assets/images/auth-link-abnormal.png";
-
-import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
-
 import { Exhibit } from "@/interface";
 
 const store = useGlobalStore();
 const router = useRouter();
-
 const props = defineProps<{
   hasHeader: boolean;
   data: Exhibit[];
@@ -21,6 +20,8 @@ const props = defineProps<{
 
 const showMore = ref<boolean>(false);
 const moreMenuShow = ref<boolean>(false);
+const selectedData = ref({} as Exhibit);
+
 const changeIndex = (index: number): string => {
   if (index > 1 && index < 10) {
     return index.toString().padStart(2, "0");
@@ -53,6 +54,7 @@ const playOrPause = (item: Exhibit) => {
   console.log("popular item", item);
   useMyPlay.playOrPause(item);
 };
+
 /** 加入播放列表 */
 const addToPlayList = (obj: { exhibitId: string; itemId: string }) => {
   useMyPlay.addToPlayList(obj);
@@ -76,35 +78,74 @@ const getAuth = data => {
   useMyAuth.getAuth(data);
 };
 
-const menuBtnList = computed(() => {
-  /** 更多菜单按钮群 */
-  // return [
-  //   {
-  //     icon: !this.ifSupportMime
-  //       ? "fl-icon-wufabofang"
-  //       : this.playing
-  //       ? "fl-icon-zanting-daibiankuang"
-  //       : "fl-icon-bofang-daibiankuang",
-  //     label: !this.ifSupportMime ? "无法播放" : this.playing ? "暂停声音" : "播放声音",
-  //     operate: this.playOrPause,
-  //     disabled: !this.ifSupportMime
-  //   },
-  //   {
-  //     icon: "fl-icon-jiarubofangliebiao",
-  //     label: "加入播放列表",
-  //     operate: this.addToPlayList,
-  //     disabled: this.isInPlayList || !this.ifSupportMime
-  //   },
-  //   { icon: "fl-icon-danji", label: "查看声音详情", operate: this.toVoiceDetail },
-  //   {
-  //     icon: this.isCollected
-  //       ? "fl-icon-shoucangxiaoshuoyishoucang"
-  //       : "fl-icon-shoucangxiaoshuo",
-  //     label: this.isCollected ? "取消收藏" : "收藏",
-  //     operate: this.operateCollect
-  //   }
-  // ];
-});
+const isCollected = item => {
+  return useMyCollection.ifExist({ exhibitId: item.exhibitId, itemId: item.itemId });
+};
+
+const isInPlayList = item => {
+  return useMyPlay.ifExist({ exhibitId: item.exhibitId, itemId: item.itemId });
+};
+
+/** 查看音乐详情 */
+const toMusicDetail = item => {
+  router.myPush({ path: "/detail", query: { id: item.exhibitId } });
+};
+
+/** 查看专辑详情 */
+const toAlbumDetail = item => {
+  router.myPush({ path: "/detail", query: { id: item.exhibitId } });
+};
+
+/** 更多菜单按钮群 */
+const menuBtnList = item => {
+  return [
+    {
+      icon: !ifSupportMime(item.versionInfo?.exhibitProperty?.mime)
+        ? "fl-icon-wufabofang"
+        : playing({ exhibitId: item.exhibitId, itemId: item.itemId })
+        ? "fl-icon-zanting-daibiankuang"
+        : "fl-icon-bofang-daibiankuang",
+      label: !ifSupportMime(item.versionInfo?.exhibitProperty?.mime)
+        ? "无法播放"
+        : playing({ exhibitId: item.exhibitId, itemId: item.itemId })
+        ? "暂停音乐"
+        : "播放音乐",
+      operate: () => playOrPause(item),
+      disabled: !ifSupportMime(item.versionInfo?.exhibitProperty?.mime)
+    },
+    {
+      icon: "fl-icon-jiarubofangliebiao",
+      label: "加入播放列表",
+      operate: () => addToPlayList({ exhibitId: item.exhibitId, itemId: item.itemId }),
+      disabled: isInPlayList(item) || !ifSupportMime(item.versionInfo?.exhibitProperty?.mime)
+    },
+    {
+      icon: "fl-icon-danji",
+      label: "查看音乐详情",
+      operate: () => toMusicDetail(item)
+    },
+    item?.itemId
+      ? {
+          icon: "fl-icon-zhuanji",
+          label: "查看专辑",
+          operate: () => toAlbumDetail(item)
+        }
+      : null,
+    {
+      icon: isCollected(item) ? "fl-icon-shoucangxiaoshuoyishoucang" : "fl-icon-shoucangxiaoshuo",
+      label: isCollected(item) ? "取消收藏" : "收藏",
+      operate: () => operateCollect(item)
+    }
+  ].filter(Boolean);
+};
+
+// 是否已选中数据
+const isSelectedData = item => {
+  return (
+    `${item.exhibitId}${item.itemId ?? ""}` ===
+    `${selectedData.value.exhibitId}${selectedData.value.itemId ?? ""}`
+  );
+};
 </script>
 
 <template>
@@ -274,35 +315,43 @@ const menuBtnList = computed(() => {
             </span>
           </div>
           <div class="btns-area" :class="{ opacity: authLinkAbnormal(item.defaulterIdentityType) }">
-            <!-- <i
-              class="freelog"
-              :class="{ [btnList[0].icon]: true, disabled: btnList[0].disabled }"
-              @click="playOrPause()"
-            /> -->
-            <i class="freelog fl-icon-gengduo_yuandian_zongxiang" @click="moreMenuShow = true" />
+            <span class="time">{{ secondsToHMS(item.versionInfo.exhibitProperty.duration) }}</span>
+            <i
+              class="freelog fl-icon-gengduo_yuandian_zongxiang"
+              @click="
+                () => {
+                  moreMenuShow = true;
+                  selectedData = item;
+                }
+              "
+            />
           </div>
-          <!-- 更多菜单 -->
-          <transition name="fade">
-            <div class="modal" @click="moreMenuShow = false" v-if="moreMenuShow"></div>
-          </transition>
-          <transition name="slide-up-fade">
-            <div class="more-menu-card" v-if="moreMenuShow">
-              <!-- <div class="btns">
-                <div
-                  class="btn"
-                  :class="{ disabled: item.disabled }"
-                  v-for="item in menuBtnList"
-                  :key="item.label"
-                  @click="item.operate"
-                >
-                  <i class="freelog" :class="item.icon"></i>
-                  <div class="label">{{ item.label }}</div>
-                </div>
-              </div> -->
-              <div class="close-btn" @click="moreMenuShow = false">关闭</div>
-            </div>
-          </transition>
         </div>
+        <!-- 更多菜单 -->
+        <transition name="fade">
+          <div
+            class="modal"
+            @click="moreMenuShow = false"
+            v-if="moreMenuShow && isSelectedData(item)"
+          ></div>
+        </transition>
+        <transition name="slide-up-fade">
+          <div class="more-menu-card" v-if="moreMenuShow && isSelectedData(item)">
+            <div class="btns">
+              <div
+                class="btn"
+                :class="{ disabled: btn?.disabled }"
+                v-for="btn in menuBtnList(item)"
+                :key="btn?.label"
+                @click="btn?.operate"
+              >
+                <i class="freelog" :class="btn?.icon"></i>
+                <div class="label">{{ btn?.label }}</div>
+              </div>
+            </div>
+            <div class="close-btn" @click="moreMenuShow = false">关闭</div>
+          </div>
+        </transition>
       </div>
     </div>
   </div>
@@ -743,8 +792,111 @@ const menuBtnList = computed(() => {
         }
 
         .btns-area {
+          opacity: 0.4;
+
+          .time {
+            font-weight: 400;
+            font-size: 12px;
+            color: #ffffff;
+            line-height: 18px;
+            margin-right: 15px;
+          }
+
           transition: all 0.5s ease;
           margin-left: auto;
+        }
+      }
+
+      .modal {
+        position: fixed;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.2);
+        z-index: 300;
+      }
+
+      .more-menu-card {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(20px);
+        z-index: 300;
+
+        .btns {
+          width: 100%;
+          padding: 30px 33px;
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 30px 44px;
+          justify-content: space-between;
+          box-sizing: border-box;
+
+          .btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.6);
+
+            &:active {
+              color: rgba(255, 255, 255, 0.4);
+
+              .freelog {
+                background: rgba(255, 255, 255, 0.03);
+              }
+            }
+
+            &.disabled {
+              background: rgba(255, 255, 255, 0.02);
+              color: rgba(255, 255, 255, 0.24);
+              pointer-events: none;
+            }
+
+            & + .btn {
+              // margin-left: 44px;
+            }
+
+            .freelog {
+              width: 48px;
+              height: 48px;
+              font-size: 24px;
+              background: rgba(255, 255, 255, 0.05);
+              border-radius: 10px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+
+            .label {
+              width: 48px;
+              line-height: 17px;
+              font-size: 12px;
+              display: flex;
+              justify-content: center;
+              margin-top: 5px;
+              word-break: keep-all;
+            }
+          }
+        }
+
+        .close-btn {
+          width: 100%;
+          height: 60px;
+          border-top: 1px solid rgba(255, 255, 255, 0.05);
+          box-sizing: border-box;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 14px;
+          color: rgba(255, 255, 255, 0.6);
+
+          &:active {
+            color: rgba(255, 255, 255, 0.4);
+          }
         }
       }
     }
