@@ -23,9 +23,6 @@ dependencies:
   vue-router:
     specifier: ^4.4.0
     version: 4.4.0(vue@3.4.31)
-  vue-view-lazy:
-    specifier: ^0.0.6
-    version: 0.0.6
 
 devDependencies:
   '@types/node':
@@ -1675,10 +1672,6 @@ packages:
       semver: 7.6.2
       typescript: 5.5.3
     dev: true
-
-  /vue-view-lazy@0.0.6:
-    resolution: {integrity: sha512-qQSaI8MIaccQH0gCovGdNZlHJb7wWcOf0PD1HzEosxYEKRQUBmtge5yvUbNwG23Jsfgj7mEPiw95+6F51SFESw==}
-    dev: false
 
   /vue@3.4.31(typescript@5.5.3):
     resolution: {integrity: sha512-njqRrOy7W3YLAlVqSKpBebtZpDVg21FPoaq1I7f/+qqBThK9ChAIjkRWgeP6Eat+8C+iia4P3OYqpATP21BCoQ==}
