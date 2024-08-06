@@ -5,55 +5,146 @@
     <!-- <template v-if="voiceInfo"> -->
     <!-- mobile -->
     <div class="mobile-detail-wrapper" v-if="store.inMobile">
-      <div ref="cover" class="cover-area">
-        <img class="cover" :src="voiceInfo?.coverImages[0]" />
-      </div>
-      <div class="title-area">
-        <img class="auth-link-abnormal" :src="AuthLinkAbnormalIcon" v-if="authLinkAbnormal" />
-        <i
-          class="freelog fl-icon-suoding lock"
-          @click.stop="getAuth()"
-          v-if="voiceInfo?.defaulterIdentityType >= 4"
-        ></i>
-        <my-tooltip class="title" :content="voiceInfo?.exhibitTitle">
-          <span>{{ voiceInfo?.exhibitTitle }}</span>
-        </my-tooltip>
-      </div>
+      <div class="top-area">
+        <!-- 封面 -->
+        <div class="banner">
+          <img :src="store.selfConfig.options_node_banner || MobileDefaultBanner" alt="节点封面" />
+        </div>
+        <!-- 信息 -->
+        <div class="info-area">
+          <div class="title-date-wrap">
+            <div class="title-area">
+              <img class="auth-link-abnormal" :src="AuthLinkAbnormalIcon" v-if="authLinkAbnormal" />
+              <i
+                class="freelog fl-icon-suoding lock"
+                @click.stop="getAuth()"
+                v-if="voiceInfo?.defaulterIdentityType >= 4"
+              ></i>
+              <my-tooltip :content="voiceInfo?.exhibitTitle">
+                <span class="title">{{ voiceInfo?.exhibitTitle }}</span>
+              </my-tooltip>
+            </div>
 
-      <div class="info-area">
-        <div class="info-item">
-          <i class="freelog fl-icon-gengxinshijian"></i>
-          <div class="item-value">{{ voiceInfo?.updateDate }}</div>
-        </div>
-        <div class="info-item">
-          <i class="freelog fl-icon-yonghu"></i>
-          <div class="item-value">{{ voiceInfo?.signCount }}</div>
-        </div>
-        <div class="duration" v-if="voiceInfo.articleInfo?.articleType === 1">
-          时长{{ relativeTime(voiceInfo?.versionInfo.exhibitProperty.duration) }}
-        </div>
-      </div>
-
-      <div class="play-voice-btn" :class="{ disabled: btnList[0].disabled }" @click="playOrPause()">
-        <i class="freelog" :class="btnList[0].icon"></i>
-        <div class="label">{{ btnList[0].title }}</div>
-      </div>
-      <div class="btns-area">
-        <template v-for="item in btnList.filter((_, i) => [1, 2, 3].includes(i))">
-          <div class="btn" :class="{ disabled: item.disabled }" @click="item.operate">
-            <i class="freelog" :class="item.icon"></i>
-            <div class="btn-label">{{ item.title }}</div>
+            <div class="date-count">
+              <div class="info-item">
+                <i class="freelog fl-icon-gengxinshijian"></i>
+                <div class="item-value">{{ relativeTime(voiceInfo?.updateDate) }}</div>
+              </div>
+              <div class="info-item">
+                <i class="freelog fl-icon-danji"></i>
+                <div class="item-value">{{ voiceInfo?.signCount }}</div>
+              </div>
+            </div>
           </div>
-        </template>
-        <input id="href" class="hidden-input" :value="href" readOnly />
+
+          <!-- 按钮 -->
+          <div class="btns-area">
+            <div class="play-btn" :class="{ disabled: btnList[0].disabled }" @click="playOrPause()">
+              <i class="freelog" :class="btnList[0].icon"></i>
+              <div class="label">{{ btnList[0].title }}</div>
+            </div>
+            <template v-for="item in btnList.filter((_, i) => [1, 2].includes(i))">
+              <div class="btn" :class="{ disabled: item.disabled }" @click="item.operate">
+                <i class="freelog" :class="item.icon"></i>
+              </div>
+            </template>
+            <input id="href" class="hidden-input" :value="href" readOnly />
+          </div>
+        </div>
       </div>
-      <div class="intro">{{ voiceInfo?.exhibitIntro }}</div>
-      <div
-        class="cover-to-add"
-        :class="{ animation: addAnimation }"
-        :style="{ '--left': coverLeft + 'px', '--top': coverTop + 'px' }"
-      >
-        <img class="cover" :src="voiceInfo?.coverImages[0]" />
+
+      <div class="bottom-area" v-if="voiceInfo?.articleInfo.articleType === 2">
+        <div class="tab-box">
+          <div class="tab" :class="tab === 1 && 'active'" @click="changeTab(1)">音乐</div>
+          <div class="tab" :class="tab === 2 && 'active'" @click="changeTab(2)">专辑介绍</div>
+        </div>
+
+        <div class="music-content-box">
+          <div
+            class="content-item"
+            v-for="(item, index) in collectionData"
+            :key="index"
+            v-if="tab === 1"
+          >
+            <div class="index">{{ changeIndex(index + 1) }}</div>
+
+            <div class="info-box">
+              <div class="info">
+                <span
+                  class="title"
+                  @click="
+                    router.myPush({
+                      path: '/detail',
+                      query: { id: item.exhibitId, subID: item.itemId, albumName: item.albumName }
+                    })
+                  "
+                >
+                  <img class="auth-link-abnormal" :src="AuthLinkAbnormal" v-if="authLinkAbnormal" />
+                  <i
+                    class="freelog fl-icon-suoding lock"
+                    @click.stop="getAuth(item)"
+                    v-if="item.defaulterIdentityType >= 4"
+                  ></i>
+                  {{ item.exhibitTitle }}
+                </span>
+                <span class="desc">{{ item.exhibitIntro }}</span>
+              </div>
+              <div class="btns-area" :class="{ opacity: authLinkAbnormal }">
+                <span class="time">{{
+                  secondsToHMS(item.versionInfo.exhibitProperty.duration)
+                }}</span>
+                <i
+                  class="freelog fl-icon-gengduo_yuandian_zongxiang"
+                  @click="
+                    () => {
+                      moreMenuShow = true;
+                      selectedData = item;
+                    }
+                  "
+                />
+              </div>
+            </div>
+            <!-- 更多菜单 -->
+            <transition name="fade">
+              <div
+                class="modal"
+                @click="moreMenuShow = false"
+                v-if="moreMenuShow && isSelectedData(item)"
+              ></div>
+            </transition>
+            <transition name="slide-up-fade">
+              <div class="more-menu-card" v-if="moreMenuShow && isSelectedData(item)">
+                <div class="btns">
+                  <div
+                    class="btn"
+                    :class="{ disabled: btn?.disabled }"
+                    v-for="btn in menuBtnList(item)"
+                    :key="btn?.label"
+                    @click="btn?.operate"
+                  >
+                    <i class="freelog" :class="btn?.icon"></i>
+                    <div class="label">{{ btn?.label }}</div>
+                  </div>
+                </div>
+                <div class="close-btn" @click="moreMenuShow = false">关闭</div>
+              </div>
+            </transition>
+          </div>
+
+          <div class="single-content-intro" v-else>
+            <div class="detail"></div>
+
+            <div class="intro">{{ voiceInfo?.exhibitIntro }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div v-else>
+        <div class="single-content-intro">
+          <div class="detail"></div>
+
+          <div class="intro">{{ voiceInfo?.exhibitIntro }}</div>
+        </div>
       </div>
     </div>
 
@@ -217,6 +308,8 @@ import { showToast, relativeTime, secondsToHMS } from "@/utils/common";
 import { useGlobalStore } from "@/store/global";
 
 import AuthLinkAbnormalIcon from "@/assets/images/auth-link-abnormal.png";
+import MobileDefaultBanner from "@/assets/images/mobile-default-banner.webp";
+import AuthLinkAbnormal from "@/assets/images/auth-link-abnormal.png";
 
 export default {
   name: "detail",
@@ -228,6 +321,8 @@ export default {
 
     return {
       AuthLinkAbnormalIcon,
+      MobileDefaultBanner,
+      AuthLinkAbnormal,
       id: "",
       subID: "",
       albumName: "",
@@ -244,7 +339,10 @@ export default {
       secondsToHMS,
       subTotal: 0,
       subSkip: 0,
-      subTempData: []
+      subTempData: [],
+      tab: 1,
+      selectedData: {},
+      moreMenuShow: false
     };
   },
 
@@ -365,6 +463,61 @@ export default {
   },
 
   methods: {
+    /** 更多菜单按钮群 */
+    menuBtnList(item) {
+      return [
+        {
+          icon: !this.ifSupportMimeSub(item.versionInfo?.exhibitProperty?.mime)
+            ? "fl-icon-wufabofang"
+            : this.playingSub({ exhibitId: item.exhibitId, itemId: item.itemId })
+            ? "fl-icon-zanting-daibiankuang"
+            : "fl-icon-bofang-daibiankuang",
+          label: !this.ifSupportMimeSub(item.versionInfo?.exhibitProperty?.mime)
+            ? "无法播放"
+            : this.playingSub({ exhibitId: item.exhibitId, itemId: item.itemId })
+            ? "暂停音乐"
+            : "播放音乐",
+          operate: () => this.playOrPause(item),
+          disabled: !this.ifSupportMimeSub(item.versionInfo?.exhibitProperty?.mime)
+        },
+        {
+          icon: "fl-icon-jiarubofangliebiao",
+          label: "加入播放列表",
+          operate: () => this.addToPlayListSub({ exhibitId: item.exhibitId, itemId: item.itemId }),
+          disabled:
+            this.isInPlayListSub(item) ||
+            !this.ifSupportMimeSub(item.versionInfo?.exhibitProperty?.mime)
+        },
+        {
+          icon: "fl-icon-danji",
+          label: "查看音乐详情",
+          operate: () => this.toMusicDetail(item)
+        },
+        {
+          icon: this.isCollectedSub(item)
+            ? "fl-icon-shoucangxiaoshuoyishoucang"
+            : "fl-icon-shoucangxiaoshuo",
+          label: this.isCollectedSub(item) ? "取消收藏" : "收藏",
+          operate: () => this.operateCollect(item)
+        }
+      ].filter(Boolean);
+    },
+    changeIndex(index) {
+      if (index > 1 && index < 10) {
+        return index.toString().padStart(2, "0");
+      }
+      return index.toString();
+    },
+    changeTab(tab) {
+      this.tab = tab;
+    },
+    // 是否已选中数据
+    isSelectedData(item) {
+      return (
+        `${item.exhibitId}${item.itemId ?? ""}` ===
+        `${this.selectedData.exhibitId}${this.selectedData.itemId ?? ""}`
+      );
+    },
     isInPlayListSub(item) {
       return useMyPlay.ifExist({ exhibitId: item.exhibitId, itemId: item.itemId });
     },
@@ -387,7 +540,7 @@ export default {
     /** 是否为支持格式 */
     ifSupportMimeSub(item) {
       const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
-      return supportMimeList.includes(item.articleInfo.articleProperty.mime);
+      return supportMimeList.includes(item?.articleInfo?.articleProperty.mime);
     },
     albumSubBtnList(item) {
       return [

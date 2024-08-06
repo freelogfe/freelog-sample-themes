@@ -53,7 +53,7 @@
             <div class="item-value">{{ relativeTime(data.updateDate) }}</div>
           </div>
           <div class="info-item">
-            <i class="freelog fl-icon-yonghu"></i>
+            <i class="freelog fl-icon-danji"></i>
             <div class="item-value">{{ data.signCount }}</div>
           </div>
         </div>

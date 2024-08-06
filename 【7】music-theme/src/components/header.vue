@@ -4,7 +4,11 @@
     <!-- mobile -->
     <div
       class="mobile-header-wrapper"
-      :class="{ home: currentPath === '/home', search: currentPath === '/search-list' }"
+      :class="{
+        home: currentPath === '/home',
+        search: currentPath === '/search-list',
+        detail: currentPath === '/detail'
+      }"
       v-if="store.inMobile"
     >
       <!-- 非搜索页头部 -->

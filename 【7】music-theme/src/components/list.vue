@@ -12,7 +12,11 @@
       </div>
       <div
         class="total"
-        v-if="list?.length && ((tab === 1 && musicLength) || (tab === 2 && albumLength))"
+        v-if="
+          !store.inMobile &&
+          list?.length &&
+          ((tab === 1 && musicLength) || (tab === 2 && albumLength))
+        "
       >
         {{
           tab === 1
@@ -237,6 +241,69 @@ export default {
       margin-bottom: 30px;
     }
 
+    .music-album-tab {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 20px;
+      .tab-box {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        .tab {
+          position: relative;
+          line-height: 38px;
+          font-size: 14px;
+          font-weight: 600;
+          color: #ffffff;
+          opacity: 0.4;
+          transition: all 0.2s ease-out;
+          cursor: pointer;
+          transform: perspective(1px) translateZ(0);
+          // margin-right: 40px;
+
+          &:last-of-type {
+            margin-right: 0;
+          }
+
+          &:before {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            left: 51%;
+            right: 51%;
+            bottom: 0;
+            background-color: #44d7b6;
+            opacity: 1;
+            height: 4px;
+            border-radius: 2px;
+            transition: all 0.2s ease-out;
+          }
+
+          &:hover {
+            opacity: 0.8;
+          }
+
+          &.active {
+            opacity: 1;
+
+            &::before {
+              left: 0;
+              right: 0;
+            }
+          }
+        }
+      }
+
+      .total {
+        margin-top: 30px;
+        font-weight: 400;
+        font-size: 12px;
+        color: #ffffff;
+        line-height: 18px;
+        opacity: 0.4;
+      }
+    }
+
     .voice-wrapper + .voice-wrapper {
       margin-top: 15px;
     }
@@ -246,7 +313,7 @@ export default {
     }
 
     .no-data-tip {
-      top: 60px;
+      // top: 60px;
       height: calc(100vh - 60px);
       font-size: 24px;
       line-height: 40px;
