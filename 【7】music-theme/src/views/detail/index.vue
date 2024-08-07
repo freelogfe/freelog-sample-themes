@@ -39,7 +39,11 @@
 
           <!-- 按钮 -->
           <div class="btns-area">
-            <div class="play-btn" :class="{ disabled: btnList[0].disabled }" @click="playOrPause()">
+            <div
+              class="play-btn"
+              :class="{ disabled: btnList[0].disabled }"
+              @click.stop="btnList[0].operate"
+            >
               <i class="freelog" :class="btnList[0].icon"></i>
               <div class="label">{{ btnList[0].title }}</div>
             </div>
@@ -73,7 +77,7 @@
                 <span
                   class="title"
                   @click="
-                    router.myPush({
+                    $router.myPush({
                       path: '/detail',
                       query: { id: item.exhibitId, subID: item.itemId, albumName: item.albumName }
                     })
@@ -463,6 +467,14 @@ export default {
   },
 
   methods: {
+    /** 查看音乐详情 */
+    toMusicDetail(item) {
+      this.moreMenuShow = false;
+      this.$router.myPush({
+        path: "/detail",
+        query: { id: item.exhibitId, subID: item.itemId, albumName: item.albumName }
+      });
+    },
     /** 更多菜单按钮群 */
     menuBtnList(item) {
       return [

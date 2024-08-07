@@ -88,6 +88,7 @@ const isInPlayList = item => {
 
 /** 查看音乐详情 */
 const toMusicDetail = item => {
+  moreMenuShow.value = false;
   router.myPush({ path: "/detail", query: { id: item.exhibitId } });
 };
 
@@ -277,20 +278,12 @@ const isSelectedData = item => {
     <!-- 热门内容 -->
     <div class="popular-content-box">
       <div class="content-item" v-for="(item, index) in props.data" :key="index">
-        <div class="info-box">
-          <div class="cover-image" @click.stop="playOrPause(item)">
+        <div class="info-box" @click="playOrPause(item)">
+          <div class="cover-image">
             <img :src="item.coverImages[0]" alt="歌曲封面" />
           </div>
           <div class="info">
-            <span
-              class="title"
-              @click="
-                router.myPush({
-                  path: '/detail',
-                  query: { id: item.exhibitId, subID: item.itemId, albumName: item.albumName }
-                })
-              "
-            >
+            <span class="title">
               <img
                 class="auth-link-abnormal"
                 :src="AuthLinkAbnormal"
@@ -318,7 +311,7 @@ const isSelectedData = item => {
             <span class="time">{{ secondsToHMS(item.versionInfo.exhibitProperty.duration) }}</span>
             <i
               class="freelog fl-icon-gengduo_yuandian_zongxiang"
-              @click="
+              @click.stop="
                 () => {
                   moreMenuShow = true;
                   selectedData = item;
@@ -832,7 +825,7 @@ const isSelectedData = item => {
           display: flex;
           flex-wrap: wrap;
           align-items: center;
-          gap: 30px 44px;
+          gap: 30px 39px;
           justify-content: space-between;
           box-sizing: border-box;
 

@@ -2,21 +2,18 @@
 <template>
   <div class="voice-wrapper">
     <!-- mobile -->
-    <div class="mobile-voice-wrapper" :class="{ unplayable: !ifSupportMime }" v-if="store.inMobile">
-      <div
-        ref="cover"
-        class="cover-area"
-        :class="{ 'opacity-40': authLinkAbnormal }"
-        @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
-      >
+    <div
+      class="mobile-voice-wrapper"
+      :class="{ unplayable: !ifSupportMime }"
+      v-if="store.inMobile"
+      @click.stop="playOrPause()"
+    >
+      <div ref="cover" class="cover-area" :class="{ 'opacity-40': authLinkAbnormal }">
         <img class="cover" :src="data.coverImages[0]" />
         <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
         <div class="unplayable-tip" v-if="!ifSupportMime">无法播放</div>
       </div>
-      <div
-        class="info-area"
-        @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
-      >
+      <div class="info-area">
         <div class="title-area">
           <img
             class="auth-link-abnormal"
@@ -60,7 +57,7 @@
       </div>
       <div class="btns-area" :class="{ opacity: authLinkAbnormal }">
         <span class="time">{{ secondsToHMS(data.versionInfo?.exhibitProperty?.duration) }}</span>
-        <i class="freelog fl-icon-gengduo_yuandian_zongxiang" @click="moreMenuShow = true" />
+        <i class="freelog fl-icon-gengduo_yuandian_zongxiang" @click.stop="moreMenuShow = true" />
       </div>
       <div
         class="cover-to-add"
@@ -72,7 +69,7 @@
 
       <!-- 更多菜单 -->
       <transition name="fade">
-        <div class="modal" @click="moreMenuShow = false" v-if="moreMenuShow"></div>
+        <div class="modal" @click.stop="moreMenuShow = false" v-if="moreMenuShow"></div>
       </transition>
       <transition name="slide-up-fade">
         <div class="more-menu-card" v-if="moreMenuShow">
@@ -82,13 +79,13 @@
               :class="{ disabled: item.disabled }"
               v-for="item in menuBtnList"
               :key="item.label"
-              @click="item.operate"
+              @click.stop="item.operate"
             >
               <i class="freelog" :class="item.icon"></i>
               <div class="label">{{ item.label }}</div>
             </div>
           </div>
-          <div class="close-btn" @click="moreMenuShow = false">关闭</div>
+          <div class="close-btn" @click.stop="moreMenuShow = false">关闭</div>
         </div>
       </transition>
     </div>

@@ -12,7 +12,17 @@
 
     <!-- mobile -->
     <div class="mobile-player-wrapper" v-if="store.inMobile">
-      <div class="player" :class="{ show: playerShow }">
+      <div
+        class="player"
+        :class="{ show: playerShow }"
+        @click="
+          () => {
+            if (playingInfo) {
+              playDialogShow = true;
+            }
+          }
+        "
+      >
         <div class="cover-area">
           <img class="cover" :src="playingInfo.coverImages[0]" v-if="playingInfo" />
           <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
@@ -32,15 +42,7 @@
               v-for="item in playList"
               :key="item.exhibitId"
             >
-              <div
-                class="title voice-title"
-                @click="
-                  $router.myPush({
-                    path: '/detail',
-                    query: { id: item.exhibitId }
-                  })
-                "
-              >
+              <div class="title voice-title">
                 {{ item.exhibitTitle }}
               </div>
             </div>
@@ -48,7 +50,7 @@
           <div class="no-data-title" v-else>暂无播放的声音</div>
         </div>
         <div class="btns-area">
-          <div class="play-btn-area" @click="playOrPause()">
+          <div class="play-btn-area" @click.stop="playOrPause()">
             <i
               class="freelog play"
               :class="playing ? 'fl-icon-zanting-daibiankuang' : 'fl-icon-bofang-daibiankuang'"
@@ -64,7 +66,7 @@
               :show-text="false"
             />
           </div>
-          <i class="freelog fl-icon-xiaoshuomulu1" @click="openPlayList()"></i>
+          <i class="freelog fl-icon-xiaoshuomulu1" @click.stop="openPlayList()"></i>
         </div>
         <div class="progress-box" @touchstart="slidingProgress = true">
           <el-slider
@@ -124,7 +126,11 @@
                     :desc="`${secondsToHMS(store.progress * 1000)} / ${secondsToHMS(
                       item.versionInfo.exhibitProperty.duration
                     )}`"
-                    v-if="playingInfo && playingInfo.exhibitId === item.exhibitId"
+                    v-if="
+                      playingInfo &&
+                      `${playingInfo.exhibitId}${playingInfo?.itemId ?? ''}` ===
+                        `${item.exhibitId}${item?.itemId ?? ''}`
+                    "
                   />
                   <div class="duration" v-else>
                     {{ secondsToHMS(item.versionInfo.exhibitProperty.duration) }}
@@ -154,6 +160,63 @@
           </div>
         </div>
       </transition>
+
+      <div class="mobile-play-dialog" :class="{ show: playDialogShow }" v-if="playDialogShow">
+        <div class="drop-arrow" @click="playDialogShow = false">
+          <img :src="DropArrow" />
+        </div>
+
+        <!-- 封面 -->
+        <div class="cover">
+          <img :src="playingInfo?.coverImages[0]" alt="封面" />
+        </div>
+
+        <!-- 详细信息 -->
+        <div class="info-area">
+          <div class="title">
+            {{ playingInfo.exhibitTitle }}
+          </div>
+          <div class="desc">
+            {{ playingInfo.exhibitIntro }}
+          </div>
+          <div
+            class="type"
+            :class="playingInfo.albumName && 'album'"
+            @click="
+              () => {
+                playDialogShow = false;
+                playingInfo.albumName &&
+                  $router.myPush({ path: '/detail', query: { id: playingInfo.exhibitId } });
+              }
+            "
+          >
+            {{ playingInfo.albumName || "单曲" }}
+          </div>
+        </div>
+
+        <!-- 上一首 | 播放，暂停 | 下一首 -->
+        <div class="pre-play-next-area">
+          <i
+            class="freelog"
+            :class="{ [item.icon]: true, disabled: item.disabled }"
+            v-for="item in leftBtnList"
+            :key="item.icon"
+            @click="item.operate"
+          />
+        </div>
+
+        <!-- 按钮 -->
+        <div class="btns-area">
+          <i
+            :ref="item.name"
+            class="freelog"
+            :class="item.icon"
+            v-for="item in mobileBtnList"
+            :key="item.icon"
+            @click="item.operate"
+          />
+        </div>
+      </div>
     </div>
 
     <!-- PC -->
@@ -336,6 +399,8 @@ import { useMyAuth, useMyPlay, useMyCollection } from "@/utils/hooks";
 import { secondsToHMS, showToast } from "@/utils/common";
 import { useGlobalStore } from "@/store/global";
 
+import DropArrow from "@/assets/images/arrow.png";
+
 export default {
   name: "my-player",
 
@@ -348,6 +413,7 @@ export default {
     const store = useGlobalStore();
 
     return {
+      DropArrow,
       playList: null,
       show: false,
       volumePopupShow: false,
@@ -355,6 +421,7 @@ export default {
       playerShow: true,
       playListPopupShow: false,
       confirmDialogShow: false,
+      playDialogShow: false,
       playingInfo: null,
       slidingProgress: false,
       timeout: null,
@@ -463,7 +530,10 @@ export default {
     /** 是否收藏 */
     isCollected() {
       const { collectionIdList, playingInfo } = this.store;
-      return playingInfo ? collectionIdList.includes(playingInfo.exhibitId) : false;
+      return useMyCollection.ifExist({
+        exhibitId: playingInfo.exhibitId,
+        itemId: playingInfo?.itemId
+      });
     },
 
     /** 是否播放中 */
@@ -505,13 +575,12 @@ export default {
         }
       ];
     },
-
     /** 右区域按钮群 */
     rightBtnList() {
       return [
         {
           name: "mode",
-          icon: this.currentPlayMode === "NORMAL" ? "fl-icon-daoru" : "fl-icon-zidingyishuxing",
+          icon: this.currentPlayMode === "NORMAL" ? "fl-icon-shunxubofang" : "fl-icon-suijibofang1",
           operate: () => {
             this.changePlayMode();
           }
@@ -538,6 +607,34 @@ export default {
           }
         },
         { name: "showBtn", icon: "fl-icon-shouqi1", operate: this.closePlayer }
+      ];
+    },
+
+    /** 移动端，播放器区域按钮 */
+    mobileBtnList() {
+      return [
+        {
+          name: "mode",
+          icon: this.currentPlayMode === "NORMAL" ? "fl-icon-shunxubofang" : "fl-icon-suijibofang1",
+          operate: () => {
+            this.changePlayMode();
+          }
+        },
+        {
+          name: "collect",
+          icon: this.isCollected
+            ? "fl-icon-shoucangxiaoshuoyishoucang"
+            : "fl-icon-shoucangxiaoshuo",
+          operate: this.operateCollect
+        },
+        { name: "showBtn", icon: "fl-icon-fenxiang", operate: this.share },
+        {
+          name: "playList",
+          icon: "fl-icon-xiaoshuomulu1",
+          operate: () => {
+            this.playListPopupShow = !this.playListPopupShow;
+          }
+        }
       ];
     }
   },
@@ -658,6 +755,33 @@ export default {
     // 收藏/取消收藏
     async operateCollect() {
       useMyCollection.operateCollect(this.playingInfo);
+    },
+
+    /** 分享 */
+    share() {
+      if (this.store.inMobile) {
+        const copiedShareHref = `${window.location.origin}/detail?id=${this.playingInfo.exhibitId}`;
+        navigator.clipboard
+          .writeText(copiedShareHref)
+          .then(() => {
+            console.log("来到这里了");
+            showToast("链接复制成功～");
+          })
+          .catch(error => {
+            console.log("报错");
+            const input = document.createElement("input");
+            document.body.appendChild(input);
+            input.setAttribute("value", copiedShareHref);
+            input.select();
+            if (document.execCommand("copy")) {
+              document.execCommand("copy");
+            }
+            document.body.removeChild(input);
+            showToast("链接复制成功～");
+          });
+      } else {
+        this.store.setData({ key: "shareInfo", value: { show: true, exhibit: this.voiceInfo } });
+      }
     },
 
     /** 播放/暂停播放列表 */
