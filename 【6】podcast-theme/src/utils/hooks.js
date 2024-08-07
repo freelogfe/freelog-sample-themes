@@ -95,7 +95,7 @@ export const useMyCollection = {
       return;
     }
 
-    const ids = idList.join();
+    const ids = [...new Set(idList.map(ele => ele.id))].join();
     const [list, countList, statusList] = await Promise.all([
       freelogApp.getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
       freelogApp.getExhibitSignCount(ids),
@@ -103,56 +103,128 @@ export const useMyCollection = {
     ]);
 
     const allPoolIds = list.data.data.filter(ele => ele.articleInfo.articleType === 2).map(ele => ele.exhibitId)
-    const allPoolIdsStr = allPoolIds.join(',')
+    const allPoolUnique = [...new Set(allPoolIds)]
+    const allPoolIdsStr = allPoolUnique.join(',')
     const subNumList = await freelogApp.getCollectionsSubList(allPoolIdsStr, {
       sortType: 1, 
       skip: 0,
-      limit: allPoolIds.length,
+      limit: 1,
       isShowDetailInfo: 1, 
     });
+    const allPoolPromises = allPoolUnique.map(ele => useMyPlay.getListInCollection(ele))
+    const allPoolDataList = await Promise.all(allPoolPromises)
 
-    idList.forEach(id => {
+    idList.forEach(ele => {
+      const { id, itemId, isExhibit } = ele
       const collectionItem = list.data.data.find(item => item.exhibitId === id);
       if (!collectionItem) return;
       const signCountItem = countList.data.data.find(item => item.subjectId === id);
       const statusItem = statusList.data.data.find(item => item.exhibitId === id);
       const subNumItem = subNumList.data.data.find(item => item.exhibitId === id)
-      result.push({
-        ...collectionItem,
-        signCount: signCountItem.count,
-        defaulterIdentityType: statusItem.defaulterIdentityType,
-        totalItem: subNumItem?.totalItem
-      });
+      const subListIndex = allPoolUnique.findIndex(item => item === id)
+      const subListDataList = subListIndex !== -1 ? allPoolDataList[subListIndex] : []
+      const subListItem = subListDataList.find(item => item.itemId === itemId)
+
+      if (isExhibit) {
+        const data = JSON.parse(JSON.stringify({
+          ...collectionItem,
+          signCount: signCountItem.count,
+          defaulterIdentityType: statusItem.defaulterIdentityType,
+          totalItem: subNumItem?.totalItem
+        }))
+        result.push(data);
+      } else {
+        const data = JSON.parse(JSON.stringify({
+          ...collectionItem,
+          signCount: signCountItem.count,
+          defaulterIdentityType: statusItem.defaulterIdentityType,
+          totalItem: subNumItem?.totalItem,
+          child: subListItem
+        }))
+        result.push(data);
+      }
     });
     store.commit("setData", { key: "collectionList", value: result });
   },
 
   /** 判断当前展品是否已被收藏 */
-  ifExist(id) {
-    return store.state.collectionIdList.includes(id);
+  ifExist(data) {
+    if (!data) return false
+    const { exhibitId, articleInfo, child } = data
+    if (articleInfo.articleType === 1) {
+      return store.state.collectionIdList.map(ele => ele.id).includes(exhibitId);
+    } else {
+      if (child) {
+        return store.state.collectionIdList.some(ele => ele.id === exhibitId && ele.itemId === child.itemId)
+      } else {
+        return store.state.collectionIdList.map(ele => ele.id).includes(exhibitId);
+      }
+    }
   },
 
   /** 操作收藏（如未收藏则收藏，反之取消收藏） */
   async operateCollect(data) {
+    console.log(data);
     if (!store.state.userData.isLogin) {
       callLogin();
       return;
     }
 
-    const { exhibitId } = data;
+    const { exhibitId, articleInfo, child } = data;
     const collectionIdList = [...store.state.collectionIdList];
     const collectionList = [...store.state.collectionList];
-    const isCollected = collectionIdList.includes(exhibitId);
+    let isCollected 
+    if (articleInfo.articleType === 1) {
+      isCollected = collectionIdList.map(ele => ele.id).includes(exhibitId);
+    } else {
+      if (child) {
+        isCollected = collectionIdList.some(ele => ele.id === exhibitId && ele.itemId === child.itemId)
+      } else {
+        isCollected = collectionIdList.some(ele => ele.id === exhibitId && !ele.itemId);
+      }
+    }
     if (isCollected) {
       // 取消收藏
-      const idIndex = collectionIdList.findIndex(item => item === exhibitId);
-      collectionIdList.splice(idIndex, 1);
-      const index = collectionList.findIndex(item => item.exhibitId === exhibitId);
-      collectionList.splice(index, 1);
+      if (articleInfo.articleType === 1) {
+        const idIndex = collectionIdList.findIndex(item => item === exhibitId);
+        collectionIdList.splice(idIndex, 1);
+        const index = collectionList.findIndex(item => item.exhibitId === exhibitId);
+        collectionList.splice(index, 1);
+      } else {
+        if (child) {
+          const idIndex = collectionIdList.findIndex(item => item === exhibitId && child.itemId === item.itemId);
+          collectionIdList.splice(idIndex, 1);
+          const index = collectionList.findIndex(item => item.exhibitId === exhibitId && child.itemId === item.itemId);
+          collectionList.splice(index, 1);
+        } else {
+          const idIndex = collectionIdList.findIndex(item => item === exhibitId && !ele.itemId);
+          collectionIdList.splice(idIndex, 1);
+          const index = collectionList.findIndex(item => item.exhibitId === exhibitId && !item.child);
+          collectionList.splice(index, 1);
+        }
+      }
     } else {
       // 收藏
-      collectionIdList.unshift(exhibitId);
-      collectionList.unshift(data);
+      if (articleInfo.articleType === 1) {
+        collectionIdList.unshift({
+          id: exhibitId,
+          isExhibit: true
+        });
+      } else {
+        if (child) {
+          collectionIdList.unshift({
+            id: exhibitId,
+            isExhibit: false,
+            itemId: child.itemId
+          });
+        } else {
+          collectionIdList.unshift({
+            id: exhibitId,
+            isExhibit: true
+          });
+        }
+      }
+      collectionList.unshift(JSON.parse(JSON.stringify(data)));
     }
     const res = await freelogApp.setUserData("collectionIdList", collectionIdList);
     if (res.data.msg === "success") {
@@ -161,6 +233,13 @@ export const useMyCollection = {
     } else {
       showToast("操作失败");
     }
+    // const res = await freelogApp.setUserData("collectionIdList", []);
+    // if (res.data.msg === "success") {
+    //   store.commit("setData", { key: "collectionIdList", value: [] });
+    //   store.commit("setData", { key: "collectionList", value: [] });
+    // } else {
+    //   showToast("操作失败");
+    // }
   }
 };
 
@@ -226,16 +305,27 @@ export const useMyPlay = {
   },
 
   /** 判断当前展品是否已存在播放列表中 */
-  ifExist(id) {
+  ifExist(data) {
+    if (!data) return false
+    const id = data.exhibitId
     if (!store.state.userData.isLogin) {
       // 未登录时播放列表取本地
       const list = localStorage.getItem("playIdList") || "[]";
       const playIdList = JSON.parse(list);
-      return playIdList.map(ele => ele.id).includes(id);
+      if (data.articleInfo.articleType === 1) {
+        return playIdList.map(ele => ele.id).includes(id);
+      } else {
+        return playIdList.some(ele => ele.id === id && data.child && ele.itemId === data.child.itemId);
+      }
     } else {
       // 已登录时播放列表取用户数据
       const playIdList = store.state.playIdList
-      return playIdList.map(ele => ele.id).includes(id);
+      if (data.articleInfo.articleType === 1) {
+        return playIdList.map(ele => ele.id).includes(id);
+      } else {
+        // 只针对合集的单个子作品
+        return playIdList.some(ele => ele.id === id && data.child && ele.itemId === data.child.itemId);
+      }
     }
   },
   /** 加入播放列表 */
@@ -508,7 +598,9 @@ export const useMyPlay = {
         playingInfo.articleInfo &&
         playingInfo.articleInfo.articleType === 2 &&
         playing &&
-        playingInfo.exhibitId === exhibit.exhibitId
+        playingInfo.exhibitId === exhibit.exhibitId &&
+        ["program", "detail"].includes(store.state.clickRecord[1]) &&
+        (store.state.clickRecord.every(ele => ele === "program") || store.state.clickRecord.every(ele => ele === "detail"))
       ) {
         store.commit("setData", { key: "playing", value: false });
         return;

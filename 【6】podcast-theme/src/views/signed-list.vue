@@ -9,6 +9,8 @@
       noDataTip="暂无任何签约记录"
       statusShow
       authShow
+      noMoreTip="已经加载全部数据"
+      :total="$store.state.signedList.length"
     />
   </div>
 </template>

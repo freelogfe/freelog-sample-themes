@@ -6,7 +6,7 @@
       <template v-if="voiceInfo">
         <div>
           <!-- mobile -->
-          <div class="mobile-detail-wrapper" v-if="$store.state.inMobile">
+          <div class="mobile-detail-wrapper" :class="{ pool: voiceInfo.articleInfo.articleType === 2 }" v-if="$store.state.inMobile">
             <div ref="cover" class="cover-area">
               <img class="cover" :src="voiceInfo.coverImages[0]" />
             </div>
@@ -31,10 +31,14 @@
                 <div class="item-value">{{ voiceInfo.updateDate | relativeTime }}</div>
               </div>
               <div class="info-item">
+                <i class="freelog fl-icon-danji"></i>
+                <div class="item-value">{{ total }}</div>
+              </div>
+              <div class="info-item">
                 <i class="freelog fl-icon-yonghu"></i>
                 <div class="item-value">{{ voiceInfo.signCount | signCount }}</div>
               </div>
-              <div class="duration">
+              <div v-if="playingInfo && voiceInfo.articleInfo.articleType === 1" class="duration">
                 时长{{ voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
               </div>
             </div>
@@ -55,7 +59,11 @@
               </template>
               <input id="href" class="hidden-input" :value="href" readOnly />
             </div>
-            <div class="intro">{{ voiceInfo.exhibitIntro }}</div>
+            <div class="intro" v-if="voiceInfo.articleInfo.articleType === 1">{{ voiceInfo.exhibitIntro }}</div>
+            <div class="intro-pool" v-else>
+              <div class="txt" :class="{ active: showIntro }">{{ voiceInfo.exhibitIntro }}</div>
+              <div v-if="voiceInfo.exhibitIntro.length" class="btn freelog fl-icon-zhankaigengduo" @click="showIntro = !showIntro"></div>
+            </div>
             <div
               class="cover-to-add"
               :class="{ animation: addAnimation }"
@@ -64,6 +72,15 @@
               <img class="cover" :src="voiceInfo.coverImages[0]" />
             </div>
           </div>
+          <!-- mobile：合集的单品列表 -->
+          <div class="mobile-detail-list" v-if="$store.state.inMobile && voiceInfo.articleInfo.articleType === 2">
+            <voice :data="item" v-for="item in list" :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`" mode="voice" />
+          </div>
+          <div class="load-ready" v-if="$store.state.inMobile && voiceInfo.articleInfo.articleType === 2">
+            <span v-if="list.length === 0">暂无任何声音</span>
+            <span v-if="list.length !== 0 && this.list.length === this.total">已加载全部</span>
+          </div>
+
           <!-- PC -->
           <div class="pc-detail-wrapper" v-if="!$store.state.inMobile">
             <div ref="cover" class="cover-area">
@@ -102,20 +119,24 @@
                   <div class="item-value">{{ voiceInfo.updateDate | relativeTime }}</div>
                 </div>
                 <div class="info-item">
+                  <i class="freelog fl-icon-danji"></i>
+                  <div class="item-value">{{ total }}</div>
+                </div>
+                <div class="info-item">
                   <i class="freelog fl-icon-yonghu"></i>
                   <div class="item-value">{{ voiceInfo.signCount | signCount }}</div>
                 </div>
               </div>
 
               <div class="btns-area">
-                <template v-if="playingInfo && voiceInfo.articleInfo.articleType === 1">
+                <template v-if="playingInfo">
                   <div class="duration" v-if="playingInfo.exhibitId !== voiceInfo.exhibitId">
                     时长{{ voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
                   </div>
                   <transition name="slide-right">
                     <div class="playing-mark" v-if="playingInfo.exhibitId === voiceInfo.exhibitId">
                       <play-status :playing="$store.state.playing" />
-                      <div class="progress">
+                      <div class="progress" v-if="playingInfo.articleInfo.articleType === 1">
                         <span>{{ ($store.state.progress * 1000) | secondsToHMS }}</span>
                         <span class="progress-divider">/</span>
                         <span>{{
@@ -210,7 +231,8 @@ export default {
       href: "",
       list: [],
       currentPage: 1,
-      total: 0
+      total: 0,
+      showIntro: false
     };
   },
   watch: {
@@ -227,14 +249,14 @@ export default {
 
     "$store.state.collectionIdList": {
       handler() {
-        this.isCollected = useMyCollection.ifExist(this.id);
+        this.isCollected = useMyCollection.ifExist(this.voiceInfo);
       },
       immediate: true
     },
 
     "$store.state.playIdList": {
       handler() {
-        this.isInPlayList = useMyPlay.ifExist(this.id);
+        this.isInPlayList = useMyPlay.ifExist(this.voiceInfo);
       },
       immediate: true
     },
@@ -253,7 +275,11 @@ export default {
     /** 是否为支持格式 */
     ifSupportMime() {
       const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
-      return supportMimeList.includes(this.voiceInfo.versionInfo.exhibitProperty.mime);
+      if (this.voiceInfo.articleInfo.articleType === 1) {
+        return supportMimeList.includes(this.voiceInfo.versionInfo.exhibitProperty.mime);
+      } else {  
+        return this.voiceInfo.articleInfo.resourceType[0] === '音频'
+      }
     },
 
     /** 是否播放中 */
@@ -315,10 +341,18 @@ export default {
       ];
     }
   },
-
+  mounted() {
+    const dom = document.getElementById('app')
+    dom.addEventListener('scroll', this.scrollHandler)
+  },
+  beforeDestroy() {
+    const dom = document.getElementById('app')
+    dom.removeEventListener('scroll', this.scrollHandler)
+  },
   methods: {
     /** 播放/暂停 */
     playOrPause() {
+      this.$store.commit('setClickRecord', "detail")
       useMyPlay.playOrPause(this.voiceInfo);
     },
 
@@ -428,6 +462,48 @@ export default {
     handleCurrentChange(current) {
       this.currentPage = current
       this.queryList()
+    },
+    /** mobile动态加载 */
+    async queryListMobile() {
+      const limit = 5
+      let skip = (this.currentPage - 1) * limit
+      const res = await freelogApp.getCollectionSubList(this.voiceInfo.exhibitId, {
+        sortType: -1,
+        skip,
+        limit: 5,
+        isShowDetailInfo: 1
+      });
+      if (res.data.errCode === 0) {
+        const arr = res.data.data.dataList;
+        for (let index = arr.length - 1; index >= 0; index--) {
+          const element = arr[index];
+          const url = await freelogApp.getCollectionSubFileStream(
+            this.voiceInfo.exhibitId,
+            {
+              itemId: element.itemId,
+              returnUrl: true
+            }
+          );
+          element.url = url;
+        }
+        this.list.push(...arr.map(ele => {
+          return {
+            ...this.voiceInfo,
+            child: ele
+          };
+        }));
+        this.total = res.data.data.totalItem
+      } else {
+        console.warn(res.data);
+      }
+    },
+    async scrollHandler(e) {
+      const dom = document.getElementById('app')
+      if (dom.scrollHeight - dom.scrollTop === dom.clientHeight) {
+        if (this.list.length === this.total) return
+        this.currentPage++
+        await this.queryListMobile()
+      }
     }
   }
 };

@@ -8,12 +8,14 @@
       title="收藏"
       noDataTip="暂无任何收藏"
       statusShow
+      noMoreTip="已经加载全部数据"
+      :total="$store.state.collectionList && $store.state.collectionList.length"
     />
   </div>
 </template>
 
 <script>
-import list from "@/components/list";
+import list from "@/components/list-v2";
 
 export default {
   name: "collect-list",

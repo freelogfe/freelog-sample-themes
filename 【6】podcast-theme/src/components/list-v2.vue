@@ -11,10 +11,10 @@
           :data="item"
           :statusShow="statusShow"
           :authShow="authShow"
-          v-for="item in list"
-          :key="item.exhibitId"
-          mode="program"
-        />
+          v-for="(item, index) in list"
+          :key="index"
+          :mode="item.articleInfo.articleType === 1 ? 'voice' : item.child ? 'voice' : 'program'"
+          />
         <div class="no-more-tip" v-if="list.length === total && noMoreTip">{{ noMoreTip }}</div>
       </div>
       <div class="no-data-tip" v-if="total === 0 || (total === null && !list.length)">

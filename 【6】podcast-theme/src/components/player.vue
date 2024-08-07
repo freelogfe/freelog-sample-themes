@@ -15,7 +15,7 @@
     <div class="mobile-player-wrapper" v-if="$store.state.inMobile">
       <div class="player" :class="{ show: playerShow }">
         <div class="cover-area">
-          <img class="cover" :src="playingInfo.coverImages[0]" v-if="playingInfo" />
+          <img class="cover" :src="computedCover" v-if="playingInfo" />
           <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
         </div>
         <div ref="infoArea" class="info-area">
@@ -73,7 +73,7 @@
             :class="{ 'no-voice': !playingInfo }"
             v-model="$store.state.progress"
             :min="0"
-            :max="playingInfo && playingInfo.versionInfo.exhibitProperty.duration / 1000"
+            :max="computedSlider"
             :show-tooltip="false"
             @change="changeProgress"
           ></el-slider>
@@ -100,8 +100,8 @@
           <template v-if="playList.length">
             <div
               class="voice-item"
-              v-for="item in playList"
-              :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
+              v-for="(item, index) in playList"
+              :key="index"
               @click="playOrPauseList(item)"
             >
               <div class="left-area">
@@ -116,19 +116,17 @@
                     @click.stop="getAuth(item)"
                     v-if="item.defaulterIdentityType >= 4"
                   ></i>
-                  <div class="voice-title">{{ item.exhibitTitle }}</div>
+                  <div class="voice-title">{{ computedExhibitTitle(item) }}</div>
                 </div>
 
                 <div class="duration-area">
                   <play-status
                     :playing="playing"
-                    :desc="`${secondsToHMS($store.state.progress * 1000)} / ${secondsToHMS(
-                      item.versionInfo.exhibitProperty.duration
-                    )}`"
-                    v-if="playingInfo && playingInfo.exhibitId === item.exhibitId"
+                    :desc="computedDuration(item)"
+                    v-if="computedPlayStatus(item)"
                   />
                   <div class="duration" v-else>
-                    {{ item.versionInfo.exhibitProperty.duration | secondsToHMS }}
+                    {{ computedFixDuration(item) }}
                   </div>
                 </div>
               </div>

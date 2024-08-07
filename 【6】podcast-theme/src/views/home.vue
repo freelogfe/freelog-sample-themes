@@ -20,23 +20,40 @@
         </div>
       </transition>
 
+      <div class="hot-wrapper" v-if="!loading && total">
+        <div class="hot-header">
+          <div class="hot-title">热门节目</div>
+          <div class="hot-more" @click="$router.myPush('/program-list')">
+            <span class="text">所有节目</span>
+            <span class="freelog fl-icon-zhankaigengduo"></span>
+          </div>
+        </div>
+        <div class="hot-body">
+          <div class="hot-container">
+            <program :data="item" v-for="item in hotList" :key="item.exhibitId"></program>
+            <div class="all-programs">
+              <div class="content">
+                <div class="circle" @click="$router.myPush('/program-list')">
+                  <span class="freelog fl-icon-zhankaigengduo"></span>
+                </div>
+                <div class="desc" @click="$router.myPush('/program-list')">查看全部节目</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <template v-if="!loading">
         <div class="content-area" v-if="total">
           <div class="content-top">
-            <div class="top-title">声音（{{ total }}）</div>
-            <div class="view-all-btn" @click="$router.myPush('/voice-list')">
-              <span class="btn-label">全部</span>
-              <i class="freelog fl-icon-zhankaigengduo"></i>
-            </div>
+            <div class="top-title">最近更新</div>
           </div>
           <div class="voice-list">
-            <voice :data="item" v-for="item in listData" :key="item.exhibitId" />
+            <voice :data="item" v-for="item in lastestList" :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`" mode="voice" />
           </div>
-          <div class="view-more" v-if="total > 10">
-            <div class="view-more-btn" @click="$router.myPush('/voice-list')">查看更多声音</div>
+          <div class="view-more">
+            <div class="view-more-btn" @click="$router.myPush('/program-list')">查看所有节目</div>
           </div>
         </div>
-
         <div class="no-data-tip" v-else>
           <div>当前节点暂无任何声音</div>
           <div>请稍后查看</div>
@@ -78,7 +95,7 @@
       </div>
 
       <!-- 热门节目 -->
-      <div class="hot-wrapper">
+      <div class="hot-wrapper" v-if="!loading && total">
         <div class="hot-header">
           <div class="hot-title">热门节目</div>
           <div class="hot-more" @click="$router.myPush('/program-list')">
@@ -133,6 +150,7 @@
 import voice from "@/components/voice";
 import program from "@/components/program";
 import { freelogApp } from "freelog-runtime";
+import Vue from "vue";
 
 export default {
   name: "home",
@@ -228,7 +246,7 @@ export default {
       if (exhibitSubList.data.errCode !== 0) {
         console.warn(exhibitSubList.data)
       }
-
+      
       // 合集内的子作品: 扁平化处理
       const flatSubList = []
       exhibitSubList.data.data.forEach(ele => {
@@ -239,17 +257,24 @@ export default {
             const data = JSON.parse(JSON.stringify({
               ...exhibitDetail,
               child: innerEle,
-              defaulterIdentityType: authItem.defaulterIdentityType,
+              defaulterIdentityType: authItem.defaulterIdentityType
             }))
             flatSubList.push(data)
           })
         } else {
-          const data = JSON.parse(JSON.stringify({
-            ...exhibitDetail,
-            defaulterIdentityType: authItem.defaulterIdentityType,
-          }))
-          flatSubList.push(data)
+          // const data = JSON.parse(JSON.stringify({
+          //   ...exhibitDetail,
+          //   defaulterIdentityType: authItem.defaulterIdentityType,
+          // }))
+          // flatSubList.push(data)
         }
+
+        // 热门节目的子作品数量
+        this.listData.forEach((innerEle, index) => {
+          if (innerEle.exhibitId === ele.exhibitId) {
+            Vue.set(this.listData[index], "totalItem", ele.totalItem)
+          }
+        })
       })
 
       // 非合集数据
@@ -445,7 +470,7 @@ export default {
         display: flex;
         align-items: flex-end;
         justify-content: space-between;
-        margin-top: 10px;
+        margin-top: 50px;
         margin-bottom: 30px;
 
         .top-title {
@@ -573,6 +598,111 @@ export default {
             rgb(70, 70, 70) 63%
           )
           0% 0% / 400% 100%;
+      }
+    }
+
+    .hot-wrapper {
+      margin-top: 10px;
+      .hot-header {
+        height: 28px;
+        display: flex;
+        margin-bottom: 25px;
+        padding: 0 15px;
+        .hot-title {
+          font-weight: 600;
+          font-size: 20px;
+          color: #ffffff;
+          line-height: 28px;
+          margin-right: auto;
+          opacity: 0.6;
+        }
+        .hot-more {
+          align-self: flex-end;
+          display: flex;
+          align-items: center;
+          cursor: pointer;
+          opacity: 0.6;
+          &:hover {
+            opacity: 1;
+          }
+          .text {
+            height: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #ffffff;
+            line-height: 20px;
+          }
+          .freelog {
+            font-size: 12px;
+            margin-left: 5px;
+          }
+        }
+      }
+
+      .hot-container {
+        display: flex;
+        gap: 20px;
+        padding: 0px 15px;
+        overflow: auto;
+        scrollbar-width: none;
+        &::-webkit-scrollbar { 
+          display: none;
+        }
+
+        .all-programs {
+          flex-shrink: 0;
+          width: 210px;
+          height: 210px;
+          background: #222222;
+          border-radius: 10px;
+          border: 1px solid rgba(255,255,255,0.1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          .content {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            height: 98px;
+            .circle {
+              width: 48px;
+              height: 48px;
+              border-radius: 50%;
+              background: rgba(255, 255, 255, 0.05);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              cursor: pointer;
+              &:active {
+                background: rgba(255, 255, 255, 0.03);
+
+              }
+              span {
+                color: #FFFFFF;
+                opacity: 0.6;
+                font-size: 24px;
+                text-align: center;
+                line-height: 48px;
+                &:active {
+                  opacity: 0.4;
+                }
+              }
+            }
+            
+            .desc {
+              margin-top: auto;
+              font-weight: 600;
+              font-size: 14px;
+              color: #FFFFFF;
+              line-height: 20px;
+              opacity: 0.6;
+              cursor: pointer;
+              &:active {
+                opacity: 0.4;
+              }
+            }
+          }
+        }
       }
     }
   }

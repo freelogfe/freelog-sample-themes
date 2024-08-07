@@ -45,6 +45,7 @@ VueRouter.prototype.myPush = location => {
 window.addEventListener(
   "popstate",
   () => {
+    console.log('popstate');
     const { locationHistory } = store.state;
     locationHistory.pop();
     store.commit("setData", { key: "locationHistory", value: locationHistory });

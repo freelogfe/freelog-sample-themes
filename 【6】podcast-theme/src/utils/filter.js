@@ -2,7 +2,8 @@ import {
   formatDate,
   relativeTime as myRelativeTime,
   getSignCount,
-  secondsToHMS as mySecondsToHMS
+  secondsToHMS as mySecondsToHMS,
+  estimateDuration as myEstimateDuration
 } from "./common";
 
 export const date = (time, format) => {
@@ -19,4 +20,8 @@ export const signCount = count => {
 
 export const secondsToHMS = time => {
   return mySecondsToHMS(time);
+};
+
+export const estimateDuration = time => {
+  return myEstimateDuration(time);
 };

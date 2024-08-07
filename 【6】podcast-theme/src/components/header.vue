@@ -274,7 +274,7 @@ export default {
     menuBtnList() {
       return [
         { icon: "fl-icon-shouye", label: "首页", path: "/home" },
-        { icon: "fl-icon-danji", label: "声音", path: "/voice-list" },
+        { icon: "fl-icon-danji", label: "所有节目", path: "/program-list" },
         {
           icon: "fl-icon-shoucangxiaoshuo",
           label: "我的收藏",

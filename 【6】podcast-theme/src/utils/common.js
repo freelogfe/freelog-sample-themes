@@ -67,6 +67,24 @@ export const relativeTime = time => {
 };
 
 /**
+ * 转为时长
+ * @param time 时间（毫秒数）
+ */
+export const estimateDuration = time => {
+  if (!time) return "0分钟"
+  const totalSeconds = Math.ceil(time / 1000);
+  if (totalSeconds < 60) {
+    return `00:${totalSeconds}`
+  }
+  const restSeconds = totalSeconds % 60
+  if (restSeconds < 30 && restSeconds > 0) {
+    return `${String(Math.floor(totalSeconds / 60)).padStart(2, "0")}:${String(restSeconds).padStart(2, "0")}`
+  } else {
+    return `${String(Math.floor(totalSeconds / 60))}分钟`
+  }
+}
+
+/**
  * 秒转为时分秒
  * @param time 时间（毫秒数）
  */

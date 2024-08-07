@@ -44,6 +44,7 @@
           class="single freelog fl-icon-bokebiaoqian_danji"
           :class="{ 'opacity-40': authLinkAbnormal }"
         ></div>
+        
         <div v-else class="multiple" :class="{ 'opacity-40': authLinkAbnormal }">
           <span
             class="ing freelog fl-icon-bokebiaoqian_lianzaizhong"
@@ -79,7 +80,6 @@
 import { freelogApp } from "freelog-runtime";
 import { useMyPlay, useMyAuth } from "@/utils/hooks";
 import playStatus from "@/components/play-status";
-import { relativeTime, signCount } from "@/utils/filter";
 
 export default {
   name: "program",
@@ -100,17 +100,11 @@ export default {
       collectionList: []
     };
   },
-  filters: {
-    relativeTime,
-    signCount
-  },
   computed: {
     ifSupportMime() {
       const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
-      if (this.data.articleInfo.articleType === 2) {
-        if (this.collectionList.length) {
-          return this.collectionList[0].articleInfo.resourceType[0] === "音频";
-        }
+      if (this.data.articleInfo.articleType === 2 && this.collectionList.length) {
+        return this.data.articleInfo.resourceType[0] === '音频'
       }
       return supportMimeList.includes(this.data.versionInfo.exhibitProperty.mime);
     },
@@ -141,8 +135,10 @@ export default {
     /** 播放/暂停 */
     async playOrPause() {
       if (this.data.articleInfo.articleType === 1) {
+        this.$store.commit('setClickRecord', "program")
         useMyPlay.playOrPause(this.data);
       } else {
+        this.$store.commit('setClickRecord', "program")
         useMyPlay.playOrPause(this.data, "pool");
       }
     },
@@ -286,6 +282,7 @@ export default {
       margin: 10px 0px;
       align-items: center;
       height: 20px;
+      width: 210px;
       .auth-link-abnormal {
         width: 16px;
         height: 16px;
@@ -318,6 +315,11 @@ export default {
         cursor: pointer;
         opacity: 0.8;
         margin-left: 5px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
         &:hover {
           text-decoration: underline;
           opacity: 1;
@@ -333,7 +335,7 @@ export default {
     .other-area {
       display: flex;
       margin-top: 10px;
-
+      width: 210px;
       .info-item {
         display: flex;
         align-items: center;

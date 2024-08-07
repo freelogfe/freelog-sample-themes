@@ -1,12 +1,15 @@
 .detail-wrapper {
   // mobile
   .mobile-detail-wrapper {
-    padding: 25px 15px 120px;
+    padding: 25px 15px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
-
+    &.pool {
+      background: linear-gradient( 180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 100%);
+      backdrop-filter: blur(12px);
+    }
     .cover-area {
       position: relative;
       width: 140px;
@@ -83,7 +86,7 @@
       .duration {
         font-size: 12px;
         line-height: 18px;
-        margin-left: 20px;
+        margin-left: 10px;
       }
     }
 
@@ -122,7 +125,7 @@
     .btns-area {
       display: flex;
       align-items: center;
-      margin-top: 20px;
+      margin: 30px 0px;
 
       .btn {
         padding: 0 10px;
@@ -170,6 +173,38 @@
       margin-top: 20px;
     }
 
+    .intro-pool {
+      display: flex;
+      align-items: center;
+
+      .txt {
+        font-weight: 400;
+        font-size: 14px;
+        color: #FFFFFF;
+        line-height: 20px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        opacity: 0.6;
+        transition: all 1s ease-in-out;
+
+        &.active {
+          text-overflow: initial;
+          overflow: initial;
+          -webkit-line-clamp: initial;
+          opacity: 0.7;
+        }
+      }
+      .btn {
+        font-size: 12px;
+        color: #FFFFFF;
+        opacity: 0.6;
+        margin-left: 10px;
+      }
+    }
+
     .cover-to-add {
       position: fixed;
       width: 140px;
@@ -208,6 +243,25 @@
         }
       }
     }
+  }
+  .mobile-detail-list {
+    padding: 15px;
+    .voice-wrapper {
+      margin-bottom: 15px;
+      &:last-child {
+        margin-bottom: 0px;
+      }
+    }
+  }
+
+  .load-ready {
+    padding: 40px;
+    text-align: center;
+    font-weight: 400;
+    font-size: 14px;
+    color: #FFFFFF;
+    line-height: 20px;
+    opacity: 0.2;
   }
 
   // PC

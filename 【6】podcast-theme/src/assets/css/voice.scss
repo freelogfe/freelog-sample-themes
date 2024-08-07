@@ -76,6 +76,10 @@
         display: flex;
         align-items: center;
 
+        &.mb-20 {
+          margin-bottom: 20px;
+        }
+
         .auth-link-abnormal {
           width: 16px;
           height: 16px;
@@ -93,7 +97,7 @@
           width: 49px;
           height: 20px;
           border-radius: 20px;
-          margin-right: 5px;
+          margin-left: 5px;
           font-size: 11px;
           font-weight: 600;
           color: #ffffff;
@@ -111,6 +115,7 @@
         }
 
         .title {
+          margin-left: 5px;
           flex: 1;
           width: 0;
           font-size: 16px;
@@ -120,6 +125,29 @@
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
+        }
+
+        .single {
+          opacity: 0.32;
+          font-size: 18px;
+          color: #fff;
+          box-sizing: border-box;
+        }
+
+        .multiple {
+          display: flex;
+          align-items: center;
+          box-sizing: border-box;
+          .ing {
+            box-sizing: border-box;
+            font-size: 18px;
+            color: #42c28c;
+          }
+          .end {
+            box-sizing: border-box;
+            font-size: 18px;
+            color: #e9a923;
+          }
         }
       }
 
@@ -152,6 +180,18 @@
             line-height: 18px;
             margin-left: 5px;
           }
+        }
+
+        .relative-time {
+          flex-shrink: 0;
+        }
+
+        .exhibit-title .item-value {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 1;
         }
       }
     }
@@ -529,6 +569,7 @@
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
         overflow: hidden;
+        text-overflow: ellipsis;
         margin-top: 10px;
       }
 
@@ -565,6 +606,24 @@
               margin: 0 2px;
             }
           }
+        }
+
+        .to-pool {
+          cursor: pointer;
+          &:hover {
+            color: rgba(255, 255, 255, 0.6);
+          }
+          .item-value {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 1;
+          }
+        }
+
+        .play-shrink {
+          flex-shrink: 0;
         }
       }
     }

@@ -14,7 +14,7 @@
         :class="{ 'opacity-40': authLinkAbnormal }"
         @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
       >
-        <img class="cover" v-view-lazy="data.coverImages[0]" />
+        <img class="cover" v-view-lazy="computedCover" />
         <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
         <div class="unplayable-tip" v-if="!ifSupportMime">无法播放</div>
       </div>
@@ -22,7 +22,7 @@
         class="info-area"
         @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
       >
-        <div class="title-area">
+        <div class="title-area" :class="{ 'mb-20': mode === 'program' }">
           <img
             class="auth-link-abnormal"
             src="../assets/images/auth-link-abnormal.png"
@@ -33,6 +33,20 @@
             @click.stop="getAuth()"
             v-if="data.defaulterIdentityType >= 4"
           ></i>
+          <template v-if="!data.child">
+            <div
+              v-if="data.articleInfo.articleType === 1"
+              class="single freelog fl-icon-bokebiaoqian_danji"
+              :class="{ 'opacity-40': authLinkAbnormal }"
+            ></div>
+            <div v-else class="multiple" :class="{ 'opacity-40': authLinkAbnormal }">
+              <span
+                class="ing freelog fl-icon-bokebiaoqian_lianzaizhong"
+                v-if="data.articleInfo.serializeStatus === 0"
+              ></span>
+              <span class="end freelog fl-icon-bokebiaoqian_yiwanjie" v-else></span>
+            </div>
+          </template>
           <template v-if="authShow">
             <div
               class="tag is-auth"
@@ -46,20 +60,29 @@
             </div>
           </template>
           <div class="title" :class="{ 'opacity-40': authLinkAbnormal }">
-            {{ data.exhibitTitle }}
+            {{ computedTitle }}
           </div>
         </div>
-        <div class="duration" :class="{ 'opacity-40': authLinkAbnormal }">
-          {{ data.versionInfo.exhibitProperty.duration | secondsToHMS }}
+        <div class="duration" :class="{ 'opacity-40': authLinkAbnormal }" v-if="mode === 'voice'">
+          {{ computedEstimateDuration }}
         </div>
         <div class="other-area" :class="{ 'opacity-40': authLinkAbnormal }">
-          <div class="info-item">
+          <div class="info-item relative-time">
             <i class="freelog fl-icon-gengxinshijian"></i>
             <div class="item-value">{{ data.updateDate | relativeTime }}</div>
           </div>
-          <div class="info-item">
+          <div class="info-item" v-if="mode === 'program' && data.articleInfo.articleType === 2">
+            <i class="freelog fl-icon-danji"></i>
+            <div class="item-value">{{ data.totalItem }}</div>
+          </div>
+          <div class="info-item" v-if="mode === 'program'">
             <i class="freelog fl-icon-yonghu"></i>
             <div class="item-value">{{ data.signCount | signCount }}</div>
+          </div>
+          <div class="info-item exhibit-title" v-if="data.articleInfo.articleType === 2 && mode === 'voice'" 
+            @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })">
+            <i class="freelog fl-icon-zhuanji"></i>
+            <div class="item-value">{{ data.exhibitTitle }}</div>
           </div>
         </div>
       </div>
@@ -117,7 +140,7 @@
         <img class="cover" :src="computedCover" />
         <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
         <div class="btn-modal" v-if="ifSupportMime">
-          <div class="btn" @click.stop="playOrPause()">
+          <div class="btn" @click.stop="handlePlayOrPause">
             <i
               class="freelog"
               :class="playing ? 'fl-icon-zanting' : 'fl-icon-bofang-sanjiaoxing'"
@@ -137,7 +160,7 @@
             @click.stop="getAuth()"
             v-if="data.defaulterIdentityType >= 4"
           ></i>
-          <template v-if="mode === 'program'">
+          <template v-if="!data.child">
             <div
               v-if="data.articleInfo.articleType === 1"
               class="single freelog fl-icon-bokebiaoqian_danji"
@@ -168,7 +191,7 @@
             :class="{ 'opacity-40': authLinkAbnormal }"
             :content="computedTitle"
           >
-            <span @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })">
+            <span @click="skipToDetailPage">
               {{ computedTitle }}
             </span>
           </my-tooltip>
@@ -180,23 +203,28 @@
           <div class="info-item">
             <i class="freelog fl-icon-gengxinshijian"></i>
             <div class="item-value">{{ computedUpdate }}</div>
-          </div>
+          </div> 
           <div class="info-item" v-if="mode === 'program' && data.articleInfo.articleType === 2">
             <i class="freelog fl-icon-danji"></i>
             <div class="item-value">{{ data.totalItem }}</div>
           </div>
-          <div class="info-item">
+          <div class="info-item" v-if="mode === 'program'">
             <i class="freelog fl-icon-yonghu"></i>
             <div class="item-value">{{ data.signCount | signCount }}</div>
+          </div>
+          <div class="info-item to-pool" v-if="data.articleInfo.articleType === 2 && mode === 'voice'"
+            @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })">
+            <i class="freelog fl-icon-zhuanji"></i>
+            <div class="item-value">{{ data.exhibitTitle }}</div>
           </div>
           <div class="info-item" v-if="!ifSupportMime">
             <i class="freelog fl-icon-wufabofang"></i>
             <div class="item-value">无法播放</div>
           </div>
           <transition name="slide-right">
-            <div class="info-item" v-if="showPlayStatus">
+            <div class="info-item play-shrink" v-if="showPlayStatus">
               <play-status :playing="playing" />
-              <div class="progress">
+              <div class="progress" v-if="mode === 'voice'">
                 <span>{{ ($store.state.progress * 1000) | secondsToHMS }}</span>
                 <span class="progress-divider">/</span>
                 <span>{{ computedDuration }}</span>
@@ -221,7 +249,7 @@
           共{{ data.totalItem }}集
         </div>
         <div v-else class="duration">
-          {{ computedDuration }}
+          {{ computedEstimateDuration }}
         </div>
       </div>
       <div
@@ -239,7 +267,7 @@
 import playStatus from "@/components/play-status";
 import myTooltip from "@/components/tooltip";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
-import { relativeTime, signCount, secondsToHMS } from "@/utils/filter";
+import { relativeTime, signCount, secondsToHMS, estimateDuration } from "@/utils/filter";
 
 export default {
   name: "voice",
@@ -291,13 +319,13 @@ export default {
   watch: {
     "$store.state.collectionIdList": {
       handler() {
-        this.isCollected = useMyCollection.ifExist(this.data.exhibitId);
+        this.isCollected = useMyCollection.ifExist(this.data);
       },
       immediate: true
     },
     "$store.state.playIdList": {
       handler() {
-        this.isInPlayList = useMyPlay.ifExist(this.data.exhibitId);
+        this.isInPlayList = useMyPlay.ifExist(this.data);
       },
       immediate: true
     }
@@ -318,13 +346,27 @@ export default {
             this.$store.state.playingInfo.exhibitId === this.data.exhibitId &&
             this.$store.state.playingInfo.child &&
             this.$store.state.playingInfo.child.itemId &&
+            this.data.child &&
             this.$store.state.playingInfo.child.itemId === this.data.child.itemId
           );
         } else {
           return (
             this.$store.state.playingInfo &&
-            this.$store.state.playingInfo.exhibitId === this.data.exhibitId
+            this.$store.state.playingInfo.exhibitId === this.data.exhibitId &&
+            !this.data.child
           );
+        }
+      }
+    },
+    /** 时长 */
+    computedEstimateDuration() {
+      if (this.data.articleInfo.articleType === 1) {
+        return estimateDuration(this.data.versionInfo.exhibitProperty.duration);
+      } else {
+        if (this.mode === 'voice'){
+          return estimateDuration(this.data?.child?.articleInfo?.articleProperty?.duration);
+        } else {
+          return estimateDuration(this.$store.state.playingInfo?.child?.articleInfo?.articleProperty?.duration)
         }
       }
     },
@@ -337,18 +379,6 @@ export default {
           return secondsToHMS(this.data?.child?.articleInfo?.articleProperty?.duration);
         } else {
           return secondsToHMS(this.$store.state.playingInfo?.child?.articleInfo?.articleProperty?.duration)
-        }
-      }
-    },
-    /** 签约量 */
-    computedSign() {
-      if (this.data.articleInfo.articleType === 1) {
-        return signCount(this.data.signCount);
-      } else {
-        if (this.mode === 'voice') { 
-          return signCount(this.data?.child?.signCount);
-        } else {
-          return signCount(this.data.signCount);
         }
       }
     },
@@ -394,7 +424,11 @@ export default {
         return this.data.coverImages[0];
       } else {
         if (this.mode === 'voice') {
-          return this.data?.child?.articleInfo?.coverImages[0];
+          if (this.data?.child?.articleInfo?.coverImages[0]) {
+            return this.data?.child?.articleInfo?.coverImages[0];
+          } else {
+            return this.data.coverImages[0];
+          }
         } else {
           return this.data.coverImages[0];
         }
@@ -414,7 +448,7 @@ export default {
         if (this.mode === 'voice') {
           return supportMimeList.includes(this.data?.child?.articleInfo?.articleProperty?.mime);
         } else {
-          return true
+          return this.data.articleInfo.resourceType[0] === '音频'
         }
       }
     },
@@ -487,13 +521,31 @@ export default {
   },
 
   methods: {
+    /** 跳转到声音详情 */
+    skipToDetailPage() {
+      if (this.data.articleInfo.articleType === 1) {
+        this.$router.myPush({ path: '/detail', query: { id: this.data.exhibitId } })
+      } else {
+        if (this.mode === 'voice') {
+          // 存入数据到localStorage
+          sessionStorage.setItem("detail-sub", JSON.stringify(this.data))
+          this.$router.myPush({ path: '/detail-sub', query: { id: this.data.exhibitId } })
+        } else {
+          this.$router.myPush({ path: '/detail', query: { id: this.data.exhibitId } })
+        }
+      }
+    },
     /** 查看声音详情 */
     toVoiceDetail() {
       this.$router.myPush({ path: "/detail", query: { id: this.data.exhibitId } });
     },
-
+    /** 播放/暂停 */
+    handlePlayOrPause() {
+      this.playOrPause()
+    },
     /** 播放/暂停 */
     playOrPause() {
+      this.$store.commit('setClickRecord', "voice")
       if (this.data.articleInfo.articleType === 1) {
         useMyPlay.playOrPause(this.data);
       } else {
@@ -507,8 +559,8 @@ export default {
 
     /** 加入播放列表 */
     async addToPlayList() {
-      const { articleInfo, exhibitId } = this.data
-      if (articleInfo.articleType === 2) {
+      const { articleInfo, exhibitId, child } = this.data
+      if (articleInfo.articleType === 2 && this.mode === 'program') {
         const res = await useMyPlay.getListInCollection(exhibitId);
         this.$store.commit("setCachePool", {
           key: exhibitId,
@@ -516,20 +568,38 @@ export default {
         });
         await useMyPlay.addToPlayListBatch(exhibitId, res)
       } else {
-        useMyPlay.addToPlayList({
-          id: exhibitId,
-          callback: () => {
-            const { offsetTop, offsetLeft } = this.$refs.cover;
-            this.coverLeft = offsetLeft;
-            this.coverTop = offsetTop - app.scrollTop;
-            if (this.$store.state.inMobile) this.moreMenuShow = false;
-            this.addAnimation = true;
-            setTimeout(() => {
-              this.addAnimation = false;
-            }, 700);
-          },
-          isExhibit: true
-        });
+        if (articleInfo.articleType === 2) {
+          useMyPlay.addToPlayList({
+            id: exhibitId,
+            itemId: child.itemId,
+            callback: () => {
+              const { offsetTop, offsetLeft } = this.$refs.cover;
+              this.coverLeft = offsetLeft;
+              this.coverTop = offsetTop - app.scrollTop;
+              if (this.$store.state.inMobile) this.moreMenuShow = false;
+              this.addAnimation = true;
+              setTimeout(() => {
+                this.addAnimation = false;
+              }, 700);
+            },
+            isExhibit: false
+          });
+        } else {
+          useMyPlay.addToPlayList({
+            id: exhibitId,
+            callback: () => {
+              const { offsetTop, offsetLeft } = this.$refs.cover;
+              this.coverLeft = offsetLeft;
+              this.coverTop = offsetTop - app.scrollTop;
+              if (this.$store.state.inMobile) this.moreMenuShow = false;
+              this.addAnimation = true;
+              setTimeout(() => {
+                this.addAnimation = false;
+              }, 700);
+            },
+            isExhibit: true
+          });
+        }
       }
       
     },
