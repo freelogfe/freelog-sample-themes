@@ -176,7 +176,7 @@ export default {
       this.loading = false;
     },
     /** 获取展品列表 */
-    async queryList(options = { skip: 0, limit: 2 }) {
+    async queryList(options = { skip: 0, limit: 100 }) {
       let { skip, limit } = options
       const result = []
       const list = await freelogApp.getExhibitListByPaging({

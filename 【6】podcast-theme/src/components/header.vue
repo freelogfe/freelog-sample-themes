@@ -343,6 +343,7 @@ export default {
 
       this.searchWord();
       this.$store.commit("setData", { key: "searchKey", value: this.searchKey });
+      sessionStorage.setItem("searchKey", this.searchKey)
       this.searchHistoryShow = false;
       if (!this.$store.state.inMobile) this.$router.myPush({ path: "/search-list" });
     },
