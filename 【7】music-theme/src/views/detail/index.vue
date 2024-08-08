@@ -661,8 +661,8 @@ export default {
 
         // 合集
         const { articleInfo, exhibitName, coverImages } = exhibitInfo.data.data;
-        console.log("cove", coverImages);
         if (articleInfo.articleType === 2) {
+          this.collectionData = [];
           this.getCollectionList(this.id, exhibitName, coverImages);
         }
       }
