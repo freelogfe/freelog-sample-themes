@@ -27,7 +27,6 @@ export default new Vuex.Store({
     authIdList: [], // 已授权 id 集合（用于刷新首页列表、声音列表、搜索结果列表、详情页授权状态）
     searchKey: "", // 搜索关键词
     cachePool: {}, // 合集id为key, 子作品详情列表为value
-    clickRecord: [undefined, "voice"], // 点击的组件"voice" "program"
   },
   mutations: {
     /** 更新数据 */
@@ -37,10 +36,6 @@ export default new Vuex.Store({
     /** 更新合集缓存数据 */
     setCachePool(state, payload) {
       state.cachePool[payload.key] = payload.value;
-    },
-    setClickRecord(state, value) {
-      state.clickRecord.shift()
-      state.clickRecord.push(value)
     }
   },
   actions: {
@@ -101,6 +96,7 @@ export default new Vuex.Store({
         const list = localStorage.getItem("playIdList") || "[]";
         playIdList = JSON.parse(list);
       }
+      debugger
       context.commit("setData", { key: "playIdList", value: playIdList || [] });
 
       // 如果有收藏/播放列表，则获取相应数据

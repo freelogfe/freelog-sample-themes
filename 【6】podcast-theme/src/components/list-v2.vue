@@ -12,7 +12,7 @@
           :statusShow="statusShow"
           :authShow="authShow"
           v-for="(item, index) in list"
-          :key="index"
+          :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
           :mode="item.articleInfo.articleType === 1 ? 'voice' : item.child ? 'voice' : 'program'"
           />
         <div class="no-more-tip" v-if="list.length === total && noMoreTip">{{ noMoreTip }}</div>

@@ -15,7 +15,7 @@
     <div class="mobile-player-wrapper" v-if="$store.state.inMobile">
       <div class="player" :class="{ show: playerShow }">
         <div class="cover-area">
-          <img class="cover" :src="computedCover" v-if="playingInfo" />
+          <img class="cover" :src="computedCover" v-if="playingInfo && computedCover" />
           <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
         </div>
         <div ref="infoArea" class="info-area">
@@ -35,14 +35,9 @@
             >
               <div
                 class="title voice-title"
-                @click="
-                  $router.myPush({
-                    path: '/detail',
-                    query: { id: item.exhibitId }
-                  })
-                "
+                @click="skipToDetailPage"
               >
-                {{ item.exhibitTitle }}
+                {{ computedExhibitTitle(item) }}
               </div>
             </div>
           </div>
@@ -177,7 +172,7 @@
 
             <div class="main-area">
               <div class="cover-area">
-                <img class="cover" :src="computedCover" v-if="playingInfo" />
+                <img class="cover" :src="computedCover" v-if="playingInfo && computedCover" />
                 <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
               </div>
               <div class="info-area">
@@ -186,12 +181,7 @@
                     <div class="title-area">
                       <my-tooltip class="title voice-title" :content="computedExhibitTitle(playingInfo)">
                         <span
-                          @click="
-                            $router.myPush({
-                              path: '/detail',
-                              query: { id: playingInfo.exhibitId }
-                            })
-                          "
+                          @click="skipToDetailPage"
                         >
                           {{ computedExhibitTitle(playingInfo) }}
                         </span>
@@ -424,9 +414,8 @@ export default {
       } else {
         if (this.playingInfo?.child?.articleInfo?.coverImages[0]) {
           return this.playingInfo?.child?.articleInfo?.coverImages[0];
-        } else {
-          return this.playingInfo.coverImages[0];
         }
+        return '';
       }
     },
     /** 固定播放时长 */
@@ -587,6 +576,16 @@ export default {
 
   methods: {
     secondsToHMS,
+     /** 跳转到声音详情 */
+     skipToDetailPage() {
+      if (this.playingInfo.articleInfo.articleType === 1) {
+        this.$router.myPush({ path: '/detail', query: { id: this.playingInfo.exhibitId } })
+      } else {
+        // 存入数据到localStorage
+        sessionStorage.setItem("detail-sub", JSON.stringify(this.playingInfo))
+        this.$router.myPush({ path: '/detail-sub', query: { id: this.playingInfo.exhibitId } })
+      }
+    },
     handleMouseout() {
       this.animation('kill')
     },

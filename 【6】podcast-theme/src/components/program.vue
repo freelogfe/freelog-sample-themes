@@ -135,10 +135,8 @@ export default {
     /** 播放/暂停 */
     async playOrPause() {
       if (this.data.articleInfo.articleType === 1) {
-        this.$store.commit('setClickRecord', "program")
         useMyPlay.playOrPause(this.data);
       } else {
-        this.$store.commit('setClickRecord', "program")
         useMyPlay.playOrPause(this.data, "pool");
       }
     },

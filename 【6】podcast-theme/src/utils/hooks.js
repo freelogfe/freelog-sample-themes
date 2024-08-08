@@ -157,14 +157,13 @@ export const useMyCollection = {
       if (child) {
         return store.state.collectionIdList.some(ele => ele.id === exhibitId && ele.itemId === child.itemId)
       } else {
-        return store.state.collectionIdList.map(ele => ele.id).includes(exhibitId);
+        return store.state.collectionIdList.some(ele => ele.id === exhibitId && !ele.itemId);
       }
     }
   },
 
   /** 操作收藏（如未收藏则收藏，反之取消收藏） */
   async operateCollect(data) {
-    console.log(data);
     if (!store.state.userData.isLogin) {
       callLogin();
       return;
@@ -186,21 +185,33 @@ export const useMyCollection = {
     if (isCollected) {
       // 取消收藏
       if (articleInfo.articleType === 1) {
-        const idIndex = collectionIdList.findIndex(item => item === exhibitId);
-        collectionIdList.splice(idIndex, 1);
+        const idIndex = collectionIdList.findIndex(item => item.id === exhibitId);
+        if (idIndex !== -1) {
+          collectionIdList.splice(idIndex, 1);
+        }
         const index = collectionList.findIndex(item => item.exhibitId === exhibitId);
-        collectionList.splice(index, 1);
+        if (idIndex !== -1) {
+          collectionList.splice(index, 1);
+        }
       } else {
         if (child) {
-          const idIndex = collectionIdList.findIndex(item => item === exhibitId && child.itemId === item.itemId);
-          collectionIdList.splice(idIndex, 1);
-          const index = collectionList.findIndex(item => item.exhibitId === exhibitId && child.itemId === item.itemId);
-          collectionList.splice(index, 1);
+          const idIndex = collectionIdList.findIndex(item => item.id === exhibitId && child.itemId === item.itemId);
+          if (idIndex !== -1) {
+            collectionIdList.splice(idIndex, 1);
+          }
+          const index = collectionList.findIndex(item => item.exhibitId === exhibitId && item.child && child.itemId === item.child.itemId);
+          if (index !== -1) {
+            collectionList.splice(index, 1);
+          }
         } else {
-          const idIndex = collectionIdList.findIndex(item => item === exhibitId && !ele.itemId);
-          collectionIdList.splice(idIndex, 1);
+          const idIndex = collectionIdList.findIndex(item => item.id === exhibitId && !item.itemId);
+          if (idIndex !== -1) {
+            collectionIdList.splice(idIndex, 1);
+          }
           const index = collectionList.findIndex(item => item.exhibitId === exhibitId && !item.child);
-          collectionList.splice(index, 1);
+          if (index !== -1) {
+            collectionList.splice(index, 1);
+          }
         }
       }
     } else {
@@ -233,13 +244,6 @@ export const useMyCollection = {
     } else {
       showToast("操作失败");
     }
-    // const res = await freelogApp.setUserData("collectionIdList", []);
-    // if (res.data.msg === "success") {
-    //   store.commit("setData", { key: "collectionIdList", value: [] });
-    //   store.commit("setData", { key: "collectionList", value: [] });
-    // } else {
-    //   showToast("操作失败");
-    // }
   }
 };
 
@@ -598,9 +602,7 @@ export const useMyPlay = {
         playingInfo.articleInfo &&
         playingInfo.articleInfo.articleType === 2 &&
         playing &&
-        playingInfo.exhibitId === exhibit.exhibitId &&
-        ["program", "detail"].includes(store.state.clickRecord[1]) &&
-        (store.state.clickRecord.every(ele => ele === "program") || store.state.clickRecord.every(ele => ele === "detail"))
+        playingInfo.exhibitId === exhibit.exhibitId
       ) {
         store.commit("setData", { key: "playing", value: false });
         return;

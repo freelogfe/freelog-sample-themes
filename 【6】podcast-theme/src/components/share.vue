@@ -171,6 +171,7 @@ export default {
   }
 
   .share-popup {
+    z-index: 1;
     position: fixed;
     top: 50%;
     left: 50%;

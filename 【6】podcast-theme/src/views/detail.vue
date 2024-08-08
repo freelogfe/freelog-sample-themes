@@ -8,7 +8,8 @@
           <!-- mobile -->
           <div class="mobile-detail-wrapper" :class="{ pool: voiceInfo.articleInfo.articleType === 2 }" v-if="$store.state.inMobile">
             <div ref="cover" class="cover-area">
-              <img class="cover" :src="voiceInfo.coverImages[0]" />
+              <img class="cover" :src="voiceInfo.coverImages[0]" v-if="voiceInfo.coverImages[0]" />
+              <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
             </div>
             <div class="title-area">
               <img
@@ -130,7 +131,7 @@
 
               <div class="btns-area">
                 <template v-if="playingInfo">
-                  <div class="duration" v-if="playingInfo.exhibitId !== voiceInfo.exhibitId">
+                  <div class="duration" v-if="playingInfo.articleInfo.articleType === 1">
                     时长{{ voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
                   </div>
                   <transition name="slide-right">
@@ -249,6 +250,7 @@ export default {
 
     "$store.state.collectionIdList": {
       handler() {
+        console.log("$store.state.collectionIdList", this.voiceInfo);
         this.isCollected = useMyCollection.ifExist(this.voiceInfo);
       },
       immediate: true
@@ -263,6 +265,9 @@ export default {
 
     "$store.state.authIdList"(cur) {
       if (cur.includes(this.voiceInfo.exhibitId)) this.voiceInfo.defaulterIdentityType = 0;
+    },
+    voiceInfo(newValue) {
+      this.isCollected = useMyCollection.ifExist(newValue);
     }
   },
 
@@ -342,17 +347,20 @@ export default {
     }
   },
   mounted() {
-    const dom = document.getElementById('app')
-    dom.addEventListener('scroll', this.scrollHandler)
+    if (this.$store.state.inMobile) {
+      const dom = document.getElementById('app')
+      dom.addEventListener('scroll', this.scrollHandler)
+    }
   },
   beforeDestroy() {
-    const dom = document.getElementById('app')
-    dom.removeEventListener('scroll', this.scrollHandler)
+    if (this.$store.state.inMobile) {
+      const dom = document.getElementById('app')
+      dom.removeEventListener('scroll', this.scrollHandler)
+    }
   },
   methods: {
     /** 播放/暂停 */
     playOrPause() {
-      this.$store.commit('setClickRecord', "detail")
       useMyPlay.playOrPause(this.voiceInfo);
     },
 
@@ -367,7 +375,10 @@ export default {
         });
         await useMyPlay.addToPlayListBatch(exhibitId, res)
       } else {
-        useMyPlay.addToPlayList(this.id, () => {
+        useMyPlay.addToPlayList({
+          id: exhibitId,
+          isExhibit: true
+        }, () => {
           const { offsetTop, offsetLeft } = this.$refs.cover;
           this.coverLeft = offsetLeft;
           this.coverTop = offsetTop - app.scrollTop;

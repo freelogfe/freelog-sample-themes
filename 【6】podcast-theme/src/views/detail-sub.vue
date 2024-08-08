@@ -7,7 +7,8 @@
           <!-- mobile -->
           <div class="mobile-detail-wrapper" v-if="$store.state.inMobile">
             <div ref="cover" class="cover-area">
-              <img class="cover" :src="voiceInfo.child.articleInfo.coverImages[0]" />
+              <img class="cover" :src="voiceInfo.child.articleInfo.coverImages[0]" v-if="voiceInfo.child.articleInfo.coverImages[0]" />
+              <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
             </div>
             <div class="title-area">
               <img
@@ -71,7 +72,8 @@
           <!-- PC -->
           <div class="pc-detail-wrapper" v-if="!$store.state.inMobile">
             <div ref="cover" class="cover-area">
-              <img class="cover" :src="voiceInfo.child.articleInfo.coverImages[0]" />
+              <img class="cover" :src="voiceInfo.child.articleInfo.coverImages[0]" v-if="voiceInfo.child.articleInfo.coverImages[0]" />
+              <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
             </div>
 
             <div class="right-area">
@@ -224,7 +226,7 @@ export default {
     /** 是否播放中 */
     playing() {
       const { playing, playingInfo } = this.$store.state;
-      return playing && playingInfo.exhibitId === this.voiceInfo.exhibitId;
+      return playing && playingInfo.exhibitId === this.voiceInfo.exhibitId && playingInfo.child.itemId === this.voiceInfo.child.itemId;
     },
 
     /** 播放中声音信息 */
@@ -260,11 +262,9 @@ export default {
           icon: "fl-icon-jiarubofangliebiao",
           title: "加入播放列表",
           operate: this.addToPlayList,
-          disabled: !(
-            this.voiceInfo.articleInfo.articleType === 2 ||
-            (this.voiceInfo.articleInfo.articleType === 1 &&
-              !this.isInPlayList &&
-              this.ifSupportMime)
+          disabled: !(this.voiceInfo.articleInfo.articleType === 2 &&
+            !this.isInPlayList &&
+            this.ifSupportMime
           )
         },
         {

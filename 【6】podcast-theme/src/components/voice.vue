@@ -12,7 +12,7 @@
         ref="cover"
         class="cover-area"
         :class="{ 'opacity-40': authLinkAbnormal }"
-        @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
+        @click="skipToDetailPage"
       >
         <img class="cover" v-view-lazy="computedCover" />
         <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
@@ -20,7 +20,7 @@
       </div>
       <div
         class="info-area"
-        @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
+        @click="skipToDetailPage"
       >
         <div class="title-area" :class="{ 'mb-20': mode === 'program' }">
           <img
@@ -135,7 +135,7 @@
         ref="cover"
         class="cover-area"
         :class="{ 'opacity-40': authLinkAbnormal }"
-        @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
+        @click="skipToDetailPage"
       >
         <img class="cover" :src="computedCover" />
         <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
@@ -358,6 +358,7 @@ export default {
         }
       }
     },
+
     /** 时长 */
     computedEstimateDuration() {
       if (this.data.articleInfo.articleType === 1) {
@@ -370,6 +371,7 @@ export default {
         }
       }
     },
+
     /** 时长 */
     computedDuration() {
       if (this.data.articleInfo.articleType === 1) {
@@ -382,6 +384,7 @@ export default {
         }
       }
     },
+
     /** 更新时间 */
     computedUpdate() {
       if (this.data.articleInfo.articleType === 1) {
@@ -394,6 +397,7 @@ export default {
         }
       }
     },
+
     /** 简介 */
     computedIntro() {
       if (this.data.articleInfo.articleType === 1) {
@@ -406,6 +410,7 @@ export default {
         }
       }
     },
+
     /** 标题 */
     computedTitle() {
       if (this.data.articleInfo.articleType === 1) {
@@ -418,6 +423,7 @@ export default {
         }
       }
     },
+
     /** 封面 */
     computedCover() {
       if (this.data.articleInfo.articleType === 1) {
@@ -427,13 +433,14 @@ export default {
           if (this.data?.child?.articleInfo?.coverImages[0]) {
             return this.data?.child?.articleInfo?.coverImages[0];
           } else {
-            return this.data.coverImages[0];
+            return '//static.testfreelog.com/static/default_cover.png';
           }
         } else {
           return this.data.coverImages[0];
         }
       }
     },
+
     /** 授权链异常 */
     authLinkAbnormal() {
       return ![0, 4].includes(this.data.defaulterIdentityType);
@@ -455,8 +462,21 @@ export default {
 
     /** 是否播放中 */
     playing() {
-      const { playing, playingInfo } = this.$store.state;
-      return playing && playingInfo.exhibitId === this.data.exhibitId;
+      const { playing: _play, playingInfo } = this.$store.state;
+      if (!playingInfo) return _play
+      if (playingInfo.articleInfo.articleType === 1) {
+        return _play && playingInfo.exhibitId === this.data.exhibitId;
+      } else {
+        if (this.data.child) {
+          return _play && 
+            playingInfo.exhibitId === this.data.exhibitId && 
+            playingInfo.child.itemId && 
+            this.data.child &&
+            this.data.child.itemId &&
+            playingInfo.child.itemId === this.data.child.itemId
+        }
+        return _play && playingInfo.exhibitId === this.data.exhibitId;
+      }
     },
 
     /** 操作按钮群 */
@@ -545,7 +565,6 @@ export default {
     },
     /** 播放/暂停 */
     playOrPause() {
-      this.$store.commit('setClickRecord', "voice")
       if (this.data.articleInfo.articleType === 1) {
         useMyPlay.playOrPause(this.data);
       } else {
