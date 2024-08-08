@@ -1,7 +1,7 @@
 <template>
   <div class="program-wrapper">
     <!-- pc -->
-    <div class="pc-program-wrapper">
+    <div class="pc-program-wrapper" :class="{ 'unplayable': !ifSupportMime }">
       <!-- 封面 -->
       <div
         ref="cover"
@@ -168,6 +168,15 @@ export default {
 }
 .program-wrapper {
   .pc-program-wrapper {
+
+    &.unplayable {
+      .cover-area,
+      .title,
+      .other-area {
+        opacity: 0.4;
+      }
+    }
+
     .cover-area {
       position: relative;
       width: 210px;

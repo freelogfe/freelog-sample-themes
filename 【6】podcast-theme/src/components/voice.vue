@@ -268,6 +268,7 @@ import playStatus from "@/components/play-status";
 import myTooltip from "@/components/tooltip";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { relativeTime, signCount, secondsToHMS, estimateDuration } from "@/utils/filter";
+import { freelogApp } from "freelog-runtime";
 
 export default {
   name: "voice",
@@ -312,7 +313,8 @@ export default {
       coverLeft: 0,
       coverTop: 0,
       isCollected: false,
-      isInPlayList: false
+      isInPlayList: false,
+      collectionList: []
     };
   },
 
@@ -326,6 +328,14 @@ export default {
     "$store.state.playIdList": {
       handler() {
         this.isInPlayList = useMyPlay.ifExist(this.data);
+      },
+      immediate: true
+    },
+    data: {
+      handler(newData) {
+        if (newData.articleInfo.articleType === 2) {
+          this.getListInCollection(newData.exhibitId);
+        }
       },
       immediate: true
     }
@@ -455,7 +465,7 @@ export default {
         if (this.mode === 'voice') {
           return supportMimeList.includes(this.data?.child?.articleInfo?.articleProperty?.mime);
         } else {
-          return this.data.articleInfo.resourceType[0] === '音频'
+          return this.data.articleInfo.resourceType[0] === '音频' && this.collectionList.length
         }
       }
     },
@@ -639,7 +649,22 @@ export default {
     /** 授权 */
     async getAuth() {
       useMyAuth.getAuth(this.data);
+    },
+
+    /** 获取某个合集里的列表 */
+    async getListInCollection(exhibitId) {
+    const res = await freelogApp.getCollectionSubList(exhibitId, {
+      sortType: 1,
+      skip: 0,
+      limit: 5,
+      isShowDetailInfo: 0
+    });
+    if (res.data.errCode === 0) {
+      this.collectionList = res.data.data.dataList;
+    } else {
+      console.warn(res.data);
     }
+  },
   }
 };
 </script>

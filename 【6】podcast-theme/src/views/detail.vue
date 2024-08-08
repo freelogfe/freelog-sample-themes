@@ -351,6 +351,7 @@ export default {
       const dom = document.getElementById('app')
       dom.addEventListener('scroll', this.scrollHandler)
     }
+    console.log(this.$router);
   },
   beforeDestroy() {
     if (this.$store.state.inMobile) {
