@@ -191,30 +191,81 @@
           </div>
         </div>
 
-        <div class="info-detail">
-          <div class="detail-item">
+        <div class="info-detail" v-if="!subID">
+          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.display_artist">
+            <span class="name">艺人:</span>
+            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.display_artist }}</span>
+          </div>
+          <div class="detail-item" v-if="albumName">
             <span class="name">专辑:</span>
-            <span class="value">XXX</span>
+            <span class="value">{{ albumName }}</span>
           </div>
 
-          <div class="detail-item">
-            <span class="name">歌手:</span>
-            <span class="value">XXX</span>
+          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.lyric_language">
+            <span class="name">语种:</span>
+            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.lyric_language }}</span>
           </div>
 
-          <div class="detail-item">
-            <span class="name">语言:</span>
-            <span class="value">XXX</span>
+          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.label_name">
+            <span class="name">厂牌:</span>
+            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.label_name }}</span>
           </div>
 
-          <div class="detail-item">
-            <span class="name">唱片公司:</span>
-            <span class="value">XXX</span>
+          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.release_date">
+            <span class="name">发行时间:</span>
+            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.release_date }}</span>
           </div>
 
-          <div class="detail-item">
-            <span class="name">唱片类型:</span>
-            <span class="value">XXX</span>
+          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.song_lyricist">
+            <span class="name">作词:</span>
+            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.song_lyricist }}</span>
+          </div>
+
+          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.song_composer">
+            <span class="name">作曲:</span>
+            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.song_composer }}</span>
+          </div>
+
+          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.song_arranger">
+            <span class="name">编曲:</span>
+            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.song_arranger }}</span>
+          </div>
+
+          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.music_genre">
+            <span class="name">风格:</span>
+            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.music_genre }}</span>
+          </div>
+        </div>
+
+        <div class="info-detail" v-else>
+          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.display_artist">
+            <span class="name">艺人:</span>
+            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.display_artist }}</span>
+          </div>
+
+          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.label_name">
+            <span class="name">厂牌:</span>
+            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.label_name }}</span>
+          </div>
+
+          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.release_date">
+            <span class="name">发行时间:</span>
+            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.release_date }}</span>
+          </div>
+
+          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.lyric_language">
+            <span class="name">语种:</span>
+            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.lyric_language }}</span>
+          </div>
+
+          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.release_type">
+            <span class="name">类型:</span>
+            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.release_type }}</span>
+          </div>
+
+          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.music_genre">
+            <span class="name">风格:</span>
+            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.music_genre }}</span>
           </div>
         </div>
 
