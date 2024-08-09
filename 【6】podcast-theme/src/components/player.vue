@@ -31,7 +31,7 @@
               class="info"
               :style="{ '--infoAreaWidth': infoAreaWidth + 'px' }"
               v-for="item in playList"
-              :key="item.exhibitId"
+              :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
             >
               <div
                 class="title voice-title"
@@ -96,7 +96,7 @@
             <div
               class="voice-item"
               v-for="(item, index) in playList"
-              :key="index"
+              :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
               @click="playOrPauseList(item)"
             >
               <div class="left-area">
@@ -256,7 +256,7 @@
               <div
                 class="voice-item"
                 v-for="(item, index) in playList"
-                :key="index"
+                :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
                 @click="playOrPauseList(item)"
               >
                 <div class="left-area">
@@ -348,7 +348,13 @@ export default {
         }
 
         if (this.playingInfo) {
-          const index = cur.findIndex(item => item.exhibitId === this.playingInfo.exhibitId);
+          const index = cur.findIndex(item => {
+            if (this.playingInfo.articleInfo.articleType === 1) {
+              return item.exhibitId === this.playingInfo.exhibitId
+            } else {
+              return item.exhibitId === this.playingInfo.exhibitId && item.child.itemId === this.playingInfo.child.itemId
+            }
+          });
           this.touchMoveX = -this.infoAreaWidth * index;
         }
       },
@@ -362,7 +368,13 @@ export default {
 
         if (this.playList && this.$store.state.inMobile) {
           const index = this.playList.findIndex(
-            item => item.exhibitId === this.playingInfo.exhibitId
+            item => {
+              if (this.playingInfo.articleInfo.articleType === 1) {
+                return item.exhibitId === this.playingInfo.exhibitId
+              } else {
+                return item.exhibitId === this.playingInfo.exhibitId && item.child.itemId === this.playingInfo.child.itemId
+              }
+            }
           );
           this.touchMoveX = -this.infoAreaWidth * index;
         }
@@ -764,7 +776,13 @@ export default {
     touchMove(e) {
       if (this.playList && this.playList.length > 1) {
         const index = this.playList.findIndex(
-          item => item.exhibitId === this.playingInfo.exhibitId
+          item => {
+            if (this.playingInfo.articleInfo.articleType === 1) {
+              return item.exhibitId === this.playingInfo.exhibitId
+            } else {
+              return item.exhibitId === this.playingInfo.exhibitId && item.child.itemId === this.playingInfo.child.itemId
+            }
+          }
         );
         const basicX = -this.infoAreaWidth * index;
         const offset = e.changedTouches[0].clientX - this.startTouchX;
@@ -776,7 +794,13 @@ export default {
     touchEnd() {
       if (this.playList && this.playList.length > 1) {
         const index = this.playList.findIndex(
-          item => item.exhibitId === this.playingInfo.exhibitId
+          item => {
+            if (this.playingInfo.articleInfo.articleType === 1) {
+              return item.exhibitId === this.playingInfo.exhibitId
+            } else {
+              return item.exhibitId === this.playingInfo.exhibitId && item.child.itemId === this.playingInfo.child.itemId
+            }
+          }
         );
         const basicX = -this.infoAreaWidth * index;
         console.log("this.$refs", this.$refs);
