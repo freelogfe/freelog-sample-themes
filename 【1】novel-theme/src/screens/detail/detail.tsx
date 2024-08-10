@@ -254,14 +254,23 @@ const DetailBody = (props: { total: number }) => {
               <div
                 className={`btn main-btn mobile
                 ${![0, 4].includes(novel.defaulterIdentityType) && "disabled"}`}
-                onClick={() => {
-                  collectionList?.length
-                    ? history.switchPage(
-                        `/reader?collection=${true}&id=${novel.exhibitId}&subId=${
-                          collectionList[0].itemId
-                        }`
-                      )
-                    : history.switchPage(`/reader?id=${novel.exhibitId}`);
+                onClick={async () => {
+                  if (collectionList?.length) {
+                    const res = await freelogApp.getUserData("novelLastViewedHistory");
+                    const lastViewed = res?.data?.data || [];
+                    const index = lastViewed.findIndex(
+                      (i: { id: string }) => i.id === novel.exhibitId
+                    );
+                    const subId = lastViewed[index]?.subId;
+
+                    history.switchPage(
+                      `/reader?collection=${true}&id=${novel.exhibitId}&subId=${
+                        subId || collectionList[0].itemId
+                      }`
+                    );
+                  } else {
+                    history.switchPage(`/reader?id=${novel.exhibitId}`);
+                  }
                 }}
               >
                 立即阅读
@@ -375,14 +384,23 @@ const DetailBody = (props: { total: number }) => {
                   <div
                     className={`btn main-btn 
                     ${![0, 4].includes(novel.defaulterIdentityType) && "disabled"}`}
-                    onClick={() => {
-                      collectionList?.length
-                        ? history.switchPage(
-                            `/reader?collection=${true}&id=${novel.exhibitId}&subId=${
-                              collectionList[0].itemId
-                            }`
-                          )
-                        : history.switchPage(`/reader?id=${novel.exhibitId}`);
+                    onClick={async () => {
+                      if (collectionList?.length) {
+                        const res = await freelogApp.getUserData("novelLastViewedHistory");
+                        const lastViewed = res?.data?.data || [];
+                        const index = lastViewed.findIndex(
+                          (i: { id: string }) => i.id === novel.exhibitId
+                        );
+                        const subId = lastViewed[index]?.subId;
+
+                        history.switchPage(
+                          `/reader?collection=${true}&id=${novel.exhibitId}&subId=${
+                            subId || collectionList[0].itemId
+                          }`
+                        );
+                      } else {
+                        history.switchPage(`/reader?id=${novel.exhibitId}`);
+                      }
                     }}
                   >
                     立即阅读

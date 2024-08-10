@@ -137,7 +137,7 @@ export const Novel = (props: {
             }`}
             onClick={e => {
               e.stopPropagation();
-              toPath("/reader");
+              toPath("/detail");
             }}
           >
             立即阅读
