@@ -11,7 +11,7 @@
     <div class="header-top" :class="{ logon: userData?.isLogin }">
       <img
         class="logo"
-        :src="selfConfig.logoImage || require('../assets/images/logo.png')"
+        :src="selfConfig.options_logoImage || require('../assets/images/logo.png')"
         referrerpolicy="no-referrer"
         @click="switchPage('/home')"
         v-if="homeHeader"

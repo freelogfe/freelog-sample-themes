@@ -136,6 +136,8 @@
             <img v-else class="sub-lock" src="../assets/images/mini-lock.png" alt="未授权" />
           </div>
         </div>
+
+        <div className="tip no-more">— 已加载全部章节 —</div>
       </div>
 
       <login-btn />

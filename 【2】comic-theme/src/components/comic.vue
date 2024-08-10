@@ -124,7 +124,7 @@
       <div
         class="main-btn btn"
         :class="{ disabled: ![0, 4].includes(data.defaulterIdentityType) }"
-        @click.stop="toPath('/reader')"
+        @click.stop="toPath('/detail')"
         v-if="[2, 3].includes(mode)"
       >
         立即阅读
@@ -339,7 +339,8 @@ export default {
           height: 18px;
           margin-right: 5px;
           background-repeat: no-repeat;
-          background-size: 100% 100%;
+          // background-size: 100% 100%;
+          background-size: contain;
 
           &.on-going {
             background-image: url("../assets/images/status/on-going.png");

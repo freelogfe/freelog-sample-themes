@@ -384,7 +384,7 @@
               <div class="recommend-item-wrap">
                 <div
                   class="recommend-item"
-                  v-for="item in recommendList.slice(0, 6)"
+                  v-for="item in recommendList.slice(0, 9)"
                   :key="item.exhibitId"
                   @click="toDetailFromRecommend(item.exhibitId)"
                 >
@@ -677,15 +677,18 @@
           <div class="sub-catalogue-wrapper" id="sub-catalogue-wrapper">
             <div
               class="sub"
+              :class="`${item.itemId === query.subId && 'selected'}`"
               v-for="item in comicInfo.collectionList"
               :key="item.itemId"
               @click="
+                currentPage = 1;
+                jumpPage = 1;
+                setCatalogueModal();
                 switchPage('/reader', {
                   id: comicInfo?.exhibitId,
                   collection: true,
                   subId: item.itemId
                 });
-                setCatalogueModal();
               "
             >
               <span class="sub-title">{{ item.itemTitle }}</span>
@@ -1216,7 +1219,7 @@ export default {
     /** 获取推荐列表 */
     const getRecommendList = async () => {
       const res = await (freelogApp as any).getExhibitRecommend(id, {
-        recommendNorm: "resourceType",
+        recommendNorm: "sameAuthorAndType,sameTagAndType,sameType,latestCreate",
         size: 10
       });
       const { data: recommendData } = res.data;
@@ -1428,7 +1431,8 @@ export default {
       modeMenu,
       ...toRefs(data),
       ...methods,
-      currentSortID
+      currentSortID,
+      query
     };
   }
 };

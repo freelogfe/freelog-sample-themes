@@ -428,7 +428,9 @@
 
       .pc-scroll-recommend-box {
         width: 1150px;
-        padding: 0 145px 282px;
+        // padding: 0 145px 282px;
+        margin: 0 auto;
+        margin-bottom: 282px;
 
         .no-more {
           margin: 100px 0;
@@ -1062,7 +1064,7 @@
   padding: 19px 20px 0;
   background: #ffffff;
   border-radius: 0px 10px 10px 0px;
-  overflow: hidden;
+  overflow-y: scroll;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -1119,6 +1121,10 @@
       border-bottom: 1px solid rgba(0, 0, 0, 0.1);
       color: #222222;
       cursor: pointer;
+
+      &.selected {
+        color: #e7949f;
+      }
 
       &:hover {
         color: #e7949f;
