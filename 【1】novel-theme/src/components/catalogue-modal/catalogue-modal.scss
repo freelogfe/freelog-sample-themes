@@ -17,7 +17,7 @@
   padding: 19px 20px 0;
   background: #ffffff;
   border-radius: 0px 10px 10px 0px;
-  overflow: hidden;
+  overflow-y: scroll;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -73,6 +73,10 @@
       padding: 14px 0 15px 0;
       border-bottom: 1px solid rgba(0, 0, 0, 0.1);
       color: #222222;
+
+      &.selected {
+        color: #e7949f;
+      }
 
       &:hover {
         color: #e7949f;

@@ -1,5 +1,7 @@
 import React, { useContext, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { globalContext } from "../../router";
+import { getUrlParams } from "../../utils/common";
 import { useMyHistory, useMyScroll } from "../../utils/hooks";
 
 import Lock from "../../assets/images/mini-lock.png";
@@ -19,8 +21,10 @@ export const CatalogueModal = (props: {
   const { inMobile } = useContext(globalContext);
   const id = book?.exhibitId;
 
-  const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
+  const { scrollTop, clientHeight, scrollHeight, scrollToTop } = useMyScroll();
   const history = useMyHistory();
+  const location = useLocation();
+  const { subId } = getUrlParams(location.search);
 
   useEffect(() => {
     if (scrollTop + clientHeight === scrollHeight) {
@@ -44,13 +48,19 @@ export const CatalogueModal = (props: {
             {collectionList.map((collectionItem: CollectionList) => {
               return (
                 <div
-                  className="sub"
+                  className={`sub ${collectionItem.itemId === subId && "selected"}`}
                   key={collectionItem.itemId}
                   onClick={() => {
-                    history.switchPage(
-                      `/reader?collection=${true}&id=${id}&subId=${collectionItem.itemId}`
-                    );
+                    inMobile
+                      ? history.replacePage(
+                          `/reader?collection=${true}&id=${id}&subId=${collectionItem.itemId}`
+                        )
+                      : history.switchPage(
+                          `/reader?collection=${true}&id=${id}&subId=${collectionItem.itemId}`
+                        );
+
                     closeCatalogueModal();
+                    scrollToTop();
                   }}
                 >
                   <span className="sub-title">{collectionItem.itemTitle}</span>

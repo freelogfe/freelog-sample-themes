@@ -327,6 +327,9 @@ const DetailBody = (props: { total: number }) => {
                   );
                 })}
               </div>
+              {collectionList.length === total && (
+                <div className="tip no-more">— 已加载全部章节 —</div>
+              )}
             </div>
           )}
         </>

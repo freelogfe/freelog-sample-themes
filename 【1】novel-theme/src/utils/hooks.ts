@@ -217,12 +217,17 @@ export const useMyHistory = () => {
     history.push(path);
   };
 
+  /** 替换当前页面 */
+  const replacePage = (path: string) => {
+    history.replace(path);
+  };
+
   /** 页面返回 */
   const back = () => {
     history.goBack();
   };
 
-  return { switchPage, back, pathname: history.location.pathname };
+  return { switchPage, replacePage, back, pathname: history.location.pathname };
 };
 
 /** 路由历史 hook */
