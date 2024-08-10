@@ -13,7 +13,6 @@ import { getUrlParams } from "../../utils/common";
 import { CollectionList, ExhibitItem, ThemeItem } from "../../api/interface";
 import { readerThemeList } from "../../api/data";
 import Lock from "../../assets/images/lock.png";
-import BgImage from "../../assets/images/reader-bg.png";
 import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
 import "./reader.scss";
 
@@ -46,13 +45,20 @@ export const ReaderScreen = (props: any) => {
   /** 获取小说信息 */
   const getNovelInfo = useCallback(async () => {
     setLoading(true);
-    const exhibitInfo = await freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 });
+    const [exhibitInfo, statusInfo] = await Promise.all([
+      freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+      freelogApp.getExhibitAuthStatus(id)
+    ]);
+
     const { articleType } = exhibitInfo.data.data.articleInfo;
     if (articleType === 2) {
       getCollectionList(true);
     }
     getRecommendList();
-    setBook(exhibitInfo.data.data);
+    setBook({
+      ...exhibitInfo.data.data,
+      defaulterIdentityType: statusInfo.data.data[0]?.defaulterIdentityType ?? null
+    });
   }, [id]);
 
   // 获取合集下的单品列表
@@ -99,7 +105,7 @@ export const ReaderScreen = (props: any) => {
   /** 获取推荐列表 */
   const getRecommendList = async () => {
     const res = await (freelogApp as any).getExhibitRecommend(id, {
-      recommendNorm: "resourceType",
+      recommendNorm: "sameAuthorAndType,sameTagAndType,sameType,latestCreate",
       size: 10
     });
     const { data: recommendData } = res.data;
@@ -203,7 +209,40 @@ export const ReaderScreen = (props: any) => {
   }, [id]);
 
   useEffect(() => {
-    getCollectionInfo();
+    if (collection) {
+      getCollectionInfo();
+    }
+
+    const handleLastViewedHistory = async (data: { id: string; subId: string }) => {
+      const lastViewedResponse = await freelogApp.getUserData("novelLastViewedHistory");
+      const lastViewed = lastViewedResponse?.data?.data || [];
+
+      if (!lastViewed.length) {
+        lastViewed.push({ id: data.id, subId: data.subId });
+        freelogApp.setUserData("novelLastViewedHistory", lastViewed);
+        return;
+      }
+
+      const index = lastViewed.findIndex((i: { id: string }) => i.id === data.id);
+
+      if (index !== -1) {
+        // 如果找到相同的数据，则替换它
+        lastViewed[index] = { id: data.id, subId: data.subId };
+      } else {
+        // 如果没有找到相同的数据，则新增一条记录
+        lastViewed.push({ id: data.id, subId: data.subId });
+      }
+
+      freelogApp.setUserData("novelLastViewedHistory", lastViewed);
+    };
+
+    return () => {
+      const { id, subId } = getUrlParams(location.search);
+
+      if (subId) {
+        handleLastViewedHistory({ id, subId });
+      }
+    };
   }, [location]);
 
   useEffect(() => {
@@ -250,7 +289,7 @@ export const ReaderScreen = (props: any) => {
     <readerContext.Provider value={context}>
       <div
         className={`reader-wrapper ${inMobile && "in-mobile"}`}
-        style={{ backgroundImage: `url(${BgImage})`, backgroundColor: theme?.bgColor }}
+        style={{ backgroundColor: theme?.bgColor }}
         onClick={() => clickPage()}
       >
         <CSSTransition
@@ -284,6 +323,7 @@ export const ReaderScreen = (props: any) => {
 const ReaderBody = () => {
   const history = useMyHistory();
   const location = useLocation();
+  const { scrollToTop } = useMyScroll();
   const { userData } = useContext(globalContext);
   const {
     inMobile,
@@ -380,7 +420,6 @@ const ReaderBody = () => {
         className={`mobile-body-wrapper ${theme?.type === 1 ? "dark" : "light"}`}
         style={
           {
-            backgroundImage: `url(${BgImage})`,
             backgroundColor: theme?.bookColor
           } as any
         }
@@ -388,7 +427,9 @@ const ReaderBody = () => {
         {defaulterIdentityType === 0 && (
           <React.Fragment>
             <div id="markdown" />
-            {collection && <div className="no-more">— 已加载全部章节 —</div>}
+            {collection && currentSortId === total && (
+              <div className="no-more">— 已加载全部章节 —</div>
+            )}
           </React.Fragment>
         )}
         {![null, 0, 4].includes(defaulterIdentityType) ? (
@@ -409,54 +450,34 @@ const ReaderBody = () => {
             </div>
           </div>
         ) : null}
-        {/* 更多书籍 */}
-        <div className="more">更多书籍</div>
-        <div className="recommend-box">
-          {recommendList.map((item: ExhibitItem) => {
-            return (
-              <div
-                className="recommend-item"
-                key={item.exhibitId}
-                onClick={() => toDetailFromRecommend(item.exhibitId)}
-              >
-                <div className="cover-image">
-                  <img src={item.coverImages[0]} alt={item.exhibitTitle} />
-                </div>
+        {defaulterIdentityType === 0 && currentSortId === total && (
+          <div className={`recommend-wrap ${theme?.type === 1 ? "dark" : "light"}`}>
+            {/* 合集-上一章节-下一章节 */}
+            <React.Fragment>
+              {/* 更多书籍 */}
+              <div className="more">更多书籍</div>
+              <div className="recommend-box">
+                {recommendList.map((item: ExhibitItem) => {
+                  return (
+                    <div
+                      className="recommend-item"
+                      key={item.exhibitId}
+                      onClick={() => toDetailFromRecommend(item.exhibitId)}
+                    >
+                      <div className="cover-image">
+                        <img src={item.coverImages[0]} alt={item.exhibitTitle} />
+                      </div>
 
-                <div className="recommend-info">
-                  <span className="title">{item.exhibitTitle}</span>
-                  <span className="name">{item?.articleInfo?.articleOwnerName}</span>
-                </div>
+                      <div className="recommend-info">
+                        <span className="title">{item.exhibitTitle}</span>
+                        <span className="name">{item?.articleInfo?.articleOwnerName}</span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
-        {/* 合集-上一章节-下一章节 */}
-        {collection && (
-          <React.Fragment>
-            {/* 更多书籍 */}
-            <div className="more">更多书籍</div>
-            <div className="recommend-box">
-              {recommendList.map((item: ExhibitItem) => {
-                return (
-                  <div
-                    className="recommend-item"
-                    key={item.exhibitId}
-                    onClick={() => toDetailFromRecommend(item.exhibitId)}
-                  >
-                    <div className="cover-image">
-                      <img src={item.coverImages[0]} alt={item.exhibitTitle} />
-                    </div>
-
-                    <div className="recommend-info">
-                      <span className="title">{item.exhibitTitle}</span>
-                      <span className="name">{item?.articleInfo?.articleOwnerName}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </React.Fragment>
+            </React.Fragment>
+          </div>
         )}
       </div>
     );
@@ -476,7 +497,6 @@ const ReaderBody = () => {
           className={`content ${theme?.type === 1 ? "dark" : "light"}`}
           style={
             {
-              backgroundImage: `url(${BgImage})`,
               backgroundColor: theme?.bookColor
             } as any
           }
@@ -484,7 +504,9 @@ const ReaderBody = () => {
           {defaulterIdentityType === 0 && (
             <React.Fragment>
               <div id="markdown" />
-              {collection && <div className="no-more">— 已加载全部章节 —</div>}
+              {collection && currentSortId === total && (
+                <div className="no-more">— 已加载全部章节 —</div>
+              )}
             </React.Fragment>
           )}
           {![null, 0, 4].includes(defaulterIdentityType) ? (
@@ -506,121 +528,92 @@ const ReaderBody = () => {
             </div>
           ) : null}
         </div>
-        <div className="more">更多书籍</div>
-        <div className="recommend-box">
-          {recommendList.map((item: ExhibitItem) => {
-            return (
-              <div
-                className="recommend-item"
-                key={item.exhibitId}
-                onClick={() => toDetailFromRecommend(item.exhibitId)}
-              >
-                <div className="cover-image">
-                  <img src={item.coverImages[0]} alt={item.exhibitTitle} />
-                </div>
-
-                <div className="recommend-info">
-                  <span className="title">{item.exhibitTitle}</span>
-                  <span className="name">{item?.articleInfo?.articleOwnerName}</span>
-                  <div className="tags-wrap">
-                    {item.tags.map((tag: string, index: number) => {
-                      return (
-                        <div
-                          className="tag"
-                          key={index}
-                          onClick={e => {
-                            e.stopPropagation();
-                            history.switchPage(`/home?tags=${tag}`);
-                          }}
-                        >
-                          {tag}
+        {defaulterIdentityType === 0 && (
+          <div className={`recommend-wrap ${theme?.type === 1 ? "dark" : "light"}`}>
+            {currentSortId === total && (
+              <React.Fragment>
+                <div className="more">更多书籍</div>
+                <div className="recommend-box">
+                  {recommendList.map((item: ExhibitItem) => {
+                    return (
+                      <div
+                        className="recommend-item"
+                        key={item.exhibitId}
+                        onClick={() => toDetailFromRecommend(item.exhibitId)}
+                      >
+                        <div className="cover-image">
+                          <img src={item.coverImages[0]} alt={item.exhibitTitle} />
                         </div>
+
+                        <div className="recommend-info">
+                          <span className="title">{item.exhibitTitle}</span>
+                          <span className="name">{item?.articleInfo?.articleOwnerName}</span>
+                          <div className="tags-wrap">
+                            {item.tags.map((tag: string, index: number) => {
+                              return (
+                                <div
+                                  className="tag"
+                                  key={index}
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    history.switchPage(`/home?tags=${tag}`);
+                                  }}
+                                >
+                                  {tag}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </React.Fragment>
+            )}
+            {/* 合集-上一章节-下一章节 */}
+            {collection && (
+              <React.Fragment>
+                <div
+                  className="pre-next-chapter"
+                  style={
+                    {
+                      backgroundColor: theme?.bookColor
+                    } as any
+                  }
+                >
+                  <div
+                    className={`pre ${currentSortId === 1 && "disabled"}`}
+                    onClick={() => {
+                      scrollToTop();
+                      history.switchPage(
+                        `/reader?collection=${true}&id=${book.exhibitId}&subId=${preSubId}`
                       );
-                    })}
+                    }}
+                  >
+                    上一章
+                  </div>
+                  <div
+                    className="detail"
+                    onClick={() => history.switchPage(`/detail?id=${book?.exhibitId}`)}
+                  >
+                    书籍详情
+                  </div>
+                  <div
+                    className={`next ${currentSortId === total && "disabled"}`}
+                    onClick={() => {
+                      scrollToTop();
+                      history.switchPage(
+                        `/reader?collection=${true}&id=${book.exhibitId}&subId=${nextSubId}`
+                      );
+                    }}
+                  >
+                    下一章
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-        {/* 合集-上一章节-下一章节 */}
-        {collection && (
-          <React.Fragment>
-            <div
-              className="pre-next-chapter"
-              style={
-                {
-                  backgroundColor: theme?.bookColor
-                } as any
-              }
-            >
-              <div
-                className={`pre ${currentSortId === 1 && "disabled"}`}
-                onClick={() => {
-                  history.switchPage(
-                    `/reader?collection=${true}&id=${book.exhibitId}&subId=${preSubId}`
-                  );
-                }}
-              >
-                上一章
-              </div>
-              <div
-                className="detail"
-                onClick={() => history.switchPage(`/detail?id=${book?.exhibitId}`)}
-              >
-                书籍详情
-              </div>
-              <div
-                className={`next ${currentSortId === total && "disabled"}`}
-                onClick={() => {
-                  history.switchPage(
-                    `/reader?collection=${true}&id=${book.exhibitId}&subId=${nextSubId}`
-                  );
-                }}
-              >
-                下一章
-              </div>
-            </div>
-
-            {/* 更多书籍 */}
-            <div className="more">更多书籍</div>
-            <div className="recommend-box">
-              {recommendList.map((item: ExhibitItem) => {
-                return (
-                  <div
-                    className="recommend-item"
-                    key={item.exhibitId}
-                    onClick={() => toDetailFromRecommend(item.exhibitId)}
-                  >
-                    <div className="cover-image">
-                      <img src={item.coverImages[0]} alt={item.exhibitTitle} />
-                    </div>
-
-                    <div className="recommend-info">
-                      <span className="title">{item.exhibitTitle}</span>
-                      <span className="name">{item?.articleInfo?.articleOwnerName}</span>
-                      <div className="tags-wrap">
-                        {item.tags.map((tag: string, index: number) => {
-                          return (
-                            <div
-                              className="tag"
-                              key={index}
-                              onClick={e => {
-                                e.stopPropagation();
-                                history.switchPage(`/home?tags=${tag}`);
-                              }}
-                            >
-                              {tag}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </React.Fragment>
+              </React.Fragment>
+            )}
+          </div>
         )}
       </div>
     );
@@ -657,6 +650,7 @@ const OperaterBtns = () => {
   } = useContext(readerContext);
   const history = useMyHistory();
   const { isCollected, operateShelf } = useMyShelf(book?.exhibitId);
+  const { scrollToTop } = useMyScroll();
   const [href, setHref] = useState("");
   let changingFontSize = useRef(false);
   let changingFontSizeTimer = useRef<any>(null);
@@ -862,15 +856,20 @@ const OperaterBtns = () => {
         )}
 
         {/* 上一章 | 下一章 */}
-        {collection && changeChapterPopupShow && (
+        {collection && changeChapterPopupShow && book.defaulterIdentityType === 0 && (
           <div className="operater-popup chapter" onClick={() => setChangeChapterPopupShow(false)}>
             <div className="chapter-popup" onClick={e => e.stopPropagation()}>
               <div
                 className={`chapter-label ${currentSortId === 1 && "disabled"}`}
                 onClick={() => {
-                  history.switchPage(
-                    `/reader?collection=${true}&id=${book.exhibitId}&subId=${preSubId}`
-                  );
+                  scrollToTop();
+                  inMobile
+                    ? history.replacePage(
+                        `/reader?collection=${true}&id=${book.exhibitId}&subId=${preSubId}`
+                      )
+                    : history.switchPage(
+                        `/reader?collection=${true}&id=${book.exhibitId}&subId=${preSubId}`
+                      );
                 }}
               >
                 上一章
@@ -882,9 +881,14 @@ const OperaterBtns = () => {
               <div
                 className={`chapter-label ${currentSortId === total && "disabled"}`}
                 onClick={() => {
-                  history.switchPage(
-                    `/reader?collection=${true}&id=${book.exhibitId}&subId=${nextSubId}`
-                  );
+                  scrollToTop();
+                  inMobile
+                    ? history.replacePage(
+                        `/reader?collection=${true}&id=${book.exhibitId}&subId=${nextSubId}`
+                      )
+                    : history.switchPage(
+                        `/reader?collection=${true}&id=${book.exhibitId}&subId=${nextSubId}`
+                      );
                 }}
               >
                 下一章
