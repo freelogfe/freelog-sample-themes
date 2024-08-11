@@ -62,15 +62,7 @@
           <div
             class="btn main-btn mobile"
             :class="{ disabled: ![0, 4].includes(comicInfo.defaulterIdentityType ?? -1) }"
-            @click="
-              listData.length
-                ? switchPage('/reader', {
-                    id: comicInfo?.exhibitId,
-                    collection: true,
-                    subId: listData[0].itemId
-                  })
-                : switchPage('/reader', { id: comicInfo?.exhibitId })
-            "
+            @click="handleToReader"
           >
             立即阅读
           </div>
@@ -187,15 +179,7 @@
                 <div
                   class="btn main-btn"
                   :class="{ disabled: ![0, 4].includes(comicInfo.defaulterIdentityType ?? -1) }"
-                  @click="
-                    listData.length
-                      ? switchPage('/reader', {
-                          id: comicInfo?.exhibitId,
-                          collection: true,
-                          subId: listData[0].itemId
-                        })
-                      : switchPage('/reader', { id: comicInfo?.exhibitId })
-                  "
+                  @click="handleToReader"
                 >
                   立即阅读
                 </div>
@@ -343,6 +327,29 @@ export default {
       /** 控制分享弹窗显示 */
       setShareWidgetShow(value: boolean) {
         data.shareWidget?.setData({ show: value });
+      },
+
+      /** 立即阅读 */
+      async handleToReader() {
+        if (collectionData.listData.length) {
+          try {
+            const res = await freelogApp.getUserData("comicLastViewedHistory");
+            const lastViewed = res?.data?.data || [];
+            const index = lastViewed.findIndex(
+              (i: { id: string }) => i.id === data.comicInfo?.exhibitId
+            );
+            const subId = lastViewed[index]?.subId;
+            switchPage("/reader", {
+              id: data.comicInfo?.exhibitId,
+              collection: true,
+              subId: subId || collectionData.listData[0].itemId
+            });
+          } catch (error) {
+            console.error("Error fetching user data", error);
+          }
+        } else {
+          switchPage("/reader", { id: data.comicInfo?.exhibitId });
+        }
       }
     };
 

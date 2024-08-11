@@ -1408,6 +1408,29 @@ export default {
       return targetID;
     });
 
+    const handleLastViewedHistory = async (data: { id: string; subId: string }) => {
+      const lastViewedResponse = await freelogApp.getUserData("comicLastViewedHistory");
+      const lastViewed = lastViewedResponse?.data?.data || [];
+
+      if (!lastViewed.length) {
+        lastViewed.push({ id: data.id, subId: data.subId });
+        freelogApp.setUserData("comicLastViewedHistory", lastViewed);
+        return;
+      }
+
+      const index = lastViewed.findIndex((i: { id: string }) => i.id === data.id);
+
+      if (index !== -1) {
+        // 如果找到相同的数据，则替换它
+        lastViewed[index] = { id: data.id, subId: data.subId };
+      } else {
+        // 如果没有找到相同的数据，则新增一条记录
+        lastViewed.push({ id: data.id, subId: data.subId });
+      }
+
+      freelogApp.setUserData("comicLastViewedHistory", lastViewed);
+    };
+
     onBeforeUnmount(async () => {
       if (barShowTimer) {
         clearTimeout(barShowTimer);
@@ -1416,6 +1439,9 @@ export default {
       if (tipTimer) {
         clearTimeout(tipTimer);
         tipTimer = null;
+      }
+      if (query.value.subId) {
+        handleLastViewedHistory({ id: query.value.id, subId: query.value.subId });
       }
       window.removeEventListener("keyup", keyup);
       await data.shareWidget?.unmount();
