@@ -224,7 +224,7 @@
                 class="recommend-box"
               >
                 <div class="no-more">— 已加载全部内容 —</div>
-                <p class="more">更多漫画</p>
+                <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">更多漫画</p>
                 <div
                   class="recommend-item"
                   v-for="item in recommendList.slice(0, 4)"
@@ -282,7 +282,7 @@
                 class="recommend-box"
               >
                 <div class="no-more">— 已加载全部内容 —</div>
-                <p class="more">更多漫画</p>
+                <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">更多漫画</p>
                 <div
                   class="recommend-item"
                   v-for="item in recommendList.slice(0, 4)"
@@ -336,7 +336,7 @@
                 class="recommend-box"
               >
                 <div class="no-more">— 已加载全部内容 —</div>
-                <p class="more">更多漫画</p>
+                <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">更多漫画</p>
                 <div
                   class="recommend-item"
                   v-for="item in recommendList.slice(0, 4)"
@@ -404,7 +404,7 @@
             />
             <div v-if="recommendList.length" class="pc-scroll-recommend-box">
               <div class="no-more">— 已加载全部内容 —</div>
-              <p class="more">更多漫画</p>
+              <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">更多漫画</p>
               <div class="recommend-item-wrap">
                 <div
                   class="recommend-item"
