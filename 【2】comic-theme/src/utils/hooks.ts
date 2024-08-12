@@ -21,12 +21,17 @@ export const useMyRouter = () => {
     router.push({ path, query });
   };
 
+  /** 替换当前路由 */
+  const replacePage = (path: string, query: any = {}) => {
+    router.replace({ path, query });
+  };
+
   /** 路由返回 */
   const routerBack = () => {
     router.back();
   };
 
-  return { route, router, query, switchPage, routerBack };
+  return { route, router, query, switchPage, replacePage, routerBack };
 };
 
 /** 路由历史 hook */
