@@ -351,6 +351,8 @@ export default {
           }
 
           &.single-episode {
+            width: 30px;
+            height: 18px;
             background-image: url("../assets/images/status/single-episode.png");
           }
         }
