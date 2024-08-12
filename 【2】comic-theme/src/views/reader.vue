@@ -35,7 +35,11 @@
                 :key="item.name"
               >
                 <div
-                  v-if="recommendList.length && item.name === 'RecommendFakeUrl'"
+                  v-if="
+                    currentSortID === collectionTotal &&
+                    recommendList.length &&
+                    item.name === 'RecommendFakeUrl'
+                  "
                   class="paging-recommend-box"
                 >
                   <div class="no-more">— 已加载全部内容 —</div>
@@ -70,7 +74,10 @@
               v-for="item in contentImgList"
               :key="item.name"
             />
-            <div v-if="recommendList.length" class="scroll-recommend-box">
+            <div
+              v-if="currentSortID === collectionTotal && recommendList.length"
+              class="scroll-recommend-box"
+            >
               <div class="no-more">— 已加载全部内容 —</div>
 
               <p class="more">更多漫画</p>
@@ -212,7 +219,10 @@
                   (contentImgList.length === 1 && amend))
               "
             >
-              <div v-if="recommendList.length" class="recommend-box">
+              <div
+                v-if="currentSortID === collectionTotal && recommendList.length"
+                class="recommend-box"
+              >
                 <div class="no-more">— 已加载全部内容 —</div>
                 <p class="more">更多漫画</p>
                 <div
@@ -263,7 +273,12 @@
               <img class="content-image" :src="currentUrl" />
               <!-- 单页-推荐 -->
               <div
-                v-if="!nextUrl && mode[1] === 'single' && recommendList.length"
+                v-if="
+                  !nextUrl &&
+                  mode[1] === 'single' &&
+                  currentSortID === collectionTotal &&
+                  recommendList.length
+                "
                 class="recommend-box"
               >
                 <div class="no-more">— 已加载全部内容 —</div>
@@ -316,7 +331,10 @@
                   (contentImgList.length === 1 && amend))
               "
             >
-              <div v-if="recommendList.length" class="recommend-box">
+              <div
+                v-if="currentSortID === collectionTotal && recommendList.length"
+                class="recommend-box"
+              >
                 <div class="no-more">— 已加载全部内容 —</div>
                 <p class="more">更多漫画</p>
                 <div
@@ -746,7 +764,7 @@ export default {
 
     const myTheme = localStorage.getItem("theme") || "light";
     const store = useStore<State>();
-    const { query, switchPage } = useMyRouter();
+    const { query, switchPage, replacePage } = useMyRouter();
     const { id, collection, subId } = query.value;
     const { isCollected, operateShelf } = useMyShelf(id);
     const { scrollTo, scrollTop, clientHeight } = useMyScroll();
@@ -980,7 +998,7 @@ export default {
             collectionList?.filter(i => i.sortId === currentSortID.value - 1)[0]?.itemId) ||
           0;
 
-        switchPage("/reader", {
+        replacePage("/reader", {
           id: data.comicInfo?.exhibitId,
           collection: true,
           subId: preSubID
@@ -999,7 +1017,7 @@ export default {
             collectionList?.filter(i => i.sortId === currentSortID.value + 1)[0]?.itemId) ||
           0;
 
-        switchPage("/reader", {
+        replacePage("/reader", {
           id: data.comicInfo?.exhibitId,
           collection: true,
           subId: nextSubID
@@ -1252,7 +1270,7 @@ export default {
         // 普通模式下（从左向右）
         data.mobilePagingList = [
           ...data.contentImgList,
-          ...(data.recommendList.length
+          ...(data.recommendList.length && currentSortID.value === data.collectionTotal
             ? [{ name: "RecommendFakeUrl", size: 0, url: "RecommendFakeUrl", width: 0, height: 0 }]
             : [])
         ];
@@ -1262,7 +1280,7 @@ export default {
         // 日漫模式下（从右向左）
         data.mobilePagingList = [
           ...data.contentImgList,
-          ...(data.recommendList.length
+          ...(data.recommendList.length && currentSortID.value === data.collectionTotal
             ? [{ name: "RecommendFakeUrl", size: 0, url: "RecommendFakeUrl", width: 0, height: 0 }]
             : [])
         ].reverse();
