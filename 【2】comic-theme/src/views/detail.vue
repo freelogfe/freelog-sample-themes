@@ -61,7 +61,11 @@
         <div class="operate-btns">
           <div
             class="btn main-btn mobile"
-            :class="{ disabled: ![0, 4].includes(comicInfo.defaulterIdentityType ?? -1) }"
+            :class="{
+              disabled:
+                ![0, 4].includes(comicInfo.defaulterIdentityType ?? -1) ||
+                (comicInfo.articleInfo.articleType === 2 && !listData.length)
+            }"
             @click="handleToReader"
           >
             立即阅读
@@ -98,39 +102,48 @@
         <div class="no-intro-tip" v-else>暂无简介</div>
       </div>
 
-      <div class="divider" v-if="listData.length"></div>
+      <div class="divider" v-if="comicInfo?.articleInfo?.articleType === 2"></div>
 
       <!-- 目录 -->
-      <div class="comic-catalogue" v-if="listData.length">
-        <div class="title-container">
-          <span class="title">目录</span>
-        </div>
-
-        <div class="sub-directory-container">
-          <div
-            class="sub"
-            v-for="item in listData"
-            :key="item.itemId"
-            @click="
-              switchPage('/reader', {
-                id: comicInfo?.exhibitId,
-                collection: true,
-                subId: item.itemId
-              })
-            "
-          >
-            <span class="sub-title">{{ item.itemTitle }}</span>
-            <img
-              v-if="[0, 4].includes(item.defaulterIdentityType)"
-              src="../assets/images/right-arrow.png"
-              alt=""
-            />
-            <img v-else class="sub-lock" src="../assets/images/mini-lock.png" alt="未授权" />
+      <template v-if="comicInfo?.articleInfo?.articleType === 2">
+        <div class="comic-catalogue" v-if="listData.length">
+          <div class="title-container">
+            <span class="title">目录</span>
           </div>
+
+          <div class="sub-directory-container">
+            <div
+              class="sub"
+              v-for="item in listData"
+              :key="item.itemId"
+              @click="
+                switchPage('/reader', {
+                  id: comicInfo?.exhibitId,
+                  collection: true,
+                  subId: item.itemId
+                })
+              "
+            >
+              <span class="sub-title">{{ item.itemTitle }}</span>
+              <img
+                v-if="[0, 4].includes(item.defaulterIdentityType)"
+                src="../assets/images/right-arrow.png"
+                alt=""
+              />
+              <img v-else class="sub-lock" src="../assets/images/mini-lock.png" alt="未授权" />
+            </div>
+          </div>
+
+          <div className="tip no-more">— 已加载全部章节 —</div>
         </div>
 
-        <div className="tip no-more">— 已加载全部章节 —</div>
-      </div>
+        <div v-else class="comic-catalogue">
+          <div class="title-container">
+            <span class="title">目录</span>
+          </div>
+          <div class="no-update">未更新章节，暂时无法阅读</div>
+        </div>
+      </template>
 
       <login-btn />
     </div>
@@ -178,7 +191,11 @@
               <div class="operate-btns">
                 <div
                   class="btn main-btn"
-                  :class="{ disabled: ![0, 4].includes(comicInfo.defaulterIdentityType ?? -1) }"
+                  :class="{
+                    disabled:
+                      ![0, 4].includes(comicInfo.defaulterIdentityType ?? -1) ||
+                      (comicInfo.articleInfo.articleType === 2 && !listData.length)
+                  }"
                   @click="handleToReader"
                 >
                   立即阅读
@@ -212,7 +229,10 @@
         </div>
 
         <!-- 漫画简介 -->
-        <div class="comic-intro" :class="listData.length && 'need-border'">
+        <div
+          class="comic-intro"
+          :class="comicInfo?.articleInfo?.articleType === 2 && 'need-border'"
+        >
           <div class="intro-title">内容简介</div>
           <div
             class="intro"
@@ -231,37 +251,46 @@
         </div>
 
         <!-- 目录 -->
-        <div class="comic-catalogue" v-if="listData.length">
-          <div class="title-container">
-            <span class="title">目录</span>
-            <span class="count">({{ listData.length }}话)</span>
-          </div>
-
-          <div class="sub-directory-container">
-            <div
-              class="sub"
-              v-for="item in listData"
-              :key="item.itemId"
-              @click="
-                switchPage('/reader', {
-                  id: comicInfo?.exhibitId,
-                  collection: true,
-                  subId: item.itemId
-                })
-              "
-            >
-              <span class="sub-title">{{ item.itemTitle }}</span>
-              <img
-                v-if="![0, 4].includes(item.defaulterIdentityType)"
-                class="sub-lock"
-                src="../assets/images/mini-lock.png"
-                alt="未授权"
-              />
+        <template v-if="comicInfo?.articleInfo?.articleType === 2">
+          <div class="comic-catalogue" v-if="listData.length">
+            <div class="title-container">
+              <span class="title">目录</span>
+              <span class="count">({{ listData.length }}话)</span>
             </div>
+
+            <div class="sub-directory-container">
+              <div
+                class="sub"
+                v-for="item in listData"
+                :key="item.itemId"
+                @click="
+                  switchPage('/reader', {
+                    id: comicInfo?.exhibitId,
+                    collection: true,
+                    subId: item.itemId
+                  })
+                "
+              >
+                <span class="sub-title">{{ item.itemTitle }}</span>
+                <img
+                  v-if="![0, 4].includes(item.defaulterIdentityType)"
+                  class="sub-lock"
+                  src="../assets/images/mini-lock.png"
+                  alt="未授权"
+                />
+              </div>
+            </div>
+
+            <div className="tip no-more">— 已加载全部章节 —</div>
           </div>
 
-          <div className="tip no-more">— 已加载全部章节 —</div>
-        </div>
+          <div v-else class="comic-catalogue">
+            <div class="title-container">
+              <span class="title">目录</span>
+            </div>
+            <div class="no-update">未更新章节，暂时无法阅读</div>
+          </div>
+        </template>
       </div>
     </div>
 

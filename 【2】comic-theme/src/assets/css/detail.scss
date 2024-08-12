@@ -8,7 +8,7 @@
   // mobile
   .mobile-content {
     width: 100%;
-    padding-bottom: 98px;
+    padding-bottom: 135px;
 
     .auth-link-abnormal-tip {
       width: 100%;
@@ -311,6 +311,14 @@
         color: #999999;
         line-height: 20px;
         text-align: center;
+      }
+
+      .no-update {
+        font-weight: 400;
+        font-size: 14px;
+        color: #999999;
+        line-height: 20px;
+        margin-top: 20px;
       }
     }
   }
@@ -625,6 +633,14 @@
         color: #999999;
         line-height: 20px;
         text-align: center;
+      }
+
+      .no-update {
+        font-weight: 400;
+        font-size: 14px;
+        color: #999999;
+        line-height: 20px;
+        margin-top: 20px;
       }
     }
   }
