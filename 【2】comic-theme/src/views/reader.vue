@@ -34,7 +34,10 @@
                 v-for="item in mobilePagingList"
                 :key="item.name"
               >
-                <div v-if="item.name === 'RecommendFakeUrl'" class="paging-recommend-box">
+                <div
+                  v-if="recommendList.length && item.name === 'RecommendFakeUrl'"
+                  class="paging-recommend-box"
+                >
                   <div class="no-more">— 已加载全部内容 —</div>
 
                   <p class="more">更多漫画</p>
@@ -67,7 +70,7 @@
               v-for="item in contentImgList"
               :key="item.name"
             />
-            <div class="scroll-recommend-box">
+            <div v-if="recommendList.length" class="scroll-recommend-box">
               <div class="no-more">— 已加载全部内容 —</div>
 
               <p class="more">更多漫画</p>
@@ -209,7 +212,7 @@
                   (contentImgList.length === 1 && amend))
               "
             >
-              <div class="recommend-box">
+              <div v-if="recommendList.length" class="recommend-box">
                 <div class="no-more">— 已加载全部内容 —</div>
                 <p class="more">更多漫画</p>
                 <div
@@ -259,7 +262,10 @@
             >
               <img class="content-image" :src="currentUrl" />
               <!-- 单页-推荐 -->
-              <div class="recommend-box" v-if="!nextUrl && mode[1] === 'single'">
+              <div
+                v-if="!nextUrl && mode[1] === 'single' && recommendList.length"
+                class="recommend-box"
+              >
                 <div class="no-more">— 已加载全部内容 —</div>
                 <p class="more">更多漫画</p>
                 <div
@@ -310,7 +316,7 @@
                   (contentImgList.length === 1 && amend))
               "
             >
-              <div class="recommend-box">
+              <div v-if="recommendList.length" class="recommend-box">
                 <div class="no-more">— 已加载全部内容 —</div>
                 <p class="more">更多漫画</p>
                 <div
@@ -378,7 +384,7 @@
               v-for="item in contentImgList"
               :key="item.name"
             />
-            <div class="pc-scroll-recommend-box">
+            <div v-if="recommendList.length" class="pc-scroll-recommend-box">
               <div class="no-more">— 已加载全部内容 —</div>
               <p class="more">更多漫画</p>
               <div class="recommend-item-wrap">
@@ -1246,14 +1252,19 @@ export default {
         // 普通模式下（从左向右）
         data.mobilePagingList = [
           ...data.contentImgList,
-          { name: "RecommendFakeUrl", size: 0, url: "RecommendFakeUrl", width: 0, height: 0 }
+          ...(data.recommendList.length
+            ? [{ name: "RecommendFakeUrl", size: 0, url: "RecommendFakeUrl", width: 0, height: 0 }]
+            : [])
         ];
+
         currentIndex = data.currentPage - 1;
       } else if (pagingType === "manga") {
         // 日漫模式下（从右向左）
         data.mobilePagingList = [
           ...data.contentImgList,
-          { name: "RecommendFakeUrl", size: 0, url: "RecommendFakeUrl", width: 0, height: 0 }
+          ...(data.recommendList.length
+            ? [{ name: "RecommendFakeUrl", size: 0, url: "RecommendFakeUrl", width: 0, height: 0 }]
+            : [])
         ].reverse();
         currentIndex = data.mobilePagingList.length - data.currentPage;
       }

@@ -324,7 +324,7 @@ export default {
   setup() {
     const store = useStore<State>();
     const { query, switchPage, routerBack } = useMyRouter();
-    const { scrollTop, clientHeight, scrollHeight, scrollTo } = useMyScroll();
+    const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
     const { id } = query.value;
     const { isCollected, operateShelf } = useMyShelf(id);
     const introContent = ref<any>();
