@@ -736,7 +736,7 @@
   </div>
 </template>
 
-<script lang="tsx">
+<script lang="ts">
 import { defineAsyncComponent, nextTick, onBeforeUnmount, reactive, watch, computed } from "vue";
 import { useStore } from "vuex";
 import { Swipe, SwipeItem } from "vant";
