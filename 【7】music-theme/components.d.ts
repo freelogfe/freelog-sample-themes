@@ -17,7 +17,6 @@ declare module 'vue' {
     Footer: typeof import('./src/components/footer.vue')['default']
     Header: typeof import('./src/components/header.vue')['default']
     List: typeof import('./src/components/list.vue')['default']
-    MobieAlbum: typeof import('./src/components/mobie-album.vue')['default']
     MobileAlbum: typeof import('./src/components/mobile-album.vue')['default']
     Player: typeof import('./src/components/player.vue')['default']
     PlayStatus: typeof import('./src/components/play-status.vue')['default']
