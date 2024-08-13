@@ -24,9 +24,11 @@ export default new Vuex.Store({
     playing: false, // 是否在播放中
     initUrl: "", // 播放器初始化 url（用于解决 IOS 无法异步播放声音问题）
     progress: 0, // 当前播放进度
-    authIdList: [], // 已授权 id 集合（用于刷新首页列表、声音列表、搜索结果列表、详情页授权状态）
+    authIdList: [], // 授权后 id 记录集合（用于刷新首页列表、声音列表、搜索结果列表、详情页授权状态）
     searchKey: "", // 搜索关键词
     cachePool: {}, // 合集id为key, 子作品详情列表为value
+    lastestAuthList: [] // 最新的全部展品授权情况列表
+    
   },
   mutations: {
     /** 更新数据 */
@@ -96,7 +98,6 @@ export default new Vuex.Store({
         const list = localStorage.getItem("playIdList") || "[]";
         playIdList = JSON.parse(list);
       }
-      debugger
       context.commit("setData", { key: "playIdList", value: playIdList || [] });
 
       // 如果有收藏/播放列表，则获取相应数据

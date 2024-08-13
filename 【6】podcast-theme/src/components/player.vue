@@ -361,6 +361,28 @@ export default {
       immediate: true
     },
 
+    "$store.state.lastestAuthList"(cur) {
+      cur.forEach(ele => {
+        // 更新签约列表
+        const signedList = this.$store.state.signedList
+        if (signedList) {
+          const item = signedList.find(data => data.exhibitId === ele.exhibitId);
+          if (item) item.defaulterIdentityType = ele.defaulterIdentityType;
+        }
+
+        // 更新收藏列表
+        const collectionList = this.$store.state.collectionList
+        if (collectionList) {
+          const items = collectionList.filter(data => data.exhibitId === ele.exhibitId)
+          if (items.length) {
+            for (const item of items) {
+              item.defaulterIdentityType = ele.defaulterIdentityType;
+            }
+          }
+        }
+      });
+    },
+
     "$store.state.playingInfo": {
       handler(cur) {
         this.$store.commit("setData", { key: "progress", value: 0 });
@@ -435,7 +457,11 @@ export default {
       if (this.playingInfo?.articleInfo?.articleType === 1) {
         return this.playingInfo && this.playingInfo.versionInfo.exhibitProperty.duration / 1000
       } else {
-        return this.playingInfo && this.playingInfo.child?.articleInfo?.articleProperty?.duration / 1000
+        return this.playingInfo && 
+          this.playingInfo.child && 
+          this.playingInfo.child.articleInfo && 
+          this.playingInfo.child.articleInfo.articleProperty && 
+          this.playingInfo.child.articleInfo.articleProperty.duration / 1000
       }
     },
     /** 固定播放时长 */
@@ -736,8 +762,11 @@ export default {
     /** 播放声音 */
     playVoice() {
       if (!this.playing) return;
-
-      this.$refs.player.play();
+      this.$nextTick(() => {
+        this.$refs.player.play();        
+        // 播放音频，显示播放器动画
+        this.animation();
+      })
       // const { isIOS } = this.$store.state;
       // if (isIOS) {
       //   // ios 设备第一次播放音频会失败，需要重新播放一次才会正常
@@ -746,8 +775,6 @@ export default {
       //     this.$refs.player.play();
       //   });
       // }
-      // 播放音频，显示播放器动画
-      this.animation();
     },
 
     /** 音频播放时间变化 */
@@ -760,6 +787,8 @@ export default {
 
     /** 改变音频进度 */
     changeProgress(e) {
+      console.log(')))', e);
+      
       this.slidingProgress = false;
       this.$refs.player.currentTime = e;
       if (!this.playing) this.playOrPause();

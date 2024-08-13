@@ -140,8 +140,12 @@ export default {
   watch: {
     "$store.state.authIdList"(cur) {
       cur.forEach(id => {
-        const item = this.listData.find(data => data.exhibitId === id);
-        item.defaulterIdentityType = 0;
+        const items = this.listData.filter(data => data.exhibitId === id);
+        if (items.length) {
+          for (const item of items) {
+            item.defaulterIdentityType = 0;
+          }
+        }
       });
     },
 
@@ -207,7 +211,6 @@ export default {
         keywords: this.keywords
       };
       const list = await freelogApp.getExhibitListByPaging(queryParams);
-      debugger
       const { dataList, totalItem } = list.data.data;
       if (dataList.length !== 0) {
         const ids = dataList.map(item => item.exhibitId).join();

@@ -264,8 +264,16 @@ export default {
     },
 
     "$store.state.authIdList"(cur) {
-      if (cur.includes(this.voiceInfo.exhibitId)) this.voiceInfo.defaulterIdentityType = 0;
+      if (cur.includes(this.voiceInfo.exhibitId)) {
+        this.voiceInfo.defaulterIdentityType = 0;
+        if (this.voiceInfo.articleInfo.articleType === 2) {
+          this.list.forEach(ele => {
+            ele.defaulterIdentityType = 0
+          });
+        }
+      }
     },
+
     voiceInfo(newValue) {
       this.isCollected = useMyCollection.ifExist(newValue);
     }
@@ -374,7 +382,7 @@ export default {
           key: exhibitId,
           value: JSON.parse(JSON.stringify(res))
         });
-        await useMyPlay.addToPlayListBatch(exhibitId, res)
+        await useMyPlay.addToPlayListBatch(exhibitId, res, true)
       } else {
         useMyPlay.addToPlayList({
           id: exhibitId,

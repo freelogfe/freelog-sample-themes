@@ -36,6 +36,7 @@ export const useMyAuth = {
       });
     });
     store.commit("setData", { key: "signedList", value: result });
+    store.commit("setData", { key: "lastestAuthList", value: statusList.data.data });
   },
 
   /**
@@ -51,12 +52,34 @@ export const useMyAuth = {
     data.defaulterIdentityType = 0;
 
     // 同步收藏列表、签约列表、播放列表相应展品的授权状态，更新授权列表
-    const { collectionList, signedList, playList, authIdList, exhibitList } = store.state;
-    signedList.unshift(data);
-    const collectionItem = collectionList.find(item => item.exhibitId === exhibitId);
-    if (collectionItem) collectionItem.defaulterIdentityType = 0;
-    const playItem = playList.find(item => item.exhibitId === exhibitId);
-    if (playItem) playItem.defaulterIdentityType = 0;
+    const { collectionList, signedList, playList, authIdList } = store.state;
+
+    const currentSignItem = signedList.find(ele => ele.exhibitId === exhibitId)
+    if (currentSignItem) {
+      currentSignItem.defaulterIdentityType = 0
+    } else {
+      signedList.unshift(data);
+    }
+
+    if (articleInfo.articleType === 1) {
+      const collectionItem = collectionList.find(item => item.exhibitId === exhibitId);
+      if (collectionItem) collectionItem.defaulterIdentityType = 0;
+      const playItem = playList.find(item => item.exhibitId === exhibitId);
+      if (playItem) playItem.defaulterIdentityType = 0;
+    } else {
+      const collectionItems = collectionList.filter(item => item.exhibitId === exhibitId);
+      if (collectionItems.length) {
+        for (const collectionItem of collectionItems) {
+          collectionItem.defaulterIdentityType = 0; 
+        } 
+      }
+      const playItems = playList.filter(item => item.exhibitId === exhibitId);
+      if (playItems.length) {
+        for (const playItem of playItems) {
+          playItem.defaulterIdentityType = 0;
+        }
+      } 
+    }
     authIdList.push(exhibitId);
     store.commit("setData", { key: "collectionList", value: collectionList });
     store.commit("setData", { key: "signedList", value: signedList });
@@ -65,7 +88,15 @@ export const useMyAuth = {
 
     if (play) {
       if (articleInfo.articleType === 2) {
-        // 合集（1. 添加所的单品到播放列表；2. 播放第一个单品）
+        /*
+        * 合集（1. 添加所的单品到播放列表；2. 播放第一个单品）
+        * 合集的子作品
+        */
+        if (data.child) {
+          useMyPlay.playOrPause(data)
+        } else {
+          useMyPlay.playOrPause(data, 'pool')
+        }
       } else {
         useMyPlay.addToPlayList({
           id: exhibitId,
@@ -145,6 +176,7 @@ export const useMyCollection = {
       }
     });
     store.commit("setData", { key: "collectionList", value: result });
+    store.commit("setData", { key: "lastestAuthList", value: statusList.data.data });
   },
 
   /** 判断当前展品是否已被收藏 */
@@ -306,6 +338,7 @@ export const useMyPlay = {
       }
     });
     store.commit("setData", { key: "playList", value: result });
+    store.commit("setData", { key: "lastestAuthList", value: statusList.data.data });
   },
 
   /** 判断当前展品是否已存在播放列表中 */
@@ -332,8 +365,9 @@ export const useMyPlay = {
       }
     }
   },
-  /** 加入播放列表 */
-  async addToPlayListBatch(exhibitId, addArr) {
+
+  /** 将合集加入播放列表 */
+  async addToPlayListBatch(exhibitId, addArr, bol = false) {
     // 1.删除之前存在的 
     // 2.批量添加
     if (!store.state.userData.isLogin) {
@@ -353,6 +387,7 @@ export const useMyPlay = {
 
       localStorage.setItem("playIdList", JSON.stringify(newList));
       store.commit("setData", { key: "playIdList", value: newList });
+      bol && showToast("添加成功");
       await useMyPlay.getPlayList();
     } else {
       // 已登录时存在用户数据
@@ -374,6 +409,7 @@ export const useMyPlay = {
       
       if (res.data.msg === "success") {
         store.commit("setData", { key: "playIdList", value: newList });
+        bol && showToast("添加成功");
         await useMyPlay.getPlayList();
       } else {
         showToast("加入播放列表失败");
@@ -381,6 +417,7 @@ export const useMyPlay = {
     }
 
   },
+
   /** 加入播放列表 */
   async addToPlayList(options) {
     const { id, callback, isExhibit, itemId } = options;
@@ -566,6 +603,7 @@ export const useMyPlay = {
       }
     }
   },
+
   /** 播放展品
    * type: "preVoice" 表"上一首"
    * type: "nextVoice" 表"下一首"
@@ -780,6 +818,8 @@ export const useMyPlay = {
     }
     useMyPlay.playOrPause(nextVoiceInfo, "nextVoice");
   },
+
+  /** 获取数据 */
   async getListInCollection(exhibitId, options = { skip: 0, limit: 100 }) {
     const result = [];
     const res = await freelogApp.getCollectionSubList(exhibitId, {

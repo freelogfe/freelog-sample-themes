@@ -595,7 +595,7 @@ export default {
           key: exhibitId,
           value: JSON.parse(JSON.stringify(res))
         });
-        await useMyPlay.addToPlayListBatch(exhibitId, res)
+        await useMyPlay.addToPlayListBatch(exhibitId, res, true)
       } else {
         if (articleInfo.articleType === 2) {
           useMyPlay.addToPlayList({
