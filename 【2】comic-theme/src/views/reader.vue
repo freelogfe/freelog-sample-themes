@@ -737,7 +737,16 @@
 </template>
 
 <script lang="tsx">
-import { defineAsyncComponent, nextTick, onBeforeUnmount, reactive, watch, computed } from "vue";
+import {
+  defineAsyncComponent,
+  nextTick,
+  onBeforeUnmount,
+  reactive,
+  watch,
+  computed,
+  watchEffect,
+  onBeforeMount
+} from "vue";
 import { useStore } from "vuex";
 import { Swipe, SwipeItem } from "vant";
 import { toRefs } from "@vue/reactivity";
@@ -821,6 +830,7 @@ export default {
       catalogueModal: false,
       collectionCurrent: 0,
       collectionTotal: 0,
+      collectionSubId: "",
       recommendList: [] as ExhibitItem[]
     });
 
@@ -894,7 +904,7 @@ export default {
             this.jump();
           }
           // 页漫时，将选择的模式保存在本地
-          localStorage.setItem("comicReadMode", JSON.stringify(data.mode));
+          // localStorage.setItem("comicReadMode", JSON.stringify(data.mode));
         } else if (value === "scroll") {
           this.getPointInScroll();
         }
@@ -902,6 +912,9 @@ export default {
         if (index === 2 && !inMobile) {
           this.showDirectionTip();
         }
+
+        // 保存模式
+        handleLastViewedMode(id);
       },
 
       /** 显示翻页方向提示 */
@@ -1121,9 +1134,24 @@ export default {
       } else {
         comicMode = 2;
       }
+
+      // 合集逻辑
       if (articleType === 2) {
         getCollectionList(true);
+        const subInfoResponse = await (freelogApp as any).getCollectionSubInfo(id, {
+          itemId: subId
+        });
+        const { resourceType } = subInfoResponse.data.data.articleInfo;
+
+        if (resourceType[2] === "条漫") {
+          comicMode = 1;
+        } else if (resourceType[2] === "日漫") {
+          comicMode = 3;
+        } else {
+          comicMode = 2;
+        }
       }
+
       data.comicInfo = { ...exhibitInfo.data.data, comicMode };
       data.comicMode = comicMode;
       getContent();
@@ -1131,18 +1159,18 @@ export default {
     };
 
     /** 获取漫画目录 */
-    const getCollectionList = async (init = false, skipChapter = 0) => {
+    const getCollectionList = async (init = false) => {
       try {
         const { collectionList } = data.comicInfo;
-        if (!init && (collectionList?.length ?? 0 >= data.collectionTotal)) {
+        if (!init && collectionList && collectionList?.length >= data.collectionTotal) {
           return;
         }
 
-        data.collectionCurrent = init ? 0 : data.collectionCurrent + 30;
+        data.collectionCurrent = init ? 0 : data.collectionCurrent + 1000;
 
         const subList = await (freelogApp as any).getCollectionSubList(id, {
-          skip: skipChapter ? skipChapter : data.collectionCurrent,
-          limit: 30
+          skip: data.collectionCurrent,
+          limit: 1000
         });
         const { dataList, totalItem } = subList.data.data;
         data.collectionTotal = totalItem;
@@ -1164,6 +1192,14 @@ export default {
           data.comicInfo.collectionList = collectionList
             ? [...collectionList, ...dataList]
             : [...dataList];
+        }
+
+        // 递归循环加载所有单品
+        if (
+          data.comicInfo.collectionList &&
+          data.comicInfo.collectionList?.length < data.collectionTotal
+        ) {
+          getCollectionList();
         }
       } catch (error) {
         console.error("Failed to get collection list", error);
@@ -1228,13 +1264,27 @@ export default {
       mountShareWidget();
 
       if (data.comicMode === 1) {
-        // 条漫时，自动选择滚动模式
-        methods.changeMode("scroll", 0);
-        methods.getPointInScroll();
+        const res = await freelogApp.getUserData("comicLastViewedMode");
+        const lastViewed = res?.data?.data || [];
+        const index = lastViewed.findIndex((i: { id: string }) => i.id === id);
+        const comicReadMode = lastViewed[index]?.mode;
+
+        if (comicReadMode) {
+          data.mode = comicReadMode;
+        } else {
+          // 条漫时，自动选择滚动模式
+          methods.changeMode("scroll", 0);
+          methods.getPointInScroll();
+        }
       } else if ([2, 3].includes(data.comicMode)) {
+        const res = await freelogApp.getUserData("comicLastViewedMode");
+        const lastViewed = res?.data?.data || [];
+        const index = lastViewed.findIndex((i: { id: string }) => i.id === id);
+        const comicReadMode = lastViewed[index]?.mode;
+
         // 页漫/日漫时，自动选择翻页模式（如本地有记录翻页模式的选择，优先取本地记录的模式）
-        const comicReadMode = localStorage.getItem("comicReadMode");
-        if (comicReadMode) data.mode = JSON.parse(comicReadMode);
+        // const comicReadMode = localStorage.getItem("comicReadMode");
+        if (comicReadMode) data.mode = comicReadMode;
         // 移动端翻页模式下处理图片顺序
         if (store.state.inMobile) dealListInPagingMobile();
       }
@@ -1251,14 +1301,6 @@ export default {
       if (recommendData.length !== 0) {
         data.recommendList = recommendData;
       }
-    };
-
-    // 获取单品详细信息
-    const getCollectionInfo = async () => {
-      const res = await (freelogApp as any).getCollectionSubInfo(id, { itemId: subId });
-      const { sortId } = res.data.data;
-
-      getCollectionList(false, sortId - 15 < 0 ? 0 : sortId - 15);
     };
 
     /** 移动端翻页模式下处理图片顺序 */
@@ -1391,17 +1433,10 @@ export default {
     watch(
       () => query.value.subId,
       cur => {
-        if (data.comicInfo.collectionList?.length) {
+        if (query.value.subId) {
           getContent(cur);
-          getCollectionInfo();
+          data.collectionSubId = cur;
         }
-      }
-    );
-
-    watch(
-      () => query.value.id,
-      () => {
-        getComicInfo();
       }
     );
 
@@ -1420,7 +1455,7 @@ export default {
           } = useMyScroll("catalogue-box-body");
 
           if (modalScrollTop.value + modalClientHeight.value === modalScrollHeight.value) {
-            getCollectionList(false);
+            getCollectionList();
           }
         });
       }
@@ -1437,6 +1472,7 @@ export default {
       return targetID;
     });
 
+    // 记录上一次阅读记录
     const handleLastViewedHistory = async (data: { id: string; subId: string }) => {
       const lastViewedResponse = await freelogApp.getUserData("comicLastViewedHistory");
       const lastViewed = lastViewedResponse?.data?.data || [];
@@ -1460,6 +1496,34 @@ export default {
       freelogApp.setUserData("comicLastViewedHistory", lastViewed);
     };
 
+    // 记录上一次阅读模式
+    const handleLastViewedMode = async (id: string) => {
+      const lastViewedResponse = await freelogApp.getUserData("comicLastViewedMode");
+      const lastViewed = lastViewedResponse?.data?.data || [];
+
+      if (!lastViewed.length) {
+        lastViewed.push({ id, mode: data.mode });
+        freelogApp.setUserData("comicLastViewedMode", lastViewed);
+        return;
+      }
+
+      const index = lastViewed.findIndex((item: { id: string }) => item.id === id);
+
+      if (index !== -1) {
+        // 如果找到相同的数据，则替换它
+        lastViewed[index] = { id, mode: data.mode };
+      } else {
+        // 如果没有找到相同的数据，则新增一条记录
+        lastViewed.push({ id, mode: data.mode });
+      }
+
+      freelogApp.setUserData("comicLastViewedMode", lastViewed);
+    };
+
+    onBeforeMount(() => {
+      getComicInfo();
+    });
+
     onBeforeUnmount(async () => {
       if (barShowTimer) {
         clearTimeout(barShowTimer);
@@ -1469,14 +1533,11 @@ export default {
         clearTimeout(tipTimer);
         tipTimer = null;
       }
-      if (query.value.subId) {
-        handleLastViewedHistory({ id: query.value.id, subId: query.value.subId });
-      }
+      handleLastViewedHistory({ id, subId: data.collectionSubId });
+      handleLastViewedMode(id);
       window.removeEventListener("keyup", keyup);
       await data.shareWidget?.unmount();
     });
-
-    getComicInfo();
 
     return {
       ...toRefs(store.state),
