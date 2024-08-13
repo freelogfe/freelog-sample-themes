@@ -25,7 +25,7 @@
     <!-- logo -->
     <img
       class="logo"
-      :src="selfConfig.logoImage || require('../assets/images/logo.png')"
+      :src="selfConfig.options_logoImage || require('../assets/images/logo.png')"
       referrerpolicy="no-referrer"
     />
 
