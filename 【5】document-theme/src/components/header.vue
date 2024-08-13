@@ -4,9 +4,17 @@
   <!-- mobile -->
   <div class="mobile-header-wrapper" v-if="inMobile">
     <div class="header-left">
-      <i class="freelog fl-icon-xiaoshuomulu" @click="openDirectory()" v-if="route.path === '/reader'"></i>
+      <i
+        class="freelog fl-icon-xiaoshuomulu"
+        @click="openDirectory()"
+        v-if="route.path === '/reader'"
+      ></i>
 
-      <div class="back-btn" @click="locationHistory.length === 1 ? switchPage('/reader') : routerBack()" v-else>
+      <div
+        class="back-btn"
+        @click="locationHistory.length === 1 ? switchPage('/reader') : routerBack()"
+        v-else
+      >
         <img class="back-arrow" src="../assets/images/arrow.png" />
         <div class="back-label">
           {{ locationHistory.length === 1 ? "首页" : "返回" }}
@@ -58,7 +66,11 @@
               <i class="freelog fl-icon-shouye"></i>
               <div class="btn-label">首页</div>
             </div>
-            <div class="btn" :class="{ active: route.path === '/signedList' }" @click="switchPage('/signedList')">
+            <div
+              class="btn"
+              :class="{ active: route.path === '/signedList' }"
+              @click="switchPage('/signedList')"
+            >
               <i class="freelog fl-icon-lishi"></i>
               <div class="btn-label">已签约文档</div>
             </div>
@@ -83,7 +95,12 @@
     />
 
     <!-- 已登录区域 -->
-    <div class="user-avatar" @mouseover="userBoxShow = true" @mouseleave="userBoxShow = false" v-if="userData.isLogin">
+    <div
+      class="user-avatar"
+      @mouseover="userBoxShow = true"
+      @mouseleave="userBoxShow = false"
+      v-if="userData.isLogin"
+    >
       <img class="avatar" :src="userData.headImage" :alt="userData.username" />
 
       <transition name="slide-down-scale">
@@ -123,7 +140,7 @@ export default {
 
     const data = reactive({
       userBoxShow: false,
-      directoryShow: false,
+      directoryShow: false
     });
 
     const methods = {
@@ -135,7 +152,7 @@ export default {
       /** 通知父组件打开目录 */
       openDirectory() {
         context.emit("openDirectory");
-      },
+      }
     };
 
     useMyLocationHistory();
@@ -148,9 +165,9 @@ export default {
       switchPage,
       routerBack,
       ...toRefs(data),
-      ...methods,
+      ...methods
     };
-  },
+  }
 };
 </script>
 
