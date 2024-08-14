@@ -147,7 +147,7 @@ export default {
     currentSelect(newValue) {
       this.sortList(newValue, this.listData)
     },
-    
+
     "$store.state.lastestAuthList"(cur) {
       cur.forEach(ele => {
         const item = this.listData.find(data => data.exhibitId === ele.exhibitId);
@@ -244,7 +244,6 @@ export default {
             }
           })
         })
-        console.log('ssd', res.data.data)
       } else {
         console.warn(res.data)
       }

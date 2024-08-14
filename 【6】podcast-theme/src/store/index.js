@@ -81,7 +81,7 @@ export default new Vuex.Store({
       if (context.state.userData.isLogin) {
         // 登录时播放列表取用户数据
         const playIdListResponse = await freelogApp.getUserData("playIdList");
-        playIdList = playIdListResponse?.data?.data || [];
+        playIdList = playIdListResponse?.data?.data.filter(ele => ele.hasOwnProperty('id')) || [];
 
         // 如果此时本地有播放列表，那需要自动添加至用户数据
         const list = localStorage.getItem("playIdList") || "[]";

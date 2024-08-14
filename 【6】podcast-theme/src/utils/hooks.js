@@ -36,7 +36,6 @@ export const useMyAuth = {
       });
     });
     store.commit("setData", { key: "signedList", value: result });
-    // store.commit("setData", { key: "lastestAuthList", value: statusList.data.data });
     store.dispatch("updateLastestAuthList")
   },
 

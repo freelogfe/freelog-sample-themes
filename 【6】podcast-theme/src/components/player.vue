@@ -9,6 +9,7 @@
       @timeupdate="$store.state.initUrl === null && audioPlayUpdate()"
       @ended="$store.state.initUrl === null && endVoice()"
       @error="$store.state.initUrl === null && playError($event)"
+      @waiting="handleWaiting"
     />
 
     <!-- mobile -->
@@ -661,7 +662,39 @@ export default {
       this.nextVoice();
     },
     /** 播放失败 */
-    async playError(event) {
+    async playError(event) {      
+      const mediaError = this.$refs.player.error
+      if (!mediaError) return 
+      switch (mediaError.code) {
+        case 1:
+          // 用户终止了媒体的加载
+          break;
+        case 2:
+          // 媒体加载过程中发生网络错误
+          break;
+        case 3:
+          // 媒体播放时发生解码错误
+          break;
+        case 4:
+          // 浏览器不支持媒体文件格式
+          break;
+        default:
+          // 其他错误
+          break;
+      }
+      console.warn(mediaError.code, mediaError.message)
+
+      if (await this.requestTry()) return
+      
+      if (!this.playing) return;
+    },
+
+    async handleWaiting(event) {
+      await this.requestTry()
+    },
+
+    /** 主动进行一次请求 */
+    async requestTry() {
       let url
       const playingInfo = this.$store.state.playingInfo
       if (playingInfo) {
@@ -671,22 +704,21 @@ export default {
           url = playingInfo.child.url
         }
       }
+
       // 请求一次url, 看是否是授权导致的播放失败
-      const res = await fetch(url)
+      const res = await fetch(url,  { credentials: "include" })
       
       if (res.status === 401) {
-        // 初始化url: 解决audio的src地址前后都是同一个造成不发起请求的问题
-        if (this.playingInfo.articleInfo.articleType === 1) {
-          this.playingInfo.url = "https://file.testfreelog.com/exhibits/64d1ed97cc4a64002f632b0d"
-        } else {
-          this.playingInfo.child.url = "https://file.testfreelog.com/exhibits/64d1ed97cc4a64002f632b0d"
-        }
-
         // 暂停播放
-        this.$store.commit("setData", {
-          key: "playing",
-          value: false
-        })
+        this.$store.commit("setData", { key: "playing", value: false })
+
+        // 初始化url: 解决audio的src地址前后都是同一个造成不发起请求的问题
+        // https://file.testfreelog.com/exhibits/64d1ed97cc4a64002f632b0d
+        if (this.playingInfo.articleInfo.articleType === 1) {
+          this.playingInfo.url = "" 
+        } else {
+          this.playingInfo.child.url = ""
+        }
 
         // 更新lastestAuthList的授权状态
         this.$store.dispatch("updateLastestAuthList")
@@ -698,17 +730,12 @@ export default {
             ele.defaulterIdentityType = 4
           }
         })
-        this.$store.commit("setData", {
-          key: "playList",
-          value: playList
-        })
+        this.$store.commit("setData", { key: "playList", value: playList })
+
         // 调出授权
         await useMyAuth.getAuth(this.playingInfo, true)
-        return
+        return true
       } 
-      if (!this.playing) return;
-
-      showToast("当前浏览器无法播放，请更换浏览器重试");
     },
 
     /** 播放/暂停 */

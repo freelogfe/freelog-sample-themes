@@ -250,7 +250,6 @@ export default {
 
     "$store.state.collectionIdList": {
       handler() {
-        console.log("$store.state.collectionIdList", this.voiceInfo);
         this.isCollected = useMyCollection.ifExist(this.voiceInfo);
       },
       immediate: true

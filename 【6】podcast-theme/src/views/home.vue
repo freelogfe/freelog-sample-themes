@@ -367,7 +367,6 @@ export default {
       this.listData = dataList;
       this.total = totalItem;
       this.loading = false;
-      console.log(dataList);
       return dataList
     },
     /** 页面滚动 */
