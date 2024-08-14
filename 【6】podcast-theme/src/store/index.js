@@ -24,11 +24,9 @@ export default new Vuex.Store({
     playing: false, // 是否在播放中
     initUrl: "", // 播放器初始化 url（用于解决 IOS 无法异步播放声音问题）
     progress: 0, // 当前播放进度
-    authIdList: [], // 授权后 id 记录集合（用于刷新首页列表、声音列表、搜索结果列表、详情页授权状态）
     searchKey: "", // 搜索关键词
     cachePool: {}, // 合集id为key, 子作品详情列表为value
     lastestAuthList: [] // 最新的全部展品授权情况列表
-    
   },
   mutations: {
     /** 更新数据 */
@@ -116,6 +114,72 @@ export default new Vuex.Store({
 
       // 如果有之前播放的声音，且声音依然存在于播放列表中，则获取声音信息
       if (playingId && playIdList.includes(playingId)) useMyPlay.getPlayingInfo(playingId);
+    },
+
+    /* 更新lastestAuthList */
+    async updateLastestAuthList(context) {
+      const dataList = await queryList()
+      if (dataList.length !== 0) {
+        const ids = dataList.map(item => item.exhibitId).join();
+        const [statusInfo] = await Promise.all([freelogApp.getExhibitAuthStatus(ids)]);
+
+        const signedList = JSON.parse(JSON.stringify(context.state.signedList))
+        const collectionList = JSON.parse(JSON.stringify(context.state.collectionList))
+        const playList = JSON.parse(JSON.stringify(context.state.playList))
+        statusInfo.data.data.forEach(ele => {     
+          if (signedList) {
+            signedList.forEach(data => {
+              if (data.exhibitId === ele.exhibitId) {
+                data.defaulterIdentityType = ele.defaulterIdentityType;
+              }
+            })
+          }
+       
+          if (collectionList) {
+            collectionList.forEach(data => {
+              if (data.exhibitId === ele.exhibitId) {
+                data.defaulterIdentityType = ele.defaulterIdentityType;
+              }
+            })
+          }
+      
+          if (playList) {
+            playList.forEach(data => {
+              if (data.exhibitId === ele.exhibitId) {
+                data.defaulterIdentityType = ele.defaulterIdentityType;
+              }
+            })
+          }
+        });
+        // 更新lastestAuthList
+        context.commit("setData", { key: "lastestAuthList", value: statusInfo.data.data })
+        // 更新签约列表授权状态
+        context.commit("setData", { key: "signedList", value: signedList })
+        // 更新播放列表
+        context.commit("setData", { key: "playList", value: playList })
+        // 更新收藏列表
+        context.commit("setData", { key: "collectionList", value: collectionList })
+      } else {
+        context.commit("setData", { key: "lastestAuthList", value: [] })
+      }
+
+      /** 获取展品列表 */
+      async function queryList(options = { skip: 0, limit: 100 }) {
+        let { skip, limit } = options
+        const result = []
+        const list = await freelogApp.getExhibitListByPaging({
+          ...options,
+          articleResourceTypes: "音频",
+          isLoadVersionProperty: 1,
+        });
+        const { dataList, totalItem } = list.data.data;
+        result.push(...dataList)
+        if (totalItem > (skip + 1) * limit) {
+          skip = (skip + 1) * limit
+          result.push(...await this.queryList({ skip })) 
+        }
+        return result
+      }
     }
   },
   modules: {}

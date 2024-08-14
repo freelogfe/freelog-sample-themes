@@ -263,15 +263,19 @@ export default {
       immediate: true
     },
 
-    "$store.state.authIdList"(cur) {
-      if (cur.includes(this.voiceInfo.exhibitId)) {
-        this.voiceInfo.defaulterIdentityType = 0;
-        if (this.voiceInfo.articleInfo.articleType === 2) {
-          this.list.forEach(ele => {
-            ele.defaulterIdentityType = 0
-          });
+    "$store.state.lastestAuthList"(cur) {   
+      cur.forEach(ele => {
+        if (ele.exhibitId === this.voiceInfo.exhibitId) {
+          this.voiceInfo.defaulterIdentityType = ele.defaulterIdentityType;
         }
-      }
+
+        // 更新子作品列表
+        if (this.list.length && this.list[0].exhibitId === ele.exhibitId) {
+          for (const item of this.list) {
+            item.defaulterIdentityType = ele.defaulterIdentityType;
+          }
+        }
+      });
     },
 
     voiceInfo(newValue) {
@@ -359,7 +363,7 @@ export default {
       const dom = document.getElementById('app')
       dom.addEventListener('scroll', this.scrollHandler)
     }
-    console.log(this.$router);
+    this.$store.dispatch("updateLastestAuthList")
   },
   beforeDestroy() {
     if (this.$store.state.inMobile) {

@@ -10,7 +10,7 @@
       statusShow
       authShow
       noMoreTip="已经加载全部数据"
-      :total="$store.state.signedList.length"
+      :total="$store.state.signedList ? $store.state.signedList.length : 0"
     />
   </div>
 </template>

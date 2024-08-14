@@ -36,7 +36,8 @@ export const useMyAuth = {
       });
     });
     store.commit("setData", { key: "signedList", value: result });
-    store.commit("setData", { key: "lastestAuthList", value: statusList.data.data });
+    // store.commit("setData", { key: "lastestAuthList", value: statusList.data.data });
+    store.dispatch("updateLastestAuthList")
   },
 
   /**
@@ -52,7 +53,7 @@ export const useMyAuth = {
     data.defaulterIdentityType = 0;
 
     // 同步收藏列表、签约列表、播放列表相应展品的授权状态，更新授权列表
-    const { collectionList, signedList, playList, authIdList } = store.state;
+    const { collectionList, signedList, playList } = store.state;
 
     const currentSignItem = signedList.find(ele => ele.exhibitId === exhibitId)
     if (currentSignItem) {
@@ -80,11 +81,10 @@ export const useMyAuth = {
         }
       } 
     }
-    authIdList.push(exhibitId);
     store.commit("setData", { key: "collectionList", value: collectionList });
     store.commit("setData", { key: "signedList", value: signedList });
     store.commit("setData", { key: "playList", value: playList });
-    store.commit("setData", { key: "authIdList", value: authIdList });
+    store.dispatch("updateLastestAuthList")
 
     if (play) {
       if (articleInfo.articleType === 2) {
@@ -93,9 +93,50 @@ export const useMyAuth = {
         * 合集的子作品
         */
         if (data.child) {
-          useMyPlay.playOrPause(data)
+          // 场景二：进去合集里点击某一首歌曲
+          useMyPlay.addToPlayList({
+            id: exhibitId,
+            isExhibit: false,
+            itemId: data.child.itemId
+          });
+          // 获取子作品的播放地址
+          const url = await freelogApp.getCollectionSubFileStream(exhibitId, {
+            itemId: data.child.itemId,
+            returnUrl: true
+          });
+          data.child.url = url
+          store.commit("setData", { key: "playingInfo", value: JSON.parse(JSON.stringify(data)) });
+          store.commit("setData", { key: "playing", value: true });
+          freelogApp.setUserData("playingId", `${exhibitId}=${data.child.itemId}`);
         } else {
-          useMyPlay.playOrPause(data, 'pool')
+          // 场景一：点击播放合集
+          // 1. 将合集的所有子作品加入播放列表(子作品有数量限制，暂不支持全量)
+          // 2. 播放合集的第一个子作品
+
+          // 获取所有子作品(按数量来确定要请求的数量)
+          const res = await useMyPlay.getListInCollection(exhibitId);
+          store.commit("setCachePool", {
+            key: exhibitId,
+            value: JSON.parse(JSON.stringify(res))
+          });
+          // 获取第一个子作品的播放地址
+          let playingId = res[0].itemId;
+          const url = await freelogApp.getCollectionSubFileStream(exhibitId, {
+            itemId: playingId,
+            returnUrl: true
+          });
+          res[0].url = url;
+          await useMyPlay.addToPlayListBatch(exhibitId, res)
+
+          store.commit("setData", {
+            key: "playingInfo",
+            value: {
+              ...data,
+              child: res[0]
+            }
+          });
+          store.commit("setData", { key: "playing", value: true });
+          freelogApp.setUserData("playingId", `${exhibitId}=${playingId}`);
         }
       } else {
         useMyPlay.addToPlayList({
@@ -110,7 +151,7 @@ export const useMyAuth = {
         store.commit("setData", { key: "playing", value: true });
       }
     }
-  }
+  },
 };
 
 /** 收藏 hook */
@@ -176,7 +217,8 @@ export const useMyCollection = {
       }
     });
     store.commit("setData", { key: "collectionList", value: result });
-    store.commit("setData", { key: "lastestAuthList", value: statusList.data.data });
+    // store.commit("setData", { key: "lastestAuthList", value: statusList.data.data });
+    store.dispatch("updateLastestAuthList")
   },
 
   /** 判断当前展品是否已被收藏 */
@@ -338,7 +380,8 @@ export const useMyPlay = {
       }
     });
     store.commit("setData", { key: "playList", value: result });
-    store.commit("setData", { key: "lastestAuthList", value: statusList.data.data });
+    // store.commit("setData", { key: "lastestAuthList", value: statusList.data.data });
+    store.dispatch("updateLastestAuthList")
   },
 
   /** 判断当前展品是否已存在播放列表中 */
@@ -651,6 +694,7 @@ export const useMyPlay = {
     const hasUrl =
       (articleInfo.articleType === 1 && url) ||
       (articleInfo.articleType === 2 && exhibit?.child?.url);
+
     if (playingInfo && defaulterIdentityType === 0 && hasUrl) {
       const {
         exhibitId: id,

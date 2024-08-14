@@ -135,6 +135,9 @@ export default {
     this.nodeInfo = freelogApp.nodeInfo;
     this.getList();
   },
+  activated() {
+    this.$store.dispatch("updateLastestAuthList")
+  },
   computed: {
     hotList() {
       return JSON.parse(JSON.stringify(this.listData.slice()));
@@ -144,12 +147,7 @@ export default {
     currentSelect(newValue) {
       this.sortList(newValue, this.listData)
     },
-    "$store.state.authIdList"(cur) {
-      cur.forEach(id => {
-        const item = this.listData.find(ele => ele.exhibitId === id)
-        if (item) item.defaulterIdentityType = 0;
-      });
-    },
+    
     "$store.state.lastestAuthList"(cur) {
       cur.forEach(ele => {
         const item = this.listData.find(data => data.exhibitId === ele.exhibitId);

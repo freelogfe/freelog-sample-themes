@@ -138,12 +138,12 @@ export default {
   },
 
   watch: {
-    "$store.state.authIdList"(cur) {
-      cur.forEach(id => {
-        const items = this.listData.filter(data => data.exhibitId === id);
+    "$store.state.lastestAuthList"(cur) {
+      cur.forEach(ele => {
+        const items = this.listData.filter(data => data.exhibitId === ele.exhibitId);
         if (items.length) {
           for (const item of items) {
-            item.defaulterIdentityType = 0;
+            item.defaulterIdentityType = ele.defaulterIdentityType;
           }
         }
       });
@@ -184,6 +184,7 @@ export default {
       app.scroll({ top: scrollTop });
     }
     app.addEventListener("scroll", this.scroll);
+    this.$store.dispatch("updateLastestAuthList")
   },
 
   deactivated() {

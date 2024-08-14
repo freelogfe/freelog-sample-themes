@@ -361,28 +361,6 @@ export default {
       immediate: true
     },
 
-    "$store.state.lastestAuthList"(cur) {
-      cur.forEach(ele => {
-        // 更新签约列表
-        const signedList = this.$store.state.signedList
-        if (signedList) {
-          const item = signedList.find(data => data.exhibitId === ele.exhibitId);
-          if (item) item.defaulterIdentityType = ele.defaulterIdentityType;
-        }
-
-        // 更新收藏列表
-        const collectionList = this.$store.state.collectionList
-        if (collectionList) {
-          const items = collectionList.filter(data => data.exhibitId === ele.exhibitId)
-          if (items.length) {
-            for (const item of items) {
-              item.defaulterIdentityType = ele.defaulterIdentityType;
-            }
-          }
-        }
-      });
-    },
-
     "$store.state.playingInfo": {
       handler(cur) {
         this.$store.commit("setData", { key: "progress", value: 0 });
@@ -614,8 +592,8 @@ export default {
 
   methods: {
     secondsToHMS,
-     /** 跳转到声音详情 */
-     skipToDetailPage() {
+    /** 跳转到声音详情 */
+    skipToDetailPage() {
       if (this.playingInfo.articleInfo.articleType === 1) {
         this.$router.myPush({ path: '/detail', query: { id: this.playingInfo.exhibitId } })
       } else {
@@ -665,6 +643,7 @@ export default {
       // 正在播放的数据
       const { articleInfo, exhibitId, child } = this.$store.state.playingInfo
       /* 场景: 播放一首A, 清空列表, 加入一首B到播放列表, 播放完A后要自动播放B)
+       * 场景: 播放一首A, 清空列表, 加入一首A到播放列表, 播放完A后暂停
        * 解决方式: 若前后播放的是同一首时, 不自动播下一首
        */
       if (this.playList.length === 1) {
@@ -681,9 +660,52 @@ export default {
       }
       this.nextVoice();
     },
-
     /** 播放失败 */
-    playError() {
+    async playError(event) {
+      let url
+      const playingInfo = this.$store.state.playingInfo
+      if (playingInfo) {
+        if (playingInfo.articleInfo.articleType === 1) {
+          url = playingInfo.url
+        } else {
+          url = playingInfo.child.url
+        }
+      }
+      // 请求一次url, 看是否是授权导致的播放失败
+      const res = await fetch(url)
+      
+      if (res.status === 401) {
+        // 初始化url: 解决audio的src地址前后都是同一个造成不发起请求的问题
+        if (this.playingInfo.articleInfo.articleType === 1) {
+          this.playingInfo.url = "https://file.testfreelog.com/exhibits/64d1ed97cc4a64002f632b0d"
+        } else {
+          this.playingInfo.child.url = "https://file.testfreelog.com/exhibits/64d1ed97cc4a64002f632b0d"
+        }
+
+        // 暂停播放
+        this.$store.commit("setData", {
+          key: "playing",
+          value: false
+        })
+
+        // 更新lastestAuthList的授权状态
+        this.$store.dispatch("updateLastestAuthList")
+
+        // 更新playList
+        const playList = JSON.parse(JSON.stringify(this.$store.state.playList))
+        playList.forEach(ele => {
+          if (ele.exhibitId === playingInfo.exhibitId) {
+            ele.defaulterIdentityType = 4
+          }
+        })
+        this.$store.commit("setData", {
+          key: "playList",
+          value: playList
+        })
+        // 调出授权
+        await useMyAuth.getAuth(this.playingInfo, true)
+        return
+      } 
       if (!this.playing) return;
 
       showToast("当前浏览器无法播放，请更换浏览器重试");
@@ -761,12 +783,10 @@ export default {
 
     /** 播放声音 */
     playVoice() {
-      if (!this.playing) return;
-      this.$nextTick(() => {
-        this.$refs.player.play();        
-        // 播放音频，显示播放器动画
-        this.animation();
-      })
+      if (!this.playing) return;  
+      this.$refs.player.play();        
+      // 播放音频，显示播放器动画
+      this.animation();
       // const { isIOS } = this.$store.state;
       // if (isIOS) {
       //   // ios 设备第一次播放音频会失败，需要重新播放一次才会正常
@@ -787,8 +807,6 @@ export default {
 
     /** 改变音频进度 */
     changeProgress(e) {
-      console.log(')))', e);
-      
       this.slidingProgress = false;
       this.$refs.player.currentTime = e;
       if (!this.playing) this.playOrPause();
@@ -832,7 +850,6 @@ export default {
           }
         );
         const basicX = -this.infoAreaWidth * index;
-        console.log("this.$refs", this.$refs);
         const areaWidth = this.$refs.infoArea.clientWidth;
         const offset = basicX - this.touchMoveX;
         if (Math.abs(offset) < (areaWidth * 2) / 5) {

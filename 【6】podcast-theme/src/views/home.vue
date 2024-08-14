@@ -172,21 +172,6 @@ export default {
   },
 
   watch: {
-    "$store.state.authIdList"(cur) {
-      cur.forEach(id => {
-        // 更新热门节目
-        const item = this.listData.find(data => data.exhibitId === id);
-        if (item) item.defaulterIdentityType = 0;
-
-        // 更新最新更新
-        const items = this.lastestList.filter(ele => ele.exhibitId === id)
-        if (items.length) {
-          for (const item of items) {
-            item.defaulterIdentityType = 0;
-          }
-        }
-      });
-    },
     "$store.state.lastestAuthList"(cur) {
       cur.forEach(ele => {
         // 更新热门节目
@@ -237,6 +222,7 @@ export default {
       app.scroll({ top: scrollTop });
     }
     app.addEventListener("scroll", this.scroll);
+    this.$store.dispatch("updateLastestAuthList")
   },
 
   deactivated() {

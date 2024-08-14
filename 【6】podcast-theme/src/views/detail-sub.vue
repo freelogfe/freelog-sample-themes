@@ -202,11 +202,16 @@ export default {
       immediate: true
     },
 
-    "$store.state.authIdList"(cur) {
-      if (cur.includes(this.voiceInfo.exhibitId)) this.voiceInfo.defaulterIdentityType = 0;
+    "$store.state.lastestAuthList"(cur) {
+      const target = cur.find(ele => ele.exhibitId === this.voiceInfo.exhibitId)
+      if (target) {
+        this.voiceInfo.defaulterIdentityType = target.defaulterIdentityType;
+      }
     }
   },
-
+  mounted() {
+    this.$store.dispatch("updateLastestAuthList")
+  },
   computed: {
     /** 授权链异常 */
     authLinkAbnormal() {
