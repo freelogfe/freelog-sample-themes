@@ -531,7 +531,7 @@ export default {
     isCollected() {
       const { collectionIdList, playingInfo } = this.store;
       return useMyCollection.ifExist({
-        exhibitId: playingInfo.exhibitId,
+        exhibitId: playingInfo?.exhibitId,
         itemId: playingInfo?.itemId
       });
     },
