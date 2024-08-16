@@ -1,6 +1,6 @@
 <!-- 音乐、专辑详情页 -->
 <template>
-  <div class="detail-wrapper">
+  <div class="detail-wrapper" v-if="!loading">
     <!-- <transition name="detail-fade"> -->
     <!-- <template v-if="voiceInfo"> -->
     <!-- mobile -->
@@ -397,7 +397,8 @@ export default {
       subTempData: [],
       tab: 1,
       selectedData: {},
-      moreMenuShow: false
+      moreMenuShow: false,
+      loading: false
     };
   },
 
@@ -681,6 +682,7 @@ export default {
 
     /** 获取音乐详情 */
     async getVoiceInfo() {
+      this.loading = true;
       this.voiceInfo = null;
       // 合集中的一个单品
       if (this.subID) {
@@ -719,6 +721,7 @@ export default {
       }
 
       this.href = freelogApp.getCurrentUrl();
+      this.loading = false;
     },
 
     /** 授权 */
