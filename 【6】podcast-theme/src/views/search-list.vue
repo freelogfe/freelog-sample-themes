@@ -2,108 +2,182 @@
 
 <template>
   <div class="search-list-wrapper">
-    <div class="program-list-wrapper-mobile" v-if="$store.state.inMobile">
-      <div class="plw-header">
-        {{ total ? `查询到${total}个相关结果` : '' }}
-      </div>
-      <div v-if="listData.length" class="plw-body">
-        <div class="plw-condition">
-          <div class="left" v-clickOutside="dropDownShow">
-            <div class="wrapper" @click="dropDownShow.value = !dropDownShow.value">
-              <span class="txt">{{ currentSelect === 'update' ? "最近更新" : "最热门" }}</span>
-              <div class="drop-trigger">
-                <div class="triangle"></div>
-              </div>
-            </div>
-            <div class="drop-list" v-if="dropDownShow.value">
-              <div
-                class="drop-item"
-                :class="{ selected: currentSelect === 'update' }"
-                @click="currentSelect = 'update'"
-              >
-                最近更新
-              </div>
-              <div
-                class="drop-item"
-                :class="{ selected: currentSelect === 'hot' }"
-                @click="currentSelect = 'hot'"
-              >
-                最热门
-              </div>
-            </div>
-          </div>
-         
+    <template v-if="!loading">
+      <div class="program-list-wrapper-mobile" v-if="$store.state.inMobile">
+        <div class="plw-header">
+          {{ total ? `查询到${total}个相关结果` : '' }}
         </div>
-        <div class="plw-content">
-          <div class="hot-container">
-            <voice
-              :data="item"
-              v-for="item in listData"
-              :key="item.exhibitId"
-              mode="program"
-            ></voice>
-          </div>
-        </div>
-        <div class="plw-footer">已加载全部</div>
-      </div>
-      <div v-else class="plw-empty">暂无任何节目</div>
-    </div>
-    <div class="program-list-wrapper-pc" v-else>
-      <div class="plw-header">
-        {{ `“${keywords}”的搜索结果${total ? '（' + total + '）' : ''}` }}
-      </div>
-      <div v-if="listData.length" class="plw-body">
-        <div class="plw-condition">
-          <div class="left" v-clickOutside="dropDownShow">
-            <div class="wrapper" @click="dropDownShow.value = !dropDownShow.value">
-              <span class="txt">{{ currentSelect === 'update' ? "最近更新" : "最热门" }}</span>
-              <div class="drop-trigger">
-                <div class="triangle"></div>
+        <div v-if="listData.length" class="plw-body">
+          <div class="plw-condition">
+            <div class="left" v-clickOutside="dropDownShow">
+              <div class="wrapper" @click="dropDownShow.value = !dropDownShow.value">
+                <span class="txt">{{ currentSelect === 'update' ? "最近更新" : "最热门" }}</span>
+                <div class="drop-trigger">
+                  <div class="triangle"></div>
+                </div>
+              </div>
+              <div class="drop-list" v-if="dropDownShow.value">
+                <div
+                  class="drop-item"
+                  :class="{ selected: currentSelect === 'update' }"
+                  @click="currentSelect = 'update'"
+                >
+                  最近更新
+                </div>
+                <div
+                  class="drop-item"
+                  :class="{ selected: currentSelect === 'hot' }"
+                  @click="currentSelect = 'hot'"
+                >
+                  最热门
+                </div>
               </div>
             </div>
-            <div class="drop-list" v-if="dropDownShow.value">
-              <div
-                class="drop-item"
-                :class="{ selected: currentSelect === 'update' }"
-                @click="currentSelect = 'update'"
-              >
-                最近更新
-              </div>
-              <div
-                class="drop-item"
-                :class="{ selected: currentSelect === 'hot' }"
-                @click="currentSelect = 'hot'"
-              >
-                最热门
-              </div>
-            </div>
+           
           </div>
-          <div class="right">
-            <div :class="{ selected: currentMode === 'card' }" @click="currentMode = 'card'">
-              卡片模式
-            </div>
-            <div :class="{ selected: currentMode === 'list' }" @click="currentMode = 'list'">
-              列表模式
-            </div>
-          </div>
-        </div>
-        <div class="plw-content">
-          <div class="hot-container">
-            <template v-if="currentMode === 'card'">
-              <program :data="item" v-for="item in listData" :key="item.exhibitId"></program>
-            </template>
-            <template v-else>
+          <div class="plw-content">
+            <div class="hot-container">
               <voice
                 :data="item"
                 v-for="item in listData"
                 :key="item.exhibitId"
                 mode="program"
               ></voice>
-            </template>
+            </div>
+          </div>
+          <div class="plw-footer">已加载全部</div>
+        </div>
+        <div v-else class="plw-empty">暂无任何节目</div>
+      </div>
+  
+      <div class="program-list-wrapper-pc" v-else>
+        <div class="plw-header">
+          {{ `“${keywords}”的搜索结果${total ? '（' + total + '）' : ''}` }}
+        </div>
+        <div v-if="listData.length" class="plw-body">
+          <div class="plw-condition">
+            <div class="left" v-clickOutside="dropDownShow">
+              <div class="wrapper" @click="dropDownShow.value = !dropDownShow.value">
+                <span class="txt">{{ currentSelect === 'update' ? "最近更新" : "最热门" }}</span>
+                <div class="drop-trigger">
+                  <div class="triangle"></div>
+                </div>
+              </div>
+              <div class="drop-list" v-if="dropDownShow.value">
+                <div
+                  class="drop-item"
+                  :class="{ selected: currentSelect === 'update' }"
+                  @click="currentSelect = 'update'"
+                >
+                  最近更新
+                </div>
+                <div
+                  class="drop-item"
+                  :class="{ selected: currentSelect === 'hot' }"
+                  @click="currentSelect = 'hot'"
+                >
+                  最热门
+                </div>
+              </div>
+            </div>
+            <div class="right">
+              <div :class="{ selected: currentMode === 'card' }" @click="currentMode = 'card'">
+                卡片模式
+              </div>
+              <div :class="{ selected: currentMode === 'list' }" @click="currentMode = 'list'">
+                列表模式
+              </div>
+            </div>
+          </div>
+          <div class="plw-content">
+            <div class="hot-container">
+              <template v-if="currentMode === 'card'">
+                <program :data="item" v-for="item in listData" :key="item.exhibitId"></program>
+              </template>
+              <template v-else>
+                <voice
+                  :data="item"
+                  v-for="item in listData"
+                  :key="item.exhibitId"
+                  mode="program"
+                ></voice>
+              </template>
+            </div>
           </div>
         </div>
+        <div v-else class="plw-empty">暂无任何节目</div>
       </div>
-      <div v-else class="plw-empty">暂无任何节目</div>
+    </template>
+
+    <div class="skeleton" v-else>
+      <div class="plw-skeleton-mobile" v-if="$store.state.inMobile">
+        <el-skeleton animated>
+          <template slot="template">
+            <div class="mobile-skeleton">
+              <el-skeleton-item class="total" variant="text" />
+              <el-skeleton-item class="condition" variant="text" />
+              <div class="program-skeleton" v-for="item in 10" :key="item">
+                <el-skeleton-item class="program-cover" variant="image" />
+                <div class="center">
+                  <div class="program-title">
+                    <el-skeleton-item  variant="text" />
+                  </div>
+                  <div>
+                    <el-skeleton-item class="program-update" variant="text" />
+                    <el-skeleton-item class="program-yonghu" variant="text" />
+                  </div>
+                </div>
+                <el-skeleton-item class="program-others" variant="text" />
+              </div>
+            </div>
+          </template>
+        </el-skeleton>
+      </div>
+      <div class="plw-skeleton-pc" v-else>
+        <el-skeleton animated>
+          <template slot="template">
+            <div class="pc-header">
+              <el-skeleton-item class="pc-header-total" variant="text" />
+              <div class="pc-header-condition">
+                <el-skeleton-item variant="text" class="header-select" />
+                <el-skeleton-item variant="text" class="header-card" />
+                <el-skeleton-item variant="text" class="header-card" />
+              </div>
+            </div>
+          </template>
+        </el-skeleton>
+        <el-skeleton animated v-if="currentMode === 'card'">
+          <template slot="template">
+            <div class="pc-skeleton">
+              <div class="program-skeleton" v-for="item in 10" :key="item">
+                <el-skeleton-item class="program-cover" variant="image" />
+                <el-skeleton-item class="program-desc" variant="text" />
+                <el-skeleton-item class="program-others" variant="text" />
+              </div>
+            </div>
+          </template>
+        </el-skeleton>
+        <el-skeleton animated v-else>
+          <template slot="template">
+            <div class="pc-skeleton-voice">
+              <div class="program-skeleton-voice" v-for="item in 5" :key="item">
+                <div class="left">
+                  <el-skeleton-item class="program-cover-voice" variant="image" />
+                </div>
+                <div class="center">
+                  <el-skeleton-item class="program-others-first" variant="text" />
+                  <el-skeleton-item class="program-others-second" variant="text" />
+                  <el-skeleton-item class="program-others-thrid" variant="text" />
+                  <el-skeleton-item class="program-others-fourth" variant="text" />
+                </div>
+                <div class="right">
+                  <el-skeleton-item class="program-desc-voice" variant="text" />
+                </div>
+              </div>
+            </div>
+          </template>
+        </el-skeleton>
+      </div>    
     </div>
   </div>
 </template>
@@ -112,6 +186,7 @@
 import { freelogApp } from "freelog-runtime";
 import program from "@/components/program";
 import voice from "@/components/voice";
+import { sleep } from "../utils/common";
 
 export default {
   name: "search-list",
@@ -201,6 +276,7 @@ export default {
       if (init) {
         this.total = 0;
         this.loading = true;
+        await sleep(800)
       }
       this.myLoading = true;
       this.skip = init ? 0 : this.skip + this.limit;
@@ -240,6 +316,7 @@ export default {
 
     /** 页面滚动 */
     scroll() {
+      const app = document.getElementById("app");
       const scrollTop = app.scrollTop || 0;
       sessionStorage.setItem("searchListScroll", scrollTop);
       const clientHeight = app.clientHeight || 0;
@@ -482,6 +559,172 @@ export default {
       color: rgba(255, 255, 255, 0.4);
       line-height: 20px;
       margin-top: 258px;
+    }
+  }
+  .skeleton {
+    .plw-skeleton-mobile {
+      padding: 0px 15px;
+      .mobile-skeleton {
+        .total {
+          height: 40px;
+          margin: 30px 0px;
+        }
+        .condition {
+          height: 20px;
+          margin-bottom: 20px;
+        }
+        .program-skeleton {
+          display: flex;
+          align-items: center;
+          margin-bottom: 15px;
+          &:last-child {
+            margin-bottom: 0px;
+          }
+          .program-cover {
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
+            margin-right: 10px;
+          }
+          .center {
+            margin-right: auto;
+            .program-title {
+              width: 200px;
+              height: 22px;
+              border-radius: 4px;
+              margin-bottom: 16px;
+            }
+            div {
+              height: 18px;
+              .program-update, .program-yonghu {
+                width: 40px;
+                height: 18px;
+                border-radius: 4px;
+              }
+              .program-yonghu {
+                margin-left: 10px;
+              }
+            }
+          }
+          .program-others {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+          }
+        }
+      } 
+      ::v-deep .el-skeleton.is-animated .el-skeleton__item {
+        background: linear-gradient(
+            90deg,
+            rgb(70, 70, 70) 25%,
+            rgb(50, 50, 50) 37%,
+            rgb(70, 70, 70) 63%
+          )
+          0% 0% / 400% 100%;
+      }
+    }
+
+    .plw-skeleton-pc {
+      .pc-header {
+        .pc-header-total {
+          height: 56px;
+        }
+        .pc-header-condition {
+          margin: 40px 0px;
+          display: flex;
+          .header-select {
+            height: 20px;
+            width: 500px;
+            margin-right: auto;
+          }
+          .header-card {
+            height: 20px;
+            width: 56px;
+            &:last-child {
+              margin-left: 30px;
+            }
+          }
+        }
+      }
+      .pc-skeleton {
+        display: flex;
+        gap: 50px 20px;
+        flex-wrap: wrap;
+        .program-skeleton {
+          width: 210px;
+          .program-cover {
+            height: 210px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+          }
+          .program-desc {
+            width: 160px;
+            height: 20px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+          }
+          .program-others {
+            width: 100px;
+            height: 18px;
+            border-radius: 4px;
+          }
+        }
+      }
+      .program-skeleton-voice {
+        display: flex;
+        align-items: center;
+        margin-bottom: 25px;
+        &:last-child {
+          margin-bottom: 0px;
+        }
+        .left .program-cover-voice {
+          width: 100px;
+          height: 100px;
+          border-radius: 10px;
+          margin-right: 20px;
+        }
+        .center {
+          margin-right: auto;
+          display: flex;
+          flex-direction: column;
+          .program-others-first {
+            width: 160px;
+            height: 20px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+          }
+          .program-others-second {
+            width: 700px;
+            height: 18px;
+            border-radius: 4px;
+            margin-bottom: 6px;
+          }
+          .program-others-thrid {
+            width: 500px;
+            height: 18px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+          }
+          .program-others-fourth {
+            width: 100px;
+            height: 18px;
+            border-radius: 4px;
+          }
+        }
+        .right {
+          width: 60px;
+          height: 18px;
+        }
+      }
+      ::v-deep .el-skeleton.is-animated .el-skeleton__item {
+        background: linear-gradient(
+            90deg,
+            rgb(70, 70, 70) 25%,
+            rgb(50, 50, 50) 37%,
+            rgb(70, 70, 70) 63%
+          )
+          0% 0% / 400% 100%;
+      }
     }
   }
 }

@@ -49,6 +49,7 @@ window.addEventListener(
     locationHistory.pop();
     store.commit("setData", { key: "locationHistory", value: locationHistory });
     store.commit("setData", { key: "routerMode", value: 2 });
+    console.log('popstate', locationHistory, store.state.routerMode);
   },
   true
 );

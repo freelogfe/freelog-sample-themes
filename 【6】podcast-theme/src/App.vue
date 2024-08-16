@@ -52,7 +52,8 @@ export default {
   background-color: #222;
   color: #fff;
   font-size: 14px;
-
+  height: 100vh;
+  overflow: auto;
   &.pc {
     .page-wrapper {
       padding-bottom: 48px;

@@ -50,9 +50,6 @@
           <div class="voice-list">
             <voice :data="item" v-for="item in lastestList" :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`" mode="voice" />
           </div>
-          <div class="view-more">
-            <div class="view-more-btn" @click="$router.myPush('/program-list')">查看所有节目</div>
-          </div>
         </div>
         <div class="no-data-tip" v-else>
           <div>当前节点暂无任何声音</div>
@@ -117,11 +114,6 @@
           </div>
           <div class="voice-list">
             <voice :data="item" v-for="item in lastestList" :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`" mode="voice" />
-          </div>
-          <div class="view-more" v-if="total > 10">
-            <div class="text-btn" @click="$router.myPush('/program-list')">
-              查看所有节目&nbsp;({{ total }})
-            </div>
           </div>
         </div>
 
@@ -517,23 +509,6 @@ export default {
           margin-top: 15px;
         }
       }
-
-      .view-more {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        margin-top: 40px;
-
-        .view-more-btn {
-          font-size: 14px;
-          line-height: 20px;
-          color: #2784ff;
-
-          &:active {
-            color: rgba(39, 132, 255, 0.6);
-          }
-        }
-      }
     }
 
     .no-data-tip {
@@ -844,18 +819,6 @@ export default {
       .voice-list {
         .voice-wrapper + .voice-wrapper {
           margin-top: 25px;
-        }
-      }
-
-      .view-more {
-        width: 100%;
-        display: flex;
-        justify-content: flex-end;
-        margin-top: 25px;
-
-        .text-btn {
-          font-size: 14px;
-          line-height: 20px;
         }
       }
     }

@@ -78,9 +78,9 @@ export const estimateDuration = time => {
   }
   const restSeconds = totalSeconds % 60
   if (restSeconds < 30 && restSeconds > 0) {
-    return `${String(Math.floor(totalSeconds / 60)).padStart(2, "0")}:${String(restSeconds).padStart(2, "0")}`
-  } else {
     return `${String(Math.floor(totalSeconds / 60))}分钟`
+  } else {
+    return `${String(Math.floor(totalSeconds / 60) + 1)}分钟`
   }
 }
 
@@ -155,3 +155,9 @@ export const showToast = msg => {
     document.body.removeChild(div);
   }, 2000);
 };
+
+export const sleep = (duration) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(resolve, duration)
+  })
+}

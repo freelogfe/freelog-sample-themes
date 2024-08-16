@@ -19,20 +19,25 @@ export const useMyAuth = {
     }
 
     const ids = idList.join();
-    const [list, countList, statusList] = await Promise.all([
+    const [list, countList, statusList, totalList] = await Promise.all([
       freelogApp.getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
       freelogApp.getExhibitSignCount(ids),
-      freelogApp.getExhibitAuthStatus(ids)
+      freelogApp.getExhibitAuthStatus(ids),
+      freelogApp.getCollectionsSubList(ids, { sortType: 1, skip: 0, limit: 2, isShowDetailInfo: 1 })
     ]);
+    
     idList.forEach(id => {
       const signedItem = list.data.data.find(item => item.exhibitId === id);
       if (!signedItem || signedItem.articleInfo.resourceType.includes("主题")) return;
       const countItem = countList.data.data.find(item => item.subjectId === id);
       const statusItem = statusList.data.data.find(item => item.exhibitId === id);
+      const totalItem = totalList.data.data.find(item => item.exhibitId === id)
+      
       result.push({
         ...signedItem,
         signCount: countItem.count,
-        defaulterIdentityType: statusItem.defaulterIdentityType
+        defaulterIdentityType: statusItem.defaulterIdentityType,
+        totalItem: totalItem.totalItem
       });
     });
     store.commit("setData", { key: "signedList", value: result });
@@ -628,18 +633,16 @@ export const useMyPlay = {
       localStorage.setItem("playIdList", "[]");
       store.commit("setData", { key: "playIdList", value: [] });
       store.commit("setData", { key: "playList", value: [] });
-      // 清空列表时, 继续播放最后一首
-      // store.commit("setData", { key: "playing", value: false });
-      // store.commit("setData", { key: "playingInfo", value: null });
+      store.commit("setData", { key: "playing", value: false });
+      store.commit("setData", { key: "playingInfo", value: null });
     } else {
       // 已登录时取用户数据
       const res = await freelogApp.setUserData("playIdList", []);
       if (res.data.msg === "success") {
         store.commit("setData", { key: "playIdList", value: [] });
         store.commit("setData", { key: "playList", value: [] });
-        // 清空列表时, 继续播放最后一首
-        // store.commit("setData", { key: "playing", value: false });
-        // store.commit("setData", { key: "playingInfo", value: null });
+        store.commit("setData", { key: "playing", value: false });
+        store.commit("setData", { key: "playingInfo", value: null });
       } else {
         showToast("清空列表失败");
       }

@@ -33,6 +33,7 @@
               <el-skeleton-item class="voice-intro" variant="text" />
               <el-skeleton-item class="voice-others" variant="text" />
             </div>
+            <el-skeleton-item class="voice-duration" variant="text" />
           </div>
         </template>
       </el-skeleton>
@@ -212,6 +213,7 @@ export default {
       width: 100%;
       display: flex;
       margin-top: 25px;
+      align-items: center;
 
       .cover {
         width: 100px;
@@ -224,7 +226,8 @@ export default {
         display: flex;
         flex-direction: column;
         margin-left: 20px;
-
+        margin-right: auto;
+        
         .voice-title {
           height: 22px;
           width: 400px;
@@ -245,6 +248,11 @@ export default {
           height: 18px;
           margin-top: 10px;
         }
+      }
+
+      .voice-duration {
+        height: 20px;
+        width: 40px;
       }
     }
 

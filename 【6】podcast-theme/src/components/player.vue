@@ -10,6 +10,7 @@
       @ended="$store.state.initUrl === null && endVoice()"
       @error="$store.state.initUrl === null && playError($event)"
       @waiting="handleWaiting"
+      @durationchange="handleDurationchange"
     />
 
     <!-- mobile -->
@@ -593,6 +594,7 @@ export default {
 
   methods: {
     secondsToHMS,
+
     /** 跳转到声音详情 */
     skipToDetailPage() {
       if (this.playingInfo.articleInfo.articleType === 1) {
@@ -603,9 +605,12 @@ export default {
         this.$router.myPush({ path: '/detail-sub', query: { id: this.playingInfo.exhibitId } })
       }
     },
+
+    /** 鼠标移出 */
     handleMouseout() {
       this.animation('kill')
     },
+
     /** 关闭播放器 */
     closePlayer() {
       this.show = false;
@@ -659,6 +664,8 @@ export default {
           return
         }
       }
+      this.$store.commit("setData", { key: "playing", value: false });
+      this.$store.commit("setData", { key: "progress", value: 0 });
       this.nextVoice();
     },
     /** 播放失败 */
@@ -689,8 +696,18 @@ export default {
       if (!this.playing) return;
     },
 
+    /** 因为暂时性缺少数据，播放暂停 */
     async handleWaiting(event) {
       await this.requestTry()
+    },
+
+    /** 播放总时长变化 */
+    async handleDurationchange(event) {
+      if (this.playingInfo.articleInfo.articleType === 1) {
+        this.playingInfo.versionInfo.exhibitProperty.duration = this.$refs.player.duration * 1000
+      } else {
+        this.playingInfo.child.articleInfo.articleProperty.duration = this.$refs.player.duration * 1000
+      }
     },
 
     /** 主动进行一次请求 */
@@ -762,8 +779,7 @@ export default {
     clearPlayList() {
       useMyPlay.clearPlayList();
       this.confirmDialogShow = false;
-      // 清空列表时, 继续播放最后一首
-      // this.$refs.player.currentTime = 0;
+      this.$refs.player.currentTime = 0;
     },
 
     /** 授权 */

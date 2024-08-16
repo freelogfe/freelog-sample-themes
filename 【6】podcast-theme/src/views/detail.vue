@@ -181,7 +181,7 @@
             </div>
             <div class="list-container" v-if="list.length">
               <div class="list-item" v-for="item in list">
-                <voice :data="item" :key="item.exhibitId" subMode="inDetailPage"></voice>
+                <voice :data="item" :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`" subMode="inDetailPage"></voice>
               </div>
             </div>
             <div class="no-data-tip" v-else>暂无任何声音, 请稍后查看</div>
@@ -233,7 +233,8 @@ export default {
       list: [],
       currentPage: 1,
       total: 0,
-      showIntro: false
+      showIntro: false,
+      myLoading: false
     };
   },
   watch: {
@@ -279,7 +280,7 @@ export default {
 
     voiceInfo(newValue) {
       this.isCollected = useMyCollection.ifExist(newValue);
-    }
+    },
   },
 
   computed: {
@@ -357,6 +358,7 @@ export default {
       ];
     }
   },
+
   mounted() {
     if (this.$store.state.inMobile) {
       const dom = document.getElementById('app')
@@ -364,12 +366,14 @@ export default {
     }
     this.$store.dispatch("updateLastestAuthList")
   },
+
   beforeDestroy() {
     if (this.$store.state.inMobile) {
       const dom = document.getElementById('app')
       dom.removeEventListener('scroll', this.scrollHandler)
     }
   },
+
   methods: {
     /** 播放/暂停 */
     playOrPause() {
@@ -447,6 +451,7 @@ export default {
     async getAuth() {
       useMyAuth.getAuth(this.voiceInfo);
     },
+
     /** 分页 */
     async queryList() {
       const limit = 5
@@ -481,13 +486,16 @@ export default {
         console.warn(res.data);
       }
     },
+
     /** 分页 */
     handleCurrentChange(current) {
       this.currentPage = current
       this.queryList()
     },
+
     /** mobile动态加载 */
     async queryListMobile() {
+      this.myLoading = true
       const limit = 5
       let skip = (this.currentPage - 1) * limit
       const res = await freelogApp.getCollectionSubList(this.voiceInfo.exhibitId, {
@@ -516,13 +524,17 @@ export default {
           };
         }));
         this.total = res.data.data.totalItem
+        this.myLoading = false
       } else {
         console.warn(res.data);
+        this.myLoading = false
       }
     },
+
     async scrollHandler(e) {
       const dom = document.getElementById('app')
-      if (dom.scrollHeight - dom.scrollTop === dom.clientHeight) {
+      if (dom.scrollHeight - dom.scrollTop - dom.clientHeight < 200) {
+        if (this.myLoading) return
         if (this.list.length === this.total) return
         this.currentPage++
         await this.queryListMobile()

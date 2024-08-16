@@ -20,7 +20,7 @@
         </div>
 
         <div class="header-right">
-          <i class="freelog fl-icon-content" @click="toPage('/search-list')"></i>
+          <i class="freelog fl-icon-content" @click.stop="toPage('/search-list')"></i>
 
           <img class="menu" src="../assets/images/menu.png" @click="userBoxShow = true" />
         </div>
@@ -52,7 +52,7 @@
             v-show="searchKey"
           ></i>
         </div>
-        <div class="cancel-btn" @click="back()">取消</div>
+        <div class="cancel-btn" @click.stop="back()">取消</div>
 
         <transition name="fade">
           <div class="search-history" v-if="searchHistoryShow">
@@ -103,7 +103,7 @@
               </template>
             </div>
 
-            <div class="footer-btn" @click="callLoginOut()" v-if="userData.isLogin">
+            <div class="footer-btn" @click="callLoginOutHome()" v-if="userData.isLogin">
               <i class="freelog fl-icon-tuichu1"></i>
               <div class="btn-label">退出登录</div>
             </div>
@@ -199,7 +199,7 @@
           >
             签约记录
           </div>
-          <div class="btn user-box-btn" @click="callLoginOut()">登出</div>
+          <div class="btn user-box-btn" @click="callLoginOutHome()">登出</div>
 
           <img class="avatar" :src="userData.headImage" :alt="userData.username" slot="reference" />
         </el-popover>
@@ -229,7 +229,6 @@ export default {
       tabList: [
         { value: "/home", label: "首页" },
         { value: "/program-list", label: "所有节目" },
-        // { value: "/voice-list", label: "声音" },
         { value: "/collection-list", label: "收藏" }
       ]
     };
@@ -297,7 +296,10 @@ export default {
 
   methods: {
     callLogin,
-    callLoginOut,
+    async callLoginOutHome() {
+      await callLoginOut()
+      this.$router.myPush("/home")
+    },
 
     /** 返回 */
     back() {

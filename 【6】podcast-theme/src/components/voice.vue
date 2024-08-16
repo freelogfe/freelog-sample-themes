@@ -80,7 +80,7 @@
             <div class="item-value">{{ data.signCount | signCount }}</div>
           </div>
           <div class="info-item exhibit-title" v-if="data.articleInfo.articleType === 2 && mode === 'voice'" 
-            @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })">
+            @click.stop="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })">
             <i class="freelog fl-icon-zhuanji"></i>
             <div class="item-value">{{ data.exhibitTitle }}</div>
           </div>
@@ -212,7 +212,7 @@
             <i class="freelog fl-icon-yonghu"></i>
             <div class="item-value">{{ data.signCount | signCount }}</div>
           </div>
-          <div class="info-item to-pool" v-if="data.articleInfo.articleType === 2 && mode === 'voice'"
+          <div class="info-item to-pool" :class="{ vaild: subMode !== 'inDetailPage' }" v-if="data.articleInfo.articleType === 2 && mode === 'voice'"
             @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })">
             <i class="freelog fl-icon-zhuanji"></i>
             <div class="item-value">{{ data.exhibitTitle }}</div>
@@ -538,7 +538,7 @@ export default {
           operate: this.addToPlayList,
           disabled: this.isInPlayList || !this.ifSupportMime
         },
-        { icon: "fl-icon-danji", label: "查看声音详情", operate: this.toVoiceDetail },
+        { icon: "fl-icon-danji", label: "查看声音详情", operate: this.skipToDetailPage },
         {
           icon: this.isCollected
             ? "fl-icon-shoucangxiaoshuoyishoucang"
@@ -564,10 +564,6 @@ export default {
           this.$router.myPush({ path: '/detail', query: { id: this.data.exhibitId } })
         }
       }
-    },
-    /** 查看声音详情 */
-    toVoiceDetail() {
-      this.$router.myPush({ path: "/detail", query: { id: this.data.exhibitId } });
     },
     /** 播放/暂停 */
     handlePlayOrPause() {
