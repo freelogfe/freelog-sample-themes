@@ -540,7 +540,7 @@ export default {
         {
           icon: "fl-icon-shangyishou1",
           operate: this.preVoice,
-          disabled: this.$store.state.playList.length <= 1
+          disabled: this.$store.state.playList && this.$store.state.playList.length <= 1
         },
         {
           icon: this.playing ? "fl-icon-zanting-daibiankuang" : "fl-icon-bofang-daibiankuang",
@@ -549,7 +549,7 @@ export default {
         {
           icon: "fl-icon-xiayishou1",
           operate: this.nextVoice,
-          disabled: this.$store.state.playList.length <= 1
+          disabled: this.$store.state.playList && this.$store.state.playList.length <= 1
         }
       ];
     },

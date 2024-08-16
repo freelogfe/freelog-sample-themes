@@ -197,6 +197,7 @@ export default {
   created() {
     this.nodeInfo = freelogApp.nodeInfo;
     this.getList().then((res) => {
+      if (!res.length) return
       this.getUpdatedList(res);
     })
   },
@@ -254,7 +255,7 @@ export default {
       exhibitSubList.data.data.forEach(ele => {
         const exhibitDetail = exhibitDetailList.data.data.find(exhibit => exhibit.exhibitId === ele.exhibitId)
         const authItem = authStatusList.data.data.find(exhibit => exhibit.exhibitId === ele.exhibitId)
-        if (ele.itemList.length) {
+        if (ele.itemList && ele.itemList.length) {
           ele.itemList.forEach(innerEle => {
             const data = JSON.parse(JSON.stringify({
               ...exhibitDetail,
