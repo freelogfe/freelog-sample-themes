@@ -47,7 +47,7 @@ const getList = async () => {
   const queryParams = {
     articleResourceTypes: "音频",
     isLoadVersionProperty: 1,
-    limit: 15
+    limit: 100
   };
   const list = await freelogApp.getExhibitListByPaging(queryParams);
   const { dataList, totalItem } = list.data.data;
