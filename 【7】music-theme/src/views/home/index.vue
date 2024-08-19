@@ -146,7 +146,11 @@ onBeforeMount(() => {
 
 <template>
   <HomeBanner />
-  <div class="home-popular-album-wrap" :class="{ pc: !store.inMobile, mobile: store.inMobile }">
+  <div
+    v-if="!loading"
+    class="home-popular-album-wrap"
+    :class="{ pc: !store.inMobile, mobile: store.inMobile }"
+  >
     <HomePopular hasHeader :data="popularData" />
     <HomeAlbum hasHeader :data="albumData" />
   </div>
