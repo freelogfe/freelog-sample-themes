@@ -272,33 +272,31 @@
         <div class="intro">{{ voiceInfo?.exhibitIntro }}</div>
 
         <div class="btns-area">
-          <template v-if="playingInfo">
+          <div
+            class="duration"
+            v-if="
+              voiceInfo?.articleInfo?.articleType === 1 &&
+              playingInfo?.exhibitId !== voiceInfo?.exhibitId
+            "
+          >
+            时长{{ secondsToHMS(voiceInfo?.versionInfo?.exhibitProperty.duration) }}
+          </div>
+          <transition name="slide-right">
             <div
-              class="duration"
+              class="playing-mark"
               v-if="
-                voiceInfo?.articleInfo?.articleType === 1 &&
-                playingInfo.exhibitId !== voiceInfo?.exhibitId
+                `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ''}` ===
+                `${voiceInfo?.exhibitId}${voiceInfo?.itemId ?? ''}`
               "
             >
-              时长{{ secondsToHMS(voiceInfo?.versionInfo?.exhibitProperty.duration) }}
-            </div>
-            <transition name="slide-right">
-              <div
-                class="playing-mark"
-                v-if="
-                  `${playingInfo.exhibitId}${playingInfo.itemId ?? ''}` ===
-                  `${voiceInfo?.exhibitId}${voiceInfo?.itemId ?? ''}`
-                "
-              >
-                <play-status :playing="store.playing" />
-                <div class="progress">
-                  <span>{{ secondsToHMS(store.progress * 1000) }}</span>
-                  <span class="progress-divider">/</span>
-                  <span>{{ secondsToHMS(voiceInfo?.versionInfo.exhibitProperty.duration) }}</span>
-                </div>
+              <play-status :playing="store.playing" />
+              <div class="progress">
+                <span>{{ secondsToHMS(store.progress * 1000) }}</span>
+                <span class="progress-divider">/</span>
+                <span>{{ secondsToHMS(voiceInfo?.versionInfo.exhibitProperty.duration) }}</span>
               </div>
-            </transition>
-          </template>
+            </div>
+          </transition>
           <template v-for="(item, index) in btnList">
             <div
               class="btn normal-btn"
