@@ -116,7 +116,7 @@
             </div>
           </div>
         </div>
-        <div class="info-area">
+        <div class="info-area" :class="!data.exhibitIntro && 'flex-justify-center'">
           <div class="title-area">
             <img
               class="auth-link-abnormal"
