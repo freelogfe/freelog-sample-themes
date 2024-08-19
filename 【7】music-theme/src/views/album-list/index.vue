@@ -74,7 +74,7 @@ export default {
         skip: this.skip,
         articleResourceTypes: "音频",
         isLoadVersionProperty: 1,
-        limit: 20
+        limit: 100
       };
       const list = await freelogApp.getExhibitListByPaging(queryParams);
       const { dataList, totalItem } = list.data.data;
@@ -103,17 +103,6 @@ export default {
       this.total = totalItem;
       if (init) this.loading = false;
       this.myLoading = false;
-
-      // TODO 这里要改一下
-      this.getCollectionList();
-    },
-
-    /** 获取漫画目录 */
-    async getCollectionList(init = false, skipChapter = 0) {
-      const subList = await freelogApp.getCollectionSubList("66a485fd682471002fa0ea11", {
-        skip: 0
-      });
-      console.log("sbuList", subList);
     },
 
     /** 页面滚动 */

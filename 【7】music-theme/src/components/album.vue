@@ -336,6 +336,7 @@ const getCollectionList = async (obj: {
 
   .album-content-box {
     display: flex;
+    flex-wrap: wrap;
     gap: 30px;
     min-width: 1100px;
 
@@ -350,7 +351,6 @@ const getCollectionList = async (obj: {
           height: 232px;
           background: rgba(0, 0, 0, 0.2);
           border-radius: 10px;
-          margin-right: 15px;
           overflow: hidden;
 
           &:hover {
