@@ -10,7 +10,7 @@
           <div class="left" v-clickOutside="dropDownShow">
             <div class="wrapper" @click="dropDownShow.value = !dropDownShow.value">
               <span class="txt">{{ currentSelect === 'update' ? "最近更新" : "最热门" }}</span>
-              <div class="drop-trigger">
+              <div class="drop-trigger" :class="{ rotate: dropDownShow.value }">
                 <div class="triangle"></div>
               </div>
             </div>
@@ -78,7 +78,7 @@
           <div class="left" v-clickOutside="dropDownShow">
             <div class="wrapper" @click="dropDownShow.value = !dropDownShow.value">
               <span class="txt">{{ currentSelect === 'update' ? "最近更新" : "最热门" }}</span>
-              <div class="drop-trigger">
+              <div class="drop-trigger" :class="{ rotate: dropDownShow.value }">
                 <div class="triangle"></div>
               </div>
             </div>
@@ -357,6 +357,10 @@ export default {
             .drop-trigger {
               position: relative;
               margin-left: 7px;
+              transition: transform 0.35s;
+              &.rotate {
+                transform: rotate(180deg);
+              }
               .triangle {
                 width: 0px;
                 border-width: 6px 5px;
@@ -509,6 +513,10 @@ export default {
             .drop-trigger {
               position: relative;
               margin-left: 7px;
+              transition: transform 0.35s;
+              &.rotate {
+                transform: rotate(-180deg);
+              }
               .triangle {
                 width: 0px;
                 border-width: 6px 5px;
