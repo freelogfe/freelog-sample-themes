@@ -252,8 +252,34 @@
                 <div class="top-area">
                   <template v-if="playingInfo">
                     <div class="title-area">
-                      <my-tooltip class="title voice-title" :content="playingInfo.exhibitTitle">
+                      <!-- 音乐标题 -->
+                      <my-tooltip :content="playingInfo.exhibitTitle">
                         <span
+                          class="title voice-title"
+                          @click="
+                            playingInfo?.itemTitle
+                              ? $router.myPush({
+                                  path: '/detail',
+                                  query: {
+                                    id: playingInfo.exhibitId,
+                                    subID: playingInfo.itemId,
+                                    albumName: playingInfo.exhibitTitle
+                                  }
+                                })
+                              : $router.myPush({
+                                  path: '/detail',
+                                  query: { id: playingInfo.exhibitId }
+                                })
+                          "
+                        >
+                          {{ playingInfo?.itemTitle || playingInfo.exhibitTitle }}
+                        </span>
+                      </my-tooltip>
+
+                      <!-- 合集标题 -->
+                      <my-tooltip :content="playingInfo?.exhibitTitle" v-if="playingInfo.itemId">
+                        <span
+                          class="title album-title"
                           @click="
                             $router.myPush({
                               path: '/detail',
@@ -265,6 +291,7 @@
                         </span>
                       </my-tooltip>
                     </div>
+
                     <div class="progress-area">
                       {{ secondsToHMS(store.progress * 1000) }} /
                       {{ secondsToHMS(playingInfo.versionInfo.exhibitProperty.duration) }}
@@ -538,7 +565,7 @@ export default {
 
     /** 是否播放中 */
     playing() {
-      return this.store.playing;
+      return this.store?.playing;
     },
 
     /** 播放进度 */
@@ -562,7 +589,7 @@ export default {
         {
           icon: "fl-icon-shangyishou1",
           operate: this.preVoice,
-          disabled: this.store.playList.length <= 1
+          disabled: this.store.playList?.length <= 1
         },
         {
           icon: this.playing ? "fl-icon-zanting-daibiankuang" : "fl-icon-bofang-daibiankuang",
@@ -571,7 +598,7 @@ export default {
         {
           icon: "fl-icon-xiayishou1",
           operate: this.nextVoice,
-          disabled: this.store.playList.length <= 1
+          disabled: this.store.playList?.length <= 1
         }
       ];
     },
