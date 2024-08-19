@@ -75,7 +75,7 @@
           </div>
           <!-- mobile：合集的单品列表 -->
           <div class="mobile-detail-list" v-if="$store.state.inMobile && voiceInfo.articleInfo.articleType === 2">
-            <voice :data="item" v-for="item in list" :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`" mode="voice" />
+            <voice :data="item" v-for="item in list" :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`" mode="voice" subMode="inDetailPage" />
           </div>
           <div class="load-ready" v-if="$store.state.inMobile && voiceInfo.articleInfo.articleType === 2">
             <span v-if="list.length === 0">暂无任何声音</span>

@@ -31,6 +31,8 @@ export default {
   },
 
   created() {
+    console.log("0.1.37");
+    
     this.$router.afterEach(to => {
       // 将第一个路由记入路由历史
       const { locationHistory } = this.$store.state;

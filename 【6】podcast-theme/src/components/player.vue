@@ -196,7 +196,7 @@
                   </template>
                   <span class="no-data-title" v-else>暂无播放的声音</span>
                 </div>
-                <div @mousedown="slidingProgress = true">
+                <div @mousedown="slidingProgress = true" v-if="slientFresh">
                   <el-slider
                     class="progress"
                     :class="{ 'no-voice': !playingInfo }"
@@ -333,11 +333,22 @@ export default {
       infoAreaWidth: 0,
       startTouchX: 0,
       touchMoveX: 0,
-      closeTimer: null
+      closeTimer: null,
+      slientFresh: true
     };
   },
 
   watch: {
+    "$store.state.progress": {
+      handler(cur) {
+        if (cur === 0) {
+          this.slientFresh = false
+          this.$nextTick(() => {
+            this.slientFresh = true
+          })
+        }
+      }
+    },
     "$store.state.playList": {
       handler(cur, pre) {
         this.playList = cur;

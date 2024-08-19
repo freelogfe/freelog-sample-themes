@@ -120,20 +120,42 @@
         <div class="no-data-tip" v-else>当前节点暂无任何声音，请稍后查看</div>
       </template>
 
-      <el-skeleton class="skeleton" animated v-else>
-        <template slot="template">
-          <el-skeleton-item class="title" variant="text" />
-          <div class="voice-skeleton" v-for="item in 3" :key="item">
-            <el-skeleton-item class="cover" variant="image" />
-            <div class="info-area">
-              <el-skeleton-item class="voice-title" variant="text" />
-              <el-skeleton-item class="voice-intro" variant="text" />
-              <el-skeleton-item class="voice-intro" variant="text" />
-              <el-skeleton-item class="voice-others" variant="text" />
+      <template v-else>
+        <el-skeleton animated>
+          <template slot="template">
+            <div class="pc-skeleton-hot">
+              <el-skeleton-item class="hot-title" variant="text" />
+              <el-skeleton-item class="hot-others" variant="text" />
             </div>
-          </div>
-        </template>
-      </el-skeleton>
+          </template>
+        </el-skeleton>
+        <el-skeleton animated>
+          <template slot="template">
+            <div class="pc-skeleton">
+              <div class="program-skeleton" v-for="item in 5" :key="item">
+                <el-skeleton-item class="program-cover" variant="image" />
+                <el-skeleton-item class="program-desc" variant="text" />
+                <el-skeleton-item class="program-others" variant="text" />
+              </div>
+            </div>
+          </template>
+        </el-skeleton>
+        <el-skeleton class="skeleton" animated>
+          <template slot="template">
+            <el-skeleton-item class="title" variant="text" />
+            <div class="voice-skeleton" v-for="item in 3" :key="item">
+              <el-skeleton-item class="cover" variant="image" />
+              <div class="info-area">
+                <el-skeleton-item class="voice-title" variant="text" />
+                <el-skeleton-item class="voice-intro" variant="text" />
+                <el-skeleton-item class="voice-intro" variant="text" />
+                <el-skeleton-item class="voice-others" variant="text" />
+              </div>
+            </div>
+          </template>
+        </el-skeleton>
+      </template>
+
     </div>
   </div>
 </template>
@@ -143,6 +165,7 @@ import voice from "@/components/voice";
 import program from "@/components/program";
 import { freelogApp } from "freelog-runtime";
 import Vue from "vue";
+import { sleep } from "../utils/common";
 
 export default {
   name: "home",
@@ -331,6 +354,7 @@ export default {
       if (this.loading) return;
 
       this.loading = true;
+      await sleep(800)
       const queryParams = {
         articleResourceTypes: "音频",
         isLoadVersionProperty: 1,
@@ -893,6 +917,56 @@ export default {
             rgb(70, 70, 70) 63%
           )
           0% 0% / 400% 100%;
+      }
+    }
+
+    .pc-skeleton {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      .program-skeleton {
+        width: 210px;
+        .program-cover {
+          height: 210px;
+          margin-bottom: 10px;
+          border-radius: 10px;
+        }
+        .program-desc {
+          width: 160px;
+          height: 20px;
+          margin-bottom: 10px;
+          border-radius: 4px;
+        }
+        .program-others {
+          width: 100px;
+          height: 18px;
+          border-radius: 4px;
+        }
+      }
+
+    }
+    ::v-deep .el-skeleton.is-animated .el-skeleton__item {
+      background: linear-gradient(
+          90deg,
+          rgb(70, 70, 70) 25%,
+          rgb(50, 50, 50) 37%,
+          rgb(70, 70, 70) 63%
+        )
+        0% 0% / 400% 100%;
+    }
+
+    .pc-skeleton-hot {
+      display: flex;
+      margin-bottom: 25px;
+      margin-top: 45px;
+      .hot-title {
+        width: 80px;
+        height: 28px;
+        margin-right: auto;
+      }
+      .hot-others {
+        height: 20px;
+        width: 40px;
       }
     }
 

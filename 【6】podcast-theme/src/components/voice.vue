@@ -79,7 +79,8 @@
             <i class="freelog fl-icon-yonghu"></i>
             <div class="item-value">{{ data.signCount | signCount }}</div>
           </div>
-          <div class="info-item exhibit-title" v-if="data.articleInfo.articleType === 2 && mode === 'voice'" 
+          <div class="info-item exhibit-title" 
+            v-if="data.articleInfo.articleType === 2 && mode === 'voice' && subMode !== 'inDetailPage'" 
             @click.stop="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })">
             <i class="freelog fl-icon-zhuanji"></i>
             <div class="item-value">{{ data.exhibitTitle }}</div>
@@ -212,7 +213,8 @@
             <i class="freelog fl-icon-yonghu"></i>
             <div class="item-value">{{ data.signCount | signCount }}</div>
           </div>
-          <div class="info-item to-pool" :class="{ vaild: subMode !== 'inDetailPage' }" v-if="data.articleInfo.articleType === 2 && mode === 'voice'"
+          <div class="info-item to-pool" :class="{ vaild: subMode !== 'inDetailPage' }" 
+            v-if="data.articleInfo.articleType === 2 && mode === 'voice' && subMode !== 'inDetailPage'"
             @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })">
             <i class="freelog fl-icon-zhuanji"></i>
             <div class="item-value">{{ data.exhibitTitle }}</div>
@@ -598,6 +600,7 @@ export default {
             id: exhibitId,
             itemId: child.itemId,
             callback: () => {
+              const app = document.getElementById("app");
               const { offsetTop, offsetLeft } = this.$refs.cover;
               this.coverLeft = offsetLeft;
               this.coverTop = offsetTop - app.scrollTop;
@@ -613,6 +616,7 @@ export default {
           useMyPlay.addToPlayList({
             id: exhibitId,
             callback: () => {
+              const app = document.getElementById("app");
               const { offsetTop, offsetLeft } = this.$refs.cover;
               this.coverLeft = offsetLeft;
               this.coverTop = offsetTop - app.scrollTop;

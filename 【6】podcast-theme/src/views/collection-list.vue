@@ -4,7 +4,7 @@
   <div class="collect-list-wrapper">
     <list
       :list="$store.state.collectionList"
-      :loading="!$store.state.collectionList"
+      :loading="loading"
       title="收藏"
       noDataTip="暂无任何收藏"
       statusShow
@@ -21,6 +21,27 @@ export default {
   name: "collect-list",
 
   components: { list },
+
+  data() {
+    return {
+      loading: false
+    }
+  },
+
+  created() {
+    this.loading = true
+    setTimeout(() => {
+      if (!this.$store.state.collectionList) {
+        setInterval(() => {
+          if (this.$store.state.collectionList) {
+            this.loading = false
+          }
+        }, 200)
+      } else {
+        this.loading = false
+      }
+    }, 800)
+  },
 
   activated() {
     const app = document.getElementById("app");

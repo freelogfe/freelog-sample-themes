@@ -4,7 +4,7 @@
   <div class="sign-list-wrapper">
     <list
       :list="$store.state.signedList"
-      :loading="!$store.state.signedList"
+      :loading="loading"
       title="签约记录"
       noDataTip="暂无任何签约记录"
       statusShow
@@ -22,6 +22,27 @@ export default {
   name: "sign-list",
 
   components: { list },
+
+  data() {
+    return {
+      loading: false
+    }
+  },
+
+  created() {
+    this.loading = true
+    setTimeout(() => {
+      if (!this.$store.state.signedList) {
+        setInterval(() => {
+          if (this.$store.state.signedList) {
+            this.loading = false
+          }
+        }, 200)
+      } else {
+        this.loading = false
+      }
+    }, 800)
+  },
 
   activated() {
     const app = document.getElementById("app");

@@ -193,6 +193,13 @@ export default {
   },
   activated() {
     this.$store.dispatch("updateLastestAuthList")
+    
+    const app = document.getElementById("app");
+    const { routerMode } = this.$store.state;
+    if (routerMode === 1) {
+      // push 过来，滚动条回到顶部
+      app.scroll({ top: 0 });
+    }
   },
   computed: {
     hotList() {

@@ -612,7 +612,9 @@ export const useMyPlay = {
         store.commit("setData", { key: "playIdList", value: playIdList });
         store.commit("setData", { key: "playList", value: playList });
 
-        if (exhibitId !== playingInfo?.exhibitId) return;
+        const cond1 = articleInfo.articleType === 1 && exhibitId === playingInfo?.exhibitId
+        const cond2 = articleInfo.articleType === 2 && exhibitId === playingInfo?.exhibitId && child.itemId === playingInfo.child.itemId
+        if (!cond1 && !cond2) return;
         if (playing) {
           // 如果移出的声音是当前正在播放的声音，自动播放列表中的下一个声音
           useMyPlay.playOrPause(playList[index]);
@@ -635,6 +637,7 @@ export const useMyPlay = {
       store.commit("setData", { key: "playList", value: [] });
       store.commit("setData", { key: "playing", value: false });
       store.commit("setData", { key: "playingInfo", value: null });
+      store.commit("setData", { key: "progress", value: 0 });
     } else {
       // 已登录时取用户数据
       const res = await freelogApp.setUserData("playIdList", []);
@@ -643,6 +646,7 @@ export const useMyPlay = {
         store.commit("setData", { key: "playList", value: [] });
         store.commit("setData", { key: "playing", value: false });
         store.commit("setData", { key: "playingInfo", value: null });
+        store.commit("setData", { key: "progress", value: 0 });
       } else {
         showToast("清空列表失败");
       }
@@ -834,8 +838,13 @@ export const useMyPlay = {
     if (playingInfo.articleInfo.articleType === 1) {
       index = playList.findIndex(item => item.exhibitId === id);
     } else {
-      const itemId = data ? data.child.itemId : playingInfo.child.itemId;
-      index = playList.findIndex(item => item.exhibitId === id && item.child.itemId === itemId);
+      let itemId
+      if (data) {
+        if (data.child) itemId = data.child.itemId 
+      } else {
+        if (playingInfo.child) itemId = playingInfo.child.itemId
+      }
+      index = playList.findIndex(item => item.exhibitId === id && item?.child?.itemId === itemId);
     }
     if (index === 0) {
       preVoiceInfo = playList[playList.length - 1];
@@ -854,8 +863,13 @@ export const useMyPlay = {
     if (playingInfo.articleInfo.articleType === 1) {
       index = playList.findIndex(item => item.exhibitId === id);
     } else {
-      const itemId = data ? data.child.itemId : playingInfo.child.itemId;
-      index = playList.findIndex(item => item.exhibitId === id && item.child.itemId === itemId);
+      let itemId
+      if (data) {
+        if (data.child) itemId = data.child.itemId 
+      } else {
+        if (playingInfo.child) itemId = playingInfo.child.itemId
+      }
+      index = playList.findIndex(item => item.exhibitId === id && item?.child?.itemId === itemId);
     }
     if (index === playList.length - 1) {
       nextVoiceInfo = playList[0];
