@@ -39,7 +39,11 @@ export default {
       loading: false,
       myLoading: false,
       total: 0,
-      store
+      store,
+      subTotal: 0,
+      subSkip: 0,
+      subTempData: [],
+      collectionData: []
     };
   },
 
@@ -77,7 +81,7 @@ export default {
   },
 
   methods: {
-    /** 获取声音列表 */
+    /** 获取列表 */
     async getList(init = false) {
       if (this.myLoading) return;
       if (this.total === this.listData.length && !init) return;
@@ -114,12 +118,67 @@ export default {
           );
           if (index !== -1)
             item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+
+          // 获取合集里的单品列表
+          if (item.articleInfo.articleType === 2) {
+            this.getCollectionList(item.exhibitId, item.exhibitName, item.coverImages);
+          }
         });
       }
       this.listData = init ? dataList : [...this.listData, ...dataList];
       this.total = totalItem;
       if (init) this.loading = false;
       this.myLoading = false;
+    },
+
+    /** 获取合集里的单品列表 */
+    async getCollectionList(collectionID, exhibitName, coverImages) {
+      const subList = await freelogApp.getCollectionSubList(collectionID, {
+        skip: this.subSkip,
+        limit: 1_000,
+        isShowDetailInfo: 1
+      });
+      const { dataList, totalItem } = subList.data.data;
+      this.subTotal = totalItem;
+
+      if (dataList?.length !== 0) {
+        const ids = dataList.map(item => item.itemId).join();
+        const statusInfo = await freelogApp.getCollectionSubAuth(collectionID, {
+          itemIds: ids
+        });
+
+        if (statusInfo.data.data) {
+          dataList.forEach(item => {
+            const index = statusInfo.data.data.findIndex(
+              resultItem => resultItem.itemId === item.itemId
+            );
+            if (index !== -1) {
+              item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+            }
+
+            item.exhibitTitle = item.itemTitle;
+            item.exhibitIntro = item.articleInfo.intro;
+            item.exhibitId = collectionID;
+            item.coverImages = coverImages;
+            item.versionInfo = { exhibitProperty: item.articleInfo.articleProperty };
+            item.albumName = exhibitName;
+          });
+        }
+      }
+
+      this.subTempData.push(...dataList);
+      this.collectionData = [...this.collectionData, ...dataList];
+      this.listData = [...this.listData, ...this.collectionData];
+      this.total = this.listData.length;
+
+      if (this.subTempData.length < this.subTotal) {
+        this.subSkip = this.subSkip + 1_000;
+        this.getCollectionList(collectionID, exhibitName, coverImages);
+      } else {
+        this.subTotal = 0;
+        this.subSkip = 0;
+        this.subTempData = [];
+      }
     },
 
     /** 页面滚动 */
