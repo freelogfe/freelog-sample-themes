@@ -25,7 +25,7 @@
             @click.stop="getAuth()"
             v-if="data.defaulterIdentityType >= 4"
           ></i>
-          <template v-if="authShow">
+          <!-- <template v-if="authShow">
             <div
               class="tag is-auth"
               :class="{ 'opacity-40': authLinkAbnormal }"
@@ -36,7 +36,7 @@
             <div class="tag not-auth" :class="{ 'opacity-40': authLinkAbnormal }" v-else>
               未授权
             </div>
-          </template>
+          </template> -->
           <div class="title" :class="{ 'opacity-40': authLinkAbnormal }">
             {{ data.exhibitTitle }}
           </div>
@@ -104,9 +104,7 @@
           @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
         >
           <img class="cover" :src="data.coverImages[0]" />
-          <div class="offline" v-if="data.onlineStatus === 0 && statusShow">
-            <span>已下架</span>
-          </div>
+
           <div class="btn-modal" v-if="ifSupportMime">
             <div class="btn" @click.stop="playOrPause()">
               <i
@@ -128,7 +126,10 @@
               @click.stop="getAuth()"
               v-if="data.defaulterIdentityType >= 4"
             ></i>
-            <template v-if="authShow">
+            <div class="offline" v-if="data.onlineStatus === 0 && statusShow">
+              <span>已下架</span>
+            </div>
+            <!-- <template v-if="authShow">
               <div
                 class="tag is-auth"
                 :class="{ 'opacity-40': authLinkAbnormal }"
@@ -139,7 +140,7 @@
               <div class="tag not-auth" :class="{ 'opacity-40': authLinkAbnormal }" v-else>
                 未授权
               </div>
-            </template>
+            </template> -->
             <myTooltip :content="data.exhibitTitle">
               <span
                 class="title"
