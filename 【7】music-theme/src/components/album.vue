@@ -158,7 +158,12 @@ const getCollectionList = async (obj: {
 
     <!-- 专辑内容 -->
     <div class="album-content-box">
-      <div class="content-item" v-for="(item, index) in props.data" :key="index">
+      <div
+        class="content-item"
+        v-for="(item, index) in props.data"
+        :key="index"
+        @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
+      >
         <div class="info-box">
           <div class="cover-image">
             <img :src="item.coverImages[0]" alt="歌曲封面" />
