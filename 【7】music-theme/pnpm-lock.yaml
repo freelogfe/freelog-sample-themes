@@ -15,8 +15,8 @@ dependencies:
     specifier: ^2.1.7
     version: 2.1.7(typescript@5.5.3)(vue@3.4.31)
   qrcode.vue:
-    specifier: 1.7.0
-    version: 1.7.0(vue@3.4.31)
+    specifier: 3.4.1
+    version: 3.4.1(vue@3.4.31)
   vue:
     specifier: ^3.4.29
     version: 3.4.31(typescript@5.5.3)
@@ -1357,10 +1357,10 @@ packages:
     dev: true
     optional: true
 
-  /qrcode.vue@1.7.0(vue@3.4.31):
-    resolution: {integrity: sha512-R7t6Y3fDDtcU7L4rtqwGUDP9xD64gJhIwpfjhRCTKmBoYF6SS49PIJHRJ048cse6OI7iwTwgyy2C46N9Ygoc6g==}
+  /qrcode.vue@3.4.1(vue@3.4.31):
+    resolution: {integrity: sha512-wq/zHsifH4FJ1GXQi8/wNxD1KfQkckIpjK1KPTc/qwYU5/Bkd4me0w4xZSg6EXk6xLBkVDE0zxVagewv5EMAVA==}
     peerDependencies:
-      vue: ^2.0.0
+      vue: ^3.0.0
     dependencies:
       vue: 3.4.31(typescript@5.5.3)
     dev: false
