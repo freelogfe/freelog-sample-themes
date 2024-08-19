@@ -130,7 +130,10 @@ export const useMyAuth = {
             returnUrl: true
           });
           res[0].url = url;
-          await useMyPlay.addToPlayListBatch(exhibitId, res)
+          await useMyPlay.addToPlayListBatch({
+            exhibitId, 
+            addArr: res
+          })
 
           store.commit("setData", {
             key: "playingInfo",
@@ -414,7 +417,8 @@ export const useMyPlay = {
   },
 
   /** 将合集加入播放列表 */
-  async addToPlayListBatch(exhibitId, addArr, bol = false) {
+  async addToPlayListBatch(options, bol = false) {
+    const { exhibitId, addArr, callback } = options
     // 1.删除之前存在的 
     // 2.批量添加
     if (!store.state.userData.isLogin) {
@@ -434,6 +438,7 @@ export const useMyPlay = {
 
       localStorage.setItem("playIdList", JSON.stringify(newList));
       store.commit("setData", { key: "playIdList", value: newList });
+      callback && callback();
       bol && showToast("添加成功");
       await useMyPlay.getPlayList();
     } else {
@@ -456,6 +461,7 @@ export const useMyPlay = {
       
       if (res.data.msg === "success") {
         store.commit("setData", { key: "playIdList", value: newList });
+        callback && callback();
         bol && showToast("添加成功");
         await useMyPlay.getPlayList();
       } else {
@@ -785,7 +791,10 @@ export const useMyPlay = {
         returnUrl: true
       });
       res[0].url = url;
-      await this.addToPlayListBatch(exhibitId, res)
+      await this.addToPlayListBatch({
+        exhibitId, 
+        addArr: res
+      })
 
       store.commit("setData", {
         key: "playingInfo",

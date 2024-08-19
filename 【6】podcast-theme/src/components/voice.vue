@@ -100,7 +100,7 @@
         :class="{ animation: addAnimation }"
         :style="{ '--top': coverTop + 'px' }"
       >
-        <img class="cover" :src="data.coverImages[0]" />
+        <img class="cover" :src="computedCover" />
       </div>
 
       <!-- 更多菜单 -->
@@ -259,7 +259,7 @@
         :class="{ animation: addAnimation }"
         :style="{ '--left': coverLeft + 'px', '--top': coverTop + 'px' }"
       >
-        <img class="cover" :src="data.coverImages[0]" />
+        <img class="cover" :src="computedCover" />
       </div>
     </div>
   </div>
@@ -586,6 +586,17 @@ export default {
 
     /** 加入播放列表 */
     async addToPlayList() {
+      const callback = () => {
+        const app = document.getElementById("app");
+        const { offsetTop, offsetLeft } = this.$refs.cover;
+        this.coverLeft = offsetLeft;
+        this.coverTop = offsetTop - app.scrollTop;
+        if (this.$store.state.inMobile) this.moreMenuShow = false;
+        this.addAnimation = true;
+        setTimeout(() => {
+          this.addAnimation = false;
+        }, 700);
+      }
       const { articleInfo, exhibitId, child } = this.data
       if (articleInfo.articleType === 2 && this.mode === 'program') {
         const res = await useMyPlay.getListInCollection(exhibitId);
@@ -593,39 +604,23 @@ export default {
           key: exhibitId,
           value: JSON.parse(JSON.stringify(res))
         });
-        await useMyPlay.addToPlayListBatch(exhibitId, res, true)
+        await useMyPlay.addToPlayListBatch({
+          exhibitId, 
+          addArr: res,
+          callback,
+        }, true)
       } else {
         if (articleInfo.articleType === 2) {
           useMyPlay.addToPlayList({
             id: exhibitId,
             itemId: child.itemId,
-            callback: () => {
-              const app = document.getElementById("app");
-              const { offsetTop, offsetLeft } = this.$refs.cover;
-              this.coverLeft = offsetLeft;
-              this.coverTop = offsetTop - app.scrollTop;
-              if (this.$store.state.inMobile) this.moreMenuShow = false;
-              this.addAnimation = true;
-              setTimeout(() => {
-                this.addAnimation = false;
-              }, 700);
-            },
+            callback,
             isExhibit: false
           });
         } else {
           useMyPlay.addToPlayList({
             id: exhibitId,
-            callback: () => {
-              const app = document.getElementById("app");
-              const { offsetTop, offsetLeft } = this.$refs.cover;
-              this.coverLeft = offsetLeft;
-              this.coverTop = offsetTop - app.scrollTop;
-              if (this.$store.state.inMobile) this.moreMenuShow = false;
-              this.addAnimation = true;
-              setTimeout(() => {
-                this.addAnimation = false;
-              }, 700);
-            },
+            callback,
             isExhibit: true
           });
         }

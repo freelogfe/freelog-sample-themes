@@ -389,7 +389,10 @@ export default {
           key: exhibitId,
           value: JSON.parse(JSON.stringify(res))
         });
-        await useMyPlay.addToPlayListBatch(exhibitId, res, true)
+        await useMyPlay.addToPlayListBatch({
+          exhibitId, 
+          addArr: res
+        }, true)
       } else {
         useMyPlay.addToPlayList({
           id: exhibitId,
