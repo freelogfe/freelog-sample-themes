@@ -253,7 +253,7 @@
                   <template v-if="playingInfo">
                     <div class="title-area">
                       <!-- 音乐标题 -->
-                      <my-tooltip :content="playingInfo.exhibitTitle">
+                      <my-tooltip :content="playingInfo?.itemTitle || playingInfo.exhibitTitle">
                         <span
                           class="title voice-title"
                           @click="
@@ -376,7 +376,7 @@
                     v-if="item.defaulterIdentityType >= 4"
                   ></i>
                   <div class="title-area">
-                    <my-tooltip :content="item.exhibitTitle">
+                    <my-tooltip :content="item.itemTitle || item.exhibitTitle">
                       <span class="title voice-title">{{
                         item.itemTitle || item.exhibitTitle
                       }}</span>
