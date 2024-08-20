@@ -47,7 +47,7 @@
       <div v-else-if="tab === 2 && list.length && total !== 0">
         <PCAlbum
           v-if="!store.inMobile"
-          hasHeder="false"
+          :hasHeder="false"
           :data="list.filter(i => i.articleInfo?.articleType === 2)"
         />
         <MobileAlbum v-else :data="list.filter(i => i.articleInfo?.articleType === 2)" />
