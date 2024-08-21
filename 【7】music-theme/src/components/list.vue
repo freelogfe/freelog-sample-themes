@@ -28,6 +28,43 @@
 
     <template v-if="!loading">
       <!-- 音乐 -->
+      <div v-if="$route.name === 'voice-list'">
+        <!-- 最新发布 | 最早发布 -->
+        <div class="music-drop-wrapper" ref="dropWrapper">
+          <div class="selected-box" @click="handleShowDrop">
+            <div class="txt">{{ selectedValue === 1 ? "最新发布" : "最早发布" }}</div>
+            <div class="drop-trigger" :class="dropVisible ? 'rotate' : ''">
+              <div class="triangle"></div>
+            </div>
+          </div>
+          <div class="drop-list" v-show="dropVisible">
+            <div
+              class="drop-item"
+              :class="selectedValue === 1 && 'selected'"
+              @click="
+                () => {
+                  selectedValue = 1;
+                  handleShowDrop();
+                }
+              "
+            >
+              最新发布
+            </div>
+            <div
+              class="drop-item"
+              :class="selectedValue === 2 && 'selected'"
+              @click="
+                () => {
+                  selectedValue = 2;
+                  handleShowDrop();
+                }
+              "
+            >
+              最早发布
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="voice-list" v-if="tab === 1 && list.length && total !== 0">
         <div class="voice-bar" v-if="!store.inMobile">
           <span>歌名\歌手</span>
@@ -38,8 +75,8 @@
           :data="item"
           :statusShow="statusShow"
           :authShow="authShow"
-          v-for="item in list.filter(i => i?.articleInfo?.articleType === 1)"
-          :key="item.exhibitId"
+          v-for="item in sortedList"
+          :key="`${item.exhibitId}${item?.itemId}`"
         />
         <div class="no-more-tip" v-if="list.length === total && noMoreTip">{{ noMoreTip }}</div>
       </div>
@@ -172,7 +209,10 @@ export default {
 
     return {
       store,
-      tab: TabEnum[this.activeTab]
+      tab: TabEnum[this.activeTab],
+      dropVisible: false,
+      selectedValue: 1,
+      dropWrapper: null
     };
   },
 
@@ -210,13 +250,48 @@ export default {
       }
 
       return null;
+    },
+
+    sortedList() {
+      if (this.$route.name === "voice-list") {
+        if (this.selectedValue === 1) {
+          // 降序排列
+          return this.list
+            .filter(i => i?.articleInfo?.articleType === 1)
+            .sort((a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime());
+        } else {
+          // 升序排列
+          return this.list
+            .filter(i => i?.articleInfo?.articleType === 1)
+            .sort((a, b) => new Date(a.updateDate).getTime() - new Date(b.updateDate).getTime());
+        }
+      } else {
+        return this.list.filter(i => i?.articleInfo?.articleType === 1);
+      }
     }
   },
 
   methods: {
     changeTab(tab) {
       this.tab = tab;
+    },
+    handleShowDrop() {
+      this.dropVisible = !this.dropVisible;
+    },
+    handleClickOutside(event) {
+      if (this.$refs.dropWrapper && !this.$refs.dropWrapper.contains(event.target)) {
+        this.dropVisible = false;
+      }
     }
+  },
+  mounted() {
+    console.log("mounted");
+    document.addEventListener("click", this.handleClickOutside);
+  },
+  beforeDestroy() {
+    console.log("onBeforeUnmount");
+
+    document.removeEventListener("click", this.handleClickOutside);
   }
 };
 </script>
@@ -392,6 +467,77 @@ export default {
         color: #ffffff;
         line-height: 18px;
         opacity: 0.4;
+      }
+    }
+
+    .music-drop-wrapper {
+      display: flex;
+      align-items: center;
+      position: relative;
+      margin: 40px 0;
+      width: 100%;
+      height: 20px;
+
+      .selected-box {
+        display: flex;
+        align-items: center;
+        .txt {
+          height: 20px;
+          font-weight: 600;
+          font-size: 14px;
+          color: #fff;
+          line-height: 20px;
+        }
+
+        .drop-trigger {
+          position: relative;
+          margin-left: 7px;
+          transition: transform 0.35s;
+
+          &.rotate {
+            transform: rotate(-180deg);
+          }
+
+          .triangle {
+            width: 0;
+            border-width: 6px 5px;
+            border-style: solid;
+            border-color: transparent;
+            border-top-color: #fff;
+            position: relative;
+            top: 3px;
+          }
+        }
+      }
+
+      .drop-list {
+        position: absolute;
+        top: 25px;
+        width: 240px;
+        background: #000;
+        box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        padding: 5px 0;
+        z-index: 2;
+        -webkit-backdrop-filter: blur(25px);
+        backdrop-filter: blur(25px);
+
+        .drop-item {
+          padding-left: 20px;
+          height: 50px;
+          line-height: 50px;
+          color: hsla(0, 0%, 100%, 0.6);
+          cursor: pointer;
+
+          &.selected {
+            color: #fff;
+          }
+
+          &:hover {
+            background-color: #2784ff;
+            color: #fff;
+          }
+        }
       }
     }
 
