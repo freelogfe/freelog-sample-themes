@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 import { freelogApp } from "freelog-runtime";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { relativeTime } from "@/utils/common.js";
 import { useMyPlay, useMyAuth } from "@/utils/hooks";
 // 图片
@@ -16,9 +16,16 @@ const props = defineProps<{
   hasHeader: boolean;
   data: Exhibit[];
 }>();
+const route = useRoute();
 const router = useRouter();
 const store = useGlobalStore();
+const albumData = ref<Exhibit[]>(
+  props.data.sort((a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime())
+);
 const collectionData = ref<Exhibit[]>([]);
+const dropVisible = ref<boolean>(false);
+const selectedValue = ref<number>(1); // 1-最新发布 2-最早发布
+const dropWrapper = ref<HTMLElement | null>(null);
 
 const authLinkAbnormal = (defaulterIdentityType: number) => {
   return ![0, 4].includes(defaulterIdentityType);
@@ -140,6 +147,25 @@ const getCollectionList = async (obj: {
     subTempData = [];
   }
 };
+
+const handleShowDrop = () => {
+  dropVisible.value = !dropVisible.value;
+};
+
+// 定义点击外部的处理函数
+const handleClickOutside = (event: MouseEvent) => {
+  if (dropWrapper.value && !dropWrapper.value.contains(event.target as Node)) {
+    dropVisible.value = false;
+  }
+};
+
+onMounted(() => {
+  document.addEventListener("click", handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("click", handleClickOutside);
+});
 </script>
 
 <template>
@@ -156,11 +182,57 @@ const getCollectionList = async (obj: {
       </div>
     </div>
 
+    <div v-if="route.name === 'album-list'">
+      <!-- 最新发布 | 最早发布 -->
+      <div class="album-drop-wrapper" ref="dropWrapper">
+        <div class="selected-box" @click="handleShowDrop">
+          <div class="txt">{{ selectedValue === 1 ? "最新发布" : "最早发布" }}</div>
+          <div class="drop-trigger" :class="dropVisible ? 'rotate' : ''">
+            <div class="triangle"></div>
+          </div>
+        </div>
+        <div class="drop-list" v-show="dropVisible">
+          <div
+            class="drop-item"
+            :class="selectedValue === 1 && 'selected'"
+            @click="
+              () => {
+                selectedValue = 1;
+                handleShowDrop();
+                // 降序排列
+                albumData = albumData.sort(
+                  (a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime()
+                );
+              }
+            "
+          >
+            最新发布
+          </div>
+          <div
+            class="drop-item"
+            :class="selectedValue === 2 && 'selected'"
+            @click="
+              () => {
+                selectedValue = 2;
+                handleShowDrop();
+                // 升序排列
+                albumData = albumData.sort(
+                  (a, b) => new Date(a.updateDate).getTime() - new Date(b.updateDate).getTime()
+                );
+              }
+            "
+          >
+            最早发布
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 专辑内容 -->
     <div class="album-content-box">
       <div
         class="content-item"
-        v-for="(item, index) in props.data"
+        v-for="(item, index) in albumData"
         :key="index"
         @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
       >
@@ -233,7 +305,7 @@ const getCollectionList = async (obj: {
 
     <!-- 专辑内容 -->
     <div class="album-content-box">
-      <div class="content-item" v-for="(item, index) in props.data" :key="index">
+      <div class="content-item" v-for="(item, index) in albumData" :key="index">
         <div class="info-box">
           <div class="cover-image">
             <img :src="item.coverImages[0]" alt="歌曲封面" />
@@ -329,6 +401,77 @@ const getCollectionList = async (obj: {
           width: 100%;
           height: 100%;
           object-fit: cover;
+        }
+      }
+    }
+  }
+
+  .album-drop-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin: 40px 0;
+    width: 100%;
+    height: 20px;
+
+    .selected-box {
+      display: flex;
+      align-items: center;
+      .txt {
+        height: 20px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #fff;
+        line-height: 20px;
+      }
+
+      .drop-trigger {
+        position: relative;
+        margin-left: 7px;
+        transition: transform 0.35s;
+
+        &.rotate {
+          transform: rotate(-180deg);
+        }
+
+        .triangle {
+          width: 0;
+          border-width: 6px 5px;
+          border-style: solid;
+          border-color: transparent;
+          border-top-color: #fff;
+          position: relative;
+          top: 3px;
+        }
+      }
+    }
+
+    .drop-list {
+      position: absolute;
+      top: 25px;
+      width: 240px;
+      background: #000;
+      box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+      padding: 5px 0;
+      z-index: 2;
+      -webkit-backdrop-filter: blur(25px);
+      backdrop-filter: blur(25px);
+
+      .drop-item {
+        padding-left: 20px;
+        height: 50px;
+        line-height: 50px;
+        color: hsla(0, 0%, 100%, 0.6);
+        cursor: pointer;
+
+        &.selected {
+          color: #fff;
+        }
+
+        &:hover {
+          background-color: #2784ff;
+          color: #fff;
         }
       }
     }
