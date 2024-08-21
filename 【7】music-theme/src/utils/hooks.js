@@ -277,6 +277,7 @@ export const useMyPlay = {
         store.setData({ key: "playIdList", value: playIdList });
         callback && callback();
         useMyPlay.getPlayList();
+        showToast("添加成功");
       } else {
         showToast("加入播放列表失败");
       }
