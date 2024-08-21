@@ -391,9 +391,7 @@ export default {
       } else {
         if (this.mode === 'voice'){
           return secondsToHMS(this.data?.child?.articleInfo?.articleProperty?.duration);
-        } else {
-          return secondsToHMS(this.$store.state.playingInfo?.child?.articleInfo?.articleProperty?.duration)
-        }
+        } 
       }
     },
 
@@ -587,7 +585,7 @@ export default {
     /** 加入播放列表 */
     async addToPlayList() {
       const callback = () => {
-        const app = document.getElementById("app");
+        const app = document.getElementById("appPodcast");
         const { offsetTop, offsetLeft } = this.$refs.cover;
         this.coverLeft = offsetLeft;
         this.coverTop = offsetTop - app.scrollTop;

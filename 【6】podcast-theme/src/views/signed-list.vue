@@ -45,7 +45,7 @@ export default {
   },
 
   activated() {
-    const app = document.getElementById("app");
+    const app = document.getElementById("appPodcast");
     const { routerMode } = this.$store.state;
     if (routerMode === 1) {
       // push 过来，滚动条回到顶部
@@ -60,14 +60,14 @@ export default {
   },
 
   deactivated() {
-    const app = document.getElementById("app");
+    const app = document.getElementById("appPodcast");
     app.removeEventListener("scroll", this.scroll);
   },
 
   methods: {
     /** 页面滚动 */
     scroll() {
-      const app = document.getElementById("app");
+      const app = document.getElementById("appPodcast");
       const scrollTop = app.scrollTop || 0;
       sessionStorage.setItem("signedListScroll", scrollTop);
     }

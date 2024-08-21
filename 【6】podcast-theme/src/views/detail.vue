@@ -131,7 +131,7 @@
 
               <div class="btns-area">
                 <template v-if="playingInfo">
-                  <div class="duration" v-if="playingInfo.articleInfo.articleType === 1">
+                  <div class="duration" v-if="playingInfo.exhibitId !== voiceInfo.exhibitId">
                     时长{{ voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
                   </div>
                   <transition name="slide-right">
@@ -141,7 +141,7 @@
                         <span>{{ ($store.state.progress * 1000) | secondsToHMS }}</span>
                         <span class="progress-divider">/</span>
                         <span>{{
-                          voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS
+                          playingInfo.versionInfo.exhibitProperty.duration | secondsToHMS
                         }}</span>
                       </div>
                     </div>
@@ -214,6 +214,7 @@ import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { showToast } from "@/utils/common";
 import { freelogApp } from "freelog-runtime";
 import voice from "@/components/voice";
+import { secondsToHMS } from "@/utils/filter";
 
 export default {
   name: "detail",
@@ -241,7 +242,7 @@ export default {
     "$route.query.id": {
       handler(cur) {
         if (!cur) return;
-        const app = document.getElementById("app");
+        const app = document.getElementById("appPodcast");
         app.scroll({ top: 0 });
         this.id = cur;
         this.getVoiceInfo();
@@ -312,6 +313,7 @@ export default {
 
     /** 操作按钮群 */
     btnList() {
+      const isInPlayList = useMyPlay.ifExist(this.voiceInfo);
       return [
         {
           icon:
@@ -338,12 +340,12 @@ export default {
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
-          title: "加入播放列表",
+          title: `加入播放列表`,
           operate: this.addToPlayList,
           disabled: !(
-            this.voiceInfo.articleInfo.articleType === 2 ||
+            (this.voiceInfo.articleInfo.articleType === 2) ||
             (this.voiceInfo.articleInfo.articleType === 1 &&
-              !this.isInPlayList &&
+              !isInPlayList &&
               this.ifSupportMime)
           )
         },
@@ -361,7 +363,7 @@ export default {
 
   mounted() {
     if (this.$store.state.inMobile) {
-      const dom = document.getElementById('app')
+      const dom = document.getElementById('appPodcast')
       dom.addEventListener('scroll', this.scrollHandler)
     }
     this.$store.dispatch("updateLastestAuthList")
@@ -369,7 +371,7 @@ export default {
 
   beforeDestroy() {
     if (this.$store.state.inMobile) {
-      const dom = document.getElementById('app')
+      const dom = document.getElementById('appPodcast')
       dom.removeEventListener('scroll', this.scrollHandler)
     }
   },
@@ -535,7 +537,7 @@ export default {
     },
 
     async scrollHandler(e) {
-      const dom = document.getElementById('app')
+      const dom = document.getElementById('appPodcast')
       if (dom.scrollHeight - dom.scrollTop - dom.clientHeight < 200) {
         if (this.myLoading) return
         if (this.list.length === this.total) return

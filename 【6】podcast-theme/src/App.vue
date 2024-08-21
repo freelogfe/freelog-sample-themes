@@ -1,5 +1,5 @@
 <template>
-  <div id="app" :class="{ pc: $store.state.inMobile === false, mobile: $store.state.inMobile }">
+  <div id="appPodcast" :class="{ pc: $store.state.inMobile === false, mobile: $store.state.inMobile }">
     <div class="page-wrapper">
       <my-header />
       <keep-alive>
@@ -31,7 +31,7 @@ export default {
   },
 
   created() {
-    console.log("0.1.37");
+    console.log("0.1.41");
     
     this.$router.afterEach(to => {
       // 将第一个路由记入路由历史
@@ -50,7 +50,7 @@ export default {
 <style lang="scss">
 @import "@/assets/css";
 
-#app {
+#appPodcast {
   background-color: #222;
   color: #fff;
   font-size: 14px;

@@ -64,7 +64,7 @@
           </div>
           <i class="freelog fl-icon-jiarubofangliebiao" @click="openPlayList()"></i>
         </div>
-        <div class="progress-box" @touchstart="slidingProgress = true">
+        <div class="progress-box" @touchstart="slidingProgress = true" v-if="slientFresh">
           <el-slider
             class="progress"
             :class="{ 'no-voice': !playingInfo }"
@@ -119,7 +119,7 @@
                 <div class="duration-area">
                   <play-status
                     :playing="playing"
-                    :desc="computedDuration(item)"
+                    :desc="computedDuration"
                     v-if="computedPlayStatus(item)"
                   />
                   <div class="duration" v-else>
@@ -282,7 +282,7 @@
                 <div class="right-area">
                   <play-status
                     :playing="playing"
-                    :desc="computedDuration(item)"
+                    :desc="computedDuration"
                     v-if="computedPlayStatus(item)"
                   />
                   <div class="duration" v-else>
@@ -339,16 +339,6 @@ export default {
   },
 
   watch: {
-    "$store.state.progress": {
-      handler(cur) {
-        if (cur === 0) {
-          this.slientFresh = false
-          this.$nextTick(() => {
-            this.slientFresh = true
-          })
-        }
-      }
-    },
     "$store.state.playList": {
       handler(cur, pre) {
         this.playList = cur;
@@ -376,7 +366,6 @@ export default {
 
     "$store.state.playingInfo": {
       handler(cur) {
-        this.$store.commit("setData", { key: "progress", value: 0 });
         this.playingInfo = cur;
 
         if (this.playList && this.$store.state.inMobile) {
@@ -413,7 +402,7 @@ export default {
     },
 
     "$store.state.inMobile"(cur) {
-      const appElement = document.getElementById("app");
+      const appElement = document.getElementById("appPodcast");
       if (cur) {
         appElement.addEventListener("touchend", () => {
           this.slidingProgress = false;
@@ -481,17 +470,16 @@ export default {
     },
     /** 动态播放时长 */
     computedDuration() {
-      return item => {
-        if (item && item.articleInfo && item.articleInfo.articleType === 1) {
-          return `${secondsToHMS(this.$store.state.progress * 1000)} / ${secondsToHMS(
-            item.versionInfo.exhibitProperty.duration
-          )}`;
-        } else {
-          return `${secondsToHMS(this.$store.state.progress * 1000)} / ${secondsToHMS(
-            item.child.articleInfo.articleProperty.duration
-          )}`;
-        }
-      };
+      const { playingInfo } = this.$store.state
+      if (playingInfo && playingInfo.articleInfo && playingInfo.articleInfo.articleType === 1) {
+        return `${secondsToHMS(this.$store.state.progress * 1000)} / ${secondsToHMS(
+          playingInfo.versionInfo.exhibitProperty.duration
+        )}`;
+      } else {
+        return `${secondsToHMS(this.$store.state.progress * 1000)} / ${secondsToHMS(
+          playingInfo.child.articleInfo.articleProperty.duration
+        )}`;
+      }
     },
     /** 播放title */
     computedExhibitTitle() {
@@ -657,26 +645,11 @@ export default {
 
     /** 播放完成 */
     endVoice() {
-      // 正在播放的数据
-      const { articleInfo, exhibitId, child } = this.$store.state.playingInfo
-      /* 场景: 播放一首A, 清空列表, 加入一首B到播放列表, 播放完A后要自动播放B)
-       * 场景: 播放一首A, 清空列表, 加入一首A到播放列表, 播放完A后暂停
-       * 解决方式: 若前后播放的是同一首时, 不自动播下一首
-       */
-      if (this.playList.length === 1) {
-        const { exhibitId: exhibitIdL, child: childL } = this.playList[0]
-        if (articleInfo.articleType === 1 && exhibitId === exhibitIdL) {
-          this.$store.commit("setData", { key: "playing", value: false });
-          this.$store.commit("setData", { key: "progress", value: 0 });
-          return;
-        } else if (articleInfo.articleType === 2 && exhibitId === exhibitIdL && child.itemId === childL.itemId) {
-          this.$store.commit("setData", { key: "playing", value: false });
-          this.$store.commit("setData", { key: "progress", value: 0 });
-          return
-        }
-      }
       this.$store.commit("setData", { key: "playing", value: false });
-      this.$store.commit("setData", { key: "progress", value: 0 });
+      if (this.playList.length === 1) {
+        this.$store.commit("setData", { key: "progress", value: 0 });
+        return;
+      }
       this.nextVoice();
     },
     /** 播放失败 */
@@ -787,10 +760,14 @@ export default {
     },
 
     /** 清空播放列表 */
-    clearPlayList() {
-      useMyPlay.clearPlayList();
+    async clearPlayList() {
+      await useMyPlay.clearPlayList();
       this.confirmDialogShow = false;
       this.$refs.player.currentTime = 0;
+      this.slientFresh = false
+      this.$nextTick(() => {
+        this.slientFresh = true
+      })
     },
 
     /** 授权 */
@@ -800,8 +777,8 @@ export default {
 
     /** 监听点击区域 */
     clickListener() {
-      const app = document.getElementById("app");
       document.addEventListener("click", e => {
+        const app = document.getElementById("appPodcast");
         if (!this.show || this.$store.state.inMobile) return;
 
         if (this.volumePopupShow) {

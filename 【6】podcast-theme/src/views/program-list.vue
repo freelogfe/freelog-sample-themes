@@ -194,7 +194,7 @@ export default {
   activated() {
     this.$store.dispatch("updateLastestAuthList")
     
-    const app = document.getElementById("app");
+    const app = document.getElementById("appPodcast");
     const { routerMode } = this.$store.state;
     if (routerMode === 1) {
       // push 过来，滚动条回到顶部

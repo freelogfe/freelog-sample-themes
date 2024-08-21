@@ -38,8 +38,8 @@
                 <i class="freelog fl-icon-zhuanji"></i>
                 <div class="item-value">{{ voiceInfo.exhibitTitle }}</div>
               </div>
-              <div v-if="playingInfo && voiceInfo.articleInfo.articleType === 1" class="duration">
-                时长{{ voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
+              <div v-if="playingInfo && voiceInfo.articleInfo.articleType === 2 && playingInfo.child.itemId === voiceInfo.child.itemId" class="duration">
+                时长{{ playingInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
               </div>
             </div>
             <div
@@ -105,19 +105,17 @@
               </div>
 
               <div class="btns-area">
-                <template v-if="playingInfo && voiceInfo.articleInfo.articleType === 1">
+                <template v-if="playingInfo && voiceInfo.articleInfo.articleType === 2">
                   <div class="duration" v-if="playingInfo.exhibitId !== voiceInfo.exhibitId">
-                    时长{{ voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
+                    时长{{ computedDuration }}
                   </div>
                   <transition name="slide-right">
-                    <div class="playing-mark" v-if="playingInfo.exhibitId === voiceInfo.exhibitId">
+                    <div class="playing-mark" v-if="playingInfo.exhibitId === voiceInfo.exhibitId && playingInfo.child.itemId === voiceInfo.child.itemId">
                       <play-status :playing="$store.state.playing" />
                       <div class="progress">
                         <span>{{ ($store.state.progress * 1000) | secondsToHMS }}</span>
                         <span class="progress-divider">/</span>
-                        <span>{{
-                          voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS
-                        }}</span>
+                        <span>{{ playingInfo.child.articleInfo.articleProperty.duration | secondsToHMS }}</span>
                       </div>
                     </div>
                   </transition>
@@ -180,7 +178,7 @@ export default {
     "$route.query.id": {
       handler(cur) {
         if (!cur) return;
-        const app = document.getElementById("app");
+        const app = document.getElementById("appPodcast");
         app.scroll({ top: 0 });
         this.id = cur;
         this.getVoiceInfo();
@@ -213,6 +211,17 @@ export default {
     this.$store.dispatch("updateLastestAuthList")
   },
   computed: {
+    /** 时长 */
+    computedDuration() {      
+      const min = Math.min(this.voiceInfo.child?.articleInfo?.articleProperty?.duration || 0, 
+        this.$store.state.playingInfo.child?.articleInfo?.articleProperty?.duration || 0)
+      if (this.voiceInfo.exhibitId === this.$store.state.playingInfo.exhibitId && 
+        this.voiceInfo.child && this.voiceInfo.child.itemId === this.$store.state.playingInfo.child.itemId) {
+        return secondsToHMS(min)
+      }
+      return secondsToHMS(this.voiceInfo.child?.articleInfo?.articleProperty?.duration); 
+    },
+
     /** 授权链异常 */
     authLinkAbnormal() {
       return ![0, 4].includes(this.voiceInfo.defaulterIdentityType);
@@ -241,6 +250,7 @@ export default {
 
     /** 操作按钮群 */
     btnList() {
+      const isInPlayList = useMyPlay.ifExist(this.voiceInfo);
       return [
         {
           icon:
@@ -268,7 +278,7 @@ export default {
           title: "加入播放列表",
           operate: this.addToPlayList,
           disabled: !(this.voiceInfo.articleInfo.articleType === 2 &&
-            !this.isInPlayList &&
+            !isInPlayList &&
             this.ifSupportMime
           )
         },

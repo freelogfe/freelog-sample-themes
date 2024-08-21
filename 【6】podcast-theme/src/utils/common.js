@@ -67,7 +67,7 @@ export const relativeTime = time => {
 };
 
 /**
- * 转为时长
+ * 转为时长(预估)
  * @param time 时间（毫秒数）
  */
 export const estimateDuration = time => {
