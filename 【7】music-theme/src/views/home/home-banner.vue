@@ -8,7 +8,7 @@ import MobileDefaultBanner from "@/assets/images/mobile-default-banner.webp";
 
 const store = useGlobalStore();
 
-const { selfConfig } = storeToRefs(store);
+const { selfConfig, nodeInfo } = storeToRefs(store);
 </script>
 
 <template>
@@ -22,11 +22,13 @@ const { selfConfig } = storeToRefs(store);
     <!-- 节点信息 -->
     <div class="node-info">
       <div class="avatar">
-        <img :src="selfConfig.options_node_logo" alt="avatar" />
+        <img :src="selfConfig.options_node_logo || nodeInfo.nodeLogo" alt="avatar" />
       </div>
-      <div class="node-name">{{ selfConfig.options_node_name || "" }}</div>
+      <div class="node-name">{{ selfConfig.options_node_name || nodeInfo.nodeTitle || "" }}</div>
       <div class="node-desc-box">
-        <div class="node-desc">{{ selfConfig.options_node_intro1?.slice(0, 70) || "" }}</div>
+        <div class="node-desc">
+          {{ selfConfig.options_node_intro1?.slice(0, 70) || nodeInfo.nodeShortDescription || "" }}
+        </div>
         <div class="node-desc">{{ selfConfig.options_node_intro2?.slice(0, 70) || "" }}</div>
         <div class="node-desc">{{ selfConfig.options_node_intro3?.slice(0, 70) || "" }}</div>
       </div>
@@ -49,13 +51,17 @@ const { selfConfig } = storeToRefs(store);
     <!-- 节点信息 -->
     <div class="node-info">
       <div class="avatar">
-        <img :src="selfConfig.options_node_logo" alt="avatar" />
+        <img :src="selfConfig.options_node_logo || nodeInfo.nodeLogo" alt="avatar" />
       </div>
-      <div class="node-name">{{ selfConfig.options_node_name || "节点名称" }}</div>
+      <div class="node-name">
+        {{ selfConfig.options_node_name || nodeInfo.nodeTitle || "" }}
+      </div>
       <div class="node-desc-box">
-        <div class="node-desc">{{ selfConfig.options_node_intro1 || "" }}</div>
-        <div class="node-desc">{{ selfConfig.options_node_intro2 || "" }}</div>
-        <div class="node-desc">{{ selfConfig.options_node_intro3 || "" }}</div>
+        <div class="node-desc">
+          {{ selfConfig.options_node_intro1?.slice(0, 70) || nodeInfo.nodeShortDescription || "" }}
+        </div>
+        <div class="node-desc">{{ selfConfig.options_node_intro2?.slice(0, 70) || "" }}</div>
+        <div class="node-desc">{{ selfConfig.options_node_intro3?.slice(0, 70) || "" }}</div>
       </div>
       <!-- <div class="node-visit">
         <div class="visit-icon">
