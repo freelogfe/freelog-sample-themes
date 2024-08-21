@@ -2,6 +2,6 @@ import "vue-router";
 
 declare module "vue-router" {
   interface Router {
-    myPush(location: Record<string, string>): void;
+    myPush(location: Record<string, any>): void;
   }
 }
