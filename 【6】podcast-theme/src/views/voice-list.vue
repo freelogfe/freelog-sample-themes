@@ -111,6 +111,7 @@ export default {
 
     /** 页面滚动 */
     scroll() {
+      const app = document.getElementById("appPodcast");
       const scrollTop = app.scrollTop || 0;
       sessionStorage.setItem("voiceListScroll", scrollTop);
       const clientHeight = app.clientHeight || 0;

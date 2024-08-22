@@ -342,7 +342,9 @@ export default {
         this.$router.myPush({ path: "/home" });
         return;
       }
-
+      if (this.$store.state.inMobile) {
+        this.$refs.searchInput.blur()
+      }
       this.searchWord();
       this.$store.commit("setData", { key: "searchKey", value: this.searchKey });
       sessionStorage.setItem("searchKey", this.searchKey)

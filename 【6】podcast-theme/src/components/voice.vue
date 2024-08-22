@@ -384,13 +384,13 @@ export default {
       }
     },
 
-    /** 时长 */
+    /** 正在播放的时长 */
     computedDuration() {
       if (this.data.articleInfo.articleType === 1) {
-        return secondsToHMS(this.data.versionInfo.exhibitProperty.duration);
+        return secondsToHMS(this.$store.state.playingInfo.versionInfo.exhibitProperty.duration);
       } else {
         if (this.mode === 'voice'){
-          return secondsToHMS(this.data?.child?.articleInfo?.articleProperty?.duration);
+          return secondsToHMS(this.$store.state.playingInfo?.child?.articleInfo?.articleProperty?.duration);
         } 
       }
     },

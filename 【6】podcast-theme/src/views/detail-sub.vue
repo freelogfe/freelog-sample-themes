@@ -307,6 +307,7 @@ export default {
           id: exhibitId,
           itemId: child.itemId,
           callback: () => {
+            const app = document.getElementById("appPodcast");
             const { offsetTop, offsetLeft } = this.$refs.cover;
             this.coverLeft = offsetLeft;
             this.coverTop = offsetTop - app.scrollTop;
