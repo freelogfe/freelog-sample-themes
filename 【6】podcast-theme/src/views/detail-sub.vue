@@ -165,8 +165,6 @@ export default {
     return {
       id: "",
       voiceInfo: null,
-      isCollected: false,
-      isInPlayList: false,
       addAnimation: false,
       coverLeft: 0,
       coverTop: 0,
@@ -185,21 +183,6 @@ export default {
       },
       immediate: true
     },
-
-    "$store.state.collectionIdList": {
-      handler() {
-        this.isCollected = useMyCollection.ifExist(this.voiceInfo);
-      },
-      immediate: true
-    },
-
-    "$store.state.playIdList": {
-      handler() {
-        this.isInPlayList = useMyPlay.ifExist(this.voiceInfo);
-      },
-      immediate: true
-    },
-
     "$store.state.lastestAuthList"(cur) {
       const target = cur.find(ele => ele.exhibitId === this.voiceInfo.exhibitId)
       if (target) {
@@ -251,6 +234,7 @@ export default {
     /** 操作按钮群 */
     btnList() {
       const isInPlayList = useMyPlay.ifExist(this.voiceInfo);
+      const isCollected = useMyCollection.ifExist(this.voiceInfo);
       return [
         {
           icon:
@@ -283,10 +267,10 @@ export default {
           )
         },
         {
-          icon: this.isCollected
+          icon: isCollected
             ? "fl-icon-shoucangxiaoshuoyishoucang"
             : "fl-icon-shoucangxiaoshuo",
-          title: this.isCollected ? "取消收藏" : "收藏",
+          title: isCollected ? "取消收藏" : "收藏",
           operate: this.operateCollect
         },
         { icon: "fl-icon-fenxiang", title: "分享", operate: this.share }

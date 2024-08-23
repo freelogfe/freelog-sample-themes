@@ -827,15 +827,33 @@ export const useMyPlay = {
     }
   },
   /** 获取播放数据 */
-  async getPlayingInfo(id) {
-    const [info, statusInfo, url] = await Promise.all([
-      freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
-      freelogApp.getExhibitAuthStatus(id),
-      freelogApp.getExhibitFileStream(id, { returnUrl: true })
-    ]);
-    info.data.data.defaulterIdentityType = statusInfo.data.data[0].defaulterIdentityType;
-    info.data.data.url = url;
-    store.commit("setData", { key: "playingInfo", value: info.data.data });
+  async getPlayingInfo(id, itemId) {
+    if (!itemId) {
+      const [info, statusInfo, url] = await Promise.all([
+        freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+        freelogApp.getExhibitAuthStatus(id),
+        freelogApp.getExhibitFileStream(id, { returnUrl: true })
+      ]);
+      info.data.data.defaulterIdentityType = statusInfo.data.data[0].defaulterIdentityType;
+      info.data.data.url = url;
+      store.commit("setData", { key: "playingInfo", value: info.data.data });
+    } else {
+      const [info, statusInfo, url, detail] = await Promise.all([
+        freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+        freelogApp.getExhibitAuthStatus(id),
+        freelogApp.getCollectionSubFileStream(id, {
+          itemId: itemId,
+          returnUrl: true
+        }),
+        freelogApp.getCollectionSubInfo(id, {
+          itemId: itemId
+        })
+      ]);
+      info.data.data.defaulterIdentityType = statusInfo.data.data[0].defaulterIdentityType;
+      info.data.data.child = detail.data.data
+      info.data.data.child.url = url;
+      store.commit("setData", { key: "playingInfo", value: info.data.data });
+    }
   },
 
   /** 上一首 */

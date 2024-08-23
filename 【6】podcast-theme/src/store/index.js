@@ -114,7 +114,17 @@ export default new Vuex.Store({
       if (promises.length) Promise.all(promises);
 
       // 如果有之前播放的声音，且声音依然存在于播放列表中，则获取声音信息
-      if (playingId && playIdList.includes(playingId)) useMyPlay.getPlayingInfo(playingId);
+      let exhibitIdFromPlayingId,  itemIdFromPlayingId
+      if (playingId.indexOf("=") !== -1) {
+        const _arr = playingId.split("=")
+        exhibitIdFromPlayingId = _arr[0]
+        itemIdFromPlayingId = _arr[1]
+      } else {
+        exhibitIdFromPlayingId = playingId
+      }
+      if (playingId && playIdList.map(ele => ele.id).includes(exhibitIdFromPlayingId)) {
+        useMyPlay.getPlayingInfo(exhibitIdFromPlayingId, itemIdFromPlayingId);
+      }
     },
 
     /* 更新lastestAuthList */

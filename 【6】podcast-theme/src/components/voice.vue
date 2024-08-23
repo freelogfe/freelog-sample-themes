@@ -89,11 +89,21 @@
       </div>
       <div class="btns-area" :class="{ opacity: authLinkAbnormal }">
         <i
-          class="freelog"
+          class="freelog playOrStop"
           :class="{ [btnList[0].icon]: true, disabled: btnList[0].disabled }"
           @click="playOrPause()"
+        /> 
+        <el-progress
+          v-if="playing"
+          class="progress"
+          type="circle"
+          :percentage="percentage"
+          color="white"
+          :width="20"
+          :stroke-width="2"
+          :show-text="false"
         />
-        <i class="freelog fl-icon-gengduo_yuandian_zongxiang" @click="moreMenuShow = true" />
+        <i class="freelog fl-icon-gengduo_yuandian_zongxiang gengduo" @click="moreMenuShow = true" />
       </div>
       <div
         class="cover-to-add"
@@ -314,25 +324,11 @@ export default {
       addAnimation: false,
       coverLeft: 0,
       coverTop: 0,
-      isCollected: false,
-      isInPlayList: false,
       collectionList: []
     };
   },
 
   watch: {
-    "$store.state.collectionIdList": {
-      handler() {
-        this.isCollected = useMyCollection.ifExist(this.data);
-      },
-      immediate: true
-    },
-    "$store.state.playIdList": {
-      handler() {
-        this.isInPlayList = useMyPlay.ifExist(this.data);
-      },
-      immediate: true
-    },
     data: {
       handler(newData) {
         if (newData.articleInfo.articleType === 2) {
@@ -344,6 +340,26 @@ export default {
   },
 
   computed: {
+    /** 播放进度 */
+    percentage() {
+      const playingInfo = this.$store.state.playingInfo
+      if (playingInfo) {
+        let duration 
+        if (playingInfo.articleInfo.articleType === 1) {
+          duration = playingInfo.versionInfo.exhibitProperty.duration;
+        } else {
+          duration = playingInfo.child.articleInfo.articleProperty.duration
+        }
+        if (duration) {
+          const progress = ((this.$store.state.progress * 1000) / duration) * 100;
+          return Math.min(100, progress);
+        } else {
+          return 0;
+        }
+      } else {
+        return 0;
+      }
+    },
     /** 播放状态 */
     showPlayStatus() {
       if (this.data.articleInfo.articleType === 1) {
@@ -491,6 +507,8 @@ export default {
 
     /** 操作按钮群 */
     btnList() {
+      const isCollected = useMyCollection.ifExist(this.data);
+      const isInPlayList = useMyPlay.ifExist(this.data);
       return [
         {
           icon: !this.ifSupportMime
@@ -506,13 +524,13 @@ export default {
           icon: "fl-icon-jiarubofangliebiao",
           title: "加入播放列表",
           operate: this.addToPlayList,
-          disabled: this.isInPlayList || !this.ifSupportMime
+          disabled: isInPlayList || !this.ifSupportMime
         },
         {
-          icon: this.isCollected
+          icon: isCollected
             ? "fl-icon-shoucangxiaoshuoyishoucang"
             : "fl-icon-shoucangxiaoshuo",
-          title: this.isCollected ? "取消收藏" : "收藏",
+          title: isCollected ? "取消收藏" : "收藏",
           operate: this.operateCollect
         },
         { icon: "fl-icon-fenxiang", title: "分享", operate: this.share }
@@ -521,6 +539,8 @@ export default {
 
     /** 更多菜单按钮群 */
     menuBtnList() {
+      const isCollected = useMyCollection.ifExist(this.data);
+      const isInPlayList = useMyPlay.ifExist(this.data);
       return [
         {
           icon: !this.ifSupportMime
@@ -536,14 +556,14 @@ export default {
           icon: "fl-icon-jiarubofangliebiao",
           label: "加入播放列表",
           operate: this.addToPlayList,
-          disabled: this.isInPlayList || !this.ifSupportMime
+          disabled: isInPlayList || !this.ifSupportMime
         },
         { icon: "fl-icon-danji", label: "查看声音详情", operate: this.skipToDetailPage },
         {
-          icon: this.isCollected
+          icon: isCollected
             ? "fl-icon-shoucangxiaoshuoyishoucang"
             : "fl-icon-shoucangxiaoshuo",
-          label: this.isCollected ? "取消收藏" : "收藏",
+          label: isCollected ? "取消收藏" : "收藏",
           operate: this.operateCollect
         }
       ];

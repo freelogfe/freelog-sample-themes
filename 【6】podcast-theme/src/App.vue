@@ -31,8 +31,7 @@ export default {
   },
 
   created() {
-    console.log("0.1.41");
-    
+    console.log("0.1.45");
     this.$router.afterEach(to => {
       // 将第一个路由记入路由历史
       const { locationHistory } = this.$store.state;
@@ -43,12 +42,22 @@ export default {
       this.$store.commit("setData", { key: "locationHistory", value: locationHistory });
       this.$store.commit("setData", { key: "routerMode", value: 1 });
     });
+  },
+  mounted() {
+    /* iphone13 无法获取到安全距离 */
+    // setInterval(() => {
+    //   const temp = window.getComputedStyle(document.documentElement).getPropertyValue("--sat")
+    //   console.log(temp, temp1);
+    // }, 3000)
   }
 };
 </script>
 
 <style lang="scss">
 @import "@/assets/css";
+:root {
+  --sat: env(safe-area-inset-top);
+}
 
 #appPodcast {
   background-color: #222;
@@ -82,7 +91,7 @@ export default {
   }
 
   &.mobile .page-wrapper {
-    padding-bottom: 178px;
+    padding-bottom: 238px;
 
     .router-view {
       width: 100%;

@@ -510,7 +510,7 @@ export default {
     /** 是否收藏 */
     isCollected() {
       const { collectionIdList, playingInfo } = this.$store.state;
-      return playingInfo ? collectionIdList.includes(playingInfo.exhibitId) : false;
+      return playingInfo ? collectionIdList.map(ele => ele.id).includes(playingInfo.exhibitId) : false;
     },
 
     /** 是否播放中 */
@@ -521,7 +521,12 @@ export default {
     /** 播放进度 */
     percentage() {
       if (this.playingInfo) {
-        const duration = this.playingInfo.versionInfo.exhibitProperty.duration;
+        let duration 
+        if (this.playingInfo.articleInfo.articleType === 1) {
+          duration = this.playingInfo.versionInfo.exhibitProperty.duration;
+        } else {
+          duration = this.playingInfo.child.articleInfo.articleProperty.duration
+        }
         if (duration) {
           const progress = ((this.$store.state.progress * 1000) / duration) * 100;
           return Math.min(100, progress);

@@ -202,13 +202,20 @@
       align-items: center;
       justify-content: center;
       margin-left: 20px;
+      position: relative;
+
+      ::v-deep .progress {
+        position: absolute;
+        left: 0;
+        top: 0;
+
+        .el-progress-circle__track {
+          stroke: transparent;
+        }
+      }
 
       .freelog {
         font-size: 20px;
-
-        & + .freelog {
-          margin-left: 20px;
-        }
 
         &:active {
           color: rgba(255, 255, 255, 0.4);
@@ -218,6 +225,10 @@
           color: rgba(255, 255, 255, 0.6);
           pointer-events: none;
         }
+      }
+
+      .gengduo {
+        margin-left: 20px;
       }
     }
 
