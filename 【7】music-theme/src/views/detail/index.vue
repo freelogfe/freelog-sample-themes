@@ -317,7 +317,7 @@
             <div class="content-item" v-for="(item, index) in collectionData" :key="item.itemId">
               <div class="index">{{ changeIndex(index + 1) }}</div>
               <div class="music">
-                {{ item.exhibitTitle }}
+                <span class="music-text">{{ item.exhibitTitle }}</span>
               </div>
               <div class="album-sub-btns-area" :class="{ opacity: authLinkAbnormal }">
                 <myTooltip
@@ -433,7 +433,8 @@ export default {
       handler() {
         this.isInPlayList = useMyPlay.ifExist({ exhibitId: this.id, itemId: this.itemId });
       },
-      immediate: true
+      immediate: true,
+      deep: true
     },
 
     "store.authIdList"(cur) {
@@ -449,6 +450,9 @@ export default {
 
     /** 是否为支持格式 */
     ifSupportMime() {
+      if (this.voiceInfo?.articleInfo?.articleType === 2) {
+        return true;
+      }
       const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
       return supportMimeList.includes(this.voiceInfo?.versionInfo.exhibitProperty.mime);
     },

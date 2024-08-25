@@ -265,8 +265,8 @@ export default {
           itemId: this.data.itemId
         });
       },
-      immediate: true
-      // deep: true
+      immediate: true,
+      deep: true
     }
   },
 
