@@ -174,7 +174,7 @@ const isSelectedData = item => {
               class="btn-modal"
               v-if="ifSupportMime(item.versionInfo?.exhibitProperty?.mime as string)"
             >
-              <div class="btn" @click.stop="playOrPause(item)">
+              <div class="btn" @click="playOrPause(item)">
                 <i
                   class="freelog"
                   :class="
