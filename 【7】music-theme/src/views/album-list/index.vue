@@ -39,11 +39,16 @@ export default {
   },
 
   watch: {
-    "store.authIdList"(cur) {
-      cur.forEach(id => {
-        const item = this.listData.find(data => data.exhibitId === id);
-        item.defaulterIdentityType = 0;
-      });
+    "store.authIdList": {
+      handler(cur) {
+        cur.forEach(id => {
+          const item = this.listData.find(data => data.exhibitId === id);
+          if (item) {
+            item.defaulterIdentityType = 0;
+          }
+        });
+      },
+      deep: true // 深度监听
     }
   },
 

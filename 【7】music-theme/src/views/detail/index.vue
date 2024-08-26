@@ -437,8 +437,11 @@ export default {
       deep: true
     },
 
-    "store.authIdList"(cur) {
-      if (cur.includes(this.voiceInfo.exhibitId)) this.voiceInfo.defaulterIdentityType = 0;
+    "store.authIdList": {
+      handler(cur) {
+        if (cur.includes(this.voiceInfo.exhibitId)) this.voiceInfo.defaulterIdentityType = 0;
+      },
+      deep: true
     }
   },
 
@@ -647,6 +650,7 @@ export default {
           return;
         }
         for (const iterator of restCollectionData) {
+          console.log("其余的数据");
           await useMyPlay.addToPlayList({ exhibitId: iterator.exhibitId, itemId: iterator.itemId });
         }
       });

@@ -121,10 +121,19 @@ export const useMyAuth = {
     // 同步收藏列表、签约列表、播放列表相应展品的授权状态，更新授权列表
     const { collectionList, signedList, playList, authIdList } = store;
     signedList.unshift(data);
-    const collectionItem = collectionList.find(item => item.exhibitId === exhibitId);
-    if (collectionItem) collectionItem.defaulterIdentityType = 0;
-    const playItem = playList.find(item => item.exhibitId === exhibitId);
-    if (playItem) playItem.defaulterIdentityType = 0;
+
+    // 查找并更新 collectionList 中所有 exhibitId 匹配的元素
+    const collectionItems = collectionList.filter(item => item.exhibitId === exhibitId);
+    collectionItems.forEach(item => {
+      item.defaulterIdentityType = 0;
+    });
+
+    // 查找并更新 playList 中所有 exhibitId 匹配的元素
+    const playItems = playList.filter(item => item.exhibitId === exhibitId);
+    playItems.forEach(item => {
+      item.defaulterIdentityType = 0;
+    });
+
     authIdList.push(exhibitId);
 
     store.setData({ key: "collectionList", value: collectionList });
@@ -134,9 +143,16 @@ export const useMyAuth = {
 
     if (play) {
       useMyPlay.addToPlayList({ exhibitId, itemId });
-      freelogApp.setUserData("playingId", exhibitId);
+      freelogApp.setUserData("playingId", { exhibitId, itemId });
+
       // 已授权未获取 url
-      const url = await freelogApp.getExhibitFileStream(exhibitId, { returnUrl: true });
+      const url = itemId
+        ? await freelogApp.getCollectionSubFileStream(exhibitId, {
+            itemId,
+            returnUrl: true
+          })
+        : await freelogApp.getExhibitFileStream(exhibitId, { returnUrl: true });
+
       data.url = url;
       store.setData({ key: "playingInfo", value: data });
       store.setData({ key: "playing", value: true });
@@ -289,6 +305,7 @@ export const useMyPlay = {
             item => `${item.exhibitId}${item.itemId ?? ""}` === `${list.data.data[0].exhibitId}`
           );
           playIdList.splice(removeIndex, 1);
+          showToast("添加成功");
         } else {
           result.push({
             ...list.data.data[0],
@@ -370,7 +387,6 @@ export const useMyPlay = {
         store.setData({ key: "playIdList", value: playIdList });
         callback && callback();
         useMyPlay.getPlayList();
-        showToast("添加成功");
       } else {
         showToast("加入播放列表失败");
       }
@@ -521,7 +537,8 @@ export const useMyPlay = {
       return;
     } else if (defaulterIdentityType === 4) {
       // 未授权
-      useMyAuth.getAuth(exhibit, true);
+      await useMyAuth.getAuth(exhibit, true);
+      callback && callback();
       return;
     } else if (!url) {
       // 已授权未获取 url

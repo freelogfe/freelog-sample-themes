@@ -22,7 +22,8 @@ watch(
       const item = listData.value.find(data => data.exhibitId === id);
       if (item) item.defaulterIdentityType = 0;
     });
-  }
+  },
+  { deep: true }
 );
 
 const popularData = computed(() => {
