@@ -59,7 +59,10 @@ export default defineConfig({
   ],
   server: {
     port: 8107,
-    host: true
+    host: true,
+    headers: {
+      "Access-Control-Allow-Origin": "*"
+    }
   },
   resolve: {
     alias: {
