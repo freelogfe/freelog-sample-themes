@@ -4,6 +4,69 @@ import { useGlobalStore } from "@/store/global";
 import { callLogin } from "@/api/freelog";
 import { showToast } from "./common";
 
+export const useCommon = {
+  async getCollectionList(obj) {
+    const { limit = 1_000, isShowDetailInfo = 1 } = obj.options;
+
+    let subTotal = 0;
+    let subSkip = 0;
+    let subTempData = [];
+    const itemsToAdd = []; // 用于存储需要添加的项
+
+    const fetchCollectionList = async () => {
+      const subList = await freelogApp.getCollectionSubList(obj.collectionID, {
+        skip: subSkip,
+        limit,
+        isShowDetailInfo
+      });
+
+      const { dataList, totalItem } = subList.data.data;
+      subTotal = totalItem;
+
+      if (dataList?.length !== 0) {
+        const ids = dataList.map(item => item.itemId).join();
+        const statusInfo = await freelogApp.getCollectionSubAuth(obj.collectionID, {
+          itemIds: ids
+        });
+
+        if (statusInfo.data.data) {
+          dataList.forEach(item => {
+            const index = statusInfo.data.data.findIndex(
+              resultItem => resultItem.itemId === item.itemId
+            );
+            if (index !== -1) {
+              item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+            }
+
+            item.updateDate = item.articleInfo.latestVersionReleaseDate;
+            item.coverImages = obj.images;
+            item.versionInfo = { exhibitProperty: item.articleInfo?.articleProperty };
+            item.exhibitTitle = item.itemTitle;
+            item.exhibitIntro = item.articleInfo.intro;
+            item.albumName = obj.exhibitName;
+            item.exhibitId = obj.collectionID;
+
+            itemsToAdd.push({ exhibitId: item.exhibitId, itemId: item.itemId });
+          });
+        }
+      }
+
+      subTempData.push(...dataList);
+
+      if (subTempData.length < subTotal) {
+        subSkip += limit;
+        await fetchCollectionList();
+      } else {
+        return {
+          data: subTempData,
+          itemsToAdd
+        };
+      }
+    };
+
+    return await fetchCollectionList();
+  }
+};
 /** 授权 hook */
 export const useMyAuth = {
   /** 获取签约列表 */
@@ -180,15 +243,15 @@ export const useMyPlay = {
   /** 获取播放列表数据 */
   async getPlayList() {
     const store = useGlobalStore();
-    const { playIdList } = storeToRefs(store);
+    const playIdList = store.playIdList;
+
     const result = [];
-    const idList = playIdList.value;
-    if (!idList.length) {
+    if (!playIdList.length) {
       store.setData({ key: "playList", value: [] });
       return;
     }
 
-    for (const item of idList) {
+    playIdList.forEach(async item => {
       if (item.itemId) {
         const [list, subInfo, subStatusList] = await Promise.all([
           freelogApp.getExhibitListById({ exhibitIds: item.exhibitId, isLoadVersionProperty: 1 }),
@@ -207,12 +270,33 @@ export const useMyPlay = {
           freelogApp.getExhibitAuthStatus(item.exhibitId)
         ]);
 
-        result.push({
-          ...list.data.data[0],
-          defaulterIdentityType: statusList.data.data[0].defaulterIdentityType
-        });
+        if (list.data.data[0].articleInfo.articleType === 2) {
+          const params = {
+            collectionID: list.data.data[0].exhibitId,
+            exhibitName: list.data.data[0].exhibitName,
+            images: list.data.data[0].coverImages,
+            options: {
+              limit: 1_000,
+              isShowDetailInfo: 1
+            }
+          };
+
+          const { data, itemsToAdd } = await useCommon.getCollectionList(params);
+          playIdList.unshift(...itemsToAdd);
+          result.push(...data);
+
+          const removeIndex = playIdList.findIndex(
+            item => `${item.exhibitId}${item.itemId ?? ""}` === `${list.data.data[0].exhibitId}`
+          );
+          playIdList.splice(removeIndex, 1);
+        } else {
+          result.push({
+            ...list.data.data[0],
+            defaulterIdentityType: statusList.data.data[0].defaulterIdentityType
+          });
+        }
       }
-    }
+    });
 
     store.setData({ key: "playList", value: result });
   },
@@ -260,17 +344,26 @@ export const useMyPlay = {
       useMyPlay.getPlayList();
     } else {
       // 已登录时存在用户数据
-      const playIdList = store.playIdList;
+      let playIdList = store.playIdList;
 
-      if (
-        playIdList
-          .map(i => `${i.exhibitId}${i.itemId ?? ""}`)
-          .includes(`${obj.exhibitId}${obj.itemId ?? ""}`)
-      ) {
-        return;
+      if (obj.itemId) {
+        if (
+          playIdList
+            .map(i => `${i.exhibitId}${i.itemId ?? ""}`)
+            .includes(`${obj.exhibitId}${obj.itemId ?? ""}`)
+        ) {
+          return;
+        }
+
+        playIdList.unshift(obj);
+      } else {
+        const hasDuplicateId = playIdList.findIndex(i => i.exhibitId === obj.exhibitId);
+        if (hasDuplicateId !== -1) {
+          playIdList = playIdList.filter(item => item.exhibitId !== obj.exhibitId);
+        }
+        playIdList.unshift(obj);
       }
 
-      playIdList.unshift(obj);
       const res = await freelogApp.setUserData("playIdList", playIdList);
 
       if (res.data.msg === "success") {
@@ -285,7 +378,7 @@ export const useMyPlay = {
   },
 
   /** 移出播放列表 */
-  async removeFromPlayList(id) {
+  async removeFromPlayList(id, itemId) {
     const store = useGlobalStore();
     const { playing, playingInfo } = store;
 
@@ -293,12 +386,16 @@ export const useMyPlay = {
       // 未登录时取本地
       const list = localStorage.getItem("playIdList") || "[]";
       const playIdList = JSON.parse(list);
-      const idIndex = playIdList.findIndex(item => item === id);
+      const idIndex = playIdList.findIndex(
+        item => `${item.exhibitId}${item.itemId ?? ""}` === `${id}${itemId ?? ""}`
+      );
       playIdList.splice(idIndex, 1);
       localStorage.setItem("playIdList", JSON.stringify(playIdList));
 
       const playList = store.playList;
-      const index = playList.findIndex(item => item.exhibitId === id);
+      const index = playList.findIndex(
+        item => `${item.exhibitId}${item.itemId ?? ""}` === `${id}${itemId ?? ""}`
+      );
       playList.splice(index, 1);
 
       store.setData({ key: "playIdList", value: playIdList });
@@ -315,13 +412,19 @@ export const useMyPlay = {
     } else {
       // 已登录时取用户数据
       const playIdList = store.playIdList;
-      const index = playIdList.findIndex(item => item === id);
+
+      const index = playIdList.findIndex(
+        item => `${item.exhibitId}${item.itemId ?? ""}` === `${id}${itemId ?? ""}`
+      );
+
       playIdList.splice(index, 1);
       const res = await freelogApp.setUserData("playIdList", playIdList);
 
       if (res.data.msg === "success") {
         const playList = store.playList;
-        const index = playList.findIndex(item => item.exhibitId === id);
+        const index = playList.findIndex(
+          item => `${item.exhibitId}${item.itemId ?? ""}` === `${id}${itemId ?? ""}`
+        );
         playList.splice(index, 1);
 
         store.setData({ key: "playIdList", value: playIdList });
