@@ -138,7 +138,7 @@
                 </div>
               </div>
 
-              <div class="delete-btn" @click.stop="deleteVoice(item.exhibitId)">
+              <div class="delete-btn" @click.stop="deleteVoice(item.exhibitId, item.itemId)">
                 <i class="text-btn mobile freelog fl-icon-guanbi"></i>
               </div>
             </div>
@@ -404,7 +404,7 @@
                   </div>
                   <i
                     class="text-btn freelog fl-icon-guanbi"
-                    @click.stop="deleteVoice(item.exhibitId)"
+                    @click.stop="deleteVoice(item.exhibitId, item.itemId)"
                   ></i>
                 </div>
               </div>
@@ -817,8 +817,8 @@ export default {
     },
 
     /** 移出播放列表 */
-    deleteVoice(id) {
-      useMyPlay.removeFromPlayList(id);
+    deleteVoice(id, itemId) {
+      useMyPlay.removeFromPlayList(id, itemId);
     },
 
     /** 清空播放列表 */
