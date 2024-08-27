@@ -27,7 +27,11 @@ const { selfConfig, nodeInfo } = storeToRefs(store);
       <div class="node-name">{{ selfConfig.options_node_name || nodeInfo.nodeTitle || "" }}</div>
       <div class="node-desc-box">
         <div class="node-desc">
-          {{ selfConfig.options_node_intro1?.slice(0, 70) || nodeInfo.nodeShortDescription || "" }}
+          {{
+            selfConfig.options_node_intro1?.slice(0, 70) ||
+            nodeInfo.nodeShortDescription?.slice(0, 70) ||
+            ""
+          }}
         </div>
         <div class="node-desc">{{ selfConfig.options_node_intro2?.slice(0, 70) || "" }}</div>
         <div class="node-desc">{{ selfConfig.options_node_intro3?.slice(0, 70) || "" }}</div>
@@ -58,7 +62,11 @@ const { selfConfig, nodeInfo } = storeToRefs(store);
       </div>
       <div class="node-desc-box">
         <div class="node-desc">
-          {{ selfConfig.options_node_intro1?.slice(0, 70) || nodeInfo.nodeShortDescription || "" }}
+          {{
+            selfConfig.options_node_intro1?.slice(0, 70) ||
+            nodeInfo.nodeShortDescription?.slice(0, 70) ||
+            ""
+          }}
         </div>
         <div class="node-desc">{{ selfConfig.options_node_intro2?.slice(0, 70) || "" }}</div>
         <div class="node-desc">{{ selfConfig.options_node_intro3?.slice(0, 70) || "" }}</div>
