@@ -402,30 +402,36 @@
               v-for="item in contentImgList"
               :key="item.name"
             />
-            <div v-if="recommendList.length" class="pc-scroll-recommend-box">
-              <div class="no-more">— 已加载全部内容 —</div>
-              <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">更多漫画</p>
-              <div class="recommend-item-wrap">
-                <div
-                  class="recommend-item"
-                  v-for="item in recommendList.slice(0, 9)"
-                  :key="item.exhibitId"
-                  @click="toDetailFromRecommend(item.exhibitId)"
-                >
-                  <div class="cover-image">
-                    <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
-                  </div>
-                  <div class="recommend-info">
-                    <span class="name">{{ item.exhibitTitle }}</span>
-                    <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
-                    <div class="tags-wrap">
-                      <div
-                        class="tag"
-                        v-for="(tag, index) in item.tags"
-                        :key="index"
-                        @click.stop="searchTag(tag)"
-                      >
-                        {{ tag }}
+            <div
+              v-if="currentSortID === collectionTotal && recommendList.length"
+              class="pc-scroll-recommend-box"
+              :class="theme"
+            >
+              <div class="pc-scroll-recommend">
+                <div class="no-more">— 已加载全部内容 —</div>
+                <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">更多漫画</p>
+                <div class="recommend-item-wrap">
+                  <div
+                    class="recommend-item"
+                    v-for="item in recommendList.slice(0, 9)"
+                    :key="item.exhibitId"
+                    @click="toDetailFromRecommend(item.exhibitId)"
+                  >
+                    <div class="cover-image">
+                      <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                    </div>
+                    <div class="recommend-info">
+                      <span class="name">{{ item.exhibitTitle }}</span>
+                      <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
+                      <div class="tags-wrap">
+                        <div
+                          class="tag"
+                          v-for="(tag, index) in item.tags"
+                          :key="index"
+                          @click.stop="searchTag(tag)"
+                        >
+                          {{ tag }}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1271,11 +1277,10 @@ export default {
 
         if (comicReadMode) {
           data.mode = comicReadMode;
-        } else {
-          // 条漫时，自动选择滚动模式
-          methods.changeMode("scroll", 0);
-          methods.getPointInScroll();
         }
+        // 条漫时，自动选择滚动模式
+        methods.changeMode("scroll", 0);
+        methods.getPointInScroll();
       } else if ([2, 3].includes(data.comicMode)) {
         const res = await freelogApp.getUserData("comicLastViewedMode");
         const lastViewed = res?.data?.data || [];
