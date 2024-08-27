@@ -267,7 +267,10 @@ export const useMyPlay = {
       return;
     }
 
-    playIdList.forEach(async item => {
+    const playIdListCopy = [...playIdList];
+
+    for (let item of playIdListCopy) {
+      // playIdList.forEach(async item => {
       if (item.itemId) {
         const [list, subInfo, subStatusList] = await Promise.all([
           freelogApp.getExhibitListById({ exhibitIds: item.exhibitId, isLoadVersionProperty: 1 }),
@@ -313,7 +316,8 @@ export const useMyPlay = {
           });
         }
       }
-    });
+    }
+    // });
 
     store.setData({ key: "playList", value: result });
   },
