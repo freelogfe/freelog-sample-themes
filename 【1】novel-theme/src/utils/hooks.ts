@@ -192,7 +192,7 @@ export const useMyScroll = () => {
 
   /** 回到顶部 */
   const scrollToTop = () => {
-    app?.scroll({ top: 0, behavior: "smooth" });
+    app?.scroll({ top: 0 });
   };
 
   useEffect(() => {
