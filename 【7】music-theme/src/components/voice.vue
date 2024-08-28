@@ -38,7 +38,7 @@
             </div>
           </template> -->
           <div class="title" :class="{ 'opacity-40': authLinkAbnormal }">
-            {{ data.exhibitTitle }}
+            {{ data.itemTitle || data.exhibitTitle }}
           </div>
         </div>
         <div class="duration" :class="{ 'opacity-40': authLinkAbnormal }">
@@ -155,7 +155,7 @@
                   })
                 "
               >
-                {{ data.exhibitTitle }}
+                {{ data.itemTitle || data.exhibitTitle }}
               </span>
             </myTooltip>
           </div>
