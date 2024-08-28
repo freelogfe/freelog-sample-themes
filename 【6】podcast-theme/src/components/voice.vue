@@ -96,10 +96,11 @@
         <el-progress
           v-if="playing"
           class="progress"
+          :class="{ isIos: $store.state.isIOS }"
           type="circle"
           :percentage="percentage"
           color="white"
-          :width="20"
+          :width="22"
           :stroke-width="2"
           :show-text="false"
         />

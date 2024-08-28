@@ -26,7 +26,8 @@ export default new Vuex.Store({
     progress: 0, // 当前播放进度
     searchKey: "", // 搜索关键词
     cachePool: {}, // 合集id为key, 子作品详情列表为value
-    lastestAuthList: [] // 最新的全部展品授权情况列表
+    lastestAuthList: [], // 最新的全部展品授权情况列表
+    maskLoading: false
   },
   mutations: {
     /** 更新数据 */
@@ -115,7 +116,7 @@ export default new Vuex.Store({
 
       // 如果有之前播放的声音，且声音依然存在于播放列表中，则获取声音信息
       let exhibitIdFromPlayingId,  itemIdFromPlayingId
-      if (playingId.indexOf("=") !== -1) {
+      if (playingId && playingId.indexOf("=") !== -1) {
         const _arr = playingId.split("=")
         exhibitIdFromPlayingId = _arr[0]
         itemIdFromPlayingId = _arr[1]

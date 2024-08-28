@@ -166,7 +166,7 @@
 import { freelogApp } from "freelog-runtime";
 import program from "@/components/program";
 import voice from "@/components/voice";
-import { sleep } from "../utils/common";
+import { sleep } from "@/utils/common";
 
 export default {
   name: "programList",
@@ -193,7 +193,6 @@ export default {
   },
   activated() {
     this.$store.dispatch("updateLastestAuthList")
-    
     const app = document.getElementById("appPodcast");
     const { routerMode } = this.$store.state;
     if (routerMode === 1) {

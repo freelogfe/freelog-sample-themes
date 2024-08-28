@@ -157,7 +157,7 @@ import { showToast } from "@/utils/common";
 import voice from "@/components/voice";
 
 export default {
-  name: "detail",
+  name: "detail-sub",
 
   components: { playStatus, myTooltip, voice },
 
@@ -329,8 +329,30 @@ export default {
 
     /** 获取声音详情 */
     async getVoiceInfo() {
-      const info = sessionStorage.getItem("detail-sub")
-      this.voiceInfo = JSON.parse(info)
+      let result
+      const itemId = this.$route.query.itemId
+      const id = this.$route.query.id
+      if (id && itemId) {
+        // 处理分享
+        const [info, statusInfo, url, detail] = await Promise.all([
+          freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+          freelogApp.getExhibitAuthStatus(id),
+          freelogApp.getCollectionSubFileStream(id, {
+            itemId: itemId,
+            returnUrl: true
+          }),
+          freelogApp.getCollectionSubInfo(id, {
+            itemId: itemId
+          })
+        ]);
+        info.data.data.defaulterIdentityType = statusInfo.data.data[0].defaulterIdentityType;
+        info.data.data.child = detail.data.data
+        info.data.data.child.url = url;
+        result = info
+      } else {
+        result = sessionStorage.getItem("detail-sub")
+      }
+      this.voiceInfo = JSON.parse(result)
     },
 
     /** 授权 */

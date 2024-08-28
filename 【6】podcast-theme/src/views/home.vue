@@ -165,7 +165,7 @@ import voice from "@/components/voice";
 import program from "@/components/program";
 import { freelogApp } from "freelog-runtime";
 import Vue from "vue";
-import { sleep } from "../utils/common";
+import { sleep } from "@/utils/common";
 
 export default {
   name: "home",

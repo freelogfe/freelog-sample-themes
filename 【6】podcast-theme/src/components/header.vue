@@ -1,7 +1,7 @@
 <!-- 页面头部 -->
 
 <template>
-  <div class="header-wrapper">
+  <div class="header-wrapper" id="headerWrapper">
     <!-- mobile -->
     <div
       class="mobile-header-wrapper"

@@ -47,13 +47,17 @@
         </div>
         <div class="btns-area">
           <div class="play-btn-area" @click="playOrPause()">
-            <i
+            <!-- ios的safari上, 两个圆环并不能完美的重叠 -->
+            <!-- <i
               class="freelog play"
               :class="playing ? 'fl-icon-zanting-daibiankuang' : 'fl-icon-bofang-daibiankuang'"
-            ></i>
-
+            ></i> -->
+            <div class="play-img">
+              <img src="../assets/images/current-play.png" alt="" v-if="playing">
+              <img src="../assets/images/current-stop.png" alt="" v-else>
+            </div>
             <el-progress
-              class="progress"
+              class="circle-progress"
               type="circle"
               :percentage="percentage"
               color="white"

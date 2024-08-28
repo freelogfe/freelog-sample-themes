@@ -186,7 +186,7 @@
 import { freelogApp } from "freelog-runtime";
 import program from "@/components/program";
 import voice from "@/components/voice";
-import { sleep } from "../utils/common";
+import { sleep } from "@/utils/common";
 
 export default {
   name: "search-list",
@@ -318,7 +318,7 @@ export default {
     scroll() {
       const app = document.getElementById("appPodcast");
       const scrollTop = app.scrollTop || 0;
-      sessionStorage.setItem("searchListScroll", scrollTop);
+      // sessionStorage.setItem("searchListScroll", scrollTop);
       const clientHeight = app.clientHeight || 0;
       const scrollHeight = app.scrollHeight || 0;
       if (scrollTop + clientHeight < scrollHeight - 200) return;

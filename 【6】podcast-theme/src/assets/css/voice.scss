@@ -207,16 +207,14 @@
       ::v-deep .progress {
         position: absolute;
         left: 0;
-        top: 0;
-
         .el-progress-circle__track {
           stroke: transparent;
         }
       }
-
+      
       .freelog {
-        font-size: 20px;
-
+        font-size: 22px;
+        height: auto;
         &:active {
           color: rgba(255, 255, 255, 0.4);
         }

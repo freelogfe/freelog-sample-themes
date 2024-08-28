@@ -1,5 +1,5 @@
 <template>
-  <div id="appPodcast" :class="{ pc: $store.state.inMobile === false, mobile: $store.state.inMobile }">
+  <div id="appPodcast" :class="{ pc: $store.state.inMobile === false, mobile: $store.state.inMobile }" v-if="!$store.state.maskLoading">
     <div class="page-wrapper">
       <my-header />
       <keep-alive>
@@ -12,6 +12,7 @@
     <theme-entrance />
     <share />
   </div>
+  <div style="width: 100vw; height: 100vh;" v-loading="$store.state.maskLoading" v-else></div>
 </template>
 
 <script>
@@ -29,9 +30,8 @@ export default {
     themeEntrance,
     share
   },
-
   created() {
-    console.log("0.1.45");
+    console.log("0.1.45", this.$route);
     this.$router.afterEach(to => {
       // 将第一个路由记入路由历史
       const { locationHistory } = this.$store.state;
@@ -57,6 +57,10 @@ export default {
 @import "@/assets/css";
 :root {
   --sat: env(safe-area-inset-top);
+}
+
+.el-loading-mask {
+  background-color: rgba(0, 0, 0, 0.9) !important;
 }
 
 #appPodcast {

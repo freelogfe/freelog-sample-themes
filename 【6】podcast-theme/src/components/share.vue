@@ -96,8 +96,12 @@ export default {
   methods: {
     /** 初始化分享组件 */
     initShare() {
-      const url = freelogApp.getShareUrl(this.shareInfo.exhibit.exhibitId, "detail");
-      this.href = url;
+      const identity = this.$route.path.slice(1)
+      const url = freelogApp.getShareUrl({ 
+        exhibitId: this.shareInfo.exhibit.exhibitId, 
+        itemId: this.shareInfo.exhibit?.child?.itemId
+      }, identity);
+      this.href = url; 
       this.shareText = `我在freelog发现一个不错的声音：\n《${this.shareInfo.exhibit.exhibitTitle}》\n${url}`;
       if (!this.shareInfo.show) this.qrcodeShow = false;
     },
