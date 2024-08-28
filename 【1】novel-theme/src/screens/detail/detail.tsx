@@ -48,9 +48,9 @@ export const DetailScreen = (props: any) => {
           const ids = dataList.map((item: any) => item.itemId).join();
           const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
           if (statusInfo.data.data) {
-            (dataList as ExhibitItem[]).forEach(item => {
+            (dataList as ExhibitItem[]).forEach((item: any) => {
               const index = statusInfo.data.data.findIndex(
-                (resultItem: { exhibitId: string }) => resultItem.exhibitId === item.exhibitId
+                (resultItem: { itemId: string }) => resultItem.itemId === item.itemId
               );
               if (index !== -1) {
                 item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
@@ -124,7 +124,7 @@ export const DetailScreen = (props: any) => {
 /** 详情页主体内容 */
 const DetailBody = (props: { total: number }) => {
   const { total } = props;
-  const { inMobile } = useContext(globalContext);
+  const { inMobile, userData } = useContext(globalContext);
   const { novel } = useContext(detailContext);
   const collectionList = novel?.collectionList;
   const { isCollected, operateShelf } = useMyShelf(novel?.exhibitId);
@@ -328,6 +328,9 @@ const DetailBody = (props: { total: number }) => {
                     >
                       <span className="sub-title">{collectionItem.itemTitle}</span>
                       {![0, 4].includes(collectionItem.defaulterIdentityType) ? (
+                        <img className="auth-lock" src={AuthLinkAbnormal} alt="授权链异常" />
+                      ) : collectionItem.defaulterIdentityType === 4 ||
+                        userData?.isLogin === false ? (
                         <img className="sub-lock" src={Lock} alt="未授权" />
                       ) : (
                         <img src={RightArrow} />
@@ -483,6 +486,9 @@ const DetailBody = (props: { total: number }) => {
                     >
                       <span className="sub-title">{collectionItem.itemTitle}</span>
                       {![0, 4].includes(collectionItem.defaulterIdentityType) ? (
+                        <img className="auth-lock" src={AuthLinkAbnormal} alt="授权链异常" />
+                      ) : collectionItem.defaulterIdentityType === 4 ||
+                        userData?.isLogin === false ? (
                         <img className="sub-lock" src={Lock} alt="未授权" />
                       ) : (
                         inMobile && <img src={RightArrow} />
