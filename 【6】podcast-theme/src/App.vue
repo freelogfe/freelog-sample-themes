@@ -21,6 +21,7 @@ import myFooter from "@/components/footer";
 import myPlayer from "@/components/player";
 import themeEntrance from "@/components/theme-entrance";
 import share from "@/components/share";
+import { widgetApi } from "freelog-runtime";
 
 export default {
   components: {
@@ -31,7 +32,8 @@ export default {
     share
   },
   created() {
-    console.log("0.1.45", this.$route);
+    const themeInfo = widgetApi.getData().themeInfo;
+    console.log("当前应用版本为:", themeInfo.version);
     this.$router.afterEach(to => {
       // 将第一个路由记入路由历史
       const { locationHistory } = this.$store.state;

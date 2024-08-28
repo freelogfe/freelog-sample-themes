@@ -153,7 +153,7 @@
 import playStatus from "@/components/play-status";
 import myTooltip from "@/components/tooltip";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
-import { showToast } from "@/utils/common";
+import { secondsToHMS, showToast } from "@/utils/common";
 import voice from "@/components/voice";
 
 export default {
