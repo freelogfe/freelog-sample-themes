@@ -450,7 +450,7 @@ const ReaderBody = () => {
             </div>
           </div>
         ) : null}
-        {defaulterIdentityType === 0 && currentSortId === total && (
+        {currentSortId === total && (
           <div className={`recommend-wrap ${theme?.type === 1 ? "dark" : "light"}`}>
             {/* 合集-上一章节-下一章节 */}
             <React.Fragment>
@@ -528,93 +528,91 @@ const ReaderBody = () => {
             </div>
           ) : null}
         </div>
-        {defaulterIdentityType === 0 && (
-          <div className={`recommend-wrap ${theme?.type === 1 ? "dark" : "light"}`}>
-            {currentSortId === total && (
-              <React.Fragment>
-                <div className="more">更多书籍</div>
-                <div className="recommend-box">
-                  {recommendList.map((item: ExhibitItem) => {
-                    return (
-                      <div
-                        className="recommend-item"
-                        key={item.exhibitId}
-                        onClick={() => toDetailFromRecommend(item.exhibitId)}
-                      >
-                        <div className="cover-image">
-                          <img src={item.coverImages[0]} alt={item.exhibitTitle} />
-                        </div>
+        <div className={`recommend-wrap ${theme?.type === 1 ? "dark" : "light"}`}>
+          {currentSortId === total && (
+            <React.Fragment>
+              <div className="more">更多书籍</div>
+              <div className="recommend-box">
+                {recommendList.map((item: ExhibitItem) => {
+                  return (
+                    <div
+                      className="recommend-item"
+                      key={item.exhibitId}
+                      onClick={() => toDetailFromRecommend(item.exhibitId)}
+                    >
+                      <div className="cover-image">
+                        <img src={item.coverImages[0]} alt={item.exhibitTitle} />
+                      </div>
 
-                        <div className="recommend-info">
-                          <span className="title">{item.exhibitTitle}</span>
-                          <span className="name">{item?.articleInfo?.articleOwnerName}</span>
-                          <div className="tags-wrap">
-                            {item.tags.map((tag: string, index: number) => {
-                              return (
-                                <div
-                                  className="tag"
-                                  key={index}
-                                  onClick={e => {
-                                    e.stopPropagation();
-                                    history.switchPage(`/home?tags=${tag}`);
-                                  }}
-                                >
-                                  {tag}
-                                </div>
-                              );
-                            })}
-                          </div>
+                      <div className="recommend-info">
+                        <span className="title">{item.exhibitTitle}</span>
+                        <span className="name">{item?.articleInfo?.articleOwnerName}</span>
+                        <div className="tags-wrap">
+                          {item.tags.map((tag: string, index: number) => {
+                            return (
+                              <div
+                                className="tag"
+                                key={index}
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  history.switchPage(`/home?tags=${tag}`);
+                                }}
+                              >
+                                {tag}
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              </React.Fragment>
-            )}
-            {/* 合集-上一章节-下一章节 */}
-            {collection && (
-              <React.Fragment>
+                    </div>
+                  );
+                })}
+              </div>
+            </React.Fragment>
+          )}
+          {/* 合集-上一章节-下一章节 */}
+          {collection && (
+            <React.Fragment>
+              <div
+                className="pre-next-chapter"
+                style={
+                  {
+                    backgroundColor: theme?.bookColor
+                  } as any
+                }
+              >
                 <div
-                  className="pre-next-chapter"
-                  style={
-                    {
-                      backgroundColor: theme?.bookColor
-                    } as any
-                  }
+                  className={`pre ${currentSortId === 1 && "disabled"}`}
+                  onClick={() => {
+                    scrollToTop();
+                    history.switchPage(
+                      `/reader?collection=${true}&id=${book.exhibitId}&subId=${preSubId}`
+                    );
+                  }}
                 >
-                  <div
-                    className={`pre ${currentSortId === 1 && "disabled"}`}
-                    onClick={() => {
-                      scrollToTop();
-                      history.switchPage(
-                        `/reader?collection=${true}&id=${book.exhibitId}&subId=${preSubId}`
-                      );
-                    }}
-                  >
-                    上一章
-                  </div>
-                  <div
-                    className="detail"
-                    onClick={() => history.switchPage(`/detail?id=${book?.exhibitId}`)}
-                  >
-                    书籍详情
-                  </div>
-                  <div
-                    className={`next ${currentSortId === total && "disabled"}`}
-                    onClick={() => {
-                      scrollToTop();
-                      history.switchPage(
-                        `/reader?collection=${true}&id=${book.exhibitId}&subId=${nextSubId}`
-                      );
-                    }}
-                  >
-                    下一章
-                  </div>
+                  上一章
                 </div>
-              </React.Fragment>
-            )}
-          </div>
-        )}
+                <div
+                  className="detail"
+                  onClick={() => history.switchPage(`/detail?id=${book?.exhibitId}`)}
+                >
+                  书籍详情
+                </div>
+                <div
+                  className={`next ${currentSortId === total && "disabled"}`}
+                  onClick={() => {
+                    scrollToTop();
+                    history.switchPage(
+                      `/reader?collection=${true}&id=${book.exhibitId}&subId=${nextSubId}`
+                    );
+                  }}
+                >
+                  下一章
+                </div>
+              </div>
+            </React.Fragment>
+          )}
+        </div>
       </div>
     );
   } else {
