@@ -5,7 +5,7 @@
     <template v-if="!loading">
       <div class="program-list-wrapper-mobile" v-if="$store.state.inMobile">
         <div class="plw-header">
-          {{ total ? `查询到${total}个相关结果` : '' }}
+          {{ `查询到${total}个相关结果` }}
         </div>
         <div v-if="listData.length" class="plw-body">
           <div class="plw-condition">

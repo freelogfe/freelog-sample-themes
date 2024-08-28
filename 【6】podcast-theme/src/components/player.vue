@@ -57,6 +57,7 @@
               <img src="../assets/images/current-stop.png" alt="" v-else>
             </div>
             <el-progress
+              v-if="percentage > 0.2"
               class="circle-progress"
               type="circle"
               :percentage="percentage"
@@ -842,6 +843,7 @@ export default {
       if (this.slidingProgress || !this.$store.state.playing) return;
 
       const progress = this.$refs.player.currentTime;
+      
       this.$store.commit("setData", { key: "progress", value: progress });
     },
 
