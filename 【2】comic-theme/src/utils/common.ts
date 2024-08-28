@@ -38,6 +38,14 @@ export const judgeDevice = () => {
   return inMobile;
 };
 
+/** 判断 IOS 设备 */
+export const judgeIOSDevice = () => {
+  const ios = /(iPhone|iPod|ios|iPad)/i;
+  const isIOS = !!navigator.userAgent.match(ios);
+
+  return isIOS;
+};
+
 /** 轻提示 */
 let timeout: any = null;
 export const showToast = (msg: string) => {
@@ -54,4 +62,19 @@ export const showToast = (msg: string) => {
   timeout = setTimeout(() => {
     document.body.removeChild(div);
   }, 2000);
+};
+
+// 修复ios的safari浏览器, 软键盘将页面顶到安全区域外的问题(方式一)
+export const scrollIntoView = () => {
+  const headerWrapper = document.getElementById("headerWrapper") as HTMLElement;
+  headerWrapper.scrollIntoView({
+    block: "end",
+    behavior: "smooth"
+  });
+};
+
+export const sleep = (duration: number) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(resolve, duration);
+  });
 };

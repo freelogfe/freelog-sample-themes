@@ -3,6 +3,7 @@
 <template>
   <!-- 移动端头部 -->
   <div
+    id="headerWrapper"
     class="mobile-header-wrapper"
     :class="{ 'in-home': homeHeader }"
     v-if="inMobile && !mobileSearching"
