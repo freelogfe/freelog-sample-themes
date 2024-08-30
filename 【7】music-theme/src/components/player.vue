@@ -278,7 +278,7 @@
                       </my-tooltip>
 
                       <!-- 合集标题 -->
-                      <my-tooltip :content="playingInfo?.exhibitTitle" v-if="playingInfo.itemId">
+                      <my-tooltip :content="playingInfo?.albumName" v-if="playingInfo.itemId">
                         <span
                           class="title album-title"
                           @click="
@@ -288,7 +288,7 @@
                             })
                           "
                         >
-                          {{ playingInfo.exhibitTitle }}
+                          {{ playingInfo.albumName }}
                         </span>
                       </my-tooltip>
                     </div>
@@ -384,7 +384,7 @@
                       }}</span>
                     </my-tooltip>
                     <span class="album album-title" v-if="item.itemId">
-                      {{ item.exhibitTitle }}
+                      {{ item.albumName }}
                     </span>
                   </div>
                 </div>

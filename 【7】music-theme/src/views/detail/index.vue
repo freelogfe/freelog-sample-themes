@@ -775,6 +775,7 @@ export default {
             item.exhibitIntro = item.articleInfo.intro;
             item.exhibitId = collectionID;
             item.coverImages = coverImages;
+            item.albumName = exhibitName;
             item.versionInfo = { exhibitProperty: item.articleInfo.articleProperty };
           });
         }

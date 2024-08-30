@@ -75,16 +75,11 @@ const playOrPause = async item => {
 
   await getCollectionList({ exhibitId: item.exhibitId, exhibitName, coverImages });
   // 首先专辑默认第一首播放，其余的全部加入播放列表
-  const restCollectionData = collectionData.value.slice(1);
-  await useMyPlay.playOrPause(collectionData.value[0], "normal", async () => {
-    if (!restCollectionData.length) {
-      return;
-    }
-    for (const iterator of restCollectionData) {
-      await useMyPlay.addToPlayList({ exhibitId: iterator.exhibitId, itemId: iterator.itemId });
-    }
-    // collectionData.value = [];
-  });
+  await useMyPlay.playOrPause(collectionData.value[0], "normal");
+
+  setTimeout(async () => {
+    await useMyPlay.addToPlayList({ exhibitId: item.exhibitId });
+  }, 0);
 };
 
 /** 获取合集里的单品列表 */

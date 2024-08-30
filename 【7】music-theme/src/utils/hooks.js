@@ -282,7 +282,8 @@ export const useMyPlay = {
           ...subInfo.data.data,
           coverImages: list.data.data[0].coverImages,
           versionInfo: { exhibitProperty: subInfo.data.data.articleInfo.articleProperty },
-          defaulterIdentityType: subStatusList.data.data[0].defaulterIdentityType
+          defaulterIdentityType: subStatusList.data.data[0].defaulterIdentityType,
+          albumName: list.data.data[0].exhibitName
         });
       } else {
         const [list, statusList] = await Promise.all([
