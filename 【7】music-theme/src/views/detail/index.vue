@@ -649,16 +649,17 @@ export default {
         if (!restCollectionData.length) {
           return;
         }
-        for (const iterator of restCollectionData) {
-          console.log("其余的数据");
-          await useMyPlay.addToPlayList({ exhibitId: iterator.exhibitId, itemId: iterator.itemId });
-        }
+        await useMyPlay.addToPlayList({ exhibitId: this.voiceInfo.exhibitId });
       });
     },
 
     /** 播放/暂停 */
     playOrPause(item) {
-      useMyPlay.playOrPause(item.itemId ? item : this.voiceInfo);
+      if (this.voiceInfo.articleInfo.articleType === 2) {
+        this.playOrPauseAll();
+      } else {
+        useMyPlay.playOrPause(item.itemId ? item : this.voiceInfo);
+      }
     },
 
     /** 加入播放列表 */

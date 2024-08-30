@@ -5,8 +5,8 @@ import { callLogin } from "@/api/freelog";
 import { showToast } from "./common";
 
 export const useCommon = {
-  async getCollectionList(obj) {
-    const { limit = 1_000, isShowDetailInfo = 1 } = obj.options;
+  async getCollectionSubList(obj) {
+    const { limit = 1_000, isShowDetailInfo = 1, sortType = 1 } = obj.options;
 
     let subTotal = 0;
     let subSkip = 0;
@@ -17,7 +17,8 @@ export const useCommon = {
       const subList = await freelogApp.getCollectionSubList(obj.collectionID, {
         skip: subSkip,
         limit,
-        isShowDetailInfo
+        isShowDetailInfo,
+        sortType
       });
 
       const { dataList, totalItem } = subList.data.data;
@@ -300,7 +301,7 @@ export const useMyPlay = {
             }
           };
 
-          const { data, itemsToAdd } = await useCommon.getCollectionList(params);
+          const { data, itemsToAdd } = await useCommon.getCollectionSubList(params);
           playIdList.unshift(...itemsToAdd);
           result.push(...data);
 
@@ -319,6 +320,7 @@ export const useMyPlay = {
     }
     // });
 
+    !store.userData.isLogin && localStorage.setItem("playIdList", JSON.stringify(playIdList));
     store.setData({ key: "playList", value: result });
   },
 
@@ -328,11 +330,14 @@ export const useMyPlay = {
 
     if (!store.userData.isLogin) {
       // 未登录时播放列表取本地
-      const list = localStorage.getItem("playIdList") || "[]";
-      const playIdList = JSON.parse(list);
-      return playIdList
+      // const list = localStorage.getItem("playIdList") || "[]";
+      // const playIdList = JSON.parse(list);
+      return store.playIdList
         .map(i => `${i.exhibitId}${i.itemId ?? ""}`)
         .includes(`${obj.exhibitId}${obj.itemId ?? ""}`);
+      // return playIdList
+      //   .map(i => `${i.exhibitId}${i.itemId ?? ""}`)
+      //   .includes(`${obj.exhibitId}${obj.itemId ?? ""}`);
     } else {
       // 已登录时播放列表取用户数据
       return store.playIdList
@@ -348,16 +353,25 @@ export const useMyPlay = {
     if (!store.userData.isLogin) {
       // 未登录时存在本地
       const list = localStorage.getItem("playIdList") || "[]";
-      const playIdList = JSON.parse(list);
-      if (
-        playIdList
-          .map(i => `${i.exhibitId}${i.itemId ?? ""}`)
-          .includes(`${obj.exhibitId}${obj.itemId ?? ""}`)
-      ) {
-        return;
-      }
+      let playIdList = JSON.parse(list);
 
-      playIdList.unshift(obj);
+      if (obj.itemId) {
+        if (
+          playIdList
+            .map(i => `${i.exhibitId}${i.itemId ?? ""}`)
+            .includes(`${obj.exhibitId}${obj.itemId ?? ""}`)
+        ) {
+          return;
+        }
+
+        playIdList.unshift(obj);
+      } else {
+        const hasDuplicateId = playIdList.findIndex(i => i.exhibitId === obj.exhibitId);
+        if (hasDuplicateId !== -1) {
+          playIdList = playIdList.filter(item => item.exhibitId !== obj.exhibitId);
+        }
+        playIdList.unshift(obj);
+      }
 
       localStorage.setItem("playIdList", JSON.stringify(playIdList));
       store.setData({ key: "playIdList", value: playIdList });

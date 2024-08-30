@@ -123,7 +123,21 @@ export const useGlobalStore = defineStore("global", {
         const list = localStorage.getItem("playIdList") || "[]";
         const localPlayIdList = JSON.parse(list);
         if (localPlayIdList.length) {
-          playIdList = [...new Set([...playIdList, ...localPlayIdList])];
+          // 合并并去重
+          const combinedList = [...playIdList, ...localPlayIdList];
+          const uniquePlayIdList = [];
+
+          const map = new Map();
+          for (const item of combinedList) {
+            const key = `${item.exhibitId}-${item.itemId}`;
+            if (!map.has(key)) {
+              map.set(key, true);
+              uniquePlayIdList.push(item);
+            }
+          }
+
+          playIdList = uniquePlayIdList;
+
           freelogApp.setUserData("playIdList", playIdList);
           localStorage.setItem("playIdList", "[]");
         }
