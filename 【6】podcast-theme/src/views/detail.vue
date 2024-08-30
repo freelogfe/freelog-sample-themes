@@ -4,7 +4,8 @@
   <div class="detail-wrapper">
     <transition name="detail-fade">
       <template v-if="voiceInfo">
-        <div v-if="voiceInfo.authCode !== 403">
+        <!-- 1: 正常; 2: 冻结; -->
+        <div v-if="voiceInfo && voiceInfo.articleInfo.status === 1">
           <!-- mobile -->
           <div class="mobile-detail-wrapper" :class="{ pool: voiceInfo.articleInfo.articleType === 2 }" v-if="$store.state.inMobile">
             <div ref="cover" class="cover-area">

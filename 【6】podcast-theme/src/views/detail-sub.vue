@@ -3,7 +3,90 @@
   <div class="detail-wrapper">
     <transition name="detail-fade">
       <template v-if="voiceInfo">
-        <div v-if="voiceInfo && voiceInfo.child && voiceInfo.child.authCode !== 403">
+        <!-- 1: 正常; 2: 冻结; -->
+        <div v-if="voiceInfo.articleInfo.status === 2 || voiceInfo.child.authCode === 403" class="detail-weigui">
+          <!-- mobile -->
+          <div class="detail-weigui-mobile" v-if="$store.state.inMobile">
+            <div class="mobile">
+              <div class="info">
+                <div class="info-header">
+                  <div ref="cover" class="cover-area">
+                    <img class="cover" :src="voiceInfo.coverImages[0]" v-if="voiceInfo.coverImages[0]" />
+                    <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
+                  </div>
+                  <div class="title-area">
+                    <img
+                      class="auth-link-abnormal"
+                      src="../assets/images/auth-link-abnormal.png"
+                      v-if="authLinkAbnormal"
+                    />
+                    <i
+                      class="freelog fl-icon-suoding lock"
+                      @click.stop="getAuth()"
+                      v-if="voiceInfo.defaulterIdentityType >= 4"
+                    ></i>
+                    <my-tooltip class="title" :content="voiceInfo.exhibitTitle">
+                      <span>{{ voiceInfo.exhibitTitle }}</span>
+                    </my-tooltip>
+                  </div>
+                </div>
+                <div class="info-area">
+                  <div class="info-item">
+                    <i class="freelog fl-icon-gengxinshijian"></i>
+                    <div class="item-value">{{ voiceInfo.updateDate | relativeTime }}</div>
+                  </div>
+                  <div class="info-item">
+                    <i class="freelog fl-icon-danji"></i>
+                    <div class="item-value">{{ total }}</div>
+                  </div>
+                  <div class="info-item">
+                    <i class="freelog fl-icon-yonghu"></i>
+                    <div class="item-value">{{ voiceInfo.signCount | signCount }}</div>
+                  </div>
+                  <div v-if="playingInfo && voiceInfo.articleInfo.articleType === 1" class="duration">
+                    时长{{ voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
+                  </div>
+                </div>
+
+              </div>
+              <span class="freelog fl-icon-ziyuanweiguitishi_yinle weigui-icon"></span>
+            </div>
+          </div>
+          <!-- pc -->
+          <div v-else class="detail-weigui-pc">
+            <div class="pc">
+              <span class="freelog fl-icon-ziyuanweiguitishi_yinle weigui-icon"></span>
+              <div class="info">
+                <div ref="cover" class="cover-area">
+                  <img class="cover" :src="voiceInfo.coverImages[0]" />
+                </div>
+                <img
+                  class="auth-link-abnormal"
+                  src="../assets/images/auth-link-abnormal.png"
+                  v-if="authLinkAbnormal"
+                />
+                <i class="freelog fl-icon-suoding lock" @click.stop="getAuth()" v-if="voiceInfo.defaulterIdentityType >= 4"></i>
+                <div
+                  v-if="voiceInfo.articleInfo.articleType === 1"
+                  class="single freelog fl-icon-bokebiaoqian_danji"
+                  :class="{ 'opacity-40': authLinkAbnormal }"
+                ></div>
+                <div v-else class="multiple" :class="{ 'opacity-40': authLinkAbnormal }">
+                  <span
+                    class="ing freelog fl-icon-bokebiaoqian_lianzaizhong"
+                    v-if="voiceInfo.articleInfo.serializeStatus === 0"
+                  ></span>
+                  <span class="end freelog fl-icon-bokebiaoqian_yiwanjie" v-else></span>
+                </div>
+  
+                <my-tooltip class="title" :content="voiceInfo.exhibitTitle">
+                  <span>{{ voiceInfo.exhibitTitle }}</span>
+                </my-tooltip>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-else>
           <!-- mobile -->
           <div class="mobile-detail-wrapper" v-if="$store.state.inMobile">
             <div ref="cover" class="cover-area">
@@ -144,88 +227,7 @@
             </div>
           </div>
         </div>
-        <div v-else class="detail-weigui">
-          <!-- mobile -->
-          <div class="detail-weigui-mobile" v-if="$store.state.inMobile">
-            <div class="mobile">
-              <div class="info">
-                <div class="info-header">
-                  <div ref="cover" class="cover-area">
-                    <img class="cover" :src="voiceInfo.coverImages[0]" v-if="voiceInfo.coverImages[0]" />
-                    <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
-                  </div>
-                  <div class="title-area">
-                    <img
-                      class="auth-link-abnormal"
-                      src="../assets/images/auth-link-abnormal.png"
-                      v-if="authLinkAbnormal"
-                    />
-                    <i
-                      class="freelog fl-icon-suoding lock"
-                      @click.stop="getAuth()"
-                      v-if="voiceInfo.defaulterIdentityType >= 4"
-                    ></i>
-                    <my-tooltip class="title" :content="voiceInfo.exhibitTitle">
-                      <span>{{ voiceInfo.exhibitTitle }}</span>
-                    </my-tooltip>
-                  </div>
-                </div>
-                <div class="info-area">
-                  <div class="info-item">
-                    <i class="freelog fl-icon-gengxinshijian"></i>
-                    <div class="item-value">{{ voiceInfo.updateDate | relativeTime }}</div>
-                  </div>
-                  <div class="info-item">
-                    <i class="freelog fl-icon-danji"></i>
-                    <div class="item-value">{{ total }}</div>
-                  </div>
-                  <div class="info-item">
-                    <i class="freelog fl-icon-yonghu"></i>
-                    <div class="item-value">{{ voiceInfo.signCount | signCount }}</div>
-                  </div>
-                  <div v-if="playingInfo && voiceInfo.articleInfo.articleType === 1" class="duration">
-                    时长{{ voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
-                  </div>
-                </div>
-
-              </div>
-              <span class="freelog fl-icon-ziyuanweiguitishi_yinle weigui-icon"></span>
-            </div>
-          </div>
-          <!-- pc -->
-          <div v-else class="detail-weigui-pc">
-            <div class="pc">
-              <span class="freelog fl-icon-ziyuanweiguitishi_yinle weigui-icon"></span>
-              <div class="info">
-                <div ref="cover" class="cover-area">
-                  <img class="cover" :src="voiceInfo.coverImages[0]" />
-                </div>
-                <img
-                  class="auth-link-abnormal"
-                  src="../assets/images/auth-link-abnormal.png"
-                  v-if="authLinkAbnormal"
-                />
-                <i class="freelog fl-icon-suoding lock" @click.stop="getAuth()" v-if="voiceInfo.defaulterIdentityType >= 4"></i>
-                <div
-                  v-if="voiceInfo.articleInfo.articleType === 1"
-                  class="single freelog fl-icon-bokebiaoqian_danji"
-                  :class="{ 'opacity-40': authLinkAbnormal }"
-                ></div>
-                <div v-else class="multiple" :class="{ 'opacity-40': authLinkAbnormal }">
-                  <span
-                    class="ing freelog fl-icon-bokebiaoqian_lianzaizhong"
-                    v-if="voiceInfo.articleInfo.serializeStatus === 0"
-                  ></span>
-                  <span class="end freelog fl-icon-bokebiaoqian_yiwanjie" v-else></span>
-                </div>
-  
-                <my-tooltip class="title" :content="voiceInfo.exhibitTitle">
-                  <span>{{ voiceInfo.exhibitTitle }}</span>
-                </my-tooltip>
-              </div>
-            </div>
-          </div>
-        </div>
+      
       </template>
     </transition>
   </div>
