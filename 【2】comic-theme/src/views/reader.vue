@@ -1472,7 +1472,7 @@ export default {
         i => i.itemId === currentSubID
       ) as CollectionList[];
 
-      const targetID = filterData.length && filterData[0].sortId;
+      const targetID = filterData?.length && filterData[0].sortId;
 
       return targetID;
     });
