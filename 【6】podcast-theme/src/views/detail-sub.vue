@@ -3,7 +3,7 @@
   <div class="detail-wrapper">
     <transition name="detail-fade">
       <template v-if="voiceInfo">
-        <div>
+        <div v-if="voiceInfo && voiceInfo.child && voiceInfo.child.authCode !== 403">
           <!-- mobile -->
           <div class="mobile-detail-wrapper" v-if="$store.state.inMobile">
             <div ref="cover" class="cover-area">
@@ -144,6 +144,88 @@
             </div>
           </div>
         </div>
+        <div v-else class="detail-weigui">
+          <!-- mobile -->
+          <div class="detail-weigui-mobile" v-if="$store.state.inMobile">
+            <div class="mobile">
+              <div class="info">
+                <div class="info-header">
+                  <div ref="cover" class="cover-area">
+                    <img class="cover" :src="voiceInfo.coverImages[0]" v-if="voiceInfo.coverImages[0]" />
+                    <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
+                  </div>
+                  <div class="title-area">
+                    <img
+                      class="auth-link-abnormal"
+                      src="../assets/images/auth-link-abnormal.png"
+                      v-if="authLinkAbnormal"
+                    />
+                    <i
+                      class="freelog fl-icon-suoding lock"
+                      @click.stop="getAuth()"
+                      v-if="voiceInfo.defaulterIdentityType >= 4"
+                    ></i>
+                    <my-tooltip class="title" :content="voiceInfo.exhibitTitle">
+                      <span>{{ voiceInfo.exhibitTitle }}</span>
+                    </my-tooltip>
+                  </div>
+                </div>
+                <div class="info-area">
+                  <div class="info-item">
+                    <i class="freelog fl-icon-gengxinshijian"></i>
+                    <div class="item-value">{{ voiceInfo.updateDate | relativeTime }}</div>
+                  </div>
+                  <div class="info-item">
+                    <i class="freelog fl-icon-danji"></i>
+                    <div class="item-value">{{ total }}</div>
+                  </div>
+                  <div class="info-item">
+                    <i class="freelog fl-icon-yonghu"></i>
+                    <div class="item-value">{{ voiceInfo.signCount | signCount }}</div>
+                  </div>
+                  <div v-if="playingInfo && voiceInfo.articleInfo.articleType === 1" class="duration">
+                    时长{{ voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
+                  </div>
+                </div>
+
+              </div>
+              <span class="freelog fl-icon-ziyuanweiguitishi_yinle weigui-icon"></span>
+            </div>
+          </div>
+          <!-- pc -->
+          <div v-else class="detail-weigui-pc">
+            <div class="pc">
+              <span class="freelog fl-icon-ziyuanweiguitishi_yinle weigui-icon"></span>
+              <div class="info">
+                <div ref="cover" class="cover-area">
+                  <img class="cover" :src="voiceInfo.coverImages[0]" />
+                </div>
+                <img
+                  class="auth-link-abnormal"
+                  src="../assets/images/auth-link-abnormal.png"
+                  v-if="authLinkAbnormal"
+                />
+                <i class="freelog fl-icon-suoding lock" @click.stop="getAuth()" v-if="voiceInfo.defaulterIdentityType >= 4"></i>
+                <div
+                  v-if="voiceInfo.articleInfo.articleType === 1"
+                  class="single freelog fl-icon-bokebiaoqian_danji"
+                  :class="{ 'opacity-40': authLinkAbnormal }"
+                ></div>
+                <div v-else class="multiple" :class="{ 'opacity-40': authLinkAbnormal }">
+                  <span
+                    class="ing freelog fl-icon-bokebiaoqian_lianzaizhong"
+                    v-if="voiceInfo.articleInfo.serializeStatus === 0"
+                  ></span>
+                  <span class="end freelog fl-icon-bokebiaoqian_yiwanjie" v-else></span>
+                </div>
+  
+                <my-tooltip class="title" :content="voiceInfo.exhibitTitle">
+                  <span>{{ voiceInfo.exhibitTitle }}</span>
+                </my-tooltip>
+              </div>
+            </div>
+          </div>
+        </div>
       </template>
     </transition>
   </div>
@@ -155,6 +237,7 @@ import myTooltip from "@/components/tooltip";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { secondsToHMS, showToast } from "@/utils/common";
 import voice from "@/components/voice";
+import { freelogApp } from 'freelog-runtime'
 
 export default {
   name: "detail-sub",
@@ -329,12 +412,12 @@ export default {
 
     /** 获取声音详情 */
     async getVoiceInfo() {
-      let result
+      let result = {}
       const itemId = this.$route.query.itemId
       const id = this.$route.query.id
       if (id && itemId) {
         // 处理分享
-        const [info, statusInfo, url, detail] = await Promise.all([
+        const [info, statusInfo, url, detail, subStatusInfo] = await Promise.all([
           freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
           freelogApp.getExhibitAuthStatus(id),
           freelogApp.getCollectionSubFileStream(id, {
@@ -343,16 +426,19 @@ export default {
           }),
           freelogApp.getCollectionSubInfo(id, {
             itemId: itemId
-          })
-        ]);
+          }),
+          freelogApp.getCollectionSubAuth(id, {
+            itemIds: itemId
+          }),
+        ]); 
+        
         info.data.data.defaulterIdentityType = statusInfo.data.data[0].defaulterIdentityType;
         info.data.data.child = detail.data.data
         info.data.data.child.url = url;
-        result = info
-      } else {
-        result = sessionStorage.getItem("detail-sub")
+        info.data.data.child.authCode = subStatusInfo.data.data[0].authCode;
+        result = info.data.data
       }
-      this.voiceInfo = JSON.parse(result)
+      this.voiceInfo = result
     },
 
     /** 授权 */
@@ -804,6 +890,208 @@ export default {
           transform: scale(0);
           right: 119px;
           bottom: -50px;
+        }
+      }
+    }
+  }
+  .detail-weigui {
+    .detail-weigui-mobile {
+      .mobile {
+        text-align: center;
+        .info {
+          padding-top: 30px;
+          padding-bottom: 187px;
+
+          .info-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+
+            .cover-area {
+              position: relative;
+              width: 48px;
+              height: 48px;
+              background: #222;
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              box-sizing: border-box;
+              border-radius: 10px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              overflow: hidden;
+              z-index: 1;
+              margin-right: 20px;
+              .cover {
+                height: 100%;
+              }
+            }
+        
+            .title-area {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+        
+              .auth-link-abnormal {
+                width: 16px;
+                height: 16px;
+                margin-right: 5px;
+              }
+        
+              .lock {
+                font-size: 16px;
+                color: rgba(255, 255, 255, 0.6);
+                margin-right: 5px;
+              }
+        
+              .title {
+                font-size: 18px;
+                font-weight: 600;
+                color: #ffffff;
+                line-height: 24px;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+              }
+            }
+        
+          }
+
+          .info-area {
+            color: rgba(255, 255, 255, 0.4);
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+      
+            .info-item {
+              display: flex;
+              align-items: center;
+      
+              & + .info-item {
+                margin-left: 10px;
+              }
+      
+              .freelog {
+                font-size: 14px;
+              }
+      
+              .item-value {
+                font-size: 12px;
+                line-height: 18px;
+                margin-left: 5px;
+              }
+            }
+      
+            .duration {
+              font-size: 12px;
+              line-height: 18px;
+              margin-left: 10px;
+            }
+          }
+        }
+        .weigui-icon {
+          font-size: 165px;
+          opacity: 0.4;
+        }
+      }
+    }
+
+    .detail-weigui-pc {
+      height: calc(100vh - 146px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+  
+      .pc {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 348px;
+  
+        .weigui-icon {
+          font-size: 220px;
+          opacity: 0.4;
+        }
+  
+        .info {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 450px;
+          margin-top: 40px;
+  
+          .cover-area {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            background: #222;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-sizing: border-box;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            margin-right: 20px;
+            .cover {
+              height: 100%;
+            }
+          }
+  
+          .auth-link-abnormal {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+          }
+  
+          .lock {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-right: 10px;
+            cursor: pointer;
+          }
+  
+          .type-mark {
+            padding: 6px 15px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.4);
+            line-height: 20px;
+          }
+  
+          .title {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 20px;
+            font-weight: 600;
+            line-height: 56px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            margin-left: 10px;
+          }
+  
+          .single {
+            opacity: 0.32;
+            color: #fff;
+            font-size: 20px;
+          }
+  
+          .multiple {
+            display: flex;
+            align-items: center;
+            .ing {
+              font-size: 20px;
+              color: #42c28c;
+            }
+            .end {
+              font-size: 20px;
+              color: #e9a923;
+            }
+          }
+  
         }
       }
     }

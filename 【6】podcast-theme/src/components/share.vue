@@ -96,11 +96,21 @@ export default {
   methods: {
     /** 初始化分享组件 */
     initShare() {
-      const identity = this.$route.path.slice(1)
-      const url = freelogApp.getShareUrl({ 
-        exhibitId: this.shareInfo.exhibit.exhibitId, 
-        itemId: this.shareInfo.exhibit?.child?.itemId
-      }, identity);
+      let identity
+      let params = {}
+      const exhibitId = this.shareInfo.exhibit.exhibitId
+      const itemId = this.shareInfo.exhibit?.child?.itemId
+      if (this.shareInfo.exhibit?.child?.itemId) {
+        // 去detail-sub
+        identity = "detail-sub"
+        params = { exhibitId, itemId }
+      } else {
+        // 去detail
+        identity = "detail"
+        params = { exhibitId }
+      }
+      console.log(`initShare; identity=${identity}; exhibitId=${exhibitId}; itemId=${itemId};`);
+      const url = freelogApp.getShareUrl(params, identity);
       this.href = url; 
       this.shareText = `我在freelog发现一个不错的声音：\n《${this.shareInfo.exhibit.exhibitTitle}》\n${url}`;
       if (!this.shareInfo.show) this.qrcodeShow = false;

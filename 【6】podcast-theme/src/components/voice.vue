@@ -573,14 +573,18 @@ export default {
 
   methods: {
     /** 跳转到声音详情 */
-    skipToDetailPage() {
+    async skipToDetailPage() {
       if (this.data.articleInfo.articleType === 1) {
         this.$router.myPush({ path: '/detail', query: { id: this.data.exhibitId } })
       } else {
         if (this.mode === 'voice') {
-          // 存入数据到localStorage
-          sessionStorage.setItem("detail-sub", JSON.stringify(this.data))
-          this.$router.myPush({ path: '/detail-sub', query: { id: this.data.exhibitId } })
+          this.$router.myPush({ 
+            path: '/detail-sub', 
+            query: { 
+              id: this.data.exhibitId, 
+              itemId: this.data.child.itemId
+            } 
+          })
         } else {
           this.$router.myPush({ path: '/detail', query: { id: this.data.exhibitId } })
         }

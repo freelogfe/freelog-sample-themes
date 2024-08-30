@@ -1,7 +1,7 @@
 import "./public-path";
 import Vue from "vue";
 import VueRouter from "vue-router";
-import App from "./App.vue";
+import App from "./App.vue"
 import routes from "./router";
 import store from "./store";
 import ElementUI from "element-ui";
@@ -59,10 +59,12 @@ window.addEventListener(
 let app = null;
 let router = null;
 
-window.mount = () => {
+window.mount = async () => {
   initFreelogApp();
-  /* 路由映射 */
-  freelogApp.mapShareUrl(mapRoutes)
+
+  /* 路由映射: mapShareUrl会调用映射函数得到地址, 并异步导航  */
+  await freelogApp.mapShareUrl(mapRoutes)
+
   /* 修复ios的safari浏览器, 软键盘将页面顶到安全区域外的问题
    * 方式一: scrollIntoView
    * 方式二: v-if重渲染全部页面
@@ -71,25 +73,43 @@ window.mount = () => {
   // 关闭登录框, 使用方式一
   freelogApp.onLogin(async () => {
     if (store.state.isIOS) {
-      store.commit('setData', {
-        key: 'maskLoading',
-        value: true
-      })
+      store.commit('setData', { key: 'maskLoading', value: true })
       await sleep(350)
-      store.commit('setData', {
-        key: 'maskLoading',
-        value: false
-      })
+      store.commit('setData', { key: 'maskLoading', value: false })
     }
     const url = freelogApp.getCurrentUrl()
     location.href = url
   }, () => {
-    if (store.state.isIOS) {
-      scrollIntoView()
-    }
+    if (store.state.isIOS) { scrollIntoView() }
   })
+
   router = new VueRouter({ base: "/", mode: "history", routes });
+  router.beforeEach((to, from, next) => {
+    console.log("to, from, next", to, from, next);
+    // import()导入时 => from: /; to: /detail
+    // import...from...静态导入时 => from: /; to: /home
+    next()
+  })
+  router.afterEach(to => {
+    // 将第一个路由记入路由历史
+    const { locationHistory } = store.state;
+    if (locationHistory.length) return;
+
+    const { path, query } = to;
+    locationHistory.push(JSON.stringify({ path, query }));
+    store.commit("setData", { key: "locationHistory", value: locationHistory });
+    store.commit("setData", { key: "routerMode", value: 1 });
+  });
+
+  /* import...from...静态导入时, 分享链接失效; import()导入时, 分享链接可成功打开;
+   * import...from...静态导入时: 在main.js中先导入App.vue时, 在mapShareUrl后, 还需要sleep一次, 具体原因未知(目前已在mapShareUrl里sleep了, 在主题中不需要再处理);
+   * import()导入时: 分享链接可成功打开; const { default: App } = await import("./App.vue")
+   */
+  // const { default: App } = await import("./App.vue")
+  
+  Vue.use(VueRouter)
   app = new Vue({ router, store, render: h => h(App) }).$mount("#app");
+
   store.dispatch("initStoreData");
 };
 

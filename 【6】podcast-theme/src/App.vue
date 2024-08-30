@@ -34,16 +34,7 @@ export default {
   created() {
     const themeInfo = widgetApi.getData().themeInfo;
     console.log("当前应用版本为:", themeInfo.version);
-    this.$router.afterEach(to => {
-      // 将第一个路由记入路由历史
-      const { locationHistory } = this.$store.state;
-      if (locationHistory.length) return;
-
-      const { path, query } = to;
-      locationHistory.push(JSON.stringify({ path, query }));
-      this.$store.commit("setData", { key: "locationHistory", value: locationHistory });
-      this.$store.commit("setData", { key: "routerMode", value: 1 });
-    });
+   
   },
   mounted() {
     /* iphone13 无法获取到安全距离 */

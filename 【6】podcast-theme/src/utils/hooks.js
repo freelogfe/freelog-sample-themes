@@ -763,10 +763,15 @@ export const useMyPlay = {
         itemId: exhibit.child.itemId,
         returnUrl: true
       });
+      const statusInfo = await freelogApp.getCollectionSubAuth(exhibitId, {
+        itemIds: exhibit.child.itemId
+      });
+
       if (detail.data.errCode === 0) {
         exhibit.child = {
           ...detail.data.data,
-          url
+          url,
+          authCode: statusInfo.data.data[0].authCode
         };
       } else {
         console.warn(res.data);

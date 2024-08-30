@@ -605,13 +605,17 @@ export default {
     secondsToHMS,
 
     /** 跳转到声音详情 */
-    skipToDetailPage() {
+    async skipToDetailPage() {
       if (this.playingInfo.articleInfo.articleType === 1) {
         this.$router.myPush({ path: '/detail', query: { id: this.playingInfo.exhibitId } })
       } else {
-        // 存入数据到localStorage
-        sessionStorage.setItem("detail-sub", JSON.stringify(this.playingInfo))
-        this.$router.myPush({ path: '/detail-sub', query: { id: this.playingInfo.exhibitId } })
+        this.$router.myPush({ 
+          path: '/detail-sub', 
+          query: { 
+            id: this.playingInfo.exhibitId, 
+            itemId: this.playingInfo.child.itemId
+          } 
+        })
       }
     },
 
