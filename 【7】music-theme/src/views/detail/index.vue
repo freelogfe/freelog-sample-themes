@@ -465,8 +465,14 @@ export default {
       const { playing, playingInfo } = this.store;
       const playingId = `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ""}`;
       const exhibit = `${this.voiceInfo.exhibitId}${this.voiceInfo.itemId ?? ""}`;
+      // 判断是否是合集
+      const isCollection = this.voiceInfo.articleInfo.articleType === 2;
 
-      return playing && playingId === exhibit;
+      if (isCollection) {
+        return playing && playingInfo?.exhibitId === this.voiceInfo.exhibitId;
+      } else {
+        return playing && playingId === exhibit;
+      }
     },
 
     /** 播放中声音信息 */
@@ -480,30 +486,27 @@ export default {
         {
           icon:
             this.voiceInfo?.articleInfo?.articleType === 1
-              ? !this.ifSupportMime
+              ? !this.ifSupportMime || this.authLinkAbnormal
                 ? "fl-icon-wufabofang"
                 : this.playing
                 ? "fl-icon-zanting-daibiankuang"
                 : "fl-icon-bofang-daibiankuang"
-              : this.authLinkAbnormal
+              : !this.ifSupportMime || this.authLinkAbnormal
               ? "fl-icon-zanting-daibiankuang"
               : "fl-icon-bofang-daibiankuang",
           title:
             this.voiceInfo?.articleInfo?.articleType === 1
-              ? !this.ifSupportMime
+              ? !this.ifSupportMime || this.authLinkAbnormal
                 ? "无法播放"
                 : this.playing
                 ? "暂停"
                 : "播放"
-              : this.authLinkAbnormal
+              : !this.ifSupportMime || this.authLinkAbnormal
               ? "无法播放"
               : "播放全部",
           operate:
             this.voiceInfo?.articleInfo?.articleType === 1 ? this.playOrPause : this.playOrPauseAll,
-          disabled:
-            this.voiceInfo?.articleInfo?.articleType === 1
-              ? !this.ifSupportMime
-              : this.authLinkAbnormal
+          disabled: !this.ifSupportMime || this.authLinkAbnormal
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
@@ -643,22 +646,29 @@ export default {
     /** 播放全部/暂停  */
     async playOrPauseAll() {
       // 首先专辑默认第一首播放，其余的全部加入播放列表
-      const restCollectionData = this.collectionData.slice(1);
+      await useMyPlay.playOrPause(this.collectionData[0], "normal");
 
-      await useMyPlay.playOrPause(this.collectionData[0], "normal", async () => {
-        if (!restCollectionData.length) {
-          return;
-        }
+      setTimeout(async () => {
         await useMyPlay.addToPlayList({ exhibitId: this.voiceInfo.exhibitId });
-      });
+      }, 0);
     },
 
     /** 播放/暂停 */
     playOrPause(item) {
-      if (this.voiceInfo.articleInfo.articleType === 2) {
-        this.playOrPauseAll();
+      // 判断是否是合集
+      const isCollection = this.voiceInfo.articleInfo.articleType === 2;
+
+      if (isCollection) {
+        if (item.itemId) {
+          // 合集单品
+          useMyPlay.playOrPause(item);
+        } else {
+          // 合集
+          this.playOrPauseAll();
+        }
       } else {
-        useMyPlay.playOrPause(item.itemId ? item : this.voiceInfo);
+        // 普通展品
+        useMyPlay.playOrPause(this.voiceInfo);
       }
     },
 

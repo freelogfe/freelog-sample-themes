@@ -320,7 +320,12 @@ export const useMyPlay = {
     }
     // });
 
-    !store.userData.isLogin && localStorage.setItem("playIdList", JSON.stringify(playIdList));
+    if (store.userData.isLogin) {
+      freelogApp.setUserData("playIdList", playIdList);
+    } else {
+      localStorage.setItem("playIdList", JSON.stringify(playIdList));
+    }
+
     store.setData({ key: "playList", value: result });
   },
 

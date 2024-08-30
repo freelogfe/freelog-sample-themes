@@ -94,6 +94,7 @@
     <div
       class="pc-voice-wrapper"
       :class="{ unplayable: !ifSupportMime }"
+      :title="!this.ifSupportMime || this.authLinkAbnormal ? '无法播放' : ''"
       v-if="store.inMobile === false"
     >
       <div class="left-box">
@@ -294,12 +295,18 @@ export default {
     btnList() {
       return [
         {
-          icon: !this.ifSupportMime
-            ? "fl-icon-wufabofang"
-            : this.playing
-            ? "fl-icon-zanting-daibiankuang"
-            : "fl-icon-bofang-daibiankuang",
-          title: this.playing ? "暂停" : "播放",
+          icon:
+            !this.ifSupportMime || this.authLinkAbnormal
+              ? "fl-icon-wufabofang"
+              : this.playing
+              ? "fl-icon-zanting-daibiankuang"
+              : "fl-icon-bofang-daibiankuang",
+          title:
+            !this.ifSupportMime || this.authLinkAbnormal
+              ? "无法播放"
+              : this.playing
+              ? "暂停"
+              : "播放",
           operate: this.playOrPause,
           disabled: !this.ifSupportMime
         },
