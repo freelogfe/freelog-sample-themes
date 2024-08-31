@@ -959,7 +959,7 @@ export default {
 
     /** 播放或加入播放列表时，播放器动画 */
     animation() {
-      if (!this.show) this.show = true;
+      // if (!this.show) this.show = true;
       if (this.closeTimer) this.clearCloseTimer();
       this.closeTimer = setTimeout(() => {
         if (!this.playListPopupShow && !this.volumePopupShow) this.show = false;
