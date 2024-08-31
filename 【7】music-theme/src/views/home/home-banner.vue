@@ -84,6 +84,7 @@ const { selfConfig, nodeInfo } = storeToRefs(store);
 <style lang="less" scoped>
 // PC
 .pc-home-banner-wrap {
+  position: relative;
   margin-top: -98px;
   width: 100%;
 
@@ -99,8 +100,13 @@ const { selfConfig, nodeInfo } = storeToRefs(store);
 
   .node-info {
     position: absolute;
+    width: 100%;
+    height: calc(100% - 98px);
     left: calc((100% - 1280px) / 2);
-    top: 188px;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 
     .avatar {
       width: 170px;
