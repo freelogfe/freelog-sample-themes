@@ -46,7 +46,7 @@ const { inMobile } = storeToRefs(store);
 
 #music-theme {
   position: relative;
-  background-color: #222;
+  background-color: #101010;
   color: #fff;
   font-size: 14px;
 
