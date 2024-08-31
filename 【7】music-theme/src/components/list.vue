@@ -396,7 +396,7 @@ export default {
   }
 
   &.pc {
-    padding-top: 20px;
+    padding-top: 50px;
 
     .title,
     .search-title {
