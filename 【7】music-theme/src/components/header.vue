@@ -81,7 +81,7 @@
           <div class="user-box-top">
             <img
               class="avatar"
-              :src="userData.headImage || require('../assets/images/default-user-avatar.png')"
+              :src="userData.headImage || getAssetsFile('../assets/images/default-user-avatar.png')"
               :alt="userData.username || '未登录'"
               @click="!userData.isLogin && callLogin()"
             />
@@ -224,6 +224,7 @@
 <script lang="ts">
 import { useGlobalStore } from "@/store/global";
 import { callLogin, callLoginOut } from "@/api/freelog";
+import { getAssetsFile } from "@/utils/common.js";
 
 export default {
   name: "freelog-header",
@@ -243,7 +244,8 @@ export default {
         { value: "/album-list", label: "专辑" },
         { value: "/collection-list", label: "收藏" }
       ],
-      store
+      store,
+      getAssetsFile
     };
   },
 
