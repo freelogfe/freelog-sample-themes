@@ -41,7 +41,7 @@ export default {
 .theme-entrance-wrapper {
   position: fixed;
   top: calc((100% - 80px) / 5 * 2);
-  right: 5px;
+  right: 0px;
   width: 100px;
   height: 80px;
   background: rgba(255, 255, 255, 0.1);
