@@ -191,7 +191,7 @@
           </div>
         </div>
 
-        <div class="info-detail" v-if="!subID">
+        <div class="info-detail" v-if="!subID && hasInfoDetail">
           <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.display_artist">
             <span class="name">艺人:</span>
             <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.display_artist }}</span>
@@ -237,7 +237,7 @@
           </div>
         </div>
 
-        <div class="info-detail" v-else>
+        <div class="info-detail" v-if="subID && hasSubInfoDetail">
           <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.display_artist">
             <span class="name">艺人:</span>
             <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.display_artist }}</span>
@@ -269,7 +269,7 @@
           </div>
         </div>
 
-        <div class="intro">{{ voiceInfo?.exhibitIntro }}</div>
+        <div class="intro" v-if="voiceInfo?.exhibitIntro">{{ voiceInfo?.exhibitIntro }}</div>
 
         <div class="btns-area">
           <div
@@ -523,6 +523,53 @@ export default {
         },
         { icon: "fl-icon-fenxiang", title: "分享", operate: this.share }
       ];
+    },
+
+    // 计算合集或者普通展品是否有详细资料
+    hasInfoDetail() {
+      const {
+        display_artist,
+        lyric_language,
+        label_name,
+        release_date,
+        song_lyricist,
+        song_composer,
+        song_arranger,
+        music_genre
+      } = this.voiceInfo?.versionInfo?.exhibitProperty;
+
+      return (
+        display_artist ||
+        this.albumName ||
+        lyric_language ||
+        label_name ||
+        release_date ||
+        song_lyricist ||
+        song_composer ||
+        song_arranger ||
+        music_genre
+      );
+    },
+
+    // 计算合计单品是否有详细资料
+    hasSubInfoDetail() {
+      const {
+        display_artist,
+        label_name,
+        release_date,
+        lyric_language,
+        release_type,
+        music_genre
+      } = this.voiceInfo?.versionInfo?.exhibitProperty;
+
+      return (
+        display_artist ||
+        label_name ||
+        release_date ||
+        lyric_language ||
+        release_type ||
+        music_genre
+      );
     }
   },
 
