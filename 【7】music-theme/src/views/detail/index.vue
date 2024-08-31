@@ -316,7 +316,15 @@
           <div class="content-item-wrap">
             <div class="content-item" v-for="(item, index) in collectionData" :key="item.itemId">
               <div class="index">{{ changeIndex(index + 1) }}</div>
-              <div class="music">
+              <div
+                class="music"
+                @click="
+                  $router.myPush({
+                    path: '/detail',
+                    query: { id: item.exhibitId, subID: item.itemId, albumName: item.albumName }
+                  })
+                "
+              >
                 <span class="music-text">{{ item.exhibitTitle }}</span>
               </div>
               <div class="album-sub-btns-area" :class="{ opacity: authLinkAbnormal }">
@@ -332,7 +340,7 @@
                   />
                 </myTooltip>
               </div>
-              <div class="singer">{{ item.intro }}</div>
+              <div class="singer">{{ item.articleInfo.articleProperty?.singer }}</div>
               <div class="time">{{ secondsToHMS(item.articleInfo.articleProperty.duration) }}</div>
             </div>
           </div>
