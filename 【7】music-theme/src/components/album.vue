@@ -581,7 +581,6 @@ onBeforeUnmount(() => {
             cursor: pointer;
 
             &:hover {
-              text-decoration: underline;
               color: #44d7b6;
               opacity: 1;
             }
@@ -764,7 +763,6 @@ onBeforeUnmount(() => {
             cursor: pointer;
 
             &:hover {
-              text-decoration: underline;
               color: #44d7b6;
               opacity: 1;
             }

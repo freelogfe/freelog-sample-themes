@@ -527,7 +527,6 @@ const isSelectedData = item => {
             &:hover {
               color: #44d7b6;
               opacity: 1;
-              text-decoration: underline;
 
               .info-box .btns-area {
                 opacity: 1 !important;
@@ -734,7 +733,6 @@ const isSelectedData = item => {
             &:hover {
               color: #44d7b6;
               opacity: 1;
-              text-decoration: underline;
 
               .info-box .btns-area {
                 opacity: 1 !important;
