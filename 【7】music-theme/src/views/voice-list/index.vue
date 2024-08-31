@@ -63,6 +63,12 @@ export default {
   activated() {
     const app = document.getElementById("app");
     app.addEventListener("scroll", this.scroll);
+
+    /** 回到顶部 */
+    const scrollToTop = () => {
+      app?.scroll({ top: 0 });
+    };
+    scrollToTop();
   },
 
   deactivated() {

@@ -114,7 +114,6 @@ export default {
     scroll() {
       const app = document.getElementById("app");
       const scrollTop = app.scrollTop || 0;
-      sessionStorage.setItem("albumListScroll", scrollTop);
       const clientHeight = app.clientHeight || 0;
       const scrollHeight = app.scrollHeight || 0;
       if (scrollTop + clientHeight < scrollHeight - 200) return;
