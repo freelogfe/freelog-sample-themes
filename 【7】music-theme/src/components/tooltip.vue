@@ -5,7 +5,7 @@
     effect="dark"
     placement="bottom-start"
     :show-arrow="false"
-    :open-delay="300"
+    :show-after="3000"
     :content="content"
   >
     <slot />
