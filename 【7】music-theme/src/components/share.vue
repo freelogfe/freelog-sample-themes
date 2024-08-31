@@ -270,7 +270,7 @@ export default {
         border-radius: 4px;
         font-size: 14px;
         color: #fff;
-        background-color: #2784ff;
+        background-color: #44d7b6;
         display: flex;
         align-items: center;
         cursor: pointer;
@@ -278,11 +278,11 @@ export default {
         transition: all 0.2s linear;
 
         &:hover {
-          background-color: rgba(39, 132, 255, 0.8);
+          background-color: rgba(68, 215, 182, 0.8);
         }
 
         &:active {
-          background-color: rgba(39, 132, 255, 0.6);
+          background-color: rgba(68, 215, 182, 0.6);
         }
 
         .copy-text {
