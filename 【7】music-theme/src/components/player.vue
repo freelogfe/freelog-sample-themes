@@ -790,7 +790,11 @@ export default {
 
     /** 播放/暂停 */
     playOrPause() {
-      useMyPlay.playOrPause(this.playingInfo);
+      if (this.playingInfo) {
+        useMyPlay.playOrPause(this.playingInfo);
+      } else {
+        useMyPlay.playOrPause(this.playList[0]);
+      }
     },
 
     // 收藏/取消收藏
