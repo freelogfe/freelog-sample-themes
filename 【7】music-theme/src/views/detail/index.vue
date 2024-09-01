@@ -447,7 +447,10 @@ export default {
 
     "store.authIdList": {
       handler(cur) {
-        if (cur.includes(this.voiceInfo.exhibitId)) this.voiceInfo.defaulterIdentityType = 0;
+        if (cur.includes(this.voiceInfo.exhibitId)) {
+          this.voiceInfo.defaulterIdentityType = 0;
+          this.collectionData.forEach(i => (i.defaulterIdentityType = 0));
+        }
       },
       deep: true
     }
