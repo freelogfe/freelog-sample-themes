@@ -5,13 +5,14 @@ import list from "@/components/list.vue";
 import { useGlobalStore } from "@/store/global";
 
 const store = useGlobalStore();
-const collectionData = ref([]);
-const signedData = ref(store.signedList);
+const signedData = ref<any[]>([]);
 
 const getList = async () => {
   for (const item of store.signedList) {
     if (item.articleInfo.articleType === 2) {
       await getCollectionList(item.exhibitId, item.exhibitName, item.coverImages);
+    } else {
+      signedData.value?.push(item);
     }
   }
 };
@@ -37,7 +38,7 @@ const getCollectionList = async (collectionID: string, exhibitName: string, imag
     });
 
     if (statusInfo.data.data) {
-      dataList.forEach((item: Exhibit) => {
+      dataList.forEach((item: any) => {
         const index = statusInfo.data.data.findIndex(
           resultItem => resultItem.itemId === item.itemId
         );
@@ -57,8 +58,8 @@ const getCollectionList = async (collectionID: string, exhibitName: string, imag
   }
 
   subTempData.push(...dataList);
-  collectionData.value = [...collectionData.value, ...dataList];
-  signedData.value = [...signedData.value, ...collectionData.value];
+  // signedData.value = [...signedData.value, ...dataList];
+  signedData.value?.push(...dataList);
 
   if (subTempData.length < subTotal) {
     subSkip = subSkip + 1_000;
