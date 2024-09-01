@@ -367,7 +367,7 @@
                 @click="playOrPauseList(item)"
               >
                 <div class="left-area">
-                  <img
+                  <!-- <img
                     class="icon"
                     src="../assets/images/auth-link-abnormal.png"
                     v-if="![0, 4].includes(item.defaulterIdentityType)"
@@ -376,16 +376,26 @@
                     class="freelog fl-icon-suoding lock"
                     @click.stop="getAuth(item)"
                     v-if="item.defaulterIdentityType >= 4"
-                  ></i>
+                  ></i> -->
                   <div class="title-area">
-                    <my-tooltip :content="item.itemTitle || item.exhibitTitle">
-                      <span class="title voice-title">{{
-                        item.itemTitle || item.exhibitTitle
-                      }}</span>
-                    </my-tooltip>
-                    <span class="album album-title" v-if="item.itemId">
-                      {{ item.albumName }}
-                    </span>
+                    <div class="icon-lock-title-wrapper">
+                      <img
+                        class="icon"
+                        src="../assets/images/auth-link-abnormal.png"
+                        v-if="![0, 4].includes(item.defaulterIdentityType)"
+                      />
+                      <i
+                        class="freelog fl-icon-suoding lock"
+                        @click.stop="getAuth(item)"
+                        v-if="item.defaulterIdentityType >= 4"
+                      ></i>
+                      <my-tooltip :content="item.itemTitle || item.exhibitTitle">
+                        <span class="title voice-title">{{
+                          item.itemTitle || item.exhibitTitle
+                        }}</span>
+                      </my-tooltip>
+                    </div>
+                    <span class="album album-title" v-if="item.itemId">{{ item.albumName }}</span>
                   </div>
                 </div>
 

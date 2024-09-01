@@ -933,40 +933,52 @@
           display: flex;
           align-items: center;
 
-          .icon {
-            width: 14px;
-            height: 14px;
-            margin-right: 5px;
-          }
+          // .icon {
+          //   width: 14px;
+          //   height: 14px;
+          //   margin-right: 5px;
+          // }
 
-          .lock {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.8);
-            margin-right: 5px;
-          }
+          // .lock {
+          //   font-size: 14px;
+          //   color: rgba(255, 255, 255, 0.8);
+          //   margin-right: 5px;
+          // }
 
           .title-area {
             width: 415px;
             display: flex;
 
-            .title {
-              // flex: 1;
-              width: 200px;
-              overflow: hidden;
-              white-space: nowrap;
-              text-overflow: ellipsis;
+            .icon-lock-title-wrapper {
+              width: 200px; /* 设置整体宽度为200px */
+              display: flex;
+              align-items: center;
+              overflow: hidden; /* 避免溢出 */
 
-              & + .title {
-                margin-left: 15px;
+              .icon {
+                width: 14px;
+                height: 14px;
+                margin-right: 5px;
+                flex-shrink: 0; /* 防止图标被压缩 */
               }
 
-              &.voice-title {
+              .lock {
+                font-size: 14px;
                 color: rgba(255, 255, 255, 0.8);
+                margin-right: 5px;
+                flex-shrink: 0; /* 防止图标被压缩 */
+              }
+
+              .title {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                color: rgba(255, 255, 255, 0.8);
+                flex: 1; /* 使标题占据剩余空间 */
               }
             }
 
             .album {
-              // flex: 1;
               width: 200px;
               overflow: hidden;
               white-space: nowrap;
