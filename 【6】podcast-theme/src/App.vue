@@ -33,8 +33,14 @@ export default {
   },
   created() {
     const themeInfo = widgetApi.getData().themeInfo;
-    console.log("当前应用版本为:", themeInfo.version);
+    console.log("当前应用版本为:", themeInfo.version, "+++");
    
+  },
+  watch: {
+    "$route.path"(cur, old) {
+      console.log("$route.path", `当前: ${cur}; 旧: ${old};`);
+      console.log(location.href);
+    }
   },
   mounted() {
     /* iphone13 无法获取到安全距离 */

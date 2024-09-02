@@ -58,13 +58,29 @@ window.addEventListener(
 
 let app = null;
 let router = null;
-
 window.mount = async () => {
   initFreelogApp();
+  
+  /* mapShareUrl修改地址后, 路由无动作; 路由去除重定向可观察到现象(part1);
+   * 解决方式, 自己使用router.replace一次完成路由导航;
+   */
+  let id, itemId
+  const url = freelogApp.getCurrentUrl()
+  const urlArr = url.split('?')
+  const vualeArr = urlArr[0].split('.com')
+  const tempArr = vualeArr[1].split('/')
+  const finalArr = tempArr.filter(ele => ele)
+  
+  if (["detail", "detail-sub"].includes(finalArr[finalArr.length - 1])) {
+    id = finalArr[0]
+    if (finalArr.length === 3) {
+      itemId = finalArr[1]
+    }
+  }
 
   /* 路由映射: mapShareUrl会调用映射函数得到地址, 并异步导航  */
   await freelogApp.mapShareUrl(mapRoutes)
-
+  
   /* 修复ios的safari浏览器, 软键盘将页面顶到安全区域外的问题
    * 方式一: scrollIntoView
    * 方式二: v-if重渲染全部页面
@@ -110,6 +126,19 @@ window.mount = async () => {
   Vue.use(VueRouter)
   app = new Vue({ router, store, render: h => h(App) }).$mount("#app");
 
+  /* mapShareUrl修改地址后, 路由无动作; 路由去除重定向可观察到现象(part2);
+   * 解决方式, 自己使用router.replace一次完成路由导航;
+   */
+  if (["detail", "detail-sub"].includes(finalArr[finalArr.length - 1])) {
+    router.replace({
+      path: finalArr[finalArr.length - 1],
+      query: {
+        id,
+        itemId
+      }
+    })
+  }
+  
   store.dispatch("initStoreData");
 };
 

@@ -341,9 +341,6 @@ export default {
         }
         return bTimeStamp - aTimeStamp
       }).slice(0, top)
-      console.log('sortedflatSubListTop', sortedflatSubListTop);
-      console.log('sortedNotExhibitListTop', sortedNotExhibitListTop);
-      console.log(result);
       
       this.lastestList = result
         .filter(ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType))
