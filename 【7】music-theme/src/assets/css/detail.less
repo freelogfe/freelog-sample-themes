@@ -1069,6 +1069,153 @@
         }
       }
     }
+
+    // 冻结展品
+    .freeze-exhibit {
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      justify-content: center;
+      height: calc(100vh - 146px);
+
+      .icon {
+        .freeze {
+          font-size: 218px;
+          opacity: 0.4;
+        }
+      }
+
+      .freeze-info {
+        display: flex;
+        align-items: center;
+        margin-top: 82px;
+        .cover-area {
+          position: relative;
+          width: 48px;
+          height: 48px;
+          background: #222;
+          box-sizing: border-box;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          flex-shrink: 0;
+          margin-right: 20px;
+
+          &:hover {
+            opacity: 1;
+
+            .btn-modal {
+              background: rgba(0, 0, 0, 0.2);
+
+              .btn {
+                opacity: 1;
+              }
+            }
+          }
+
+          .cover {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          .btn-modal {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.5s ease;
+
+            .btn {
+              width: 36px;
+              height: 36px;
+              border-radius: 50%;
+              background: rgba(255, 255, 255, 0.4);
+              backdrop-filter: blur(1px);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              opacity: 0;
+              transition: all 0.5s ease;
+
+              &:hover {
+                background: #44d7b6;
+              }
+
+              &:active {
+                background: rgba(255, 255, 255, 0.4);
+              }
+
+              .freelog {
+                font-size: 18px;
+                color: #fff;
+
+                &.fl-icon-bofang-sanjiaoxing {
+                  margin-left: 5px;
+                }
+
+                &.fl-icon-zanting {
+                  margin-left: 2px;
+                }
+              }
+            }
+          }
+        }
+
+        .title-area {
+          display: flex;
+          align-items: center;
+
+          .auth-link-abnormal {
+            width: 20px;
+            height: 20px;
+            margin-right: 20px;
+          }
+
+          .lock {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-right: 10px;
+            cursor: pointer;
+          }
+
+          .music-status {
+            width: 40px;
+            height: 24px;
+            margin-right: 5px;
+            background-repeat: no-repeat;
+            background-size: contain;
+            margin-right: 10px;
+
+            img {
+              width: 100%;
+              height: 100%;
+            }
+          }
+
+          .title {
+            flex: 1;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 20px;
+            font-weight: 600;
+            line-height: 26px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            cursor: pointer;
+
+            &:hover {
+              color: #44d7b6;
+            }
+          }
+        }
+      }
+    }
   }
 }
 
