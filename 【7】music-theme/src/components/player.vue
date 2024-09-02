@@ -93,7 +93,7 @@
           <div
             class="clear-btn"
             @click="confirmDialogShow = true"
-            v-if="playList && playList.length"
+            v-if="playList && playList?.length"
           >
             清空列表
           </div>
@@ -349,7 +349,7 @@
           <div class="top-area">
             <div class="popup-title">播放列表</div>
             <div class="top-right">
-              <div class="text-btn clear-btn" @click="clearPlayList()" v-if="playList.length">
+              <div class="text-btn clear-btn" @click="clearPlayList()" v-if="playList?.length">
                 清空列表
               </div>
               <i
