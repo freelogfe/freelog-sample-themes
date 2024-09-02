@@ -5,137 +5,158 @@
     <!-- <template v-if="voiceInfo"> -->
     <!-- mobile -->
     <div class="mobile-detail-wrapper" v-if="store.inMobile">
-      <div class="top-area">
-        <!-- 封面 -->
-        <div class="banner">
-          <img :src="store.selfConfig.options_node_banner || MobileDefaultBanner" alt="节点封面" />
-        </div>
-        <!-- 信息 -->
-        <div class="info-area">
-          <div class="title-date-wrap">
-            <div class="title-area">
-              <img class="auth-link-abnormal" :src="AuthLinkAbnormalIcon" v-if="authLinkAbnormal" />
-              <i
-                class="freelog fl-icon-suoding lock"
-                @click.stop="getAuth()"
-                v-if="voiceInfo?.defaulterIdentityType >= 4"
-              ></i>
-              <my-tooltip :content="voiceInfo?.exhibitTitle">
-                <span class="title">{{ voiceInfo?.exhibitTitle }}</span>
-              </my-tooltip>
-            </div>
-
-            <div class="date-count">
-              <div class="info-item">
-                <i class="freelog fl-icon-gengxinshijian"></i>
-                <div class="item-value">{{ relativeTime(voiceInfo?.updateDate) }}</div>
-              </div>
-              <div class="info-item">
-                <i class="freelog fl-icon-danji"></i>
-                <div class="item-value">{{ voiceInfo?.signCount }}</div>
-              </div>
-            </div>
+      <div class="normal-exhibit" v-if="voiceInfo.articleInfo.status === 1">
+        <div class="top-area">
+          <!-- 封面 -->
+          <div class="banner">
+            <img
+              :src="store.selfConfig.options_node_banner || MobileDefaultBanner"
+              alt="节点封面"
+            />
           </div>
-
-          <!-- 按钮 -->
-          <div class="btns-area">
-            <div
-              class="play-btn"
-              :class="{ disabled: btnList[0].disabled }"
-              @click.stop="btnList[0].operate"
-            >
-              <i class="freelog" :class="btnList[0].icon"></i>
-              <div class="label">{{ btnList[0].title }}</div>
-            </div>
-            <template v-for="item in btnList.filter((_, i) => [1, 2].includes(i))">
-              <div class="btn" :class="{ disabled: item.disabled }" @click="item.operate">
-                <i class="freelog" :class="item.icon"></i>
-              </div>
-            </template>
-            <input id="href" class="hidden-input" :value="href" readOnly />
-          </div>
-        </div>
-      </div>
-
-      <div class="bottom-area" v-if="voiceInfo?.articleInfo.articleType === 2">
-        <div class="tab-box">
-          <div class="tab" :class="tab === 1 && 'active'" @click="changeTab(1)">音乐</div>
-          <div class="tab" :class="tab === 2 && 'active'" @click="changeTab(2)">专辑介绍</div>
-        </div>
-
-        <div class="music-content-box">
-          <div
-            class="content-item"
-            v-for="(item, index) in collectionData"
-            :key="index"
-            v-if="tab === 1"
-          >
-            <div class="index">{{ changeIndex(index + 1) }}</div>
-
-            <div class="info-box">
-              <div class="info">
-                <span
-                  class="title"
-                  @click="
-                    $router.myPush({
-                      path: '/detail',
-                      query: { id: item.exhibitId, subID: item.itemId, albumName: item.albumName }
-                    })
-                  "
-                >
-                  <img class="auth-link-abnormal" :src="AuthLinkAbnormal" v-if="authLinkAbnormal" />
-                  <i
-                    class="freelog fl-icon-suoding lock"
-                    @click.stop="getAuth(item)"
-                    v-if="item.defaulterIdentityType >= 4"
-                  ></i>
-                  {{ item.exhibitTitle }}
-                </span>
-                <span class="desc">{{ item.exhibitIntro }}</span>
-              </div>
-              <div class="btns-area" :class="{ opacity: authLinkAbnormal }">
-                <span class="time">{{
-                  secondsToHMS(item.versionInfo.exhibitProperty.duration)
-                }}</span>
-                <i
-                  class="freelog fl-icon-gengduo_yuandian_zongxiang"
-                  @click="
-                    () => {
-                      moreMenuShow = true;
-                      selectedData = item;
-                    }
-                  "
+          <!-- 信息 -->
+          <div class="info-area">
+            <div class="title-date-wrap">
+              <div class="title-area">
+                <img
+                  class="auth-link-abnormal"
+                  :src="AuthLinkAbnormalIcon"
+                  v-if="authLinkAbnormal"
                 />
+                <i
+                  class="freelog fl-icon-suoding lock"
+                  @click.stop="getAuth()"
+                  v-if="voiceInfo?.defaulterIdentityType >= 4"
+                ></i>
+                <my-tooltip :content="voiceInfo?.exhibitTitle">
+                  <span class="title">{{ voiceInfo?.exhibitTitle }}</span>
+                </my-tooltip>
+              </div>
+
+              <div class="date-count">
+                <div class="info-item">
+                  <i class="freelog fl-icon-gengxinshijian"></i>
+                  <div class="item-value">{{ relativeTime(voiceInfo?.updateDate) }}</div>
+                </div>
+                <div class="info-item">
+                  <i class="freelog fl-icon-danji"></i>
+                  <div class="item-value">{{ voiceInfo?.signCount }}</div>
+                </div>
               </div>
             </div>
-            <!-- 更多菜单 -->
-            <transition name="fade">
+
+            <!-- 按钮 -->
+            <div class="btns-area">
               <div
-                class="modal"
-                @click="moreMenuShow = false"
-                v-if="moreMenuShow && isSelectedData(item)"
-              ></div>
-            </transition>
-            <transition name="slide-up-fade">
-              <div class="more-menu-card" v-if="moreMenuShow && isSelectedData(item)">
-                <div class="btns">
-                  <div
-                    class="btn"
-                    :class="{ disabled: btn?.disabled }"
-                    v-for="btn in menuBtnList(item)"
-                    :key="btn?.label"
-                    @click="btn?.operate"
-                  >
-                    <i class="freelog" :class="btn?.icon"></i>
-                    <div class="label">{{ btn?.label }}</div>
-                  </div>
-                </div>
-                <div class="close-btn" @click="moreMenuShow = false">关闭</div>
+                class="play-btn"
+                :class="{ disabled: btnList[0].disabled }"
+                @click.stop="btnList[0].operate"
+              >
+                <i class="freelog" :class="btnList[0].icon"></i>
+                <div class="label">{{ btnList[0].title }}</div>
               </div>
-            </transition>
+              <template v-for="item in btnList.filter((_, i) => [1, 2].includes(i))">
+                <div class="btn" :class="{ disabled: item.disabled }" @click="item.operate">
+                  <i class="freelog" :class="item.icon"></i>
+                </div>
+              </template>
+              <input id="href" class="hidden-input" :value="href" readOnly />
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-area" v-if="voiceInfo?.articleInfo.articleType === 2">
+          <div class="tab-box">
+            <div class="tab" :class="tab === 1 && 'active'" @click="changeTab(1)">音乐</div>
+            <div class="tab" :class="tab === 2 && 'active'" @click="changeTab(2)">专辑介绍</div>
           </div>
 
-          <div class="single-content-intro" v-else>
+          <div class="music-content-box">
+            <div
+              class="content-item"
+              v-for="(item, index) in collectionData"
+              :key="index"
+              v-if="tab === 1"
+            >
+              <div class="index">{{ changeIndex(index + 1) }}</div>
+
+              <div class="info-box">
+                <div class="info">
+                  <span
+                    class="title"
+                    @click="
+                      $router.myPush({
+                        path: '/detail',
+                        query: { id: item.exhibitId, subID: item.itemId, albumName: item.albumName }
+                      })
+                    "
+                  >
+                    <img
+                      class="auth-link-abnormal"
+                      :src="AuthLinkAbnormal"
+                      v-if="authLinkAbnormal"
+                    />
+                    <i
+                      class="freelog fl-icon-suoding lock"
+                      @click.stop="getAuth(item)"
+                      v-if="item.defaulterIdentityType >= 4"
+                    ></i>
+                    {{ item.exhibitTitle }}
+                  </span>
+                  <span class="desc">{{ item.exhibitIntro }}</span>
+                </div>
+                <div class="btns-area" :class="{ opacity: authLinkAbnormal }">
+                  <span class="time">{{
+                    secondsToHMS(item.versionInfo.exhibitProperty.duration)
+                  }}</span>
+                  <i
+                    class="freelog fl-icon-gengduo_yuandian_zongxiang"
+                    @click="
+                      () => {
+                        moreMenuShow = true;
+                        selectedData = item;
+                      }
+                    "
+                  />
+                </div>
+              </div>
+              <!-- 更多菜单 -->
+              <transition name="fade">
+                <div
+                  class="modal"
+                  @click="moreMenuShow = false"
+                  v-if="moreMenuShow && isSelectedData(item)"
+                ></div>
+              </transition>
+              <transition name="slide-up-fade">
+                <div class="more-menu-card" v-if="moreMenuShow && isSelectedData(item)">
+                  <div class="btns">
+                    <div
+                      class="btn"
+                      :class="{ disabled: btn?.disabled }"
+                      v-for="btn in menuBtnList(item)"
+                      :key="btn?.label"
+                      @click="btn?.operate"
+                    >
+                      <i class="freelog" :class="btn?.icon"></i>
+                      <div class="label">{{ btn?.label }}</div>
+                    </div>
+                  </div>
+                  <div class="close-btn" @click="moreMenuShow = false">关闭</div>
+                </div>
+              </transition>
+            </div>
+
+            <div class="single-content-intro" v-else>
+              <div class="detail"></div>
+
+              <div class="intro">{{ voiceInfo?.exhibitIntro }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div v-else>
+          <div class="single-content-intro">
             <div class="detail"></div>
 
             <div class="intro">{{ voiceInfo?.exhibitIntro }}</div>
@@ -143,206 +164,317 @@
         </div>
       </div>
 
-      <div v-else>
-        <div class="single-content-intro">
-          <div class="detail"></div>
+      <div class="freeze-exhibit" v-else>
+        <div class="freeze-info">
+          <div ref="cover" class="cover-area">
+            <img class="cover" :src="voiceInfo?.coverImages[0]" />
+            <div class="btn-modal" v-if="ifSupportMime">
+              <div class="btn" @click.stop="playOrPause">
+                <i
+                  class="freelog"
+                  :class="playing ? 'fl-icon-zanting' : 'fl-icon-bofang-sanjiaoxing'"
+                ></i>
+              </div>
+            </div>
+          </div>
 
-          <div class="intro">{{ voiceInfo?.exhibitIntro }}</div>
+          <div class="title-area">
+            <img class="auth-link-abnormal" :src="AuthLinkAbnormalIcon" v-if="authLinkAbnormal" />
+            <i
+              class="freelog fl-icon-suoding lock"
+              @click.stop="getAuth()"
+              v-if="voiceInfo?.defaulterIdentityType >= 4"
+            ></i>
+
+            <!-- <div class="music-status">
+              <img
+                :src="SingleEpisode"
+                alt="单集"
+                v-if="voiceInfo.articleInfo?.articleType === 1"
+              />
+              <img
+                :src="OnGoing"
+                alt="连载中"
+                v-else-if="voiceInfo.articleInfo.serializeStatus === 0"
+              />
+              <img :src="Completed" alt="已完结" v-else />
+            </div> -->
+
+            <my-tooltip :content="voiceInfo?.exhibitTitle">
+              <span class="title" @click.stop="getAuth()">{{ voiceInfo?.exhibitTitle }}</span>
+            </my-tooltip>
+          </div>
+        </div>
+        <div class="desc">
+          <div class="time-box">
+            <div class="icon">
+              <img :src="TimeIcon" alt="更新时间" />
+            </div>
+            <span class="time">{{ relativeTime(voiceInfo.updateDate) }}</span>
+          </div>
+
+          <div class="album-box" v-if="voiceInfo.articleInfo.articleType === 2">
+            收录于
+            <span class="album-name">{{ voiceInfo.articleInfo.exhibitName }}</span>
+          </div>
+        </div>
+
+        <div class="icon">
+          <i class="freelog fl-icon-ziyuanweiguitishi_yinle freeze"></i>
         </div>
       </div>
     </div>
 
     <!-- PC -->
     <div class="pc-detail-wrapper" v-if="!store.inMobile">
-      <div ref="cover" class="cover-area">
-        <img class="cover" :src="voiceInfo?.coverImages[0]" />
-        <div class="btn-modal" v-if="ifSupportMime">
-          <div class="btn" @click.stop="playOrPause">
+      <div class="normal-exhibit" v-if="voiceInfo.articleInfo.status === 1">
+        <div ref="cover" class="cover-area">
+          <img class="cover" :src="voiceInfo?.coverImages[0]" />
+          <div class="btn-modal" v-if="ifSupportMime">
+            <div class="btn" @click.stop="playOrPause">
+              <i
+                class="freelog"
+                :class="playing ? 'fl-icon-zanting' : 'fl-icon-bofang-sanjiaoxing'"
+              ></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="right-area">
+          <div class="title-area">
+            <img class="auth-link-abnormal" :src="AuthLinkAbnormalIcon" v-if="authLinkAbnormal" />
             <i
-              class="freelog"
-              :class="playing ? 'fl-icon-zanting' : 'fl-icon-bofang-sanjiaoxing'"
+              class="freelog fl-icon-suoding lock"
+              @click.stop="getAuth()"
+              v-if="voiceInfo?.defaulterIdentityType >= 4"
             ></i>
+
+            <my-tooltip :content="voiceInfo?.exhibitTitle">
+              <span class="title">{{ voiceInfo?.exhibitTitle }}</span>
+            </my-tooltip>
+          </div>
+
+          <div class="info-area">
+            <div class="info-item">
+              <i class="freelog fl-icon-gengxinshijian"></i>
+              <div class="item-value">{{ relativeTime(voiceInfo?.updateDate) }}</div>
+            </div>
+            <div class="info-item" v-if="albumName">
+              <div class="item-value">收录于专辑</div>
+              <div class="item-album">{{ albumName }}</div>
+            </div>
+          </div>
+
+          <div class="info-detail" v-if="!subID && hasInfoDetail">
+            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.display_artist">
+              <span class="name">艺人:</span>
+              <span class="value">{{
+                voiceInfo?.versionInfo?.exhibitProperty.display_artist
+              }}</span>
+            </div>
+            <div class="detail-item" v-if="albumName">
+              <span class="name">专辑:</span>
+              <span class="value">{{ albumName }}</span>
+            </div>
+
+            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.lyric_language">
+              <span class="name">语种:</span>
+              <span class="value">{{
+                voiceInfo?.versionInfo?.exhibitProperty.lyric_language
+              }}</span>
+            </div>
+
+            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.label_name">
+              <span class="name">厂牌:</span>
+              <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.label_name }}</span>
+            </div>
+
+            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.release_date">
+              <span class="name">发行时间:</span>
+              <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.release_date }}</span>
+            </div>
+
+            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.song_lyricist">
+              <span class="name">作词:</span>
+              <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.song_lyricist }}</span>
+            </div>
+
+            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.song_composer">
+              <span class="name">作曲:</span>
+              <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.song_composer }}</span>
+            </div>
+
+            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.song_arranger">
+              <span class="name">编曲:</span>
+              <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.song_arranger }}</span>
+            </div>
+
+            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.music_genre">
+              <span class="name">风格:</span>
+              <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.music_genre }}</span>
+            </div>
+          </div>
+
+          <div class="info-detail" v-if="subID && hasSubInfoDetail">
+            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.display_artist">
+              <span class="name">艺人:</span>
+              <span class="value">{{
+                voiceInfo?.versionInfo?.exhibitProperty.display_artist
+              }}</span>
+            </div>
+
+            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.label_name">
+              <span class="name">厂牌:</span>
+              <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.label_name }}</span>
+            </div>
+
+            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.release_date">
+              <span class="name">发行时间:</span>
+              <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.release_date }}</span>
+            </div>
+
+            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.lyric_language">
+              <span class="name">语种:</span>
+              <span class="value">{{
+                voiceInfo?.versionInfo?.exhibitProperty.lyric_language
+              }}</span>
+            </div>
+
+            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.release_type">
+              <span class="name">类型:</span>
+              <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.release_type }}</span>
+            </div>
+
+            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.music_genre">
+              <span class="name">风格:</span>
+              <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.music_genre }}</span>
+            </div>
+          </div>
+
+          <div class="intro" v-if="voiceInfo?.exhibitIntro">{{ voiceInfo?.exhibitIntro }}</div>
+
+          <div class="btns-area">
+            <div
+              class="duration"
+              v-if="
+                voiceInfo?.articleInfo?.articleType === 1 &&
+                playingInfo?.exhibitId !== voiceInfo?.exhibitId
+              "
+            >
+              时长{{ secondsToHMS(voiceInfo?.versionInfo?.exhibitProperty.duration) }}
+            </div>
+            <transition name="slide-right">
+              <div
+                class="playing-mark"
+                v-if="
+                  `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ''}` ===
+                  `${voiceInfo?.exhibitId}${voiceInfo?.itemId ?? ''}`
+                "
+              >
+                <play-status :playing="store.playing" />
+                <div class="progress">
+                  <span>{{ secondsToHMS(store.progress * 1000) }}</span>
+                  <span class="progress-divider">/</span>
+                  <span>{{ secondsToHMS(voiceInfo?.versionInfo.exhibitProperty.duration) }}</span>
+                </div>
+              </div>
+            </transition>
+            <template v-for="(item, index) in btnList">
+              <div
+                class="btn normal-btn"
+                :class="{ 'play-btn': index === 0, disabled: item.disabled }"
+                :key="item.title"
+                @click="item.operate"
+                v-if="!item.hidden"
+              >
+                <i class="freelog" :class="item.icon"></i>
+                <div class="btn-label">{{ item.title }}</div>
+              </div>
+            </template>
+          </div>
+
+          <div class="album-content" v-if="voiceInfo?.articleInfo.articleType === 2">
+            <div class="title">包含音乐（{{ collectionData.length }}）</div>
+            <div class="content-item-wrap">
+              <div class="content-item" v-for="(item, index) in collectionData" :key="item.itemId">
+                <div class="index">{{ changeIndex(index + 1) }}</div>
+                <div
+                  class="music"
+                  @click="
+                    $router.myPush({
+                      path: '/detail',
+                      query: { id: item.exhibitId, subID: item.itemId, albumName: item.albumName }
+                    })
+                  "
+                >
+                  <span class="music-text">{{ item.exhibitTitle }}</span>
+                </div>
+                <div class="album-sub-btns-area" :class="{ opacity: authLinkAbnormal }">
+                  <myTooltip
+                    :content="btn.title"
+                    v-for="btn in albumSubBtnList(item)"
+                    :key="btn.title"
+                  >
+                    <i
+                      class="freelog text-btn"
+                      :class="[btn.icon, { disabled: btn.disabled }]"
+                      @click="btn.operate"
+                    />
+                  </myTooltip>
+                </div>
+                <div class="singer">{{ item.articleInfo.articleProperty?.singer }}</div>
+                <div class="time">
+                  {{ secondsToHMS(item.articleInfo.articleProperty.duration) }}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="right-area">
-        <div class="title-area">
-          <img class="auth-link-abnormal" :src="AuthLinkAbnormalIcon" v-if="authLinkAbnormal" />
-          <i
-            class="freelog fl-icon-suoding lock"
-            @click.stop="getAuth()"
-            v-if="voiceInfo?.defaulterIdentityType >= 4"
-          ></i>
-
-          <my-tooltip :content="voiceInfo?.exhibitTitle">
-            <span class="title">{{ voiceInfo?.exhibitTitle }}</span>
-          </my-tooltip>
+      <div class="freeze-exhibit" v-else>
+        <div class="icon">
+          <i class="freelog fl-icon-ziyuanweiguitishi_yinle freeze"></i>
         </div>
 
-        <div class="info-area">
-          <div class="info-item">
-            <i class="freelog fl-icon-gengxinshijian"></i>
-            <div class="item-value">{{ relativeTime(voiceInfo?.updateDate) }}</div>
-          </div>
-          <div class="info-item" v-if="albumName">
-            <div class="item-value">收录于专辑</div>
-            <div class="item-album">{{ albumName }}</div>
-          </div>
-        </div>
-
-        <div class="info-detail" v-if="!subID && hasInfoDetail">
-          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.display_artist">
-            <span class="name">艺人:</span>
-            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.display_artist }}</span>
-          </div>
-          <div class="detail-item" v-if="albumName">
-            <span class="name">专辑:</span>
-            <span class="value">{{ albumName }}</span>
-          </div>
-
-          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.lyric_language">
-            <span class="name">语种:</span>
-            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.lyric_language }}</span>
-          </div>
-
-          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.label_name">
-            <span class="name">厂牌:</span>
-            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.label_name }}</span>
-          </div>
-
-          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.release_date">
-            <span class="name">发行时间:</span>
-            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.release_date }}</span>
-          </div>
-
-          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.song_lyricist">
-            <span class="name">作词:</span>
-            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.song_lyricist }}</span>
-          </div>
-
-          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.song_composer">
-            <span class="name">作曲:</span>
-            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.song_composer }}</span>
-          </div>
-
-          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.song_arranger">
-            <span class="name">编曲:</span>
-            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.song_arranger }}</span>
-          </div>
-
-          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.music_genre">
-            <span class="name">风格:</span>
-            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.music_genre }}</span>
-          </div>
-        </div>
-
-        <div class="info-detail" v-if="subID && hasSubInfoDetail">
-          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.display_artist">
-            <span class="name">艺人:</span>
-            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.display_artist }}</span>
-          </div>
-
-          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.label_name">
-            <span class="name">厂牌:</span>
-            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.label_name }}</span>
-          </div>
-
-          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.release_date">
-            <span class="name">发行时间:</span>
-            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.release_date }}</span>
-          </div>
-
-          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.lyric_language">
-            <span class="name">语种:</span>
-            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.lyric_language }}</span>
-          </div>
-
-          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.release_type">
-            <span class="name">类型:</span>
-            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.release_type }}</span>
-          </div>
-
-          <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.music_genre">
-            <span class="name">风格:</span>
-            <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.music_genre }}</span>
-          </div>
-        </div>
-
-        <div class="intro" v-if="voiceInfo?.exhibitIntro">{{ voiceInfo?.exhibitIntro }}</div>
-
-        <div class="btns-area">
-          <div
-            class="duration"
-            v-if="
-              voiceInfo?.articleInfo?.articleType === 1 &&
-              playingInfo?.exhibitId !== voiceInfo?.exhibitId
-            "
-          >
-            时长{{ secondsToHMS(voiceInfo?.versionInfo?.exhibitProperty.duration) }}
-          </div>
-          <transition name="slide-right">
-            <div
-              class="playing-mark"
-              v-if="
-                `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ''}` ===
-                `${voiceInfo?.exhibitId}${voiceInfo?.itemId ?? ''}`
-              "
-            >
-              <play-status :playing="store.playing" />
-              <div class="progress">
-                <span>{{ secondsToHMS(store.progress * 1000) }}</span>
-                <span class="progress-divider">/</span>
-                <span>{{ secondsToHMS(voiceInfo?.versionInfo.exhibitProperty.duration) }}</span>
+        <div class="freeze-info">
+          <div ref="cover" class="cover-area">
+            <img class="cover" :src="voiceInfo?.coverImages[0]" />
+            <div class="btn-modal" v-if="ifSupportMime">
+              <div class="btn" @click.stop="playOrPause">
+                <i
+                  class="freelog"
+                  :class="playing ? 'fl-icon-zanting' : 'fl-icon-bofang-sanjiaoxing'"
+                ></i>
               </div>
             </div>
-          </transition>
-          <template v-for="(item, index) in btnList">
-            <div
-              class="btn normal-btn"
-              :class="{ 'play-btn': index === 0, disabled: item.disabled }"
-              :key="item.title"
-              @click="item.operate"
-              v-if="!item.hidden"
-            >
-              <i class="freelog" :class="item.icon"></i>
-              <div class="btn-label">{{ item.title }}</div>
-            </div>
-          </template>
-        </div>
+          </div>
 
-        <div class="album-content" v-if="voiceInfo?.articleInfo.articleType === 2">
-          <div class="title">包含音乐（{{ collectionData.length }}）</div>
-          <div class="content-item-wrap">
-            <div class="content-item" v-for="(item, index) in collectionData" :key="item.itemId">
-              <div class="index">{{ changeIndex(index + 1) }}</div>
-              <div
-                class="music"
-                @click="
-                  $router.myPush({
-                    path: '/detail',
-                    query: { id: item.exhibitId, subID: item.itemId, albumName: item.albumName }
-                  })
-                "
-              >
-                <span class="music-text">{{ item.exhibitTitle }}</span>
-              </div>
-              <div class="album-sub-btns-area" :class="{ opacity: authLinkAbnormal }">
-                <myTooltip
-                  :content="btn.title"
-                  v-for="btn in albumSubBtnList(item)"
-                  :key="btn.title"
-                >
-                  <i
-                    class="freelog text-btn"
-                    :class="[btn.icon, { disabled: btn.disabled }]"
-                    @click="btn.operate"
-                  />
-                </myTooltip>
-              </div>
-              <div class="singer">{{ item.articleInfo.articleProperty?.singer }}</div>
-              <div class="time">{{ secondsToHMS(item.articleInfo.articleProperty.duration) }}</div>
+          <div class="title-area">
+            <img class="auth-link-abnormal" :src="AuthLinkAbnormalIcon" v-if="authLinkAbnormal" />
+            <i
+              class="freelog fl-icon-suoding lock"
+              @click.stop="getAuth()"
+              v-if="voiceInfo?.defaulterIdentityType >= 4"
+            ></i>
+
+            <div class="music-status">
+              <img
+                :src="SingleEpisode"
+                alt="单集"
+                v-if="voiceInfo.articleInfo?.articleType === 1"
+              />
+              <img
+                :src="OnGoing"
+                alt="连载中"
+                v-else-if="voiceInfo.articleInfo.serializeStatus === 0"
+              />
+              <img :src="Completed" alt="已完结" v-else />
             </div>
+
+            <my-tooltip :content="voiceInfo?.exhibitTitle">
+              <span class="title" @click.stop="getAuth()">{{ voiceInfo?.exhibitTitle }}</span>
+            </my-tooltip>
           </div>
         </div>
       </div>
@@ -368,9 +500,14 @@ import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { showToast, relativeTime, secondsToHMS } from "@/utils/common";
 import { useGlobalStore } from "@/store/global";
 
+// 图片
 import AuthLinkAbnormalIcon from "@/assets/images/auth-link-abnormal.png";
 import MobileDefaultBanner from "@/assets/images/mobile-default-banner.webp";
 import AuthLinkAbnormal from "@/assets/images/auth-link-abnormal.png";
+import OnGoing from "@/assets/images/status/on-going.png";
+import Completed from "@/assets/images/status/completed.png";
+import SingleEpisode from "@/assets/images/status/single-episode.png";
+import TimeIcon from "@/assets/images/time.png";
 
 export default {
   name: "detail",
@@ -381,9 +518,13 @@ export default {
     const store = useGlobalStore();
 
     return {
+      OnGoing,
+      Completed,
+      SingleEpisode,
       AuthLinkAbnormalIcon,
       MobileDefaultBanner,
       AuthLinkAbnormal,
+      TimeIcon,
       id: "",
       subID: "",
       albumName: "",
