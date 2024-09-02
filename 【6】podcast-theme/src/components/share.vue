@@ -218,7 +218,7 @@ export default {
 
     .hidden-input {
       position: absolute;
-      left: -100vw;
+      left: -99999px;
       z-index: -1;
     }
 
