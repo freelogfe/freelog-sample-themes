@@ -313,7 +313,7 @@
 import playStatus from "@/components/play-status";
 import myTooltip from "@/components/tooltip";
 import { useMyAuth, useMyPlay, useMyCollection } from "@/utils/hooks";
-import { secondsToHMS } from "@/utils/common";
+import { secondsToHMS, showToast } from "@/utils/common";
 
 export default {
   name: "my-player",
@@ -735,20 +735,20 @@ export default {
           this.playingInfo.child.url = ""
         }
 
-        // 更新lastestAuthList的授权状态
-        this.$store.dispatch("updateLastestAuthList")
+        // 更新lastestAuthList的授权状态, 会自动更新其他列表的授权状态
+        await this.$store.dispatch("updateLastestAuthList")
 
-        // 更新playList
-        const playList = JSON.parse(JSON.stringify(this.$store.state.playList))
-        playList.forEach(ele => {
-          if (ele.exhibitId === playingInfo.exhibitId) {
-            ele.defaulterIdentityType = 4
-          }
-        })
-        this.$store.commit("setData", { key: "playList", value: playList })
+        const target = this.$store.state.lastestAuthList.find(ele => ele.exhibitId === this.playingInfo.exhibitId)
+        if (!target) return
+        const resJson = await res.json()
 
-        // 调出授权
-        await useMyAuth.getAuth(this.playingInfo, true)
+        // 若是展品无授权, 则调出授权; 若是单品, 合集展品授权正常, 但是此单品被封禁, 则进行toast提示;
+        if (target.defaulterIdentityType === 4) {
+          await useMyAuth.getAuth(this.playingInfo, true)
+        } else if (this.playingInfo.child && target.defaulterIdentityType === 0 && resJson.data.authCode === 403) {
+          showToast("资源被封禁, 暂无法播放!")
+        }
+
         return true
       } 
     },

@@ -212,7 +212,8 @@ export default {
     hotList() {
       const data = this.listData
         .filter(ele => ele.articleInfo.articleType === 2)
-        .concat(this.listData.filter(ele => ele.articleInfo.articleType !== 2));
+        .concat(this.listData.filter(ele => ele.articleInfo.articleType !== 2))
+        .filter(ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType));
       return JSON.parse(JSON.stringify(data.slice(0, 5)));
     }
   },
@@ -287,12 +288,6 @@ export default {
             }))
             flatSubList.push(data)
           })
-        } else {
-          // const data = JSON.parse(JSON.stringify({
-          //   ...exhibitDetail,
-          //   defaulterIdentityType: authItem.defaulterIdentityType,
-          // }))
-          // flatSubList.push(data)
         }
 
         // 热门节目的子作品数量
@@ -333,21 +328,25 @@ export default {
 
       const result = [].concat(sortedflatSubListTop, sortedNotExhibitListTop).sort((a, b) => {
         let aTimeStamp, bTimeStamp
-        if (a.articleInfo.child) {
+        if (a.child) {
           aTimeStamp = new Date(a.child.createDate).getTime()
         } else {
           aTimeStamp = new Date(a.updateDate).getTime()
         }
 
-        if (b.articleInfo.child) {
+        if (b.child) {
           bTimeStamp = new Date(b.child.createDate).getTime()
         } else {
           bTimeStamp = new Date(b.updateDate).getTime()
         }
         return bTimeStamp - aTimeStamp
       }).slice(0, top)
-
+      console.log('sortedflatSubListTop', sortedflatSubListTop);
+      console.log('sortedNotExhibitListTop', sortedNotExhibitListTop);
+      console.log(result);
+      
       this.lastestList = result
+        .filter(ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType))
     },
     /** 获取展品列表 */
     async getList() {

@@ -11,7 +11,7 @@
               <div class="info">
                 <div class="info-header">
                   <div ref="cover" class="cover-area">
-                    <img class="cover" :src="voiceInfo.coverImages[0]" v-if="voiceInfo.coverImages[0]" />
+                    <img class="cover" :src="voiceInfo.child.articleInfo.coverImages[0]" v-if="voiceInfo.child.articleInfo.coverImages[0]" />
                     <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
                   </div>
                   <div class="title-area">
@@ -25,26 +25,22 @@
                       @click.stop="getAuth()"
                       v-if="voiceInfo.defaulterIdentityType >= 4"
                     ></i>
-                    <my-tooltip class="title" :content="voiceInfo.exhibitTitle">
-                      <span>{{ voiceInfo.exhibitTitle }}</span>
+                    <my-tooltip class="title" :content="voiceInfo.child.itemTitle">
+                      <span>{{ voiceInfo.child.itemTitle }}</span>
                     </my-tooltip>
                   </div>
                 </div>
                 <div class="info-area">
                   <div class="info-item">
                     <i class="freelog fl-icon-gengxinshijian"></i>
-                    <div class="item-value">{{ voiceInfo.updateDate | relativeTime }}</div>
-                  </div>
-                  <div class="info-item">
-                    <i class="freelog fl-icon-danji"></i>
-                    <div class="item-value">{{ total }}</div>
+                    <div class="item-value">{{ voiceInfo.child.createDate | relativeTime }}</div>
                   </div>
                   <div class="info-item">
                     <i class="freelog fl-icon-yonghu"></i>
                     <div class="item-value">{{ voiceInfo.signCount | signCount }}</div>
                   </div>
-                  <div v-if="playingInfo && voiceInfo.articleInfo.articleType === 1" class="duration">
-                    时长{{ voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
+                  <div class="duration">
+                    时长{{ computedDuration }}
                   </div>
                 </div>
 
@@ -58,7 +54,7 @@
               <span class="freelog fl-icon-ziyuanweiguitishi_yinle weigui-icon"></span>
               <div class="info">
                 <div ref="cover" class="cover-area">
-                  <img class="cover" :src="voiceInfo.coverImages[0]" />
+                  <img class="cover" :src="voiceInfo.child.articleInfo.coverImages[0]" />
                 </div>
                 <img
                   class="auth-link-abnormal"
@@ -79,8 +75,8 @@
                   <span class="end freelog fl-icon-bokebiaoqian_yiwanjie" v-else></span>
                 </div>
   
-                <my-tooltip class="title" :content="voiceInfo.exhibitTitle">
-                  <span>{{ voiceInfo.exhibitTitle }}</span>
+                <my-tooltip class="title" :content="voiceInfo.child.itemTitle">
+                  <span>{{ voiceInfo.child.itemTitle }}</span>
                 </my-tooltip>
               </div>
             </div>
@@ -104,7 +100,7 @@
                 @click.stop="getAuth()"
                 v-if="voiceInfo.defaulterIdentityType >= 4"
               ></i>
-              <my-tooltip class="title" :content="voiceInfo.exhibitTitle">
+              <my-tooltip class="title" :content="voiceInfo.child.itemTitle">
                 <span>{{ voiceInfo.child.itemTitle }}</span>
               </my-tooltip>
             </div>
@@ -119,10 +115,10 @@
               </div>
               <div class="info-item" @click="$router.myPush({ path: '/detail', query: { id: voiceInfo.exhibitId } })">
                 <i class="freelog fl-icon-zhuanji"></i>
-                <div class="item-value">{{ voiceInfo.exhibitTitle }}</div>
+                <div class="item-value zj-title">{{ voiceInfo.exhibitTitle }}</div>
               </div>
               <div v-if="playingInfo && voiceInfo.articleInfo.articleType === 2 && playingInfo.child.itemId === voiceInfo.child.itemId" class="duration">
-                时长{{ playingInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
+                时长{{ playingInfo.child.articleInfo.articleProperty.duration | secondsToHMS }} 
               </div>
             </div>
             <div
@@ -148,7 +144,7 @@
               :class="{ animation: addAnimation }"
               :style="{ '--left': coverLeft + 'px', '--top': coverTop + 'px' }"
             >
-              <img class="cover" :src="voiceInfo.coverImages[0]" />
+              <img class="cover" :src="voiceInfo.child.articleInfo.coverImages[0]" />
             </div>
           </div>
 
@@ -223,7 +219,7 @@
               :class="{ animation: addAnimation }"
               :style="{ '--left': coverLeft + 'px', '--top': coverTop + 'px' }"
             >
-              <img class="cover" :src="voiceInfo.coverImages[0]" />
+              <img class="cover" :src="voiceInfo.child.articleInfo.coverImages[0]" />
             </div>
           </div>
         </div>
@@ -279,14 +275,8 @@ export default {
     this.$store.dispatch("updateLastestAuthList")
   },
   computed: {
-    /** 时长 */
-    computedDuration() {      
-      const min = Math.min(this.voiceInfo.child?.articleInfo?.articleProperty?.duration || 0, 
-        this.$store.state.playingInfo.child?.articleInfo?.articleProperty?.duration || 0)
-      if (this.voiceInfo.exhibitId === this.$store.state.playingInfo.exhibitId && 
-        this.voiceInfo.child && this.voiceInfo.child.itemId === this.$store.state.playingInfo.child.itemId) {
-        return secondsToHMS(min)
-      }
+    /** 固定时长 */
+    computedDuration() {
       return secondsToHMS(this.voiceInfo.child?.articleInfo?.articleProperty?.duration); 
     },
 
@@ -531,6 +521,13 @@ export default {
           font-size: 12px;
           line-height: 18px;
           margin-left: 5px;
+        }
+
+        .zj-title {
+          max-width: 200px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
       }

@@ -234,7 +234,7 @@
                     <i class="freelog fl-icon-gengxinshijian"></i>
                     <div class="item-value">{{ voiceInfo.updateDate | relativeTime }}</div>
                   </div>
-                  <div class="info-item">
+                  <div class="info-item" v-if="voiceInfo.articleInfo.articleType === 2">
                     <i class="freelog fl-icon-danji"></i>
                     <div class="item-value">{{ total }}</div>
                   </div>

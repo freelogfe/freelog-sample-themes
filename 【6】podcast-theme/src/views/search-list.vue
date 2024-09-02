@@ -5,7 +5,7 @@
     <template v-if="!loading">
       <div class="program-list-wrapper-mobile" v-if="$store.state.inMobile">
         <div class="plw-header">
-          {{ `查询到${total}个相关结果` }}
+          {{ `查询到${this.listData.length}个相关结果` }}
         </div>
         <div v-if="listData.length" class="plw-body">
           <div class="plw-condition">
@@ -52,7 +52,7 @@
   
       <div class="program-list-wrapper-pc" v-else>
         <div class="plw-header">
-          {{ `“${keywords}”的搜索结果${total ? '（' + total + '）' : ''}` }}
+          {{ `“${keywords}”的搜索结果${this.listData.length ? '（' + this.listData.length + '）' : ''}` }}
         </div>
         <div v-if="listData.length" class="plw-body">
           <div class="plw-condition">
@@ -308,7 +308,8 @@ export default {
             item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
         });
       }
-      this.listData = init ? dataList : [...this.listData, ...dataList];
+      const temp = init ? dataList : [...this.listData, ...dataList]
+      this.listData = temp.filter(ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType));
       this.total = totalItem;
       if (init) this.loading = false;
       this.myLoading = false;
@@ -326,17 +327,17 @@ export default {
       this.getList();
     },
 
-     /** 条件排序 */
-     sortList(newValue, dataList) {
+    /** 条件排序 */
+    sortList(newValue, dataList) {
       const result = dataList.sort((a, b) => {
         let aTimeStamp, bTimeStamp
-        if (a.articleInfo.child) {
+        if (a.child) {
           aTimeStamp = new Date(a.child.createDate).getTime()
         } else {
           aTimeStamp = new Date(a.updateDate).getTime()
         }
 
-        if (b.articleInfo.child) {
+        if (b.child) {
           bTimeStamp = new Date(b.child.createDate).getTime()
         } else {
           bTimeStamp = new Date(b.updateDate).getTime()

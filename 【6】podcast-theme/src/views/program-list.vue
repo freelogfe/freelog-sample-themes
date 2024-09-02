@@ -202,7 +202,13 @@ export default {
   },
   computed: {
     hotList() {
-      return JSON.parse(JSON.stringify(this.listData.slice()));
+      return JSON.parse(
+        JSON.stringify(
+          this.listData
+            .slice()
+            .filter(ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType))
+        )
+      );
     }
   },
   watch: {
@@ -269,13 +275,13 @@ export default {
     sortList(newValue, dataList) {
       const result = dataList.sort((a, b) => {
         let aTimeStamp, bTimeStamp
-        if (a.articleInfo.child) {
+        if (a.child) {
           aTimeStamp = new Date(a.child.createDate).getTime()
         } else {
           aTimeStamp = new Date(a.updateDate).getTime()
         }
 
-        if (b.articleInfo.child) {
+        if (b.child) {
           bTimeStamp = new Date(b.child.createDate).getTime()
         } else {
           bTimeStamp = new Date(b.updateDate).getTime()

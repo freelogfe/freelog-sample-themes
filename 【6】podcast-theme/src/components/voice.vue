@@ -27,11 +27,13 @@
             class="auth-link-abnormal"
             src="../assets/images/auth-link-abnormal.png"
             v-if="authLinkAbnormal"
+            :class="{ 'opacity-40': authLinkAbnormal }"
           />
           <i
             class="freelog fl-icon-suoding lock"
             @click.stop="getAuth()"
             v-if="data.defaulterIdentityType >= 4"
+            :class="{ 'opacity-40': authLinkAbnormal, 'pointer-none': authLinkAbnormal }"
           ></i>
           <template v-if="!data.child">
             <div
@@ -166,11 +168,13 @@
             class="auth-link-abnormal"
             src="../assets/images/auth-link-abnormal.png"
             v-if="authLinkAbnormal"
+            :class="{ 'opacity-40': authLinkAbnormal }"
           />
           <i
             class="freelog fl-icon-suoding lock"
             @click.stop="getAuth()"
             v-if="data.defaulterIdentityType >= 4"
+            :class="{ 'opacity-40': authLinkAbnormal, 'pointer-none': authLinkAbnormal }"
           ></i>
           <template v-if="!data.child">
             <div
@@ -666,6 +670,7 @@ export default {
 
     /** 授权 */
     async getAuth() {
+      if (this.authLinkAbnormal) return
       useMyAuth.getAuth(this.data);
     },
 
