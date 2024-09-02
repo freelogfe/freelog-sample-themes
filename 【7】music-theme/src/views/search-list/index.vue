@@ -2,15 +2,15 @@
 <template>
   <div class="search-list-wrapper">
     <list
-      :list="listData"
+      :list="searchData"
       :loading="loading"
-      :total="total"
+      :total="searchData.length"
       :searchTitle="
         store.inMobile
-          ? total
-            ? `查询到${total}个相关结果`
+          ? searchData.length
+            ? `查询到${searchData.length}个相关结果`
             : ''
-          : `“${keywords}”的搜索结果${total ? '（' + total + '）' : ''}`
+          : `“${keywords}”的搜索结果${searchData.length ? '（' + searchData.length + '）' : ''}`
       "
       noMoreTip="已加载全部"
       noDataTip="暂无任何结果"
@@ -42,9 +42,14 @@ export default {
       store,
       subTotal: 0,
       subSkip: 0,
-      subTempData: [],
-      collectionData: []
+      subTempData: []
     };
+  },
+
+  computed: {
+    searchData() {
+      return this.listData.filter(i => i.exhibitTitle.includes(this.store.searchKey)) || [];
+    }
   },
 
   watch: {
@@ -58,16 +63,12 @@ export default {
     "store.searchKey": {
       handler(cur) {
         if (cur === this.keywords) return;
-
+        this.listData = [];
         this.keywords = cur;
         this.getList(true);
       },
       immediate: true
     }
-  },
-
-  created() {
-    this.getList(true);
   },
 
   activated() {
@@ -83,21 +84,19 @@ export default {
   methods: {
     /** 获取列表 */
     async getList(init = false) {
-      if (this.myLoading) return;
       if (this.total === this.listData.length && !init) return;
 
       if (init) {
         this.total = 0;
         this.loading = true;
       }
-      this.myLoading = true;
-      this.skip = init ? 0 : this.skip + 20;
+      this.skip = init ? 0 : this.skip + 100;
       const queryParams = {
         skip: this.skip,
         articleResourceTypes: "音频",
         isLoadVersionProperty: 1,
-        limit: 20,
-        keywords: this.keywords
+        limit: 100
+        // keywords: this.keywords
       };
       const list = await freelogApp.getExhibitListByPaging(queryParams);
       const { dataList, totalItem } = list.data.data;
@@ -107,7 +106,8 @@ export default {
           freelogApp.getExhibitSignCount(ids),
           freelogApp.getExhibitAuthStatus(ids)
         ]);
-        dataList.forEach(item => {
+
+        for (const item of dataList) {
           let index;
           index = signCountData.data.data.findIndex(
             resultItem => resultItem.subjectId === item.exhibitId
@@ -121,14 +121,14 @@ export default {
 
           // 获取合集里的单品列表
           if (item.articleInfo.articleType === 2) {
-            this.getCollectionList(item.exhibitId, item.exhibitName, item.coverImages);
+            await this.getCollectionList(item.exhibitId, item.exhibitName, item.coverImages);
           }
-        });
+
+          this.listData.push(item);
+        }
       }
-      this.listData = init ? dataList : [...this.listData, ...dataList];
-      this.total = totalItem;
+      this.total = this.listData.length;
       if (init) this.loading = false;
-      this.myLoading = false;
     },
 
     /** 获取合集里的单品列表 */
@@ -167,13 +167,12 @@ export default {
       }
 
       this.subTempData.push(...dataList);
-      this.collectionData = [...this.collectionData, ...dataList];
-      this.listData = [...this.listData, ...this.collectionData];
+      this.listData.push(...dataList);
       this.total = this.listData.length;
 
       if (this.subTempData.length < this.subTotal) {
         this.subSkip = this.subSkip + 1_000;
-        this.getCollectionList(collectionID, exhibitName, coverImages);
+        await this.getCollectionList(collectionID, exhibitName, coverImages);
       } else {
         this.subTotal = 0;
         this.subSkip = 0;
