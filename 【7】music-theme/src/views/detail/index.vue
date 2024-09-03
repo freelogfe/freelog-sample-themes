@@ -28,9 +28,7 @@
                   @click.stop="getAuth()"
                   v-if="voiceInfo?.defaulterIdentityType >= 4"
                 ></i>
-                <my-tooltip :content="voiceInfo?.exhibitTitle">
-                  <span class="title">{{ voiceInfo?.exhibitTitle }}</span>
-                </my-tooltip>
+                <span class="title">{{ voiceInfo?.exhibitTitle }}</span>
               </div>
 
               <div class="date-count">
@@ -200,9 +198,7 @@
               <img :src="Completed" alt="已完结" v-else />
             </div> -->
 
-            <my-tooltip :content="voiceInfo?.exhibitTitle">
-              <span class="title" @click.stop="getAuth()">{{ voiceInfo?.exhibitTitle }}</span>
-            </my-tooltip>
+            <span class="title" @click.stop="getAuth()">{{ voiceInfo?.exhibitTitle }}</span>
           </div>
         </div>
         <div class="desc">
@@ -472,9 +468,9 @@
               <img :src="Completed" alt="已完结" v-else />
             </div>
 
-            <my-tooltip :content="voiceInfo?.exhibitTitle">
-              <span class="title" @click.stop="getAuth()">{{ voiceInfo?.exhibitTitle }}</span>
-            </my-tooltip>
+            <!-- <my-tooltip :content="voiceInfo?.exhibitTitle"> -->
+            <span class="title" @click.stop="getAuth()">{{ voiceInfo?.exhibitTitle }}</span>
+            <!-- </my-tooltip> -->
           </div>
         </div>
       </div>
