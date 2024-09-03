@@ -398,6 +398,31 @@ export const useMyPlay = {
 
         playIdList.unshift(obj);
       } else {
+        // const hasDuplicateId = playIdList.findIndex(i => i.exhibitId === obj.exhibitId);
+
+        // // 单个音乐
+        // if (obj.type === "PLAY_ADD_TO_PLAYLIST") {
+        //   // 如果没有重复的 exhibitId，则添加到列表开头
+        //   if (hasDuplicateId === -1) {
+        //     playIdList.unshift(obj);
+        //   }
+        // }
+        // // 合集音乐
+        // else if (obj.type === "PLAY_ALBUM_ADD_TO_PLAYLIST") {
+        //   if (hasDuplicateId !== -1) {
+        //     playIdList = playIdList.filter(item => item.exhibitId !== obj.exhibitId);
+        //   }
+        //   playIdList.unshift(obj);
+        // } else {
+        //   // 如果有重复的 exhibitId，则先移除它
+        //   if (hasDuplicateId !== -1) {
+        //     playIdList = playIdList.filter(item => item.exhibitId !== obj.exhibitId);
+        //   }
+        //   // 无论是否有重复，都将新的对象添加到列表开头
+        //   playIdList.unshift(obj);
+        //   showToast("添加成功");
+        // }
+
         const hasDuplicateId = playIdList.findIndex(i => i.exhibitId === obj.exhibitId);
 
         if (obj.type === "PLAY_ADD_TO_PLAYLIST") {
@@ -410,9 +435,13 @@ export const useMyPlay = {
           if (hasDuplicateId !== -1) {
             playIdList = playIdList.filter(item => item.exhibitId !== obj.exhibitId);
           }
-          // 无论是否有重复，都将新的对象添加到列表开头
+
+          // 将新的对象添加到列表开头
           playIdList.unshift(obj);
-          showToast("添加成功");
+
+          if (obj.type !== "PLAY_ALBUM_ADD_TO_PLAYLIST") {
+            showToast("添加成功");
+          }
         }
       }
 

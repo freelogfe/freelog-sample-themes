@@ -78,7 +78,10 @@ const playOrPause = async item => {
   await useMyPlay.playOrPause(collectionData.value[0], "normal");
 
   setTimeout(async () => {
-    await useMyPlay.addToPlayList({ exhibitId: item.exhibitId, type: "PLAY_ADD_TO_PLAYLIST" });
+    await useMyPlay.addToPlayList({
+      exhibitId: item.exhibitId,
+      type: "PLAY_ALBUM_ADD_TO_PLAYLIST"
+    });
   }, 0);
 };
 

@@ -846,7 +846,7 @@ export default {
       setTimeout(async () => {
         await useMyPlay.addToPlayList({
           exhibitId: this.voiceInfo.exhibitId,
-          type: "PLAY_ADD_TO_PLAYLIST"
+          type: "PLAY_ALBUM_ADD_TO_PLAYLIST"
         });
       }, 0);
     },
