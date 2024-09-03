@@ -844,7 +844,10 @@ export default {
       await useMyPlay.playOrPause(this.collectionData[0], "normal");
 
       setTimeout(async () => {
-        await useMyPlay.addToPlayList({ exhibitId: this.voiceInfo.exhibitId });
+        await useMyPlay.addToPlayList({
+          exhibitId: this.voiceInfo.exhibitId,
+          type: "PLAY_ADD_TO_PLAYLIST"
+        });
       }, 0);
     },
 

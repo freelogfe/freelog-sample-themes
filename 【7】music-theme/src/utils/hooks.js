@@ -310,7 +310,7 @@ export const useMyPlay = {
             item => `${item.exhibitId}${item.itemId ?? ""}` === `${list.data.data[0].exhibitId}`
           );
           playIdList.splice(removeIndex, 1);
-          showToast("添加成功");
+          // showToast("添加成功");
         } else {
           result.push({
             ...list.data.data[0],
@@ -412,6 +412,7 @@ export const useMyPlay = {
           }
           // 无论是否有重复，都将新的对象添加到列表开头
           playIdList.unshift(obj);
+          showToast("添加成功");
         }
       }
 
