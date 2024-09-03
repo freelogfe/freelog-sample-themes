@@ -481,6 +481,11 @@ export default {
     "store.playMode": {
       handler(cur) {
         this.currentModeIndex = this.modes.findIndex(f => f === cur);
+        if (cur === "RANDOM") {
+          this.shuffledList = this.playList.slice();
+          this.shuffleArray(this.shuffledList);
+          this.currentRandomIndex = 0;
+        }
       }
     },
     "store.playList": {
@@ -792,7 +797,7 @@ export default {
 
         this.nextVoice();
       } else {
-        this.currentRandomIndex = this.currentModeIndex + 1;
+        this.currentRandomIndex = this.currentRandomIndex + 1;
         // 重置当前随机播放索引
         if (this.currentRandomIndex >= this.shuffledList.length) {
           this.currentRandomIndex = 0;
