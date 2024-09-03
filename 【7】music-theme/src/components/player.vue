@@ -762,14 +762,34 @@ export default {
     },
 
     /** 播放完成 */
-    endVoice() {
+    async endVoice() {
       if (this.playList.length === 1) {
-        this.store.setData({ key: "playing", value: false });
-        this.store.setData({ key: "progress", value: 0 });
+        await this.store.setData({ key: "playing", value: false });
+        await this.store.setData({ key: "progress", value: 0 });
+        await this.store.setData({ key: "playingInfo", value: null });
+
         return;
       }
 
       if (this.currentPlayMode === "NORMAL") {
+        const { playList, playingInfo, playIdList } = this.store;
+
+        // 判断当前播放音乐是否是播放列表中的最后一个
+        const currentIndex = playList.findIndex(
+          item =>
+            item.exhibitId === playingInfo.exhibitId &&
+            (item.itemId ?? "") === (playingInfo.itemId ?? "")
+        );
+
+        const isFinalMusic = currentIndex === playIdList.length - 1;
+
+        if (isFinalMusic) {
+          await this.store.setData({ key: "playing", value: false });
+          await this.store.setData({ key: "progress", value: 0 });
+          await this.store.setData({ key: "playingInfo", value: null });
+          return;
+        }
+
         this.nextVoice();
       } else {
         this.currentRandomIndex = this.currentModeIndex + 1;
@@ -921,6 +941,9 @@ export default {
 
     /** 改变音频进度 */
     changeProgress(e) {
+      if (!this.playingInfo) {
+        return;
+      }
       this.slidingProgress = false;
       this.$refs.player.currentTime = e;
       if (!this.playing) this.playOrPause();

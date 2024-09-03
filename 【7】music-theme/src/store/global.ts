@@ -1,4 +1,6 @@
 import { defineStore } from "pinia";
+import { nextTick } from "vue";
+
 // @ts-ignore
 import { judgeDevice, judgeIOSDevice } from "@/utils/common";
 // @ts-ignore
@@ -65,8 +67,9 @@ export const useGlobalStore = defineStore("global", {
   },
   getters: {},
   actions: {
-    setData<K extends keyof State>(payload: { key: K; value: State[K] }) {
+    async setData<K extends keyof State>(payload: { key: K; value: State[K] }) {
       this.$state[payload.key] = payload.value;
+      await nextTick(); // 确保所有 DOM 更新完成
     },
     /** 初始化 store */
     async initStoreData() {
