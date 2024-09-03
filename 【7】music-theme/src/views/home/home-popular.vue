@@ -23,7 +23,7 @@ const moreMenuShow = ref<boolean>(false);
 const selectedData = ref({} as Exhibit);
 
 const changeIndex = (index: number): string => {
-  if (index > 1 && index < 10) {
+  if (index > 0 && index < 10) {
     return index.toString().padStart(2, "0");
   }
   return index.toString();

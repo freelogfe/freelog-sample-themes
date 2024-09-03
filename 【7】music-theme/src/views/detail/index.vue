@@ -770,7 +770,7 @@ export default {
       ].filter(Boolean);
     },
     changeIndex(index) {
-      if (index > 1 && index < 10) {
+      if (index > 0 && index < 10) {
         return index.toString().padStart(2, "0");
       }
       return index.toString();
