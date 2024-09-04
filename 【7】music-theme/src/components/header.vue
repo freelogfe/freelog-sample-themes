@@ -81,7 +81,7 @@
           <div class="user-box-top">
             <img
               class="avatar"
-              :src="userData.headImage || getAssetsFile('../assets/images/default-user-avatar.png')"
+              :src="userData.headImage || getAssetsFile('default-user-avatar.png')"
               :alt="userData.username || '未登录'"
               @click="!userData.isLogin && callLogin()"
             />
