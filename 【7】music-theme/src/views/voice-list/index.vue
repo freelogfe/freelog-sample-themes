@@ -2,7 +2,7 @@
 <template>
   <div class="voice-list-wrapper">
     <list
-      :list="[...listData, ...collectionData]"
+      :list="musicData"
       :loading="loading"
       :total="total"
       :musicAlbumTab="false"
@@ -42,6 +42,11 @@ export default {
     };
   },
 
+  computed: {
+    musicData() {
+      return [...this.listData, ...this.collectionData].filter(i => i.articleInfo.status !== 2);
+    }
+  },
   watch: {
     "store.authIdList": {
       handler(cur) {

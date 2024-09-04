@@ -27,8 +27,11 @@ watch(
 );
 
 const popularData = computed(() => {
-  const traditionalExhibit = listData.value.filter(i => i.articleInfo?.articleType === 1);
+  const traditionalExhibit = listData.value.filter(
+    i => i.articleInfo?.articleType === 1 && i.articleInfo?.status !== 2
+  );
   const data = [...traditionalExhibit, ...collectionData.value]
+    .filter(i => i.articleInfo?.status !== 2)
     .sort(i => Number(i.updateDate))
     .slice(0, 12);
 
