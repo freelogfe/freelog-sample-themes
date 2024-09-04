@@ -482,7 +482,7 @@ export default {
       handler(cur) {
         this.currentModeIndex = this.modes.findIndex(f => f === cur);
         if (cur === "RANDOM") {
-          this.shuffledList = this.playList.slice();
+          this.shuffledList = this.playList?.slice();
           this.shuffleArray(this.shuffledList);
           this.currentRandomIndex = 0;
         }
@@ -705,7 +705,7 @@ export default {
     },
 
     shuffleArray(array) {
-      for (let i = array.length - 1; i > 0; i--) {
+      for (let i = array?.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
       }
@@ -809,6 +809,12 @@ export default {
     /** 播放失败 */
     playError() {
       if (!this.playing) return;
+
+      const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
+      if (!supportMimeList.includes(this.voiceInfo?.versionInfo.exhibitProperty.mime)) {
+        showToast("无法播放");
+        return;
+      }
 
       showToast("当前浏览器无法播放，请更换浏览器重试");
     },
