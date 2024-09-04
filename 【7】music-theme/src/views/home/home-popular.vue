@@ -601,7 +601,7 @@ const isSelectedData = item => {
             top: 14px;
             width: 91px;
             height: 100px;
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(34, 34, 34);
             box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
             border-radius: 4px;
             backdrop-filter: blur(25px);
