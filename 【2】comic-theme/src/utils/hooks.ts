@@ -246,7 +246,9 @@ export const useGetList = () => {
           item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
       });
     }
-    data.listData = init ? dataList : [...data.listData, ...dataList];
+    data.listData = init
+      ? dataList.filter((i: any) => i.articleInfo?.status !== 2)
+      : [...data.listData, ...dataList].filter((i: any) => i.articleInfo?.status !== 2);
     data.total = totalItem;
     if (init) data.loading = false;
     data.myLoading = false;
