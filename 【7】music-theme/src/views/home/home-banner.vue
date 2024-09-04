@@ -24,7 +24,7 @@ const { selfConfig, nodeInfo } = storeToRefs(store);
       <div class="avatar">
         <img :src="selfConfig.options_node_logo || nodeInfo.nodeLogo" alt="avatar" />
       </div>
-      <div class="node-name">{{ selfConfig.options_node_name || nodeInfo.nodeTitle || "" }}</div>
+      <div class="node-name">{{ nodeInfo.nodeTitle || "" }}</div>
       <div class="node-desc-box">
         <div class="node-desc">
           {{
