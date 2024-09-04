@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useGlobalStore } from "@/store/global";
 
@@ -9,6 +10,21 @@ import MobileDefaultBanner from "@/assets/images/mobile-default-banner.webp";
 const store = useGlobalStore();
 
 const { selfConfig, nodeInfo } = storeToRefs(store);
+
+const resizeBanner = () => {
+  const banner = document.querySelector(".node-banner");
+  const width = window.innerWidth;
+  const height = (880 / 1920) * width; // 根据 1920x660 的比例设置高度
+  banner.style.height = `${height}px`;
+};
+
+// 页面加载时和窗口大小调整时调用
+window.addEventListener("load", resizeBanner);
+window.addEventListener("resize", resizeBanner);
+
+onMounted(() => {
+  resizeBanner();
+});
 </script>
 
 <template>
@@ -99,7 +115,17 @@ const { selfConfig, nodeInfo } = storeToRefs(store);
 
   .node-banner {
     width: 100%;
-    height: 660px;
+    height: auto;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
+    }
     img {
       width: 100%;
       height: 100%;
