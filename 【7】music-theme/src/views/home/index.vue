@@ -11,6 +11,7 @@ import type { Exhibit } from "@/interface";
 
 const store = useGlobalStore();
 const listData = ref<Exhibit[]>([]);
+const albumData = ref<Exhibit[]>([]);
 const loading = ref<boolean>(false);
 
 watch(
@@ -30,11 +31,6 @@ const popularData = computed(() => {
     .sort(i => Number(i.updateDate))
     .slice(0, 12);
 
-  return data;
-});
-
-const albumData = computed(() => {
-  const data = listData.value.filter(i => i.articleInfo?.articleType === 2).slice(0, 5);
   return data;
 });
 
@@ -75,6 +71,7 @@ const getList = async () => {
 
       // 获取合集里的单品列表
       if (item.articleInfo.articleType === 2) {
+        albumData.value.push(item);
         await getCollectionList(item.exhibitId, item.exhibitName, item.coverImages);
       } else {
         listData.value.push(item);
@@ -151,7 +148,7 @@ onBeforeMount(() => {
     :class="{ pc: !store.inMobile, mobile: store.inMobile }"
   >
     <HomePopular hasHeader :data="popularData" />
-    <HomeAlbum hasHeader :data="albumData" />
+    <HomeAlbum hasHeader :data="albumData.slice(0, 5)" />
   </div>
 </template>
 
