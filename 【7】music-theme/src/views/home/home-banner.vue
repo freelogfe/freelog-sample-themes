@@ -13,14 +13,23 @@ const { selfConfig, nodeInfo } = storeToRefs(store);
 
 <template>
   <!-- PC -->
-  <div class="pc-home-banner-wrap" v-if="!store.inMobile">
+  <div
+    class="pc-home-banner-wrap"
+    v-if="!store.inMobile"
+    :style="{ marginTop: store.nodeInfo.nodeLogo ? '-158px' : '-98px' }"
+  >
     <!-- 节点封面 -->
     <div class="node-banner">
       <img :src="selfConfig.options_node_banner || PcDefaultBanner" alt="节点封面" />
     </div>
 
     <!-- 节点信息 -->
-    <div class="node-info">
+    <div
+      class="node-info"
+      :style="{
+        height: store.nodeInfo.nodeLogo ? ` calc(100% - 148px)` : `calc(100% - 98px)`
+      }"
+    >
       <div class="avatar">
         <img :src="selfConfig.options_node_logo || nodeInfo.nodeLogo" alt="avatar" />
       </div>
@@ -85,7 +94,7 @@ const { selfConfig, nodeInfo } = storeToRefs(store);
 // PC
 .pc-home-banner-wrap {
   position: relative;
-  margin-top: -98px;
+  // margin-top: -98px;
   width: 100%;
 
   .node-banner {
@@ -100,7 +109,7 @@ const { selfConfig, nodeInfo } = storeToRefs(store);
 
   .node-info {
     position: absolute;
-    height: calc(100% - 98px);
+    // height: calc(100% - 98px);
     left: calc((100% - 1280px) / 2);
     bottom: 0;
     display: flex;

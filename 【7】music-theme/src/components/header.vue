@@ -118,7 +118,14 @@
     </div>
 
     <!-- PC -->
-    <div class="pc-header-wrapper" v-if="store.inMobile === false">
+    <div
+      class="pc-header-wrapper"
+      v-if="store.inMobile === false"
+      :style="{
+        paddingTop: store.nodeInfo.nodeLogo ? '50px' : '',
+        height: store.nodeInfo.nodeLogo ? '148px' : '98px'
+      }"
+    >
       <div class="node-logo" v-if="store.nodeInfo.nodeLogo">
         <img :src="store.nodeInfo.nodeLogo" alt="Logo" />
       </div>
