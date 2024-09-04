@@ -208,7 +208,9 @@ const isSelectedData = item => {
               ></i>
               {{ item.exhibitTitle }}
             </span>
-            <span class="desc">{{ item.exhibitIntro }}</span>
+            <span class="desc" v-if="item?.articleInfo?.articleProperty?.singer">{{
+              item?.articleInfo?.articleProperty?.singer
+            }}</span>
             <span
               class="type"
               :class="item.albumName && 'album'"
@@ -296,7 +298,9 @@ const isSelectedData = item => {
               ></i>
               {{ item.exhibitTitle }}
             </span>
-            <span class="desc">{{ item.exhibitIntro }}</span>
+            <span class="desc" v-if="item?.articleInfo?.articleProperty?.singer">{{
+              item?.articleInfo?.articleProperty?.singer
+            }}</span>
             <span
               class="type"
               :class="item.albumName && 'album'"
