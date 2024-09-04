@@ -811,11 +811,16 @@ export default {
       if (!this.playing) return;
 
       const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
-      if (!supportMimeList.includes(this.voiceInfo?.versionInfo.exhibitProperty.mime)) {
+      if (!supportMimeList.includes(this.playingInfo?.versionInfo.exhibitProperty.mime)) {
         showToast("无法播放");
         return;
       }
 
+      if (this.playingInfo?.articleInfo.status === 2) {
+        this.nextVoice();
+        showToast("已封禁，无法播放");
+        return;
+      }
       showToast("当前浏览器无法播放，请更换浏览器重试");
     },
 
