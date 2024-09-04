@@ -1482,7 +1482,7 @@ export default {
       const lastViewedResponse = await freelogApp.getUserData("comicLastViewedHistory");
       const lastViewed = lastViewedResponse?.data?.data || [];
 
-      if (!lastViewed.length) {
+      if (!lastViewed?.length) {
         lastViewed.push({ id: data.id, subId: data.subId });
         freelogApp.setUserData("comicLastViewedHistory", lastViewed);
         return;
@@ -1506,7 +1506,7 @@ export default {
       const lastViewedResponse = await freelogApp.getUserData("comicLastViewedMode");
       const lastViewed = lastViewedResponse?.data?.data || [];
 
-      if (!lastViewed.length) {
+      if (!lastViewed?.length) {
         lastViewed.push({ id, mode: data.mode });
         freelogApp.setUserData("comicLastViewedMode", lastViewed);
         return;
