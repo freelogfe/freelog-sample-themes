@@ -100,7 +100,6 @@ const { selfConfig, nodeInfo } = storeToRefs(store);
 
   .node-info {
     position: absolute;
-    width: 100%;
     height: calc(100% - 98px);
     left: calc((100% - 1280px) / 2);
     bottom: 0;
@@ -123,12 +122,16 @@ const { selfConfig, nodeInfo } = storeToRefs(store);
     }
 
     .node-name {
+      width: 1280px;
       padding-top: 25px;
       height: 60px;
       font-weight: 600;
       font-size: 40px;
       color: #ffffff;
       line-height: 60px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
       opacity: 0.8;
     }
 
