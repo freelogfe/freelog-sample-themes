@@ -37,14 +37,13 @@ export default {
       store,
       subTotal: 0,
       subSkip: 0,
-      subTempData: [],
-      collectionData: []
+      subTempData: []
     };
   },
 
   computed: {
     musicData() {
-      return [...this.listData, ...this.collectionData].filter(i => i.articleInfo.status !== 2);
+      return this.listData.filter(i => i.articleInfo.status !== 2);
     }
   },
   watch: {
@@ -126,11 +125,13 @@ export default {
           // 获取合集里的单品列表
           if (item.articleInfo.articleType === 2) {
             await this.getCollectionList(item.exhibitId, item.exhibitName, item.coverImages);
+          } else {
+            this.listData.push(item);
           }
         }
       }
 
-      this.listData = init ? dataList : [...this.listData, ...dataList];
+      // this.listData = init ? dataList : [...this.listData, ...dataList];
       this.total = totalItem;
       if (init) this.loading = false;
       this.myLoading = false;
@@ -173,7 +174,7 @@ export default {
       }
 
       this.subTempData.push(...dataList);
-      this.collectionData = [...this.collectionData, ...dataList];
+      this.listData.push(...dataList);
 
       if (this.subTempData.length < this.subTotal) {
         this.subSkip = this.subSkip + 1_000;
