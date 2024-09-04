@@ -295,8 +295,8 @@
 
                     <div class="progress-area">
                       {{ secondsToHMS(store.progress * 1000) }} /
-                      <!-- {{ secondsToHMS(playingInfo.versionInfo.exhibitProperty.duration) }} -->
-                      {{ secondsToHMS(realDuration * 1000) }}
+                      {{ secondsToHMS(playingInfo.versionInfo.exhibitProperty.duration) }}
+                      <!-- {{ secondsToHMS(realDuration * 1000) }} -->
                     </div>
                   </template>
                   <span class="no-data-title" v-else>暂无播放的声音</span>
@@ -403,7 +403,7 @@
                   <play-status
                     :playing="playing"
                     :desc="`${secondsToHMS(store.progress * 1000)} / ${secondsToHMS(
-                      realDuration * 1000
+                      playingInfo.versionInfo.exhibitProperty.duration
                     )}`"
                     v-if="
                       playingInfo &&
@@ -472,8 +472,8 @@ export default {
       currentModeIndex: 0, // 当前模式索引
       currentRandomIndex: 0, // 当前随机播放索引
       shuffledList: [], // 随机播放列表
-      store,
-      realDuration: ""
+      store
+      // realDuration: ""
     };
   },
 
@@ -925,10 +925,10 @@ export default {
       this.playVoice();
     },
 
-    handleDurationChange(e) {
-      const newDuration = e.target.duration;
-      this.realDuration = newDuration;
-    },
+    // handleDurationChange(e) {
+    //   const newDuration = e.target.duration;
+    //   this.realDuration = newDuration;
+    // },
 
     /** 播放声音 */
     playVoice() {
