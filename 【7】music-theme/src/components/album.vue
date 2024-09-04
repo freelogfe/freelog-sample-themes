@@ -543,7 +543,7 @@ onBeforeUnmount(() => {
               }
 
               .freelog {
-                font-size: 18px;
+                font-size: 26px;
                 color: #fff;
 
                 &.fl-icon-bofang-sanjiaoxing {
