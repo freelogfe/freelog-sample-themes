@@ -840,15 +840,19 @@ export default {
 
     /** 播放全部/暂停  */
     async playOrPauseAll() {
-      // 首先专辑默认第一首播放，其余的全部加入播放列表
-      await useMyPlay.playOrPause(this.collectionData[0], "normal");
+      if (this.playing) {
+        this.store.setData({ key: "playing", value: false });
+      } else {
+        // 首先专辑默认第一首播放，其余的全部加入播放列表
+        await useMyPlay.playOrPause(this.collectionData[0], "normal");
 
-      setTimeout(async () => {
-        await useMyPlay.addToPlayList({
-          exhibitId: this.voiceInfo.exhibitId,
-          type: "PLAY_ALBUM_ADD_TO_PLAYLIST"
-        });
-      }, 0);
+        setTimeout(async () => {
+          await useMyPlay.addToPlayList({
+            exhibitId: this.voiceInfo.exhibitId,
+            type: "PLAY_ALBUM_ADD_TO_PLAYLIST"
+          });
+        }, 0);
+      }
     },
 
     /** 播放/暂停 */
