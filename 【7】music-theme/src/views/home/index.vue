@@ -11,8 +11,6 @@ import type { Exhibit } from "@/interface";
 
 const store = useGlobalStore();
 const listData = ref<Exhibit[]>([]);
-const collectionData = ref<Exhibit[]>([]);
-const total = ref<number>(0);
 const loading = ref<boolean>(false);
 
 watch(
@@ -27,11 +25,8 @@ watch(
 );
 
 const popularData = computed(() => {
-  const traditionalExhibit = listData.value.filter(
-    i => i.articleInfo?.articleType === 1 && i.articleInfo?.status !== 2
-  );
-  const data = [...traditionalExhibit, ...collectionData.value]
-    .filter(i => i.articleInfo?.status !== 2)
+  const data = listData.value
+    .filter(i => i.articleInfo.status !== 2)
     .sort(i => Number(i.updateDate))
     .slice(0, 12);
 
@@ -54,7 +49,7 @@ const getList = async () => {
     limit: 100
   };
   const list = await freelogApp.getExhibitListByPaging(queryParams);
-  const { dataList, totalItem } = list.data.data;
+  const { dataList } = list.data.data;
 
   if (dataList.length !== 0) {
     const ids = dataList.map(item => item.exhibitId).join();
@@ -81,12 +76,12 @@ const getList = async () => {
       // 获取合集里的单品列表
       if (item.articleInfo.articleType === 2) {
         await getCollectionList(item.exhibitId, item.exhibitName, item.coverImages);
+      } else {
+        listData.value.push(item);
       }
     }
   }
 
-  listData.value = dataList;
-  total.value = totalItem;
   loading.value = false;
 };
 
@@ -131,7 +126,7 @@ const getCollectionList = async (collectionID: string, exhibitName: string, imag
   }
 
   subTempData.push(...dataList);
-  collectionData.value = [...collectionData.value, ...dataList];
+  listData.value.push(...dataList);
 
   if (subTempData.length < subTotal) {
     subSkip = subSkip + 1_000;
