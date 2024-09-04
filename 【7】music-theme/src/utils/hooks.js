@@ -656,7 +656,7 @@ export const useMyPlay = {
     const { playList, playingInfo, playMode } = store;
     const id = data
       ? `${data.exhibitId}${data.itemId ?? ""}`
-      : `${playingInfo.exhibitId}${playingInfo.itemId ?? ""}`;
+      : `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ""}`;
     const index = playList.findIndex(item => `${item.exhibitId}${item.itemId ?? ""}` === id);
 
     if (playMode === "NORMAL") {
@@ -679,7 +679,7 @@ export const useMyPlay = {
     const { playList, playingInfo, playMode } = store;
     const id = data
       ? `${data.exhibitId}${data.itemId ?? ""}`
-      : `${playingInfo.exhibitId}${playingInfo.itemId ?? ""}`;
+      : `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ""}`;
     const index = playList.findIndex(item => `${item.exhibitId}${item.itemId ?? ""}` === id);
 
     if (playMode === "NORMAL") {
