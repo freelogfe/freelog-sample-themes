@@ -952,7 +952,7 @@ export default {
 
     /** 改变音频进度 */
     changeProgress(e) {
-      if (!this.playingInfo) {
+      if (!this.playingInfo || isNaN(e)) {
         return;
       }
       this.slidingProgress = false;
