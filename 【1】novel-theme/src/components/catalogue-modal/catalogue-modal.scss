@@ -94,6 +94,10 @@
         font-weight: 400;
         font-size: 14px;
         line-height: 20px;
+        width: 100%;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
         cursor: pointer;
       }
 
