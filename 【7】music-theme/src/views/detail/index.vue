@@ -418,7 +418,7 @@
                     />
                   </myTooltip>
                 </div>
-                <div class="singer">{{ item.articleInfo.articleProperty?.singer }}</div>
+                <div class="singer">{{ item.articleInfo.articleProperty?.display_artist }}</div>
                 <div class="time">
                   {{ secondsToHMS(item.articleInfo.articleProperty.duration) }}
                 </div>

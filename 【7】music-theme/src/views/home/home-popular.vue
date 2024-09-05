@@ -208,8 +208,8 @@ const isSelectedData = item => {
               ></i>
               {{ item.exhibitTitle }}
             </span>
-            <span class="desc" v-if="item?.articleInfo?.articleProperty?.singer">{{
-              item?.articleInfo?.articleProperty?.singer
+            <span class="desc" v-if="item?.articleInfo?.articleProperty?.display_artist">{{
+              item?.articleInfo?.articleProperty?.display_artist
             }}</span>
             <span
               class="type"
@@ -298,8 +298,8 @@ const isSelectedData = item => {
               ></i>
               {{ item.exhibitTitle }}
             </span>
-            <span class="desc" v-if="item?.articleInfo?.articleProperty?.singer">{{
-              item?.articleInfo?.articleProperty?.singer
+            <span class="desc" v-if="item?.articleInfo?.articleProperty?.display_artist">{{
+              item?.articleInfo?.articleProperty?.display_artist
             }}</span>
             <span
               class="type"
