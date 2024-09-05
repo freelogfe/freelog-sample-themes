@@ -834,7 +834,7 @@ export default {
           title: this.isCollectedSub(item) ? "取消收藏" : "收藏",
           operate: () => this.operateCollect(item)
         },
-        { icon: "fl-icon-fenxiang", title: "分享", operate: this.share }
+        { icon: "fl-icon-fenxiang", title: "分享", operate: () => this.share(item) }
       ];
     },
 
@@ -885,7 +885,7 @@ export default {
     },
 
     /** 分享 */
-    share() {
+    share(item) {
       if (this.store.inMobile) {
         const input = document.getElementById("href");
         input.select();
@@ -894,7 +894,7 @@ export default {
       } else {
         this.store.setData({
           key: "shareInfo",
-          value: { show: true, exhibit: this.voiceInfo }
+          value: { show: true, exhibit: item.itemId ? item : this.voiceInfo }
         });
       }
     },
