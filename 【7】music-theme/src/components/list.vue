@@ -584,8 +584,6 @@ export default {
     }
 
     .no-data-tip {
-      top: 272px;
-      height: calc(100vh - 272px);
       font-size: 30px;
       line-height: 36px;
     }
