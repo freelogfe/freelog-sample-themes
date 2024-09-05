@@ -28,7 +28,7 @@ watch(
 const popularData = computed(() => {
   const data = listData.value
     .filter(i => i.articleInfo.status !== 2)
-    .sort(i => Number(i.updateDate))
+    .sort((a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime())
     .slice(0, 12);
 
   return data;
