@@ -1277,9 +1277,12 @@ export default {
 
         if (comicReadMode) {
           data.mode = comicReadMode;
+        } else {
+          // 条漫时，自动选择滚动模式
+          methods.changeMode("scroll", 0);
         }
         // 条漫时，自动选择滚动模式
-        methods.changeMode("scroll", 0);
+        // methods.changeMode("scroll", 0);
         methods.getPointInScroll();
       } else if ([2, 3].includes(data.comicMode)) {
         const res = await freelogApp.getUserData("comicLastViewedMode");
@@ -1442,6 +1445,9 @@ export default {
           getContent(cur);
           data.collectionSubId = cur;
         }
+      },
+      {
+        immediate: true
       }
     );
 
