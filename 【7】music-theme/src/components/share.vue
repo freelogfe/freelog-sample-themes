@@ -102,10 +102,10 @@ export default {
     initShare() {
       let params = {};
 
-      const { exhibitId, itemId: subID, albumName } = this.shareInfo.exhibit;
+      const { exhibitId, itemId, albumName } = this.shareInfo.exhibit;
 
-      if (subID) {
-        params = { exhibitId, subID, albumName };
+      if (itemId) {
+        params = { exhibitId, itemId, albumName };
       } else {
         params = { exhibitId };
       }
