@@ -346,8 +346,9 @@
               <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.music_genre }}</span>
             </div>
           </div>
-
-          <div class="intro" v-if="voiceInfo?.exhibitIntro">{{ voiceInfo?.exhibitIntro }}</div>
+          <div class="intro" v-if="voiceInfo?.exhibitIntro || voiceInfo?.articleInfo?.intro">
+            {{ voiceInfo?.articleInfo?.intro || voiceInfo?.exhibitIntro }}
+          </div>
 
           <div class="btns-area">
             <div
