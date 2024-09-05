@@ -105,7 +105,7 @@ export default {
       const { exhibitId, itemId, albumName } = this.shareInfo.exhibit;
 
       if (itemId) {
-        params = { exhibitId, itemId, albumName };
+        params = { exhibitId, itemId, query: { albumName } };
       } else {
         params = { exhibitId };
       }

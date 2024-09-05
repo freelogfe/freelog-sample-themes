@@ -2,11 +2,11 @@
  * 例如:
  */
 export default {
-  detail: (exhibitId: string, itemId: string, albumName: string) => {
+  detail: (exhibitId: string, itemId: string, query: Record<string, string>) => {
     if (!itemId) {
       return `/detail?id=${exhibitId}`;
     }
 
-    return `/detail?id=${exhibitId}&subID=${itemId}&albumName=${albumName}`;
+    return `/detail?id=${exhibitId}&subID=${itemId}&albumName=${query.albumName}`;
   }
 };
