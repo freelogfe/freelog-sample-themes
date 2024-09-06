@@ -143,9 +143,12 @@ export const ReaderScreen = (props: any) => {
       topExhibitId,
       container: document.getElementById("share")!,
       renderWidgetOptions: {
-        data: { exhibit: book, type: "小说", routerType: "content" }
+        data: {
+          exhibit: { ...book, itemId: subId, collection },
+          type: "小说",
+          routerType: "reader"
+        }
       }
-      // widget_entry: "https://localhost:8201",
     };
     widgetList.current.share = await freelogApp.mountArticleWidget(params);
   };
