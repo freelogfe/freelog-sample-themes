@@ -14,10 +14,11 @@ let app: App<Element> | null = null;
 let router: VueRouter.Router | null = null;
 let history: VueRouter.RouterHistory | null = null;
 
-myWindow.mount = () => {
+myWindow.mount = async () => {
   initFreelogApp();
   /* 路由映射 */
-  freelogApp.mapShareUrl(mapRoutes);
+  await (freelogApp as any).mapShareUrl(mapRoutes);
+
   /* 修复ios的safari浏览器, 软键盘将页面顶到安全区域外的问题
    * 方式一: scrollIntoView
    * 方式二: v-if重渲染全部页面

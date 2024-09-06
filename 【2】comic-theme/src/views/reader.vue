@@ -1386,9 +1386,17 @@ export default {
         topExhibitId,
         container: document.getElementById("share") as HTMLElement,
         renderWidgetOptions: {
-          data: { exhibit: data.comicInfo, type: "漫画", routerType: "content" }
+          data: {
+            exhibit: {
+              ...data.comicInfo,
+              itemId: query.value.subId,
+              collection: query.value.collection
+            },
+            type: "漫画",
+            routerType: "reader"
+          }
         }
-        // widget_entry: "https://localhost:8201",
+        // widget_entry: "https://localhost:8201"
       };
       data.shareWidget = await freelogApp.mountArticleWidget(params);
     };

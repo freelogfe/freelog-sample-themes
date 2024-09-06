@@ -5,7 +5,11 @@ export default {
   detail: (exhibitId: string) => {
     return `/detail?id=${exhibitId}`;
   },
-  "detail-sub": (exhibitId: string, itemId: string) => {
-    return `/detail-sub?id=${exhibitId}&itemId=${itemId}`;
+  reader: (exhibitId: string, itemId: string, query: Record<string, string>) => {
+    if (!itemId) {
+      return `/reader?id=${exhibitId}`;
+    } else {
+      return `/reader?id=${exhibitId}&subId=${itemId}&collection=${query.collection}`;
+    }
   }
 };
