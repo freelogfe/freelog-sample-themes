@@ -10,6 +10,7 @@ const signedData = ref<any[]>([]);
 const getList = async () => {
   for (const item of store.signedList) {
     if (item.articleInfo.articleType === 2) {
+      signedData.value?.push(item);
       await getCollectionList(item.exhibitId, item.exhibitName, item.coverImages);
     } else {
       signedData.value?.push(item);
