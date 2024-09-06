@@ -84,15 +84,7 @@
 
               <div class="info-box">
                 <div class="info">
-                  <span
-                    class="title"
-                    @click="
-                      $router.myPush({
-                        path: '/detail',
-                        query: { id: item.exhibitId, subID: item.itemId, albumName: item.albumName }
-                      })
-                    "
-                  >
+                  <span class="title" @click.stop="playOrPause(item)">
                     <img
                       class="auth-link-abnormal"
                       :src="AuthLinkAbnormal"
@@ -978,14 +970,22 @@ export default {
       if (isCollection) {
         if (item.itemId) {
           // 合集单品
-          useMyPlay.playOrPause(item);
+          if (this.playing) {
+            this.store.setData({ key: "playing", value: false });
+          } else {
+            useMyPlay.playOrPause(item);
+          }
         } else {
           // 合集
           this.playOrPauseAll();
         }
       } else {
         // 普通展品
-        useMyPlay.playOrPause(this.voiceInfo);
+        if (this.playing) {
+          this.store.setData({ key: "playing", value: false });
+        } else {
+          useMyPlay.playOrPause(this.voiceInfo);
+        }
       }
     },
 
