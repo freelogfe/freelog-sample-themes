@@ -28,7 +28,7 @@
 
     <template v-if="!loading">
       <!-- 音乐 -->
-      <div v-if="$route.name === 'voice-list'">
+      <div v-if="$route.name === 'voice-list' && !store.inMobile">
         <!-- 最新发布 | 最早发布 -->
         <div class="music-drop-wrapper" ref="dropWrapper">
           <div class="selected-box" @click="handleShowDrop">

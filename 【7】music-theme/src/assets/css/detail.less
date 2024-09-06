@@ -16,7 +16,7 @@
 
         .info-area {
           position: absolute;
-          top: 254px;
+          top: 227px;
           padding: 0 15px;
 
           .title-date-wrap {
@@ -70,6 +70,15 @@
                   margin-left: 5px;
                 }
               }
+            }
+
+            .time-line {
+              font-weight: 400;
+              font-size: 12px;
+              color: #ffffff;
+              line-height: 18px;
+              margin-top: 10px;
+              opacity: 0.4;
             }
           }
 
@@ -450,14 +459,34 @@
       .single-content-intro {
         padding: 0 15px;
 
-        .detail {
+        .info-detail {
           font-weight: 400;
           font-size: 12px;
           color: rgba(255, 255, 255, 0.6);
           line-height: 18px;
+          margin-top: 20px;
+
+          .detail-item {
+            width: 300px;
+            margin-bottom: 10px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+
+            &:last-of-type {
+              margin-bottom: 0;
+            }
+
+            .name {
+            }
+            .value {
+              margin-left: 20px;
+            }
+          }
         }
 
         .intro {
+          padding-bottom: 120px;
           font-size: 14px;
           color: rgba(255, 255, 255, 0.6);
           line-height: 20px;

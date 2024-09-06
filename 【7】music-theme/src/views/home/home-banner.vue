@@ -236,6 +236,10 @@ onMounted(() => {
     }
 
     .node-name {
+      width: 300px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
       padding-top: 25px;
       height: 36px;
       font-weight: 600;

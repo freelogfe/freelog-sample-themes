@@ -42,7 +42,7 @@
           </div>
         </div>
         <div class="duration" :class="{ 'opacity-40': authLinkAbnormal }">
-          {{ data.exhibitIntro }}
+          {{ data.versionInfo.exhibitProperty.display_artist }}
         </div>
         <div class="other-area" :class="{ 'opacity-40': authLinkAbnormal }">
           <div class="info-item">

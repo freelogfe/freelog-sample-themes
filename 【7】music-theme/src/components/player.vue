@@ -44,7 +44,7 @@
               :key="item.exhibitId"
             >
               <div class="title voice-title">
-                {{ item.exhibitTitle }}
+                {{ item.itemTitle || item.exhibitTitle }}
               </div>
             </div>
           </div>
