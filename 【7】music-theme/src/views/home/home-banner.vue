@@ -12,10 +12,12 @@ const store = useGlobalStore();
 const { selfConfig, nodeInfo } = storeToRefs(store);
 
 const resizeBanner = () => {
-  const banner = document.querySelector(".node-banner");
-  const width = window.innerWidth;
-  const height = (880 / 1920) * width; // 根据 1920x660 的比例设置高度
-  banner.style.height = `${height}px`;
+  if (!store.inMobile) {
+    const banner = document.querySelector(".node-banner");
+    const width = window.innerWidth;
+    const height = (880 / 1920) * width; // 根据 1920x660 的比例设置高度
+    banner.style.height = `${height}px`;
+  }
 };
 
 // 页面加载时和窗口大小调整时调用
