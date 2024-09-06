@@ -89,7 +89,14 @@ const isInPlayList = item => {
 /** 查看音乐详情 */
 const toMusicDetail = item => {
   moreMenuShow.value = false;
-  router.myPush({ path: "/detail", query: { id: item.exhibitId } });
+  if (item.itemId) {
+    router.myPush({
+      path: "/detail",
+      query: { id: item.exhibitId, subID: item.itemId, albumName: item.albumName }
+    });
+  } else {
+    router.myPush({ path: "/detail", query: { id: item.exhibitId } });
+  }
 };
 
 /** 查看专辑详情 */
@@ -301,13 +308,7 @@ const isSelectedData = item => {
             <span class="desc" v-if="item?.articleInfo?.articleProperty?.display_artist">{{
               item?.articleInfo?.articleProperty?.display_artist
             }}</span>
-            <span
-              class="type"
-              :class="item.albumName && 'album'"
-              @click="
-                item.albumName && router.myPush({ path: '/detail', query: { id: item.exhibitId } })
-              "
-            >
+            <span class="type" :class="item.albumName && 'album'">
               {{ item.albumName || "单曲" }}
             </span>
           </div>
@@ -735,8 +736,8 @@ const isSelectedData = item => {
             text-overflow: ellipsis;
 
             &:hover {
-              color: #44d7b6;
-              opacity: 1;
+              // color: #44d7b6;
+              // opacity: 1;
 
               .info-box .btns-area {
                 opacity: 1 !important;
@@ -779,8 +780,8 @@ const isSelectedData = item => {
               cursor: pointer;
 
               &:hover {
-                color: #44d7b6;
-                opacity: 1;
+                // color: #44d7b6;
+                // opacity: 1;
               }
             }
           }

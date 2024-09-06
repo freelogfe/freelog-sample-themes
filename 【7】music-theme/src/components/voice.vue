@@ -368,7 +368,16 @@ export default {
   methods: {
     /** 查看声音详情 */
     toVoiceDetail() {
-      this.$router.myPush({ path: "/detail", query: { id: this.data.exhibitId } });
+      const { exhibitId, itemId, albumName } = this.data;
+
+      if (itemId) {
+        this.$router.myPush({
+          path: "/detail",
+          query: { id: exhibitId, subID: itemId, albumName }
+        });
+      } else {
+        this.$router.myPush({ path: "/detail", query: { id: exhibitId } });
+      }
     },
 
     /** 查看专辑详情 */
