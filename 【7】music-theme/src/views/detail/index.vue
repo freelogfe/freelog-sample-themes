@@ -105,7 +105,7 @@
                     ></i>
                     {{ item.exhibitTitle }}
                   </span>
-                  <span class="desc">{{ item.exhibitIntro }}</span>
+                  <span class="desc">{{ item.articleInfo.articleProperty?.display_artist }}</span>
                 </div>
                 <div class="btns-area" :class="{ opacity: authLinkAbnormal }">
                   <span class="time">{{
