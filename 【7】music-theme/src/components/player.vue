@@ -46,6 +46,10 @@
               <div class="title voice-title">
                 {{ playingInfo.itemTitle || playingInfo.exhibitTitle }}
               </div>
+
+              <div class="singer" v-if="playingInfo.articleInfo?.articleProperty?.display_artist">
+                {{ playingInfo.articleInfo?.articleProperty?.display_artist }}
+              </div>
             </div>
           </div>
           <div class="no-data-title" v-else>暂无播放的声音</div>
@@ -178,7 +182,7 @@
             {{ playingInfo.exhibitTitle }}
           </div>
           <div class="desc">
-            {{ playingInfo.exhibitIntro }}
+            {{ playingInfo.articleInfo?.articleProperty?.display_artist }}
           </div>
           <div
             class="type"
