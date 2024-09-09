@@ -122,7 +122,7 @@
                     @click.stop="getAuth(item)"
                     v-if="item.defaulterIdentityType >= 4"
                   ></i>
-                  <div class="voice-title">{{ item.exhibitTitle }}</div>
+                  <div class="voice-title">{{ item.itemTitle || item.exhibitTitle }}</div>
                 </div>
 
                 <div class="duration-area">
