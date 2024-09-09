@@ -971,22 +971,22 @@ export default {
       if (isCollection) {
         if (item.itemId) {
           // 合集单品
-          if (this.playing) {
-            this.store.setData({ key: "playing", value: false });
-          } else {
-            useMyPlay.playOrPause(item);
-          }
+          // if (this.playing) {
+          //   this.store.setData({ key: "playing", value: false });
+          // } else {
+          useMyPlay.playOrPause(item);
+          // }
         } else {
           // 合集
           this.playOrPauseAll();
         }
       } else {
         // 普通展品
-        if (this.playing) {
-          this.store.setData({ key: "playing", value: false });
-        } else {
-          useMyPlay.playOrPause(this.voiceInfo);
-        }
+        // if (this.playing) {
+        //   this.store.setData({ key: "playing", value: false });
+        // } else {
+        useMyPlay.playOrPause(this.voiceInfo);
+        // }
       }
     },
 
@@ -1021,10 +1021,14 @@ export default {
       this.voiceInfo = null;
       // 合集中的一个单品
       if (this.subID) {
-        const [exhibitInfo, subInfo, subStatusInfo] = await Promise.all([
+        const [exhibitInfo, subInfo, subStatusInfo, url] = await Promise.all([
           freelogApp.getExhibitInfo(this.id, { isLoadVersionProperty: 1 }),
           freelogApp.getCollectionSubInfo(this.id, { itemId: this.subID }),
-          freelogApp.getCollectionSubAuth(this.id, { itemIds: this.subID })
+          freelogApp.getCollectionSubAuth(this.id, { itemIds: this.subID }),
+          freelogApp.getCollectionSubFileStream(this.id, {
+            itemId: this.subID,
+            returnUrl: true
+          })
         ]);
         this.voiceInfo = {
           ...subInfo.data.data,
@@ -1032,19 +1036,22 @@ export default {
           versionInfo: { exhibitProperty: subInfo.data.data.articleInfo?.articleProperty },
           defaulterIdentityType: subStatusInfo.data.data[0].defaulterIdentityType,
           exhibitTitle: subInfo.data.data.itemTitle,
-          updateDate: subInfo.data.data.articleInfo?.latestVersionReleaseDate
+          updateDate: subInfo.data.data.articleInfo?.latestVersionReleaseDate,
+          url
         };
       } else {
         // 普通展品
-        const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
+        const [exhibitInfo, signCountData, statusInfo, url] = await Promise.all([
           freelogApp.getExhibitInfo(this.id, { isLoadVersionProperty: 1 }),
           freelogApp.getExhibitSignCount(this.id),
-          freelogApp.getExhibitAuthStatus(this.id)
+          freelogApp.getExhibitAuthStatus(this.id),
+          freelogApp.getExhibitFileStream(this.id, { returnUrl: true })
         ]);
         this.voiceInfo = {
           ...exhibitInfo.data.data,
           signCount: signCountData.data.data[0].count,
-          defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType
+          defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
+          url
         };
 
         // 合集
