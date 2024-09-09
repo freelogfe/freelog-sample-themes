@@ -676,14 +676,15 @@ export default {
 
     "store.collectionIdList": {
       handler() {
-        this.isCollected = useMyCollection.ifExist({ exhibitId: this.id, itemId: this.itemId });
+        this.isCollected = useMyCollection.ifExist({ exhibitId: this.id, itemId: this.subID });
       },
-      immediate: true
+      immediate: true,
+      deep: true
     },
 
     "store.playIdList": {
       handler() {
-        this.isInPlayList = useMyPlay.ifExist({ exhibitId: this.id, itemId: this.itemId });
+        this.isInPlayList = useMyPlay.ifExist({ exhibitId: this.id, itemId: this.subID });
       },
       immediate: true,
       deep: true
