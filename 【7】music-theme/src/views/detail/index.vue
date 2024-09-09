@@ -1010,7 +1010,10 @@ export default {
       } else {
         this.store.setData({
           key: "shareInfo",
-          value: { show: true, exhibit: item.itemId ? item : this.voiceInfo }
+          value: {
+            show: true,
+            exhibit: item.itemId ? item : { ...this.voiceInfo, albumName: this.albumName }
+          }
         });
       }
     },
