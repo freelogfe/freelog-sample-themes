@@ -58,7 +58,7 @@ onMounted(() => {
     <div
       class="node-info"
       :style="{
-        height: store.nodeInfo.nodeLogo ? ` calc(100% - 148px)` : `calc(100% - 98px)`
+        height: store.nodeInfo.nodeLogo ? ` calc(100% - 80px)` : `calc(100% - 98px)`
       }"
     >
       <div class="avatar" v-if="selfConfig.options_node_logo">
@@ -164,7 +164,7 @@ onMounted(() => {
 
     .node-name {
       width: 1280px;
-      padding-top: 25px;
+      padding-top: 20px;
       height: 60px;
       font-weight: 600;
       font-size: 40px;
@@ -177,10 +177,9 @@ onMounted(() => {
     }
 
     .node-desc-box {
-      padding: 25px 0;
+      padding: 20px 0;
       .node-desc {
         white-space: pre-wrap;
-        margin-bottom: 15px;
         opacity: 0.6;
       }
     }
