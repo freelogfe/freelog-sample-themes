@@ -122,8 +122,8 @@
       class="pc-header-wrapper"
       v-if="store.inMobile === false"
       :style="{
-        paddingTop: store.nodeInfo.nodeLogo ? '50px' : '',
-        height: store.nodeInfo.nodeLogo ? '148px' : '98px'
+        paddingTop: store.nodeInfo.nodeLogo ? '40px' : '',
+        height: store.nodeInfo.nodeLogo ? '138px' : '98px'
       }"
     >
       <div class="node-logo" v-if="store.nodeInfo.nodeLogo">

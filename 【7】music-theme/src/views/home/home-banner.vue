@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useGlobalStore } from "@/store/global";
 
@@ -8,14 +8,27 @@ import PcDefaultBanner from "@/assets/images/pc-default-banner.webp";
 import MobileDefaultBanner from "@/assets/images/mobile-default-banner.webp";
 
 const store = useGlobalStore();
-
 const { selfConfig, nodeInfo } = storeToRefs(store);
+const currentBanner = ref("");
+
+watch(
+  () => selfConfig.value.options_node_banner,
+  newBanner => {
+    console.log("newBanner", newBanner);
+    if (newBanner) {
+      currentBanner.value = newBanner;
+    } else {
+      currentBanner.value = PcDefaultBanner;
+    }
+  },
+  { immediate: true, deep: true }
+);
 
 const resizeBanner = () => {
   if (!store.inMobile) {
-    const banner = document.querySelector(".node-banner");
+    const banner = document.querySelector(".node-banner") as HTMLElement;
     const width = window.innerWidth;
-    const height = (880 / 1920) * width; // 根据 1920x660 的比例设置高度
+    const height = (760 / 1920) * width; // 根据 1920x660 的比例设置高度
     banner.style.height = `${height}px`;
   }
 };
@@ -37,8 +50,8 @@ onMounted(() => {
     :style="{ marginTop: store.nodeInfo.nodeLogo ? '-158px' : '-98px' }"
   >
     <!-- 节点封面 -->
-    <div class="node-banner">
-      <img :src="selfConfig.options_node_banner || PcDefaultBanner" alt="节点封面" />
+    <div class="node-banner" :class="selfConfig.options_node_banner && 'background-shadow'">
+      <img :src="currentBanner" alt="节点封面" />
     </div>
 
     <!-- 节点信息 -->
@@ -48,20 +61,14 @@ onMounted(() => {
         height: store.nodeInfo.nodeLogo ? ` calc(100% - 148px)` : `calc(100% - 98px)`
       }"
     >
-      <div class="avatar">
-        <img :src="selfConfig.options_node_logo || nodeInfo.nodeLogo" alt="avatar" />
+      <div class="avatar" v-if="selfConfig.options_node_logo">
+        <img :src="selfConfig.options_node_logo" alt="avatar" />
       </div>
       <div class="node-name">{{ nodeInfo.nodeTitle || "" }}</div>
       <div class="node-desc-box">
         <div class="node-desc">
-          {{
-            selfConfig.options_node_intro1?.slice(0, 70) ||
-            nodeInfo.nodeShortDescription?.slice(0, 70) ||
-            ""
-          }}
+          {{ nodeInfo.nodeShortDescription?.slice(0, 70) || "" }}
         </div>
-        <div class="node-desc">{{ selfConfig.options_node_intro2?.slice(0, 70) || "" }}</div>
-        <div class="node-desc">{{ selfConfig.options_node_intro3?.slice(0, 70) || "" }}</div>
       </div>
       <!-- <div class="node-visit">
         <div class="visit-icon">
@@ -81,22 +88,16 @@ onMounted(() => {
 
     <!-- 节点信息 -->
     <div class="node-info">
-      <div class="avatar">
-        <img :src="selfConfig.options_node_logo || nodeInfo.nodeLogo" alt="avatar" />
+      <div class="avatar" v-if="selfConfig.options_node_logo">
+        <img :src="selfConfig.options_node_logo" alt="avatar" />
       </div>
       <div class="node-name">
-        {{ selfConfig.options_node_name || nodeInfo.nodeTitle || "" }}
+        {{ nodeInfo.nodeTitle || "" }}
       </div>
       <div class="node-desc-box">
         <div class="node-desc">
-          {{
-            selfConfig.options_node_intro1?.slice(0, 70) ||
-            nodeInfo.nodeShortDescription?.slice(0, 70) ||
-            ""
-          }}
+          {{ nodeInfo.nodeShortDescription?.slice(0, 70) || "" }}
         </div>
-        <div class="node-desc">{{ selfConfig.options_node_intro2?.slice(0, 70) || "" }}</div>
-        <div class="node-desc">{{ selfConfig.options_node_intro3?.slice(0, 70) || "" }}</div>
       </div>
       <!-- <div class="node-visit">
         <div class="visit-icon">
@@ -119,19 +120,22 @@ onMounted(() => {
     width: 100%;
     height: auto;
 
-    &::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
-    }
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+
+    &.background-shadow {
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
+      }
     }
   }
 
@@ -281,6 +285,14 @@ onMounted(() => {
         opacity: 0.6;
       }
     }
+  }
+}
+
+// 响应式布局
+@media screen and (max-width: 1500px) {
+  .pc-home-banner-wrap .node-info .avatar {
+    width: 130px;
+    height: 130px;
   }
 }
 </style>
