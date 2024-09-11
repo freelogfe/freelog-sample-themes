@@ -179,6 +179,7 @@ onMounted(() => {
     .node-desc-box {
       padding: 25px 0;
       .node-desc {
+        white-space: pre-wrap;
         margin-bottom: 15px;
         opacity: 0.6;
       }
