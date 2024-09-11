@@ -231,7 +231,7 @@
           class="pc-player-wrapper"
           @mouseover="clearCloseTimer()"
           @mouseout="animation()"
-          v-if="show"
+          v-if="store.playerShowStatus || show"
         >
           <div class="player-wrapper">
             <div class="left-area">
@@ -337,7 +337,7 @@
         <div class="pc-show-btn" key="showBtn" @click="show = true" v-if="!show">
           <div class="btn-area">
             <i class="freelog fl-icon-shouqi1" />
-            <div class="btn-label">打开播放器</div>
+            <div class="btn-label">展开播放器</div>
           </div>
         </div>
       </transition>
@@ -717,6 +717,8 @@ export default {
 
     /** 关闭播放器 */
     closePlayer() {
+      const store = useGlobalStore();
+      store.setData({ key: "playerShowStatus", value: false });
       this.show = false;
       this.volumePopupShow = false;
       this.playListPopupShow = false;
@@ -1019,7 +1021,7 @@ export default {
       // if (!this.show) this.show = true;
       if (this.closeTimer) this.clearCloseTimer();
       this.closeTimer = setTimeout(() => {
-        if (!this.playListPopupShow && !this.volumePopupShow) this.show = false;
+        // if (!this.playListPopupShow && !this.volumePopupShow) this.show = false;
         this.closeTimer = null;
       }, 3000);
     },

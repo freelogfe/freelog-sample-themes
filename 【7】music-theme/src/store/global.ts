@@ -38,6 +38,7 @@ export interface State {
   searchKey: string;
   nodeInfo: Record<string, any>;
   playMode: string | null;
+  playerShowStatus: false;
 }
 
 export const useGlobalStore = defineStore("global", {
@@ -62,7 +63,8 @@ export const useGlobalStore = defineStore("global", {
       authIdList: [], // 已授权 id 集合（用于刷新首页列表、声音列表、搜索结果列表、详情页授权状态）
       searchKey: "", // 搜索关键词
       nodeInfo: {},
-      playMode: null // 播放模式，顺序播放、随机播放
+      playMode: null, // 播放模式，顺序播放、随机播放,
+      playerShowStatus: false // 播放器收起展开状态 false：收起；true:展开
     };
   },
   getters: {},

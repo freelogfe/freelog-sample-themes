@@ -632,6 +632,7 @@ export const useMyPlay = {
     await useMyPlay.addToPlayList({ exhibitId, itemId, type: "PLAY_ADD_TO_PLAYLIST" });
     store.setData({ key: "playingInfo", value: exhibit });
     store.setData({ key: "playing", value: true });
+    store.setData({ key: "playerShowStatus", value: true });
     freelogApp.setUserData("playingId", { exhibitId, itemId });
     callback && callback();
   },
