@@ -11,7 +11,7 @@ import { fileURLToPath, pathToFileURL } from "url";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "./",
+  // base: "./",
   plugins: [
     vue(),
     mkcert(),
@@ -20,42 +20,42 @@ export default defineConfig({
     }),
     Components({
       resolvers: [ElementPlusResolver()]
-    }),
+    })
     // 自定义插件
-    (function () {
-      let basePath = "";
-      return {
-        name: "vite:micro-app",
-        apply: "build",
-        configResolved(config) {
-          // 构建完成后，配置 basePath 为打包的基础路径
-          basePath = `${config.base}${config.build.assetsDir}/`;
-        },
-        writeBundle(options, bundle) {
-          // 遍历每个构建后的文件
-          for (const chunkName in bundle) {
-            if (Object.prototype.hasOwnProperty.call(bundle, chunkName)) {
-              const chunk = bundle[chunkName];
-              if (chunk.fileName && chunk.fileName.endsWith(".js")) {
-                // 重写相对路径为基于 basePath 的绝对路径
-                chunk.code = chunk.code.replace(
-                  /(from|import\()(\s*['"])(\.\.?\/)/g,
-                  (all, $1, $2, $3) => {
-                    // Use pathToFileURL for local file paths
-                    const absolutePath = pathToFileURL(join(basePath, $3)).href;
-                    return `${$1}${$2}${absolutePath}`;
-                  }
-                );
+    // (function () {
+    //   let basePath = "";
+    //   return {
+    //     name: "vite:micro-app",
+    //     apply: "build",
+    //     configResolved(config) {
+    //       // 构建完成后，配置 basePath 为打包的基础路径
+    //       basePath = `${config.base}${config.build.assetsDir}/`;
+    //     },
+    //     writeBundle(options, bundle) {
+    //       // 遍历每个构建后的文件
+    //       for (const chunkName in bundle) {
+    //         if (Object.prototype.hasOwnProperty.call(bundle, chunkName)) {
+    //           const chunk = bundle[chunkName];
+    //           if (chunk.fileName && chunk.fileName.endsWith(".js")) {
+    //             // 重写相对路径为基于 basePath 的绝对路径
+    //             chunk.code = chunk.code.replace(
+    //               /(from|import\()(\s*['"])(\.\.?\/)/g,
+    //               (all, $1, $2, $3) => {
+    //                 // Use pathToFileURL for local file paths
+    //                 const absolutePath = pathToFileURL(join(basePath, $3)).href;
+    //                 return `${$1}${$2}${absolutePath}`;
+    //               }
+    //             );
 
-                // 写回文件系统
-                const fullPath = join(options.dir, chunk.fileName);
-                writeFileSync(fullPath, chunk.code);
-              }
-            }
-          }
-        }
-      };
-    })()
+    //             // 写回文件系统
+    //             const fullPath = join(options.dir, chunk.fileName);
+    //             writeFileSync(fullPath, chunk.code);
+    //           }
+    //         }
+    //       }
+    //     }
+    //   };
+    // })()
   ],
   server: {
     port: 8107,
