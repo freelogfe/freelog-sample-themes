@@ -53,8 +53,7 @@ export default {
         const isMediaResource =
           dep.resourceType.includes("图片") || dep.resourceType.includes("视频") || dep.resourceType.includes("音频");
         const depContent = freelogApp.getExhibitDepFileStream(props.data.exhibitId, {
-          parentNid: dep.parentNid,
-          subArticleId: dep.articleId,
+          nid: dep.nid,
           returnUrl: isMediaResource,
         });
         promiseArr.push(depContent);
