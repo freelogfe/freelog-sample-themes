@@ -3,12 +3,15 @@ import "./index.scss";
 import reportWebVitals from "./reportWebVitals";
 import "./public-path";
 import RouterView from "./router";
-import { initFreelogApp } from "freelog-runtime";
+import mapRoutes from "./utils/map-routes";
+import { freelogApp, initFreelogApp } from "freelog-runtime";
 
 reportWebVitals();
 
-window.mount = () => {
+window.mount = async () => {
   initFreelogApp();
+  /* 路由映射 */
+  await freelogApp.mapShareUrl(mapRoutes);
   ReactDOM.render(<RouterView />, document.getElementById("root"));
 };
 

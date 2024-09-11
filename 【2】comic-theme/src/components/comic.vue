@@ -64,6 +64,16 @@
             v-if="mode !== 3 && data.defaulterIdentityType >= 4"
           />
           <div
+            class="comic-status"
+            :class="
+              data.articleInfo?.articleType === 1
+                ? 'single-episode'
+                : data.serializeStatus === 0
+                ? 'on-going'
+                : 'completed'
+            "
+          />
+          <div
             class="comic-name"
             :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
           >
@@ -114,7 +124,7 @@
       <div
         class="main-btn btn"
         :class="{ disabled: ![0, 4].includes(data.defaulterIdentityType) }"
-        @click.stop="toPath('/reader')"
+        @click.stop="toPath('/detail')"
         v-if="[2, 3].includes(mode)"
       >
         立即阅读
@@ -322,6 +332,29 @@ export default {
           width: 16px;
           height: 16px;
           margin-right: 10px;
+        }
+
+        .comic-status {
+          width: 40px;
+          height: 18px;
+          margin-right: 5px;
+          background-repeat: no-repeat;
+          // background-size: 100% 100%;
+          background-size: contain;
+
+          &.on-going {
+            background-image: url("../assets/images/status/on-going.png");
+          }
+
+          &.completed {
+            background-image: url("../assets/images/status/completed.png");
+          }
+
+          &.single-episode {
+            width: 30px;
+            height: 18px;
+            background-image: url("../assets/images/status/single-episode.png");
+          }
         }
 
         .comic-name {

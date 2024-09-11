@@ -1,9 +1,22 @@
 import { ExhibitInfo } from "freelog-runtime";
 
+// 合集单品列表
+
+export interface CollectionList {
+  itemId: string;
+  itemTitle: string;
+  sortId: number;
+  createDate: string;
+  createData: string;
+  articleInfo: ExhibitInfo;
+  defaulterIdentityType: number;
+}
+
 /** 展品 */
 export interface ExhibitItem extends ExhibitInfo {
   signCount?: number;
   defaulterIdentityType?: number;
+  collectionList?: CollectionList[];
 }
 
 /** 主题 */

@@ -61,8 +61,12 @@
         <div class="operate-btns">
           <div
             class="btn main-btn mobile"
-            :class="{ disabled: ![0, 4].includes(comicInfo.defaulterIdentityType ?? -1) }"
-            @click="switchPage('/reader', { id: comicInfo?.exhibitId })"
+            :class="{
+              disabled:
+                ![0, 4].includes(comicInfo.defaulterIdentityType ?? -1) ||
+                (comicInfo.articleInfo.articleType === 2 && !listData.length)
+            }"
+            @click="handleToReader"
           >
             立即阅读
           </div>
@@ -97,6 +101,49 @@
         </div>
         <div class="no-intro-tip" v-else>暂无简介</div>
       </div>
+
+      <div class="divider" v-if="comicInfo?.articleInfo?.articleType === 2"></div>
+
+      <!-- 目录 -->
+      <template v-if="comicInfo?.articleInfo?.articleType === 2">
+        <div class="comic-catalogue" v-if="listData.length">
+          <div class="title-container">
+            <span class="title">目录</span>
+          </div>
+
+          <div class="sub-directory-container">
+            <div
+              class="sub"
+              v-for="item in listData"
+              :key="item.itemId"
+              @click="
+                switchPage('/reader', {
+                  id: comicInfo?.exhibitId,
+                  collection: true,
+                  subId: item.itemId
+                })
+              "
+            >
+              <span class="sub-title">{{ item.itemTitle }}</span>
+              <img
+                v-if="[0, 4].includes(item.defaulterIdentityType)"
+                src="../assets/images/right-arrow.png"
+                alt=""
+              />
+              <img v-else class="sub-lock" src="../assets/images/mini-lock.png" alt="未授权" />
+            </div>
+          </div>
+
+          <div className="tip no-more">— 已加载全部章节 —</div>
+        </div>
+
+        <div v-else class="comic-catalogue">
+          <div class="title-container">
+            <span class="title">目录</span>
+          </div>
+          <div class="no-update">未更新章节，暂时无法阅读</div>
+        </div>
+      </template>
 
       <login-btn />
     </div>
@@ -144,8 +191,12 @@
               <div class="operate-btns">
                 <div
                   class="btn main-btn"
-                  :class="{ disabled: ![0, 4].includes(comicInfo.defaulterIdentityType ?? -1) }"
-                  @click="switchPage('/reader', { id: comicInfo?.exhibitId })"
+                  :class="{
+                    disabled:
+                      ![0, 4].includes(comicInfo.defaulterIdentityType ?? -1) ||
+                      (comicInfo.articleInfo.articleType === 2 && !listData.length)
+                  }"
+                  @click="handleToReader"
                 >
                   立即阅读
                 </div>
@@ -178,9 +229,11 @@
         </div>
 
         <!-- 漫画简介 -->
-        <div class="comic-intro">
+        <div
+          class="comic-intro"
+          :class="comicInfo?.articleInfo?.articleType === 2 && 'need-border'"
+        >
           <div class="intro-title">内容简介</div>
-
           <div
             class="intro"
             :class="introState === 1 ? 'fold' : 'unfold'"
@@ -196,6 +249,48 @@
           </div>
           <div class="no-intro-tip" v-else>暂无简介</div>
         </div>
+
+        <!-- 目录 -->
+        <template v-if="comicInfo?.articleInfo?.articleType === 2">
+          <div class="comic-catalogue" v-if="listData.length">
+            <div class="title-container">
+              <span class="title">目录</span>
+              <span class="count">({{ listData.length }}话)</span>
+            </div>
+
+            <div class="sub-directory-container">
+              <div
+                class="sub"
+                v-for="item in listData"
+                :key="item.itemId"
+                @click="
+                  switchPage('/reader', {
+                    id: comicInfo?.exhibitId,
+                    collection: true,
+                    subId: item.itemId
+                  })
+                "
+              >
+                <span class="sub-title">{{ item.itemTitle }}</span>
+                <img
+                  v-if="![0, 4].includes(item.defaulterIdentityType)"
+                  class="sub-lock"
+                  src="../assets/images/mini-lock.png"
+                  alt="未授权"
+                />
+              </div>
+            </div>
+
+            <div className="tip no-more">— 已加载全部章节 —</div>
+          </div>
+
+          <div v-else class="comic-catalogue">
+            <div class="title-container">
+              <span class="title">目录</span>
+            </div>
+            <div class="no-update">未更新章节，暂时无法阅读</div>
+          </div>
+        </template>
       </div>
     </div>
 
@@ -210,9 +305,9 @@ import { onBeforeUnmount } from "vue";
 import { useStore } from "vuex";
 import { defineAsyncComponent, reactive, ref, toRefs, watch } from "@vue/runtime-core";
 import { WidgetController, freelogApp } from "freelog-runtime";
-import { useMyRouter, useMyShelf } from "@/utils/hooks";
+import { useMyRouter, useMyShelf, useMyScroll } from "@/utils/hooks";
 import { formatDate, showToast } from "@/utils/common";
-import { ExhibitItem } from "@/api/interface";
+import { ExhibitItem, CollectionList } from "@/api/interface";
 import { State } from "@/store/index";
 
 export default {
@@ -229,6 +324,7 @@ export default {
   setup() {
     const store = useStore<State>();
     const { query, switchPage, routerBack } = useMyRouter();
+    const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
     const { id } = query.value;
     const { isCollected, operateShelf } = useMyShelf(id);
     const introContent = ref<any>();
@@ -239,6 +335,12 @@ export default {
       introState: 0,
       href: "",
       shareWidget: null as WidgetController | null
+    });
+
+    const collectionData = reactive({
+      listData: [] as CollectionList[],
+      total: 0,
+      skip: 0
     });
 
     const methods = {
@@ -254,6 +356,29 @@ export default {
       /** 控制分享弹窗显示 */
       setShareWidgetShow(value: boolean) {
         data.shareWidget?.setData({ show: value });
+      },
+
+      /** 立即阅读 */
+      async handleToReader() {
+        if (collectionData.listData.length) {
+          try {
+            const res = await freelogApp.getUserData("comicLastViewedHistory");
+            const lastViewed = res?.data?.data || [];
+            const index = lastViewed.findIndex(
+              (i: { id: string }) => i.id === data.comicInfo?.exhibitId
+            );
+            const subId = lastViewed[index]?.subId;
+            switchPage("/reader", {
+              id: data.comicInfo?.exhibitId,
+              collection: true,
+              subId: subId || collectionData.listData[0].itemId
+            });
+          } catch (error) {
+            console.error("Error fetching user data", error);
+          }
+        } else {
+          switchPage("/reader", { id: data.comicInfo?.exhibitId });
+        }
       }
     };
 
@@ -264,6 +389,12 @@ export default {
         freelogApp.getExhibitSignCount(id),
         freelogApp.getExhibitAuthStatus(id)
       ]);
+
+      const articleType = exhibitInfo.data.data.articleInfo.articleType;
+      if (articleType === 2) {
+        getCollectionList(true);
+      }
+
       const { count } = signCountData.data.data[0];
       const { defaulterIdentityType = -1 } = statusInfo.data.data[0];
       data.comicInfo = {
@@ -304,12 +435,50 @@ export default {
       data.shareWidget = await freelogApp.mountArticleWidget(params);
     };
 
+    const getCollectionList = async (init = false) => {
+      const { total, listData, skip } = collectionData;
+
+      if (!init && total >= listData.length) return;
+      collectionData.skip = init ? 0 : collectionData.skip + 30;
+
+      const subList = await (freelogApp as any).getCollectionSubList(id, {
+        skip,
+        limit: 30
+      });
+      const { dataList, totalItem } = subList.data.data;
+      collectionData.total = totalItem;
+
+      if (dataList.length !== 0) {
+        const ids = dataList.map((item: any) => item.itemId).join();
+        const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
+        if (statusInfo.data.data) {
+          (dataList as CollectionList[]).forEach(item => {
+            const index = statusInfo.data.data.findIndex(
+              (resultItem: { itemId: string }) => resultItem.itemId === item.itemId
+            );
+            if (index !== -1) {
+              item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+            }
+          });
+        }
+      }
+      collectionData.listData = init ? dataList : [...listData, ...dataList];
+    };
+
     watch(
       () => introContent.value,
       () => {
         const introHeight = introContent.value.clientHeight;
         const foldHeight = store.state.inMobile ? 120 : 60;
         if (introHeight > foldHeight) data.introState = 1;
+      }
+    );
+
+    watch(
+      () => scrollTop.value,
+      cur => {
+        if (cur + clientHeight.value !== scrollHeight.value) return;
+        getCollectionList();
       }
     );
 
@@ -328,6 +497,7 @@ export default {
       operateShelf,
       introContent,
       ...toRefs(data),
+      ...toRefs(collectionData),
       ...methods
     };
   }

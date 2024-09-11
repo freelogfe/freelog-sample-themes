@@ -1,55 +1,118 @@
-import React, { useContext, useRef } from "react";
-import "./detail.scss";
-import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
-import { useState, useEffect, useCallback } from "react";
+import React, { useContext, useRef, useState, useEffect, useCallback } from "react";
+import { freelogApp } from "freelog-runtime";
+import { globalContext } from "../../router";
 import { Header } from "../../components/header/header";
-import { ExhibitItem } from "../../api/interface";
-import { formatDate, getUrlParams } from "../../utils/common";
 import { Tags } from "../../components/tags/tags";
-import { useMyHistory, useMyShelf } from "../../utils/hooks";
 import { Footer } from "../../components/footer/footer";
 import { ThemeEntrance } from "../../components/theme-entrance/theme-entrance";
 import { LoginBtn } from "../../components/login-btn/login-btn";
-import { globalContext } from "../../router";
 import { showToast } from "../../components/toast/toast";
-import { freelogApp } from "freelog-runtime";
+
+import { CollectionList, ExhibitItem } from "../../api/interface";
+import { formatDate, getUrlParams } from "../../utils/common";
+import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
+import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
+import Lock from "../../assets/images/mini-lock.png";
+import RightArrow from "../../assets/images/right-arrow.png";
+
+import "./detail.scss";
 
 const detailContext = React.createContext<any>({});
 
 /** 详情页 */
 export const DetailScreen = (props: any) => {
+  const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
   const { id } = getUrlParams(props.location.search);
   const [novel, setNovel] = useState<ExhibitItem | null>(null);
+  const [total, setTotal] = useState<number>(0);
+  const skip = useRef(0);
+
+  // 获取合集下的单品列表
+  const getCollectionList = useCallback(
+    async (init = false) => {
+      try {
+        if (!init && (novel?.collectionList?.length ?? 0) >= total) {
+          return;
+        }
+
+        skip.current = init ? 0 : skip.current + 30;
+
+        const subList = await (freelogApp as any).getCollectionSubList(id, {
+          skip: skip.current,
+          limit: 30
+        });
+        const { dataList, totalItem } = subList.data.data;
+        setTotal(totalItem);
+
+        if (dataList.length !== 0) {
+          const ids = dataList.map((item: any) => item.itemId).join();
+          const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
+          if (statusInfo.data.data) {
+            (dataList as ExhibitItem[]).forEach((item: any) => {
+              const index = statusInfo.data.data.findIndex(
+                (resultItem: { itemId: string }) => resultItem.itemId === item.itemId
+              );
+              if (index !== -1) {
+                item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+              }
+            });
+          }
+
+          setNovel((pre: any) => ({
+            ...pre,
+            collectionList: pre?.collectionList ? [...pre?.collectionList, ...dataList] : dataList
+          }));
+        }
+      } catch (error) {
+        console.error("Failed to get collection list", error);
+      }
+    },
+    [id]
+  );
 
   /** 获取小说信息 */
   const getNovelInfo = useCallback(async () => {
-    const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
-      freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
-      freelogApp.getExhibitSignCount(id),
-      freelogApp.getExhibitAuthStatus(id)
-    ]);
-    const bookInfo = {
-      ...exhibitInfo.data.data,
-      signCount: signCountData.data.data[0].count,
-      defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType
-    };
+    try {
+      const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
+        freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+        freelogApp.getExhibitSignCount(id),
+        freelogApp.getExhibitAuthStatus(id)
+      ]);
 
-    setNovel(bookInfo);
+      const articleType = exhibitInfo.data.data.articleInfo.articleType;
+      if (articleType === 2) {
+        getCollectionList(true);
+      }
+
+      const bookInfo = {
+        ...exhibitInfo.data.data,
+        signCount: signCountData.data.data[0]?.count ?? 0,
+        defaulterIdentityType: statusInfo.data.data[0]?.defaulterIdentityType ?? null
+      };
+
+      setNovel(bookInfo);
+    } catch (error) {
+      console.error("Failed to get novel info", error);
+    }
   }, [id]);
 
   useEffect(() => {
-    document.documentElement.scroll({ top: 0 });
-    document.body.scroll({ top: 0 });
-
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
     getNovelInfo();
-    // eslint-disable-next-line
   }, []);
+
+  useEffect(() => {
+    if (novel?.collectionList?.length && scrollTop + clientHeight === scrollHeight) {
+      getCollectionList(false);
+    }
+  }, [scrollTop, clientHeight, scrollHeight]);
 
   return (
     <detailContext.Provider value={{ novel }}>
       <div className="detail-wrapper">
         <Header />
-        <DetailBody />
+        <DetailBody total={total} />
         <Footer />
         <LoginBtn />
         <ThemeEntrance />
@@ -59,9 +122,11 @@ export const DetailScreen = (props: any) => {
 };
 
 /** 详情页主体内容 */
-const DetailBody = () => {
-  const { inMobile } = useContext(globalContext);
+const DetailBody = (props: { total: number }) => {
+  const { total } = props;
+  const { inMobile, userData } = useContext(globalContext);
   const { novel } = useContext(detailContext);
+  const collectionList = novel?.collectionList;
   const { isCollected, operateShelf } = useMyShelf(novel?.exhibitId);
   const history = useMyHistory();
   const introContent = useRef<any>();
@@ -118,7 +183,7 @@ const DetailBody = () => {
     return () => {
       if (inMobile) return;
       (async function unmountWidget() {
-        await shareWidget.current.unmount();
+        await shareWidget.current?.unmount();
       })();
     };
     // eslint-disable-next-line
@@ -189,7 +254,24 @@ const DetailBody = () => {
               <div
                 className={`btn main-btn mobile
                 ${![0, 4].includes(novel.defaulterIdentityType) && "disabled"}`}
-                onClick={() => history.switchPage(`/reader?id=${novel.exhibitId}`)}
+                onClick={async () => {
+                  if (collectionList?.length) {
+                    const res = await freelogApp.getUserData("novelLastViewedHistory");
+                    const lastViewed = res?.data?.data || [];
+                    const index = lastViewed.findIndex(
+                      (i: { id: string }) => i.id === novel.exhibitId
+                    );
+                    const subId = lastViewed[index]?.subId;
+
+                    history.switchPage(
+                      `/reader?collection=${true}&id=${novel.exhibitId}&subId=${
+                        subId || collectionList[0].itemId
+                      }`
+                    );
+                  } else {
+                    history.switchPage(`/reader?id=${novel.exhibitId}`);
+                  }
+                }}
               >
                 立即阅读
               </div>
@@ -221,6 +303,47 @@ const DetailBody = () => {
               <div className="no-intro-tip">暂无简介</div>
             )}
           </div>
+
+          {/* 目录 */}
+          {collectionList && !!collectionList.length && (
+            <div className="novel-catalogue">
+              <div className="title-container">
+                <span className="title">目录</span>
+                <span className="count">({collectionList.length}章)</span>
+              </div>
+
+              <div className="sub-directory-container">
+                {collectionList.map((collectionItem: CollectionList) => {
+                  return (
+                    <div
+                      className="sub"
+                      key={collectionItem.itemId}
+                      onClick={() =>
+                        history.switchPage(
+                          `/reader?collection=${true}&id=${novel.exhibitId}&subId=${
+                            collectionItem.itemId
+                          }`
+                        )
+                      }
+                    >
+                      <span className="sub-title">{collectionItem.itemTitle}</span>
+                      {![0, 4].includes(collectionItem.defaulterIdentityType) ? (
+                        <img className="auth-lock" src={AuthLinkAbnormal} alt="授权链异常" />
+                      ) : collectionItem.defaulterIdentityType === 4 ||
+                        userData?.isLogin === false ? (
+                        <img className="sub-lock" src={Lock} alt="未授权" />
+                      ) : (
+                        <img src={RightArrow} />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              {collectionList.length === total && (
+                <div className="tip no-more">— 已加载全部章节 —</div>
+              )}
+            </div>
+          )}
         </>
       )}
     </div>
@@ -264,7 +387,24 @@ const DetailBody = () => {
                   <div
                     className={`btn main-btn 
                     ${![0, 4].includes(novel.defaulterIdentityType) && "disabled"}`}
-                    onClick={() => history.switchPage(`/reader?id=${novel.exhibitId}`)}
+                    onClick={async () => {
+                      if (collectionList?.length) {
+                        const res = await freelogApp.getUserData("novelLastViewedHistory");
+                        const lastViewed = res?.data?.data || [];
+                        const index = lastViewed.findIndex(
+                          (i: { id: string }) => i.id === novel.exhibitId
+                        );
+                        const subId = lastViewed[index]?.subId;
+
+                        history.switchPage(
+                          `/reader?collection=${true}&id=${novel.exhibitId}&subId=${
+                            subId || collectionList[0].itemId
+                          }`
+                        );
+                      } else {
+                        history.switchPage(`/reader?id=${novel.exhibitId}`);
+                      }
+                    }}
                   >
                     立即阅读
                   </div>
@@ -321,6 +461,47 @@ const DetailBody = () => {
               <div className="no-intro-tip">暂无简介</div>
             )}
           </div>
+
+          {/* 目录 */}
+          {collectionList && !!collectionList.length && (
+            <div className="novel-catalogue">
+              <div className="title-container">
+                <span className="title">目录</span>
+                <span className="count">({collectionList.length}章)</span>
+              </div>
+
+              <div className="sub-directory-container">
+                {collectionList.map((collectionItem: CollectionList) => {
+                  return (
+                    <div
+                      className="sub"
+                      key={collectionItem.itemId}
+                      onClick={() =>
+                        history.switchPage(
+                          `/reader?collection=${true}&id=${novel.exhibitId}&subId=${
+                            collectionItem.itemId
+                          }`
+                        )
+                      }
+                    >
+                      <span className="sub-title">{collectionItem.itemTitle}</span>
+                      {![0, 4].includes(collectionItem.defaulterIdentityType) ? (
+                        <img className="auth-lock" src={AuthLinkAbnormal} alt="授权链异常" />
+                      ) : collectionItem.defaulterIdentityType === 4 ||
+                        userData?.isLogin === false ? (
+                        <img className="sub-lock" src={Lock} alt="未授权" />
+                      ) : (
+                        inMobile && <img src={RightArrow} />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              {collectionList.length === total && (
+                <div className="tip no-more">— 已加载全部章节 —</div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>
