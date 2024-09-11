@@ -363,7 +363,17 @@
             </div>
             <div class="info-item" v-if="albumName">
               <div class="item-value">收录于专辑</div>
-              <div class="item-album">{{ albumName }}</div>
+              <div
+                class="item-album"
+                @click="
+                  $router.push({
+                    path: '/detail',
+                    query: { id: voiceInfo?.exhibitId }
+                  })
+                "
+              >
+                {{ albumName }}
+              </div>
             </div>
           </div>
 
