@@ -5,9 +5,6 @@
 - options_entranceShow: 主题入口按钮显示
 - options_node_banner：封面
 - options_node_logo：头像
-- options_node_intro1：节点介绍1 【注：限70字符以内】
-- options_node_intro2：节点介绍2 【注：限70字符以内】
-- options_node_intro3：节点介绍3 【注：限70字符以内】
 
 ## 支持资源类型
 
