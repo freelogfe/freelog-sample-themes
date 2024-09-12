@@ -21,12 +21,17 @@ export const useMyRouter = () => {
     router.push({ path, query });
   };
 
+  /** 替换当前路由 */
+  const replacePage = (path: string, query: any = {}) => {
+    router.replace({ path, query });
+  };
+
   /** 路由返回 */
   const routerBack = () => {
     router.back();
   };
 
-  return { route, router, query, switchPage, routerBack };
+  return { route, router, query, switchPage, replacePage, routerBack };
 };
 
 /** 路由历史 hook */
@@ -241,7 +246,9 @@ export const useGetList = () => {
           item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
       });
     }
-    data.listData = init ? dataList : [...data.listData, ...dataList];
+    data.listData = init
+      ? dataList.filter((i: any) => i.articleInfo?.status !== 2)
+      : [...data.listData, ...dataList].filter((i: any) => i.articleInfo?.status !== 2);
     data.total = totalItem;
     if (init) data.loading = false;
     data.myLoading = false;
@@ -305,8 +312,8 @@ export const useMySignedList = () => {
 };
 
 /** 页面滚动 hook */
-export const useMyScroll = () => {
-  const scrollArea = document.getElementById("app");
+export const useMyScroll = (target?: string) => {
+  const scrollArea = document.getElementById(target || "app");
 
   const data = reactive({
     scrollTop: 0,

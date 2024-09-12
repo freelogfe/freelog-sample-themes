@@ -34,7 +34,33 @@
                 v-for="item in mobilePagingList"
                 :key="item.name"
               >
-                <img class="swipe-image" :src="item.url" oncontextmenu="return false" />
+                <div
+                  v-if="
+                    currentSortID === collectionTotal &&
+                    recommendList.length &&
+                    item.name === 'RecommendFakeUrl'
+                  "
+                  class="paging-recommend-box"
+                >
+                  <div class="no-more">— 已加载全部内容 —</div>
+
+                  <p class="more">更多漫画</p>
+                  <div class="recommend-item-wrap">
+                    <div
+                      class="recommend-item"
+                      v-for="item in recommendList.slice(0, 6)"
+                      :key="item.exhibitId"
+                      @click="toDetailFromRecommend(item.exhibitId)"
+                    >
+                      <div class="cover-image">
+                        <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                      </div>
+                      <span class="title">{{ item.exhibitTitle }}</span>
+                      <span class="name">{{ item.articleInfo?.articleOwnerName }}</span>
+                    </div>
+                  </div>
+                </div>
+                <img v-else class="swipe-image" :src="item.url" oncontextmenu="return false" />
               </my-swipe-item>
             </my-swipe>
           </template>
@@ -48,6 +74,28 @@
               v-for="item in contentImgList"
               :key="item.name"
             />
+            <div
+              v-if="currentSortID === collectionTotal && recommendList.length"
+              class="scroll-recommend-box"
+            >
+              <div class="no-more">— 已加载全部内容 —</div>
+
+              <p class="more">更多漫画</p>
+              <div class="recommend-item-wrap">
+                <div
+                  class="recommend-item"
+                  v-for="item in recommendList.slice(0, 6)"
+                  :key="item.exhibitId"
+                  @click="toDetailFromRecommend(item.exhibitId)"
+                >
+                  <div class="cover-image">
+                    <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                  </div>
+                  <span class="title">{{ item.exhibitTitle }}</span>
+                  <span class="name">{{ item.articleInfo?.articleOwnerName }}</span>
+                </div>
+              </div>
+            </div>
           </template>
         </template>
 
@@ -69,12 +117,28 @@
         </template>
       </div>
 
+      <!-- 控制栏 👇 -->
       <transition name="fade-down">
         <div class="mobile-operater-wrapper" @touchmove.prevent v-show="barShow">
-          <div class="operate-btn" @click.stop="modeMenuShow = true">
-            <i class="freelog fl-icon-shujia1"></i>
-            <div class="operater-btn-label">阅读模式</div>
+          <!-- 前一话 -->
+          <div
+            class="operate-btn"
+            @click="previousChapter()"
+            v-if="comicInfo.collectionList?.length && currentSortID !== 1"
+          >
+            <i class="freelog fl-icon-xiangxiazhankai pre-btn"></i>
+            <div class="operater-btn-label">前一话</div>
           </div>
+          <!-- 目录 -->
+          <div
+            class="operate-btn"
+            @click.stop="catalogueModal = true"
+            v-if="comicInfo.collectionList?.length"
+          >
+            <i class="freelog fl-icon-xiaoshuomulu1"></i>
+            <div class="operater-btn-label">目录</div>
+          </div>
+          <!-- 收藏 -->
           <div class="operate-btn" @click="operateShelf(comicInfo)">
             <i
               class="freelog"
@@ -82,9 +146,24 @@
             ></i>
             <div class="operater-btn-label">{{ isCollected ? "取消收藏" : "加入收藏" }}</div>
           </div>
+          <!-- 阅读模式 -->
+          <div class="operate-btn" @click.stop="modeMenuShow = true">
+            <i class="freelog fl-icon-shujia1"></i>
+            <div class="operater-btn-label">阅读模式</div>
+          </div>
+          <!-- 下一话 -->
+          <div
+            class="operate-btn"
+            @click="nextChapter()"
+            v-if="comicInfo.collectionList?.length && currentSortID !== collectionTotal"
+          >
+            <i class="freelog fl-icon-xiangxiazhankai next-btn"></i>
+            <div class="operater-btn-label">下一话</div>
+          </div>
         </div>
       </transition>
 
+      <!-- 3种阅读模式 -->
       <transition name="fade-down">
         <div class="mobile-mode-menu" @touchmove.prevent @click.stop v-if="modeMenuShow && barShow">
           <div class="menu-title">阅读模式</div>
@@ -139,7 +218,39 @@
                 ((contentImgList.length !== 1 && currentPage === contentImgList.length) ||
                   (contentImgList.length === 1 && amend))
               "
-            ></div>
+            >
+              <div
+                v-if="currentSortID === collectionTotal && recommendList.length"
+                class="recommend-box"
+              >
+                <div class="no-more">— 已加载全部内容 —</div>
+                <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">更多漫画</p>
+                <div
+                  class="recommend-item"
+                  v-for="item in recommendList.slice(0, 4)"
+                  :key="item.exhibitId"
+                  @click="toDetailFromRecommend(item.exhibitId)"
+                >
+                  <div class="cover-image">
+                    <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                  </div>
+                  <div class="recommend-info">
+                    <span class="name">{{ item.exhibitTitle }}</span>
+                    <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
+                    <div class="tags-wrap">
+                      <div
+                        class="tag"
+                        v-for="(tag, index) in item.tags"
+                        :key="index"
+                        @click.stop="searchTag(tag)"
+                      >
+                        {{ tag }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <!-- 日漫、双页模式、跨页匹配/非跨页匹配且当前不为首页、当前页不为尾页时，当前页左侧显示下一页 -->
             <div
               class="content-image-box"
@@ -160,6 +271,42 @@
               v-if="currentUrl"
             >
               <img class="content-image" :src="currentUrl" />
+              <!-- 单页-推荐 -->
+              <div
+                v-if="
+                  !nextUrl &&
+                  mode[1] === 'single' &&
+                  currentSortID === collectionTotal &&
+                  recommendList.length
+                "
+                class="recommend-box"
+              >
+                <div class="no-more">— 已加载全部内容 —</div>
+                <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">更多漫画</p>
+                <div
+                  class="recommend-item"
+                  v-for="item in recommendList.slice(0, 4)"
+                  :key="item.exhibitId"
+                >
+                  <div class="cover-image">
+                    <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                  </div>
+                  <div class="recommend-info">
+                    <span class="name">{{ item.exhibitTitle }}</span>
+                    <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
+                    <div class="tags-wrap">
+                      <div
+                        class="tag"
+                        v-for="(tag, index) in item.tags"
+                        :key="index"
+                        @click.stop="searchTag(tag)"
+                      >
+                        {{ tag }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <!-- 条漫/页漫、双页模式、跨页匹配/非跨页匹配且当前不为首页、当前页不为尾页时，当前页右侧显示下一页 -->
             <div
@@ -183,7 +330,39 @@
                 ((contentImgList.length !== 1 && currentPage === contentImgList.length) ||
                   (contentImgList.length === 1 && amend))
               "
-            ></div>
+            >
+              <div
+                v-if="currentSortID === collectionTotal && recommendList.length"
+                class="recommend-box"
+              >
+                <div class="no-more">— 已加载全部内容 —</div>
+                <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">更多漫画</p>
+                <div
+                  class="recommend-item"
+                  v-for="item in recommendList.slice(0, 4)"
+                  :key="item.exhibitId"
+                  @click="toDetailFromRecommend(item.exhibitId)"
+                >
+                  <div class="cover-image">
+                    <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                  </div>
+                  <div class="recommend-info">
+                    <span class="name">{{ item.exhibitTitle }}</span>
+                    <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
+                    <div class="tags-wrap">
+                      <div
+                        class="tag"
+                        v-for="(tag, index) in item.tags"
+                        :key="index"
+                        @click.stop="searchTag(tag)"
+                      >
+                        {{ tag }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <!-- 日漫、双页模式、非跨页匹配、当前为首页时，首页右侧显示空屏 -->
             <div
               class="blank-screen"
@@ -223,6 +402,42 @@
               v-for="item in contentImgList"
               :key="item.name"
             />
+            <div
+              v-if="currentSortID === collectionTotal && recommendList.length"
+              class="pc-scroll-recommend-box"
+              :class="theme"
+            >
+              <div class="pc-scroll-recommend">
+                <div class="no-more">— 已加载全部内容 —</div>
+                <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">更多漫画</p>
+                <div class="recommend-item-wrap">
+                  <div
+                    class="recommend-item"
+                    v-for="item in recommendList.slice(0, 9)"
+                    :key="item.exhibitId"
+                    @click="toDetailFromRecommend(item.exhibitId)"
+                  >
+                    <div class="cover-image">
+                      <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                    </div>
+                    <div class="recommend-info">
+                      <span class="name">{{ item.exhibitTitle }}</span>
+                      <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
+                      <div class="tags-wrap">
+                        <div
+                          class="tag"
+                          v-for="(tag, index) in item.tags"
+                          :key="index"
+                          @click.stop="searchTag(tag)"
+                        >
+                          {{ tag }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </template>
 
@@ -246,6 +461,18 @@
 
       <div class="operater-wrapper">
         <div class="operater-btns-box">
+          <!-- 目录 -->
+          <operate-btn
+            v-if="comicInfo.collectionList?.length"
+            :icon="theme === 'light' ? 'fl-icon-xiaoshuomulu' : 'fl-icon-xiaoshuomulu'"
+            :theme="theme"
+            @click="
+              clickPage();
+              setCatalogueModal();
+            "
+          />
+
+          <!-- 收藏 -->
           <operate-btn
             :icon="isCollected ? 'fl-icon-shoucangxiaoshuoyishoucang' : 'fl-icon-shoucangxiaoshuo'"
             :theme="theme"
@@ -255,6 +482,7 @@
             "
           />
 
+          <!-- 分享 -->
           <operate-btn
             icon="fl-icon-fenxiang"
             :theme="theme"
@@ -263,6 +491,7 @@
             <div id="share" class="share-wrapper" />
           </operate-btn>
 
+          <!-- 切换模式 -->
           <operate-btn
             :icon="theme === 'light' ? 'fl-icon-rijianmoshi' : 'fl-icon-yejianmoshi'"
             :theme="theme"
@@ -272,6 +501,7 @@
             "
           />
 
+          <!-- 回到顶部 -->
           <back-top>
             <div class="back-top">
               <operate-btn icon="fl-icon-huidaodingbu" :theme="theme" />
@@ -379,11 +609,29 @@
               更改跨页匹配
             </div>
           </div>
+
+          <!-- 跳转 | （上&下）一话 -->
           <div class="jumper">
+            <div
+              v-if="comicInfo.collectionList?.length && currentSortID !== 1"
+              class="jump-chapter ghost-btn"
+              @click="previousChapter()"
+            >
+              上一话
+            </div>
             <input class="page-number" v-model="jumpPage" @keyup.enter="jump()" />
             <div class="page-total">/ {{ contentImgList.length }}</div>
             <div class="jump ghost-btn" @click="jump()">跳转</div>
+            <div
+              v-if="comicInfo.collectionList?.length && currentSortID !== collectionTotal"
+              class="jump-chapter ghost-btn"
+              @click="nextChapter()"
+            >
+              下一话
+            </div>
           </div>
+
+          <!-- 阅读模式 -->
           <div class="mode ghost-btn" @click="modeMenuShow = !modeMenuShow">
             <i class="freelog fl-icon-shujia1" />
             阅读模式
@@ -430,17 +678,87 @@
         <div class="direction">{{ mode[2] === "normal" ? "从左向右" : "从右向左" }}</div>
       </div>
     </template>
+
+    <!-- mobile & PC 目录弹窗 -->
+    <teleport to="#modal">
+      <transition name="fade">
+        <div
+          id="modal"
+          class="catalogue-modal"
+          @click="catalogueModal = false"
+          v-if="catalogueModal"
+        ></div>
+      </transition>
+    </teleport>
+    <teleport to="#modal">
+      <transition :name="inMobile ? 'slide-right' : 'slide-left'">
+        <div
+          id="catalogue-box-body"
+          class="catalogue-box-body"
+          :class="!inMobile && 'pc'"
+          v-if="catalogueModal"
+        >
+          <div class="title-wrapper">
+            <span class="title">{{ comicInfo.exhibitTitle }}</span>
+            <div class="close-btn" @click="catalogueModal = false">
+              <i class="freelog fl-icon-guanbi"></i>
+            </div>
+          </div>
+          <div class="sub-catalogue-wrapper" id="sub-catalogue-wrapper">
+            <div
+              class="sub"
+              :class="`${item.itemId === query.subId && 'selected'}`"
+              v-for="item in comicInfo.collectionList"
+              :key="item.itemId"
+              @click="
+                currentPage = 1;
+                jumpPage = 1;
+                setCatalogueModal();
+                switchPage('/reader', {
+                  id: comicInfo?.exhibitId,
+                  collection: true,
+                  subId: item.itemId
+                });
+              "
+            >
+              <span class="sub-title">{{ item.itemTitle }}</span>
+              <img
+                v-if="[0, 4].includes(item.defaulterIdentityType)"
+                src="@/assets/images/right-arrow.png"
+              />
+              <img v-else class="sub-lock" src="@/assets/images/mini-lock.png" alt="未授权" />
+            </div>
+
+            <div
+              className="tip no-more"
+              v-if="comicInfo?.collectionList?.length === collectionTotal"
+            >
+              — 已加载全部章节 —
+            </div>
+          </div>
+        </div>
+      </transition>
+    </teleport>
   </div>
 </template>
 
 <script lang="tsx">
-import { defineAsyncComponent, nextTick, onBeforeUnmount, reactive, watch } from "vue";
+import {
+  defineAsyncComponent,
+  nextTick,
+  onBeforeUnmount,
+  reactive,
+  watch,
+  computed,
+  watchEffect,
+  onBeforeMount
+} from "vue";
 import { useStore } from "vuex";
 import { Swipe, SwipeItem } from "vant";
 import { toRefs } from "@vue/reactivity";
 import { WidgetController, freelogApp } from "freelog-runtime";
 import { useMyRouter, useMyScroll, useMyShelf } from "@/utils/hooks";
-import { ContentImage, ExhibitItem } from "@/api/interface";
+import { CollectionList, ContentImage, ExhibitItem } from "@/api/interface";
 import { State } from "@/store/index";
 import "vant/lib/index.css";
 
@@ -461,8 +779,8 @@ export default {
 
     const myTheme = localStorage.getItem("theme") || "light";
     const store = useStore<State>();
-    const { query, switchPage } = useMyRouter();
-    const { id } = query.value;
+    const { query, switchPage, replacePage } = useMyRouter();
+    const { id, collection, subId } = query.value;
     const { isCollected, operateShelf } = useMyShelf(id);
     const { scrollTo, scrollTop, clientHeight } = useMyScroll();
 
@@ -514,7 +832,12 @@ export default {
       directionTipShow: false,
       barShow: false,
       jumping: false,
-      shareWidget: null as WidgetController | null
+      shareWidget: null as WidgetController | null,
+      catalogueModal: false,
+      collectionCurrent: 0,
+      collectionTotal: 0,
+      collectionSubId: "",
+      recommendList: [] as ExhibitItem[]
     });
 
     const methods = {
@@ -547,6 +870,11 @@ export default {
       setTheme() {
         data.theme = data.theme === "light" ? "dark" : "light";
         localStorage.setItem("theme", data.theme);
+      },
+
+      /** 控制目录弹窗 */
+      setCatalogueModal() {
+        data.catalogueModal = !data.catalogueModal;
       },
 
       /** 获取授权 */
@@ -582,7 +910,7 @@ export default {
             this.jump();
           }
           // 页漫时，将选择的模式保存在本地
-          localStorage.setItem("comicReadMode", JSON.stringify(data.mode));
+          // localStorage.setItem("comicReadMode", JSON.stringify(data.mode));
         } else if (value === "scroll") {
           this.getPointInScroll();
         }
@@ -590,6 +918,9 @@ export default {
         if (index === 2 && !inMobile) {
           this.showDirectionTip();
         }
+
+        // 保存模式
+        handleLastViewedMode(id);
       },
 
       /** 显示翻页方向提示 */
@@ -674,6 +1005,44 @@ export default {
         data.jumpPage = page;
       },
 
+      // 上一话
+      previousChapter() {
+        data.currentPage = 1;
+        data.jumpPage = 1;
+        const { collectionList } = data.comicInfo;
+
+        const preSubID =
+          (collection &&
+            currentSortID.value !== 0 &&
+            collectionList?.filter(i => i.sortId === currentSortID.value - 1)[0]?.itemId) ||
+          0;
+
+        replacePage("/reader", {
+          id: data.comicInfo?.exhibitId,
+          collection: true,
+          subId: preSubID
+        });
+      },
+
+      // 下一话
+      async nextChapter() {
+        data.currentPage = 1;
+        data.jumpPage = 1;
+        const { collectionList } = data.comicInfo;
+
+        const nextSubID =
+          (collection &&
+            currentSortID.value !== data.collectionTotal &&
+            collectionList?.filter(i => i.sortId === currentSortID.value + 1)[0]?.itemId) ||
+          0;
+
+        replacePage("/reader", {
+          id: data.comicInfo?.exhibitId,
+          collection: true,
+          subId: nextSubID
+        });
+      },
+
       /** 跳转 */
       jump() {
         let jumpPageNum = Number(String(data.jumpPage).replace(/[^0-9]/g, ""));
@@ -742,6 +1111,19 @@ export default {
       /** 控制分享弹窗显示 */
       setShareWidgetShow(value: boolean) {
         data.shareWidget?.setData({ show: value });
+      },
+
+      /** 跳转详情 */
+      toDetailFromRecommend(exhibitId: string) {
+        switchPage("/detail", {
+          id: exhibitId
+        });
+      },
+
+      /** 搜索标签 */
+      searchTag(tag: string) {
+        const query: { tags: string } = { tags: tag };
+        switchPage("/home", query);
       }
     };
 
@@ -749,7 +1131,8 @@ export default {
     const getComicInfo = async () => {
       const exhibitInfo = await freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 });
       let comicMode;
-      const { resourceType } = exhibitInfo.data.data.articleInfo;
+      const { resourceType, articleType } = exhibitInfo.data.data.articleInfo;
+
       if (resourceType[2] === "条漫") {
         comicMode = 1;
       } else if (resourceType[2] === "日漫") {
@@ -757,21 +1140,98 @@ export default {
       } else {
         comicMode = 2;
       }
+
+      // 合集逻辑
+      if (articleType === 2) {
+        getCollectionList(true);
+        const subInfoResponse = await (freelogApp as any).getCollectionSubInfo(id, {
+          itemId: subId
+        });
+        const { resourceType } = subInfoResponse.data.data.articleInfo;
+
+        if (resourceType[2] === "条漫") {
+          comicMode = 1;
+        } else if (resourceType[2] === "日漫") {
+          comicMode = 3;
+        } else {
+          comicMode = 2;
+        }
+      }
+
       data.comicInfo = { ...exhibitInfo.data.data, comicMode };
       data.comicMode = comicMode;
       getContent();
+      getRecommendList();
+    };
+
+    /** 获取漫画目录 */
+    const getCollectionList = async (init = false) => {
+      try {
+        const { collectionList } = data.comicInfo;
+        if (!init && collectionList && collectionList?.length >= data.collectionTotal) {
+          return;
+        }
+
+        data.collectionCurrent = init ? 0 : data.collectionCurrent + 1000;
+
+        const subList = await (freelogApp as any).getCollectionSubList(id, {
+          skip: data.collectionCurrent,
+          limit: 1000
+        });
+        const { dataList, totalItem } = subList.data.data;
+        data.collectionTotal = totalItem;
+
+        if (dataList.length !== 0) {
+          const ids = dataList.map((item: any) => item.itemId).join();
+          const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
+          if (statusInfo.data.data) {
+            (dataList as CollectionList[]).forEach(item => {
+              const index = statusInfo.data.data.findIndex(
+                (resultItem: { itemId: string }) => resultItem.itemId === item.itemId
+              );
+              if (index !== -1) {
+                item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+              }
+            });
+          }
+
+          data.comicInfo.collectionList = collectionList
+            ? [...collectionList, ...dataList]
+            : [...dataList];
+        }
+
+        // 递归循环加载所有单品
+        if (
+          data.comicInfo.collectionList &&
+          data.comicInfo.collectionList?.length < data.collectionTotal
+        ) {
+          getCollectionList();
+        }
+      } catch (error) {
+        console.error("Failed to get collection list", error);
+      }
     };
 
     /** 获取漫画内容 */
-    const getContent = async () => {
+    const getContent = async (updateSubId?: string) => {
       data.loading = true;
-      const statusInfo = await freelogApp.getExhibitAuthStatus(id);
-      if (statusInfo.data.data)
+      const statusInfo = collection
+        ? await (freelogApp as any).getCollectionSubAuth(id, { itemIds: updateSubId || subId })
+        : await freelogApp.getExhibitAuthStatus(id);
+
+      if (statusInfo.data.data) {
         data.comicInfo.defaulterIdentityType = statusInfo.data.data[0].defaulterIdentityType;
+      }
 
       if (data.comicInfo.defaulterIdentityType === 0) {
         // 已签约并且授权链无异常
-        const info = await freelogApp.getExhibitFileStream(id, { subFilePath: "index.json" });
+        const info = collection
+          ? await (freelogApp as any).getCollectionSubFileStream(id, {
+              itemId: updateSubId || subId,
+              subFilePath: "index.json"
+            })
+          : await freelogApp.getExhibitFileStream(id, { subFilePath: "index.json" });
+
         if (info.status !== 200 || info.data.list.length === 0) {
           data.loading = false;
           mountShareWidget();
@@ -780,10 +1240,17 @@ export default {
 
         const requestList: Promise<any>[] = [];
         info.data.list.forEach((item: ContentImage) => {
-          const request = freelogApp.getExhibitFileStream(id, {
-            subFilePath: item.name,
-            returnUrl: true
-          });
+          const request = collection
+            ? (freelogApp as any).getCollectionSubFileStream(id, {
+                itemId: updateSubId || subId,
+                subFilePath: item.name,
+                returnUrl: true
+              })
+            : freelogApp.getExhibitFileStream(id, {
+                subFilePath: item.name,
+                returnUrl: true
+              });
+
           requestList.push(request);
         });
         const results = await Promise.all([...requestList]);
@@ -803,15 +1270,44 @@ export default {
       mountShareWidget();
 
       if (data.comicMode === 1) {
+        const res = await freelogApp.getUserData("comicLastViewedMode");
+        const lastViewed = res?.data?.data || [];
+        const index = lastViewed.findIndex((i: { id: string }) => i.id === id);
+        const comicReadMode = lastViewed[index]?.mode;
+
+        if (comicReadMode) {
+          data.mode = comicReadMode;
+        } else {
+          // 条漫时，自动选择滚动模式
+          methods.changeMode("scroll", 0);
+        }
         // 条漫时，自动选择滚动模式
-        methods.changeMode("scroll", 0);
+        // methods.changeMode("scroll", 0);
         methods.getPointInScroll();
       } else if ([2, 3].includes(data.comicMode)) {
+        const res = await freelogApp.getUserData("comicLastViewedMode");
+        const lastViewed = res?.data?.data || [];
+        const index = lastViewed.findIndex((i: { id: string }) => i.id === id);
+        const comicReadMode = lastViewed[index]?.mode;
+
         // 页漫/日漫时，自动选择翻页模式（如本地有记录翻页模式的选择，优先取本地记录的模式）
-        const comicReadMode = localStorage.getItem("comicReadMode");
-        if (comicReadMode) data.mode = JSON.parse(comicReadMode);
+        // const comicReadMode = localStorage.getItem("comicReadMode");
+        if (comicReadMode) data.mode = comicReadMode;
         // 移动端翻页模式下处理图片顺序
         if (store.state.inMobile) dealListInPagingMobile();
+      }
+    };
+
+    /** 获取推荐列表 */
+    const getRecommendList = async () => {
+      const res = await (freelogApp as any).getExhibitRecommend(id, {
+        recommendNorm: "sameAuthorAndType,sameTagAndType,sameType,latestCreate",
+        size: 10
+      });
+      const { data: recommendData } = res.data;
+
+      if (recommendData.length !== 0) {
+        data.recommendList = recommendData;
       }
     };
 
@@ -822,11 +1318,22 @@ export default {
       let currentIndex = 0;
       if (pagingType === "normal") {
         // 普通模式下（从左向右）
-        data.mobilePagingList = [...data.contentImgList];
+        data.mobilePagingList = [
+          ...data.contentImgList,
+          ...(data.recommendList.length && currentSortID.value === data.collectionTotal
+            ? [{ name: "RecommendFakeUrl", size: 0, url: "RecommendFakeUrl", width: 0, height: 0 }]
+            : [])
+        ];
+
         currentIndex = data.currentPage - 1;
       } else if (pagingType === "manga") {
         // 日漫模式下（从右向左）
-        data.mobilePagingList = [...data.contentImgList].reverse();
+        data.mobilePagingList = [
+          ...data.contentImgList,
+          ...(data.recommendList.length && currentSortID.value === data.collectionTotal
+            ? [{ name: "RecommendFakeUrl", size: 0, url: "RecommendFakeUrl", width: 0, height: 0 }]
+            : [])
+        ].reverse();
         currentIndex = data.mobilePagingList.length - data.currentPage;
       }
       nextTick(() => {
@@ -879,9 +1386,17 @@ export default {
         topExhibitId,
         container: document.getElementById("share") as HTMLElement,
         renderWidgetOptions: {
-          data: { exhibit: data.comicInfo, type: "漫画", routerType: "content" }
+          data: {
+            exhibit: {
+              ...data.comicInfo,
+              itemId: query.value.subId,
+              collection: query.value.collection
+            },
+            type: "漫画",
+            routerType: "reader"
+          }
         }
-        // widget_entry: "https://localhost:8201",
+        // widget_entry: "https://localhost:8201"
       };
       data.shareWidget = await freelogApp.mountArticleWidget(params);
     };
@@ -922,13 +1437,111 @@ export default {
         data.nextUrl = "";
         const { contentImgList } = data;
         nextTick(() => {
-          data.currentUrl = contentImgList[cur - 1].url;
+          data.currentUrl = contentImgList[cur - 1]?.url || "";
           if (contentImgList[cur]) {
-            data.nextUrl = contentImgList[cur].url;
+            data.nextUrl = contentImgList[cur]?.url || "";
           }
         });
       }
     );
+
+    // 监听单品id，更新单品详情
+    watch(
+      () => query.value.subId,
+      cur => {
+        if (query.value.subId) {
+          getContent(cur);
+          data.collectionSubId = cur;
+        }
+      },
+      {
+        immediate: true
+      }
+    );
+
+    // 监听目录弹窗的滚动
+    watch(
+      () => data.catalogueModal,
+      cur => {
+        if (!cur) {
+          return;
+        }
+        nextTick(() => {
+          const {
+            scrollTop: modalScrollTop,
+            clientHeight: modalClientHeight,
+            scrollHeight: modalScrollHeight
+          } = useMyScroll("catalogue-box-body");
+
+          if (modalScrollTop.value + modalClientHeight.value === modalScrollHeight.value) {
+            getCollectionList();
+          }
+        });
+      }
+    );
+
+    const currentSortID = computed(() => {
+      const currentSubID = query.value.subId;
+      const filterData = data.comicInfo.collectionList?.filter(
+        i => i.itemId === currentSubID
+      ) as CollectionList[];
+
+      const targetID = filterData?.length && filterData[0].sortId;
+
+      return targetID;
+    });
+
+    // 记录上一次阅读记录
+    const handleLastViewedHistory = async (data: { id: string; subId: string }) => {
+      const lastViewedResponse = await freelogApp.getUserData("comicLastViewedHistory");
+      const lastViewed = lastViewedResponse?.data?.data || [];
+
+      if (!lastViewed?.length) {
+        lastViewed.push({ id: data.id, subId: data.subId });
+        freelogApp.setUserData("comicLastViewedHistory", lastViewed);
+        return;
+      }
+
+      const index = lastViewed.findIndex((i: { id: string }) => i.id === data.id);
+
+      if (index !== -1) {
+        // 如果找到相同的数据，则替换它
+        lastViewed[index] = { id: data.id, subId: data.subId };
+      } else {
+        // 如果没有找到相同的数据，则新增一条记录
+        lastViewed.push({ id: data.id, subId: data.subId });
+      }
+
+      freelogApp.setUserData("comicLastViewedHistory", lastViewed);
+    };
+
+    // 记录上一次阅读模式
+    const handleLastViewedMode = async (id: string) => {
+      const lastViewedResponse = await freelogApp.getUserData("comicLastViewedMode");
+      const lastViewed = lastViewedResponse?.data?.data || [];
+
+      if (!lastViewed?.length) {
+        lastViewed.push({ id, mode: data.mode });
+        freelogApp.setUserData("comicLastViewedMode", lastViewed);
+        return;
+      }
+
+      const index = lastViewed.findIndex((item: { id: string }) => item.id === id);
+
+      if (index !== -1) {
+        // 如果找到相同的数据，则替换它
+        lastViewed[index] = { id, mode: data.mode };
+      } else {
+        // 如果没有找到相同的数据，则新增一条记录
+        lastViewed.push({ id, mode: data.mode });
+      }
+
+      freelogApp.setUserData("comicLastViewedMode", lastViewed);
+    };
+
+    onBeforeMount(() => {
+      getComicInfo();
+    });
 
     onBeforeUnmount(async () => {
       if (barShowTimer) {
@@ -939,11 +1552,11 @@ export default {
         clearTimeout(tipTimer);
         tipTimer = null;
       }
+      handleLastViewedHistory({ id, subId: data.collectionSubId });
+      handleLastViewedMode(id);
       window.removeEventListener("keyup", keyup);
       await data.shareWidget?.unmount();
     });
-
-    getComicInfo();
 
     return {
       ...toRefs(store.state),
@@ -952,7 +1565,9 @@ export default {
       operateShelf,
       modeMenu,
       ...toRefs(data),
-      ...methods
+      ...methods,
+      currentSortID,
+      query
     };
   }
 };

@@ -13,8 +13,8 @@ export default {
 
   props: {
     icon: String,
-    theme: String,
-  },
+    theme: String
+  }
 };
 </script>
 
@@ -37,6 +37,7 @@ export default {
     &:hover {
       background-color: rgba(55, 55, 55, 0.7);
       box-shadow: 0px 2px 10px 0px rgba(255, 255, 255, 0.4);
+      color: rgba(255, 255, 255, 1);
     }
   }
 

@@ -1,43 +1,127 @@
-import React, { useContext, useRef } from "react";
-import "./reader.scss";
-import Lock from "../../assets/images/lock.png";
-import BgImage from "../../assets/images/reader-bg.png";
-import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
-import { useState, useEffect, useCallback } from "react";
-import { ExhibitItem, ThemeItem } from "../../api/interface";
-import { readerThemeList } from "../../api/data";
-import { BackTop } from "../../components/back-top/back-top";
-import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
-import { Header } from "../../components/header/header";
-import { globalContext } from "../../router";
-import { showToast } from "../../components/toast/toast";
-import CSSTransition from "react-transition-group/CSSTransition";
-import { Loader } from "../../components/loader/loader";
-import { getUrlParams } from "../../utils/common";
+import React, { useContext, useRef, useState, useEffect, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { freelogApp } from "freelog-runtime";
+import CSSTransition from "react-transition-group/CSSTransition";
+import { globalContext } from "../../router";
+import { BackTop } from "../../components/back-top/back-top";
+import { Header } from "../../components/header/header";
+import { CatalogueModal } from "../../components/catalogue-modal/catalogue-modal";
+import { showToast } from "../../components/toast/toast";
+import { Loader } from "../../components/loader/loader";
+import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
+import { getUrlParams } from "../../utils/common";
+import { CollectionList, ExhibitItem, ThemeItem } from "../../api/interface";
+import { readerThemeList } from "../../api/data";
+import Lock from "../../assets/images/lock.png";
+import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
+import "./reader.scss";
 
 export const readerContext = React.createContext<any>({});
 
 /** 阅读页 */
 export const ReaderScreen = (props: any) => {
   const { id } = getUrlParams(props.location.search);
+  const { collection } = getUrlParams(props.location.search);
+  const { subId } = getUrlParams(props.location.search);
   const { inMobile } = useContext(globalContext);
   const myTheme = JSON.parse(localStorage.getItem("theme") || "null");
   const [book, setBook] = useState<ExhibitItem | null>(null);
   const [fontSize, setFontSize] = useState(22);
-  const [theme, setTheme] = useState<ThemeItem>(myTheme || readerThemeList[0]);
+  const [theme, setTheme] = useState<ThemeItem>(myTheme?.bgColor ? myTheme : readerThemeList[0]);
   const [fontSizePopupShow, setFontSizePopupShow] = useState(false);
   const [themePopupShow, setThemePopupShow] = useState(false);
+  const [changeChapterPopupShow, setChangeChapterPopupShow] = useState<boolean>(false);
   const [mobileBarShow, setMobileBarShow] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [modalStatus, setModalStatus] = useState(false);
+  const [total, setTotal] = useState<number>(0);
+  const [collectionList, setCollectionList] = useState<CollectionList[]>([]);
+  const [currentSortId, setCurrentSortId] = useState<number>(0);
+  const [recommendList, setRecommendList] = useState<ExhibitItem[]>([]);
+  const location = useLocation();
+  const skip = useRef(0);
   const widgetList = useRef<any>({});
 
   /** 获取小说信息 */
   const getNovelInfo = useCallback(async () => {
     setLoading(true);
-    const exhibitInfo = await freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 });
-    setBook(exhibitInfo.data.data);
+    const [exhibitInfo, statusInfo] = await Promise.all([
+      freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+      freelogApp.getExhibitAuthStatus(id)
+    ]);
+
+    const { articleType } = exhibitInfo.data.data.articleInfo;
+    if (articleType === 2) {
+      getCollectionList(true);
+    }
+    getRecommendList();
+    setBook({
+      ...exhibitInfo.data.data,
+      defaulterIdentityType: statusInfo.data.data[0]?.defaulterIdentityType ?? null
+    });
   }, [id]);
+
+  // 获取合集下的单品列表
+  const getCollectionList = useCallback(
+    async (init = false, skipChapter = 0) => {
+      try {
+        if (!init && collectionList.length >= total) {
+          return;
+        }
+
+        skip.current = init ? 0 : skip.current + 30;
+
+        const subList = await (freelogApp as any).getCollectionSubList(id, {
+          skip: skipChapter ? skipChapter : skip.current,
+          limit: 30
+        });
+        const { dataList, totalItem } = subList.data.data;
+        setTotal(totalItem);
+
+        if (dataList.length !== 0) {
+          const ids = dataList.map((item: any) => item.itemId).join();
+          const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
+          if (statusInfo.data.data) {
+            (dataList as CollectionList[]).forEach(item => {
+              const index = statusInfo.data.data.findIndex(
+                (resultItem: { itemId: string }) => resultItem.itemId === item.itemId
+              );
+              if (index !== -1) {
+                item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+              }
+            });
+          }
+          // return dataList;
+
+          setCollectionList(pre => [...pre, ...dataList]);
+        }
+      } catch (error) {
+        console.error("Failed to get collection list", error);
+      }
+    },
+    [id]
+  );
+
+  /** 获取推荐列表 */
+  const getRecommendList = async () => {
+    const res = await (freelogApp as any).getExhibitRecommend(id, {
+      recommendNorm: "sameAuthorAndType,sameTagAndType,sameType,latestCreate",
+      size: 10
+    });
+    const { data: recommendData } = res.data;
+    const sliceData = recommendData.slice(0, 6);
+
+    setRecommendList(sliceData);
+  };
+
+  // 获取单品详细信息
+  const getCollectionInfo = async () => {
+    const res = await (freelogApp as any).getCollectionSubInfo(id, { itemId: subId });
+    const { sortId } = res.data.data;
+
+    getCollectionList(false, sortId - 15 < 0 ? 0 : sortId - 15);
+    setCurrentSortId(sortId);
+  };
 
   /** 加载分享插件 */
   const mountShareWidget = async () => {
@@ -59,9 +143,12 @@ export const ReaderScreen = (props: any) => {
       topExhibitId,
       container: document.getElementById("share")!,
       renderWidgetOptions: {
-        data: { exhibit: book, type: "小说", routerType: "content" }
+        data: {
+          exhibit: { ...book, itemId: subId, collection },
+          type: "小说",
+          routerType: "reader"
+        }
       }
-      // widget_entry: "https://localhost:8201",
     };
     widgetList.current.share = await freelogApp.mountArticleWidget(params);
   };
@@ -102,6 +189,8 @@ export const ReaderScreen = (props: any) => {
     setWidgetData("share", "show", false);
     if (fontSizePopupShow) setFontSizePopupShow(false);
     if (themePopupShow) setThemePopupShow(false);
+    // if (!changeChapterPopupShow) setChangeChapterPopupShow(true);
+    !changeChapterPopupShow ? setChangeChapterPopupShow(true) : setChangeChapterPopupShow(false);
     if (inMobile) setMobileBarShow(true);
   };
 
@@ -123,6 +212,43 @@ export const ReaderScreen = (props: any) => {
   }, [id]);
 
   useEffect(() => {
+    if (collection) {
+      getCollectionInfo();
+    }
+
+    const handleLastViewedHistory = async (data: { id: string; subId: string }) => {
+      const lastViewedResponse = await freelogApp.getUserData("novelLastViewedHistory");
+      const lastViewed = lastViewedResponse?.data?.data || [];
+
+      if (!lastViewed.length) {
+        lastViewed.push({ id: data.id, subId: data.subId });
+        freelogApp.setUserData("novelLastViewedHistory", lastViewed);
+        return;
+      }
+
+      const index = lastViewed.findIndex((i: { id: string }) => i.id === data.id);
+
+      if (index !== -1) {
+        // 如果找到相同的数据，则替换它
+        lastViewed[index] = { id: data.id, subId: data.subId };
+      } else {
+        // 如果没有找到相同的数据，则新增一条记录
+        lastViewed.push({ id: data.id, subId: data.subId });
+      }
+
+      freelogApp.setUserData("novelLastViewedHistory", lastViewed);
+    };
+
+    return () => {
+      const { id, subId } = getUrlParams(location.search);
+
+      if (subId) {
+        handleLastViewedHistory({ id, subId });
+      }
+    };
+  }, [location]);
+
+  useEffect(() => {
     setWidgetData("markdown", "fontSize", fontSize);
   }, [fontSize]);
 
@@ -132,6 +258,8 @@ export const ReaderScreen = (props: any) => {
 
   const context = {
     id,
+    collection,
+    subId,
     inMobile,
     book,
     setBook,
@@ -139,24 +267,32 @@ export const ReaderScreen = (props: any) => {
     setFontSize,
     theme,
     setTheme,
+    modalStatus,
+    setModalStatus,
     fontSizePopupShow,
     setFontSizePopupShow,
     themePopupShow,
     setThemePopupShow,
+    changeChapterPopupShow,
+    setChangeChapterPopupShow,
     mobileBarShow,
     setMobileBarShow,
     loading,
     setLoading,
     mountShareWidget,
     mountMarkdownWidget,
-    setWidgetData
+    setWidgetData,
+    currentSortId,
+    total,
+    collectionList,
+    recommendList
   };
 
   return (
     <readerContext.Provider value={context}>
       <div
         className={`reader-wrapper ${inMobile && "in-mobile"}`}
-        style={{ backgroundImage: `url(${BgImage})`, backgroundColor: theme?.bgColor }}
+        style={{ backgroundColor: theme?.bgColor }}
         onClick={() => clickPage()}
       >
         <CSSTransition
@@ -169,6 +305,18 @@ export const ReaderScreen = (props: any) => {
         </CSSTransition>
         <ReaderBody />
         <OperaterBtns />
+
+        {/* 目录弹窗 */}
+        {modalStatus && (
+          <CatalogueModal
+            modalStatus
+            book={book}
+            collectionList={collectionList}
+            total={total}
+            closeCatalogueModal={() => setModalStatus(false)}
+            getCollectionList={getCollectionList}
+          />
+        )}
       </div>
     </readerContext.Provider>
   );
@@ -177,22 +325,56 @@ export const ReaderScreen = (props: any) => {
 /** 阅读页主体内容 */
 const ReaderBody = () => {
   const history = useMyHistory();
+  const location = useLocation();
+  const { scrollToTop } = useMyScroll();
   const { userData } = useContext(globalContext);
-  const { inMobile, book, id, theme, mountMarkdownWidget, loading, setLoading } =
-    useContext(readerContext);
+  const {
+    inMobile,
+    book,
+    id,
+    collection,
+    subId,
+    theme,
+    mountMarkdownWidget,
+    loading,
+    setLoading,
+    currentSortId,
+    total,
+    collectionList,
+    recommendList
+  } = useContext(readerContext);
+
   const [content, setContent] = useState<string>("");
   const [defaulterIdentityType, setDefaulterIdentityType] = useState<number | null>(null);
+
+  const preSubId =
+    (collection &&
+      currentSortId !== 0 &&
+      collectionList.filter((i: any) => i.sortId === currentSortId - 1)[0]?.itemId) ||
+    0;
+  const nextSubId =
+    (collection &&
+      currentSortId !== total &&
+      collectionList.filter((i: any) => i.sortId === currentSortId + 1)[0]?.itemId) ||
+    0;
 
   /** 获取小说内容 */
   const getContent = useCallback(async () => {
     let authErrType: any = -1;
-    const statusInfo = await freelogApp.getExhibitAuthStatus(id);
-    if (statusInfo.data.data) authErrType = statusInfo.data.data[0].defaulterIdentityType;
+
+    const statusInfo = collection
+      ? await (freelogApp as any).getCollectionSubAuth(id, { itemIds: subId })
+      : await freelogApp.getExhibitAuthStatus(id);
+    if (statusInfo.data.data) {
+      authErrType = statusInfo.data.data[0].defaulterIdentityType;
+    }
     setDefaulterIdentityType(authErrType!);
 
     if (authErrType === 0) {
       // 已签约并且授权链无异常
-      const info: any = await freelogApp.getExhibitFileStream(id);
+      const info: any = collection
+        ? await (freelogApp as any).getCollectionSubFileStream(id, { itemId: subId })
+        : await freelogApp.getExhibitFileStream(id);
       if (!info) {
         setLoading(false);
         return;
@@ -205,7 +387,7 @@ const ReaderBody = () => {
 
     setLoading(false);
     // eslint-disable-next-line
-  }, [id]);
+  }, [id, subId]);
 
   /** 获取授权 */
   const getAuth = async () => {
@@ -214,10 +396,15 @@ const ReaderBody = () => {
     if (status === 0) getContent();
   };
 
+  /** 跳转详情 */
+  const toDetailFromRecommend = (exhibitId: string) => {
+    history.switchPage(`/detail?id=${exhibitId}`);
+  };
+
   useEffect(() => {
     getContent();
     // eslint-disable-next-line
-  }, [id]);
+  }, [id, location]);
 
   useEffect(() => {
     if (book && content) {
@@ -236,12 +423,18 @@ const ReaderBody = () => {
         className={`mobile-body-wrapper ${theme?.type === 1 ? "dark" : "light"}`}
         style={
           {
-            backgroundImage: `url(${BgImage})`,
             backgroundColor: theme?.bookColor
           } as any
         }
       >
-        {defaulterIdentityType === 0 && <div id="markdown" />}
+        {defaulterIdentityType === 0 && (
+          <React.Fragment>
+            <div id="markdown" />
+            {collection && currentSortId === total && (
+              <div className="no-more">— 已加载全部章节 —</div>
+            )}
+          </React.Fragment>
+        )}
         {![null, 0, 4].includes(defaulterIdentityType) ? (
           <div className="auth-box">
             <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
@@ -260,6 +453,35 @@ const ReaderBody = () => {
             </div>
           </div>
         ) : null}
+        {currentSortId === total && (
+          <div className={`recommend-wrap ${theme?.type === 1 ? "dark" : "light"}`}>
+            {/* 合集-上一章节-下一章节 */}
+            <React.Fragment>
+              {/* 更多书籍 */}
+              <div className="more">更多书籍</div>
+              <div className="recommend-box">
+                {recommendList.map((item: ExhibitItem) => {
+                  return (
+                    <div
+                      className="recommend-item"
+                      key={item.exhibitId}
+                      onClick={() => toDetailFromRecommend(item.exhibitId)}
+                    >
+                      <div className="cover-image">
+                        <img src={item.coverImages[0]} alt={item.exhibitTitle} />
+                      </div>
+
+                      <div className="recommend-info">
+                        <span className="title">{item.exhibitTitle}</span>
+                        <span className="name">{item?.articleInfo?.articleOwnerName}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </React.Fragment>
+          </div>
+        )}
       </div>
     );
   } else if (inMobile === false) {
@@ -273,17 +495,23 @@ const ReaderBody = () => {
             </div>
           </div>
         </div>
-
+        {/* 内容 */}
         <div
           className={`content ${theme?.type === 1 ? "dark" : "light"}`}
           style={
             {
-              backgroundImage: `url(${BgImage})`,
               backgroundColor: theme?.bookColor
             } as any
           }
         >
-          {defaulterIdentityType === 0 && <div id="markdown" />}
+          {defaulterIdentityType === 0 && (
+            <React.Fragment>
+              <div id="markdown" />
+              {collection && currentSortId === total && (
+                <div className="no-more">— 已加载全部章节 —</div>
+              )}
+            </React.Fragment>
+          )}
           {![null, 0, 4].includes(defaulterIdentityType) ? (
             <div className="auth-box">
               <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
@@ -303,6 +531,91 @@ const ReaderBody = () => {
             </div>
           ) : null}
         </div>
+        <div className={`recommend-wrap ${theme?.type === 1 ? "dark" : "light"}`}>
+          {currentSortId === total && (
+            <React.Fragment>
+              <div className="more">更多书籍</div>
+              <div className="recommend-box">
+                {recommendList.map((item: ExhibitItem) => {
+                  return (
+                    <div
+                      className="recommend-item"
+                      key={item.exhibitId}
+                      onClick={() => toDetailFromRecommend(item.exhibitId)}
+                    >
+                      <div className="cover-image">
+                        <img src={item.coverImages[0]} alt={item.exhibitTitle} />
+                      </div>
+
+                      <div className="recommend-info">
+                        <span className="title">{item.exhibitTitle}</span>
+                        <span className="name">{item?.articleInfo?.articleOwnerName}</span>
+                        <div className="tags-wrap">
+                          {item.tags.map((tag: string, index: number) => {
+                            return (
+                              <div
+                                className="tag"
+                                key={index}
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  history.switchPage(`/home?tags=${tag}`);
+                                }}
+                              >
+                                {tag}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </React.Fragment>
+          )}
+          {/* 合集-上一章节-下一章节 */}
+          {collection && (
+            <React.Fragment>
+              <div
+                className="pre-next-chapter"
+                style={
+                  {
+                    backgroundColor: theme?.bookColor
+                  } as any
+                }
+              >
+                <div
+                  className={`pre ${currentSortId === 1 && "disabled"}`}
+                  onClick={() => {
+                    scrollToTop();
+                    history.switchPage(
+                      `/reader?collection=${true}&id=${book.exhibitId}&subId=${preSubId}`
+                    );
+                  }}
+                >
+                  上一章
+                </div>
+                <div
+                  className="detail"
+                  onClick={() => history.switchPage(`/detail?id=${book?.exhibitId}`)}
+                >
+                  书籍详情
+                </div>
+                <div
+                  className={`next ${currentSortId === total && "disabled"}`}
+                  onClick={() => {
+                    scrollToTop();
+                    history.switchPage(
+                      `/reader?collection=${true}&id=${book.exhibitId}&subId=${nextSubId}`
+                    );
+                  }}
+                >
+                  下一章
+                </div>
+              </div>
+            </React.Fragment>
+          )}
+        </div>
       </div>
     );
   } else {
@@ -320,19 +633,39 @@ const OperaterBtns = () => {
     setFontSize,
     theme,
     setTheme,
+    setModalStatus,
     fontSizePopupShow,
     setFontSizePopupShow,
     themePopupShow,
     setThemePopupShow,
+    changeChapterPopupShow,
+    setChangeChapterPopupShow,
     mobileBarShow,
     setMobileBarShow,
     mountShareWidget,
-    setWidgetData
+    setWidgetData,
+    currentSortId,
+    total,
+    collectionList,
+    collection
   } = useContext(readerContext);
+  const history = useMyHistory();
   const { isCollected, operateShelf } = useMyShelf(book?.exhibitId);
+  const { scrollToTop } = useMyScroll();
   const [href, setHref] = useState("");
   let changingFontSize = useRef(false);
   let changingFontSizeTimer = useRef<any>(null);
+
+  const preSubId =
+    (collection &&
+      currentSortId !== 0 &&
+      collectionList.filter((i: any) => i.sortId === currentSortId - 1)[0]?.itemId) ||
+    0;
+  const nextSubId =
+    (collection &&
+      currentSortId !== total &&
+      collectionList.filter((i: any) => i.sortId === currentSortId + 1)[0]?.itemId) ||
+    0;
 
   /** 改变字体大小 */
   const changeFontSize = (type: number) => {
@@ -361,6 +694,7 @@ const OperaterBtns = () => {
     setWidgetData("share", "show", false);
     setFontSizePopupShow(false);
     setThemePopupShow(false);
+    setChangeChapterPopupShow(false);
   };
 
   /** 移动端分享 */
@@ -387,8 +721,14 @@ const OperaterBtns = () => {
     setWidgetData("share", "show", false);
     if (fontSizePopupShow) setFontSizePopupShow(false);
     if (themePopupShow) setThemePopupShow(false);
-    if (scrollTop === 0 && !mobileBarShow) setMobileBarShow(true);
-    if (scrollTop !== 0 && mobileBarShow) setMobileBarShow(false);
+    if (scrollTop === 0 && !mobileBarShow) {
+      setMobileBarShow(true);
+      setChangeChapterPopupShow(true);
+    }
+    if (scrollTop !== 0 && mobileBarShow) {
+      setMobileBarShow(false);
+      setChangeChapterPopupShow(false);
+    }
     // eslint-disable-next-line
   }, [scrollTop]);
 
@@ -401,6 +741,21 @@ const OperaterBtns = () => {
     // mobile
     <CSSTransition in={mobileBarShow} classNames="slide-down" timeout={150} unmountOnExit>
       <div className="mobile-operater-wrapper">
+        {/* 目录 */}
+        {collection && (
+          <div
+            className="operater-btn"
+            onClick={() => {
+              closeAllPopup();
+              setModalStatus(true);
+            }}
+          >
+            <i className="freelog fl-icon-xiaoshuomulu"></i>
+            <div className="operater-btn-label">目录</div>
+          </div>
+        )}
+
+        {/* 收藏 */}
         {isCollected ? (
           <div
             className="operater-btn"
@@ -425,9 +780,11 @@ const OperaterBtns = () => {
           </div>
         )}
 
+        {/* 分享 */}
         <div
           className="operater-btn"
-          onClick={() => {
+          onClick={e => {
+            e.stopPropagation();
             closeAllPopup();
             share();
           }}
@@ -436,9 +793,11 @@ const OperaterBtns = () => {
           <div className="operater-btn-label">分享</div>
         </div>
 
+        {/* 字号 */}
         <div
           className="operater-btn"
-          onClick={() => {
+          onClick={e => {
+            e.stopPropagation();
             closeAllPopup();
             setFontSizePopupShow(true);
           }}
@@ -447,9 +806,12 @@ const OperaterBtns = () => {
           <div className="operater-btn-label">字号</div>
         </div>
 
+        {/* 切换背景颜色 */}
         <div
           className="operater-btn"
-          onClick={() => {
+          onClick={e => {
+            e.stopPropagation();
+
             closeAllPopup();
             setThemePopupShow(true);
           }}
@@ -494,6 +856,48 @@ const OperaterBtns = () => {
           </div>
         )}
 
+        {/* 上一章 | 下一章 */}
+        {collection && changeChapterPopupShow && book.defaulterIdentityType === 0 && (
+          <div className="operater-popup chapter" onClick={() => setChangeChapterPopupShow(false)}>
+            <div className="chapter-popup" onClick={e => e.stopPropagation()}>
+              <div
+                className={`chapter-label ${currentSortId === 1 && "disabled"}`}
+                onClick={() => {
+                  scrollToTop();
+                  inMobile
+                    ? history.replacePage(
+                        `/reader?collection=${true}&id=${book.exhibitId}&subId=${preSubId}`
+                      )
+                    : history.switchPage(
+                        `/reader?collection=${true}&id=${book.exhibitId}&subId=${preSubId}`
+                      );
+                }}
+              >
+                上一章
+              </div>
+              <div className="chapter-value">
+                <span className="current">{currentSortId}</span>
+                <span className="total">/{total}</span>
+              </div>
+              <div
+                className={`chapter-label ${currentSortId === total && "disabled"}`}
+                onClick={() => {
+                  scrollToTop();
+                  inMobile
+                    ? history.replacePage(
+                        `/reader?collection=${true}&id=${book.exhibitId}&subId=${nextSubId}`
+                      )
+                    : history.switchPage(
+                        `/reader?collection=${true}&id=${book.exhibitId}&subId=${nextSubId}`
+                      );
+                }}
+              >
+                下一章
+              </div>
+            </div>
+          </div>
+        )}
+
         <input id="href" className="hidden-input" value={href} readOnly />
       </div>
     </CSSTransition>
@@ -501,6 +905,18 @@ const OperaterBtns = () => {
     // PC
     <div className="operater-wrapper">
       <div className="operater-btns-box">
+        {/* 目录 */}
+        {collection && (
+          <OperateBtn
+            icon="fl-icon-xiaoshuomulu"
+            onClick={() => {
+              closeAllPopup();
+              setModalStatus(true);
+            }}
+          />
+        )}
+
+        {/* 收藏 */}
         {isCollected ? (
           <OperateBtn
             icon="fl-icon-shoucangxiaoshuoyishoucang"
@@ -519,6 +935,7 @@ const OperaterBtns = () => {
           />
         )}
 
+        {/* 分享 */}
         <OperateBtn
           icon="fl-icon-fenxiang"
           onClick={() => {
@@ -530,6 +947,7 @@ const OperaterBtns = () => {
           slot={<div id="share" className="share-wrapper" />}
         />
 
+        {/* 字号 */}
         <OperateBtn
           text="A"
           onClick={() => {
@@ -552,6 +970,7 @@ const OperaterBtns = () => {
           }
         />
 
+        {/* 切换背景颜色 */}
         <OperateBtn
           icon="fl-icon-beijingyanse"
           onClick={() => {
@@ -579,6 +998,7 @@ const OperaterBtns = () => {
           }
         />
 
+        {/* 回到顶部 */}
         <BackTop onClick={() => closeAllPopup()}>
           <OperateBtn icon="fl-icon-huidaodingbu" />
         </BackTop>
