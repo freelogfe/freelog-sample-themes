@@ -52,31 +52,31 @@ export default {
       deps.forEach((dep) => {
         const isMediaResource =
           dep.resourceType.includes("图片") || dep.resourceType.includes("视频") || dep.resourceType.includes("音频");
-        const depContent = freelogApp.getExhibitDepFileStream(props.data.exhibitId, {
+        const depContent = (freelogApp as any).getExhibitDepFileStream(props.data.exhibitId, {
           nid: dep.nid,
           returnUrl: isMediaResource,
         });
         promiseArr.push(depContent);
       });
 
-      await Promise.all(promiseArr).then((res) => {
-        res.forEach((dep, index) => {
-          if (dep.data) {
-            // 进一步判断是否为文本文件
-            if (!dep.headers["content-type"].startsWith("text")) return;
+      const res = await Promise.all(promiseArr)
+      res.forEach((dep, index) => {
+        if (dep.data) {
+          // 进一步判断是否为文本文件
+          if (!dep.headers["content-type"].startsWith("text")) return;
 
-            // 返回数据是对象，且有data属性，说明该依赖为非媒体资源
-            const reg = new RegExp("{{" + `freelog://${deps[index].articleName}` + "}}", "g");
-            const converter = new showdown.Converter();
-            const data = converter.makeHtml(dep.data);
-            html = html.replace(reg, data);
-          } else {
-            // 媒体资源
-            const reg = new RegExp("src=['\"]" + `freelog://${deps[index].articleName}` + "['\"]", "g");
-            html = html.replace(reg, `src="${dep}"`);
-          }
-        });
+          // 返回数据是对象，且有data属性，说明该依赖为非媒体资源
+          const reg = new RegExp("{{" + `freelog://${deps[index].articleName}` + "}}", "g");
+          const converter = new showdown.Converter();
+          const data = converter.makeHtml(String(dep.data));
+          html = html.replace(reg, data);
+        } else {
+          // 媒体资源
+          const reg = new RegExp("src=['\"]" + `freelog://${deps[index].articleName}` + "['\"]", "g");
+          html = html.replace(reg, `src="${dep}"`);
+        }
       });
+      
 
       // 隐藏视频与音频的下载按钮
       html = html.replace(/<img/g, "<p><img");
