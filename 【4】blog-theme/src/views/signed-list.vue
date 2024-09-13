@@ -2,8 +2,6 @@
 
 <template>
   <div class="signed-list-wrapper" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
-    <my-header />
-
     <div class="content" v-if="userData.isLogin && mySignedList">
       <div class="content-header">
         <div class="signed-list-title">已签约文章</div>
@@ -24,9 +22,6 @@
       <div class="not-login-tip">此页面需登录浏览，请先登录</div>
       <div class="main-btn" @click="callLogin()" v-if="!inMobile">登录</div>
     </div>
-
-    <my-footer />
-
     <theme-entrance />
   </div>
 </template>
@@ -41,8 +36,6 @@ export default {
   name: "signed-list",
 
   components: {
-    "my-header": defineAsyncComponent(() => import("../components/header.vue")),
-    "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
     "my-article": defineAsyncComponent(() => import("../components/article.vue")),
   },

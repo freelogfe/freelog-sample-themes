@@ -2,17 +2,17 @@
 
 <template>
   <div class="reader-wrapper" :class="{ 'in-mobile': inMobile }">
-    <my-header readerHeader />
-
+    
     <!-- mobile -->
     <div class="mobile-reader-body" v-if="inMobile">
       <div class="article-info">
+        <div class="article-cover">
+          <img :src="articleData?.coverImages[0]" alt="">
+        </div>
         <div class="article-title">{{ articleData?.exhibitTitle }}</div>
         <div class="other-info">
           <div class="info-left">
             <div class="info">{{ formatDate(articleData?.createDate) }}</div>
-            <div class="divider"></div>
-            <div class="info">{{ articleData?.signCount || 0 }}人已签约</div>
           </div>
           <div class="share-btn" @click="share()">
             <span class="share-btn-text"><i class="freelog fl-icon-fenxiang"></i>分享</span>
@@ -20,14 +20,14 @@
           <input id="href" class="hidden-input" :value="href" readOnly />
         </div>
         <div class="tags">
-          <tags :tags="articleData?.tags" />
+          <!-- <tags :tags="articleData?.tags" /> -->
+          <tags :tags="['上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣', '上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣', '上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣']" />
         </div>
         <div class="article-content">
           <my-loader v-if="contentLoading" />
 
           <template v-else>
-            <div id="markdown" v-if="articleData?.defaulterIdentityType === 0" />
-
+            <div id="markdown" v-if="articleData?.defaulterIdentityType === 0"></div>
             <template v-else-if="articleData?.defaulterIdentityType">
               <div class="auth-box" v-if="articleData?.defaulterIdentityType !== 4">
                 <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
@@ -46,15 +46,18 @@
       </div>
 
       <div class="recommend">
-        <div class="recommend-title">热门推荐</div>
+        <div class="recommend-title">推荐</div>
         <div class="article-list">
-          <my-article :data="item" v-for="item in recommendList" :key="item.presentableId" />
+          <my-article-v2 :data="item" v-for="item in recommendList" :key="item.presentableId" />
         </div>
       </div>
     </div>
 
     <!-- PC -->
     <div class="reader-body" v-if="!inMobile">
+      <div class="article-cover">
+        <img :src="articleData?.coverImages[0]" alt="">
+      </div>
       <div class="article-card">
         <div class="title-share">
           <div class="article-title">{{ articleData?.exhibitTitle }}</div>
@@ -72,19 +75,45 @@
         </div>
         <div class="other-info">
           <div class="info">{{ formatDate(articleData?.createDate) }}</div>
-          <div class="divider"></div>
-          <div class="info">{{ articleData?.signCount || 0 }}人已签约</div>
-          <div class="tags">
-            <tags :tags="articleData?.tags" />
-          </div>
         </div>
-        <div class="divider"></div>
+        <div class="tags">
+          <tags :tags="['上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣', '上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣', '上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣']" />
+          <!-- <tags :tags="articleData?.tags" /> -->
+        </div>
         <div class="article-content">
           <my-loader v-if="contentLoading" />
 
           <template v-else>
-            <div id="markdown" v-if="articleData?.defaulterIdentityType === 0" />
+            <div class="markdown-area" v-if="articleData?.defaulterIdentityType === 0">
+              <div class="markdown-wrapper">
+                <div class="divider"></div>
+                <div id="markdown" :ref="(el) => { markdownRef = el }"></div>
+              </div>
 
+              <div class="category-wrapper">
+                <div class="divider"></div>
+                <div class="data">
+                  <div class="title-directory-box">
+                    <div class="title-directory">
+                      <div
+                        class="directory-item"
+                        :class="{
+                          active: currentTitle === item.innerText,
+                          second: item.nodeName === 'H2',
+                          third: item.nodeName === 'H3',
+                        }"
+                        :title="item.innerText"
+                        v-for="item in directoryList"
+                        :key="item.id"
+                        @click="jumpToTitle(item.innerText)"
+                      >
+                        <span>{{ item.innerText }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <template v-else-if="articleData?.defaulterIdentityType">
               <div class="auth-box" v-if="articleData?.defaulterIdentityType !== 4">
                 <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
@@ -104,21 +133,19 @@
 
       <div class="recommend">
         <div class="recommend-header">
-          <div class="recommend-title">热门推荐</div>
+          <div class="recommend-title">相关推荐</div>
           <div class="text-btn" @click="switchPage('/')">更多>></div>
         </div>
         <div class="article-list">
-          <my-article :data="item" v-for="item in recommendList" :key="item.presentableId" />
+          <my-article-v2 :data="item" v-for="item in recommendList" :key="item.presentableId" />
         </div>
       </div>
     </div>
-
-    <my-footer />
   </div>
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, nextTick, onBeforeUnmount, reactive, toRefs, watch } from "vue";
+import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, reactive, toRefs, watch, ref, onMounted } from "vue";
 import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
 import { ExhibitItem } from "@/api/interface";
 import { formatDate } from "@/utils/common";
@@ -134,6 +161,7 @@ export default {
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
     "my-article": defineAsyncComponent(() => import("../components/article.vue")),
+    "my-article-v2": defineAsyncComponent(() => import("../components/article-v2.vue")),
     "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
   },
 
@@ -143,6 +171,7 @@ export default {
     const datasOfGetList = useGetList();
     const { scrollTo } = useMyScroll();
 
+    const markdownRef = ref(null) as any
     const data = reactive({
       contentLoading: false,
       articleData: null as ExhibitItem | null,
@@ -152,6 +181,9 @@ export default {
       href: "",
       shareWidget: null as WidgetController | null,
       markdownWidget: null as WidgetController | null,
+      timeId: 0,
+      directoryList: [] as Array<any>,
+      currentTitle: null as any
     });
 
     const methods = {
@@ -179,6 +211,30 @@ export default {
       setShareWidgetShow(value: boolean) {
         data.shareWidget?.setData({ show: value });
       },
+
+      /** 跳到标题位置 */
+      jumpToTitle(title: string) {
+        data.currentTitle = title
+        const el: any = data.directoryList.find((item) => item.innerText === title);
+        if (!el) return;
+        scrollTo(800)
+        const markdownApp = document.getElementById("markdown")
+        markdownApp!.scrollTo({
+          top: el.offsetTop,
+          behavior: "smooth"
+        });
+      },
+
+      /** 处理滚动 */
+      handleScroll(e: any) {
+        for (let index = 0; index < data.directoryList.length; index++) {
+          const element = data.directoryList[index];
+          if (e.target.scrollTop <= element.offsetTop) {
+            data.currentTitle = element.innerText
+            break
+          }
+        }
+      }
     };
 
     /** 获取文章信息与内容 */
@@ -205,7 +261,9 @@ export default {
 
       if (defaulterIdentityType === 0) {
         // 已签约并且授权链无异常
+        
         const info = await freelogApp.getExhibitFileStream(id);
+
         if (!info) {
           data.contentLoading = false;
           return;
@@ -224,9 +282,10 @@ export default {
       nextTick(() => {
         mountMarkdownWidget();
       });
-      await datasOfGetList.getList({ limit: 4 }, true);
+      await datasOfGetList.getList({ limit: 30 }, true);
+      
       const recommendList = datasOfGetList.listData.value.filter((item) => item.exhibitId !== id);
-      data.recommendList = recommendList.filter((_: any, index: number) => index < 4);
+      data.recommendList = recommendList;
     };
 
     /** 刷新授权状态 */
@@ -287,9 +346,18 @@ export default {
         renderWidgetOptions: {
           data: { exhibitInfo: data.contentInfo?.exhibitInfo, content: data.contentInfo?.content },
         },
-        // widget_entry: "https://localhost:8202",
+        widget_entry: "https://localhost:8202",
       };
-      data.markdownWidget = await freelogApp.mountArticleWidget(params);
+      data.markdownWidget = await freelogApp.mountArticleWidget(params);      
+      data.timeId = setInterval(() => {
+        const articleDoms = document.querySelector('#markdown-widget-app')?.children[0] && 
+          document.querySelector('#markdown-widget-app')?.children[0]?.children
+        if (articleDoms) {
+          clearInterval(data.timeId)
+          const doms = Array.from(articleDoms)
+          data.directoryList = doms.filter((item: any) => ["H1", "H2", "H3"].includes(item.nodeName));
+        }
+      }, 1500)
     };
 
     watch(
@@ -305,9 +373,18 @@ export default {
       }
     );
 
+
+    watch(
+      markdownRef,
+      (cur) => {
+        markdownRef.value && markdownRef.value.addEventListener('scroll', methods.handleScroll)
+      }
+    )
+
     onBeforeUnmount(async () => {
       await data.shareWidget?.unmount();
       await data.markdownWidget?.unmount();
+      markdownRef.value && markdownRef.value.removeEventListener('scroll', methods.handleScroll)
     });
 
     getData();
@@ -319,6 +396,7 @@ export default {
       ...datasOfGetList,
       ...toRefs(data),
       ...methods,
+      markdownRef
     };
   },
 };
@@ -334,7 +412,6 @@ export default {
   align-items: center;
   padding-bottom: 148px;
   box-sizing: border-box;
-  background: #fafbfc;
 
   &.in-mobile {
     background: rgba(0, 0, 0, 0.03);
@@ -351,6 +428,14 @@ export default {
       background: #ffffff;
       padding: 20px;
       box-sizing: border-box;
+
+      .article-cover {
+        width: 100%;
+        margin-bottom: 30px;
+        img {
+          width: 100%;
+        }
+      }
 
       .article-title {
         font-size: 20px;
@@ -414,7 +499,6 @@ export default {
 
       .tags {
         margin-top: 12px;
-        height: 24px;
         overflow: hidden;
       }
 
@@ -509,7 +593,7 @@ export default {
 
     .recommend {
       width: 100%;
-      padding: 20px 20px 0;
+      padding: 30px 20px;
       box-sizing: border-box;
       margin-top: 5px;
       background-color: #fff;
@@ -519,13 +603,17 @@ export default {
         font-weight: 600;
         color: #222222;
         line-height: 22px;
+        margin-bottom: 30px;
       }
 
       .article-list {
         margin-top: 5px;
-
-        .article-wrapper:last-child {
+        .article-wrapper-v2 {
+          margin-bottom: 30px;
+        }
+        .article-wrapper-v2:last-child {
           border-bottom: none;
+          margin-bottom: 0px;
         }
       }
     }
@@ -533,17 +621,23 @@ export default {
 
   // PC
   .reader-body {
-    width: 920px;
-    padding-top: 30px;
+    width: 965px;
+
+    .article-cover {
+      width: 965px;
+      height: 654px;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
 
     .article-card {
       width: 100%;
-      min-height: calc(100vh - 130px);
-      background: #ffffff;
-      box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.1);
-      border-radius: 6px;
-      padding: 25px 30px;
       box-sizing: border-box;
+      padding-top: 50px;
 
       .title-share {
         display: flex;
@@ -551,10 +645,10 @@ export default {
         justify-content: space-between;
 
         .article-title {
-          font-size: 24px;
+          font-size: 36px;
           font-weight: 600;
           color: #222222;
-          line-height: 30px;
+          line-height: 46px;
         }
 
         .share-btn {
@@ -565,6 +659,9 @@ export default {
           cursor: pointer;
 
           .share-btn-text {
+            padding: 9px 15px;
+            border: 1px solid #666666;
+            border-radius: 4px;
             font-size: 14px;
             line-height: 20px;
             color: #222;
@@ -588,6 +685,7 @@ export default {
             position: absolute;
             right: 0;
             top: 100%;
+            z-index: 1
           }
         }
       }
@@ -601,7 +699,9 @@ export default {
         .info {
           flex-shrink: 0;
           font-size: 12px;
-          color: #999999;
+          font-weight: 400;
+          color: #666666;
+          line-height: 18px;
         }
 
         .divider {
@@ -611,18 +711,10 @@ export default {
           margin: 0 10px;
         }
 
-        .tags {
-          margin-left: 20px;
-          height: 24px;
-          overflow: hidden;
-        }
       }
 
-      .divider {
-        width: 100%;
-        height: 1px;
-        background-color: rgba(0, 0, 0, 0.1);
-        margin: 25px 0;
+      .tags {
+        margin-top: 15px;
       }
 
       .article-content {
@@ -630,9 +722,104 @@ export default {
         color: #222222;
         line-height: 24px;
 
-        #markdown {
-          position: relative;
-          z-index: 0;
+        .markdown-area {
+          display: flex;
+
+          .divider {
+            margin: 30px 0px;
+            height: 1px;
+            background-color: rgba(0,0,0,0.1);
+          }
+
+          .markdown-wrapper {
+            width: 725px;
+            margin-right: auto;
+
+            #markdown-widget-app .markdown-wrapper {
+              background-color: transparent;
+            }
+            #markdown {
+              position: relative;
+              z-index: 0;
+              max-height: calc(100vh - 130px);
+              overflow: auto;
+              
+              /* 滚动条轨道样式 */
+              &::-webkit-scrollbar {
+                width: 8px; /* 设置滚动条宽度 */
+              }
+              
+              /* 滚动条滑块样式 */
+              &::-webkit-scrollbar-thumb {
+                background-color: #e4e4e4; /* 设置滑块背景颜色 */
+                border-radius: 4px; /* 设置滑块圆角 */
+              }
+              
+              /* 滚动条轨道hover状态样式 */
+              &::-webkit-scrollbar-track:hover {
+                background-color: #f1f1f1; /* 设置轨道hover状态时的背景颜色 */
+              }
+              
+              /* 滚动条滑块hover状态样式 */
+              &::-webkit-scrollbar-thumb:hover {
+                background-color: #555; /* 设置滑块hover状态时的背景颜色 */
+              }
+            }
+          }
+          .category-wrapper {
+            width: 200px;
+            .data {
+              .title-directory-box {
+                position: sticky;
+                top: 70px;
+                height: calc(100vh - 130px);
+                box-sizing: border-box;
+                background-color: #fff;
+
+                .title-directory {
+                  width: 100%;
+                  height: fit-content;
+                  max-height: 100%;
+                  overflow-y: auto;
+
+                  &::-webkit-scrollbar {
+                    width: 0;
+                  }
+
+                  .directory-item {
+                    width: 100%;
+                    padding: 0 8px;
+                    box-sizing: border-box;
+                    font-size: 14px;
+                    color: #999999;
+                    line-height: 20px;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    cursor: pointer;
+                    transition: all 0.2s linear;
+
+                    &.second {
+                      padding-left: 50px;
+                    }
+
+                    &.third {
+                      padding-left: 70px;
+                    }
+
+                    &:hover,
+                    &.active {
+                      color: #2784ff;
+                    }
+
+                    & + .directory-item {
+                      margin-top: 15px;
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
 
         .auth-box {
@@ -738,6 +925,9 @@ export default {
       }
 
       .article-list {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 40px;
         margin-top: 15px;
 
         .article-wrapper:first-child {

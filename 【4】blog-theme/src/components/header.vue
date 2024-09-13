@@ -2,7 +2,7 @@
 
 <template>
   <!-- 移动端头部 -->
-  <div class="mobile-header-wrapper" :class="{ 'in-home': homeHeader }" v-if="inMobile && !mobileSearching">
+  <div class="mobile-header-wrapper" :class="{ 'in-home': $route.path === '/home' }" v-if="inMobile && !mobileSearching">
     <!-- header顶部 -->
     <div class="header-top" :class="{ logon: userData.isLogin }">
       <img
@@ -10,7 +10,7 @@
         :src="selfConfig.logoImage || require('../assets/images/logo.png')"
         referrerpolicy="no-referrer"
         @click="switchPage('/')"
-        v-if="homeHeader"
+        v-if="$route.path === '/home'"
       />
       <div class="header-top-left" @click="locationHistory.length === 1 ? switchPage('/home') : routerBack()" v-else>
         <img class="back-arrow" src="../assets/images/arrow.png" />
@@ -18,27 +18,13 @@
       </div>
 
       <div class="header-top-right">
-        <i class="freelog fl-icon-content" @click="searchPopupShow = true" v-if="!readerHeader"></i>
+        <i class="freelog fl-icon-content" @click="searchPopupShow = true" v-if="!($route.path === '/reader')"></i>
 
         <img class="menu" src="../assets/images/menu.png" @click="userBoxShow = true" />
       </div>
     </div>
 
-    <!-- 博客信息 -->
-    <template v-if="homeHeader">
-      <div class="header-other-info">
-        <div class="blogger-avatar">
-          <img :src="nodeLogo || require('../assets/images/default-avatar.png')" alt="博主头像" class="avatar-img" />
-        </div>
-        <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
-      </div>
-
-      <div class="header-blog-info" @click="blogInfoPopupShow = true">
-        <div class="blog-title">{{ nodeTitle }}</div>
-        <div class="blog-desc" v-html="nodeShortDescription"></div>
-      </div>
-    </template>
-
+   
     <transition name="fade">
       <div id="modal" class="modal" @click="userBoxShow = false" @touchmove.prevent v-if="userBoxShow"></div>
     </transition>
@@ -169,6 +155,8 @@
           :src="selfConfig.logoImage || require('../assets/images/logo.png')"
           @click="switchPage('/')"
         />
+        
+        <div class="nav-btn" @click="switchPage('/')">首页</div>
 
         <!-- 搜索框 -->
         <div class="search-box">
@@ -220,7 +208,7 @@
       </div>
 
       <div class="header-top-right">
-        <div class="nav-btn" @click="switchPage('/')">首页</div>
+        
         <!-- 已登录用户信息 -->
         <div
           class="user-avatar"
@@ -257,23 +245,6 @@
         </div>
       </div>
     </div>
-
-    <template v-if="homeHeader">
-      <!-- 博客信息 -->
-      <div class="header-blog-info">
-        <div class="blogger-avatar">
-          <img :src="nodeLogo || require('../assets/images/default-avatar.png')" alt="博主头像" class="avatar-img" />
-        </div>
-
-        <div class="info-content">
-          <div class="title-signcount">
-            <div class="blog-title" :title="nodeTitle">{{ nodeTitle }}</div>
-            <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
-          </div>
-          <div class="blog-desc" v-html="nodeShortDescription" :title="nodeShortDescription"></div>
-        </div>
-      </div>
-    </template>
   </div>
 </template>
 
@@ -288,21 +259,13 @@ export default {
   name: "my-header",
 
   props: {
-    homeHeader: {
-      type: Boolean,
-      default: false,
-    },
-    readerHeader: {
-      type: Boolean,
-      default: false,
-    },
     mobileSearching: {
       type: Boolean,
       default: false,
     },
   },
 
-  setup(props: { homeHeader: boolean }) {
+  setup(props: any) {
     const nodeInfo = freelogApp.nodeInfo;
     const store = useStore();
     const { query, route, switchPage, routerBack } = useMyRouter();
@@ -354,7 +317,7 @@ export default {
         const { searchKey } = data;
         const query: { keywords?: string } = {};
         if (searchKey) query.keywords = searchKey;
-        switchPage("/home", query);
+        switchPage("/search", query);
       },
 
       /** 筛选标签 */

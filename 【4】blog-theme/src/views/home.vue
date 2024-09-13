@@ -2,9 +2,32 @@
 
 <template>
   <div class="home-wrapper" @click="sortPopupShow = false">
-    <my-header homeHeader :mobileSearching="!!(inMobile && searchData.keywords)" />
 
     <!-- mobile -->
+    <div class="mobile-home-banner" v-if="inMobile">
+      <div class="header-other-info">
+        <div class="blogger-avatar">
+          <img :src="nodeLogo || require('../assets/images/default-avatar.png')" alt="博主头像" class="avatar-img" />
+        </div>
+      </div>
+
+      <div class="header-blog-info" @click="blogInfoPopupShow = true">
+        <div class="blog-title">{{ nodeTitle }}</div>
+        <div class="blog-desc" v-html="nodeShortDescription"></div>
+        <div class="tags">
+          <div
+            class="category-btn"
+            :class="{ disabled: myLoading }"
+            v-for="item in Array.from({length: 20}).fill(tagsList[0])"
+            :key="item"
+            @click="selectTag(item)"
+          >
+            {{ item }}
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="mobile-home-body" v-if="inMobile">
       <div class="header">
         <div
@@ -54,7 +77,7 @@
 
       <template v-if="!loading">
         <div class="article-list">
-          <my-article :data="item" v-for="item in listData" :key="item.presentableId" />
+          <my-article-v2 :data="item" v-for="item in listData" :key="item.presentableId" />
         </div>
 
         <div className="tip" v-show="total === 0">当前节点暂无任何书籍，请稍后查看</div>
@@ -104,26 +127,36 @@
 
     <!-- PC -->
     <div class="home-body" v-if="!inMobile">
-      <div class="header">
-        <div class="search-box-title" v-if="searchData.keywords">查询到{{ listData.length }}个相关结果</div>
-
-        <div class="filter-bar">
-          <div class="filter-bar-bg"></div>
-
-          <div class="category-btn" :class="{ active: !searchData.tags, disabled: myLoading }" @click="selectTag()">
-            全部
+      <template v-if="$route.path === '/home'">
+        <!-- 博客信息 -->
+        <div class="header-blog-info">
+          <div class="blogger-avatar" v-if="nodeLogo">
+            <img :src="nodeLogo || require('../assets/images/default-avatar.png')" alt="博主头像" class="avatar-img" />
           </div>
 
-          <div
-            class="category-btn"
-            :class="{ active: searchData.tags === item, disabled: myLoading }"
-            v-for="item in tagsList"
-            :key="item"
-            @click="selectTag(item)"
-          >
-            {{ item }}
+          <div class="info-content" :class="{ noBg: !nodeLogo }">
+            <div class="title-signcount">
+              <div class="blog-title">{{ nodeTitle || "你还未为主题设置标题" }}</div>
+              <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
+            </div>
+            <div class="blog-desc" v-html="nodeShortDescription" :title="nodeShortDescription"></div>
+            <div class="tags">
+              <div
+                class="category-btn"
+                :class="{ disabled: myLoading }"
+                v-for="item in tagsList"
+                :key="item"
+                @click="selectTag(item)"
+              >
+                {{ item }}
+              </div>
+            </div>
           </div>
         </div>
+      </template>
+
+      <div class="header">
+        <div class="search-box-title" v-if="searchData.keywords">查询到{{ listData.length }}个相关结果</div>
 
         <div
           class="sort"
@@ -132,14 +165,14 @@
           @mouseleave="sortPopupShow = false"
           v-if="!searchData.keywords && listData.length"
         >
-          {{ createDateSortType === "-1" ? "最新" : "最早" }}
+          {{ createDateSortType === "-1" ? "最新更新" : "最热门" }}
           <i class="freelog fl-icon-zhankaigengduo"></i>
 
           <transition name="slide-down-scale">
             <div class="sort-popup" v-show="sortPopupShow">
               <div class="sort-popup-body">
-                <div class="user-box-btn" @click="sort('-1')">最新</div>
-                <div class="user-box-btn" @click="sort('1')">最早</div>
+                <div class="user-box-btn" @click="sort('-1')">最新更新</div>
+                <div class="user-box-btn" @click="sort('1')">最热门</div>
               </div>
             </div>
           </transition>
@@ -150,15 +183,12 @@
 
       <template v-if="!loading">
         <div class="article-list">
-          <my-article :data="item" v-for="item in listData" :key="item.presentableId" />
+          <my-article-v2 :data="item" v-for="item in listData" :key="item.presentableId" />
         </div>
-
         <div className="tip" v-show="total === 0">当前节点暂无任何书籍，请稍后查看</div>
         <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部 —</div>
       </template>
     </div>
-
-    <my-footer />
   </div>
 </template>
 
@@ -166,6 +196,7 @@
 import { defineAsyncComponent, onActivated, onDeactivated, reactive, toRefs, watch } from "vue";
 import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
 import { useStore } from "vuex";
+import { freelogApp } from "freelog-runtime";
 
 export default {
   name: "home",
@@ -173,11 +204,14 @@ export default {
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
-    "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     "my-article": defineAsyncComponent(() => import("../components/article.vue")),
+    "my-article-v2": defineAsyncComponent(() => import("../components/article-v2.vue")),
   },
 
   setup() {
+    const nodeInfo = freelogApp.nodeInfo;
+    console.log(nodeInfo);
+    
     const store = useStore();
     const tagsList: string[] = store.state.selfConfig.tags?.split(",");
     const { query, route, router, switchPage } = useMyRouter();
@@ -207,13 +241,13 @@ export default {
         switchPage("/home");
       },
 
-      /** 筛选标签 */
+      /** 筛选标签, 跳转搜索结果页 */
       selectTag(tag: string) {
         const { keywords } = data.searchData;
         const query: { keywords?: string; tags?: string } = {};
         if (tag) query.tags = tag;
         if (keywords) query.keywords = keywords;
-        switchPage("/home", query);
+        switchPage("/search", query);
       },
     };
 
@@ -268,6 +302,7 @@ export default {
     getData();
 
     return {
+      ...nodeInfo,
       ...toRefs(store.state),
       tagsList,
       ...datasOfGetList,
@@ -288,6 +323,80 @@ export default {
   align-items: center;
 
   // mobile
+  .mobile-home-banner {
+    .header-other-info {
+      .blogger-avatar {
+        width: 100%;
+        height: calc((100vw - 0px) * 0.44);
+        box-sizing: border-box;
+
+        .avatar-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+    }
+
+    .header-blog-info {
+      background-color: #F7F7F7;
+      padding: 20px;
+
+      .blog-title {
+        font-size: 30px;
+        font-weight: 600;
+        color: #222222;
+        line-height: 36px;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+      }
+
+      .blog-desc {
+        font-weight: 400;
+        font-size: 14px;
+        color: #222222;
+        line-height: 20px;
+        margin-top: 15px;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        overflow: hidden;
+      }
+
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2px 10px;
+        margin-top: 15px;
+
+        .category-btn {
+          position: relative;
+          padding: 2px 8px;
+          box-sizing: border-box;
+          font-size: 14px;
+          color: #aaa;
+          line-height: 20px;
+          border-radius: 12px;
+          border: 1px solid #aaa;;
+          margin-bottom: 2px;
+          cursor: pointer;
+          transition: all 0.2s linear;
+
+          &:hover {
+            opacity: 0.7;
+          }
+
+          &:active {
+            opacity: 0.7;
+          }
+        }
+      }
+    }
+
+  }
+
   .mobile-home-body {
     width: 100%;
     padding: 0 20px;
@@ -477,73 +586,160 @@ export default {
         }
       }
     }
+    .article-list {
+      .article-wrapper-v2 {
+        margin-bottom: 30px;
+      }
+      .article-wrapper-v2:last-child {
+        border-bottom: none;
+        margin-bottom: 0px;
+      }
+    }
   }
 
   // PC
   .home-body {
-    width: 920px;
+    width: 85%;
+    min-width: 965px;
+    max-width: 1600px;
     padding-bottom: 148px;
+
+    .header-blog-info {
+      position: relative;
+      min-height: 314px;
+      
+      .blogger-avatar {
+        width: 100%;
+        height: calc(100vw * 0.44);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+
+        .avatar-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+
+      .info-content {
+        width: calc(100% - 50px);
+        position: absolute;
+        left: 50px;
+        bottom: 50px;
+        height: fit-content;
+
+        &.noBg {
+          top: 50%;
+          left: 0px;
+          transform: translateY(-50%);
+
+          .blog-title {
+            color: #222222 !important;
+          }
+
+          .blog-desc {
+            color: #222 !important;
+          }
+
+          .category-btn {
+            color: #666666 !important;
+            border-color: #666666 !important;
+          }
+
+        }
+
+        .title-signcount {
+          width: 100%;
+          display: flex;
+          align-items: center;
+
+          .blog-title {
+            height: 84px;
+            max-width: 100%;
+            font-size: 60px;
+            font-weight: 600;
+            line-height: 84px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            color: #FFFFFF;
+          }
+
+          .sign-count {
+            flex-shrink: 0;
+            height: 28px;
+            line-height: 28px;
+            padding: 0 8px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            margin-left: 15px;
+          }
+        }
+
+        .blog-desc {
+          font-size: 20px;
+          color: #fff;
+          line-height: 28px;
+          margin-top: 20px;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
+          overflow: hidden;
+        }
+
+        .tags {
+          display: flex;
+          margin-top: 30px;
+
+          .category-btn {
+            position: relative;
+            padding: 2px 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+            color: #fff;
+            line-height: 20px;
+            border-radius: 12px;
+            border: 1px solid #FFFFFF;;
+            margin-bottom: 2px;
+            cursor: pointer;
+            transition: all 0.2s linear;
+            z-index: 1;
+  
+            &:hover {
+              opacity: 0.7;
+            }
+  
+            &:active {
+              opacity: 0.7;
+            }
+  
+            & + .category-btn {
+              margin-left: 10px;
+            }
+          }
+        }
+
+      }
+    }
 
     .header {
       font-size: 30px;
       line-height: 36px;
-      margin-bottom: 30px;
+      padding: 40px 0px;
 
       .search-box-title {
         font-size: 14px;
         color: #999999;
         line-height: 20px;
         margin-top: 30px;
-      }
-
-      .filter-bar {
-        position: relative;
-        width: 100%;
-        border-radius: 6px;
-        padding: 13px 20px 11px;
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin: 30px 0;
-
-        .filter-bar-bg {
-          position: absolute;
-          inset: 0;
-          background-color: var(--deriveColor);
-          opacity: 0.04;
-        }
-
-        .category-btn {
-          position: relative;
-          padding: 2px 8px;
-          box-sizing: border-box;
-          font-size: 14px;
-          color: #666;
-          line-height: 20px;
-          border-radius: 12px;
-          margin-bottom: 2px;
-          cursor: pointer;
-          transition: all 0.2s linear;
-          z-index: 1;
-
-          &:hover {
-            color: var(--deriveColor);
-          }
-
-          &:active {
-            color: var(--deriveColor);
-            opacity: 0.8;
-          }
-
-          &.active {
-            background-color: var(--deriveColor);
-            color: #fff;
-          }
-
-          & + .category-btn {
-            margin-left: 4px;
-          }
-        }
       }
 
       .sort {
@@ -595,8 +791,10 @@ export default {
       }
     }
 
-    .article-list .article-wrapper:first-child {
-      border-top: 1px solid rgba(0, 0, 0, 0.1);
+    .article-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
     }
 
     .tip {
@@ -613,6 +811,12 @@ export default {
         margin-top: 30px;
       }
     }
+  }
+}
+
+@media screen and (min-width: 1300px) {
+  .article-list {
+    grid-template-columns: repeat(4, 1fr) !important;
   }
 }
 </style>

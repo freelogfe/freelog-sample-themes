@@ -1,7 +1,7 @@
 <!-- 标签组 -->
 
 <template>
-  <div class="tags-wrapper">
+  <div class="tags-wrapper" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
     <div
       class="tag"
       :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }"
@@ -54,7 +54,13 @@ export default {
 .tags-wrapper {
   display: flex;
   flex-wrap: wrap;
+  &.in-mobile {
+    gap: 8px;
+  }
 
+  &.in-pc {
+    gap: 5px;
+  }
   .tag {
     box-sizing: border-box;
     font-size: 12px;
@@ -68,9 +74,6 @@ export default {
 
     // mobile
     &.in-mobile {
-      & + .tag {
-        margin-left: 8px;
-      }
 
       &:active {
         background-color: #a0a5ae;
@@ -82,11 +85,7 @@ export default {
     &.in-pc {
       cursor: pointer;
       transition: all 0.2s linear;
-
-      & + .tag {
-        margin-left: 5px;
-      }
-
+      
       &:hover {
         background-color: #a0a5ae;
         color: #fff;
