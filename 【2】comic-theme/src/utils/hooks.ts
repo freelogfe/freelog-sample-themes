@@ -221,7 +221,7 @@ export const useGetList = () => {
     data.skip = init ? 0 : data.skip + 30;
     const queryParams = {
       skip: data.skip,
-      articleResourceTypes: "漫画",
+      articleResourceTypes: "漫画,连载漫画",
       limit: params.limit || 30,
       ...params
     };
