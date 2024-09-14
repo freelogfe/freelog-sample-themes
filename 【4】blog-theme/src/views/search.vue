@@ -1,7 +1,7 @@
 <template>
-  <div class="search-wrapper-pc">
+  <div class="search-wrapper-pc" v-if="!inMobile">
     <div class="search-body">
-      <div class="title">"拖拉机"的相关结果</div>
+      <div class="title">"{{ keywrodTxt }}"的相关结果</div>
       <div
         class="sort"
         :class="{ disabled: myLoading }"
@@ -30,11 +30,21 @@
       </template>
     </div>
   </div>
+  <div class="search-wrapper-mobile" v-else>
+    <div class="search-body">
+      <div class="title">查询到{{ listData.length || 0 }}个相关结果</div>
+      <div class="article-list" v-if="!loading">
+        <my-article-v2 :data="item" v-for="item in listData" :key="item.presentableId" />
+      </div>
+      <div class="all-ready">— 已加载全部 —</div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
-import { onMounted, reactive, toRefs, defineAsyncComponent } from 'vue'
-import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
+import { onMounted, reactive, toRefs, defineAsyncComponent, computed, watch } from 'vue'
+import { useGetList, useMyRouter } from "../utils/hooks";
+import { useStore } from "vuex";
 
 export default {
     name: "home",
@@ -43,32 +53,43 @@ export default {
     },
     setup() {
       const datasOfGetList = useGetList();
+      const { query } = useMyRouter() 
+      const store = useStore();
+
       const state = reactive({
         sortPopupShow: false,
         createDateSortType: "-1",
         searchData: {
-          sort: "createDate:-1"
-        }
+          sort: "createDate:-1",
+          keywords: ""
+        },
+        keywrodTxt: ""
       })
 
       const methods = {
         /** 排序 */
         sort: async (sortType: string) => {
-
           state.createDateSortType = sortType;
           state.searchData.sort = `createDate:${sortType}`;
+          state.searchData.keywords = query.value.keywords
           await datasOfGetList.getList(state.searchData, true);
-       }
+          state.keywrodTxt = query.value.keywords
+        }
       }
 
       onMounted(() => {
         methods.sort(state.createDateSortType)
       })
 
+      watch(query, () => {
+        methods.sort(state.createDateSortType)
+      })
+
       return {
         ...toRefs(state),
         ...methods,
-        ...datasOfGetList
+        ...datasOfGetList,
+        ...toRefs(store.state),
       }
     }
 }
@@ -141,6 +162,55 @@ export default {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 40px;
+      }
+
+      .tip {
+        width: 100%;
+        text-align: center;
+        font-size: 16px;
+        line-height: 22px;
+        color: #999;
+        margin-top: 55px;
+
+        &.no-more {
+          font-size: 14px;
+          line-height: 20px;
+          margin-top: 30px;
+        }
+      }
+    }
+  }
+  .search-wrapper-mobile {
+    .search-body {
+      padding-bottom: 98px;
+      .title {
+        height: 47px;
+        background: #F7F7F7;
+        line-height: 47px;
+        font-weight: 400;
+        font-size: 12px;
+        color: #999999;
+        padding-left: 20px;
+        margin-top: 9px;
+      }
+
+      .article-list {
+        padding: 30px 20px 0px;
+        .article-wrapper-v2 {
+          margin-bottom: 30px;
+          &:last-child {
+            margin-bottom: 0px;
+          }
+        }
+      }
+
+      .all-ready {
+        font-weight: 400;
+        font-size: 14px;
+        color: #999999;
+        line-height: 20px;
+        text-align: center;
+        padding: 50px 0px;
       }
     }
   }

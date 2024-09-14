@@ -2,7 +2,7 @@
 
 <template>
   <!-- 移动端头部 -->
-  <div class="mobile-header-wrapper" :class="{ 'in-home': $route.path === '/home' }" v-if="inMobile && !mobileSearching">
+  <div class="mobile-header-wrapper" :class="{ 'in-home': $route.path === '/home' }" v-if="inMobile && $route.path !== '/search'">
     <!-- header顶部 -->
     <div class="header-top" :class="{ logon: userData.isLogin }">
       <img
@@ -125,8 +125,8 @@
     </transition>
   </div>
 
-  <!-- 移动端首页搜索头部 -->
-  <div class="mobile-search-header-wrapper" v-if="inMobile && mobileSearching">
+  <!-- 移动端搜索页头部 -->
+  <div class="mobile-search-header-wrapper" v-if="inMobile && $route.path === '/search'">
     <div class="search-page-box">
       <input
         class="search-input input-none"
@@ -257,13 +257,6 @@ import { freelogApp } from "freelog-runtime";
 
 export default {
   name: "my-header",
-
-  props: {
-    mobileSearching: {
-      type: Boolean,
-      default: false,
-    },
-  },
 
   setup(props: any) {
     const nodeInfo = freelogApp.nodeInfo;

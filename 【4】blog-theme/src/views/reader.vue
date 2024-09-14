@@ -2,150 +2,213 @@
 
 <template>
   <div class="reader-wrapper" :class="{ 'in-mobile': inMobile }">
-    
-    <!-- mobile -->
-    <div class="mobile-reader-body" v-if="inMobile">
-      <div class="article-info">
+    <div v-if="articleData?.articleInfo?.status === 1">
+      <!-- mobile -->
+      <div class="mobile-reader-body" v-if="inMobile">
+        <div class="article-info">
+          <div class="article-cover">
+            <img :src="articleData?.coverImages[0]" alt="">
+          </div>
+          <div class="article-title">{{ articleData?.exhibitTitle }}</div>
+          <div class="other-info">
+            <div class="info-left">
+              <div class="info">{{ formatDate(articleData?.createDate) }}</div>
+            </div>
+            <div class="share-btn" @click="share()">
+              <span class="share-btn-text"><i class="freelog fl-icon-fenxiang"></i>分享</span>
+            </div>
+            <input id="href" class="hidden-input" :value="href" readOnly />
+          </div>
+          <div class="tags">
+            <!-- <tags :tags="articleData?.tags" /> -->
+            <tags :tags="['上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣', '上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣', '上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣']" />
+          </div>
+          <div class="article-content">
+            <my-loader v-if="contentLoading" />
+
+            <template v-else>
+              <div id="markdown" v-if="articleData?.defaulterIdentityType === 0"></div>
+              <template v-else-if="articleData?.defaulterIdentityType">
+                <div class="auth-box" v-if="articleData?.defaulterIdentityType !== 4">
+                  <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+                  <div class="auth-link-tip">授权链异常，无法查看</div>
+                  <div class="home-btn" @click="switchPage('/home')">进入首页</div>
+                </div>
+
+                <div class="lock-box" v-else-if="articleData?.defaulterIdentityType === 4 || userData.isLogin === false">
+                  <img class="lock" src="../assets/images/lock.png" />
+                  <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+                  <div class="get-btn" @click="getAuth()">获取授权</div>
+                </div>
+              </template>
+            </template>
+          </div>
+        </div>
+
+        <div class="recommend">
+          <div class="recommend-title">推荐</div>
+          <div class="article-list">
+            <my-article-v2 :data="item" v-for="item in recommendList" :key="item.presentableId" />
+          </div>
+        </div>
+      </div>
+
+      <!-- PC -->
+      <div class="reader-body" v-if="!inMobile">
         <div class="article-cover">
           <img :src="articleData?.coverImages[0]" alt="">
         </div>
-        <div class="article-title">{{ articleData?.exhibitTitle }}</div>
-        <div class="other-info">
-          <div class="info-left">
+        <div class="article-card">
+          <div class="title-share">
+            <div class="article-title">{{ articleData?.exhibitTitle }}</div>
+            <div
+              class="share-btn"
+              @mouseenter.stop="setShareWidgetShow(true)"
+              @mouseleave.stop="setShareWidgetShow(false)"
+            >
+              <span class="share-btn-text" :class="{ active: shareShow }">
+                <i class="freelog fl-icon-fenxiang"></i>分享
+              </span>
+
+              <div id="share" class="share-wrapper" />
+            </div>
+          </div>
+          <div class="other-info">
             <div class="info">{{ formatDate(articleData?.createDate) }}</div>
           </div>
-          <div class="share-btn" @click="share()">
-            <span class="share-btn-text"><i class="freelog fl-icon-fenxiang"></i>分享</span>
+          <div class="tags">
+            <tags :tags="['上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣', '上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣', '上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣']" />
+            <!-- <tags :tags="articleData?.tags" /> -->
           </div>
-          <input id="href" class="hidden-input" :value="href" readOnly />
-        </div>
-        <div class="tags">
-          <!-- <tags :tags="articleData?.tags" /> -->
-          <tags :tags="['上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣', '上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣', '上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣']" />
-        </div>
-        <div class="article-content">
-          <my-loader v-if="contentLoading" />
+          <div class="article-content">
+            <my-loader v-if="contentLoading" />
 
-          <template v-else>
-            <div id="markdown" v-if="articleData?.defaulterIdentityType === 0"></div>
-            <template v-else-if="articleData?.defaulterIdentityType">
-              <div class="auth-box" v-if="articleData?.defaulterIdentityType !== 4">
-                <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-                <div class="auth-link-tip">授权链异常，无法查看</div>
-                <div class="home-btn" @click="switchPage('/home')">进入首页</div>
-              </div>
+            <template v-else>
+              <div class="markdown-area" v-if="articleData?.defaulterIdentityType === 0">
+                <div class="markdown-wrapper">
+                  <div class="divider"></div>
+                  <div id="markdown" :ref="(el) => { markdownRef = el }"></div>
+                </div>
 
-              <div class="lock-box" v-else-if="articleData?.defaulterIdentityType === 4 || userData.isLogin === false">
-                <img class="lock" src="../assets/images/lock.png" />
-                <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-                <div class="get-btn" @click="getAuth()">获取授权</div>
-              </div>
-            </template>
-          </template>
-        </div>
-      </div>
-
-      <div class="recommend">
-        <div class="recommend-title">推荐</div>
-        <div class="article-list">
-          <my-article-v2 :data="item" v-for="item in recommendList" :key="item.presentableId" />
-        </div>
-      </div>
-    </div>
-
-    <!-- PC -->
-    <div class="reader-body" v-if="!inMobile">
-      <div class="article-cover">
-        <img :src="articleData?.coverImages[0]" alt="">
-      </div>
-      <div class="article-card">
-        <div class="title-share">
-          <div class="article-title">{{ articleData?.exhibitTitle }}</div>
-          <div
-            class="share-btn"
-            @mouseenter.stop="setShareWidgetShow(true)"
-            @mouseleave.stop="setShareWidgetShow(false)"
-          >
-            <span class="share-btn-text" :class="{ active: shareShow }">
-              <i class="freelog fl-icon-fenxiang"></i>分享
-            </span>
-
-            <div id="share" class="share-wrapper" />
-          </div>
-        </div>
-        <div class="other-info">
-          <div class="info">{{ formatDate(articleData?.createDate) }}</div>
-        </div>
-        <div class="tags">
-          <tags :tags="['上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣', '上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣', '上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣']" />
-          <!-- <tags :tags="articleData?.tags" /> -->
-        </div>
-        <div class="article-content">
-          <my-loader v-if="contentLoading" />
-
-          <template v-else>
-            <div class="markdown-area" v-if="articleData?.defaulterIdentityType === 0">
-              <div class="markdown-wrapper">
-                <div class="divider"></div>
-                <div id="markdown" :ref="(el) => { markdownRef = el }"></div>
-              </div>
-
-              <div class="category-wrapper">
-                <div class="divider"></div>
-                <div class="data">
-                  <div class="title-directory-box">
-                    <div class="title-directory">
-                      <div
-                        class="directory-item"
-                        :class="{
-                          active: currentTitle === item.innerText,
-                          second: item.nodeName === 'H2',
-                          third: item.nodeName === 'H3',
-                        }"
-                        :title="item.innerText"
-                        v-for="item in directoryList"
-                        :key="item.id"
-                        @click="jumpToTitle(item.innerText)"
-                      >
-                        <span>{{ item.innerText }}</span>
+                <div class="category-wrapper">
+                  <div class="divider"></div>
+                  <div class="data">
+                    <div class="title-directory-box">
+                      <div class="title-directory">
+                        <div
+                          class="directory-item"
+                          :class="{
+                            active: currentTitle === item.innerText,
+                            second: item.nodeName === 'H2',
+                            third: item.nodeName === 'H3',
+                          }"
+                          :title="item.innerText"
+                          v-for="item in directoryList"
+                          :key="item.id"
+                          @click="jumpToTitle(item.innerText)"
+                        >
+                          <span>{{ item.innerText }}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <template v-else-if="articleData?.defaulterIdentityType">
-              <div class="auth-box" v-if="articleData?.defaulterIdentityType !== 4">
-                <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-                <div class="auth-link-tip">授权链异常，无法查看</div>
-                <div class="home-btn" @click="switchPage('/home')">进入首页</div>
-              </div>
+              <template v-else-if="articleData?.defaulterIdentityType">
+                <div class="auth-box" v-if="articleData?.defaulterIdentityType !== 4">
+                  <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+                  <div class="auth-link-tip">授权链异常，无法查看</div>
+                  <div class="home-btn" @click="switchPage('/home')">进入首页</div>
+                </div>
 
-              <div class="lock-box" v-else-if="articleData?.defaulterIdentityType === 4 || userData.isLogin === false">
-                <img class="lock" src="../assets/images/lock.png" />
-                <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-                <div class="get-btn" @click="getAuth()">获取授权</div>
-              </div>
+                <div class="lock-box" v-else-if="articleData?.defaulterIdentityType === 4 || userData.isLogin === false">
+                  <img class="lock" src="../assets/images/lock.png" />
+                  <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+                  <div class="get-btn" @click="getAuth()">获取授权</div>
+                </div>
+              </template>
             </template>
-          </template>
+          </div>
+        </div>
+
+        <div class="recommend">
+          <div class="recommend-header">
+            <div class="recommend-title">相关推荐</div>
+            <div class="text-btn" @click="switchPage('/')">更多>></div>
+          </div>
+          <div class="article-list">
+            <my-article-v2 :data="item" v-for="item in recommendList" :key="item.presentableId" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="reader-weigui" v-else>
+      <!-- mobile -->
+      <div class="detail-weigui-mobile" v-if="inMobile">
+        <div class="mobile">
+          <div class="info">
+            <div class="info-header">
+              <div ref="cover" class="cover-area">
+                <img class="cover" :src="articleData.coverImages[0]" v-if="articleData.coverImages[0]" />
+                <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
+              </div>
+              <div class="title-area">
+                <img
+                  class="auth-link-abnormal"
+                  src="../assets/images/auth-link-abnormal.png"
+                  v-if="authLinkAbnormal"
+                />
+                <i
+                  class="freelog fl-icon-suoding lock"
+                  @click.stop="getAuth()"
+                  v-if="articleData.defaulterIdentityType >= 4"
+                ></i>
+                <div class="title" :content="articleData.exhibitTitle">
+                  <span>{{ articleData.exhibitTitle }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="info-area">
+              <div class="info-item">
+                <i class="freelog fl-icon-gengxinshijian"></i>
+                <div class="item-value">{{ articleData.updateDate | relativeTime }}</div>
+              </div>
+              <div class="info-item">
+                <i class="freelog fl-icon-yonghu"></i>
+                <div class="item-value">{{ articleData.signCount | signCount }}</div>
+              </div>
+            </div>
+          </div>
+          <span class="freelog fl-icon-ziyuanweiguitishi_wendang weigui-icon"></span>
+        </div>
+      </div>
+      <!-- pc -->
+      <div v-else class="detail-weigui-pc">
+        <div class="pc">
+          <span class="freelog fl-icon-ziyuanweiguitishi_wendang weigui-icon"></span>
+          <div class="info">
+            <div ref="cover" class="cover-area">
+              <img class="cover" :src="articleData.coverImages[0]" />
+            </div>
+            <img
+              class="auth-link-abnormal"
+              src="../assets/images/auth-link-abnormal.png"
+              v-if="authLinkAbnormal"
+            />
+            <i class="freelog fl-icon-suoding lock" @click.stop="getAuth()" v-if="articleData.defaulterIdentityType >= 4"></i>
+            <div class="title" :content="articleData.exhibitTitle">
+              <span>{{ articleData.exhibitTitle }}</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="recommend">
-        <div class="recommend-header">
-          <div class="recommend-title">相关推荐</div>
-          <div class="text-btn" @click="switchPage('/')">更多>></div>
-        </div>
-        <div class="article-list">
-          <my-article-v2 :data="item" v-for="item in recommendList" :key="item.presentableId" />
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, reactive, toRefs, watch, ref, onMounted } from "vue";
+import { defineAsyncComponent, nextTick, onBeforeUnmount, reactive, toRefs, watch, ref } from "vue";
 import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
 import { ExhibitItem } from "@/api/interface";
 import { formatDate } from "@/utils/common";
@@ -162,7 +225,7 @@ export default {
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
     "my-article": defineAsyncComponent(() => import("../components/article.vue")),
     "my-article-v2": defineAsyncComponent(() => import("../components/article-v2.vue")),
-    "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
+    "my-loader": defineAsyncComponent(() => import("../components/loader.vue"))
   },
 
   setup() {
@@ -255,7 +318,8 @@ export default {
         signCount: signCountData.data.data[0].count,
         defaulterIdentityType,
       };
-
+      console.log("data.articleData", data.articleData);
+      
       data.href = freelogApp.getCurrentUrl();
       mountShareWidget();
 
@@ -932,6 +996,184 @@ export default {
 
         .article-wrapper:first-child {
           border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
+  }
+
+  .reader-weigui {
+    .detail-weigui-mobile {
+      .mobile {
+        text-align: center;
+        .info {
+          padding-top: 30px;
+          padding-bottom: 187px;
+
+          .info-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+
+            .cover-area {
+              position: relative;
+              width: 48px;
+              height: 48px;
+              background: #222;
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              box-sizing: border-box;
+              border-radius: 10px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              overflow: hidden;
+              z-index: 1;
+              margin-right: 20px;
+              .cover {
+                height: 100%;
+              }
+            }
+        
+            .title-area {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+        
+              .auth-link-abnormal {
+                width: 16px;
+                height: 16px;
+                margin-right: 5px;
+              }
+        
+              .lock {
+                font-size: 16px;
+                color: rgba(255, 255, 255, 0.6);
+                margin-right: 5px;
+              }
+        
+              .title {
+                font-size: 18px;
+                font-weight: 600;
+                color: #222;
+                line-height: 24px;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+              }
+            }
+        
+          }
+
+          .info-area {
+            color: rgba(255, 255, 255, 0.4);
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+      
+            .info-item {
+              display: flex;
+              align-items: center;
+      
+              & + .info-item {
+                margin-left: 10px;
+              }
+      
+              .freelog {
+                font-size: 14px;
+              }
+      
+              .item-value {
+                font-size: 12px;
+                line-height: 18px;
+                margin-left: 5px;
+              }
+            }
+          }
+        }
+        .weigui-icon {
+          font-size: 165px;
+          opacity: 0.4;
+        }
+      }
+    }
+
+    .detail-weigui-pc {
+      height: calc(100vh - 146px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+  
+      .pc {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 348px;
+  
+        .weigui-icon {
+          font-size: 220px;
+          opacity: 0.4;
+        }
+  
+        .info {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 450px;
+          margin-top: 40px;
+  
+          .cover-area {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            background: #222;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-sizing: border-box;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            margin-right: 20px;
+            .cover {
+              height: 100%;
+            }
+          }
+  
+          .auth-link-abnormal {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+          }
+  
+          .lock {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-right: 10px;
+            cursor: pointer;
+          }
+  
+          .type-mark {
+            padding: 6px 15px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.4);
+            line-height: 20px;
+          }
+  
+          .title {
+            color: #222;
+            font-size: 20px;
+            font-weight: 600;
+            line-height: 56px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            margin-left: 10px;
+          }
+  
         }
       }
     }

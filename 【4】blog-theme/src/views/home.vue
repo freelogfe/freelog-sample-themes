@@ -488,7 +488,7 @@ export default {
       &.no-more {
         font-size: 14px;
         line-height: 20px;
-        margin: 30px 0;
+        margin: 50px 0;
       }
     }
 

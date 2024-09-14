@@ -1,5 +1,5 @@
 <template>
-  <my-header :mobileSearching="inMobile" />
+  <my-header />
   <router-view v-slot="{ Component }">
     <keep-alive include="home">
       <component :is="Component" />
