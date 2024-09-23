@@ -309,7 +309,7 @@ const DetailBody = (props: { total: number }) => {
             <div className="novel-catalogue">
               <div className="title-container">
                 <span className="title">目录</span>
-                <span className="count">({collectionList.length}章)</span>
+                <span className="count">({total}章)</span>
               </div>
 
               <div className="sub-directory-container">
@@ -467,7 +467,7 @@ const DetailBody = (props: { total: number }) => {
             <div className="novel-catalogue">
               <div className="title-container">
                 <span className="title">目录</span>
-                <span className="count">({collectionList.length}章)</span>
+                <span className="count">({total}章)</span>
               </div>
 
               <div className="sub-directory-container">
