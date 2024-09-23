@@ -67,7 +67,7 @@ export const DetailScreen = (props: any) => {
         console.error("Failed to get collection list", error);
       }
     },
-    [id]
+    [id, novel]
   );
 
   /** 获取小说信息 */

@@ -99,7 +99,7 @@ export const ReaderScreen = (props: any) => {
         console.error("Failed to get collection list", error);
       }
     },
-    [id]
+    [id, collectionList]
   );
 
   /** 获取推荐列表 */
