@@ -71,10 +71,10 @@ const RouterView = () => {
     const root = document.getElementById("root");
     root?.setAttribute(
       "style",
-      `--gradientColor: ${theme.gradientColor}; --deriveColor: ${theme.deriveColor}`
+      `--gradientColor: ${theme?.gradientColor}; --deriveColor: ${theme?.deriveColor}`
     );
   };
-  
+
   useEffect(() => {
     initGlobalData();
   }, []);
