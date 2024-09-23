@@ -11,10 +11,10 @@
           :data="item"
           :statusShow="statusShow"
           :authShow="authShow"
-          v-for="item in list"
-          :key="item.exhibitId"
-          mode="program"
-        />
+          v-for="(item, index) in list"
+          :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
+          :mode="item.articleInfo.articleType === 1 ? 'voice' : item.child ? 'voice' : 'program'"
+          />
         <div class="no-more-tip" v-if="list.length === total && noMoreTip">{{ noMoreTip }}</div>
       </div>
       <div class="no-data-tip" v-if="total === 0 || (total === null && !list.length)">
@@ -33,7 +33,6 @@
               <el-skeleton-item class="voice-intro" variant="text" />
               <el-skeleton-item class="voice-others" variant="text" />
             </div>
-            <el-skeleton-item class="voice-duration" variant="text" />
           </div>
         </template>
       </el-skeleton>
@@ -213,7 +212,6 @@ export default {
       width: 100%;
       display: flex;
       margin-top: 25px;
-      align-items: center;
 
       .cover {
         width: 100px;
@@ -226,8 +224,7 @@ export default {
         display: flex;
         flex-direction: column;
         margin-left: 20px;
-        margin-right: auto;
-        
+
         .voice-title {
           height: 22px;
           width: 400px;
@@ -248,11 +245,6 @@ export default {
           height: 18px;
           margin-top: 10px;
         }
-      }
-
-      .voice-duration {
-        height: 20px;
-        width: 40px;
       }
     }
 

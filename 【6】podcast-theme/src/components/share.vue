@@ -96,8 +96,22 @@ export default {
   methods: {
     /** 初始化分享组件 */
     initShare() {
-      const url = freelogApp.getShareUrl(this.shareInfo.exhibit.exhibitId, "detail");
-      this.href = url;
+      let identity
+      let params = {}
+      const exhibitId = this.shareInfo.exhibit.exhibitId
+      const itemId = this.shareInfo.exhibit?.child?.itemId
+      if (this.shareInfo.exhibit?.child?.itemId) {
+        // 去detail-sub
+        identity = "detail-sub"
+        params = { exhibitId, itemId }
+      } else {
+        // 去detail
+        identity = "detail"
+        params = { exhibitId }
+      }
+      console.log(`initShare; identity=${identity}; exhibitId=${exhibitId}; itemId=${itemId};`);
+      const url = freelogApp.getShareUrl(params, identity);
+      this.href = url; 
       this.shareText = `我在freelog发现一个不错的声音：\n《${this.shareInfo.exhibit.exhibitTitle}》\n${url}`;
       if (!this.shareInfo.show) this.qrcodeShow = false;
     },
@@ -171,6 +185,7 @@ export default {
   }
 
   .share-popup {
+    z-index: 1;
     position: fixed;
     top: 50%;
     left: 50%;
@@ -203,7 +218,7 @@ export default {
 
     .hidden-input {
       position: absolute;
-      left: -100vw;
+      left: -99999px;
       z-index: -1;
     }
 
@@ -321,6 +336,7 @@ export default {
 
   .qrcode-popup-wrapper {
     position: fixed;
+    z-index: 2;
     top: 0;
     left: 0;
     right: 0;

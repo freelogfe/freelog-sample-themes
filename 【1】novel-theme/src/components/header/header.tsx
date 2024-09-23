@@ -436,7 +436,11 @@ export const Header = (props: {
               </div>
             ) : (
               <div className="user-btns">
-                <div className="btn header-login-btn" onClick={() => callLogin()}>
+                <div className="btn header-login-btn" onClick={(e: any) => {
+                  callLogin();
+                  e.stopPropagation(); 
+                  return false;
+                }}>
                   登录
                 </div>
                 <div

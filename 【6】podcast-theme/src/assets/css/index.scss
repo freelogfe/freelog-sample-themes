@@ -1,4 +1,4 @@
-#app {
+#appPodcast {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Microsoft Yahei, Roboto, Oxygen, Ubuntu, Cantarell,
     "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -31,6 +31,10 @@ img {
 
 .opacity-40 {
   opacity: 0.4;
+}
+
+.pointer-none {
+  cursor: auto !important;
 }
 
 .text-btn {

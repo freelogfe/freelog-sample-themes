@@ -1,8 +1,3 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
-
-Vue.use(VueRouter);
-
 const routes = [
   {
     path: "/",
@@ -21,9 +16,20 @@ const routes = [
     meta: { keepAlive: true }
   },
   {
+    path: "/program-list",
+    name: "/program-list",
+    component: () => import("../views/program-list.vue"),
+    meta: { keepAlive: true }
+  },
+  {
     path: "/detail",
     name: "detail",
     component: () => import("../views/detail.vue")
+  },
+  {
+    path: "/detail-sub",
+    name: "detailSub",
+    component: () => import("../views/detail-sub.vue")
   },
   {
     path: "/signed-list",

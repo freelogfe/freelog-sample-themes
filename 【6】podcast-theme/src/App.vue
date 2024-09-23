@@ -1,5 +1,5 @@
 <template>
-  <div id="app" :class="{ pc: $store.state.inMobile === false, mobile: $store.state.inMobile }">
+  <div id="appPodcast" :class="{ pc: $store.state.inMobile === false, mobile: $store.state.inMobile }" v-if="!$store.state.maskLoading">
     <div class="page-wrapper">
       <my-header />
       <keep-alive>
@@ -12,6 +12,7 @@
     <theme-entrance />
     <share />
   </div>
+  <div style="width: 100vw; height: 100vh;" v-loading="$store.state.maskLoading" v-else></div>
 </template>
 
 <script>
@@ -20,6 +21,7 @@ import myFooter from "@/components/footer";
 import myPlayer from "@/components/player";
 import themeEntrance from "@/components/theme-entrance";
 import share from "@/components/share";
+import { widgetApi } from "freelog-runtime";
 
 export default {
   components: {
@@ -29,30 +31,43 @@ export default {
     themeEntrance,
     share
   },
-
   created() {
-    this.$router.afterEach(to => {
-      // 将第一个路由记入路由历史
-      const { locationHistory } = this.$store.state;
-      if (locationHistory.length) return;
-
-      const { path, query } = to;
-      locationHistory.push(JSON.stringify({ path, query }));
-      this.$store.commit("setData", { key: "locationHistory", value: locationHistory });
-      this.$store.commit("setData", { key: "routerMode", value: 1 });
-    });
+    const themeInfo = widgetApi.getData().themeInfo;
+    console.log("当前应用版本为:", themeInfo.version, "+++");
+   
+  },
+  watch: {
+    "$route.path"(cur, old) {
+      console.log("$route.path", `当前: ${cur}; 旧: ${old};`);
+      console.log(location.href);
+    }
+  },
+  mounted() {
+    /* iphone13 无法获取到安全距离 */
+    // setInterval(() => {
+    //   const temp = window.getComputedStyle(document.documentElement).getPropertyValue("--sat")
+    //   console.log(temp, temp1);
+    // }, 3000)
   }
 };
 </script>
 
 <style lang="scss">
 @import "@/assets/css";
+:root {
+  --sat: env(safe-area-inset-top);
+}
 
-#app {
+.el-loading-mask {
+  background-color: rgba(0, 0, 0, 0.9) !important;
+}
+
+#appPodcast {
   background-color: #222;
   color: #fff;
   font-size: 14px;
-
+  height: 100vh;
+  overflow: auto;
   &.pc {
     .page-wrapper {
       padding-bottom: 48px;
@@ -79,7 +94,7 @@ export default {
   }
 
   &.mobile .page-wrapper {
-    padding-bottom: 178px;
+    padding-bottom: 238px;
 
     .router-view {
       width: 100%;

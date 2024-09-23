@@ -4,18 +4,20 @@
   <div class="player-wrapper">
     <audio
       ref="player"
-      :src="$store.state.initUrl ? $store.state.initUrl : playingInfo ? playingInfo.url : ''"
+      :src="computedSrc"
       @loadedmetadata="loadedVoice()"
       @timeupdate="$store.state.initUrl === null && audioPlayUpdate()"
       @ended="$store.state.initUrl === null && endVoice()"
       @error="$store.state.initUrl === null && playError($event)"
+      @waiting="handleWaiting"
+      @durationchange="handleDurationchange"
     />
 
     <!-- mobile -->
     <div class="mobile-player-wrapper" v-if="$store.state.inMobile">
       <div class="player" :class="{ show: playerShow }">
         <div class="cover-area">
-          <img class="cover" :src="playingInfo.coverImages[0]" v-if="playingInfo" />
+          <img class="cover" :src="computedCover" v-if="playingInfo && computedCover" />
           <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
         </div>
         <div ref="infoArea" class="info-area">
@@ -31,18 +33,13 @@
               class="info"
               :style="{ '--infoAreaWidth': infoAreaWidth + 'px' }"
               v-for="item in playList"
-              :key="item.exhibitId"
+              :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
             >
               <div
                 class="title voice-title"
-                @click="
-                  $router.myPush({
-                    path: '/detail',
-                    query: { id: item.exhibitId }
-                  })
-                "
+                @click="skipToDetailPage"
               >
-                {{ item.exhibitTitle }}
+                {{ computedExhibitTitle(item) }}
               </div>
             </div>
           </div>
@@ -50,13 +47,18 @@
         </div>
         <div class="btns-area">
           <div class="play-btn-area" @click="playOrPause()">
-            <i
+            <!-- ios的safari上, 两个圆环并不能完美的重叠 -->
+            <!-- <i
               class="freelog play"
               :class="playing ? 'fl-icon-zanting-daibiankuang' : 'fl-icon-bofang-daibiankuang'"
-            ></i>
-
+            ></i> -->
+            <div class="play-img">
+              <img src="../assets/images/current-play.png" alt="" v-if="playing">
+              <img src="../assets/images/current-stop.png" alt="" v-else>
+            </div>
             <el-progress
-              class="progress"
+              v-if="percentage > 0.2"
+              class="circle-progress"
               type="circle"
               :percentage="percentage"
               color="white"
@@ -67,13 +69,13 @@
           </div>
           <i class="freelog fl-icon-jiarubofangliebiao" @click="openPlayList()"></i>
         </div>
-        <div class="progress-box" @touchstart="slidingProgress = true">
+        <div class="progress-box" @touchstart="slidingProgress = true" v-if="slientFresh">
           <el-slider
             class="progress"
             :class="{ 'no-voice': !playingInfo }"
             v-model="$store.state.progress"
             :min="0"
-            :max="playingInfo && playingInfo.versionInfo.exhibitProperty.duration / 1000"
+            :max="computedSlider"
             :show-tooltip="false"
             @change="changeProgress"
           ></el-slider>
@@ -100,8 +102,8 @@
           <template v-if="playList.length">
             <div
               class="voice-item"
-              v-for="item in playList"
-              :key="item.exhibitId"
+              v-for="(item, index) in playList"
+              :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
               @click="playOrPauseList(item)"
             >
               <div class="left-area">
@@ -116,24 +118,22 @@
                     @click.stop="getAuth(item)"
                     v-if="item.defaulterIdentityType >= 4"
                   ></i>
-                  <div class="voice-title">{{ item.exhibitTitle }}</div>
+                  <div class="voice-title">{{ computedExhibitTitle(item) }}</div>
                 </div>
 
                 <div class="duration-area">
                   <play-status
                     :playing="playing"
-                    :desc="`${secondsToHMS($store.state.progress * 1000)} / ${secondsToHMS(
-                      item.versionInfo.exhibitProperty.duration
-                    )}`"
-                    v-if="playingInfo && playingInfo.exhibitId === item.exhibitId"
+                    :desc="computedDuration"
+                    v-if="computedPlayStatus(item)"
                   />
                   <div class="duration" v-else>
-                    {{ item.versionInfo.exhibitProperty.duration | secondsToHMS }}
+                    {{ computedFixDuration(item) }}
                   </div>
                 </div>
               </div>
 
-              <div class="delete-btn" @click.stop="deleteVoice(item.exhibitId)">
+              <div class="delete-btn" @click.stop="deleteVoice(item)">
                 <i class="text-btn mobile freelog fl-icon-guanbi"></i>
               </div>
             </div>
@@ -163,7 +163,7 @@
         <div
           class="pc-player-wrapper"
           @mouseover="clearCloseTimer()"
-          @mouseout="animation()"
+          @mouseout="handleMouseout"
           v-if="show"
         >
           <div class="player-wrapper">
@@ -179,40 +179,35 @@
 
             <div class="main-area">
               <div class="cover-area">
-                <img class="cover" :src="playingInfo.coverImages[0]" v-if="playingInfo" />
+                <img class="cover" :src="computedCover" v-if="playingInfo && computedCover" />
                 <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
               </div>
               <div class="info-area">
                 <div class="top-area">
                   <template v-if="playingInfo">
                     <div class="title-area">
-                      <my-tooltip class="title voice-title" :content="playingInfo.exhibitTitle">
+                      <my-tooltip class="title voice-title" :content="computedExhibitTitle(playingInfo)">
                         <span
-                          @click="
-                            $router.myPush({
-                              path: '/detail',
-                              query: { id: playingInfo.exhibitId }
-                            })
-                          "
+                          @click="skipToDetailPage"
                         >
-                          {{ playingInfo.exhibitTitle }}
+                          {{ computedExhibitTitle(playingInfo) }}
                         </span>
                       </my-tooltip>
                     </div>
                     <div class="progress-area">
                       {{ ($store.state.progress * 1000) | secondsToHMS }} /
-                      {{ playingInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
+                      {{ computedFixDuration(playingInfo) }}
                     </div>
                   </template>
                   <span class="no-data-title" v-else>暂无播放的声音</span>
                 </div>
-                <div @mousedown="slidingProgress = true">
+                <div @mousedown="slidingProgress = true" v-if="slientFresh">
                   <el-slider
                     class="progress"
                     :class="{ 'no-voice': !playingInfo }"
                     v-model="$store.state.progress"
                     :min="0"
-                    :max="playingInfo && playingInfo.versionInfo.exhibitProperty.duration / 1000"
+                    :max="computedSlider"
                     :format-tooltip="() => secondsToHMS($store.state.progress * 1000)"
                     @change="changeProgress"
                   ></el-slider>
@@ -267,8 +262,8 @@
             <template v-if="playList.length">
               <div
                 class="voice-item"
-                v-for="item in playList"
-                :key="item.exhibitId"
+                v-for="(item, index) in playList"
+                :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
                 @click="playOrPauseList(item)"
               >
                 <div class="left-area">
@@ -283,8 +278,8 @@
                     v-if="item.defaulterIdentityType >= 4"
                   ></i>
                   <div class="title-area">
-                    <my-tooltip class="title voice-title" :content="item.exhibitTitle">
-                      <span>{{ item.exhibitTitle }}</span>
+                    <my-tooltip class="title voice-title" :content="computedExhibitTitle(item)">
+                      <span>{{ computedExhibitTitle(item) }}</span>
                     </my-tooltip>
                   </div>
                 </div>
@@ -292,17 +287,15 @@
                 <div class="right-area">
                   <play-status
                     :playing="playing"
-                    :desc="`${secondsToHMS($store.state.progress * 1000)} / ${secondsToHMS(
-                      item.versionInfo.exhibitProperty.duration
-                    )}`"
-                    v-if="playingInfo && playingInfo.exhibitId === item.exhibitId"
+                    :desc="computedDuration"
+                    v-if="computedPlayStatus(item)"
                   />
                   <div class="duration" v-else>
-                    {{ item.versionInfo.exhibitProperty.duration | secondsToHMS }}
+                    {{ computedFixDuration(item) }}
                   </div>
                   <i
                     class="text-btn freelog fl-icon-guanbi"
-                    @click.stop="deleteVoice(item.exhibitId)"
+                    @click.stop="deleteVoice(item)"
                   ></i>
                 </div>
               </div>
@@ -345,7 +338,8 @@ export default {
       infoAreaWidth: 0,
       startTouchX: 0,
       touchMoveX: 0,
-      closeTimer: null
+      closeTimer: null,
+      slientFresh: true
     };
   },
 
@@ -362,7 +356,13 @@ export default {
         }
 
         if (this.playingInfo) {
-          const index = cur.findIndex(item => item.exhibitId === this.playingInfo.exhibitId);
+          const index = cur.findIndex(item => {
+            if (this.playingInfo.articleInfo.articleType === 1) {
+              return item.exhibitId === this.playingInfo.exhibitId
+            } else {
+              return item.exhibitId === this.playingInfo.exhibitId && item.child.itemId === this.playingInfo.child.itemId
+            }
+          });
           this.touchMoveX = -this.infoAreaWidth * index;
         }
       },
@@ -371,12 +371,17 @@ export default {
 
     "$store.state.playingInfo": {
       handler(cur) {
-        this.$store.commit("setData", { key: "progress", value: 0 });
         this.playingInfo = cur;
 
         if (this.playList && this.$store.state.inMobile) {
           const index = this.playList.findIndex(
-            item => item.exhibitId === this.playingInfo.exhibitId
+            item => {
+              if (this.playingInfo.articleInfo.articleType === 1) {
+                return item.exhibitId === this.playingInfo.exhibitId
+              } else {
+                return item.exhibitId === this.playingInfo.exhibitId && item.child.itemId === this.playingInfo.child.itemId
+              }
+            }
           );
           this.touchMoveX = -this.infoAreaWidth * index;
         }
@@ -386,7 +391,6 @@ export default {
 
     "$store.state.playing"(cur) {
       if (!this.$store.state.playingInfo) return;
-
       if (cur) {
         this.playVoice();
       } else {
@@ -403,7 +407,7 @@ export default {
     },
 
     "$store.state.inMobile"(cur) {
-      const appElement = document.getElementById("app");
+      const appElement = document.getElementById("appPodcast");
       if (cur) {
         appElement.addEventListener("touchend", () => {
           this.slidingProgress = false;
@@ -422,10 +426,96 @@ export default {
   },
 
   computed: {
+     /** 封面 */
+     computedCover() {
+      if (this.playingInfo.articleInfo.articleType === 1) {
+        return this.playingInfo.coverImages[0];
+      } else {
+        if (this.playingInfo?.child?.articleInfo?.coverImages[0]) {
+          return this.playingInfo?.child?.articleInfo?.coverImages[0];
+        }
+        return '';
+      }
+    },
+    /** 固定播放时长 */
+    computedSlider() {
+      if (this.playingInfo?.articleInfo?.articleType === 1) {
+        return this.playingInfo && this.playingInfo.versionInfo.exhibitProperty.duration / 1000
+      } else {
+        return this.playingInfo && 
+          this.playingInfo.child && 
+          this.playingInfo.child.articleInfo && 
+          this.playingInfo.child.articleInfo.articleProperty && 
+          this.playingInfo.child.articleInfo.articleProperty.duration / 1000
+      }
+    },
+    /** 固定播放时长 */
+    computedFixDuration() {
+      return item => {
+        if (item && item.articleInfo && item.articleInfo.articleType === 1) {
+          return secondsToHMS(item.versionInfo.exhibitProperty.duration);
+        } else {
+          return secondsToHMS(item?.child?.articleInfo?.articleProperty?.duration);
+        }
+      };
+    },
+    /** 播放状态 */
+    computedPlayStatus() {
+      return item => {
+        if (this.playingInfo && this.playingInfo.articleInfo.articleType === 1) {
+          return this.playingInfo && this.playingInfo.exhibitId === item.exhibitId;
+        } else {
+          return (
+            this.playingInfo &&
+            this.playingInfo.exhibitId === item.exhibitId &&
+            this.playingInfo.child.itemId === item.child.itemId
+          );
+        }
+      };
+    },
+    /** 动态播放时长 */
+    computedDuration() {
+      const { playingInfo } = this.$store.state
+      if (playingInfo && playingInfo.articleInfo && playingInfo.articleInfo.articleType === 1) {
+        return `${secondsToHMS(this.$store.state.progress * 1000)} / ${secondsToHMS(
+          playingInfo.versionInfo.exhibitProperty.duration
+        )}`;
+      } else {
+        return `${secondsToHMS(this.$store.state.progress * 1000)} / ${secondsToHMS(
+          playingInfo.child.articleInfo.articleProperty.duration
+        )}`;
+      }
+    },
+    /** 播放title */
+    computedExhibitTitle() {
+      return item => {
+        if (item && item.articleInfo && item.articleInfo.articleType === 1) {
+          return item.exhibitTitle;
+        } else {
+          return item?.child?.itemTitle || "";
+        }
+      };
+    },
+    /** 播放地址 */
+    computedSrc() {
+      if (this.$store.state.initUrl) {
+        return this.$store.state.initUrl;
+      } else {
+        if (this.playingInfo) {
+          if (this.playingInfo.articleInfo.articleType === 1) {
+            return this.playingInfo.url;
+          } else {
+            return this.playingInfo.child && this.playingInfo.child.url;
+          }
+        } else {
+          return "";
+        }
+      }
+    },
     /** 是否收藏 */
     isCollected() {
       const { collectionIdList, playingInfo } = this.$store.state;
-      return playingInfo ? collectionIdList.includes(playingInfo.exhibitId) : false;
+      return playingInfo ? collectionIdList.map(ele => ele.id).includes(playingInfo.exhibitId) : false;
     },
 
     /** 是否播放中 */
@@ -436,7 +526,12 @@ export default {
     /** 播放进度 */
     percentage() {
       if (this.playingInfo) {
-        const duration = this.playingInfo.versionInfo.exhibitProperty.duration;
+        let duration 
+        if (this.playingInfo.articleInfo.articleType === 1) {
+          duration = this.playingInfo.versionInfo.exhibitProperty.duration;
+        } else {
+          duration = this.playingInfo.child.articleInfo.articleProperty.duration
+        }
         if (duration) {
           const progress = ((this.$store.state.progress * 1000) / duration) * 100;
           return Math.min(100, progress);
@@ -454,7 +549,7 @@ export default {
         {
           icon: "fl-icon-shangyishou1",
           operate: this.preVoice,
-          disabled: this.$store.state.playList.length <= 1
+          disabled: this.$store.state.playList && this.$store.state.playList.length <= 1
         },
         {
           icon: this.playing ? "fl-icon-zanting-daibiankuang" : "fl-icon-bofang-daibiankuang",
@@ -463,7 +558,7 @@ export default {
         {
           icon: "fl-icon-xiayishou1",
           operate: this.nextVoice,
-          disabled: this.$store.state.playList.length <= 1
+          disabled: this.$store.state.playList && this.$store.state.playList.length <= 1
         }
       ];
     },
@@ -509,6 +604,26 @@ export default {
   methods: {
     secondsToHMS,
 
+    /** 跳转到声音详情 */
+    async skipToDetailPage() {
+      if (this.playingInfo.articleInfo.articleType === 1) {
+        this.$router.myPush({ path: '/detail', query: { id: this.playingInfo.exhibitId } })
+      } else {
+        this.$router.myPush({ 
+          path: '/detail-sub', 
+          query: { 
+            id: this.playingInfo.exhibitId, 
+            itemId: this.playingInfo.child.itemId
+          } 
+        })
+      }
+    },
+
+    /** 鼠标移出 */
+    handleMouseout() {
+      this.animation('kill')
+    },
+
     /** 关闭播放器 */
     closePlayer() {
       this.show = false;
@@ -544,19 +659,98 @@ export default {
 
     /** 播放完成 */
     endVoice() {
+      this.$store.commit("setData", { key: "playing", value: false });
       if (this.playList.length === 1) {
-        this.$store.commit("setData", { key: "playing", value: false });
         this.$store.commit("setData", { key: "progress", value: 0 });
         return;
       }
       this.nextVoice();
     },
-
     /** 播放失败 */
-    playError() {
-      if (!this.playing) return;
+    async playError(event) {      
+      const mediaError = this.$refs.player.error
+      if (!mediaError) return 
+      switch (mediaError.code) {
+        case 1:
+          // 用户终止了媒体的加载
+          break;
+        case 2:
+          // 媒体加载过程中发生网络错误
+          break;
+        case 3:
+          // 媒体播放时发生解码错误
+          break;
+        case 4:
+          // 浏览器不支持媒体文件格式
+          break;
+        default:
+          // 其他错误
+          break;
+      }
+      console.warn(mediaError.code, mediaError.message)
 
-      showToast("当前浏览器无法播放，请更换浏览器重试");
+      if (await this.requestTry()) return
+      
+      if (!this.playing) return;
+    },
+
+    /** 因为暂时性缺少数据，播放暂停 */
+    async handleWaiting(event) {
+      await this.requestTry()
+    },
+
+    /** 播放总时长变化 */
+    async handleDurationchange(event) {
+      if (this.playingInfo.articleInfo.articleType === 1) {
+        this.playingInfo.versionInfo.exhibitProperty.duration = this.$refs.player.duration * 1000
+      } else {
+        this.playingInfo.child.articleInfo.articleProperty.duration = this.$refs.player.duration * 1000
+      }
+    },
+
+    /** 主动进行一次请求 */
+    async requestTry() {
+      let url
+      const playingInfo = this.$store.state.playingInfo
+      if (playingInfo) {
+        if (playingInfo.articleInfo.articleType === 1) {
+          url = playingInfo.url
+        } else {
+          url = playingInfo.child.url
+        }
+      }
+
+      // 请求一次url, 看是否是授权导致的播放失败
+      const res = await fetch(url,  { credentials: "include" })
+      
+      if (res.status === 401) {
+        // 暂停播放
+        this.$store.commit("setData", { key: "playing", value: false })
+
+        // 初始化url: 解决audio的src地址前后都是同一个造成不发起请求的问题
+        // https://file.testfreelog.com/exhibits/64d1ed97cc4a64002f632b0d
+        if (this.playingInfo.articleInfo.articleType === 1) {
+          this.playingInfo.url = "" 
+        } else {
+          this.playingInfo.child.url = ""
+        }
+
+        // 更新lastestAuthList的授权状态, 会自动更新其他列表的授权状态
+        await this.$store.dispatch("updateLastestAuthList")
+
+        const target = this.$store.state.lastestAuthList.find(ele => ele.exhibitId === this.playingInfo.exhibitId)
+        if (!target) return
+        const resJson = await res.json()
+
+        // 若是展品无授权, 则调出授权; 若是单品, 合集展品授权正常, 但是此单品被封禁, 则进行toast提示;
+        if (target.defaulterIdentityType === 4) {
+          await useMyAuth.getAuth(this.playingInfo, true)
+        } else if (this.playingInfo.child && target.defaulterIdentityType === 0 && resJson.data.authCode === 403) {
+          showToast("资源被封禁, 暂无法播放!")
+        }
+
+        return true
+      } 
     },
 
     /** 播放/暂停 */
@@ -575,15 +769,19 @@ export default {
     },
 
     /** 移出播放列表 */
-    deleteVoice(id) {
-      useMyPlay.removeFromPlayList(id);
+    deleteVoice(item) {
+      useMyPlay.removeFromPlayList(item);
     },
 
     /** 清空播放列表 */
-    clearPlayList() {
-      useMyPlay.clearPlayList();
+    async clearPlayList() {
+      await useMyPlay.clearPlayList();
       this.confirmDialogShow = false;
       this.$refs.player.currentTime = 0;
+      this.slientFresh = false
+      this.$nextTick(() => {
+        this.slientFresh = true
+      })
     },
 
     /** 授权 */
@@ -594,6 +792,7 @@ export default {
     /** 监听点击区域 */
     clickListener() {
       document.addEventListener("click", e => {
+        const app = document.getElementById("appPodcast");
         if (!this.show || this.$store.state.inMobile) return;
 
         if (this.volumePopupShow) {
@@ -629,9 +828,10 @@ export default {
 
     /** 播放声音 */
     playVoice() {
-      if (!this.playing) return;
-
-      this.$refs.player.play();
+      if (!this.playing) return;  
+      this.$refs.player.play();        
+      // 播放音频，显示播放器动画
+      this.animation();
       // const { isIOS } = this.$store.state;
       // if (isIOS) {
       //   // ios 设备第一次播放音频会失败，需要重新播放一次才会正常
@@ -640,8 +840,6 @@ export default {
       //     this.$refs.player.play();
       //   });
       // }
-      // 播放音频，显示播放器动画
-      this.animation();
     },
 
     /** 音频播放时间变化 */
@@ -649,6 +847,7 @@ export default {
       if (this.slidingProgress || !this.$store.state.playing) return;
 
       const progress = this.$refs.player.currentTime;
+      
       this.$store.commit("setData", { key: "progress", value: progress });
     },
 
@@ -670,7 +869,13 @@ export default {
     touchMove(e) {
       if (this.playList && this.playList.length > 1) {
         const index = this.playList.findIndex(
-          item => item.exhibitId === this.playingInfo.exhibitId
+          item => {
+            if (this.playingInfo.articleInfo.articleType === 1) {
+              return item.exhibitId === this.playingInfo.exhibitId
+            } else {
+              return item.exhibitId === this.playingInfo.exhibitId && item.child.itemId === this.playingInfo.child.itemId
+            }
+          }
         );
         const basicX = -this.infoAreaWidth * index;
         const offset = e.changedTouches[0].clientX - this.startTouchX;
@@ -682,10 +887,15 @@ export default {
     touchEnd() {
       if (this.playList && this.playList.length > 1) {
         const index = this.playList.findIndex(
-          item => item.exhibitId === this.playingInfo.exhibitId
+          item => {
+            if (this.playingInfo.articleInfo.articleType === 1) {
+              return item.exhibitId === this.playingInfo.exhibitId
+            } else {
+              return item.exhibitId === this.playingInfo.exhibitId && item.child.itemId === this.playingInfo.child.itemId
+            }
+          }
         );
         const basicX = -this.infoAreaWidth * index;
-        console.log("this.$refs", this.$refs);
         const areaWidth = this.$refs.infoArea.clientWidth;
         const offset = basicX - this.touchMoveX;
         if (Math.abs(offset) < (areaWidth * 2) / 5) {
@@ -705,13 +915,15 @@ export default {
     },
 
     /** 播放或加入播放列表时，播放器动画 */
-    animation() {
-      if (!this.show) this.show = true;
-      if (this.closeTimer) this.clearCloseTimer();
-      this.closeTimer = setTimeout(() => {
-        if (!this.playListPopupShow && !this.volumePopupShow) this.show = false;
-        this.closeTimer = null;
-      }, 3000);
+    animation(type) {
+      if (!this.show && !type) this.show = true;
+      if (this.closeTimer) this.clearCloseTimer()
+      if (this.show) {
+        this.closeTimer = setTimeout(() => {
+          if (!this.playListPopupShow && !this.volumePopupShow) this.show = false;
+          this.closeTimer = null;
+        }, 3000);
+      }
     },
 
     /** 清除自动隐藏计时器 */
