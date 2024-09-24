@@ -7,20 +7,20 @@
     <div class="header-top" :class="{ logon: userData.isLogin }">
       <img
         class="logo"
-        :src="selfConfig.logoImage || require('../assets/images/logo.png')"
+        :src="nodeLogo"
         referrerpolicy="no-referrer"
         @click="switchPage('/')"
         v-if="$route.path === '/home'"
       />
       <div class="header-top-left" @click="locationHistory.length === 1 ? switchPage('/home') : routerBack()" v-else>
-        <img class="back-arrow" src="../assets/images/arrow.png" />
+        <span class="back-arrow freelog fl-icon-zhankaigengduo"></span>
         <div class="back-label">{{ locationHistory.length === 1 ? "首页" : "返回" }}</div>
       </div>
 
       <div class="header-top-right">
         <i class="freelog fl-icon-content" @click="searchPopupShow = true" v-if="!($route.path === '/reader')"></i>
 
-        <img class="menu" src="../assets/images/menu.png" @click="userBoxShow = true" />
+        <img class="menu" src="../assets/images/menu@3x.png" @click="userBoxShow = true" />
       </div>
     </div>
 
@@ -65,7 +65,7 @@
               v-if="userData.isLogin"
             >
               <i class="freelog fl-icon-lishi"></i>
-              <div class="btn-label">已签约文章</div>
+              <div class="btn-label">签约记录</div>
             </div>
           </div>
 
@@ -116,13 +116,6 @@
         </div>
       </div>
     </transition>
-
-    <transition name="fade">
-      <div class="blog-info-popup" @click="blogInfoPopupShow = false" v-if="blogInfoPopupShow">
-        <div class="blog-title">{{ nodeTitle }}</div>
-        <div class="blog-desc" v-html="nodeShortDescription"></div>
-      </div>
-    </transition>
   </div>
 
   <!-- 移动端搜索页头部 -->
@@ -133,7 +126,7 @@
         :class="{ 'in-focus': searchKey }"
         v-model="searchKey"
         :maxLength="100"
-        @input="searchKeyInput(true)"
+        @input="searchKeyInput()"
         @keyup.enter="
           searchWord(searchKey);
           search();
@@ -152,7 +145,7 @@
         <!-- logo -->
         <img
           class="logo"
-          :src="selfConfig.logoImage || require('../assets/images/logo.png')"
+          :src="nodeLogo"
           @click="switchPage('/')"
         />
         
@@ -272,22 +265,25 @@ export default {
       searchKey: "",
       tags: "",
       userBoxShow: false,
-      blogInfoPopupShow: false,
       searchPopupShow: false,
       searchHistoryShow: false,
       searchWordCatch: null as number | null,
     });
 
+    const inMobile = computed(() => {
+      return store.state.inMobile
+    })
+
+    const userData =  computed(() => {
+      return store.state.userData
+    })
+
     const methods = {
       /** 输入搜索词 */
-      searchKeyInput(inHomeSearch = false) {
+      searchKeyInput() {
         data.searchKey = (data.searchKey || "").trim();
         data.searchHistoryShow = true;
         data.searchWordCatch = null;
-        if (inHomeSearch) {
-          !data.searchKey && switchPage("/home");
-          data.searchPopupShow = !data.searchKey;
-        }
       },
 
       /** 点击历史搜索词 */
@@ -413,7 +409,8 @@ export default {
       callLoginOut,
       switchPage,
       routerBack,
-      ...toRefs(store.state),
+      inMobile,
+      userData,
       route,
       searchInput,
       searchHistoryPopup,

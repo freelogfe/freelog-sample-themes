@@ -15,6 +15,8 @@
 		<div class="article-title">
 			<span class="freelog fl-icon-warningxiaochicun auth-link-abnormal" v-if="![0, 4].includes(data.defaulterIdentityType)"></span>
 			<span class="freelog fl-icon-suoding lock" v-if="!inSignedList && data.defaulterIdentityType >= 4"></span>
+			<span class="tag is-auth" v-if="inSignedList && data.defaulterIdentityType < 4">已授权</span>
+			<span class="tag not-auth" v-if="inSignedList && data.defaulterIdentityType >= 4">未授权</span>
 			<span
 				class="title"
 				:class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
@@ -23,8 +25,6 @@
 			>
 				{{ data.exhibitTitle }}
 			</span>
-			<span class="tag is-auth" v-if="inSignedList && data.defaulterIdentityType < 4">已授权</span>
-			<span class="tag not-auth" v-if="inSignedList && data.defaulterIdentityType >= 4">未授权</span>
 		</div>
 		<div
 			class="article-intro"
@@ -34,8 +34,8 @@
 		>
 			{{ data.exhibitIntro || "" }}
 		</div>
-		<div class="tags">
-			<tags :tags="['上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣']" />
+		<div class="tags" v-if="data?.tags?.length">
+			<tags :tags="data?.tags" />
 		</div>
 	</div>
 </template>
@@ -58,35 +58,34 @@ export default {
   props: ["data", "inSignedList"],
 
   setup(props: { data: ExhibitItem }) {
-    const store = useStore();
-    const { switchPage } = useMyRouter();
+		const store = useStore();
+		const { switchPage } = useMyRouter();
 		const containerRef = ref(null) as any
 		const imgHeight = ref(200)
 
-    /** 点击文章组件 */
-    const clickArticle = () => {
-      const { exhibitId, defaulterIdentityType = -1 } = props.data;
+		/** 点击文章组件 */
+		const clickArticle = () => {
+			const { exhibitId, defaulterIdentityType = -1 } = props.data;
 
-      if (![0, 4].includes(defaulterIdentityType)) {
-        showToast("授权链异常，无法查看");
-        return;
-      }
+			if (![0, 4].includes(defaulterIdentityType)) {
+				showToast("授权链异常，无法查看");
+				return;
+			}
 
-      switchPage("/reader", { id: exhibitId });
-    };
+			switchPage("/reader", { id: exhibitId });
+		};
 
 		onMounted(() => {
 			imgHeight.value = 0.68 * containerRef.value.offsetWidth
 		})
 
-    return {
-      ...toRefs(store.state),
-      clickArticle,
-      formatDate,
+		return {
+			clickArticle,
+			formatDate,
 			containerRef,
 			imgHeight
-    };
-  },
+		};
+	},
 };
 </script>
 
@@ -174,11 +173,11 @@ export default {
 			width: 56px;
 			height: 22px;
 			border-radius: 22px;
-			margin-left: 10px;
+			margin-right: 5px;
 			font-size: 12px;
 			font-weight: 600;
 			color: #ffffff;
-			display: flex;
+			display: inline-flex;
 			align-items: center;
 			justify-content: center;
 		}

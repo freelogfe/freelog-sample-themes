@@ -18,7 +18,7 @@
 <script lang="ts">
 import { useMyRouter } from "@/utils/hooks";
 import { useStore } from "vuex";
-import { toRefs } from "vue";
+import { toRefs, computed } from "vue";
 
 export default {
   name: "tags",
@@ -34,16 +34,20 @@ export default {
     const store = useStore();
     const { switchPage } = useMyRouter();
 
+    const inMobile = computed(() => {
+      return store.state.inMobile
+    })
+
     const methods = {
       /** 搜索标签 */
       searchTag(tag: string) {
         const query: { tags: string } = { tags: tag };
-        switchPage("/home", query);
+        switchPage("/search", query);
       },
     };
 
     return {
-      ...toRefs(store.state),
+      inMobile,
       ...methods,
     };
   },

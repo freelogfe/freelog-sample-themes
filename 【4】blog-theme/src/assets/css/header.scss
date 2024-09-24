@@ -3,7 +3,7 @@
   width: 100%;
   padding: 0px 20px 0px 10px;
   box-sizing: border-box;
-  background: var(--gradientColor);
+  background: #FFFFFF;
 
   &.in-home {
     // padding: 20px 20px 40px;
@@ -16,8 +16,10 @@
     justify-content: space-between;
 
     .logo {
-      width: 66px;
-      height: 52px;
+      width: 100px;
+      height: 40px;
+      object-fit: contain;
+      border-radius: 4px;
     }
 
     .header-top-left {
@@ -25,14 +27,14 @@
       align-items: center;
 
       .back-arrow {
-        width: 7px;
-        height: 12px;
+        transform: rotate(180deg);
+        font-size: 12px;
       }
 
       .back-label {
         font-size: 16px;
-        color: #ffffff;
-        margin-left: 10px;
+        color: #222;
+        margin-left: 5px;
       }
     }
 
@@ -46,7 +48,7 @@
       .fl-icon-content {
         width: 20px;
         height: 20px;
-        color: rgba(255, 255, 255, 0.6);
+        color: #8E8E93;
         font-size: 20px;
         display: flex;
         align-items: center;
@@ -92,7 +94,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: var(--gradientColor);
+      background: linear-gradient( 315deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 100%);
 
       .avatar {
         width: 72px;
@@ -104,7 +106,7 @@
       .username {
         font-size: 16px;
         line-height: 22px;
-        color: #fff;
+        color: #222;
         font-weight: bold;
         margin-top: 20px;
       }
@@ -151,8 +153,8 @@
 
           &.active,
           &:active {
-            color: var(--deriveColor);
-            background: rgba(93, 145, 145, 0.05);
+            color: #222;
+            background: #F7F7F7;
           }
 
           & + .btn {
@@ -226,7 +228,7 @@
       align-items: center;
       padding-left: 20px;
       box-sizing: border-box;
-      background: var(--gradientColor);
+      background: #FFFFFF;
       margin-bottom: 20px;
 
       .search-page-box {
@@ -237,6 +239,7 @@
         display: flex;
         align-items: center;
         overflow: hidden;
+        border: 1px solid #E5E7EB;
 
         .search-input {
           height: 100%;
@@ -271,7 +274,7 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          color: rgba(255, 255, 255, 0.6);
+          color: #8E8E93;
           transition: all 0.2s linear;
         }
       }
@@ -283,7 +286,7 @@
         padding: 0 20px;
         display: flex;
         align-items: center;
-        color: #fff;
+        color: #0F2128;
 
         &:active {
           opacity: 0.6;
@@ -358,32 +361,7 @@
     }
   }
 
-  .blog-info-popup {
-    position: fixed;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 30px 20px;
-    box-sizing: border-box;
-    overflow-y: auto;
-    z-index: 1;
 
-    .blog-title {
-      font-size: 24px;
-      font-weight: 600;
-      color: #ffffff;
-      line-height: 30px;
-    }
-
-    .blog-desc {
-      font-size: 14px;
-      color: #ffffff;
-      line-height: 20px;
-      margin-top: 20px;
-    }
-  }
 }
 
 // 移动端首页搜索头部
@@ -394,7 +372,7 @@
   align-items: center;
   padding-left: 20px;
   box-sizing: border-box;
-  background: var(--gradientColor);
+  background: #FFFFFF;
 
   .search-page-box {
     position: relative;
@@ -404,6 +382,7 @@
     display: flex;
     align-items: center;
     overflow: hidden;
+    border: 1px solid #E5E7EB;
 
     .search-input {
       height: 100%;
@@ -438,7 +417,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: rgba(255, 255, 255, 0.6);
+      color: #8E8E93;
       transition: all 0.2s linear;
     }
   }
@@ -450,7 +429,7 @@
     padding: 0 20px;
     display: flex;
     align-items: center;
-    color: #fff;
+    color: #0F2128;
 
     &:active {
       opacity: 0.6;

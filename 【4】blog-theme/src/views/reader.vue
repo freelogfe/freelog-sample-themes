@@ -19,9 +19,8 @@
             </div>
             <input id="href" class="hidden-input" :value="href" readOnly />
           </div>
-          <div class="tags">
-            <!-- <tags :tags="articleData?.tags" /> -->
-            <tags :tags="['上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣', '上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣', '上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣']" />
+          <div class="tags" v-if="articleData?.tags?.length">
+            <tags :tags="articleData?.tags" />
           </div>
           <div class="article-content">
             <my-loader v-if="contentLoading" />
@@ -48,7 +47,7 @@
         <div class="recommend">
           <div class="recommend-title">推荐</div>
           <div class="article-list">
-            <my-article-v2 :data="item" v-for="item in recommendList" :key="item.presentableId" />
+            <my-article-v2 :data="item" v-for="item in recommendList" :key="item.exhibitId" />
           </div>
         </div>
       </div>
@@ -76,9 +75,8 @@
           <div class="other-info">
             <div class="info">{{ formatDate(articleData?.createDate) }}</div>
           </div>
-          <div class="tags">
-            <tags :tags="['上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣', '上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣', '上官婉儿', '剑宗', '男漫游', '女漫游', '魔枪', '男法', '圣骑士', '斗圣']" />
-            <!-- <tags :tags="articleData?.tags" /> -->
+          <div class="tags" v-if="articleData?.tags?.length">
+            <tags :tags="articleData?.tags" />
           </div>
           <div class="article-content">
             <my-loader v-if="contentLoading" />
@@ -137,7 +135,7 @@
             <div class="text-btn" @click="switchPage('/')">更多>></div>
           </div>
           <div class="article-list">
-            <my-article-v2 :data="item" v-for="item in recommendList" :key="item.presentableId" />
+            <my-article-v2 :data="item" v-for="item in recommendList" :key="item.exhibitId" />
           </div>
         </div>
       </div>
@@ -149,7 +147,7 @@
           <div class="info">
             <div class="info-header">
               <div ref="cover" class="cover-area">
-                <img class="cover" :src="articleData.coverImages[0]" v-if="articleData.coverImages[0]" />
+                <img class="cover" :src="articleData?.coverImages[0]" v-if="articleData?.coverImages[0]" />
                 <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
               </div>
               <div class="title-area">
@@ -161,21 +159,21 @@
                 <i
                   class="freelog fl-icon-suoding lock"
                   @click.stop="getAuth()"
-                  v-if="articleData.defaulterIdentityType >= 4"
+                  v-if="articleData?.defaulterIdentityType && articleData?.defaulterIdentityType >= 4"
                 ></i>
-                <div class="title" :content="articleData.exhibitTitle">
-                  <span>{{ articleData.exhibitTitle }}</span>
+                <div class="title" :content="articleData?.exhibitTitle">
+                  <span>{{ articleData?.exhibitTitle }}</span>
                 </div>
               </div>
             </div>
             <div class="info-area">
               <div class="info-item">
                 <i class="freelog fl-icon-gengxinshijian"></i>
-                <div class="item-value">{{ articleData.updateDate | relativeTime }}</div>
+                <div class="item-value">{{ relativeTime(articleData?.updateDate) }}</div>
               </div>
               <div class="info-item">
                 <i class="freelog fl-icon-yonghu"></i>
-                <div class="item-value">{{ articleData.signCount | signCount }}</div>
+                <div class="item-value">{{ signCount(articleData?.signCount) }}</div>
               </div>
             </div>
           </div>
@@ -188,16 +186,16 @@
           <span class="freelog fl-icon-ziyuanweiguitishi_wendang weigui-icon"></span>
           <div class="info">
             <div ref="cover" class="cover-area">
-              <img class="cover" :src="articleData.coverImages[0]" />
+              <img class="cover" :src="articleData?.coverImages[0]" />
             </div>
             <img
               class="auth-link-abnormal"
               src="../assets/images/auth-link-abnormal.png"
               v-if="authLinkAbnormal"
             />
-            <i class="freelog fl-icon-suoding lock" @click.stop="getAuth()" v-if="articleData.defaulterIdentityType >= 4"></i>
-            <div class="title" :content="articleData.exhibitTitle">
-              <span>{{ articleData.exhibitTitle }}</span>
+            <i class="freelog fl-icon-suoding lock" @click.stop="getAuth()" v-if="articleData?.defaulterIdentityType && articleData?.defaulterIdentityType >= 4"></i>
+            <div class="title" :content="articleData?.exhibitTitle">
+              <span>{{ articleData?.exhibitTitle }}</span>
             </div>
           </div>
         </div>
@@ -208,10 +206,10 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, nextTick, onBeforeUnmount, reactive, toRefs, watch, ref } from "vue";
+import { defineAsyncComponent, nextTick, onBeforeUnmount, reactive, toRefs, watch, ref, computed } from "vue";
 import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
 import { ExhibitItem } from "@/api/interface";
-import { formatDate } from "@/utils/common";
+import { formatDate, relativeTime, signCount } from "@/utils/common";
 import { useStore } from "vuex";
 import { showToast } from "@/utils/common";
 import { WidgetController, freelogApp } from "freelog-runtime";
@@ -220,10 +218,7 @@ export default {
   name: "reader",
 
   components: {
-    "my-header": defineAsyncComponent(() => import("../components/header.vue")),
-    "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
-    "my-article": defineAsyncComponent(() => import("../components/article.vue")),
     "my-article-v2": defineAsyncComponent(() => import("../components/article-v2.vue")),
     "my-loader": defineAsyncComponent(() => import("../components/loader.vue"))
   },
@@ -233,7 +228,8 @@ export default {
     const { query, switchPage, getCurrentPath } = useMyRouter();
     const datasOfGetList = useGetList();
     const { scrollTo } = useMyScroll();
-
+    console.log("query", query.value);
+    
     const markdownRef = ref(null) as any
     const data = reactive({
       contentLoading: false,
@@ -248,6 +244,18 @@ export default {
       directoryList: [] as Array<any>,
       currentTitle: null as any
     });
+
+    const authLinkAbnormal = computed(() => {
+      return ![0, 4].includes(data.articleData?.defaulterIdentityType as any)
+    })
+
+    const inMobile = computed(() => {
+      return store.state.inMobile
+    })
+
+    const userData = computed(() => {
+      return store.state.userData
+    })
 
     const methods = {
       /** 移动端分享 */
@@ -318,10 +326,11 @@ export default {
         signCount: signCountData.data.data[0].count,
         defaulterIdentityType,
       };
-      console.log("data.articleData", data.articleData);
       
       data.href = freelogApp.getCurrentUrl();
-      mountShareWidget();
+      nextTick(() => {
+        mountShareWidget();
+      });
 
       if (defaulterIdentityType === 0) {
         // 已签约并且授权链无异常
@@ -361,6 +370,7 @@ export default {
 
     /** 加载分享插件 */
     const mountShareWidget = async () => {
+      
       if (store.state.inMobile) return;
 
       const container = document.getElementById("share");
@@ -369,6 +379,8 @@ export default {
       if (data.shareWidget) await data.shareWidget.unmount();
 
       const subDeps = await freelogApp.getSelfDependencyTree();
+      console.log("subDeps", subDeps);
+      
       const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-展品分享");
       if (!widgetData) return;
 
@@ -382,9 +394,9 @@ export default {
         topExhibitId,
         container,
         renderWidgetOptions: {
-          data: { exhibit: data.articleData, type: "博客", routerType: "content" },
+          data: { exhibit: data.articleData, type: "博客", routerType: "detail" },
         },
-        // widget_entry: "https://localhost:8201",
+        widget_entry: "https://localhost:8201",
       };
       data.shareWidget = await freelogApp.mountArticleWidget(params);
     };
@@ -454,13 +466,17 @@ export default {
     getData();
 
     return {
-      ...toRefs(store.state),
       switchPage,
       formatDate,
       ...datasOfGetList,
       ...toRefs(data),
       ...methods,
-      markdownRef
+      markdownRef,
+      signCount,
+      relativeTime,
+      authLinkAbnormal,
+      inMobile,
+      userData
     };
   },
 };

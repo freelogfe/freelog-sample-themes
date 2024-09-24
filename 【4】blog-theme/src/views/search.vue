@@ -1,7 +1,7 @@
 <template>
   <div class="search-wrapper-pc" v-if="!inMobile">
     <div class="search-body">
-      <div class="title">"{{ keywrodTxt }}"的相关结果</div>
+      <div class="title">"{{ keywrodTxt ? keywrodTxt : query.tags }}"的相关结果</div>
       <div
         class="sort"
         :class="{ disabled: myLoading }"
@@ -23,20 +23,21 @@
       </div>
       <template v-if="!loading">
         <div class="article-list">
-          <my-article-v2 :data="item" v-for="item in listData" :key="item.presentableId" />
+          <my-article-v2 :data="item" v-for="item in availableListData" :key="item.exhibitId" />
         </div>
-        <div className="tip" v-show="total === 0">当前节点暂无任何书籍，请稍后查看</div>
+        <div className="tip" v-show="total === 0 || availableListData.length === 0">暂无任何信息</div>
         <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部 —</div>
       </template>
     </div>
   </div>
   <div class="search-wrapper-mobile" v-else>
     <div class="search-body">
-      <div class="title">查询到{{ listData.length || 0 }}个相关结果</div>
+      <div class="title">查询到{{ availableListData.length || 0 }}个相关结果</div>
       <div class="article-list" v-if="!loading">
-        <my-article-v2 :data="item" v-for="item in listData" :key="item.presentableId" />
+        <my-article-v2 :data="item" v-for="item in availableListData" :key="item.exhibitId" />
       </div>
-      <div class="all-ready">— 已加载全部 —</div>
+      <div class="all-ready" v-show="total === 0 || availableListData.length === 0">暂无任何信息</div>
+      <div class="all-ready" v-show="listData.length !== 0 && listData.length === total">— 已加载全部 —</div>
     </div>
   </div>
 </template>
@@ -66,6 +67,14 @@ export default {
         keywrodTxt: ""
       })
 
+      const inMobile = computed(() => {
+        return store.state.inMobile
+      })
+
+      const availableListData = computed(() => {
+        return datasOfGetList.listData.value.filter(ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType!)) 
+      })
+
       const methods = {
         /** 排序 */
         sort: async (sortType: string) => {
@@ -73,7 +82,7 @@ export default {
           state.searchData.sort = `createDate:${sortType}`;
           state.searchData.keywords = query.value.keywords
           await datasOfGetList.getList(state.searchData, true);
-          state.keywrodTxt = query.value.keywords
+          state.keywrodTxt = query.value.keywords 
         }
       }
 
@@ -89,7 +98,9 @@ export default {
         ...toRefs(state),
         ...methods,
         ...datasOfGetList,
-        ...toRefs(store.state),
+        query,
+        availableListData,
+        inMobile
       }
     }
 }
@@ -101,7 +112,7 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-bottom: 148px;
+    padding-bottom: 48px;
 
     .search-body {
       width: 85%;
@@ -175,7 +186,7 @@ export default {
         &.no-more {
           font-size: 14px;
           line-height: 20px;
-          margin-top: 30px;
+          margin: 100px 0px;
         }
       }
     }

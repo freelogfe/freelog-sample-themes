@@ -127,7 +127,6 @@ export const useGetList = () => {
       ...params,
     };
     const list = await freelogApp.getExhibitListByPaging(queryParams);
-    console.log("list", list);
     
     const { dataList, totalItem } = list.data.data;
     if (dataList.length !== 0) {
@@ -148,8 +147,7 @@ export const useGetList = () => {
         if (index !== -1) item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
       });
     }
-    data.listData = init ? dataList.filter(ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType)) 
-      : [...data.listData, ...dataList].filter(ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType));
+    data.listData = init ? dataList : [...data.listData, ...dataList]
     data.total = totalItem;
     if (init) data.loading = false;
     data.myLoading = false;
@@ -181,13 +179,13 @@ export const useMySignedList = () => {
   });
 
   /** 获取签约列表 */
-  const getMySignedList = async (keywords = "") => {
+  const getMySignedList = async (keywords = "", sorted: "asce" | "desc") => {
     // 用户未登录
     if (!store.state.userData) return;
 
     const signedList = await freelogApp.getSignStatistics({ keywords });
     const ids = signedList.data.data.map((item: SignedItem) => item.subjectId).join();
-
+    
     if (!ids) {
       data.mySignedList = [];
       return;
@@ -203,11 +201,26 @@ export const useMySignedList = () => {
       item.signCount = signCountItem?.count;
       const statusItem = statusData.data.data.find((status) => status.exhibitId === item.exhibitId);
       item.defaulterIdentityType = statusItem?.defaulterIdentityType;
+      const signDate = signedList.data.data.find(signItem => signItem.subjectId === item.exhibitId)
+      item.latestSignDate = signDate?.latestSignDate
     });
-    data.mySignedList = list.data.data.filter((item) => !item.articleInfo.resourceType.includes("主题"));
+    const _temp_list = list.data.data.filter((item) => !item.articleInfo.resourceType.includes("主题"));
+    
+    // 查所有的展品的签约信息, 一个展品有多个约时则取时间最近的作为展品的签约时间
+
+    data.mySignedList = _temp_list.sort((a: any, b: any) => {
+      const aTimeStamp = new Date(a.latestSignDate).getTime()
+      const bTimeStamp = new Date(b.latestSignDate).getTime()
+      if (sorted === 'desc') {
+        return bTimeStamp - aTimeStamp
+      } else {
+        return aTimeStamp - bTimeStamp
+      }
+    })
+    console.log("data.mySignedList", data.mySignedList);
   };
 
-  getMySignedList();
+  getMySignedList("", "desc");
 
   return {
     ...toRefs(data),
