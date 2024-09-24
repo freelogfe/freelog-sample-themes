@@ -329,8 +329,7 @@ const DetailBody = (props: { total: number }) => {
                       <span className="sub-title">{collectionItem.itemTitle}</span>
                       {![0, 4].includes(collectionItem.defaulterIdentityType) ? (
                         <img className="auth-lock" src={AuthLinkAbnormal} alt="授权链异常" />
-                      ) : collectionItem.defaulterIdentityType === 4 ||
-                        userData?.isLogin === false ? (
+                      ) : collectionItem.defaulterIdentityType === 4 ? (
                         <img className="sub-lock" src={Lock} alt="未授权" />
                       ) : (
                         <img src={RightArrow} />
@@ -487,8 +486,7 @@ const DetailBody = (props: { total: number }) => {
                       <span className="sub-title">{collectionItem.itemTitle}</span>
                       {![0, 4].includes(collectionItem.defaulterIdentityType) ? (
                         <img className="auth-lock" src={AuthLinkAbnormal} alt="授权链异常" />
-                      ) : collectionItem.defaulterIdentityType === 4 ||
-                        userData?.isLogin === false ? (
+                      ) : collectionItem.defaulterIdentityType === 4 ? (
                         <img className="sub-lock" src={Lock} alt="未授权" />
                       ) : (
                         inMobile && <img src={RightArrow} />
