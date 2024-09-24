@@ -215,9 +215,9 @@ const isSelectedData = item => {
               ></i>
               {{ item.exhibitTitle }}
             </span>
-            <span class="desc" v-if="item?.articleInfo?.articleProperty?.display_artist">{{
-              item?.articleInfo?.articleProperty?.display_artist
-            }}</span>
+            <span class="desc" v-if="item?.articleInfo?.articleProperty?.display_artist">
+              {{ item?.articleInfo?.articleProperty?.display_artist }}
+            </span>
             <span
               class="type"
               :class="item.albumName && 'album'"
