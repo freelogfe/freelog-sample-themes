@@ -396,7 +396,7 @@ export default {
         renderWidgetOptions: {
           data: { exhibit: data.articleData, type: "博客", routerType: "content" },
         },
-        widget_entry: "https://localhost:8201",
+        // widget_entry: "https://localhost:8201",
       };
       data.shareWidget = await freelogApp.mountArticleWidget(params);
     };
@@ -422,7 +422,7 @@ export default {
         renderWidgetOptions: {
           data: { exhibitInfo: data.contentInfo?.exhibitInfo, content: data.contentInfo?.content },
         },
-        widget_entry: "https://localhost:8202",
+        // widget_entry: "https://localhost:8202",
       };
       data.markdownWidget = await freelogApp.mountArticleWidget(params);      
       data.timeId = setInterval(() => {
