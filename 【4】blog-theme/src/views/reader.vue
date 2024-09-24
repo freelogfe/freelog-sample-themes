@@ -394,7 +394,7 @@ export default {
         topExhibitId,
         container,
         renderWidgetOptions: {
-          data: { exhibit: data.articleData, type: "博客", routerType: "detail" },
+          data: { exhibit: data.articleData, type: "博客", routerType: "content" },
         },
         widget_entry: "https://localhost:8201",
       };
