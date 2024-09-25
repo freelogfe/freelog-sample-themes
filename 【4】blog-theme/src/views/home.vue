@@ -179,7 +179,7 @@ export default {
     });
 
     const banner = computed(() => {
-      return store.state.selfConfig.banner
+      return store.state.selfConfig.options_banner
     })
 
     const inMobile = computed(() => {
