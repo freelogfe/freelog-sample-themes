@@ -42,9 +42,8 @@
 
 <script lang="ts">
 import { formatDate } from "@/utils/common";
-import { defineAsyncComponent, onMounted, toRefs, ref } from "vue";
+import { defineAsyncComponent, onMounted, ref } from "vue";
 import { useMyRouter } from "@/utils/hooks";
-import { useStore } from "vuex";
 import { ExhibitItem } from "../api/interface";
 import { showToast } from "@/utils/common";
 
@@ -58,7 +57,6 @@ export default {
   props: ["data", "inSignedList"],
 
   setup(props: { data: ExhibitItem }) {
-		const store = useStore();
 		const { switchPage } = useMyRouter();
 		const containerRef = ref(null) as any
 		const imgHeight = ref(200)
