@@ -94,7 +94,7 @@
 
           <div class="info-content" :class="{ noBg: !banner }">
             <div class="title-signcount">
-              <div class="blog-title">{{ nodeTitle || "你还未为主题设置标题" }}</div>
+              <div class="blog-title" :title="nodeTitle">{{ nodeTitle || "你还未为主题设置标题" }}</div>
               <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
             </div>
             <div class="blog-desc" v-html="nodeShortDescription" :title="nodeShortDescription"></div>
@@ -175,7 +175,8 @@ export default {
       sortPopupShow: false,
       createDateSortType: "-1",
       searchData: { sort: "createDate:-1" } as { keywords?: string; tags?: string; sort?: string },
-      blogInfoPopupShow: false
+      blogInfoPopupShow: false,
+      isInitial: true
     });
 
     const banner = computed(() => {
@@ -243,7 +244,7 @@ export default {
     };
 
     onActivated(() => {
-      if (router.options.history.state.replaced) {
+      if (router.options.history.state.replaced && !data.isInitial) {
         const homeScrollTop = sessionStorage.getItem("homeScroll");
         scrollTo(Number(homeScrollTop), "auto");
 
@@ -258,6 +259,8 @@ export default {
       } else {
         getData();
       }
+
+      data.isInitial = false
     });
 
     onDeactivated(() => {

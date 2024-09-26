@@ -732,6 +732,7 @@ export default {
         }
 
         .share-btn {
+          flex-shrink: 0;
           position: relative;
           display: flex;
           align-items: center;

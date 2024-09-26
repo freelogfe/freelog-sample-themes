@@ -281,7 +281,7 @@ export default {
     const locationHistory =  computed(() => {
       return store.state.locationHistory
     })
-
+    
     const methods = {
       /** 输入搜索词 */
       searchKeyInput() {
