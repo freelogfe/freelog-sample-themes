@@ -55,3 +55,59 @@ export const showToast = (msg: string) => {
     document.body.removeChild(div);
   }, 2000);
 };
+
+
+/**
+ * 相对时间
+ * @param time 时间戳、字符串日期等等
+ */
+export const relativeTime = (time: any) => {
+  if (!time) return;
+
+  const timeStamp = new Date(time).getTime();
+  const now = new Date();
+  const current = now.getTime();
+  const timeDifference = current - timeStamp;
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  const currentDay = now.getDate();
+  const today = new Date(`${currentYear}-${currentMonth}-${currentDay}`).getTime();
+  const MINUTE = 60 * 1000;
+  const YESTERDAY = today - 24 * 60 * MINUTE;
+  const SIX_DAYS_AGO = today - 6 * 24 * 60 * MINUTE;
+  let result = "" as any;
+
+  if (timeDifference < MINUTE) {
+    result = "刚刚";
+  } else if (timeDifference < 60 * MINUTE) {
+    const minutes = Math.floor(timeDifference / MINUTE);
+    result = `${minutes}分钟前`;
+  } else if (timeStamp >= today) {
+    const hours = Math.floor(timeDifference / (60 * MINUTE));
+    result = `${hours}小时前`;
+  } else if (timeStamp >= YESTERDAY) {
+    const hoursMinutes = formatDate(time, "hh:mm");
+    result = `昨天 ${hoursMinutes}`;
+  } else if (timeStamp >= SIX_DAYS_AGO) {
+    const days = Math.ceil((today - timeStamp) / (24 * 60 * MINUTE));
+    result = `${days}天前`;
+  } else {
+    result = formatDate(time, "YYYY/MM/DD");
+  }
+
+  return result;
+};
+
+/**
+ * 签约量显示规则（小于10000显示原数字，等于10000显示1万，大于10000显示1万+）
+ * @param count 签约量
+ */
+export const signCount = (count: any) => {
+  if (!count) return 0;
+
+  const LIMIT = 10000;
+  if (count < LIMIT) return count;
+  else if (count >= LIMIT && count < LIMIT ** 2)
+    return (Math.floor((count / LIMIT) * 10) / 10).toFixed(1) + "w";
+  else return (Math.floor((count / LIMIT ** 2) * 10) / 10).toFixed(1) + "亿";
+};

@@ -3,8 +3,8 @@
 <template>
   <div
     class="theme-entrance-wrapper"
-    :class="{ show: !inMobile && selfConfig.entranceShow === '显示' }"
-    :style="{ boxShadow: `0px 2px 10px 0px ${theme.deriveColor}40` }"
+    :class="{ show: !inMobile && selfConfig.entranceShow.trim() === '显示' }"
+    style="box-shadow:rgba(15, 32, 39, 0.25) 0px 2px 10px 0px;"
     @click="toTheme()"
   >
     <i class="freelog fl-icon-shiyongzhuti text-center"></i>
@@ -15,7 +15,7 @@
 <script lang="ts">
 import { useStore } from "vuex";
 import { freelogEntrances } from "@/api/data";
-import { toRefs } from "vue";
+import { computed } from "vue";
 
 export default {
   name: "theme-entrance",
@@ -23,6 +23,14 @@ export default {
   setup() {
     const themeEntrance = freelogEntrances[2];
     const store = useStore();
+
+    const inMobile = computed(() => {
+      return store.state.inMobile
+    })
+
+    const selfConfig = computed(() => {
+      return store.state.selfConfig
+    })
 
     const methods = {
       /** 打开主题资源详情页 */
@@ -33,8 +41,9 @@ export default {
 
     return {
       themeEntrance,
-      ...toRefs(store.state),
+      inMobile,
       ...methods,
+      selfConfig
     };
   },
 };
@@ -49,7 +58,7 @@ export default {
   height: 80px;
   padding: 15px 10px;
   box-sizing: border-box;
-  background: var(--gradientColor);
+  background: linear-gradient(315deg, #2C5364, #0F2027);
   border-radius: 20px 0px 0px 20px;
   display: flex;
   flex-direction: column;
@@ -82,7 +91,7 @@ export default {
   }
 
   &.show {
-    display: flex !important;
+    display: block !important;
   }
 }
 </style>

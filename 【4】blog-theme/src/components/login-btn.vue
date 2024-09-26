@@ -4,7 +4,7 @@
   <div
     class="login-btn-wrapper main-btn mobile"
     :class="{ show: show && inMobile }"
-    :style="{ boxShadow: `0px 2px 10px 0px ${theme.deriveColor}40` }"
+    style="box-shadow:rgba(15, 32, 39, 0.25) 0px 2px 10px 0px;"
     @click="callLogin()"
   >
     登录 / 注册
@@ -15,7 +15,7 @@
 import { useStore } from "vuex";
 import { callLogin } from "@/api/freelog";
 import { reactive, watch } from "@vue/runtime-core";
-import { toRefs } from "vue";
+import { toRefs, computed } from "vue";
 
 export default {
   name: "login-btn",
@@ -25,6 +25,10 @@ export default {
     const data = reactive({
       show: false,
     });
+
+    const inMobile = computed(() => {
+      return store.state.inMobile
+    })
 
     watch(
       () => store.state.userData,
@@ -36,7 +40,7 @@ export default {
 
     return {
       callLogin,
-      ...toRefs(store.state),
+      inMobile,
       ...toRefs(data),
     };
   },

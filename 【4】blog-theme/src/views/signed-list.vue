@@ -2,11 +2,9 @@
 
 <template>
   <div class="signed-list-wrapper" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
-    <my-header />
-
     <div class="content" v-if="userData.isLogin && mySignedList">
       <div class="content-header">
-        <div class="signed-list-title">已签约文章</div>
+        <div class="signed-list-title">签约记录</div>
 
         <div class="search-box">
           <input class="search-input input-none" v-model="searchKey" placeholder="搜索" @keyup="search($event)" />
@@ -14,8 +12,28 @@
         </div>
       </div>
 
-      <div class="article-box" v-for="item in mySignedList" :key="item.exhibitId">
-        <my-article :inSignedList="true" :data="item" />
+      <div
+        class="sort"
+        :class="{ disabled: loading }"
+        @mouseover="sortPopupShow = true"
+        @mouseleave="sortPopupShow = false"
+        v-if="!inMobile && mySignedList.length"
+      >
+        {{ createDateSortType === "desc" ? "最新签约" : "最早签约" }}
+        <i class="freelog fl-icon-zhankaigengduo"></i>
+
+        <transition name="slide-down-scale">
+          <div class="sort-popup" v-show="sortPopupShow">
+            <div class="sort-popup-body">
+              <div class="user-box-btn" @click="sort('desc')">最新签约</div>
+              <div class="user-box-btn" @click="sort('asce')">最早签约</div>
+            </div>
+          </div>
+        </transition>
+      </div>
+
+      <div class="article-box">
+        <my-article-v2 :inSignedList="true" :data="item" v-for="item in mySignedList" :key="item.exhibitId" />
       </div>
       <div class="tip" v-if="mySignedList.length === 0">暂无数据，快去签约博客吧～</div>
     </div>
@@ -24,15 +42,12 @@
       <div class="not-login-tip">此页面需登录浏览，请先登录</div>
       <div class="main-btn" @click="callLogin()" v-if="!inMobile">登录</div>
     </div>
-
-    <my-footer />
-
     <theme-entrance />
   </div>
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, reactive, toRefs } from "@vue/runtime-core";
+import { defineAsyncComponent, reactive, toRefs, computed } from "@vue/runtime-core";
 import { useMySignedList } from "../utils/hooks";
 import { useStore } from "vuex";
 import { callLogin } from "@/api/freelog";
@@ -41,32 +56,53 @@ export default {
   name: "signed-list",
 
   components: {
-    "my-header": defineAsyncComponent(() => import("../components/header.vue")),
-    "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
-    "my-article": defineAsyncComponent(() => import("../components/article.vue")),
+    "my-article-v2": defineAsyncComponent(() => import("../components/article-v2.vue")),
   },
 
   setup() {
     const store = useStore();
-    const { mySignedList, getMySignedList } = useMySignedList();
+    const { loading, mySignedList, getMySignedList } = useMySignedList();
 
     const data = reactive({
       searchKey: "",
+      sortPopupShow: false,
+      createDateSortType: "desc",
     });
+
+    const inMobile = computed(() => {
+      return store.state.inMobile
+    })
+
+    const userData = computed(() => {
+      return store.state.userData
+    })
 
     const methods = {
       /** 搜索签约列表 */
       search(e: { keyCode: number }) {
         if (e.keyCode === 13) {
-          getMySignedList(data.searchKey);
+          getMySignedList(data.searchKey, 'desc');
         } else if (e.keyCode === 27) {
           data.searchKey = "";
         }
       },
+      /** 排序(纯前端) */
+      sort: async (sort: "asce" | "desc") => {
+        data.createDateSortType = sort
+        getMySignedList(data.searchKey, sort);
+      }
     };
 
-    return { callLogin, ...toRefs(store.state), mySignedList, ...toRefs(data), ...methods };
+    return { 
+      callLogin,
+      mySignedList, 
+      loading, 
+      ...toRefs(data), 
+      ...methods,
+      inMobile,
+      userData
+    };
   },
 };
 </script>
@@ -78,7 +114,7 @@ export default {
 
   // mobile
   &.in-mobile {
-    padding-bottom: 98px;
+    padding-bottom: 128px;
     box-sizing: border-box;
 
     .content {
@@ -108,10 +144,16 @@ export default {
         padding: 0 20px;
         box-sizing: border-box;
 
-        &:last-child ::v-deep .article-wrapper {
-          border-bottom: none;
+        .article-wrapper-v2 {
+          margin-bottom: 30px;
+
+          &:last-child {
+            margin-bottom: 0px;
+          }
         }
       }
+
+
     }
   }
 
@@ -122,20 +164,19 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
 
     .content {
-      width: 1160px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      min-width: 965px;
+      max-width: 1600px;
+      width: 85%;
 
       .content-header {
-        width: 920px;
+        width: 100%;
         height: 116px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
         .signed-list-title {
           font-size: 30px;
@@ -177,6 +218,57 @@ export default {
 
       .article-box {
         width: 920px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 40px;
+      }
+
+      .sort {
+        width: 920px;
+        margin-top: 10px;
+        margin-bottom: 30px;
+        position: relative;
+        font-size: 16px;
+        line-height: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+
+        .freelog {
+          font-size: 12px;
+          width: 12px;
+          height: 7px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-left: 5px;
+          transform: rotate(90deg);
+        }
+
+        .sort-popup {
+          position: absolute;
+          left: 0;
+          top: 100%;
+          padding-top: 5px;
+          z-index: 1;
+
+          .sort-popup-body {
+            width: 118px;
+            background: #ffffff;
+            box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
+            padding: 10px 0;
+
+            .user-box-btn {
+              width: 100%;
+              height: 40px;
+              padding: 0 20px;
+              box-sizing: border-box;
+              font-size: 14px;
+              line-height: 40px;
+              cursor: pointer;
+            }
+          }
+        }
       }
     }
   }
@@ -217,5 +309,13 @@ export default {
       margin-top: 30px;
     }
   }
+  
 }
+
+@media screen and (min-width: 1300px) {
+  .article-box {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
 </style>

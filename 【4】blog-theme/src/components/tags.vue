@@ -1,7 +1,7 @@
 <!-- 标签组 -->
 
 <template>
-  <div class="tags-wrapper">
+  <div class="tags-wrapper" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
     <div
       class="tag"
       :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }"
@@ -18,7 +18,7 @@
 <script lang="ts">
 import { useMyRouter } from "@/utils/hooks";
 import { useStore } from "vuex";
-import { toRefs } from "vue";
+import { toRefs, computed } from "vue";
 
 export default {
   name: "tags",
@@ -34,16 +34,20 @@ export default {
     const store = useStore();
     const { switchPage } = useMyRouter();
 
+    const inMobile = computed(() => {
+      return store.state.inMobile
+    })
+
     const methods = {
       /** 搜索标签 */
       searchTag(tag: string) {
         const query: { tags: string } = { tags: tag };
-        switchPage("/home", query);
+        switchPage("/search", query);
       },
     };
 
     return {
-      ...toRefs(store.state),
+      inMobile,
       ...methods,
     };
   },
@@ -54,7 +58,13 @@ export default {
 .tags-wrapper {
   display: flex;
   flex-wrap: wrap;
+  &.in-mobile {
+    gap: 8px;
+  }
 
+  &.in-pc {
+    gap: 5px;
+  }
   .tag {
     box-sizing: border-box;
     font-size: 12px;
@@ -68,9 +78,6 @@ export default {
 
     // mobile
     &.in-mobile {
-      & + .tag {
-        margin-left: 8px;
-      }
 
       &:active {
         background-color: #a0a5ae;
@@ -82,11 +89,7 @@ export default {
     &.in-pc {
       cursor: pointer;
       transition: all 0.2s linear;
-
-      & + .tag {
-        margin-left: 5px;
-      }
-
+      
       &:hover {
         background-color: #a0a5ae;
         color: #fff;

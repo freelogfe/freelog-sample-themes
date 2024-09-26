@@ -45,8 +45,10 @@ export default createStore({
     async initData(context) {
       const userData = freelogApp.getCurrentUser();
       const selfConfig = await freelogApp.getSelfProperty();
+      console.log("getSelfProperty", selfConfig);
+      
       const inMobile = judgeDevice();
-      const theme = themeList[selfConfig.theme];
+      const theme = themeList[selfConfig.theme || '沉静'];
       context.commit("setData", {
         key: "userData",
         value: userData ? { ...userData, isLogin: true } : { isLogin: false },

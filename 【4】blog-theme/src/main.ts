@@ -7,16 +7,20 @@ import store from "./store";
 import lazyPlugin from "vue3-lazy";
 import hljs from "highlight.js";
 import "highlight.js/styles/a11y-dark.css";
-import { initFreelogApp } from "freelog-runtime";
+import { initFreelogApp, freelogApp } from "freelog-runtime";
 
 const myWindow: any = window;
 let app: App<Element> | null = null;
 let router: VueRouter.Router | null = null;
 let history: VueRouter.RouterHistory | null = null;
 
-myWindow.mount = () => {
+myWindow.mount = async () => {
   initFreelogApp();
-
+  await freelogApp.mapShareUrl({
+    content: (exhibitId) => {
+      return `/reader?id=${exhibitId}`
+    }
+  })
   history = VueRouter.createWebHistory();
   router = VueRouter.createRouter({
     history,
