@@ -62,7 +62,8 @@ export default {
         createDateSortType: "-1",
         searchData: {
           sort: "createDate:-1",
-          keywords: ""
+          keywords: "",
+          tags: ""
         },
         keywrodTxt: ""
       })
@@ -81,6 +82,7 @@ export default {
           state.createDateSortType = sortType;
           state.searchData.sort = `createDate:${sortType}`;
           state.searchData.keywords = query.value.keywords
+          state.searchData.tags = query.value.tags
           await datasOfGetList.getList(state.searchData, true);
           state.keywrodTxt = query.value.keywords 
         }

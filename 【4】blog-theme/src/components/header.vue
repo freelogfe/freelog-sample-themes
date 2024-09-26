@@ -278,6 +278,10 @@ export default {
       return store.state.userData
     })
 
+    const locationHistory =  computed(() => {
+      return store.state.locationHistory
+    })
+
     const methods = {
       /** 输入搜索词 */
       searchKeyInput() {
@@ -421,6 +425,7 @@ export default {
       clearHistory,
       ...toRefs(data),
       ...methods,
+      locationHistory
     };
   },
 };

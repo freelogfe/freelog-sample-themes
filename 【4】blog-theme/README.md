@@ -12,14 +12,12 @@
 
 阅读/文章
 
-2024年9月24日11:29:32
+### 2024年9月24日11:29:32
 
-待完成事项:
+可选配置调整: 弃用logoImage, theme主题色, articleCover, 新增banner
 
-1. 签约页, 需新增接口, 支持签约时间正序和倒序功能;
-2. 可选配置调整: 弃用logoImage, 新增banner
-   - theme: 主题色
-   - entranceShow: 主题入口按钮显示
-   - tags: 筛选分类标签【标签与标签之间以英文逗号进行分割，如：技术,宣传】
-   - articleCover: 展品列表中，文章封面图显示
-   - banner: banner 图片网络地址
+格式为【key: 属性说明】
+
+- entranceShow: 主题入口按钮显示
+- tags: 筛选分类标签【标签与标签之间以英文逗号进行分割，如：技术,宣传】
+- options_banner: banner 图片网络地址
