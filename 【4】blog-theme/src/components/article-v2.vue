@@ -100,7 +100,7 @@ export default {
 				object-fit: cover;
 			}
 		}
-	  .offline {
+		.offline {
 			position: absolute;
 			left: 0;
 			top: 0;
