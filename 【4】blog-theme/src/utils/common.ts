@@ -111,3 +111,27 @@ export const signCount = (count: any) => {
     return (Math.floor((count / LIMIT) * 10) / 10).toFixed(1) + "w";
   else return (Math.floor((count / LIMIT ** 2) * 10) / 10).toFixed(1) + "亿";
 };
+
+
+// 修复ios的safari浏览器, 软键盘将页面顶到安全区域外的问题(方式一)
+export const scrollIntoView = () => {
+  const headerWrapper = document.getElementById("headerWrapper")
+  headerWrapper?.scrollIntoView({
+    block: "end",
+    behavior: "smooth"
+  })
+}
+
+export const sleep = (duration: number) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(resolve, duration)
+  })
+}
+
+/** 判断 IOS 设备 */
+export const judgeIOSDevice = () => {
+  const ios = /(iPhone|iPod|ios|iPad)/i;
+  const isIOS = !!navigator.userAgent.match(ios);
+
+  return isIOS;
+};

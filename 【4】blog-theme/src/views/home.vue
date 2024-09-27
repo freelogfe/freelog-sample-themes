@@ -34,7 +34,7 @@
       </transition>
     </div>
 
-    <div class="mobile-home-body" v-if="inMobile">
+    <div class="mobile-home-body" v-if="inMobile" :class="{ isIOS: isIOS }">
       <div class="header">
         <div
           class="sort"
@@ -188,7 +188,11 @@ export default {
     })
 
     const availableListData = computed(() => {
-      return datasOfGetList.listData.value.filter(ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType!)) 
+      return datasOfGetList.listData.value.filter((ele: any) => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType!)) 
+    })
+
+    const isIOS = computed(() => {
+      return store.state.isIOS
     })
 
     const methods = {
@@ -277,7 +281,8 @@ export default {
       ...methods,
       banner,
       inMobile,
-      availableListData
+      availableListData,
+      isIOS
     };
   },
 };
@@ -399,6 +404,10 @@ export default {
     padding: 0 20px;
     box-sizing: border-box;
     padding-bottom: 98px;
+
+    &.isIOS {
+      padding-bottom: 188px;
+    }
 
     .header {
       width: 100%;
@@ -624,11 +633,13 @@ export default {
       }
 
       .info-content {
+        box-sizing: border-box;
         width: calc(100% - 50px);
         position: absolute;
         left: 50px;
         bottom: 50px;
         height: fit-content;
+        padding-right: 50px;
 
         &.noBg {
           top: 50%;

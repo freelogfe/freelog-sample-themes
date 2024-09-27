@@ -4653,10 +4653,10 @@ fragment-cache@^0.2.1:
   dependencies:
     map-cache "^0.2.2"
 
-freelog-runtime@^3.8.5:
-  version "3.8.5"
-  resolved "https://registry.npmmirror.com/freelog-runtime/-/freelog-runtime-3.8.5.tgz#eddd2c725b4540a52d480c5cb27fd3a25c640a14"
-  integrity sha512-LfOtYLrRCsqt+BwtvE4+L1jZGmJZ/3i7vdQiE3zUIwt/GtnhSEOg0GGpJomSPt6Kv/ZhClPsQY8aem0OX8sfOw==
+freelog-runtime@^4.0.2:
+  version "4.0.2"
+  resolved "https://registry.npmmirror.com/freelog-runtime/-/freelog-runtime-4.0.2.tgz#28642307abd98dc999c69ecc93434f27722dc7fe"
+  integrity sha512-N0uLBU7Mop+IY3Ta7v3TCuX2TSrYYo9DvsmUshd3OiVa9jFTsqG2V+zX2RyHs9YC2LMs/2Vtek8cT8TIuizVQA==
   dependencies:
     axios "^0.21.1"
 

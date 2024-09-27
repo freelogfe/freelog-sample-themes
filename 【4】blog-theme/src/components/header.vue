@@ -2,140 +2,142 @@
 
 <template>
   <!-- 移动端头部 -->
-  <div class="mobile-header-wrapper" :class="{ 'in-home': $route.path === '/home' }" v-if="inMobile && $route.path !== '/search'">
-    <!-- header顶部 -->
-    <div class="header-top" :class="{ logon: userData.isLogin }">
-      <img
-        class="logo"
-        :src="nodeLogo"
-        referrerpolicy="no-referrer"
-        @click="switchPage('/')"
-        v-if="$route.path === '/home'"
-      />
-      <div class="header-top-left" @click="locationHistory.length === 1 ? switchPage('/home') : routerBack()" v-else>
-        <span class="back-arrow freelog fl-icon-zhankaigengduo"></span>
-        <div class="back-label">{{ locationHistory.length === 1 ? "首页" : "返回" }}</div>
-      </div>
-
-      <div class="header-top-right">
-        <i class="freelog fl-icon-content" @click="searchPopupShow = true" v-if="!($route.path === '/reader')"></i>
-
-        <img class="menu" src="../assets/images/menu@3x.png" @click="userBoxShow = true" />
-      </div>
-    </div>
-
-   
-    <transition name="fade">
-      <div id="modal" class="modal" @click="userBoxShow = false" @touchmove.prevent v-if="userBoxShow"></div>
-    </transition>
-
-    <transition name="slide-right">
-      <div class="user-box-body" v-if="userBoxShow">
-        <div class="user-box-top">
-          <img
-            class="avatar"
-            :src="userData?.headImage || require('../assets/images/default-avatar.png')"
-            :alt="userData?.username || '未登录'"
-            @click="!userData.isLogin && callLogin()"
-          />
-          <div class="username" @click="!userData.isLogin && callLogin()">
-            {{ userData?.username || "未登录" }}
-          </div>
-          <div class="close-btn" @click="userBoxShow = false">
-            <i class="freelog fl-icon-guanbi"></i>
-          </div>
+  <div id="headerWrapper">
+    <div class="mobile-header-wrapper" :class="{ 'in-home': $route.path === '/home' }" v-if="inMobile && $route.path !== '/search'">
+      <!-- header顶部 -->
+      <div class="header-top" :class="{ logon: userData.isLogin }">
+        <img
+          class="logo"
+          :src="nodeLogo"
+          referrerpolicy="no-referrer"
+          @click="switchPage('/')"
+          v-if="$route.path === '/home'"
+        />
+        <div class="header-top-left" @click="locationHistory.length === 1 ? switchPage('/home') : routerBack()" v-else>
+          <span class="back-arrow freelog fl-icon-zhankaigengduo"></span>
+          <div class="back-label">{{ locationHistory.length === 1 ? "首页" : "返回" }}</div>
         </div>
-        <div class="btns">
-          <div class="menu-btns">
-            <div
-              class="btn"
-              :class="{ active: route.path === '/home' }"
-              @click="route.path !== '/home' && switchPage('/home')"
-            >
-              <i class="freelog fl-icon-shouye"></i>
-              <div class="btn-label">首页</div>
-            </div>
-            <div
-              class="btn"
-              :class="{ active: route.path === '/signedList' }"
-              @click="
-                switchPage('/signedList');
-                userBoxShow = false;
-              "
-              v-if="userData.isLogin"
-            >
-              <i class="freelog fl-icon-lishi"></i>
-              <div class="btn-label">签约记录</div>
-            </div>
-          </div>
 
-          <div class="footer-btn" @click="callLoginOut()" v-if="userData.isLogin">
-            <i class="freelog fl-icon-tuichu1"></i>
-            <div class="btn-label">退出登录</div>
-          </div>
-          <div class="footer-btn" v-if="!userData.isLogin">
-            <div class="main-btn mobile" @click="callLogin()">立即登录</div>
-          </div>
+        <div class="header-top-right">
+          <i class="freelog fl-icon-content" @click="searchPopupShow = true" v-if="!($route.path === '/reader')"></i>
+
+          <img class="menu" src="../assets/images/menu@3x.png" @click="userBoxShow = true" />
         </div>
       </div>
-    </transition>
 
-    <transition name="fade">
-      <div class="search-page" v-if="searchPopupShow">
-        <div class="search-page-header">
-          <div class="search-page-box">
-            <input
-              class="search-input input-none"
-              :class="{ 'in-focus': searchKey }"
-              v-model="searchKey"
-              :autofocus="true"
-              @input="searchKeyInput()"
-              @keyup.enter="
-                searchWord(searchKey);
-                search();
-              "
-              @keyup.esc="searchKey = ''"
+    
+      <transition name="fade">
+        <div id="modal" class="modal" @click="userBoxShow = false" @touchmove.prevent v-if="userBoxShow"></div>
+      </transition>
+
+      <transition name="slide-right">
+        <div class="user-box-body" v-if="userBoxShow">
+          <div class="user-box-top">
+            <img
+              class="avatar"
+              :src="userData?.headImage || require('../assets/images/default-avatar.png')"
+              :alt="userData?.username || '未登录'"
+              @click="!userData.isLogin && callLogin()"
             />
-            <i class="freelog fl-icon-content"></i>
+            <div class="username" @click="!userData.isLogin && callLogin()">
+              {{ userData?.username || "未登录" }}
+            </div>
+            <div class="close-btn" @click="userBoxShow = false">
+              <i class="freelog fl-icon-guanbi"></i>
+            </div>
           </div>
+          <div class="btns">
+            <div class="menu-btns">
+              <div
+                class="btn"
+                :class="{ active: route.path === '/home' }"
+                @click="route.path !== '/home' && switchPage('/home')"
+              >
+                <i class="freelog fl-icon-shouye"></i>
+                <div class="btn-label">首页</div>
+              </div>
+              <div
+                class="btn"
+                :class="{ active: route.path === '/signedList' }"
+                @click="
+                  switchPage('/signedList');
+                  userBoxShow = false;
+                "
+                v-if="userData.isLogin"
+              >
+                <i class="freelog fl-icon-lishi"></i>
+                <div class="btn-label">签约记录</div>
+              </div>
+            </div>
 
-          <div class="cancel-btn" @click="searchPopupShow = false">取消</div>
-        </div>
-
-        <div class="search-history-box" v-if="searchHistory.length !== 0">
-          <div class="search-history-box-title">
-            <div class="title">搜索记录</div>
-            <div class="text-btn" @click="clearHistory()">清空</div>
-          </div>
-          <div class="search-history-box-list">
-            <div class="tag" v-for="item in searchHistory" :key="item" @click="selectTag(item)">
-              {{ item }}
-              <i class="freelog fl-icon-guanbi" @click.stop="deleteWord(item)"></i>
+            <div class="footer-btn" @click="callLoginOut()" v-if="userData.isLogin">
+              <i class="freelog fl-icon-tuichu1"></i>
+              <div class="btn-label">退出登录</div>
+            </div>
+            <div class="footer-btn" v-if="!userData.isLogin">
+              <div class="main-btn mobile" @click="callLogin()">立即登录</div>
             </div>
           </div>
         </div>
-      </div>
-    </transition>
-  </div>
+      </transition>
 
-  <!-- 移动端搜索页头部 -->
-  <div class="mobile-search-header-wrapper" v-if="inMobile && $route.path === '/search'">
-    <div class="search-page-box">
-      <input
-        class="search-input input-none"
-        :class="{ 'in-focus': searchKey }"
-        v-model="searchKey"
-        :maxLength="100"
-        @input="searchKeyInput()"
-        @keyup.enter="
-          searchWord(searchKey);
-          search();
-        "
-      />
-      <i class="freelog fl-icon-content"></i>
+      <transition name="fade">
+        <div class="search-page" v-if="searchPopupShow">
+          <div class="search-page-header">
+            <div class="search-page-box">
+              <input
+                class="search-input input-none"
+                :class="{ 'in-focus': searchKey }"
+                v-model="searchKey"
+                :autofocus="true"
+                @input="searchKeyInput()"
+                @keyup.enter="
+                  searchWord(searchKey);
+                  search();
+                "
+                @keyup.esc="searchKey = ''"
+              />
+              <i class="freelog fl-icon-content"></i>
+            </div>
+
+            <div class="cancel-btn" @click="searchPopupShow = false">取消</div>
+          </div>
+
+          <div class="search-history-box" v-if="searchHistory.length !== 0">
+            <div class="search-history-box-title">
+              <div class="title">搜索记录</div>
+              <div class="text-btn" @click="clearHistory()">清空</div>
+            </div>
+            <div class="search-history-box-list">
+              <div class="tag" v-for="item in searchHistory" :key="item" @click="selectTag(item)">
+                {{ item }}
+                <i class="freelog fl-icon-guanbi" @click.stop="deleteWord(item)"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </transition>
     </div>
 
-    <div class="cancel-btn" @click="switchPage('/home')">取消</div>
+    <!-- 移动端搜索页头部 -->
+    <div class="mobile-search-header-wrapper" v-if="inMobile && $route.path === '/search'">
+      <div class="search-page-box">
+        <input
+          class="search-input input-none"
+          :class="{ 'in-focus': searchKey }"
+          v-model="searchKey"
+          :maxLength="100"
+          @input="searchKeyInput()"
+          @keyup.enter="
+            searchWord(searchKey);
+            search();
+          "
+        />
+        <i class="freelog fl-icon-content"></i>
+      </div>
+
+      <div class="cancel-btn" @click="switchPage('/home')">取消</div>
+    </div>
   </div>
 
   <!-- PC -->

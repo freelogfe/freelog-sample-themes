@@ -1,19 +1,25 @@
 <template>
-  <my-header />
-  <router-view v-slot="{ Component }">
-    <keep-alive include="home">
-      <component :is="Component" />
-    </keep-alive>
-  </router-view>
-  <my-footer />
-  <theme-entrance />
-  <login-btn />
-  <div id="modal"></div>
+  <div v-if="!maskLoading">
+    <my-header />
+    <router-view v-slot="{ Component }">
+      <keep-alive include="home">
+        <component :is="Component" />
+      </keep-alive>
+    </router-view>
+    <my-footer />
+    <theme-entrance />
+    <login-btn />
+    <div id="modal"></div>
+  </div>
+  <div class="maskLoading" v-else>
+    <span class="freelog fl-icon-loading"></span>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
+import { computed, defineAsyncComponent } from "vue";
 import { widgetApi } from 'freelog-runtime';
+import { useStore } from "vuex"
 
 export default {
   components: {
@@ -23,13 +29,48 @@ export default {
     "my-footer": defineAsyncComponent(() => import("./components/footer.vue")),
   },
   setup() {
+    const store = useStore()
+
+    const maskLoading = computed(() => {
+      return store.state.maskLoading
+    })
+
     const themeInfo = widgetApi.getData()?.themeInfo;
     console.log("当前应用版本为:", themeInfo?.version, "+++");
-    return {}
+    return {
+      maskLoading
+    }
   }
 };
 </script>
 
 <style lang="scss">
 @import "@/assets/css";
+
+.maskLoading {
+  width: 100vw;
+  height: 100vh;
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.8) 30%, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
+  span {
+    color: rgba(255, 255, 255, 0.6);
+    animation: loading 1s linear infinite;
+  }
+}
+
+@keyframes loading {
+  from {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(180deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
 </style>

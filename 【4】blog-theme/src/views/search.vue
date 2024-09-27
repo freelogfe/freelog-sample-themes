@@ -73,7 +73,7 @@ export default {
       })
 
       const availableListData = computed(() => {
-        return datasOfGetList.listData.value.filter(ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType!)) 
+        return datasOfGetList.listData.value.filter((ele: any) => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType!)) 
       })
 
       const methods = {
