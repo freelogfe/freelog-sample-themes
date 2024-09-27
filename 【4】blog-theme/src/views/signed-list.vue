@@ -48,7 +48,7 @@
 
 <script lang="ts">
 import { defineAsyncComponent, reactive, toRefs, computed } from "@vue/runtime-core";
-import { useMySignedList } from "../utils/hooks";
+import { useMySignedList, useMyRouter } from "../utils/hooks";
 import { useStore } from "vuex";
 import { callLogin } from "@/api/freelog";
 
@@ -62,6 +62,7 @@ export default {
 
   setup() {
     const store = useStore();
+    const { switchPage } = useMyRouter()
     const { loading, mySignedList, getMySignedList } = useMySignedList();
 
     const data = reactive({
@@ -93,6 +94,10 @@ export default {
         getMySignedList(data.searchKey, sort);
       }
     };
+    
+    if (!userData.value.isLogin) {
+      switchPage('/home')
+    }
 
     return { 
       callLogin,
