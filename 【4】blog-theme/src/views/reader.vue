@@ -1,47 +1,55 @@
 <!-- 阅读页 -->
 
 <template>
-  <div class="reader-wrapper" :class="{ 'in-mobile': inMobile }">
+  <div class="reader-wrapper" :class="{ 'in-mobile': inMobile, isIOS: isIOS }">
     <div v-if="articleData?.articleInfo?.status === 1">
       <!-- mobile -->
       <div class="mobile-reader-body" v-if="inMobile">
         <div class="article-info">
-          <div class="article-cover">
-            <img :src="articleData?.coverImages[0]" alt="">
-          </div>
-          <div class="article-title">{{ articleData?.exhibitTitle }}</div>
-          <div class="other-info">
-            <div class="info-left">
-              <div class="info">{{ formatDate(articleData?.createDate) }}</div>
+          <div class="article-info-header">
+            <div class="article-cover">
+              <img :src="articleData?.coverImages[0]" alt="">
             </div>
-            <div class="share-btn" @click="share()">
-              <span class="share-btn-text"><i class="freelog fl-icon-fenxiang"></i>分享</span>
+            <div class="article-title">{{ articleData?.exhibitTitle }}</div>
+            <div class="other-info">
+              <div class="info-left">
+                <div class="info">{{ formatDate(articleData?.createDate) }}</div>
+              </div>
+              <div class="share-btn" @click="share()">
+                <span class="share-btn-text"><i class="freelog fl-icon-fenxiang"></i>分享</span>
+              </div>
+              <input id="href" class="hidden-input" :value="href" readOnly />
             </div>
-            <input id="href" class="hidden-input" :value="href" readOnly />
+            <div class="tags" v-if="articleData?.tags?.length">
+              <tags :tags="articleData?.tags" />
+            </div>
           </div>
-          <div class="tags" v-if="articleData?.tags?.length">
-            <tags :tags="articleData?.tags" />
-          </div>
-          <div class="article-content">
-            <my-loader v-if="contentLoading" />
-
-            <template v-else>
-              <div id="markdown" v-if="articleData?.defaulterIdentityType === 0"></div>
-              <template v-else-if="articleData?.defaulterIdentityType">
-                <div class="auth-box" v-if="articleData?.defaulterIdentityType !== 4">
-                  <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-                  <div class="auth-link-tip">授权链异常，无法查看</div>
-                  <div class="home-btn" @click="switchPage('/home')">进入首页</div>
-                </div>
-
-                <div class="lock-box" v-else-if="articleData?.defaulterIdentityType === 4 || userData.isLogin === false">
-                  <img class="lock" src="../assets/images/lock.png" />
-                  <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-                  <div class="get-btn" @click="getAuth()">获取授权</div>
-                </div>
+          <div class="article-info-body">
+            <div class="article-content">
+              <my-loader v-if="contentLoading" />
+  
+              <template v-else>
+                <div id="markdown" v-if="articleData?.defaulterIdentityType === 0"></div>
+                <template v-else-if="articleData?.defaulterIdentityType">
+                  <div class="auth-box" v-if="articleData?.defaulterIdentityType !== 4">
+                    <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+                    <div class="auth-link-tip">授权链异常，无法查看</div>
+                    <div class="home-btn" @click="switchPage('/home')">进入首页</div>
+                  </div>
+  
+                  <div class="lock-box" v-else-if="articleData?.defaulterIdentityType === 4 || userData.isLogin === false">
+                    <img class="lock" src="../assets/images/lock.png" />
+                    <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+                    <div class="get-btn" @click="getAuth()">获取授权</div>
+                  </div>
+                </template>
               </template>
-            </template>
+            </div>
           </div>
+        </div>
+
+        <div class="article-divider">
+          <div></div>
         </div>
 
         <div class="recommend">
@@ -251,6 +259,10 @@ export default {
 
     const inMobile = computed(() => {
       return store.state.inMobile
+    })
+
+    const isIOS = computed(() => {
+      return store.state.isIOS
     })
 
     const userData = computed(() => {
@@ -476,7 +488,8 @@ export default {
       relativeTime,
       authLinkAbnormal,
       inMobile,
-      userData
+      userData,
+      isIOS
     };
   },
 };
@@ -494,20 +507,39 @@ export default {
   box-sizing: border-box;
 
   &.in-mobile {
-    background: rgba(0, 0, 0, 0.03);
     padding-bottom: 98px;
+  }
+
+  &.isIOS {
+    padding-bottom: 188px !important;
   }
 
   // mobile
   .mobile-reader-body {
     width: 100%;
 
+    .article-divider {
+      padding: 14px 20px 0px;
+      div {
+        height: 1px;
+        background-color: rgba(0, 0, 0, 0.08);
+      }
+    }
+
     .article-info {
       width: 100%;
       min-height: calc(100vh - 64px);
       background: #ffffff;
-      padding: 20px;
       box-sizing: border-box;
+
+      .article-info-header {
+        padding: 20px 20px 30px;
+        background-color: #f7f7f7;
+      }
+
+      .article-info-body {
+        padding: 0px 20px;
+      }
 
       .article-cover {
         width: 100%;
@@ -574,6 +606,7 @@ export default {
         .hidden-input {
           position: absolute;
           z-index: -1;
+          left: -9999px;
         }
       }
 
@@ -586,9 +619,7 @@ export default {
         font-size: 18px;
         color: #222222;
         line-height: 32px;
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
-        padding-top: 20px;
-        margin-top: 20px;
+        padding-top: 30px;
 
         .auth-box {
           width: 100%;
@@ -675,7 +706,6 @@ export default {
       width: 100%;
       padding: 30px 20px;
       box-sizing: border-box;
-      margin-top: 5px;
       background-color: #fff;
 
       .recommend-title {

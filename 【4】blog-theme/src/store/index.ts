@@ -1,5 +1,5 @@
 import { themeList } from "@/api/data";
-import { judgeDevice } from "@/utils/common";
+import { judgeDevice, judgeIOSDevice } from "@/utils/common";
 import { freelogApp } from "freelog-runtime";
 import { createStore } from "vuex";
 
@@ -31,6 +31,8 @@ export default createStore({
     theme: { gradientColor: "", deriveColor: "" } as Theme,
     locationHistory: [] as HistoryItem[],
     authIds: [] as string[], // 授权集合，用于刷新列表授权状态
+    isIOS: false,
+    maskLoading: false
   },
 
   mutations: {
@@ -48,6 +50,13 @@ export default createStore({
       console.log("getSelfProperty", selfConfig);
       
       const inMobile = judgeDevice();
+
+      if (inMobile) {
+        // 是否 IOS 设备
+        const isIOS = judgeIOSDevice();
+        context.commit("setData", { key: "isIOS", value: isIOS });
+      }
+
       const theme = themeList[selfConfig.theme || '沉静'];
       context.commit("setData", {
         key: "userData",
