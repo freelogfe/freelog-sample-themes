@@ -67,7 +67,7 @@ export const DetailScreen = (props: any) => {
         console.error("Failed to get collection list", error);
       }
     },
-    [id]
+    [id, novel]
   );
 
   /** 获取小说信息 */
@@ -309,7 +309,7 @@ const DetailBody = (props: { total: number }) => {
             <div className="novel-catalogue">
               <div className="title-container">
                 <span className="title">目录</span>
-                <span className="count">({collectionList.length}章)</span>
+                <span className="count">({total}章)</span>
               </div>
 
               <div className="sub-directory-container">
@@ -329,8 +329,7 @@ const DetailBody = (props: { total: number }) => {
                       <span className="sub-title">{collectionItem.itemTitle}</span>
                       {![0, 4].includes(collectionItem.defaulterIdentityType) ? (
                         <img className="auth-lock" src={AuthLinkAbnormal} alt="授权链异常" />
-                      ) : collectionItem.defaulterIdentityType === 4 ||
-                        userData?.isLogin === false ? (
+                      ) : collectionItem.defaulterIdentityType === 4 ? (
                         <img className="sub-lock" src={Lock} alt="未授权" />
                       ) : (
                         <img src={RightArrow} />
@@ -467,7 +466,7 @@ const DetailBody = (props: { total: number }) => {
             <div className="novel-catalogue">
               <div className="title-container">
                 <span className="title">目录</span>
-                <span className="count">({collectionList.length}章)</span>
+                <span className="count">({total}章)</span>
               </div>
 
               <div className="sub-directory-container">
@@ -487,8 +486,7 @@ const DetailBody = (props: { total: number }) => {
                       <span className="sub-title">{collectionItem.itemTitle}</span>
                       {![0, 4].includes(collectionItem.defaulterIdentityType) ? (
                         <img className="auth-lock" src={AuthLinkAbnormal} alt="授权链异常" />
-                      ) : collectionItem.defaulterIdentityType === 4 ||
-                        userData?.isLogin === false ? (
+                      ) : collectionItem.defaulterIdentityType === 4 ? (
                         <img className="sub-lock" src={Lock} alt="未授权" />
                       ) : (
                         inMobile && <img src={RightArrow} />

@@ -255,7 +255,7 @@
           <div class="comic-catalogue" v-if="listData.length">
             <div class="title-container">
               <span class="title">目录</span>
-              <span class="count">({{ listData.length }}话)</span>
+              <span class="count">({{ total }}话)</span>
             </div>
 
             <div class="sub-directory-container">
@@ -436,10 +436,10 @@ export default {
     };
 
     const getCollectionList = async (init = false) => {
-      const { total, listData, skip } = collectionData;
+      let { total, listData, skip } = collectionData;
 
-      if (!init && total >= listData.length) return;
-      collectionData.skip = init ? 0 : collectionData.skip + 30;
+      if (!init && listData.length >= total) return;
+      skip = init ? 0 : collectionData.skip + 30;
 
       const subList = await (freelogApp as any).getCollectionSubList(id, {
         skip,

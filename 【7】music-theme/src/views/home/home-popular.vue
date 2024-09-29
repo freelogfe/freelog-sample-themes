@@ -215,9 +215,18 @@ const isSelectedData = item => {
               ></i>
               {{ item.exhibitTitle }}
             </span>
-            <span class="desc" v-if="item?.articleInfo?.articleProperty?.display_artist">{{
-              item?.articleInfo?.articleProperty?.display_artist
-            }}</span>
+            <span
+              class="desc"
+              v-if="
+                item?.versionInfo?.exhibitProperty?.display_artist ||
+                item?.articleInfo?.articleProperty?.display_artist
+              "
+            >
+              {{
+                item?.versionInfo?.exhibitProperty?.display_artist ||
+                item?.articleInfo?.articleProperty?.display_artist
+              }}
+            </span>
             <span
               class="type"
               :class="item.albumName && 'album'"
@@ -305,9 +314,18 @@ const isSelectedData = item => {
               ></i>
               {{ item.exhibitTitle }}
             </span>
-            <span class="desc" v-if="item?.articleInfo?.articleProperty?.display_artist">{{
-              item?.articleInfo?.articleProperty?.display_artist
-            }}</span>
+            <span
+              class="desc"
+              v-if="
+                item?.versionInfo?.exhibitProperty?.display_artist ||
+                item?.articleInfo?.articleProperty?.display_artist
+              "
+            >
+              {{
+                item?.versionInfo?.exhibitProperty?.display_artist ||
+                item?.articleInfo?.articleProperty?.display_artist
+              }}</span
+            >
             <span class="type" :class="item.albumName && 'album'">
               {{ item.albumName || "单曲" }}
             </span>
