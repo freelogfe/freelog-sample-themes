@@ -286,7 +286,7 @@ const HomeBody = (props: {
               全部
             </div>
 
-            {tagsList.map(item => {
+            {tagsList?.map(item => {
               return (
                 <div
                   className={`category-btn ${tags === item && "active"} ${myloading && "disabled"}`}
