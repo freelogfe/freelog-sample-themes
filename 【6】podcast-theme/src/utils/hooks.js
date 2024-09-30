@@ -676,8 +676,6 @@ export const useMyPlay = {
    * type: "normal" 表默认
    */
   async playOrPause(exhibit, type = "normal") {
-    console.log(1);
-    debugger
     if (!exhibit) {
       store.commit("setData", { key: "playing", value: false });
       store.commit("setData", { key: "playingInfo", value: null });
@@ -712,19 +710,19 @@ export const useMyPlay = {
       store.commit("setData", { key: "playing", value: false });
     }
 
-    if (initUrl) {
-      setTimeout(() => {
-        store.commit("setData", { key: "initUrl", value: null });
-      }, 0);
-    } else if (initUrl === "") {
-      // 部分设备（已知部分 ios）上无法直接播放音频，需要先使用任意 url 初始化播放器，才可播放音频
-      store.commit("setData", {
-        key: "initUrl",
-        value: "https://file.testfreelog.com/exhibits/64d1ed97cc4a64002f632b0d"
-      });
-      // this.playOrPause(exhibit, type);
-      // return;
-    }
+    // if (initUrl) {
+    //   setTimeout(() => {
+    //     store.commit("setData", { key: "initUrl", value: null });
+    //   }, 0);
+    // } else if (initUrl === "") {
+    //   // 部分设备（已知部分 ios）上无法直接播放音频，需要先使用任意 url 初始化播放器，才可播放音频
+    //   store.commit("setData", {
+    //     key: "initUrl",
+    //     value: "https://file.testfreelog.com/exhibits/64d1ed97cc4a64002f632b0d"
+    //   });
+    //   // this.playOrPause(exhibit, type);
+    //   // return;
+    // }
 
     // 合集的暂停播放
     // if (type === "pool") {
@@ -774,7 +772,7 @@ export const useMyPlay = {
     //     return;
     //   }
     // }
-
+    debugger
     if (![0, 4].includes(defaulterIdentityType)) {
       // 授权链异常
       if (type !== "normal") {
@@ -811,8 +809,10 @@ export const useMyPlay = {
           url,
           authCode: statusInfo.data.data[0].authCode
         };
-      } else {
-        console.warn(res.data);
+        if (detail.data.data.articleInfo.status === 2) {
+          showToast("资源被封禁, 暂无法播放!", url)
+          return
+        }
       }
     }
     

@@ -398,8 +398,7 @@ export default {
     "$store.state.playing"(cur) {
       if (!this.$store.state.playingInfo) return;
       if (cur) {
-        // this.playVoice();
-        this.$refs.player.play()
+        this.playVoice();                
       } else {
         this.$refs.player.pause();
       }
@@ -509,18 +508,14 @@ export default {
     },
     /** 播放地址 */
     computedSrc() {
-      if (this.$store.state.initUrl) {
-        return this.$store.state.initUrl;
-      } else {
-        if (this.playingInfo) {
-          if (this.playingInfo.articleInfo.articleType === 1) {
-            return this.playingInfo.url;
-          } else {
-            return this.playingInfo.child && this.playingInfo.child.url;
-          }
+      if (this.playingInfo) {
+        if (this.playingInfo.articleInfo.articleType === 1) {
+          return this.playingInfo.url;
         } else {
-          return "";
+          return this.playingInfo.child && this.playingInfo.child.url;
         }
+      } else {
+        return this.$store.state.initUrl;
       }
     },
     /** 是否收藏 */
@@ -679,6 +674,7 @@ export default {
     },
     /** 播放失败 */
     async playError(event) {      
+      debugger
       const mediaError = this.$refs.player.error
       if (!mediaError) return 
       switch (mediaError.code) {
@@ -715,13 +711,16 @@ export default {
       if (this.playingInfo?.articleInfo?.articleType === 1) {
         this.playingInfo.versionInfo.exhibitProperty.duration = this.$refs.player.duration * 1000
       } else {
-        this.playingInfo.child && this.playingInfo.child.articleInfo && 
+        this.playingInfo &&
+        this.playingInfo.child && 
+        this.playingInfo.child.articleInfo && 
         (this.playingInfo.child.articleInfo.articleProperty.duration = this.$refs.player.duration * 1000)
       }
     },
 
     /** 主动进行一次请求 */
     async requestTry() {
+      debugger
       let url
       const playingInfo = this.$store.state.playingInfo
       if (playingInfo) {
@@ -835,6 +834,8 @@ export default {
 
     /** 加载完成 */
     loadedVoice() {
+      console.log("加载完成");
+      
       this.playVoice();
     },
 
