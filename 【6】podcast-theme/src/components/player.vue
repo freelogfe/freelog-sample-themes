@@ -344,6 +344,12 @@ export default {
   },
 
   watch: {
+    "$store.state.playingSuccessRecorder": {
+      handler(cur) {
+        console.log("playingSuccessRecorder", cur);
+
+      }
+    },
     "$store.state.playList": {
       handler(cur, pre) {
         this.playList = cur;
@@ -376,7 +382,7 @@ export default {
         if (this.playList && this.$store.state.inMobile) {
           const index = this.playList.findIndex(
             item => {
-              if (this.playingInfo.articleInfo.articleType === 1) {
+              if (this.playingInfo?.articleInfo?.articleType === 1) {
                 return item.exhibitId === this.playingInfo.exhibitId
               } else {
                 return item.exhibitId === this.playingInfo.exhibitId && item.child.itemId === this.playingInfo.child.itemId
@@ -392,7 +398,8 @@ export default {
     "$store.state.playing"(cur) {
       if (!this.$store.state.playingInfo) return;
       if (cur) {
-        this.playVoice();
+        // this.playVoice();
+        this.$refs.player.play()
       } else {
         this.$refs.player.pause();
       }
@@ -468,6 +475,10 @@ export default {
           return (
             this.playingInfo &&
             this.playingInfo.exhibitId === item.exhibitId &&
+            this.playingInfo.child &&
+            this.playingInfo.child.itemId &&
+            item.child &&
+            item.child.itemId &&
             this.playingInfo.child.itemId === item.child.itemId
           );
         }
@@ -701,10 +712,11 @@ export default {
 
     /** 播放总时长变化 */
     async handleDurationchange(event) {
-      if (this.playingInfo.articleInfo.articleType === 1) {
+      if (this.playingInfo?.articleInfo?.articleType === 1) {
         this.playingInfo.versionInfo.exhibitProperty.duration = this.$refs.player.duration * 1000
       } else {
-        this.playingInfo.child.articleInfo.articleProperty.duration = this.$refs.player.duration * 1000
+        this.playingInfo.child && this.playingInfo.child.articleInfo && 
+        (this.playingInfo.child.articleInfo.articleProperty.duration = this.$refs.player.duration * 1000)
       }
     },
 

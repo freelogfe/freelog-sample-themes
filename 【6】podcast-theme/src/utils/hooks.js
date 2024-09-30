@@ -110,6 +110,7 @@ export const useMyAuth = {
           });
           data.child.url = url
           store.commit("setData", { key: "playingInfo", value: JSON.parse(JSON.stringify(data)) });
+          store.commit("setplayingSuccessRecorder", JSON.parse(JSON.stringify(data)))
           store.commit("setData", { key: "playing", value: true });
           freelogApp.setUserData("playingId", `${exhibitId}=${data.child.itemId}`);
         } else {
@@ -135,13 +136,9 @@ export const useMyAuth = {
             addArr: res
           })
 
-          store.commit("setData", {
-            key: "playingInfo",
-            value: {
-              ...data,
-              child: res[0]
-            }
-          });
+          const payload = { ...data, child: res[0] }
+          store.commit("setData", { key: "playingInfo", value: payload });
+          store.commit("setplayingSuccessRecorder", JSON.parse(JSON.stringify(payload)))
           store.commit("setData", { key: "playing", value: true });
           freelogApp.setUserData("playingId", `${exhibitId}=${playingId}`);
         }
@@ -155,6 +152,7 @@ export const useMyAuth = {
         const url = await freelogApp.getExhibitFileStream(exhibitId, { returnUrl: true });
         data.url = url;
         store.commit("setData", { key: "playingInfo", value: data });
+        store.commit("setplayingSuccessRecorder", JSON.parse(JSON.stringify(data)))
         store.commit("setData", { key: "playing", value: true });
       }
     }
@@ -654,6 +652,7 @@ export const useMyPlay = {
       store.commit("setData", { key: "playing", value: false });
       store.commit("setData", { key: "playingInfo", value: null });
       store.commit("setData", { key: "progress", value: 0 });
+      store.commit("setplayingSuccessRecorder", "init")
     } else {
       // 已登录时取用户数据
       const res = await freelogApp.setUserData("playIdList", []);
@@ -663,6 +662,7 @@ export const useMyPlay = {
         store.commit("setData", { key: "playing", value: false });
         store.commit("setData", { key: "playingInfo", value: null });
         store.commit("setData", { key: "progress", value: 0 });
+        store.commit("setplayingSuccessRecorder", "init")
       } else {
         showToast("清空列表失败");
       }
@@ -676,13 +676,41 @@ export const useMyPlay = {
    * type: "normal" 表默认
    */
   async playOrPause(exhibit, type = "normal") {
+    console.log(1);
+    debugger
     if (!exhibit) {
       store.commit("setData", { key: "playing", value: false });
       store.commit("setData", { key: "playingInfo", value: null });
       return;
     }
 
-    const { initUrl, playingInfo, playing } = store.state;
+    const { initUrl, playingInfo, playing, playingSuccessRecorder } = store.state;
+    const preplayingInfo = playingSuccessRecorder.length > 0 ? playingSuccessRecorder[playingSuccessRecorder.length - 1] : null;
+    
+    store.commit("setData", { key: "playingInfo", value: exhibit });
+
+    if (preplayingInfo) {
+      // 如果有前一首
+      if (preplayingInfo.exhibitId === exhibit.exhibitId) {
+        if (exhibit.child && preplayingInfo.child) {
+          if (exhibit.child.itemId === preplayingInfo.child.itemId) {
+            store.commit("setData", { key: "playing", value: !playing });
+            return
+          }
+        } else if (!exhibit.child && !preplayingInfo.child) {
+          store.commit("setData", { key: "playing", value: !playing });
+          return
+        } else {
+          store.commit("setData", { key: "playing", value: !playing });
+          return
+        }
+      } else {
+        store.commit("setData", { key: "playing", value: false });
+      }
+    } else {
+      // 没有播放过
+      store.commit("setData", { key: "playing", value: false });
+    }
 
     if (initUrl) {
       setTimeout(() => {
@@ -694,58 +722,58 @@ export const useMyPlay = {
         key: "initUrl",
         value: "https://file.testfreelog.com/exhibits/64d1ed97cc4a64002f632b0d"
       });
-      this.playOrPause(exhibit, type);
-      return;
+      // this.playOrPause(exhibit, type);
+      // return;
     }
 
     // 合集的暂停播放
-    if (type === "pool") {
-      if (
-        playingInfo &&
-        playingInfo.articleInfo &&
-        playingInfo.articleInfo.articleType === 2 &&
-        playing &&
-        playingInfo.exhibitId === exhibit.exhibitId
-      ) {
-        store.commit("setData", { key: "playing", value: false });
-        return;
-      }
-    }
+    // if (type === "pool") {
+    //   if (
+    //     playingInfo &&
+    //     playingInfo.articleInfo &&
+    //     playingInfo.articleInfo.articleType === 2 &&
+    //     playing &&
+    //     playingInfo.exhibitId === exhibit.exhibitId
+    //   ) {
+    //     store.commit("setData", { key: "playing", value: false });
+    //     return;
+    //   }
+    // }
 
     const { defaulterIdentityType, url, exhibitId, articleInfo } = exhibit;
-    const hasUrl =
-      (articleInfo.articleType === 1 && url) ||
-      (articleInfo.articleType === 2 && exhibit?.child?.url);
+    // const hasUrl =
+    //   (articleInfo.articleType === 1 && url) ||
+    //   (articleInfo.articleType === 2 && exhibit?.child?.url);
 
-    if (playingInfo && defaulterIdentityType === 0 && hasUrl) {
-      const {
-        exhibitId: id,
-        url: playingUrl,
-        articleInfo: { articleType },
-        child
-      } = playingInfo;
-      // 可播放展品
-      const cond1 =
-        articleType === 1 && exhibitId === id && playing && type === "normal" && playingUrl === url;
-      // 合集里的可播放子作品
-      const cond2 =
-        articleType === 2 &&
-        exhibitId === id &&
-        playing &&
-        type === "normal" &&
-        child &&
-        child.url === exhibit.child.url;
+    // if (playingInfo && defaulterIdentityType === 0 && hasUrl) {
+    //   const {
+    //     exhibitId: id,
+    //     url: playingUrl,
+    //     articleInfo: { articleType },
+    //     child
+    //   } = playingInfo;
+    //   // 可播放展品
+    //   const cond1 =
+    //     articleType === 1 && exhibitId === id && playing && type === "normal" && playingUrl === url;
+    //   // 合集里的可播放子作品
+    //   const cond2 =
+    //     articleType === 2 &&
+    //     exhibitId === id &&
+    //     playing &&
+    //     type === "normal" &&
+    //     child &&
+    //     child.url === exhibit.child.url;
 
-      if (cond1 || cond2) {
-        // 暂停
-        store.commit("setData", { key: "playing", value: false });
-        return;
-      } else if (exhibitId === id && !playing && playingUrl) {
-        // 之前暂停的声音继续播放
-        store.commit("setData", { key: "playing", value: true });
-        return;
-      }
-    }
+    //   if (cond1 || cond2) {
+    //     // 暂停
+    //     store.commit("setData", { key: "playing", value: false });
+    //     return;
+    //   } else if (exhibitId === id && !playing && playingUrl) {
+    //     // 之前暂停的声音继续播放
+    //     store.commit("setData", { key: "playing", value: true });
+    //     return;
+    //   }
+    // }
 
     if (![0, 4].includes(defaulterIdentityType)) {
       // 授权链异常
@@ -787,7 +815,7 @@ export const useMyPlay = {
         console.warn(res.data);
       }
     }
-
+    
     if (exhibit.articleInfo.articleType === 2 && !exhibit.child) {
       // 场景一：点击播放合集
       // 1. 将合集的所有子作品加入播放列表(子作品有数量限制，暂不支持全量)
@@ -811,13 +839,8 @@ export const useMyPlay = {
         addArr: res
       })
 
-      store.commit("setData", {
-        key: "playingInfo",
-        value: {
-          ...exhibit,
-          child: res[0]
-        }
-      });
+      store.commit("setData", { key: "playingInfo", value: { ...exhibit, child: res[0] } });
+      store.commit("setplayingSuccessRecorder", JSON.parse(JSON.stringify({ ...exhibit, child: res[0] })))
       store.commit("setData", { key: "playing", value: true });
       freelogApp.setUserData("playingId", `${exhibitId}=${playingId}`);
     } else if (exhibit.articleInfo.articleType === 2 && exhibit.child) {
@@ -828,6 +851,7 @@ export const useMyPlay = {
         itemId: exhibit.child.itemId
       });
       store.commit("setData", { key: "playingInfo", value: exhibit });
+      store.commit("setplayingSuccessRecorder", JSON.parse(JSON.stringify(exhibit)))
       store.commit("setData", { key: "playing", value: true });
       freelogApp.setUserData("playingId", `${exhibitId}=${exhibit.child.itemId}`);
     } else {
@@ -837,6 +861,7 @@ export const useMyPlay = {
         isExhibit: true
       });
       store.commit("setData", { key: "playingInfo", value: exhibit });
+      store.commit("setplayingSuccessRecorder", JSON.parse(JSON.stringify(exhibit)))
       store.commit("setData", { key: "playing", value: true });
       freelogApp.setUserData("playingId", exhibitId);
     }

@@ -27,7 +27,8 @@ export default new Vuex.Store({
     searchKey: "", // 搜索关键词
     cachePool: {}, // 合集id为key, 子作品详情列表为value
     lastestAuthList: [], // 最新的全部展品授权情况列表
-    maskLoading: false
+    maskLoading: false,
+    playingSuccessRecorder: [] // playingInfo[]，播放记录器队列，只记录最近的30条
   },
   mutations: {
     /** 更新数据 */
@@ -37,6 +38,19 @@ export default new Vuex.Store({
     /** 更新合集缓存数据 */
     setCachePool(state, payload) {
       state.cachePool[payload.key] = payload.value;
+    },
+    /** 更新播放记录器 */
+    setplayingSuccessRecorder(state, payload) {
+      if (payload === 'init') {
+        state.playingSuccessRecorder = []
+        return
+      }
+      if (state.playingSuccessRecorder.length < 30) {
+        state.playingSuccessRecorder.push(payload)
+      } else {
+        state.playingSuccessRecorder.shift()
+        state.playingSuccessRecorder.push(payload)
+      }
     }
   },
   actions: {
