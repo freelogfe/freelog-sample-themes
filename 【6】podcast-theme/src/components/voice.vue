@@ -75,7 +75,7 @@
           </div>
           <div class="info-item" v-if="mode === 'program' && data.articleInfo.articleType === 2">
             <i class="freelog fl-icon-danji"></i>
-            <div class="item-value">{{ data.totalItem }}</div>
+            <div class="item-value">{{ data.totalItem || 0 }}</div>
           </div>
           <div class="info-item" v-if="mode === 'program'">
             <i class="freelog fl-icon-yonghu"></i>
@@ -222,7 +222,7 @@
           </div> 
           <div class="info-item" v-if="mode === 'program' && data.articleInfo.articleType === 2">
             <i class="freelog fl-icon-danji"></i>
-            <div class="item-value">{{ data.totalItem }}</div>
+            <div class="item-value">{{ data.totalItem || 0 }}</div>
           </div>
           <div class="info-item" v-if="mode === 'program'">
             <i class="freelog fl-icon-yonghu"></i>
@@ -263,7 +263,7 @@
       </div>
       <div class="right-area">
         <div v-if="data.articleInfo.articleType === 2 && mode === 'program'" class="total">
-          共{{ data.totalItem }}集
+          共{{ data.totalItem || 0 }}集
         </div>
         <div v-else class="duration">
           {{ computedEstimateDuration }}

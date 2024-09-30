@@ -316,7 +316,17 @@ export const useMyCollection = {
           });
         }
       }
-      collectionList.unshift(JSON.parse(JSON.stringify(data)));
+      const subNumList = await freelogApp.getCollectionsSubList(data.exhibitId, {
+        sortType: 1, 
+        skip: 0,
+        limit: 1,
+        isShowDetailInfo: 1, 
+      });
+
+      collectionList.unshift(JSON.parse(JSON.stringify({
+        ...data,
+        totalItem: subNumList.data.data[0].totalItem
+      })));     
     }
     const res = await freelogApp.setUserData("collectionIdList", collectionIdList);
     if (res.data.msg === "success") {

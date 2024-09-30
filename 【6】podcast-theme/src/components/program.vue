@@ -64,7 +64,7 @@
         </div>
         <div class="info-item" v-if="data.articleInfo && data.articleInfo.articleType === 2">
           <i class="freelog fl-icon-danji"></i>
-          <div class="item-value">{{ data.totalItem }}</div>
+          <div class="item-value">{{ data.totalItem || 0 }}</div>
         </div>
         <div class="info-item">
           <i class="freelog fl-icon-yonghu"></i>
