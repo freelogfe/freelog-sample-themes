@@ -42,7 +42,9 @@
           </transition>
         </div>
 
-        <div class="box-title" v-if="searchData.keywords">查询到{{ listData.length }}个相关结果</div>
+        <div class="box-title" v-if="searchData.keywords">
+          查询到{{ listData.length }}个相关结果
+        </div>
 
         <div class="text-btn mobile" :class="{ disabled: myLoading }" @click="filterBoxShow = true">
           <i className="freelog fl-icon-shaixuan"></i>
@@ -58,7 +60,9 @@
         </div>
 
         <div className="tip" v-show="total === 0">当前节点暂无任何书籍，请稍后查看</div>
-        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部 —</div>
+        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">
+          — 已加载全部 —
+        </div>
       </template>
 
       <transition name="fade">
@@ -105,12 +109,18 @@
     <!-- PC -->
     <div class="home-body" v-if="!inMobile">
       <div class="header">
-        <div class="search-box-title" v-if="searchData.keywords">查询到{{ listData.length }}个相关结果</div>
+        <div class="search-box-title" v-if="searchData.keywords">
+          查询到{{ listData.length }}个相关结果
+        </div>
 
         <div class="filter-bar">
           <div class="filter-bar-bg"></div>
 
-          <div class="category-btn" :class="{ active: !searchData.tags, disabled: myLoading }" @click="selectTag()">
+          <div
+            class="category-btn"
+            :class="{ active: !searchData.tags, disabled: myLoading }"
+            @click="selectTag()"
+          >
             全部
           </div>
 
@@ -154,7 +164,9 @@
         </div>
 
         <div className="tip" v-show="total === 0">当前节点暂无任何书籍，请稍后查看</div>
-        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部 —</div>
+        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">
+          — 已加载全部 —
+        </div>
       </template>
     </div>
 
@@ -174,12 +186,12 @@ export default {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
-    "my-article": defineAsyncComponent(() => import("../components/article.vue")),
+    "my-article": defineAsyncComponent(() => import("../components/article.vue"))
   },
 
   setup() {
     const store = useStore();
-    const tagsList: string[] = store.state.selfConfig.tags?.split(",");
+    const tagsList: string[] = store.state.selfConfig.tags?.split(",").filter(Boolean);
     const { query, route, router, switchPage } = useMyRouter();
     const { scrollTop, clientHeight, scrollHeight, scrollTo } = useMyScroll();
     const datasOfGetList = useGetList();
@@ -188,7 +200,7 @@ export default {
       sortPopupShow: false,
       createDateSortType: "-1",
       searchData: { sort: "createDate:-1" } as { keywords?: string; tags?: string; sort?: string },
-      filterBoxShow: false,
+      filterBoxShow: false
     });
 
     const methods = {
@@ -214,12 +226,12 @@ export default {
         if (tag) query.tags = tag;
         if (keywords) query.keywords = keywords;
         switchPage("/home", query);
-      },
+      }
     };
 
     watch(
       () => scrollTop.value,
-      (cur) => {
+      cur => {
         if (cur + clientHeight.value === scrollHeight.value) {
           datasOfGetList.getList();
         }
@@ -230,7 +242,11 @@ export default {
       () => query.value,
       () => {
         if (route.path !== "/home") return;
-        if (data.searchData.keywords === query.value.keywords && data.searchData.tags === query.value.tags) return;
+        if (
+          data.searchData.keywords === query.value.keywords &&
+          data.searchData.tags === query.value.tags
+        )
+          return;
 
         getData();
       }
@@ -252,7 +268,7 @@ export default {
         if (authIds.length === 0) return;
 
         authIds.forEach((id: string) => {
-          const index = datasOfGetList.listData.value.findIndex((item) => item.exhibitId === id);
+          const index = datasOfGetList.listData.value.findIndex(item => item.exhibitId === id);
           if (index !== -1) datasOfGetList.listData.value[index].defaulterIdentityType = 0;
         });
         store.commit("setData", { key: "authIds", value: [] });
@@ -272,9 +288,9 @@ export default {
       tagsList,
       ...datasOfGetList,
       ...toRefs(data),
-      ...methods,
+      ...methods
     };
-  },
+  }
 };
 </script>
 
