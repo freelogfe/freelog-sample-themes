@@ -146,7 +146,11 @@ export default {
     const methods = {
       /** 注册 */
       register() {
-        window.open("https://user.freelog.com/logon");
+        if (process.env.NODE_ENV === "development") {
+          window.open("https://user.testfreelog.com/logon");
+        } else {
+          window.open("https://user.freelog.com/logon");
+        }
       },
 
       /** 通知父组件打开目录 */

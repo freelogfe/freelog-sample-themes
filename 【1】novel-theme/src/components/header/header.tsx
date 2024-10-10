@@ -436,16 +436,25 @@ export const Header = (props: {
               </div>
             ) : (
               <div className="user-btns">
-                <div className="btn header-login-btn" onClick={(e: any) => {
-                  callLogin();
-                  e.stopPropagation(); 
-                  return false;
-                }}>
+                <div
+                  className="btn header-login-btn"
+                  onClick={(e: any) => {
+                    callLogin();
+                    e.stopPropagation();
+                    return false;
+                  }}
+                >
                   登录
                 </div>
                 <div
                   className="btn header-register-btn"
-                  onClick={() => window.open("https://user.freelog.com/logon")}
+                  onClick={() => {
+                    if (process.env.NODE_ENV === "development") {
+                      window.open("https://user.testfreelog.com/logon");
+                    } else {
+                      window.open("https://user.freelog.com/logon");
+                    }
+                  }}
                 >
                   注册
                 </div>

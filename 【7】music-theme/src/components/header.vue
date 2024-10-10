@@ -427,7 +427,11 @@ export default {
 
     /** 注册 */
     register() {
-      window.open("https://user.freelog.com/logon");
+      if (import.meta.env.DEV) {
+        window.open("https://user.testfreelog.com/logon");
+      } else {
+        window.open("https://user.freelog.com/logon");
+      }
     },
 
     /** 搜索 */
