@@ -215,6 +215,7 @@
 
 <script>
 import { callLogin, callLoginOut } from "@/api/freelog";
+import { freelogApp } from "freelog-runtime";
 
 export default {
   name: "my-header",
@@ -400,7 +401,12 @@ export default {
 
     /** 注册 */
     register() {
-      window.open("https://user.freelog.com/logon");
+      const url = freelogApp.getCurrentUrl()
+      if (url.includes(".freelog.com")) {
+        window.open("https://user.freelog.com/logon");
+      } else if (url.includes(".testfreelog.com")) {
+        window.open("https://user.testfreelog.com/logon");
+      }
     },
 
     /** 搜索 */

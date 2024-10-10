@@ -764,8 +764,6 @@ export default {
 
     /** 播放/暂停播放列表 */
     playOrPauseList(data) {
-      console.log("data", data);
-      
       useMyPlay.playOrPause(data);
     },
 

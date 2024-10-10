@@ -3,7 +3,7 @@ import { showToast } from "./common";
 import store from "@/store";
 import { freelogApp } from "freelog-runtime";
 import Vue from "vue";
-import { supportAudio } from "@/api/data"
+import { supportAudio, unSupportAudioIOS } from "@/api/data"
 
 /** 授权 hook */
 export const useMyAuth = {
@@ -132,7 +132,13 @@ export const useMyAuth = {
           });
 
           // 获取第一个子作品的播放地址
-          const availdRes = res.filter(ele => supportAudio.includes(ele?.articleInfo?.articleProperty?.mime))
+          const availdRes = res.filter(ele => {
+            const mime = ele?.articleInfo?.articleProperty?.mime
+            if (store.state.isIOS) {
+              return supportAudio.includes(mime) && !unSupportAudioIOS.includes(mime)
+            }
+            return supportAudio.includes(mime)
+          })
           if (availdRes.length === 0) {
             showToast("合集里没有可添加的作品！")
             return
@@ -461,9 +467,8 @@ export const useMyPlay = {
 
   /** 将合集加入播放列表 */
   async addToPlayListBatch(options, bol = false) {
-    
     const { exhibitId, addArr, callback } = options
-    console.log("addArr", addArr);
+
     // 1.删除之前存在的 
     // 2.批量添加
     if (!store.state.userData.isLogin) {
@@ -863,7 +868,13 @@ export const useMyPlay = {
         value: JSON.parse(JSON.stringify(res))
       });
       // 获取第一个子作品的播放地址
-      const availdRes = res.filter(ele => supportAudio.includes(ele?.articleInfo?.articleProperty?.mime))
+      const availdRes = res.filter(ele => {
+        const mime = ele?.articleInfo?.articleProperty?.mime
+        if (store.state.isIOS) {
+          return supportAudio.includes(mime) && !unSupportAudioIOS.includes(mime)
+        }
+        return supportAudio.includes(mime)
+      })
       if (availdRes.length === 0) {
         showToast("合集里没有可添加的作品！")
         return

@@ -286,7 +286,7 @@ import myTooltip from "@/components/tooltip";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { relativeTime, signCount, secondsToHMS, estimateDuration } from "@/utils/filter";
 import { freelogApp } from "freelog-runtime";
-import { supportAudio } from "@/api/data"
+import { supportAudio, unSupportAudioIOS } from "@/api/data"
 import { showToast } from "../utils/common";
 
 export default {
@@ -482,13 +482,23 @@ export default {
     /** 是否为支持格式 */
     ifSupportMime() {
       const supportMimeList = supportAudio;
+      const isIOS = this.$store.state.isIOS
+
       if (this.data.articleInfo.articleType === 1) {
-        return supportMimeList.includes(this.data.versionInfo.exhibitProperty.mime);
+        const mime = this.data.versionInfo.exhibitProperty.mime
+        if (isIOS) {
+          return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime)
+        }
+        return supportMimeList.includes(mime);
       } else {
         if (this.mode === 'voice') {
-          return supportMimeList.includes(this.data?.child?.articleInfo?.articleProperty?.mime);
+          const mime = this.data?.child?.articleInfo?.articleProperty?.mime
+          if (isIOS) {
+            return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime)
+          }
+          return supportMimeList.includes(mime);
         } else {
-          return this.data.articleInfo.resourceType[0] === '音频' && this.collectionList.length
+          return this.data.articleInfo.resourceType[0] === '音频'
         }
       }
     },
@@ -640,7 +650,13 @@ export default {
         });
         await useMyPlay.addToPlayListBatch({
           exhibitId, 
-          addArr: res.filter(ele => supportAudio.includes(ele?.articleInfo?.articleProperty?.mime)),
+          addArr: res.filter(ele => {
+            const mime = ele?.articleInfo?.articleProperty?.mime
+            if (this.$store.state.isIOS) {
+              return supportAudio.includes(mime) && !unSupportAudioIOS.includes(mime)
+            }
+            return supportAudio.includes(mime)
+          }),
           callback,
         }, true)
       } else {

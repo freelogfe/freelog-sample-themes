@@ -297,8 +297,7 @@ import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { showToast } from "@/utils/common";
 import { freelogApp } from "freelog-runtime";
 import voice from "@/components/voice";
-import { secondsToHMS } from "@/utils/filter";
-import { supportAudio } from "@/api/data"
+import { supportAudio, unSupportAudioIOS } from "@/api/data"
 
 export default {
   name: "detail",
@@ -361,9 +360,14 @@ export default {
     /** 是否为支持格式 */
     ifSupportMime() {
       const supportMimeList = supportAudio;
+      const isIOS = this.$store.state.isIOS
       if (this.voiceInfo.articleInfo.articleType === 1) {
-        return supportMimeList.includes(this.voiceInfo.versionInfo.exhibitProperty.mime);
-      } else {  
+        const mime = this.voiceInfo.versionInfo.exhibitProperty.mime
+        if (isIOS) {
+          return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime)
+        }
+        return supportMimeList.includes(mime);
+      } else {
         return this.voiceInfo.articleInfo.resourceType[0] === '音频'
       }
     },
@@ -471,7 +475,13 @@ export default {
         });
         await useMyPlay.addToPlayListBatch({
           exhibitId, 
-          addArr: res.filter(ele => supportAudio.includes(ele?.articleInfo?.articleProperty?.mime))
+          addArr: res.filter(ele => {
+            const mime = ele?.articleInfo?.articleProperty?.mime
+            if (this.$store.state.isIOS) {
+              return supportAudio.includes(mime) && !unSupportAudioIOS.includes(mime)
+            }
+            return supportAudio.includes(mime)
+          })
         }, true)
       } else {
         useMyPlay.addToPlayList({

@@ -80,7 +80,7 @@
 import { freelogApp } from "freelog-runtime";
 import { useMyPlay, useMyAuth } from "@/utils/hooks";
 import playStatus from "@/components/play-status";
-import { supportAudio } from "@/api/data"
+import { supportAudio, unSupportAudioIOS } from "@/api/data"
 
 export default {
   name: "program",
@@ -104,10 +104,17 @@ export default {
   computed: {
     ifSupportMime() {
       const supportMimeList = supportAudio;
-      if (this.data.articleInfo.articleType === 2 && this.collectionList.length) {
+      const isIOS = this.$store.state.isIOS
+
+      if (this.data.articleInfo.articleType === 2) {
         return this.data.articleInfo.resourceType[0] === '音频'
+      } else {
+        const mime = this.data.versionInfo.exhibitProperty.mime
+        if (isIOS) {
+          return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime)
+        }
+        return supportMimeList.includes(mime);
       }
-      return supportMimeList.includes(this.data.versionInfo.exhibitProperty.mime);
     },
     /** 授权链异常 */
     authLinkAbnormal() {
