@@ -64,7 +64,7 @@
         </div>
         <div class="info-item" v-if="data.articleInfo && data.articleInfo.articleType === 2">
           <i class="freelog fl-icon-danji"></i>
-          <div class="item-value">{{ data.totalItem }}</div>
+          <div class="item-value">{{ data.totalItem || 0 }}</div>
         </div>
         <div class="info-item">
           <i class="freelog fl-icon-yonghu"></i>
@@ -80,6 +80,7 @@
 import { freelogApp } from "freelog-runtime";
 import { useMyPlay, useMyAuth } from "@/utils/hooks";
 import playStatus from "@/components/play-status";
+import { supportAudio, unSupportAudioIOS } from "@/api/data"
 
 export default {
   name: "program",
@@ -102,11 +103,18 @@ export default {
   },
   computed: {
     ifSupportMime() {
-      const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
-      if (this.data.articleInfo.articleType === 2 && this.collectionList.length) {
+      const supportMimeList = supportAudio;
+      const isIOS = this.$store.state.isIOS
+
+      if (this.data.articleInfo.articleType === 2) {
         return this.data.articleInfo.resourceType[0] === '音频'
+      } else {
+        const mime = this.data.versionInfo.exhibitProperty.mime
+        if (isIOS) {
+          return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime)
+        }
+        return supportMimeList.includes(mime);
       }
-      return supportMimeList.includes(this.data.versionInfo.exhibitProperty.mime);
     },
     /** 授权链异常 */
     authLinkAbnormal() {
@@ -115,7 +123,7 @@ export default {
     /** 是否播放中 */
     playing() {
       const { playing, playingInfo } = this.$store.state;
-      return playing && playingInfo.exhibitId === this.data.exhibitId;
+      return playing && playingInfo && playingInfo.exhibitId === this.data.exhibitId;
     }
   },
   watch: {

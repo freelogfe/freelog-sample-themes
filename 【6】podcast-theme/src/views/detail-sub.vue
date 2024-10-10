@@ -236,6 +236,7 @@ import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { secondsToHMS, showToast } from "@/utils/common";
 import voice from "@/components/voice";
 import { freelogApp } from 'freelog-runtime'
+import { supportAudio, unSupportAudioIOS } from "@/api/data"
 
 export default {
   name: "detail-sub",
@@ -287,11 +288,20 @@ export default {
 
     /** 是否为支持格式 */
     ifSupportMime() {
-      const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
+      const supportMimeList = supportAudio;
+      const isIOS = this.$store.state.isIOS
       if (this.voiceInfo.articleInfo.articleType === 1) {
-        return supportMimeList.includes(this.voiceInfo.versionInfo.exhibitProperty.mime);
+        const mime = this.voiceInfo.versionInfo.exhibitProperty.mime
+        if (isIOS) {
+          return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime)
+        }
+        return supportMimeList.includes(mime);
       } else {
-        return supportMimeList.includes(this.voiceInfo?.child?.articleInfo?.articleProperty?.mime);
+        const mime = this.voiceInfo?.child?.articleInfo?.articleProperty?.mime
+        if (isIOS) {
+          return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime)
+        }
+        return supportMimeList.includes(mime);
       }
     },
 
@@ -328,7 +338,7 @@ export default {
               : "播放",
           operate: this.playOrPause,
           disabled: !(
-            this.voiceInfo.articleInfo.articleType === 2 ||
+            (this.voiceInfo.articleInfo.articleType === 2 && this.ifSupportMime) ||
             (this.voiceInfo.articleInfo.articleType === 1 && this.ifSupportMime)
           )
         },

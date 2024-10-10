@@ -51,7 +51,7 @@ window.addEventListener(
     locationHistory.pop();
     store.commit("setData", { key: "locationHistory", value: locationHistory });
     store.commit("setData", { key: "routerMode", value: 2 });
-    console.log('popstate', locationHistory, store.state.routerMode);
+    // console.log('popstate', locationHistory, store.state.routerMode);
   },
   true
 );
@@ -101,7 +101,7 @@ window.mount = async () => {
 
   router = new VueRouter({ base: "/", mode: "history", routes });
   router.beforeEach((to, from, next) => {
-    console.log("to, from, next", to, from, next);
+    // console.log("to, from, next", to, from, next);
     // import()导入时 => from: /; to: /detail
     // import...from...静态导入时 => from: /; to: /home
     next()

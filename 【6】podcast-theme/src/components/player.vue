@@ -5,10 +5,10 @@
     <audio
       ref="player"
       :src="computedSrc"
-      @loadedmetadata="loadedVoice()"
-      @timeupdate="$store.state.initUrl === null && audioPlayUpdate()"
-      @ended="$store.state.initUrl === null && endVoice()"
-      @error="$store.state.initUrl === null && playError($event)"
+      @loadedmetadata="loadedVoice"
+      @timeupdate="audioPlayUpdate"
+      @ended="endVoice"
+      @error="playError"
       @waiting="handleWaiting"
       @durationchange="handleDurationchange"
     />
@@ -34,6 +34,7 @@
               :style="{ '--infoAreaWidth': infoAreaWidth + 'px' }"
               v-for="item in playList"
               :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
+              :class="{ 'opacity-40': item.articleInfo.status === 2 || (item.child && item.child.authCode === 403) }"
             >
               <div
                 class="title voice-title"
@@ -105,6 +106,7 @@
               v-for="(item, index) in playList"
               :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
               @click="playOrPauseList(item)"
+              :class="{ 'opacity-40': item.articleInfo.status === 2 || (item.child && item.child.authCode === 403) }"
             >
               <div class="left-area">
                 <div class="title-area">
@@ -262,6 +264,7 @@
             <template v-if="playList.length">
               <div
                 class="voice-item"
+                :class="{ 'opacity-40': item.articleInfo.status === 2 || (item.child && item.child.authCode === 403) }"
                 v-for="(item, index) in playList"
                 :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
                 @click="playOrPauseList(item)"
@@ -372,11 +375,16 @@ export default {
     "$store.state.playingInfo": {
       handler(cur) {
         this.playingInfo = cur;
+        if (!cur) {
+          this.$refs.player.volume = 0;
+        } else {
+          this.$refs.player.volume = this.volume / 100;
+        }
 
         if (this.playList && this.$store.state.inMobile) {
           const index = this.playList.findIndex(
             item => {
-              if (this.playingInfo.articleInfo.articleType === 1) {
+              if (this.playingInfo?.articleInfo?.articleType === 1) {
                 return item.exhibitId === this.playingInfo.exhibitId
               } else {
                 return item.exhibitId === this.playingInfo.exhibitId && item.child.itemId === this.playingInfo.child.itemId
@@ -392,17 +400,9 @@ export default {
     "$store.state.playing"(cur) {
       if (!this.$store.state.playingInfo) return;
       if (cur) {
-        this.playVoice();
+        this.playVoice();                
       } else {
         this.$refs.player.pause();
-      }
-    },
-
-    "$store.state.initUrl"(cur) {
-      if (cur) {
-        this.$refs.player.volume = 0;
-      } else {
-        this.$refs.player.volume = this.volume / 100;
       }
     },
 
@@ -468,6 +468,10 @@ export default {
           return (
             this.playingInfo &&
             this.playingInfo.exhibitId === item.exhibitId &&
+            this.playingInfo.child &&
+            this.playingInfo.child.itemId &&
+            item.child &&
+            item.child.itemId &&
             this.playingInfo.child.itemId === item.child.itemId
           );
         }
@@ -498,18 +502,14 @@ export default {
     },
     /** 播放地址 */
     computedSrc() {
-      if (this.$store.state.initUrl) {
-        return this.$store.state.initUrl;
-      } else {
-        if (this.playingInfo) {
-          if (this.playingInfo.articleInfo.articleType === 1) {
-            return this.playingInfo.url;
-          } else {
-            return this.playingInfo.child && this.playingInfo.child.url;
-          }
+      if (this.playingInfo) {
+        if (this.playingInfo.articleInfo.articleType === 1) {
+          return this.playingInfo.url;
         } else {
-          return "";
+          return this.playingInfo.child && this.playingInfo.child.url;
         }
+      } else {
+        return this.$store.state.initUrl;
       }
     },
     /** 是否收藏 */
@@ -660,10 +660,7 @@ export default {
     /** 播放完成 */
     endVoice() {
       this.$store.commit("setData", { key: "playing", value: false });
-      if (this.playList.length === 1) {
-        this.$store.commit("setData", { key: "progress", value: 0 });
-        return;
-      }
+      this.$store.commit("setData", { key: "progress", value: 0 });
       this.nextVoice();
     },
     /** 播放失败 */
@@ -701,10 +698,13 @@ export default {
 
     /** 播放总时长变化 */
     async handleDurationchange(event) {
-      if (this.playingInfo.articleInfo.articleType === 1) {
+      if (this.playingInfo?.articleInfo?.articleType === 1) {
         this.playingInfo.versionInfo.exhibitProperty.duration = this.$refs.player.duration * 1000
       } else {
-        this.playingInfo.child.articleInfo.articleProperty.duration = this.$refs.player.duration * 1000
+        this.playingInfo &&
+        this.playingInfo.child && 
+        this.playingInfo.child.articleInfo && 
+        (this.playingInfo.child.articleInfo.articleProperty.duration = this.$refs.player.duration * 1000)
       }
     },
 
@@ -741,12 +741,11 @@ export default {
         const target = this.$store.state.lastestAuthList.find(ele => ele.exhibitId === this.playingInfo.exhibitId)
         if (!target) return
         const resJson = await res.json()
-
         // 若是展品无授权, 则调出授权; 若是单品, 合集展品授权正常, 但是此单品被封禁, 则进行toast提示;
         if (target.defaulterIdentityType === 4) {
           await useMyAuth.getAuth(this.playingInfo, true)
         } else if (this.playingInfo.child && target.defaulterIdentityType === 0 && resJson.data.authCode === 403) {
-          showToast("资源被封禁, 暂无法播放!")
+          showToast(`资源《${this.playingInfo.child.itemTitle}》被封禁, 暂无法播放!`)
         }
 
         return true
