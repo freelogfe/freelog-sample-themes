@@ -166,7 +166,7 @@ export default {
     const nodeInfo = freelogApp.nodeInfo;
     
     const store = useStore();
-    const tagsList: string[] = store.state.selfConfig.tags?.split(",");
+    const tagsList: string[] = store.state.selfConfig.tags?.split(",")?.filter((ele: string) => ele);
     const { query, route, router, switchPage } = useMyRouter();
     const { scrollTop, clientHeight, scrollHeight, scrollTo } = useMyScroll();
     const datasOfGetList = useGetList();

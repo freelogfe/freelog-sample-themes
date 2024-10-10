@@ -254,7 +254,7 @@ export default {
   name: "my-header",
 
   setup(props: any) {
-    const nodeInfo = freelogApp.nodeInfo;
+    const nodeInfo = ..nodeInfo;
     const store = useStore();
     const { query, route, switchPage, routerBack } = useMyRouter();
     const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
@@ -364,7 +364,12 @@ export default {
 
       /** 注册 */
       register() {
-        window.open("https://user.freelog.com/logon");
+        const url = freelogApp.getCurrentUrl()
+        if (url.includes(".freelog.com")) {
+          window.open("https://user.freelog.com/logon");
+        } else {
+          window.open("https://user.testfreelog.com/logon");
+        }
       },
     };
 
