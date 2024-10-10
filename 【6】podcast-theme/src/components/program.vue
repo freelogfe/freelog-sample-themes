@@ -80,6 +80,7 @@
 import { freelogApp } from "freelog-runtime";
 import { useMyPlay, useMyAuth } from "@/utils/hooks";
 import playStatus from "@/components/play-status";
+import { supportAudio } from "@/api/data"
 
 export default {
   name: "program",
@@ -102,7 +103,7 @@ export default {
   },
   computed: {
     ifSupportMime() {
-      const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
+      const supportMimeList = supportAudio;
       if (this.data.articleInfo.articleType === 2 && this.collectionList.length) {
         return this.data.articleInfo.resourceType[0] === '音频'
       }
@@ -115,7 +116,7 @@ export default {
     /** 是否播放中 */
     playing() {
       const { playing, playingInfo } = this.$store.state;
-      return playing && playingInfo.exhibitId === this.data.exhibitId;
+      return playing && playingInfo && playingInfo.exhibitId === this.data.exhibitId;
     }
   },
   watch: {

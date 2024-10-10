@@ -286,6 +286,8 @@ import myTooltip from "@/components/tooltip";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { relativeTime, signCount, secondsToHMS, estimateDuration } from "@/utils/filter";
 import { freelogApp } from "freelog-runtime";
+import { supportAudio } from "@/api/data"
+import { showToast } from "../utils/common";
 
 export default {
   name: "voice",
@@ -479,7 +481,7 @@ export default {
 
     /** 是否为支持格式 */
     ifSupportMime() {
-      const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
+      const supportMimeList = supportAudio;
       if (this.data.articleInfo.articleType === 1) {
         return supportMimeList.includes(this.data.versionInfo.exhibitProperty.mime);
       } else {
@@ -501,6 +503,7 @@ export default {
         if (this.data.child) {
           return _play && 
             playingInfo.exhibitId === this.data.exhibitId && 
+            playingInfo.child &&
             playingInfo.child.itemId && 
             this.data.child &&
             this.data.child.itemId &&
@@ -627,13 +630,17 @@ export default {
       const { articleInfo, exhibitId, child } = this.data
       if (articleInfo.articleType === 2 && this.mode === 'program') {
         const res = await useMyPlay.getListInCollection(exhibitId);
+        if (!res) { 
+          showToast("合集里没有可添加的作品！")
+          return
+        } 
         this.$store.commit("setCachePool", {
           key: exhibitId,
           value: JSON.parse(JSON.stringify(res))
         });
         await useMyPlay.addToPlayListBatch({
           exhibitId, 
-          addArr: res,
+          addArr: res.filter(ele => supportAudio.includes(ele?.articleInfo?.articleProperty?.mime)),
           callback,
         }, true)
       } else {

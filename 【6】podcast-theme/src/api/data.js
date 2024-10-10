@@ -25,3 +25,7 @@ export const shareBtns = [
   { id: "wechat", name: "微信", icon: "fl-icon-weixin", bgColor: "#1ec76f" },
   { id: "douban", name: "豆瓣", icon: "fl-icon-douban", bgColor: "#42a151" }
 ];
+
+/** 支持音频类型 */
+export const supportAudio = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm", "audio/flac"]
+export const unSupportAudioIOS = ["audio/ogg", "audio/webm"]

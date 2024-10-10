@@ -298,6 +298,7 @@ import { showToast } from "@/utils/common";
 import { freelogApp } from "freelog-runtime";
 import voice from "@/components/voice";
 import { secondsToHMS } from "@/utils/filter";
+import { supportAudio } from "@/api/data"
 
 export default {
   name: "detail",
@@ -359,7 +360,7 @@ export default {
 
     /** 是否为支持格式 */
     ifSupportMime() {
-      const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
+      const supportMimeList = supportAudio;
       if (this.voiceInfo.articleInfo.articleType === 1) {
         return supportMimeList.includes(this.voiceInfo.versionInfo.exhibitProperty.mime);
       } else {  
@@ -402,7 +403,7 @@ export default {
               : "播放全部",
           operate: this.playOrPause,
           disabled: !(
-            this.voiceInfo.articleInfo.articleType === 2 ||
+            (this.voiceInfo.articleInfo.articleType === 2 && this.ifSupportMime) ||
             (this.voiceInfo.articleInfo.articleType === 1 && this.ifSupportMime)
           )
         },
@@ -446,8 +447,13 @@ export default {
 
   methods: {
     /** 播放/暂停 */
-    playOrPause() {
-      useMyPlay.playOrPause(this.voiceInfo);
+    async playOrPause() {
+      if (this.voiceInfo.articleInfo.articleType === 2) {
+        await useMyPlay.removePlayListBatch(this.voiceInfo.exhibitId)
+        useMyPlay.playOrPause(this.voiceInfo, "pool");
+      } else {
+        useMyPlay.playOrPause(this.voiceInfo);
+      }
     },
 
     /** 加入播放列表 */
@@ -455,13 +461,17 @@ export default {
       const { exhibitId, articleInfo } = this.voiceInfo
       if (articleInfo.articleType === 2) {
         const res = await useMyPlay.getListInCollection(exhibitId);
+        if (!res) { 
+          showToast("合集里没有可添加的作品！")
+          return
+        } 
         this.$store.commit("setCachePool", {
           key: exhibitId,
           value: JSON.parse(JSON.stringify(res))
         });
         await useMyPlay.addToPlayListBatch({
           exhibitId, 
-          addArr: res
+          addArr: res.filter(ele => supportAudio.includes(ele?.articleInfo?.articleProperty?.mime))
         }, true)
       } else {
         useMyPlay.addToPlayList({
@@ -532,7 +542,7 @@ export default {
       const limit = 5
       let skip = (this.currentPage - 1) * limit
       const res = await freelogApp.getCollectionSubList(this.voiceInfo.exhibitId, {
-        sortType: -1,
+        sortType: 1,
         skip,
         limit: 5,
         isShowDetailInfo: 1
@@ -574,7 +584,6 @@ export default {
       const limit = 5
       let skip = (this.currentPage - 1) * limit
       const res = await freelogApp.getCollectionSubList(this.voiceInfo.exhibitId, {
-        sortType: -1,
         skip,
         limit: 5,
         isShowDetailInfo: 1

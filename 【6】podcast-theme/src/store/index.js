@@ -25,7 +25,7 @@ export default new Vuex.Store({
     initUrl: "https://file.testfreelog.com/exhibits/64d1ed97cc4a64002f632b0d", // 播放器初始化 url（用于解决 IOS 无法异步播放声音问题）
     progress: 0, // 当前播放进度
     searchKey: "", // 搜索关键词
-    cachePool: {}, // 合集id为key, 子作品详情列表为value
+    cachePool: {}, // 合集id为key, 子作品详情列表为value, cache的是请求回来的源数据(包含了不符合播放的音频格式)
     lastestAuthList: [], // 最新的全部展品授权情况列表
     maskLoading: false,
     playingSuccessRecorder: [] // playingInfo[]，播放记录器队列，只记录最近的30条
