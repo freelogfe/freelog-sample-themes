@@ -635,7 +635,13 @@ export const useMyPlay = {
       if (exhibitId !== playingInfo?.exhibitId) return;
       if (playing) {
         // 如果移出的声音是当前正在播放的声音，自动播放列表中的下一个声音
-        useMyPlay.playOrPause(playList[index]);
+        if (playList[index]) {
+          useMyPlay.playOrPause(playList[index]);
+        } else if (playList[0]) {
+          useMyPlay.playOrPause(playList[0]);
+        } else {
+          store.commit("setData", { key: "playingInfo", value: null });
+        }
       } else {
         // 如果移出的声音是当前正在暂停的声音，将播放中的声音信息置空
         store.commit("setData", { key: "playingInfo", value: null });
