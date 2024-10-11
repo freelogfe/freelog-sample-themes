@@ -7,10 +7,20 @@
     <!-- 音乐 专辑 Tab -->
     <div class="music-album-tab" v-if="musicAlbumTab">
       <div class="tab-box">
+        <div class="tab" :class="tab === 1 && 'active'" @click="changeTab(1)">
+          歌曲{{ musicLength ? `（${musicLength}）` : "" }}
+        </div>
+        <div class="tab" :class="tab === 2 && 'active'" @click="changeTab(2)">
+          专辑{{ albumLength ? `（${albumLength}）` : "" }}
+        </div>
+      </div>
+
+      <!-- <div class="tab-box">
         <div class="tab" :class="tab === 1 && 'active'" @click="changeTab(1)">音乐</div>
         <div class="tab" :class="tab === 2 && 'active'" @click="changeTab(2)">专辑</div>
-      </div>
-      <div
+      </div> -->
+
+      <!-- <div
         class="total"
         v-if="
           !store.inMobile &&
@@ -23,7 +33,7 @@
             ? musicLength && `共${musicLength}首音乐`
             : albumLength && `共${albumLength}张专辑`
         }}
-      </div>
+      </div> -->
     </div>
 
     <template v-if="!loading">
@@ -218,12 +228,12 @@ export default {
 
   computed: {
     musicLength() {
-      const data = this.list.filter(i => i.articleInfo?.articleType === 1);
+      const data = this.list?.filter(i => i.articleInfo?.articleType === 1) || [];
       return data.length;
     },
 
     albumLength() {
-      const data = this.list.filter(i => i.articleInfo?.articleType === 2);
+      const data = this.list?.filter(i => i.articleInfo?.articleType === 2) || [];
       return data.length;
     },
 
