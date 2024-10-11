@@ -67,7 +67,7 @@
       </div>
       <div class="voice-list" v-if="tab === 1 && list.length && total !== 0">
         <div class="voice-bar" v-if="!store.inMobile">
-          <span>歌名\歌手</span>
+          <span>歌曲</span>
           <span>专辑</span>
           <span>时长</span>
         </div>
@@ -548,9 +548,9 @@ export default {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: #292929;
+        // background: #292929;
         border-radius: 6px;
-        padding: 6px 10px;
+        padding: 6px 0px;
         margin-bottom: 15px;
 
         span {
