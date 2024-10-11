@@ -11,7 +11,11 @@
     <div class="header-top" :class="{ logon: userData.isLogin }">
       <img
         class="logo"
-        :src="selfConfig.logoImage || require('../assets/images/logo.png')"
+        :src="
+          selfConfig.options_logoImage ||
+          selfConfig.logoImage ||
+          require('../assets/images/logo.png')
+        "
         referrerpolicy="no-referrer"
         @click="switchPage('/')"
         v-if="homeHeader"
@@ -184,7 +188,11 @@
         <!-- logo -->
         <img
           class="logo"
-          :src="selfConfig.logoImage || require('../assets/images/logo.png')"
+          :src="
+            selfConfig.options_logoImage ||
+            selfConfig.logoImage ||
+            require('../assets/images/logo.png')
+          "
           @click="switchPage('/')"
         />
 

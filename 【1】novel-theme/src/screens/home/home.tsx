@@ -115,7 +115,8 @@ const HomeBody = (props: {
 }) => {
   const { novelList, searching, total, tags, keywords, loading, myloading } = props;
   const { inMobile, userData, selfConfig } = useContext(globalContext);
-  const tagsList: string[] = selfConfig.tags?.split(",").filter(Boolean);
+  const tagsList: string[] =
+    (selfConfig.options_tags || selfConfig.tags)?.split(",").filter(Boolean) || [];
   const { myShelf } = useMyShelf();
   const history = useMyHistory();
   const [filterBoxShow, setFilterBoxShow] = useState(false);

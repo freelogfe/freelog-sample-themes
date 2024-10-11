@@ -125,7 +125,7 @@ export const Header = (props: {
             // logo
             <img
               className="logo"
-              src={selfConfig.logoImage || MyLogo}
+              src={selfConfig.options_logoImage || selfConfig.logoImage || MyLogo}
               alt="logo"
               referrerPolicy="no-referrer"
               onClick={() => history.switchPage("/home")}
@@ -323,7 +323,7 @@ export const Header = (props: {
             {/* logo */}
             <img
               className="logo"
-              src={selfConfig.logoImage || MyLogo}
+              src={selfConfig.options_logoImage || selfConfig.logoImage || MyLogo}
               alt="logo"
               onClick={() => history.switchPage("/home")}
             />

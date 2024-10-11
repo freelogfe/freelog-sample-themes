@@ -191,7 +191,9 @@ export default {
 
   setup() {
     const store = useStore();
-    const tagsList: string[] = store.state.selfConfig.tags?.split(",").filter(Boolean);
+    const tagsList: string[] = (store.state.selfConfig.options_tags || store.state.selfConfig.tags)
+      ?.split(",")
+      .filter(Boolean);
     const { query, route, router, switchPage } = useMyRouter();
     const { scrollTop, clientHeight, scrollHeight, scrollTo } = useMyScroll();
     const datasOfGetList = useGetList();
