@@ -222,7 +222,7 @@ export default {
       }
 
       .article-box {
-        width: 920px;
+        width: 100%;
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 40px;

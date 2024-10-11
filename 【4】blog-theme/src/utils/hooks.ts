@@ -47,7 +47,7 @@ export const useMyLocationHistory = () => {
         store.commit("setData", { key: "locationHistory", value: locationHistory });
         return;
       }
-
+      
       if (!replaced) {
         locationHistory.push(current);
       } else {

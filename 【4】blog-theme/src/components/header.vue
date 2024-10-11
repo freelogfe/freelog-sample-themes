@@ -6,14 +6,23 @@
     <div class="mobile-header-wrapper" :class="{ 'in-home': $route.path === '/home' }" v-if="inMobile && $route.path !== '/search'">
       <!-- header顶部 -->
       <div class="header-top" :class="{ logon: userData.isLogin }">
-        <img
-          class="logo"
-          :src="nodeLogo"
-          referrerpolicy="no-referrer"
-          @click="switchPage('/')"
-          v-if="$route.path === '/home'"
-        />
-        <div class="header-top-left" @click="locationHistory.length === 1 ? switchPage('/home') : routerBack()" v-else>
+        <template v-if="$route.path === '/home'">          
+          <img
+            class="logo"
+            :src="nodeLogo"
+            referrerpolicy="no-referrer"
+            @click="switchPage('/')"
+            v-if="nodeLogo"
+          />
+          <img
+            class="logo"
+            src="../assets/images/default-node-cover.png"
+            referrerpolicy="no-referrer"
+            @click="switchPage('/')"
+            v-else
+          />
+        </template>
+        <div class="header-top-left" @click="locationHistory.length === 1 || locationHistory.length === 0 ? switchPage('/home') : routerBack()" v-else>
           <span class="back-arrow freelog fl-icon-zhankaigengduo"></span>
           <div class="back-label">{{ locationHistory.length === 1 ? "首页" : "返回" }}</div>
         </div>
@@ -81,44 +90,45 @@
         </div>
       </transition>
 
-      <transition name="fade">
-        <div class="search-page" v-if="searchPopupShow">
-          <div class="search-page-header">
-            <div class="search-page-box">
-              <input
-                class="search-input input-none"
-                :class="{ 'in-focus': searchKey }"
-                v-model="searchKey"
-                :autofocus="true"
-                @input="searchKeyInput()"
-                @keyup.enter="
-                  searchWord(searchKey);
-                  search();
-                "
-                @keyup.esc="searchKey = ''"
-              />
-              <i class="freelog fl-icon-content"></i>
-            </div>
+    </div>
 
-            <div class="cancel-btn" @click="searchPopupShow = false">取消</div>
+    <transition name="fade">
+      <div class="search-page-history" v-if="searchPopupShow">
+        <div class="search-page-header">
+          <div class="search-page-box">
+            <input
+              class="search-input input-none"
+              :class="{ 'in-focus': searchKey }"
+              v-model="searchKey"
+              :autofocus="true"
+              @input="searchKeyInput()"
+              @keyup.enter="
+                searchWord(searchKey);
+                search();
+              "
+              @keyup.esc="searchKey = ''"
+            />
+            <i class="freelog fl-icon-content"></i>
           </div>
 
-          <div class="search-history-box" v-if="searchHistory.length !== 0">
-            <div class="search-history-box-title">
-              <div class="title">搜索记录</div>
-              <div class="text-btn" @click="clearHistory()">清空</div>
-            </div>
-            <div class="search-history-box-list">
-              <div class="tag" v-for="item in searchHistory" :key="item" @click="selectTag(item)">
-                {{ item }}
-                <i class="freelog fl-icon-guanbi" @click.stop="deleteWord(item)"></i>
-              </div>
+          <div class="cancel-btn" @click="historyCancel">取消</div>
+        </div>
+
+        <div class="search-history-box" v-if="searchHistory.length !== 0">
+          <div class="search-history-box-title">
+            <div class="title">搜索记录</div>
+            <div class="text-btn" @click="clearHistory()">清空</div>
+          </div>
+          <div class="search-history-box-list">
+            <div class="tag" v-for="item in searchHistory" :key="item" @click="selectTag(item)">
+              {{ item }}
+              <i class="freelog fl-icon-guanbi" @click.stop="deleteWord(item)"></i>
             </div>
           </div>
         </div>
-      </transition>
-    </div>
-
+      </div>
+    </transition>
+    
     <!-- 移动端搜索页头部 -->
     <div class="mobile-search-header-wrapper" v-if="inMobile && $route.path === '/search'">
       <div class="search-page-box">
@@ -132,6 +142,7 @@
             searchWord(searchKey);
             search();
           "
+          @keyup.delete="searchPopupShow = true"
         />
         <i class="freelog fl-icon-content"></i>
       </div>
@@ -149,6 +160,13 @@
           class="logo"
           :src="nodeLogo"
           @click="switchPage('/')"
+          v-if="nodeLogo"
+        />
+        <img
+          class="logo"
+          src="../assets/images/default-node-cover.png"
+          @click="switchPage('/')"
+          v-else
         />
         
         <div class="nav-btn" @click="switchPage('/')">首页</div>
@@ -277,6 +295,8 @@ export default {
     })
 
     const userData =  computed(() => {
+      console.log("store.state.userData", store.state.userData);
+      
       return store.state.userData
     })
 
@@ -285,6 +305,13 @@ export default {
     })
     
     const methods = {
+      /** 输入搜索词 */
+      historyCancel() {
+        data.searchPopupShow = false
+        if (route.path === '/search') {
+          switchPage("/home")
+        }
+      },
       /** 输入搜索词 */
       searchKeyInput() {
         data.searchKey = (data.searchKey || "").trim();
