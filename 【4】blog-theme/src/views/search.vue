@@ -25,7 +25,7 @@
         <div class="article-list">
           <my-article-v2 :data="item" v-for="item in availableListData" :key="item.exhibitId" />
         </div>
-        <div className="tip" v-show="total === 0 || availableListData.length === 0">暂无任何信息</div>
+        <div className="tip" v-show="total === 0 || availableListData.length === 0">抱歉, 暂未找到相关结果</div>
         <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部 —</div>
       </template>
     </div>
@@ -36,7 +36,7 @@
       <div class="article-list" v-if="!loading">
         <my-article-v2 :data="item" v-for="item in availableListData" :key="item.exhibitId" />
       </div>
-      <div class="all-ready" v-show="total === 0 || availableListData.length === 0">暂无任何信息</div>
+      <div class="all-ready" v-show="total === 0 || availableListData.length === 0">抱歉, 暂未找到相关结果</div>
       <div class="all-ready" v-show="listData.length !== 0 && listData.length === total">— 已加载全部 —</div>
     </div>
   </div>

@@ -1,7 +1,7 @@
 <!-- 阅读页 -->
 
 <template>
-  <div class="reader-wrapper" :class="{ 'in-mobile': inMobile, isIOS: isIOS }">
+  <div class="reader-wrapper" :class="{ 'in-mobile': inMobile, isIOS: isIOS }" v-if="articleData">
     <div v-if="articleData?.articleInfo?.status === 1">
       <!-- mobile -->
       <div class="mobile-reader-body" v-if="inMobile">
@@ -370,7 +370,7 @@ export default {
       await datasOfGetList.getList({ limit: 30 }, true);
       
       const recommendList = datasOfGetList.listData.value.filter((item) => item.exhibitId !== id);
-      data.recommendList = recommendList;
+      data.recommendList = recommendList.slice(0, 6);
     };
 
     /** 刷新授权状态 */

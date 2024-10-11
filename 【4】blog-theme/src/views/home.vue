@@ -12,9 +12,9 @@
       </div>
 
       <div class="header-blog-info">
-        <div class="blog-title"  @click="blogInfoPopupShow = true">{{ nodeTitle }}</div>
-        <div class="blog-desc" v-html="nodeShortDescription" @click="blogInfoPopupShow = true"></div>
-        <div class="tags">
+        <div class="blog-title" v-if="nodeTitle" @click="blogInfoPopupShow = true">{{ nodeTitle }}</div>
+        <div class="blog-desc" v-if="nodeShortDescription" v-html="nodeShortDescription" @click="blogInfoPopupShow = true"></div>
+        <div class="tags" :class="{ 'margin-top0': !nodeTitle && !nodeShortDescription }">
           <div
             class="category-btn"
             :class="{ disabled: myLoading }"
@@ -93,12 +93,12 @@
           </div>
 
           <div class="info-content" :class="{ noBg: !banner }">
-            <div class="title-signcount">
-              <div class="blog-title" :title="nodeTitle">{{ nodeTitle || "你还未为主题设置标题" }}</div>
+            <div class="title-signcount" v-if="nodeTitle">
+              <div class="blog-title" :title="nodeTitle">{{ nodeTitle }}</div>
               <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
             </div>
-            <div class="blog-desc" v-html="nodeShortDescription" :title="nodeShortDescription"></div>
-            <div class="tags">
+            <div class="blog-desc" v-if="nodeShortDescription" v-html="nodeShortDescription" :title="nodeShortDescription"></div>
+            <div class="tags" :class="{ 'margin-top0': !nodeTitle && !nodeShortDescription }">
               <div
                 class="category-btn"
                 :class="{ disabled: myLoading }"
@@ -299,7 +299,9 @@ export default {
 
   // mobile
   .mobile-home-banner {
+    width: 100%;
     .header-other-info {
+      width: 100%;
       .blogger-avatar {
         width: 100%;
         height: calc((100vw - 0px) * 0.44);
@@ -345,6 +347,10 @@ export default {
         flex-wrap: wrap;
         gap: 2px 10px;
         margin-top: 15px;
+
+        &.margin-top0 {
+          margin-top: 0px;
+        }
 
         .category-btn {
           position: relative;
@@ -706,6 +712,10 @@ export default {
         .tags {
           display: flex;
           margin-top: 30px;
+
+          &.margin-top0 {
+            margin-top: 0px;
+          }
 
           .category-btn {
             position: relative;
