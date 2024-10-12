@@ -63,7 +63,16 @@ export default new Vuex.Store({
         freelogApp.getUserData("playingId")
       ]);
 
-      const collectionIdList = collectionIdListResponse?.data?.data || [];
+      // 兼容历史数据
+      const collectionIdList = collectionIdListResponse?.data?.data?.map(ele => {
+        if (ele.hasOwnProperty("exhibitId")) {
+          return {
+            id: ele.exhibitId,
+            isExhibit: true
+          }
+        }
+        return ele
+      }) || [];
       const playingId = playingIdResponse?.data?.data;
 
       // 是否移动端设备

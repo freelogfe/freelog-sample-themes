@@ -315,6 +315,7 @@ export const useMyCollection = {
       }
     } else {
       // 收藏
+      const payload = { ...data }
       if (articleInfo.articleType === 1) {
         collectionIdList.unshift({
           id: exhibitId,
@@ -332,19 +333,16 @@ export const useMyCollection = {
             id: exhibitId,
             isExhibit: true
           });
+          const subNumList = await freelogApp.getCollectionsSubList(data.exhibitId, {
+            sortType: 1, 
+            skip: 0,
+            limit: 1,
+            isShowDetailInfo: 1, 
+          });
+          payload.totalItem = subNumList.data.data[0].totalItem
         }
       }
-      const subNumList = await freelogApp.getCollectionsSubList(data.exhibitId, {
-        sortType: 1, 
-        skip: 0,
-        limit: 1,
-        isShowDetailInfo: 1, 
-      });
-
-      collectionList.unshift(JSON.parse(JSON.stringify({
-        ...data,
-        totalItem: subNumList.data.data[0].totalItem
-      })));     
+      collectionList.unshift(JSON.parse(JSON.stringify(payload)));     
     }
     const res = await freelogApp.setUserData("collectionIdList", collectionIdList);
     if (res.data.msg === "success") {
