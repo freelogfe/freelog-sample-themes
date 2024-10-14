@@ -171,7 +171,7 @@ const isSelectedData = item => {
     </div>
 
     <!-- 热门内容 -->
-    <div class="popular-content-box">
+    <div class="popular-content-box" v-if="props.data.length">
       <div class="content-item" v-for="(item, index) in props.data" :key="index">
         <div class="index">{{ changeIndex(index + 1) }}</div>
         <div class="info-box">
@@ -278,6 +278,7 @@ const isSelectedData = item => {
         </div>
       </div>
     </div>
+    <div class="no-data" v-else>暂无任何音乐</div>
   </div>
 
   <!-- mobile -->
@@ -294,7 +295,7 @@ const isSelectedData = item => {
     </div>
 
     <!-- 热门内容 -->
-    <div class="popular-content-box">
+    <div class="popular-content-box" v-if="props.data.length">
       <div class="content-item" v-for="(item, index) in props.data" :key="index">
         <div class="info-box" @click="playOrPause(item)">
           <div class="cover-image">
@@ -370,6 +371,7 @@ const isSelectedData = item => {
         </transition>
       </div>
     </div>
+    <div class="no-data" v-else>暂无任何音乐</div>
   </div>
 </template>
 
@@ -654,6 +656,18 @@ const isSelectedData = item => {
       }
     }
   }
+
+  .no-data {
+    padding: 122px 0 144px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 400;
+    font-size: 30px;
+    color: #ffffff;
+    line-height: 36px;
+    opacity: 0.4;
+  }
 }
 
 // mobile
@@ -914,6 +928,18 @@ const isSelectedData = item => {
         }
       }
     }
+  }
+
+  .no-data {
+    padding: 90px 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 400;
+    font-size: 24px;
+    color: #ffffff;
+    line-height: 40px;
+    opacity: 0.4;
   }
 }
 </style>

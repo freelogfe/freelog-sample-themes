@@ -227,7 +227,7 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- 专辑内容 -->
-    <div class="album-content-box">
+    <div class="album-content-box" v-if="albumData.length">
       <div
         class="content-item"
         v-for="(item, index) in albumData"
@@ -287,6 +287,8 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </div>
+
+    <div class="no-data" v-else>暂无任何专辑</div>
   </div>
   <!-- mobile -->
   <div class="mobile-album-wrap" v-else>
@@ -302,7 +304,7 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- 专辑内容 -->
-    <div class="album-content-box">
+    <div class="album-content-box" v-if="albumData.length">
       <div class="content-item" v-for="(item, index) in albumData" :key="index">
         <div class="info-box">
           <div class="cover-image">
@@ -353,6 +355,7 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </div>
+    <div class="no-data" v-else>暂无任何专辑</div>
   </div>
 </template>
 
@@ -627,6 +630,18 @@ onBeforeUnmount(() => {
       }
     }
   }
+
+  .no-data {
+    padding: 122px 0 152px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 400;
+    font-size: 30px;
+    color: #ffffff;
+    line-height: 36px;
+    opacity: 0.4;
+  }
 }
 
 // mobile
@@ -808,6 +823,18 @@ onBeforeUnmount(() => {
         }
       }
     }
+  }
+
+  .no-data {
+    padding: 70px 0 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 400;
+    font-size: 24px;
+    color: #ffffff;
+    line-height: 40px;
+    opacity: 0.4;
   }
 }
 </style>
