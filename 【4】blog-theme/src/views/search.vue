@@ -9,14 +9,14 @@
         @mouseleave="sortPopupShow = false"
         v-if="listData.length"
       >
-        {{ createDateSortType === "-1" ? "最新更新" : "最热门" }}
+        {{ createDateSortType === "-1" ? "最新更新" : "最早发布" }}
         <i class="freelog fl-icon-zhankaigengduo"></i>
 
         <transition name="slide-down-scale">
           <div class="sort-popup" v-show="sortPopupShow">
             <div class="sort-popup-body">
               <div class="user-box-btn" @click="sort('-1')">最新更新</div>
-              <div class="user-box-btn" @click="sort('1')">最热门</div>
+              <div class="user-box-btn" @click="sort('1')">最早发布</div>
             </div>
           </div>
         </transition>
@@ -224,6 +224,14 @@ export default {
         line-height: 20px;
         text-align: center;
         padding: 50px 0px;
+      }
+    }
+  }
+
+  @media screen and (min-width: 1300px) {
+    .search-wrapper-pc {
+      .article-list {
+        grid-template-columns: repeat(4, 1fr) !important;
       }
     }
   }

@@ -1,6 +1,6 @@
 <template>
   <div class="article-wrapper-v2" ref="containerRef">
-		<div class="cover-wrapper">
+		<div class="cover-wrapper" @click="clickArticle">
 			<div class="article-cover" :style="`height:${imgHeight}px;`">
 				<img
 					class="cover"
@@ -35,7 +35,7 @@
 			{{ data.exhibitIntro || "" }}
 		</div>
 		<div class="tags" v-if="data?.tags?.length">
-			<tags :tags="data?.tags" />
+			<tags :tags="data?.tags" :isSwitch="true" :maxWidthObj="{ isVaild: true, maxWidth: 80 }" />
 		</div>
 	</div>
 </template>
@@ -93,6 +93,7 @@ export default {
 	max-width: 370px;
 	.cover-wrapper {
 		position: relative;
+		cursor: pointer;
 		.article-cover {
 			img {
 				width: 100%;
