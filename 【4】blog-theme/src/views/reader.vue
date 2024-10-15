@@ -104,14 +104,14 @@
                         <div
                           class="directory-item"
                           :class="{
-                            active: currentTitle === item.innerText,
+                            active: currentTitle === item.innerText && index === currentIndex,
                             second: item.nodeName === 'H2',
                             third: item.nodeName === 'H3',
                           }"
                           :title="item.innerText"
-                          v-for="item in directoryList"
+                          v-for="(item, index) in directoryList"
                           :key="item.id"
-                          @click="jumpToTitle(item.innerText)"
+                          @click="jumpToTitle(item.innerText, index)"
                         >
                           <span>{{ item.innerText }}</span>
                         </div>
@@ -137,7 +137,7 @@
           </div>
         </div>
 
-        <div class="recommend">
+        <div class="recommend" v-if="recommendList.length">
           <div class="recommend-header">
             <div class="recommend-title">相关推荐</div>
             <div class="text-btn" @click="switchPage('/')">更多>></div>
@@ -250,7 +250,9 @@ export default {
       markdownWidget: null as WidgetController | null,
       timeId: 0,
       directoryList: [] as Array<any>,
-      currentTitle: null as any
+      currentTitle: null as any,
+      currentIndex: -1,
+      clickAction: false
     });
 
     const authLinkAbnormal = computed(() => {
@@ -296,9 +298,11 @@ export default {
       },
 
       /** 跳到标题位置 */
-      jumpToTitle(title: string) {
+      jumpToTitle(title: string, index: number) {
+        markdownRef.value && markdownRef.value.removeEventListener('scroll', methods.handleScroll)
         data.currentTitle = title
-        const el: any = data.directoryList.find((item) => item.innerText === title);
+        data.currentIndex = index   
+        const el: any = data.directoryList[index]
         if (!el) return;
         scrollTo(800)
         const markdownApp = document.getElementById("markdown")
@@ -306,17 +310,23 @@ export default {
           top: el.offsetTop,
           behavior: "smooth"
         });
+        setTimeout(() => {
+          markdownRef.value && markdownRef.value.addEventListener('scroll', methods.handleScroll)
+        }, 1000)
       },
 
       /** 处理滚动 */
       handleScroll(e: any) {
+        if (data.clickAction) return
+        let target = null
         for (let index = 0; index < data.directoryList.length; index++) {
           const element = data.directoryList[index];
-          if (e.target.scrollTop <= element.offsetTop) {
-            data.currentTitle = element.innerText
-            break
+          if (e.target.scrollTop + e.target.clientHeight >= element.offsetTop) {
+            data.currentIndex = index
+            target = element
           }
         }
+        data.currentTitle = target.innerText
       }
     };
 
@@ -332,12 +342,19 @@ export default {
         freelogApp.getExhibitSignCount(id),
         freelogApp.getExhibitAuthStatus(id),
       ]);
+
       const { defaulterIdentityType } = statusInfo.data.data[0];
       data.articleData = {
         ...exhibitInfo.data.data,
         signCount: signCountData.data.data[0].count,
         defaulterIdentityType,
       };
+
+      // 如果不是阅读类
+      if (!(exhibitInfo?.data?.data?.versionInfo?.exhibitProperty?.mime as string)?.includes("text/")) {
+        showToast("不支持的文章格式")
+        return
+      }
       
       data.href = freelogApp.getCurrentUrl();
       nextTick(() => {
@@ -432,7 +449,7 @@ export default {
         topExhibitId,
         container,
         renderWidgetOptions: {
-          data: { exhibitInfo: data.contentInfo?.exhibitInfo, content: data.contentInfo?.content },
+          data: { exhibitInfo: data.contentInfo?.exhibitInfo, content: data.contentInfo?.content, fontSize: 16 },
         },
         // widget_entry: "https://localhost:8202",
       };

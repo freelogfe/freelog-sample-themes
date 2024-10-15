@@ -85,9 +85,9 @@
 
     <!-- PC -->
     <div class="home-body" v-if="!inMobile">
-      <template v-if="$route.path === '/home'">
+      <template v-if="$route.path === '/home' && (banner || nodeTitle || nodeShortDescription || tagsList.length)">
         <!-- 博客信息 -->
-        <div class="header-blog-info">
+        <div class="header-blog-info" :class="{ 'withoutTitleBg': !banner && !nodeTitle }">
           <div class="blogger-avatar" v-if="banner">
             <img :src="banner" alt="博客banner" class="avatar-img" />
           </div>
@@ -113,22 +113,21 @@
         </div>
       </template>
 
-      <div class="header">
+      <div class="header" v-if="!searchData.keywords && listData.length">
         <div
           class="sort"
           :class="{ disabled: myLoading }"
           @mouseover="sortPopupShow = true"
           @mouseleave="sortPopupShow = false"
-          v-if="!searchData.keywords && listData.length"
         >
-          {{ createDateSortType === "-1" ? "最新更新" : "最热门" }}
+          {{ createDateSortType === "-1" ? "最新更新" : "最早发布" }}
           <i class="freelog fl-icon-zhankaigengduo"></i>
 
           <transition name="slide-down-scale">
             <div class="sort-popup" v-show="sortPopupShow">
               <div class="sort-popup-body">
                 <div class="user-box-btn" @click="sort('-1')">最新更新</div>
-                <div class="user-box-btn" @click="sort('1')">最热门</div>
+                <div class="user-box-btn" @click="sort('1')">最早发布</div>
               </div>
             </div>
           </transition>
@@ -170,7 +169,7 @@ export default {
     const { query, route, router, switchPage } = useMyRouter();
     const { scrollTop, clientHeight, scrollHeight, scrollTo } = useMyScroll();
     const datasOfGetList = useGetList();
-
+    
     const data = reactive({
       sortPopupShow: false,
       createDateSortType: "-1",
@@ -620,6 +619,10 @@ export default {
       position: relative;
       min-height: 314px;
       
+      &.withoutTitleBg {
+        min-height: 100px;
+      }
+
       .blogger-avatar {
         width: 100%;
         height: calc(100vw * 0.44);
@@ -711,6 +714,9 @@ export default {
 
         .tags {
           display: flex;
+          flex-wrap: wrap;
+          height: 26px;
+          overflow: hidden;
           margin-top: 30px;
 
           &.margin-top0 {
@@ -718,6 +724,7 @@ export default {
           }
 
           .category-btn {
+            flex-shrink: 0;
             position: relative;
             padding: 2px 8px;
             box-sizing: border-box;
