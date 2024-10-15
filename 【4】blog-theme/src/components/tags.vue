@@ -46,7 +46,7 @@ export default {
     }
   },
 
-  setup(props) {
+  setup(props: any) {
     const store = useStore();
     const { switchPage } = useMyRouter();
 
