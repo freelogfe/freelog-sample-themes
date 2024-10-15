@@ -191,7 +191,10 @@ export const useMyCollection = {
         });
       } else {
         const [list, statusList] = await Promise.all([
-          freelogApp.getExhibitListById({ exhibitIds: item.exhibitId, isLoadVersionProperty: 1 }),
+          freelogApp.getExhibitListById({
+            exhibitIds: item.exhibitId || item,
+            isLoadVersionProperty: 1
+          }),
           freelogApp.getExhibitAuthStatus(item.exhibitId)
         ]);
 
@@ -287,7 +290,10 @@ export const useMyPlay = {
         });
       } else {
         const [list, statusList] = await Promise.all([
-          freelogApp.getExhibitListById({ exhibitIds: item.exhibitId, isLoadVersionProperty: 1 }),
+          freelogApp.getExhibitListById({
+            exhibitIds: item.exhibitId || item,
+            isLoadVersionProperty: 1
+          }),
           freelogApp.getExhibitAuthStatus(item.exhibitId)
         ]);
 
