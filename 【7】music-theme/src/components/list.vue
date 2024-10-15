@@ -38,7 +38,7 @@
 
     <template v-if="!loading">
       <!-- 音乐 -->
-      <div v-if="$route.name === 'voice-list' && !store.inMobile">
+      <div v-if="$route.name === 'voice-list' && list.length && !store.inMobile">
         <!-- 最新发布 | 最早发布 -->
         <div class="music-drop-wrapper" ref="dropWrapper">
           <div class="selected-box" @click="handleShowDrop">
@@ -81,6 +81,63 @@
           <span>专辑</span>
           <span>时长</span>
         </div>
+
+        <!-- 最新发布 | 最早发布 -->
+        <div
+          class="music-drop-wrapper"
+          ref="dropWrapper"
+          v-if="$route.name === 'voice-list' && store.inMobile"
+        >
+          <div class="selected-box" @click="handleShowDrop">
+            <div class="txt">{{ selectedValue === 1 ? "最新发布" : "最早发布" }}</div>
+            <div class="drop-trigger" :class="dropVisible ? 'rotate' : ''">
+              <div class="triangle"></div>
+            </div>
+          </div>
+
+          <!-- 选项弹窗 -->
+          <transition name="fade" v-if="store.inMobile">
+            <div class="modal" @click="dropVisible = false" v-if="dropVisible"></div>
+          </transition>
+          <transition name="slide-up-fade" v-if="store.inMobile">
+            <div class="drop-list" v-if="dropVisible">
+              <div
+                class="drop-item"
+                :class="selectedValue === 1 && 'selected'"
+                @click="
+                  () => {
+                    selectedValue = 1;
+                    handleShowDrop();
+                    // 降序排列
+                    albumData = albumData.sort(
+                      (a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime()
+                    );
+                  }
+                "
+              >
+                最新发布
+              </div>
+              <div
+                class="drop-item"
+                :class="selectedValue === 2 && 'selected'"
+                @click="
+                  () => {
+                    selectedValue = 2;
+                    handleShowDrop();
+                    // 升序排列
+                    albumData = albumData.sort(
+                      (a, b) => new Date(a.updateDate).getTime() - new Date(b.updateDate).getTime()
+                    );
+                  }
+                "
+              >
+                最早发布
+              </div>
+              <div class="close-btn" @click.stop="dropVisible = false">取消</div>
+            </div>
+          </transition>
+        </div>
+
         <voice
           :data="item"
           :statusShow="statusShow"
@@ -601,6 +658,106 @@ export default {
 
   .voice-list {
     width: 100%;
+
+    .music-drop-wrapper {
+      display: flex;
+      align-items: center;
+      position: relative;
+      margin: 40px 0;
+      width: 100%;
+      height: 20px;
+
+      .selected-box {
+        display: flex;
+        align-items: center;
+        .txt {
+          height: 20px;
+          font-weight: 600;
+          font-size: 14px;
+          color: #fff;
+          line-height: 20px;
+        }
+
+        .drop-trigger {
+          position: relative;
+          margin-left: 7px;
+          transition: transform 0.35s;
+
+          &.rotate {
+            transform: rotate(-180deg);
+          }
+
+          .triangle {
+            width: 0;
+            border-width: 6px 5px;
+            border-style: solid;
+            border-color: transparent;
+            border-top-color: #fff;
+            position: relative;
+            top: 3px;
+          }
+        }
+      }
+
+      .modal {
+        position: fixed;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.2);
+        z-index: 300;
+      }
+
+      .drop-list {
+        position: fixed;
+        height: 226px;
+        text-align: center;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(20px);
+        z-index: 300;
+
+        .drop-item {
+          font-weight: 400;
+          font-size: 16px;
+          color: #ffffff;
+          line-height: 22px;
+          padding: 30px 0;
+          position: relative;
+
+          &:nth-child(2) {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            width: 200px;
+            margin: 0 auto;
+          }
+
+          &.selected {
+            color: #44d7b6;
+            &::after {
+              position: absolute;
+              margin-left: 10px;
+              top: 50%;
+              transform: translateY(-50%);
+              content: "";
+              width: 12px;
+              height: 12px;
+              background: url("@/assets/images/selected.png");
+              background-size: contain;
+              background-repeat: no-repeat;
+              display: inline-block;
+            }
+          }
+        }
+
+        .close-btn {
+          border-top: 1px solid rgba(255, 255, 255, 0.05);
+          padding: 20px 0;
+        }
+      }
+    }
 
     .no-more-tip {
       width: 100%;

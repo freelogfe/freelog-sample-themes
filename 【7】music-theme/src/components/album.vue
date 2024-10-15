@@ -179,7 +179,6 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </div>
-
     <div v-if="route.name === 'album-list'">
       <!-- 最新发布 | 最早发布 -->
       <div class="album-drop-wrapper" ref="dropWrapper">
@@ -225,7 +224,6 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </div>
-
     <!-- 专辑内容 -->
     <div class="album-content-box" v-if="albumData.length">
       <div
