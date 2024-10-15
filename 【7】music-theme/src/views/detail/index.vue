@@ -722,7 +722,14 @@ export default {
       if (this.voiceInfo?.articleInfo?.articleType === 2) {
         return true;
       }
-      const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
+      const supportMimeList = [
+        "audio/mp4",
+        "audio/mpeg",
+        "audio/ogg",
+        "audio/wav",
+        "audio/webm",
+        "audio/flac"
+      ];
       return supportMimeList.includes(this.voiceInfo?.versionInfo.exhibitProperty.mime);
     },
 
@@ -924,7 +931,14 @@ export default {
     },
     /** 是否为支持格式 */
     ifSupportMimeSub(item) {
-      const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
+      const supportMimeList = [
+        "audio/mp4",
+        "audio/mpeg",
+        "audio/ogg",
+        "audio/wav",
+        "audio/webm",
+        "audio/flac"
+      ];
       return supportMimeList.includes(item?.articleInfo?.articleProperty.mime);
     },
     albumSubBtnList(item) {

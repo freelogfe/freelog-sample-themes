@@ -816,7 +816,14 @@ export default {
     playError() {
       if (!this.playing) return;
 
-      const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
+      const supportMimeList = [
+        "audio/mp4",
+        "audio/mpeg",
+        "audio/ogg",
+        "audio/wav",
+        "audio/webm",
+        "audio/flac"
+      ];
       if (!supportMimeList.includes(this.playingInfo?.versionInfo.exhibitProperty.mime)) {
         showToast("无法播放");
         return;

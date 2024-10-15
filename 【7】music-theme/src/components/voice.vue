@@ -279,7 +279,14 @@ export default {
 
     /** 是否为支持格式 */
     ifSupportMime() {
-      const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
+      const supportMimeList = [
+        "audio/mp4",
+        "audio/mpeg",
+        "audio/ogg",
+        "audio/wav",
+        "audio/webm",
+        "audio/flac"
+      ];
       return supportMimeList.includes(this.data.versionInfo?.exhibitProperty?.mime);
     },
 

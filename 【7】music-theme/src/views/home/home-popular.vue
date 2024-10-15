@@ -36,7 +36,14 @@ const authLinkAbnormal = (defaulterIdentityType: number) => {
 
 /** 是否为支持格式 */
 const ifSupportMime = (mime: string) => {
-  const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
+  const supportMimeList = [
+    "audio/mp4",
+    "audio/mpeg",
+    "audio/ogg",
+    "audio/wav",
+    "audio/webm",
+    "audio/flac"
+  ];
   return supportMimeList.includes(mime);
 };
 
