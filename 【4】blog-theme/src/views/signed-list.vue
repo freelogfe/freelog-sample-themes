@@ -119,7 +119,7 @@ export default {
 
   // mobile
   &.in-mobile {
-    padding-bottom: 128px;
+    padding-bottom: 218px;
     box-sizing: border-box;
 
     .content {

@@ -1,7 +1,7 @@
 <!-- 阅读页 -->
 
 <template>
-  <div class="reader-wrapper" :class="{ 'in-mobile': inMobile, isIOS: isIOS }" v-if="articleData">
+  <div class="reader-wrapper" :class="{ 'in-mobile': inMobile }" v-if="articleData">
     <div v-if="articleData?.articleInfo?.status === 1">
       <!-- mobile -->
       <div class="mobile-reader-body" v-if="inMobile">
@@ -263,10 +263,6 @@ export default {
       return store.state.inMobile
     })
 
-    const isIOS = computed(() => {
-      return store.state.isIOS
-    })
-
     const userData = computed(() => {
       return store.state.userData
     })
@@ -505,8 +501,7 @@ export default {
       relativeTime,
       authLinkAbnormal,
       inMobile,
-      userData,
-      isIOS
+      userData
     };
   },
 };
@@ -524,7 +519,7 @@ export default {
   box-sizing: border-box;
 
   &.in-mobile {
-    padding-bottom: 98px;
+    padding-bottom: 188px;
   }
 
   &.isIOS {
