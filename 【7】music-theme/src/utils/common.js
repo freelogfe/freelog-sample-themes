@@ -67,6 +67,14 @@ export const relativeTime = time => {
 };
 
 /**
+ * 绝对时间
+ * @param time 时间戳、字符串日期等等
+ */
+export const absoluteTime = time => {
+  return formatDate(time, "YYYY/MM/DD");
+};
+
+/**
  * 秒转为时分秒
  * @param time 时间（毫秒数）
  */

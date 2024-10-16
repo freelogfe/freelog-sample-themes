@@ -2,7 +2,7 @@
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { freelogApp } from "freelog-runtime";
 import { useRouter, useRoute } from "vue-router";
-import { relativeTime } from "@/utils/common.js";
+import { absoluteTime } from "@/utils/common.js";
 import { useMyPlay, useMyAuth } from "@/utils/hooks";
 // 图片
 import MoreIcon from "@/assets/images/arrow.png";
@@ -271,7 +271,7 @@ onBeforeUnmount(() => {
                 <div class="icon">
                   <img :src="TimeIcon" alt="更新时间" />
                 </div>
-                <span class="time">{{ relativeTime(item.updateDate) }}</span>
+                <span class="time">{{ absoluteTime(item.updateDate) }}</span>
               </div>
 
               <div class="album-box">
@@ -339,7 +339,7 @@ onBeforeUnmount(() => {
                 <div class="icon">
                   <img :src="TimeIcon" alt="更新时间" />
                 </div>
-                <span class="time">{{ relativeTime(item.updateDate) }}</span>
+                <span class="time">{{ absoluteTime(item.updateDate) }}</span>
               </div>
 
               <div class="album-box">

@@ -47,7 +47,7 @@
         <div class="other-area" :class="{ 'opacity-40': authLinkAbnormal }">
           <div class="info-item">
             <i class="freelog fl-icon-gengxinshijian"></i>
-            <div class="item-value">{{ relativeTime(data.updateDate) }}</div>
+            <div class="item-value">{{ absoluteTime(data.updateDate) }}</div>
           </div>
           <div class="info-item">
             <i class="freelog fl-icon-danji"></i>
@@ -202,7 +202,7 @@
 import playStatus from "@/components/play-status.vue";
 import myTooltip from "@/components/tooltip.vue";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
-import { secondsToHMS, relativeTime } from "@/utils/common";
+import { secondsToHMS, absoluteTime } from "@/utils/common";
 import { useGlobalStore } from "@/store/global";
 
 export default {
@@ -245,7 +245,7 @@ export default {
       isInPlayList: false,
       store,
       secondsToHMS,
-      relativeTime
+      absoluteTime
     };
   },
 

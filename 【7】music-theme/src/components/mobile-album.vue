@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { freelogApp } from "freelog-runtime";
 import { useRouter } from "vue-router";
-import { relativeTime } from "@/utils/common.js";
+import { absoluteTime } from "@/utils/common.js";
 import { useMyPlay, useMyAuth } from "@/utils/hooks";
 import { useGlobalStore } from "@/store/global";
 // 图片
@@ -205,7 +205,7 @@ const getCollectionList = async (obj: {
                 <div class="icon">
                   <img :src="TimeIcon" alt="更新时间" />
                 </div>
-                <span class="time">{{ relativeTime(item.updateDate) }}</span>
+                <span class="time">{{ absoluteTime(item.updateDate) }}</span>
               </div>
 
               <div class="album-box">

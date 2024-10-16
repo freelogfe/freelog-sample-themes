@@ -34,7 +34,7 @@
               <div class="date-count">
                 <div class="info-item">
                   <i class="freelog fl-icon-gengxinshijian"></i>
-                  <div class="item-value">{{ relativeTime(voiceInfo?.updateDate) }}</div>
+                  <div class="item-value">{{ absoluteTime(voiceInfo?.updateDate) }}</div>
                 </div>
                 <div class="info-item">
                   <i class="freelog fl-icon-danji"></i>
@@ -312,7 +312,7 @@
             <div class="icon">
               <img :src="TimeIcon" alt="更新时间" />
             </div>
-            <span class="time">{{ relativeTime(voiceInfo.updateDate) }}</span>
+            <span class="time">{{ absoluteTime(voiceInfo.updateDate) }}</span>
           </div>
 
           <div class="album-box" v-if="voiceInfo.articleInfo.articleType === 2">
@@ -359,7 +359,7 @@
           <div class="info-area">
             <div class="info-item">
               <i class="freelog fl-icon-gengxinshijian"></i>
-              <div class="item-value">{{ relativeTime(voiceInfo?.updateDate) }}</div>
+              <div class="item-value">{{ absoluteTime(voiceInfo?.updateDate) }}</div>
             </div>
             <div class="info-item" v-if="albumName">
               <div class="item-value">收录于专辑</div>
@@ -610,7 +610,7 @@ import { freelogApp } from "freelog-runtime";
 import playStatus from "@/components/play-status.vue";
 import myTooltip from "@/components/tooltip.vue";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
-import { showToast, relativeTime, secondsToHMS } from "@/utils/common";
+import { showToast, absoluteTime, secondsToHMS } from "@/utils/common";
 import { useGlobalStore } from "@/store/global";
 
 // 图片
@@ -650,7 +650,7 @@ export default {
       href: "",
       collectionData: [],
       store,
-      relativeTime,
+      absoluteTime,
       secondsToHMS,
       subTotal: 0,
       subSkip: 0,
