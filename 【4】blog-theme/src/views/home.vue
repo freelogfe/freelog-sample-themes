@@ -34,7 +34,7 @@
       </transition>
     </div>
 
-    <div class="mobile-home-body" v-if="inMobile" :class="{ isIOS: isIOS }">
+    <div class="mobile-home-body" v-if="inMobile">
       <div class="header">
         <div
           class="sort"
@@ -190,10 +190,6 @@ export default {
       return datasOfGetList.listData.value.filter((ele: any) => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType!)) 
     })
 
-    const isIOS = computed(() => {
-      return store.state.isIOS
-    })
-
     const methods = {
       /** 排序 */
       sort(sortType: string) {
@@ -280,8 +276,7 @@ export default {
       ...methods,
       banner,
       inMobile,
-      availableListData,
-      isIOS
+      availableListData
     };
   },
 };
@@ -408,11 +403,7 @@ export default {
     width: 100%;
     padding: 0 20px;
     box-sizing: border-box;
-    padding-bottom: 98px;
-
-    &.isIOS {
-      padding-bottom: 188px;
-    }
+    padding-bottom: 188px;
 
     .header {
       width: 100%;

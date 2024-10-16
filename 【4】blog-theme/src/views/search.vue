@@ -195,7 +195,7 @@ export default {
   }
   .search-wrapper-mobile {
     .search-body {
-      padding-bottom: 98px;
+      padding-bottom: 188px;
       .title {
         height: 47px;
         background: #F7F7F7;
