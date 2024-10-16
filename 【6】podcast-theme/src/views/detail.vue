@@ -132,7 +132,7 @@
 
               <div class="btns-area">
                 <template v-if="playingInfo">
-                  <div class="duration" v-if="playingInfo.exhibitId !== voiceInfo.exhibitId">
+                  <div class="duration" v-if="playingInfo.exhibitId !== voiceInfo.exhibitId && voiceInfo.articleInfo.articleType === 1">
                     时长{{ voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
                   </div>
                   <transition name="slide-right">
