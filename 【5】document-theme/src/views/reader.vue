@@ -18,7 +18,10 @@
             <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
             <div class="auth-link-tip">授权链异常，无法查看</div>
           </div>
-          <div class="lock-box" v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false">
+          <div
+            class="lock-box"
+            v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false"
+          >
             <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
             <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
             <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
@@ -41,7 +44,7 @@
               :title="currentIndex ? listData[currentIndex - 1].exhibitTitle : ''"
               @click="
                 switchPage('/reader', {
-                  id: listData[currentIndex - 1].exhibitId,
+                  id: listData[currentIndex - 1].exhibitId
                 })
               "
             >
@@ -56,10 +59,12 @@
             <div
               class="switch-btn next"
               :class="{ invalid: currentIndex === listData.length - 1 }"
-              :title="currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : ''"
+              :title="
+                currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : ''
+              "
               @click="
                 switchPage('/reader', {
-                  id: listData[currentIndex + 1].exhibitId,
+                  id: listData[currentIndex + 1].exhibitId
                 })
               "
             >
@@ -67,7 +72,9 @@
                 <div class="btn-title">下一篇</div>
                 <div class="document-title">
                   {{
-                    currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : "当前为最后一篇"
+                    currentIndex !== listData.length - 1
+                      ? listData[currentIndex + 1].exhibitTitle
+                      : "当前为最后一篇"
                   }}
                 </div>
               </div>
@@ -128,7 +135,10 @@
                   "
                 >
                   <div class="item-title-box">
-                    <div class="item-title" :style="{ opacity: [0, 4].includes(item.defaulterIdentityType) ? 1 : 0.4 }">
+                    <div
+                      class="item-title"
+                      :style="{ opacity: [0, 4].includes(item.defaulterIdentityType) ? 1 : 0.4 }"
+                    >
                       {{ item.exhibitTitle }}
                     </div>
                   </div>
@@ -160,7 +170,9 @@
                   <div class="item-title-box">
                     <div
                       class="item-title"
-                      :style="{ opacity: [0, 4].includes(documentData?.defaulterIdentityType) ? 1 : 0.4 }"
+                      :style="{
+                        opacity: [0, 4].includes(documentData?.defaulterIdentityType) ? 1 : 0.4
+                      }"
                     >
                       {{ documentData?.exhibitTitle }}
                     </div>
@@ -254,7 +266,10 @@
                         @mouseleave="searchWordCatch = null"
                       >
                         <div class="item-word">{{ item }}</div>
-                        <i class="freelog fl-icon-guanbi delete-btn" @click.stop="deleteSearchHistory(item)"></i>
+                        <i
+                          class="freelog fl-icon-guanbi delete-btn"
+                          @click.stop="deleteSearchHistory(item)"
+                        ></i>
                       </div>
                     </div>
 
@@ -315,7 +330,9 @@
               <div class="item-title-box">
                 <div
                   class="item-title"
-                  :style="{ opacity: [0, 4].includes(documentData?.defaulterIdentityType) ? 1 : 0.4 }"
+                  :style="{
+                    opacity: [0, 4].includes(documentData?.defaulterIdentityType) ? 1 : 0.4
+                  }"
                   :title="documentData?.exhibitTitle"
                 >
                   {{ documentData?.exhibitTitle }}
@@ -360,7 +377,10 @@
               <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
               <div class="auth-link-tip">授权链异常，无法查看</div>
             </div>
-            <div class="lock-box" v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false">
+            <div
+              class="lock-box"
+              v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false"
+            >
               <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
               <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
               <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
@@ -383,7 +403,7 @@
                 :title="currentIndex ? listData[currentIndex - 1].exhibitTitle : ''"
                 @click="
                   switchPage('/reader', {
-                    id: listData[currentIndex - 1].exhibitId,
+                    id: listData[currentIndex - 1].exhibitId
                   })
                 "
               >
@@ -398,10 +418,14 @@
               <div
                 class="switch-btn next"
                 :class="{ invalid: currentIndex === listData.length - 1 }"
-                :title="currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : ''"
+                :title="
+                  currentIndex !== listData.length - 1
+                    ? listData[currentIndex + 1].exhibitTitle
+                    : ''
+                "
                 @click="
                   switchPage('/reader', {
-                    id: listData[currentIndex + 1].exhibitId,
+                    id: listData[currentIndex + 1].exhibitId
                   })
                 "
               >
@@ -409,7 +433,9 @@
                   <div class="btn-title">下一篇</div>
                   <div class="document-title">
                     {{
-                      currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : "当前为最后一篇"
+                      currentIndex !== listData.length - 1
+                        ? listData[currentIndex + 1].exhibitTitle
+                        : "当前为最后一篇"
                     }}
                   </div>
                 </div>
@@ -433,7 +459,7 @@
             :class="{
               active: currentTitle === item.innerText,
               second: item.nodeName === 'H2',
-              third: item.nodeName === 'H3',
+              third: item.nodeName === 'H3'
             }"
             :title="item.innerText"
             v-for="item in directoryList"
@@ -482,7 +508,7 @@ export default {
     "my-markdown": defineAsyncComponent(() => import("../components/markdown.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     "back-top": defineAsyncComponent(() => import("../components/back-top.vue")),
-    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
+    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue"))
   },
 
   setup() {
@@ -493,7 +519,9 @@ export default {
     const datasOfGetList = useGetList();
     const searchInput = ref();
     const searchHistoryPopup = ref();
-    const mySearchHistory = computed(() => searchHistory.value.filter((item) => item.includes(data.searchKey)));
+    const mySearchHistory = computed(() =>
+      searchHistory.value.filter(item => item.includes(data.searchKey))
+    );
 
     const data = reactive({
       myLoading: null as boolean | null,
@@ -509,11 +537,11 @@ export default {
       directoryShow: false,
       viewOffline: false, // 查看已下架展品
       href: "",
-      shareWidget: null as WidgetController | null,
+      shareWidget: null as WidgetController | null
     });
 
     const currentIndex = computed(() => {
-      return datasOfGetList.listData.value.findIndex((item) => item.exhibitId === data.currentId);
+      return datasOfGetList.listData.value.findIndex(item => item.exhibitId === data.currentId);
     });
 
     const methods = {
@@ -608,7 +636,7 @@ export default {
 
       /** 跳到标题位置 */
       jumpToTitle(title: string) {
-        const el: any = data.directoryList.find((item) => item.innerText === title);
+        const el: any = data.directoryList.find(item => item.innerText === title);
         if (!el) return;
 
         scrollTo(el.offsetTop);
@@ -644,7 +672,7 @@ export default {
       /** 控制分享弹窗显示 */
       setShareWidgetShow(value: boolean) {
         data.shareWidget?.setData({ show: value });
-      },
+      }
     };
 
     /** 获取列表数据 */
@@ -659,7 +687,9 @@ export default {
     const getDocumentData = async () => {
       data.myLoading = true;
       const exhibitId = data.currentId;
-      let documentData = datasOfGetList.listData.value.find((item) => item.exhibitId === exhibitId) as ExhibitItem;
+      let documentData = datasOfGetList.listData.value.find(
+        item => item.exhibitId === exhibitId
+      ) as ExhibitItem;
       data.viewOffline = false;
 
       const requestArr: Promise<any>[] = [freelogApp.getExhibitSignCount(exhibitId)];
@@ -672,7 +702,7 @@ export default {
         documentData = {
           ...exhibitInfo.data.data,
           signCount: signCountData.data.data[0].count,
-          defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
+          defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType
         };
         if (exhibitInfo.data.errCode === 0) data.viewOffline = true;
       } else {
@@ -711,11 +741,11 @@ export default {
 
       if (e.key === "ArrowLeft" && currentIndex.value !== 0)
         switchPage("/reader", {
-          id: datasOfGetList.listData.value[currentIndex.value - 1].exhibitId,
+          id: datasOfGetList.listData.value[currentIndex.value - 1].exhibitId
         });
       if (e.key === "ArrowRight" && currentIndex.value !== datasOfGetList.listData.value.length - 1)
         switchPage("/reader", {
-          id: datasOfGetList.listData.value[currentIndex.value + 1].exhibitId,
+          id: datasOfGetList.listData.value[currentIndex.value + 1].exhibitId
         });
     };
 
@@ -748,7 +778,7 @@ export default {
       if (data.shareWidget) await data.shareWidget.unmount();
 
       const subDeps = await freelogApp.getSelfDependencyTree();
-      const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-展品分享");
+      const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-展品分享");
       if (!widgetData) return;
 
       const { articleId, parentNid, nid } = widgetData;
@@ -761,8 +791,8 @@ export default {
         topExhibitId,
         container,
         renderWidgetOptions: {
-          data: { exhibit: data.documentData, type: "文档", routerType: "content" },
-        },
+          data: { exhibit: data.documentData, type: "文档", routerType: "content" }
+        }
         // widget_entry: "https://localhost:8201",
       };
       data.shareWidget = await freelogApp.mountArticleWidget(params);
@@ -770,7 +800,7 @@ export default {
 
     watch(
       () => data.searchHistoryShow,
-      (cur) => {
+      cur => {
         if (cur) {
           document.addEventListener("click", ifCloseHistoryPopup);
         } else {
@@ -781,7 +811,7 @@ export default {
 
     watch(
       () => datasOfGetList.listData.value,
-      (cur) => {
+      cur => {
         data.searching = !!data.searchKey;
         if (!cur.length && !data.searching) {
           data.currentId = "";
@@ -799,7 +829,7 @@ export default {
 
     watch(
       () => query.value,
-      (cur) => {
+      cur => {
         if (route.path !== "/reader") return;
 
         const { total } = datasOfGetList;
@@ -816,7 +846,7 @@ export default {
 
     watch(
       () => scrollTop.value,
-      (cur) => {
+      cur => {
         methods.setShareWidgetShow(false);
 
         for (let i = data.directoryList.length - 1; i >= 0; i--) {
@@ -851,9 +881,9 @@ export default {
       searchHistoryPopup,
       ...toRefs(data),
       currentIndex,
-      ...methods,
+      ...methods
     };
-  },
+  }
 };
 </script>
 
