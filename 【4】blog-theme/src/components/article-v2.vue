@@ -35,7 +35,7 @@
 			{{ data.exhibitIntro || "" }}
 		</div>
 		<div class="tags" v-if="data?.tags?.length">
-			<tags :tags="data?.tags" :isSwitch="true" :maxWidthObj="{ isVaild: true, maxWidth: 80 }" />
+			<tags :tags="data?.tags" :maxWidthObj="{ isVaild: true, maxWidth: 80 }" />
 		</div>
 	</div>
 </template>
