@@ -12,19 +12,30 @@
       <el-skeleton class="content-skeleton" :rows="9" animated v-if="myLoading === true" />
       <!-- 内容区域 -->
       <div class="content-area" v-if="myLoading === false">
-        <my-markdown :data="documentData" v-if="documentData?.defaulterIdentityType === 0" />
-        <template v-else-if="documentData?.defaulterIdentityType">
-          <div class="auth-box" v-if="documentData?.defaulterIdentityType !== 4">
-            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-            <div class="auth-link-tip">授权链异常，无法查看</div>
-          </div>
-          <div
-            class="lock-box"
-            v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false"
-          >
-            <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
-            <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-            <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
+        <template v-if="documentData?.articleInfo?.status === 1">
+          <my-markdown :data="documentData" v-if="documentData?.defaulterIdentityType === 0" />
+          <template v-else-if="documentData?.defaulterIdentityType">
+            <div class="auth-box" v-if="documentData?.defaulterIdentityType !== 4">
+              <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+              <div class="auth-link-tip">授权链异常，无法查看</div>
+            </div>
+            <div
+              class="lock-box"
+              v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false"
+            >
+              <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
+              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+              <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
+            </div>
+          </template>
+        </template>
+
+        <template v-else>
+          <div class="freeze-exhibit">
+            <div class="header">{{ documentData?.exhibitTitle }}</div>
+            <div class="icon">
+              <i class="freelog fl-icon-ziyuanweiguitishi_wendang freeze"></i>
+            </div>
           </div>
         </template>
 
@@ -367,23 +378,34 @@
       <!-- 内容区域 -->
       <div class="content-area" v-if="myLoading === false">
         <div class="content-body">
-          <my-markdown
-            :data="documentData"
-            @getDirectory="getDirectory($event)"
-            v-if="documentData?.defaulterIdentityType === 0"
-          />
-          <template v-else-if="documentData?.defaulterIdentityType">
-            <div class="auth-box" v-if="documentData?.defaulterIdentityType !== 4">
-              <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-              <div class="auth-link-tip">授权链异常，无法查看</div>
-            </div>
-            <div
-              class="lock-box"
-              v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false"
-            >
-              <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
-              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-              <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
+          <template v-if="documentData?.articleInfo?.status === 1">
+            <my-markdown
+              :data="documentData"
+              @getDirectory="getDirectory($event)"
+              v-if="documentData?.defaulterIdentityType === 0"
+            />
+            <template v-else>
+              <div class="auth-box" v-if="documentData?.defaulterIdentityType !== 4">
+                <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+                <div class="auth-link-tip">授权链异常，无法查看</div>
+              </div>
+              <div
+                class="lock-box"
+                v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false"
+              >
+                <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
+                <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+                <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
+              </div>
+            </template>
+          </template>
+
+          <template v-else>
+            <div class="freeze-exhibit">
+              <div class="header">{{ documentData?.exhibitTitle }}</div>
+              <div class="icon">
+                <i class="freelog fl-icon-ziyuanweiguitishi_wendang freeze"></i>
+              </div>
             </div>
           </template>
 
