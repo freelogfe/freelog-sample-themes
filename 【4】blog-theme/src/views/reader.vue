@@ -52,7 +52,7 @@
           <div></div>
         </div>
 
-        <div class="recommend">
+        <div class="recommend"  v-if="recommendList.length">
           <div class="recommend-title">推荐</div>
           <div class="article-list">
             <my-article-v2 :data="item" v-for="item in recommendList" :key="item.exhibitId" />
@@ -382,7 +382,10 @@ export default {
       });
       await datasOfGetList.getList({ limit: 30 }, true);
       
-      const recommendList = datasOfGetList.listData.value.filter((item) => item.exhibitId !== id);
+      const recommendList = datasOfGetList.listData.value
+        .filter((item: any) => item.exhibitId !== id)
+        .filter((ele: any) => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType!));
+
       data.recommendList = recommendList.slice(0, 6);
     };
 
