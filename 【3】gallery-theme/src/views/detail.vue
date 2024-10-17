@@ -8,7 +8,7 @@
       class="main-area"
       key="mainArea"
       :style="{
-        height: exhibitInfo?.defaulterIdentityType >= 4 ? '460px' : contentHeight + 'px',
+        height: exhibitInfo?.defaulterIdentityType >= 4 ? '460px' : contentHeight + 'px'
       }"
     >
       <my-loader v-if="loading" />
@@ -35,7 +35,10 @@
               <div class="home-btn" @click="switchPage('/home')">进入首页</div>
             </div>
 
-            <div class="lock-box" v-else-if="exhibitInfo?.defaulterIdentityType === 4 || userData.isLogin === false">
+            <div
+              class="lock-box"
+              v-else-if="exhibitInfo?.defaulterIdentityType === 4 || userData.isLogin === false"
+            >
               <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
               <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
               <div class="get-btn" @click="getAuth()">获取授权</div>
@@ -55,7 +58,9 @@
         <div
           class="switch-btn next"
           @click="switchExhibit('ArrowRight')"
-          v-if="listData.length && exhibitInfo?.exhibitId !== listData[listData.length - 1].exhibitId"
+          v-if="
+            listData.length && exhibitInfo?.exhibitId !== listData[listData.length - 1].exhibitId
+          "
         >
           <i class="freelog fl-icon-zhankaigengduo"></i>
         </div>
@@ -71,7 +76,11 @@
         <tags :tags="exhibitInfo?.tags" v-if="exhibitInfo?.tags.length" />
         <div class="bottom-bar">
           <div class="author-info">
-            <img class="author-avatar" :src="getAvatarUrl(exhibitInfo?.articleInfo.articleOwnerId)" v-if="exhibitInfo?.articleInfo.articleOwnerId" />
+            <img
+              class="author-avatar"
+              :src="getAvatarUrl(exhibitInfo?.articleInfo.articleOwnerId)"
+              v-if="exhibitInfo?.articleInfo.articleOwnerId"
+            />
             <div class="author-name">
               {{ exhibitInfo?.articleInfo.articleOwnerName }}
             </div>
@@ -107,7 +116,13 @@
   <!-- PC -->
   <teleport to="#modal" v-if="!inMobile">
     <transition name="fade">
-      <div class="modal" v-if="currentId" @click="closePopup()" @touchmove.prevent.passive @scroll.stop.prevent>
+      <div
+        class="modal"
+        v-if="currentId"
+        @click="closePopup()"
+        @touchmove.prevent.passive
+        @scroll.stop.prevent
+      >
         <div class="close-btn" @click="closePopup()" v-if="currentId">
           <i class="freelog fl-icon-guanbi"></i>
         </div>
@@ -136,7 +151,11 @@
             </div>
           </div>
           <div class="exhibit-info">
-            <img class="author-avatar" :src="getAvatarUrl(exhibitInfo?.articleInfo.articleOwnerId)" v-if="exhibitInfo?.articleInfo.articleOwnerId" />
+            <img
+              class="author-avatar"
+              :src="getAvatarUrl(exhibitInfo?.articleInfo.articleOwnerId)"
+              v-if="exhibitInfo?.articleInfo.articleOwnerId"
+            />
             <div class="author-name">
               {{ exhibitInfo?.articleInfo.articleOwnerName }}
             </div>
@@ -152,7 +171,7 @@
                   <img
                     :class="{
                       'width-full': contentMode === 1,
-                      'height-full': contentMode === 2,
+                      'height-full': contentMode === 2
                     }"
                     :src="content"
                     oncontextmenu="return false"
@@ -161,7 +180,7 @@
                   <video
                     :class="{
                       'width-full': contentMode === 1,
-                      'height-full': contentMode === 2,
+                      'height-full': contentMode === 2
                     }"
                     :src="content"
                     controls
@@ -180,7 +199,9 @@
 
                   <div
                     class="lock-box"
-                    v-else-if="exhibitInfo?.defaulterIdentityType === 4 || userData.isLogin === false"
+                    v-else-if="
+                      exhibitInfo?.defaulterIdentityType === 4 || userData.isLogin === false
+                    "
                   >
                     <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
                     <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
@@ -200,7 +221,10 @@
             <div
               class="switch-btn next"
               @click="switchExhibit('ArrowRight')"
-              v-if="listData.length && exhibitInfo?.exhibitId !== listData[listData.length - 1].exhibitId"
+              v-if="
+                listData.length &&
+                exhibitInfo?.exhibitId !== listData[listData.length - 1].exhibitId
+              "
             >
               <i class="freelog fl-icon-zhankaigengduo"></i>
             </div>
@@ -250,14 +274,15 @@ export default {
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
     "my-frame": defineAsyncComponent(() => import("../components/frame.vue")),
     "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
-    "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
+    "my-footer": defineAsyncComponent(() => import("../components/footer.vue"))
   },
 
   setup(props: { id: string }, context: SetupContext) {
     const store = useStore();
     const { route, query, switchPage } = useMyRouter();
     const datasOfGetList = useGetList();
-    const { listNumber, waterfall, waterfallList, getListNumber, initWaterfall, setWaterFall } = useMyWaterfall();
+    const { listNumber, waterfall, waterfallList, getListNumber, initWaterfall, setWaterFall } =
+      useMyWaterfall();
     const scrollArea = ref<any>(null);
     const contentArea = ref<any>(null);
 
@@ -271,7 +296,7 @@ export default {
       recommendShow: false,
       shareShow: false,
       href: "",
-      shareWidget: null as WidgetController | null,
+      shareWidget: null as WidgetController | null
     });
 
     const methods = {
@@ -291,7 +316,9 @@ export default {
 
       /** 切换图片 */
       switchExhibit(type: string) {
-        const currentIndex = store.state.listData.findIndex((item: ExhibitItem) => item.exhibitId === data.currentId);
+        const currentIndex = store.state.listData.findIndex(
+          (item: ExhibitItem) => item.exhibitId === data.currentId
+        );
         if (type === "ArrowLeft" && currentIndex !== 0)
           data.currentId = store.state.listData[currentIndex - 1].exhibitId;
         if (type === "ArrowRight" && currentIndex !== store.state.listData.length - 1)
@@ -331,7 +358,7 @@ export default {
       /** 控制分享弹窗显示 */
       setShareWidgetShow(value: boolean) {
         data.shareWidget?.setData({ show: value });
-      },
+      }
     };
 
     /** 快捷键 */
@@ -348,7 +375,7 @@ export default {
 
       const [exhibitInfo, statusInfo] = await Promise.all([
         freelogApp.getExhibitInfo(data.currentId, { isLoadVersionProperty: 1 }),
-        freelogApp.getExhibitAuthStatus(data.currentId),
+        freelogApp.getExhibitAuthStatus(data.currentId)
       ]);
       const { defaulterIdentityType = -1 } = statusInfo.data.data[0];
 
@@ -429,7 +456,11 @@ export default {
     const waterfallResize = () => {
       getListNumber();
       initWaterfall();
-      setWaterFall(datasOfGetList.listData.value.filter((item) => item.exhibitId !== data.currentId) as ExhibitItem[]);
+      setWaterFall(
+        datasOfGetList.listData.value.filter(
+          item => item.exhibitId !== data.currentId
+        ) as ExhibitItem[]
+      );
       data.recommendShow = datasOfGetList.listData.value.length !== 0;
     };
 
@@ -455,7 +486,7 @@ export default {
       if (data.shareWidget) await data.shareWidget.unmount();
 
       const subDeps = await freelogApp.getSelfDependencyTree();
-      const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-展品分享");
+      const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-展品分享");
       if (!widgetData) return;
 
       const { articleId, parentNid, nid } = widgetData;
@@ -469,8 +500,8 @@ export default {
         topExhibitId,
         container,
         renderWidgetOptions: {
-          data: { exhibit: data.exhibitInfo, type, routerType: "detail" },
-        },
+          data: { exhibit: data.exhibitInfo, type, routerType: "detail" }
+        }
         // widget_entry: "https://localhost:8201",
       };
       data.shareWidget = await freelogApp.mountArticleWidget(params);
@@ -478,14 +509,14 @@ export default {
 
     watch(
       () => props.id,
-      (cur) => {
+      cur => {
         data.currentId = cur;
       }
     );
 
     watch(
       () => query.value.id,
-      (cur) => {
+      cur => {
         data.currentId = cur;
       },
       { immediate: true }
@@ -493,7 +524,7 @@ export default {
 
     watch(
       () => data.currentId,
-      (cur) => {
+      cur => {
         if (cur) {
           data.exhibitInfo = null;
           data.content = "";
@@ -547,7 +578,8 @@ export default {
             cur[i].height = height < minHeight ? minHeight : height;
             num++;
 
-            if (num === cur.length) setWaterFall(cur.filter((item: ExhibitItem) => item.exhibitId !== data.currentId));
+            if (num === cur.length)
+              setWaterFall(cur.filter((item: ExhibitItem) => item.exhibitId !== data.currentId));
           };
         }
         data.recommendShow = cur.length > 1;
@@ -568,9 +600,9 @@ export default {
       ...toRefs(data),
       ...methods,
       scrollArea,
-      contentArea,
+      contentArea
     };
-  },
+  }
 };
 </script>
 
