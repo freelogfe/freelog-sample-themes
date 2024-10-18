@@ -134,7 +134,7 @@
             </div>
           </div>
 
-          <div className="tip no-more">— 已加载全部章节 —</div>
+          <div className="tip no-more" v-if="listData.length === total">— 已加载全部章节 —</div>
         </div>
 
         <div v-else class="comic-catalogue">
@@ -281,7 +281,7 @@
               </div>
             </div>
 
-            <div className="tip no-more">— 已加载全部章节 —</div>
+            <div className="tip no-more" v-if="listData.length === total">— 已加载全部章节 —</div>
           </div>
 
           <div v-else class="comic-catalogue">
@@ -439,11 +439,11 @@ export default {
       let { total, listData, skip } = collectionData;
 
       if (!init && listData.length >= total) return;
-      skip = init ? 0 : collectionData.skip + 30;
+      skip = init ? 0 : collectionData.skip + 50;
 
       const subList = await (freelogApp as any).getCollectionSubList(id, {
         skip,
-        limit: 30
+        limit: 50
       });
       const { dataList, totalItem } = subList.data.data;
       collectionData.total = totalItem;
