@@ -427,32 +427,43 @@ const ReaderBody = () => {
           } as any
         }
       >
-        {defaulterIdentityType === 0 && (
+        {book.articleInfo?.status === 1 ? (
           <React.Fragment>
-            <div id="markdown" />
-            {collection && currentSortId === total && (
-              <div className="no-more">— 已加载全部章节 —</div>
+            {defaulterIdentityType === 0 && (
+              <React.Fragment>
+                <div id="markdown" />
+                {collection && currentSortId === total && (
+                  <div className="no-more">— 已加载全部章节 —</div>
+                )}
+              </React.Fragment>
             )}
+            {![null, 0, 4].includes(defaulterIdentityType) ? (
+              <div className="auth-box">
+                <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
+                <div className="auth-link-tip">授权链异常，无法查看</div>
+                <div className="home-btn" onClick={() => history.switchPage("/home")}>
+                  进入首页
+                </div>
+              </div>
+            ) : defaulterIdentityType &&
+              (defaulterIdentityType === 4 || userData?.isLogin === false) ? (
+              <div className="lock-box">
+                <img className="lock" src={Lock} alt="未授权" />
+                <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+                <div className="get-btn" onClick={() => getAuth()}>
+                  获得授权
+                </div>
+              </div>
+            ) : null}
           </React.Fragment>
+        ) : (
+          <div className="freeze-exhibit">
+            <div className="icon">
+              <i className="freelog fl-icon-ziyuanweiguitishi_wendang freeze"></i>
+            </div>
+          </div>
         )}
-        {![null, 0, 4].includes(defaulterIdentityType) ? (
-          <div className="auth-box">
-            <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
-            <div className="auth-link-tip">授权链异常，无法查看</div>
-            <div className="home-btn" onClick={() => history.switchPage("/home")}>
-              进入首页
-            </div>
-          </div>
-        ) : defaulterIdentityType &&
-          (defaulterIdentityType === 4 || userData?.isLogin === false) ? (
-          <div className="lock-box">
-            <img className="lock" src={Lock} alt="未授权" />
-            <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-            <div className="get-btn" onClick={() => getAuth()}>
-              获得授权
-            </div>
-          </div>
-        ) : null}
+
         {currentSortId === total && (
           <div className={`recommend-wrap ${theme?.type === 1 ? "dark" : "light"}`}>
             {/* 合集-上一章节-下一章节 */}
@@ -504,32 +515,42 @@ const ReaderBody = () => {
             } as any
           }
         >
-          {defaulterIdentityType === 0 && (
+          {book.articleInfo?.status === 1 ? (
             <React.Fragment>
-              <div id="markdown" />
-              {collection && currentSortId === total && (
-                <div className="no-more">— 已加载全部章节 —</div>
+              {defaulterIdentityType === 0 && (
+                <React.Fragment>
+                  <div id="markdown" />
+                  {collection && currentSortId === total && (
+                    <div className="no-more">— 已加载全部章节 —</div>
+                  )}
+                </React.Fragment>
               )}
+              {![null, 0, 4].includes(defaulterIdentityType) ? (
+                <div className="auth-box">
+                  <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
+                  <div className="auth-link-tip">授权链异常，无法查看</div>
+                  <div className="home-btn" onClick={() => history.switchPage("/home")}>
+                    进入首页
+                  </div>
+                </div>
+              ) : defaulterIdentityType &&
+                (defaulterIdentityType === 4 || userData?.isLogin === false) ? (
+                <div className="lock-box">
+                  <img className="lock" src={Lock} alt="未授权" />
+                  <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+                  <div className="get-btn" onClick={() => getAuth()}>
+                    获得授权
+                  </div>
+                </div>
+              ) : null}
             </React.Fragment>
+          ) : (
+            <div className="freeze-exhibit">
+              <div className="icon">
+                <i className="freelog fl-icon-ziyuanweiguitishi_wendang freeze"></i>
+              </div>
+            </div>
           )}
-          {![null, 0, 4].includes(defaulterIdentityType) ? (
-            <div className="auth-box">
-              <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
-              <div className="auth-link-tip">授权链异常，无法查看</div>
-              <div className="home-btn" onClick={() => history.switchPage("/home")}>
-                进入首页
-              </div>
-            </div>
-          ) : defaulterIdentityType &&
-            (defaulterIdentityType === 4 || userData?.isLogin === false) ? (
-            <div className="lock-box">
-              <img className="lock" src={Lock} alt="未授权" />
-              <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-              <div className="get-btn" onClick={() => getAuth()}>
-                获得授权
-              </div>
-            </div>
-          ) : null}
         </div>
         <div className={`recommend-wrap ${theme?.type === 1 ? "dark" : "light"}`}>
           {currentSortId === total && (

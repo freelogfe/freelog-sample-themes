@@ -61,7 +61,11 @@ export const HomeScreen = (props: any) => {
           });
         }
       }
-      setNovelList(pre => (init ? dataList : [...pre, ...dataList]));
+      setNovelList(pre =>
+        init
+          ? dataList.filter((i: any) => i.articleInfo?.status !== 2)
+          : [...pre, ...dataList].filter((i: any) => i.articleInfo?.status !== 2)
+      );
       setTotal(totalItem);
       if (init) setLoading(false);
       setMyloading(false);

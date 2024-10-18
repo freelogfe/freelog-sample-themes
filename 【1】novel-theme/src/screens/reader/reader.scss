@@ -126,6 +126,18 @@
       }
     }
 
+    .freeze-exhibit {
+      .icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        .freeze {
+          font-size: 164px;
+          opacity: 0.4;
+        }
+      }
+    }
+
     //  合集-上一章节-下一章节
     .recommend-wrap {
       &.dark {
@@ -323,6 +335,18 @@
 
           &:active {
             background-color: #2376e5;
+          }
+        }
+      }
+
+      .freeze-exhibit {
+        .icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          .freeze {
+            font-size: 164px;
+            opacity: 0.4;
           }
         }
       }
