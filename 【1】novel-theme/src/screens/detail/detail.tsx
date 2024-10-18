@@ -35,11 +35,11 @@ export const DetailScreen = (props: any) => {
           return;
         }
 
-        skip.current = init ? 0 : skip.current + 30;
+        skip.current = init ? 0 : skip.current + 50;
 
         const subList = await (freelogApp as any).getCollectionSubList(id, {
           skip: skip.current,
-          limit: 30
+          limit: 50
         });
         const { dataList, totalItem } = subList.data.data;
         setTotal(totalItem);
