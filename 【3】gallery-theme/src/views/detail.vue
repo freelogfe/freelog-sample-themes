@@ -12,38 +12,47 @@
       }"
     >
       <my-loader v-if="loading" />
-
       <transition-group name="content-fade">
-        <template v-if="!loading">
-          <template v-if="exhibitInfo?.defaulterIdentityType === 0">
-            <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')" />
-            <video
-              :src="content"
-              controls
-              muted
-              autoplay
-              webkit-playsinline
-              playsinline
-              v-else-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
-            ></video>
-          </template>
+        <template v-if="exhibitInfo?.articleInfo?.status === 1">
+          <template v-if="!loading">
+            <template v-if="exhibitInfo?.defaulterIdentityType === 0">
+              <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')" />
+              <video
+                :src="content"
+                controls
+                muted
+                autoplay
+                webkit-playsinline
+                playsinline
+                v-else-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
+              ></video>
+            </template>
 
-          <template v-else-if="exhibitInfo?.defaulterIdentityType">
-            <div class="auth-box" v-if="![0, 4].includes(exhibitInfo?.defaulterIdentityType)">
-              <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-              <div class="auth-link-tip">授权链异常，无法查看</div>
-              <div class="home-btn" @click="switchPage('/home')">进入首页</div>
-            </div>
+            <template v-else-if="exhibitInfo?.defaulterIdentityType">
+              <div class="auth-box" v-if="![0, 4].includes(exhibitInfo?.defaulterIdentityType)">
+                <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+                <div class="auth-link-tip">授权链异常，无法查看</div>
+                <div class="home-btn" @click="switchPage('/home')">进入首页</div>
+              </div>
 
-            <div
-              class="lock-box"
-              v-else-if="exhibitInfo?.defaulterIdentityType === 4 || userData.isLogin === false"
-            >
-              <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
-              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-              <div class="get-btn" @click="getAuth()">获取授权</div>
-            </div>
+              <div
+                class="lock-box"
+                v-else-if="exhibitInfo?.defaulterIdentityType === 4 || userData.isLogin === false"
+              >
+                <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
+                <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+                <div class="get-btn" @click="getAuth()">获取授权</div>
+              </div>
+            </template>
           </template>
+        </template>
+
+        <template v-else>
+          <div class="freeze-exhibit">
+            <div class="icon">
+              <i class="freelog fl-icon-ziyuanweiguitishi_tuku freeze"></i>
+            </div>
+          </div>
         </template>
       </transition-group>
 
@@ -167,45 +176,61 @@
 
             <transition-group name="content-fade">
               <template v-if="!loading">
-                <template v-if="exhibitInfo?.defaulterIdentityType === 0 && contentMode">
-                  <img
-                    :class="{
-                      'width-full': contentMode === 1,
-                      'height-full': contentMode === 2
-                    }"
-                    :src="content"
-                    oncontextmenu="return false"
-                    v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')"
-                  />
-                  <video
-                    :class="{
-                      'width-full': contentMode === 1,
-                      'height-full': contentMode === 2
-                    }"
-                    :src="content"
-                    controls
-                    controlslist="nodownload"
-                    oncontextmenu="return false"
-                    v-else-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
-                  ></video>
+                <template v-if="exhibitInfo?.articleInfo?.status === 1">
+                  <template v-if="exhibitInfo?.defaulterIdentityType === 0 && contentMode">
+                    <img
+                      :class="{
+                        'width-full': contentMode === 1,
+                        'height-full': contentMode === 2
+                      }"
+                      :src="content"
+                      oncontextmenu="return false"
+                      v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')"
+                    />
+                    <video
+                      :class="{
+                        'width-full': contentMode === 1,
+                        'height-full': contentMode === 2
+                      }"
+                      :src="content"
+                      controls
+                      controlslist="nodownload"
+                      oncontextmenu="return false"
+                      v-else-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
+                    ></video>
+                  </template>
+
+                  <template v-else-if="exhibitInfo?.defaulterIdentityType">
+                    <div
+                      class="auth-box"
+                      v-if="![0, 4].includes(exhibitInfo?.defaulterIdentityType)"
+                    >
+                      <img
+                        class="auth-link-abnormal"
+                        src="../assets/images/auth-link-abnormal.png"
+                      />
+                      <div class="auth-link-tip">授权链异常，无法查看</div>
+                      <div class="home-btn" @click="closePopup()">进入首页</div>
+                    </div>
+
+                    <div
+                      class="lock-box"
+                      v-else-if="
+                        exhibitInfo?.defaulterIdentityType === 4 || userData.isLogin === false
+                      "
+                    >
+                      <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
+                      <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+                      <div class="get-btn" @click="getAuth()">获取授权</div>
+                    </div>
+                  </template>
                 </template>
 
-                <template v-else-if="exhibitInfo?.defaulterIdentityType">
-                  <div class="auth-box" v-if="![0, 4].includes(exhibitInfo?.defaulterIdentityType)">
-                    <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-                    <div class="auth-link-tip">授权链异常，无法查看</div>
-                    <div class="home-btn" @click="closePopup()">进入首页</div>
-                  </div>
-
-                  <div
-                    class="lock-box"
-                    v-else-if="
-                      exhibitInfo?.defaulterIdentityType === 4 || userData.isLogin === false
-                    "
-                  >
-                    <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
-                    <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-                    <div class="get-btn" @click="getAuth()">获取授权</div>
+                <template v-else>
+                  <div class="freeze-exhibit">
+                    <div class="icon">
+                      <i class="freelog fl-icon-ziyuanweiguitishi_tuku freeze"></i>
+                    </div>
                   </div>
                 </template>
               </template>
@@ -407,6 +432,10 @@ export default {
             data.content = info;
             data.loading = false;
           };
+          img.onerror = event => {
+            console.log(event);
+            data.loading = false;
+          };
         } else if (resourceType.includes("视频")) {
           const video: HTMLVideoElement = document.createElement("video");
           video.src = info;
@@ -422,6 +451,10 @@ export default {
           video.onloadeddata = ready;
           // onloadeddata 在 ios 不触发，onprogress 为了解决 ios 无法播放视频问题
           video.onprogress = ready;
+          video.onerror = event => {
+            console.log(event);
+            data.loading = false;
+          };
         }
       } else if (defaulterIdentityType === 4) {
         // 未签约并且授权链无异常

@@ -144,6 +144,15 @@
         right: 15px;
       }
     }
+
+    .freeze-exhibit {
+      .icon {
+        .freeze {
+          font-size: 158px;
+          opacity: 0.4;
+        }
+      }
+    }
   }
 
   .other-area {
@@ -588,6 +597,15 @@
 
         &.next {
           right: 15px;
+        }
+      }
+
+      .freeze-exhibit {
+        .icon {
+          .freeze {
+            font-size: 164px;
+            opacity: 0.4;
+          }
         }
       }
 
