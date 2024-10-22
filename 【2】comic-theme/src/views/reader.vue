@@ -37,27 +37,27 @@
                 >
                   <div
                     v-if="
-                      currentSortID === collectionTotal &&
-                      recommendList.length &&
+                      (currentSortID === collectionTotal || !query.subId) &&
                       item.name === 'RecommendFakeUrl'
                     "
                     class="paging-recommend-box"
                   >
                     <div class="no-more">— 已加载全部内容 —</div>
-
-                    <p class="more">更多漫画</p>
-                    <div class="recommend-item-wrap">
-                      <div
-                        class="recommend-item"
-                        v-for="item in recommendList.slice(0, 6)"
-                        :key="item.exhibitId"
-                        @click="toDetailFromRecommend(item.exhibitId)"
-                      >
-                        <div class="cover-image">
-                          <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                    <div v-if="recommendList.length">
+                      <p class="more">更多漫画</p>
+                      <div class="recommend-item-wrap">
+                        <div
+                          class="recommend-item"
+                          v-for="item in recommendList.slice(0, 6)"
+                          :key="item.exhibitId"
+                          @click="toDetailFromRecommend(item.exhibitId)"
+                        >
+                          <div class="cover-image">
+                            <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                          </div>
+                          <span class="title">{{ item.exhibitTitle }}</span>
+                          <span class="name">{{ item.articleInfo?.articleOwnerName }}</span>
                         </div>
-                        <span class="title">{{ item.exhibitTitle }}</span>
-                        <span class="name">{{ item.articleInfo?.articleOwnerName }}</span>
                       </div>
                     </div>
                   </div>
@@ -76,24 +76,26 @@
                 :key="item.name"
               />
               <div
-                v-if="currentSortID === collectionTotal && recommendList.length"
+                v-if="currentSortID === collectionTotal || !query.subId"
                 class="scroll-recommend-box"
               >
                 <div class="no-more">— 已加载全部内容 —</div>
 
-                <p class="more">更多漫画</p>
-                <div class="recommend-item-wrap">
-                  <div
-                    class="recommend-item"
-                    v-for="item in recommendList.slice(0, 6)"
-                    :key="item.exhibitId"
-                    @click="toDetailFromRecommend(item.exhibitId)"
-                  >
-                    <div class="cover-image">
-                      <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                <div v-if="recommendList.length">
+                  <p class="more">更多漫画</p>
+                  <div class="recommend-item-wrap">
+                    <div
+                      class="recommend-item"
+                      v-for="item in recommendList.slice(0, 6)"
+                      :key="item.exhibitId"
+                      @click="toDetailFromRecommend(item.exhibitId)"
+                    >
+                      <div class="cover-image">
+                        <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                      </div>
+                      <span class="title">{{ item.exhibitTitle }}</span>
+                      <span class="name">{{ item.articleInfo?.articleOwnerName }}</span>
                     </div>
-                    <span class="title">{{ item.exhibitTitle }}</span>
-                    <span class="name">{{ item.articleInfo?.articleOwnerName }}</span>
                   </div>
                 </div>
               </div>
@@ -233,34 +235,33 @@
                     (contentImgList.length === 1 && amend))
                 "
               >
-                <div
-                  v-if="currentSortID === collectionTotal && recommendList.length"
-                  class="recommend-box"
-                >
+                <div v-if="currentSortID === collectionTotal || !query.subId" class="recommend-box">
                   <div class="no-more">— 已加载全部内容 —</div>
-                  <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">
-                    更多漫画
-                  </p>
-                  <div
-                    class="recommend-item"
-                    v-for="item in recommendList.slice(0, 4)"
-                    :key="item.exhibitId"
-                    @click="toDetailFromRecommend(item.exhibitId)"
-                  >
-                    <div class="cover-image">
-                      <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
-                    </div>
-                    <div class="recommend-info">
-                      <span class="name">{{ item.exhibitTitle }}</span>
-                      <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
-                      <div class="tags-wrap">
-                        <div
-                          class="tag"
-                          v-for="(tag, index) in item.tags"
-                          :key="index"
-                          @click.stop="searchTag(tag)"
-                        >
-                          {{ tag }}
+                  <div v-if="recommendList.length">
+                    <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">
+                      更多漫画
+                    </p>
+                    <div
+                      class="recommend-item"
+                      v-for="item in recommendList.slice(0, 4)"
+                      :key="item.exhibitId"
+                      @click="toDetailFromRecommend(item.exhibitId)"
+                    >
+                      <div class="cover-image">
+                        <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                      </div>
+                      <div class="recommend-info">
+                        <span class="name">{{ item.exhibitTitle }}</span>
+                        <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
+                        <div class="tags-wrap">
+                          <div
+                            class="tag"
+                            v-for="(tag, index) in item.tags"
+                            :key="index"
+                            @click.stop="searchTag(tag)"
+                          >
+                            {{ tag }}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -292,34 +293,35 @@
                   v-if="
                     !nextUrl &&
                     mode[1] === 'single' &&
-                    currentSortID === collectionTotal &&
-                    recommendList.length
+                    (currentSortID === collectionTotal || !query.subId)
                   "
                   class="recommend-box"
                 >
                   <div class="no-more">— 已加载全部内容 —</div>
-                  <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">
-                    更多漫画
-                  </p>
-                  <div
-                    class="recommend-item"
-                    v-for="item in recommendList.slice(0, 4)"
-                    :key="item.exhibitId"
-                  >
-                    <div class="cover-image">
-                      <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
-                    </div>
-                    <div class="recommend-info">
-                      <span class="name">{{ item.exhibitTitle }}</span>
-                      <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
-                      <div class="tags-wrap">
-                        <div
-                          class="tag"
-                          v-for="(tag, index) in item.tags"
-                          :key="index"
-                          @click.stop="searchTag(tag)"
-                        >
-                          {{ tag }}
+                  <div v-if="recommendList.length">
+                    <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">
+                      更多漫画
+                    </p>
+                    <div
+                      class="recommend-item"
+                      v-for="item in recommendList.slice(0, 4)"
+                      :key="item.exhibitId"
+                    >
+                      <div class="cover-image">
+                        <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                      </div>
+                      <div class="recommend-info">
+                        <span class="name">{{ item.exhibitTitle }}</span>
+                        <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
+                        <div class="tags-wrap">
+                          <div
+                            class="tag"
+                            v-for="(tag, index) in item.tags"
+                            :key="index"
+                            @click.stop="searchTag(tag)"
+                          >
+                            {{ tag }}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -349,34 +351,33 @@
                     (contentImgList.length === 1 && amend))
                 "
               >
-                <div
-                  v-if="currentSortID === collectionTotal && recommendList.length"
-                  class="recommend-box"
-                >
+                <div v-if="currentSortID === collectionTotal || !query.subId" class="recommend-box">
                   <div class="no-more">— 已加载全部内容 —</div>
-                  <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">
-                    更多漫画
-                  </p>
-                  <div
-                    class="recommend-item"
-                    v-for="item in recommendList.slice(0, 4)"
-                    :key="item.exhibitId"
-                    @click="toDetailFromRecommend(item.exhibitId)"
-                  >
-                    <div class="cover-image">
-                      <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
-                    </div>
-                    <div class="recommend-info">
-                      <span class="name">{{ item.exhibitTitle }}</span>
-                      <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
-                      <div class="tags-wrap">
-                        <div
-                          class="tag"
-                          v-for="(tag, index) in item.tags"
-                          :key="index"
-                          @click.stop="searchTag(tag)"
-                        >
-                          {{ tag }}
+                  <div v-if="recommendList.length">
+                    <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">
+                      更多漫画
+                    </p>
+                    <div
+                      class="recommend-item"
+                      v-for="item in recommendList.slice(0, 4)"
+                      :key="item.exhibitId"
+                      @click="toDetailFromRecommend(item.exhibitId)"
+                    >
+                      <div class="cover-image">
+                        <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                      </div>
+                      <div class="recommend-info">
+                        <span class="name">{{ item.exhibitTitle }}</span>
+                        <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
+                        <div class="tags-wrap">
+                          <div
+                            class="tag"
+                            v-for="(tag, index) in item.tags"
+                            :key="index"
+                            @click.stop="searchTag(tag)"
+                          >
+                            {{ tag }}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -423,36 +424,38 @@
                 :key="item.name"
               />
               <div
-                v-if="currentSortID === collectionTotal && recommendList.length"
+                v-if="currentSortID === collectionTotal || !query.subId"
                 class="pc-scroll-recommend-box"
                 :class="theme"
               >
                 <div class="pc-scroll-recommend">
                   <div class="no-more">— 已加载全部内容 —</div>
-                  <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">
-                    更多漫画
-                  </p>
-                  <div class="recommend-item-wrap">
-                    <div
-                      class="recommend-item"
-                      v-for="item in recommendList.slice(0, 9)"
-                      :key="item.exhibitId"
-                      @click="toDetailFromRecommend(item.exhibitId)"
-                    >
-                      <div class="cover-image">
-                        <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
-                      </div>
-                      <div class="recommend-info">
-                        <span class="name">{{ item.exhibitTitle }}</span>
-                        <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
-                        <div class="tags-wrap">
-                          <div
-                            class="tag"
-                            v-for="(tag, index) in item.tags"
-                            :key="index"
-                            @click.stop="searchTag(tag)"
-                          >
-                            {{ tag }}
+                  <div v-if="recommendList.length">
+                    <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">
+                      更多漫画
+                    </p>
+                    <div class="recommend-item-wrap">
+                      <div
+                        class="recommend-item"
+                        v-for="item in recommendList.slice(0, 9)"
+                        :key="item.exhibitId"
+                        @click="toDetailFromRecommend(item.exhibitId)"
+                      >
+                        <div class="cover-image">
+                          <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                        </div>
+                        <div class="recommend-info">
+                          <span class="name">{{ item.exhibitTitle }}</span>
+                          <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
+                          <div class="tags-wrap">
+                            <div
+                              class="tag"
+                              v-for="(tag, index) in item.tags"
+                              :key="index"
+                              @click.stop="searchTag(tag)"
+                            >
+                              {{ tag }}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -1353,7 +1356,7 @@ export default {
         // 普通模式下（从左向右）
         data.mobilePagingList = [
           ...data.contentImgList,
-          ...(data.recommendList.length && currentSortID.value === data.collectionTotal
+          ...(data.recommendList.length && (currentSortID.value === data.collectionTotal || !subId)
             ? [{ name: "RecommendFakeUrl", size: 0, url: "RecommendFakeUrl", width: 0, height: 0 }]
             : [])
         ];
@@ -1363,7 +1366,7 @@ export default {
         // 日漫模式下（从右向左）
         data.mobilePagingList = [
           ...data.contentImgList,
-          ...(data.recommendList.length && currentSortID.value === data.collectionTotal
+          ...(data.recommendList.length && (currentSortID.value === data.collectionTotal || !subId)
             ? [{ name: "RecommendFakeUrl", size: 0, url: "RecommendFakeUrl", width: 0, height: 0 }]
             : [])
         ].reverse();
