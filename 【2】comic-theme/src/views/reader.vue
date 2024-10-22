@@ -1329,6 +1329,9 @@ export default {
         // 页漫/日漫时，自动选择翻页模式（如本地有记录翻页模式的选择，优先取本地记录的模式）
         // const comicReadMode = localStorage.getItem("comicReadMode");
         if (comicReadMode) data.mode = comicReadMode;
+        if (comicReadMode[0] === "scroll") {
+          methods.getPointInScroll();
+        }
         // 移动端翻页模式下处理图片顺序
         if (store.state.inMobile) dealListInPagingMobile();
       }
