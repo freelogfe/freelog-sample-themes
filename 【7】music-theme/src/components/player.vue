@@ -472,7 +472,7 @@ export default {
       startTouchX: 0,
       touchMoveX: 0,
       closeTimer: null,
-      modes: ["NORMAL", "RANDOM"], // 播放模式列表
+      modes: ["NORMAL", "REPEAT-ALL", "REPEAT-ONE", "RANDOM"], // 播放模式列表
       currentModeIndex: 0, // 当前模式索引
       currentRandomIndex: 0, // 当前随机播放索引
       shuffledList: [], // 随机播放列表
@@ -526,7 +526,7 @@ export default {
 
         if (this.playList && this.store.inMobile) {
           const index = this.playList.findIndex(
-            item => item.exhibitId === this.playingInfo.exhibitId
+            item => item.exhibitId === this.playingInfo?.exhibitId
           );
           this.touchMoveX = -this.infoAreaWidth * index;
         }
@@ -630,7 +630,14 @@ export default {
       return [
         {
           name: "mode",
-          icon: this.currentPlayMode === "NORMAL" ? "fl-icon-shunxubofang" : "fl-icon-suijibofang1",
+          icon:
+            this.currentPlayMode === "NORMAL"
+              ? "fl-icon-shunxubofang"
+              : this.currentPlayMode === "RANDOM"
+              ? "fl-icon-suijibofang1"
+              : this.currentPlayMode === "REPEAT-ONE"
+              ? "fl-icon-liebiaoxunhuanbeifen"
+              : "fl-icon-liebiaoxunhuan",
           operate: () => {
             this.changePlayMode();
           }
@@ -665,7 +672,14 @@ export default {
       return [
         {
           name: "mode",
-          icon: this.currentPlayMode === "NORMAL" ? "fl-icon-shunxubofang" : "fl-icon-suijibofang1",
+          icon:
+            this.currentPlayMode === "NORMAL"
+              ? "fl-icon-shunxubofang"
+              : this.currentPlayMode === "RANDOM"
+              ? "fl-icon-suijibofang1"
+              : this.currentPlayMode === "REPEAT-ONE"
+              ? "fl-icon-liebiaoxunhuanbeifen"
+              : "fl-icon-liebiaoxunhuan",
           operate: () => {
             this.changePlayMode();
           }
@@ -742,7 +756,7 @@ export default {
 
     /** 上一首 */
     preVoice(data) {
-      if (this.currentPlayMode === "NORMAL") {
+      if (["NORMAL", "REPEAT-ALL", "REPEAT-ONE"].includes(this.currentPlayMode)) {
         useMyPlay.preVoice();
       } else {
         this.currentRandomIndex = this.currentRandomIndex - 1;
@@ -756,7 +770,7 @@ export default {
 
     /** 下一首 */
     nextVoice(data, type) {
-      if (this.currentPlayMode === "NORMAL") {
+      if (["NORMAL", "REPEAT-ALL", "REPEAT-ONE"].includes(this.currentPlayMode)) {
         useMyPlay.nextVoice();
       } else {
         if (type === "AUTO") {
@@ -802,6 +816,13 @@ export default {
         }
 
         this.nextVoice();
+      } else if (this.currentPlayMode === "REPEAT-ALL") {
+        this.nextVoice();
+      } else if (this.currentPlayMode === "REPEAT-ONE") {
+        const tempData = this.playingInfo;
+        await this.store.setData({ key: "progress", value: 0 });
+        await this.store.setData({ key: "playingInfo", value: null });
+        useMyPlay.playOrPause(tempData);
       } else {
         this.currentRandomIndex = this.currentRandomIndex + 1;
         // 重置当前随机播放索引

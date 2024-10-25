@@ -666,7 +666,7 @@ export const useMyPlay = {
       : `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ""}`;
     const index = playList.findIndex(item => `${item.exhibitId}${item.itemId ?? ""}` === id);
 
-    if (playMode === "NORMAL") {
+    if (["NORMAL", "REPEAT-ALL", "REPEAT-ONE"].includes(playMode)) {
       if (index === 0) {
         preVoiceInfo = playList[playList.length - 1];
       } else {
@@ -689,7 +689,7 @@ export const useMyPlay = {
       : `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ""}`;
     const index = playList.findIndex(item => `${item.exhibitId}${item.itemId ?? ""}` === id);
 
-    if (playMode === "NORMAL") {
+    if (["NORMAL", "REPEAT-ALL", "REPEAT-ONE"].includes(playMode)) {
       if (index === playList.length - 1) {
         nextVoiceInfo = playList[0];
       } else {
