@@ -91,12 +91,12 @@
 
             <template v-else>
               <div class="markdown-area" v-if="articleData?.defaulterIdentityType === 0">
-                <div class="markdown-wrapper">
+                <div class="markdown-wrapper" :class="{ 'withoutCategory': directoryList.length === 0 }">
                   <div class="divider"></div>
-                  <div id="markdown" :ref="(el) => { markdownRef = el }"></div>
+                  <div id="markdown"></div>
                 </div>
 
-                <div class="category-wrapper">
+                <div class="category-wrapper" v-if="directoryList.length">
                   <div class="divider"></div>
                   <div class="data">
                     <div class="title-directory-box">
@@ -239,7 +239,6 @@ export default {
     const { scrollTo } = useMyScroll();
     console.log("query", query.value);
     
-    const markdownRef = ref(null) as any
     const data = reactive({
       contentLoading: false,
       articleData: null as ExhibitItem | null,
@@ -252,8 +251,7 @@ export default {
       timeId: 0,
       directoryList: [] as Array<any>,
       currentTitle: null as any,
-      currentIndex: -1,
-      clickAction: false
+      currentIndex: -1
     });
 
     const authLinkAbnormal = computed(() => {
@@ -296,25 +294,20 @@ export default {
 
       /** 跳到标题位置 */
       jumpToTitle(title: string, index: number) {
-        markdownRef.value && markdownRef.value.removeEventListener('scroll', methods.handleScroll)
+        document.getElementById("app")!.removeEventListener('scroll', methods.handleScroll)
         data.currentTitle = title
         data.currentIndex = index   
         const el: any = data.directoryList[index]
         if (!el) return;
-        scrollTo(800)
-        const markdownApp = document.getElementById("markdown")
-        markdownApp!.scrollTo({
-          top: el.offsetTop,
-          behavior: "smooth"
-        });
+
+        scrollTo(el.offsetTop + 85)
         setTimeout(() => {
-          markdownRef.value && markdownRef.value.addEventListener('scroll', methods.handleScroll)
+          document.getElementById("app")!.addEventListener('scroll', methods.handleScroll)
         }, 1000)
       },
 
       /** 处理滚动 */
       handleScroll(e: any) {
-        if (data.clickAction) return
         let target = null
         for (let index = 0; index < data.directoryList.length; index++) {
           const element = data.directoryList[index];
@@ -323,7 +316,9 @@ export default {
             target = element
           }
         }
-        data.currentTitle = target.innerText
+        if (target) {
+          data.currentTitle = target.innerText
+        }
       }
     };
 
@@ -453,7 +448,8 @@ export default {
         },
         // widget_entry: "https://localhost:8202",
       };
-      data.markdownWidget = await freelogApp.mountArticleWidget(params);      
+      data.markdownWidget = await freelogApp.mountArticleWidget(params); 
+      document.getElementById("app")!.addEventListener('scroll', methods.handleScroll)     
       data.timeId = setInterval(() => {
         const articleDoms = document.querySelector('#markdown-widget-app')?.children[0] && 
           document.querySelector('#markdown-widget-app')?.children[0]?.children
@@ -478,18 +474,10 @@ export default {
       }
     );
 
-
-    watch(
-      markdownRef,
-      (cur) => {
-        markdownRef.value && markdownRef.value.addEventListener('scroll', methods.handleScroll)
-      }
-    )
-
     onBeforeUnmount(async () => {
       await data.shareWidget?.unmount();
       await data.markdownWidget?.unmount();
-      markdownRef.value && markdownRef.value.removeEventListener('scroll', methods.handleScroll)
+      document.getElementById("app")!.removeEventListener('scroll', methods.handleScroll)
     });
 
     getData();
@@ -500,7 +488,6 @@ export default {
       ...datasOfGetList,
       ...toRefs(data),
       ...methods,
-      markdownRef,
       signCount,
       relativeTime,
       authLinkAbnormal,
@@ -862,51 +849,28 @@ export default {
             width: 725px;
             margin-right: auto;
 
+            &.withoutCategory {
+              flex-grow: 1;
+            }
+
             #markdown-widget-app .markdown-wrapper {
               background-color: transparent;
             }
-            #markdown {
-              position: relative;
-              z-index: 0;
-              max-height: calc(100vh - 130px);
-              overflow: auto;
-              
-              /* 滚动条轨道样式 */
-              &::-webkit-scrollbar {
-                width: 8px; /* 设置滚动条宽度 */
-              }
-              
-              /* 滚动条滑块样式 */
-              &::-webkit-scrollbar-thumb {
-                background-color: #e4e4e4; /* 设置滑块背景颜色 */
-                border-radius: 4px; /* 设置滑块圆角 */
-              }
-              
-              /* 滚动条轨道hover状态样式 */
-              &::-webkit-scrollbar-track:hover {
-                background-color: #f1f1f1; /* 设置轨道hover状态时的背景颜色 */
-              }
-              
-              /* 滚动条滑块hover状态样式 */
-              &::-webkit-scrollbar-thumb:hover {
-                background-color: #555; /* 设置滑块hover状态时的背景颜色 */
-              }
-            }
           }
+
           .category-wrapper {
             width: 200px;
             .data {
+              height: calc(100% - 61px);
               .title-directory-box {
                 position: sticky;
-                top: 70px;
-                height: calc(100vh - 130px);
+                top: 15px;
                 box-sizing: border-box;
                 background-color: #fff;
 
                 .title-directory {
                   width: 100%;
-                  height: fit-content;
-                  max-height: 100%;
+                  max-height: calc(100vh - 45px);
                   overflow-y: auto;
 
                   &::-webkit-scrollbar {
