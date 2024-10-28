@@ -1,11 +1,13 @@
 <template>
   <div v-if="!maskLoading">
     <my-header />
-    <router-view v-slot="{ Component }">
-      <keep-alive include="home">
-        <component :is="Component" />
-      </keep-alive>
-    </router-view>
+    <div class="app-wrapper">
+      <router-view v-slot="{ Component }">
+        <keep-alive include="home">
+          <component :is="Component" />
+        </keep-alive>
+      </router-view>
+    </div>
     <my-footer />
     <theme-entrance />
     <login-btn />
@@ -46,6 +48,10 @@ export default {
 
 <style lang="scss">
 @import "@/assets/css";
+
+.app-wrapper {
+  min-height: calc(100vh - 148px);
+}
 
 .maskLoading {
   width: 100vw;

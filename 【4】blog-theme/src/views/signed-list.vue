@@ -174,7 +174,7 @@ export default {
     .content {
       min-width: 965px;
       max-width: 1600px;
-      width: 85%;
+      width: 90%;
 
       .content-header {
         width: 100%;

@@ -142,6 +142,7 @@
             <div class="recommend-title">相关推荐</div>
             <div class="text-btn" @click="switchPage('/')">更多>></div>
           </div>
+          <div class="divider"></div>
           <div class="article-list">
             <my-article-v2 :data="item" v-for="item in recommendList" :key="item.exhibitId" />
           </div>
@@ -1032,6 +1033,12 @@ export default {
     .recommend {
       margin-top: 50px;
 
+      .divider {
+        height: 1px;
+        background: rgba(0,0,0,0.1);
+        margin-top: 15px;
+      }
+
       .recommend-header {
         display: flex;
         align-items: center;
@@ -1054,7 +1061,7 @@ export default {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 40px;
-        margin-top: 15px;
+        margin-top: 40px;
 
         .article-wrapper:first-child {
           border-top: 1px solid rgba(0, 0, 0, 0.1);

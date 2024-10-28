@@ -117,7 +117,7 @@ export default {
     padding-bottom: 48px;
 
     .search-body {
-      width: 85%;
+      width: 90%;
       .title {
         margin-top: 30px;
         font-weight: 600;
