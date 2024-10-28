@@ -94,8 +94,8 @@
           <div class="info">{{ formatDate(data.createDate) }}</div>
           <div class="divider"></div>
           <div class="info">{{ data.signCount || 0 }}人已签约</div>
-          <div class="tags">
-            <tags :tags="data.tags" />
+          <div class="tags" v-if="data?.tags?.length">
+            <tags :tags="data?.tags" />
           </div>
         </div>
       </div>
@@ -105,7 +105,7 @@
 
 <script lang="ts">
 import { formatDate } from "@/utils/common";
-import { defineAsyncComponent, toRefs } from "vue";
+import { defineAsyncComponent, computed } from "vue";
 import { useMyRouter } from "@/utils/hooks";
 import { useStore } from "vuex";
 import { ExhibitItem } from "../api/interface";
@@ -124,6 +124,14 @@ export default {
     const store = useStore();
     const { switchPage } = useMyRouter();
 
+    const inMobile = computed(() => {
+      return store.state.inMobile
+    })
+
+    const selfConfig = computed(() => {
+      return store.state.selfConfig
+    })
+
     /** 点击文章组件 */
     const clickArticle = () => {
       const { exhibitId, defaulterIdentityType = -1 } = props.data;
@@ -137,9 +145,10 @@ export default {
     };
 
     return {
-      ...toRefs(store.state),
+      inMobile,
       clickArticle,
       formatDate,
+      selfConfig
     };
   },
 };

@@ -109,7 +109,7 @@ export default {
         identity = "detail"
         params = { exhibitId }
       }
-      console.log(`initShare; identity=${identity}; exhibitId=${exhibitId}; itemId=${itemId};`);
+      // console.log(`initShare; identity=${identity}; exhibitId=${exhibitId}; itemId=${itemId};`);
       const url = freelogApp.getShareUrl(params, identity);
       this.href = url; 
       this.shareText = `我在freelog发现一个不错的声音：\n《${this.shareInfo.exhibit.exhibitTitle}》\n${url}`;

@@ -75,7 +75,7 @@
           </div>
           <div class="info-item" v-if="mode === 'program' && data.articleInfo.articleType === 2">
             <i class="freelog fl-icon-danji"></i>
-            <div class="item-value">{{ data.totalItem }}</div>
+            <div class="item-value">{{ data.totalItem || 0 }}</div>
           </div>
           <div class="info-item" v-if="mode === 'program'">
             <i class="freelog fl-icon-yonghu"></i>
@@ -222,7 +222,7 @@
           </div> 
           <div class="info-item" v-if="mode === 'program' && data.articleInfo.articleType === 2">
             <i class="freelog fl-icon-danji"></i>
-            <div class="item-value">{{ data.totalItem }}</div>
+            <div class="item-value">{{ data.totalItem || 0 }}</div>
           </div>
           <div class="info-item" v-if="mode === 'program'">
             <i class="freelog fl-icon-yonghu"></i>
@@ -263,7 +263,7 @@
       </div>
       <div class="right-area">
         <div v-if="data.articleInfo.articleType === 2 && mode === 'program'" class="total">
-          共{{ data.totalItem }}集
+          共{{ data.totalItem || 0 }}集
         </div>
         <div v-else class="duration">
           {{ computedEstimateDuration }}
@@ -286,6 +286,8 @@ import myTooltip from "@/components/tooltip";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { relativeTime, signCount, secondsToHMS, estimateDuration } from "@/utils/filter";
 import { freelogApp } from "freelog-runtime";
+import { supportAudio, unSupportAudioIOS } from "@/api/data"
+import { showToast } from "../utils/common";
 
 export default {
   name: "voice",
@@ -479,14 +481,24 @@ export default {
 
     /** 是否为支持格式 */
     ifSupportMime() {
-      const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
+      const supportMimeList = supportAudio;
+      const isIOS = this.$store.state.isIOS
+
       if (this.data.articleInfo.articleType === 1) {
-        return supportMimeList.includes(this.data.versionInfo.exhibitProperty.mime);
+        const mime = this.data.versionInfo.exhibitProperty.mime
+        if (isIOS) {
+          return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime)
+        }
+        return supportMimeList.includes(mime);
       } else {
         if (this.mode === 'voice') {
-          return supportMimeList.includes(this.data?.child?.articleInfo?.articleProperty?.mime);
+          const mime = this.data?.child?.articleInfo?.articleProperty?.mime
+          if (isIOS) {
+            return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime)
+          }
+          return supportMimeList.includes(mime);
         } else {
-          return this.data.articleInfo.resourceType[0] === '音频' && this.collectionList.length
+          return this.data.articleInfo.resourceType[0] === '音频'
         }
       }
     },
@@ -501,6 +513,7 @@ export default {
         if (this.data.child) {
           return _play && 
             playingInfo.exhibitId === this.data.exhibitId && 
+            playingInfo.child &&
             playingInfo.child.itemId && 
             this.data.child &&
             this.data.child.itemId &&
@@ -627,13 +640,23 @@ export default {
       const { articleInfo, exhibitId, child } = this.data
       if (articleInfo.articleType === 2 && this.mode === 'program') {
         const res = await useMyPlay.getListInCollection(exhibitId);
+        if (!res) { 
+          showToast("合集里没有可添加的作品！")
+          return
+        } 
         this.$store.commit("setCachePool", {
           key: exhibitId,
           value: JSON.parse(JSON.stringify(res))
         });
         await useMyPlay.addToPlayListBatch({
           exhibitId, 
-          addArr: res,
+          addArr: res.filter(ele => {
+            const mime = ele?.articleInfo?.articleProperty?.mime
+            if (this.$store.state.isIOS) {
+              return supportAudio.includes(mime) && !unSupportAudioIOS.includes(mime)
+            }
+            return supportAudio.includes(mime)
+          }),
           callback,
         }, true)
       } else {

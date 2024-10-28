@@ -24,6 +24,11 @@ const routes: Array<RouteRecordRaw> = [
     name: "signedList",
     component: () => import("../views/signed-list.vue"),
   },
+  {
+    path: "/search",
+    name: "search",
+    component: () => import("../views/search.vue"),
+  },
 ];
 
 export default routes;

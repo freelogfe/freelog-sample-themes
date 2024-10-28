@@ -7,7 +7,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/:pathMatch(.*)",
-    redirect: { name: "home" },
+    redirect: { name: "reader" },
   },
   {
     path: "/reader",

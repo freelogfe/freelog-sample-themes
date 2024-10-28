@@ -2,122 +2,118 @@
 
 <template>
   <!-- 移动端头部 -->
-  <div
-    class="mobile-header-wrapper"
-    :class="{ 'in-home': homeHeader }"
-    v-if="inMobile && !mobileSearching"
-  >
-    <!-- header顶部 -->
-    <div class="header-top" :class="{ logon: userData.isLogin }">
-      <img
-        class="logo"
-        :src="
-          selfConfig.options_logoImage ||
-          selfConfig.logoImage ||
-          require('../assets/images/logo.png')
-        "
-        referrerpolicy="no-referrer"
-        @click="switchPage('/')"
-        v-if="homeHeader"
-      />
-      <div
-        class="header-top-left"
-        @click="locationHistory.length === 1 ? switchPage('/home') : routerBack()"
-        v-else
-      >
-        <img class="back-arrow" src="../assets/images/arrow.png" />
-        <div class="back-label">{{ locationHistory.length === 1 ? "首页" : "返回" }}</div>
+  <div id="headerWrapper">
+    <div
+      class="mobile-header-wrapper"
+      :class="{ 'in-home': $route.path === '/home' }"
+      v-if="inMobile && $route.path !== '/search'"
+    >
+      <!-- header顶部 -->
+      <div class="header-top" :class="{ logon: userData.isLogin }">
+        <template v-if="$route.path === '/home'">
+          <img
+            class="logo"
+            :src="nodeLogo"
+            referrerpolicy="no-referrer"
+            @click="switchPage('/')"
+            v-if="nodeLogo"
+          />
+          <img
+            class="logo"
+            src="../assets/images/default-node-cover.png"
+            referrerpolicy="no-referrer"
+            @click="switchPage('/')"
+            v-else
+          />
+        </template>
+        <div
+          class="header-top-left"
+          @click="
+            locationHistory.length === 1 || locationHistory.length === 0
+              ? switchPage('/home')
+              : routerBack()
+          "
+          v-else
+        >
+          <span class="back-arrow freelog fl-icon-zhankaigengduo"></span>
+          <div class="back-label">{{ locationHistory.length === 1 ? "首页" : "返回" }}</div>
+        </div>
+
+        <div class="header-top-right">
+          <i
+            class="freelog fl-icon-content"
+            @click="searchPopupShow = true"
+            v-if="!($route.path === '/reader')"
+          ></i>
+
+          <img class="menu" src="../assets/images/menu@3x.png" @click="userBoxShow = true" />
+        </div>
       </div>
 
-      <div class="header-top-right">
-        <i class="freelog fl-icon-content" @click="searchPopupShow = true" v-if="!readerHeader"></i>
+      <transition name="fade">
+        <div
+          id="modal"
+          class="modal"
+          @click="userBoxShow = false"
+          @touchmove.prevent
+          v-if="userBoxShow"
+        ></div>
+      </transition>
 
-        <img class="menu" src="../assets/images/menu.png" @click="userBoxShow = true" />
-      </div>
+      <transition name="slide-right">
+        <div class="user-box-body" v-if="userBoxShow">
+          <div class="user-box-top">
+            <img
+              class="avatar"
+              :src="userData?.headImage || require('../assets/images/default-avatar.png')"
+              :alt="userData?.username || '未登录'"
+              @click="!userData.isLogin && callLogin()"
+            />
+            <div class="username" @click="!userData.isLogin && callLogin()">
+              {{ userData?.username || "未登录" }}
+            </div>
+            <div class="close-btn" @click="userBoxShow = false">
+              <i class="freelog fl-icon-guanbi"></i>
+            </div>
+          </div>
+          <div class="btns">
+            <div class="menu-btns">
+              <div
+                class="btn"
+                :class="{ active: route.path === '/home' }"
+                @click="route.path !== '/home' && switchPage('/home')"
+              >
+                <i class="freelog fl-icon-shouye"></i>
+                <div class="btn-label">首页</div>
+              </div>
+              <div
+                class="btn"
+                :class="{ active: route.path === '/signedList' }"
+                @click="
+                  switchPage('/signedList');
+                  userBoxShow = false;
+                "
+                v-if="userData.isLogin"
+              >
+                <i class="freelog fl-icon-lishi"></i>
+                <div class="btn-label">签约记录</div>
+              </div>
+            </div>
+
+            <div class="footer-btn" @click="callLoginOut()" v-if="userData.isLogin">
+              <i class="freelog fl-icon-tuichu1"></i>
+              <div class="btn-label">退出登录</div>
+            </div>
+            <div class="footer-btn" v-if="!userData.isLogin">
+              <div class="main-btn mobile" @click="callLogin()">立即登录</div>
+            </div>
+          </div>
+        </div>
+      </transition>
     </div>
 
-    <!-- 博客信息 -->
-    <template v-if="homeHeader">
-      <div class="header-other-info">
-        <div class="blogger-avatar">
-          <img
-            :src="nodeLogo || require('../assets/images/default-avatar.png')"
-            alt="博主头像"
-            class="avatar-img"
-          />
-        </div>
-        <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
-      </div>
-
-      <div class="header-blog-info" @click="blogInfoPopupShow = true">
-        <div class="blog-title">{{ nodeTitle }}</div>
-        <div class="blog-desc" v-html="nodeShortDescription"></div>
-      </div>
-    </template>
-
     <transition name="fade">
-      <div
-        id="modal"
-        class="modal"
-        @click="userBoxShow = false"
-        @touchmove.prevent
-        v-if="userBoxShow"
-      ></div>
-    </transition>
-
-    <transition name="slide-right">
-      <div class="user-box-body" v-if="userBoxShow">
-        <div class="user-box-top">
-          <img
-            class="avatar"
-            :src="userData?.headImage || require('../assets/images/default-avatar.png')"
-            :alt="userData?.username || '未登录'"
-            @click="!userData.isLogin && callLogin()"
-          />
-          <div class="username" @click="!userData.isLogin && callLogin()">
-            {{ userData?.username || "未登录" }}
-          </div>
-          <div class="close-btn" @click="userBoxShow = false">
-            <i class="freelog fl-icon-guanbi"></i>
-          </div>
-        </div>
-        <div class="btns">
-          <div class="menu-btns">
-            <div
-              class="btn"
-              :class="{ active: route.path === '/home' }"
-              @click="route.path !== '/home' && switchPage('/home')"
-            >
-              <i class="freelog fl-icon-shouye"></i>
-              <div class="btn-label">首页</div>
-            </div>
-            <div
-              class="btn"
-              :class="{ active: route.path === '/signedList' }"
-              @click="
-                switchPage('/signedList');
-                userBoxShow = false;
-              "
-              v-if="userData.isLogin"
-            >
-              <i class="freelog fl-icon-lishi"></i>
-              <div class="btn-label">已签约文章</div>
-            </div>
-          </div>
-
-          <div class="footer-btn" @click="callLoginOut()" v-if="userData.isLogin">
-            <i class="freelog fl-icon-tuichu1"></i>
-            <div class="btn-label">退出登录</div>
-          </div>
-          <div class="footer-btn" v-if="!userData.isLogin">
-            <div class="main-btn mobile" @click="callLogin()">立即登录</div>
-          </div>
-        </div>
-      </div>
-    </transition>
-
-    <transition name="fade">
-      <div class="search-page" v-if="searchPopupShow">
+      <div class="search-page-history" v-if="searchPopupShow">
         <div class="search-page-header">
           <div class="search-page-box">
             <input
@@ -135,7 +131,7 @@
             <i class="freelog fl-icon-content"></i>
           </div>
 
-          <div class="cancel-btn" @click="searchPopupShow = false">取消</div>
+          <div class="cancel-btn" @click="historyCancel">取消</div>
         </div>
 
         <div class="search-history-box" v-if="searchHistory.length !== 0">
@@ -153,32 +149,26 @@
       </div>
     </transition>
 
-    <transition name="fade">
-      <div class="blog-info-popup" @click="blogInfoPopupShow = false" v-if="blogInfoPopupShow">
-        <div class="blog-title">{{ nodeTitle }}</div>
-        <div class="blog-desc" v-html="nodeShortDescription"></div>
+    <!-- 移动端搜索页头部 -->
+    <div class="mobile-search-header-wrapper" v-if="inMobile && $route.path === '/search'">
+      <div class="search-page-box">
+        <input
+          class="search-input input-none"
+          :class="{ 'in-focus': searchKey }"
+          v-model="searchKey"
+          :maxLength="100"
+          @input="searchKeyInput()"
+          @keyup.enter="
+            searchWord(searchKey);
+            search();
+          "
+          @keyup.delete="searchPopupShow = true"
+        />
+        <i class="freelog fl-icon-content"></i>
       </div>
-    </transition>
-  </div>
 
-  <!-- 移动端首页搜索头部 -->
-  <div class="mobile-search-header-wrapper" v-if="inMobile && mobileSearching">
-    <div class="search-page-box">
-      <input
-        class="search-input input-none"
-        :class="{ 'in-focus': searchKey }"
-        v-model="searchKey"
-        :maxLength="100"
-        @input="searchKeyInput(true)"
-        @keyup.enter="
-          searchWord(searchKey);
-          search();
-        "
-      />
-      <i class="freelog fl-icon-content"></i>
+      <div class="cancel-btn" @click="switchPage('/home')">取消</div>
     </div>
-
-    <div class="cancel-btn" @click="switchPage('/home')">取消</div>
   </div>
 
   <!-- PC -->
@@ -186,15 +176,15 @@
     <div class="header-top">
       <div class="header-top-left">
         <!-- logo -->
+        <img class="logo" :src="nodeLogo" @click="switchPage('/')" v-if="nodeLogo" />
         <img
           class="logo"
-          :src="
-            selfConfig.options_logoImage ||
-            selfConfig.logoImage ||
-            require('../assets/images/logo.png')
-          "
+          src="../assets/images/default-node-cover.png"
           @click="switchPage('/')"
+          v-else
         />
+
+        <div class="nav-btn" @click="switchPage('/')">首页</div>
 
         <!-- 搜索框 -->
         <div class="search-box">
@@ -249,7 +239,6 @@
       </div>
 
       <div class="header-top-right">
-        <div class="nav-btn" @click="switchPage('/')">首页</div>
         <!-- 已登录用户信息 -->
         <div
           class="user-avatar"
@@ -286,27 +275,6 @@
         </div>
       </div>
     </div>
-
-    <template v-if="homeHeader">
-      <!-- 博客信息 -->
-      <div class="header-blog-info">
-        <div class="blogger-avatar">
-          <img
-            :src="nodeLogo || require('../assets/images/default-avatar.png')"
-            alt="博主头像"
-            class="avatar-img"
-          />
-        </div>
-
-        <div class="info-content">
-          <div class="title-signcount">
-            <div class="blog-title" :title="nodeTitle">{{ nodeTitle }}</div>
-            <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
-          </div>
-          <div class="blog-desc" v-html="nodeShortDescription" :title="nodeShortDescription"></div>
-        </div>
-      </div>
-    </template>
   </div>
 </template>
 
@@ -320,22 +288,7 @@ import { freelogApp } from "freelog-runtime";
 export default {
   name: "my-header",
 
-  props: {
-    homeHeader: {
-      type: Boolean,
-      default: false
-    },
-    readerHeader: {
-      type: Boolean,
-      default: false
-    },
-    mobileSearching: {
-      type: Boolean,
-      default: false
-    }
-  },
-
-  setup(props: { homeHeader: boolean }) {
+  setup(props: any) {
     const nodeInfo = freelogApp.nodeInfo;
     const store = useStore();
     const { query, route, switchPage, routerBack } = useMyRouter();
@@ -351,22 +304,38 @@ export default {
       searchKey: "",
       tags: "",
       userBoxShow: false,
-      blogInfoPopupShow: false,
       searchPopupShow: false,
       searchHistoryShow: false,
       searchWordCatch: null as number | null
     });
 
+    const inMobile = computed(() => {
+      return store.state.inMobile;
+    });
+
+    const userData = computed(() => {
+      console.log("store.state.userData", store.state.userData);
+
+      return store.state.userData;
+    });
+
+    const locationHistory = computed(() => {
+      return store.state.locationHistory;
+    });
+
     const methods = {
       /** 输入搜索词 */
-      searchKeyInput(inHomeSearch = false) {
+      historyCancel() {
+        data.searchPopupShow = false;
+        if (route.path === "/search") {
+          switchPage("/home");
+        }
+      },
+      /** 输入搜索词 */
+      searchKeyInput() {
         data.searchKey = (data.searchKey || "").trim();
         data.searchHistoryShow = true;
         data.searchWordCatch = null;
-        if (inHomeSearch) {
-          !data.searchKey && switchPage("/home");
-          data.searchPopupShow = !data.searchKey;
-        }
       },
 
       /** 点击历史搜索词 */
@@ -389,7 +358,7 @@ export default {
         const { searchKey } = data;
         const query: { keywords?: string } = {};
         if (searchKey) query.keywords = searchKey;
-        switchPage("/home", query);
+        switchPage("/search", query);
       },
 
       /** 筛选标签 */
@@ -441,10 +410,11 @@ export default {
 
       /** 注册 */
       register() {
-        if (process.env.NODE_ENV === "development") {
-          window.open("https://user.testfreelog.com/logon");
-        } else {
+        const url = freelogApp.getCurrentUrl();
+        if (url.includes(".freelog.com")) {
           window.open("https://user.freelog.com/logon");
+        } else if (url.includes(".testfreelog.com")) {
+          window.open("https://user.testfreelog.com/logon");
         }
       }
     };
@@ -496,7 +466,8 @@ export default {
       callLoginOut,
       switchPage,
       routerBack,
-      ...toRefs(store.state),
+      inMobile,
+      userData,
       route,
       searchInput,
       searchHistoryPopup,
@@ -506,7 +477,8 @@ export default {
       deleteWord,
       clearHistory,
       ...toRefs(data),
-      ...methods
+      ...methods,
+      locationHistory
     };
   }
 };

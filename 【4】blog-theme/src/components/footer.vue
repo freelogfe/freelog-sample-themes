@@ -26,13 +26,17 @@
 <script lang="ts">
 import { useStore } from "vuex";
 import { freelogEntrances } from "@/api/data";
-import { toRefs } from "vue";
+import { computed } from "vue";
 
 export default {
   name: "my-footer",
 
   setup() {
     const store = useStore();
+
+    const inMobile = computed(() => {
+      return store.state.inMobile
+    })
 
     const methods = {
       /** 打开新标签页 */
@@ -43,7 +47,7 @@ export default {
 
     return {
       freelogEntrances,
-      ...toRefs(store.state),
+      inMobile,
       ...methods,
     };
   },
@@ -58,7 +62,7 @@ export default {
   bottom: 0;
   right: 0;
   height: 98px;
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: #F7F7F7;
   display: flex;
   align-items: center;
   justify-content: center;
