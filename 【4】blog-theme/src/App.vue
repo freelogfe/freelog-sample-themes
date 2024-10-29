@@ -1,11 +1,13 @@
 <template>
   <div v-if="!maskLoading">
     <my-header />
-    <router-view v-slot="{ Component }">
-      <keep-alive include="home">
-        <component :is="Component" />
-      </keep-alive>
-    </router-view>
+    <div class="app-wrapper" :class="{ inMobile: inMobile }">
+      <router-view v-slot="{ Component }">
+        <keep-alive include="home">
+          <component :is="Component" />
+        </keep-alive>
+      </router-view>
+    </div>
     <my-footer />
     <theme-entrance />
     <login-btn />
@@ -35,10 +37,16 @@ export default {
       return store.state.maskLoading
     })
 
+    const inMobile = computed(() => {
+      return store.state.inMobile
+    })
+
     const themeInfo = widgetApi.getData()?.themeInfo;
     console.log("当前应用版本为:", themeInfo?.version, "+++");
+
     return {
-      maskLoading
+      maskLoading,
+      inMobile
     }
   }
 };
@@ -46,6 +54,14 @@ export default {
 
 <style lang="scss">
 @import "@/assets/css";
+
+.app-wrapper {
+  min-height: calc(100vh - 148px);
+
+  &.inMobile {
+    min-height: calc(100vh - 158px);
+  }
+}
 
 .maskLoading {
   width: 100vw;

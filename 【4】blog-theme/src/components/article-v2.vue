@@ -94,6 +94,8 @@ export default {
 	.cover-wrapper {
 		position: relative;
 		cursor: pointer;
+		overflow: hidden;
+		border-radius: 5px;
 		.article-cover {
 			img {
 				width: 100%;

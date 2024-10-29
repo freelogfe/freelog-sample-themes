@@ -448,7 +448,7 @@
   .header-top {
     min-width: 965px;
     max-width: 1600px;
-    width: 85%;
+    width: 90%;
     height: 100px;
     padding: 19px 0;
     box-sizing: border-box;
@@ -462,10 +462,10 @@
       align-items: center;
 
       .logo {
-        width: 77px;
-        height: 60px;
+        width: 100px;
+        height: 40px;
         cursor: pointer;
-        background-color: rgba(0, 0, 0, 0.5);
+        object-fit: contain;
       }
 
       .nav-btn {

@@ -57,10 +57,10 @@ export default {
 <style lang="scss" scoped>
 // mobile
 .mobile-footer-wrapper {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  right: 0;
+  // position: absolute;
+  // left: 0;
+  // bottom: 0;
+  // right: 0;
   height: 98px;
   background-color: #F7F7F7;
   display: flex;
@@ -75,10 +75,10 @@ export default {
 
 // PC
 .footer-wrapper {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  right: 0;
+  // position: absolute;
+  // left: 0;
+  // bottom: 0;
+  // right: 0;
   height: 48px;
   background-color: #fafbfc;
   display: flex;

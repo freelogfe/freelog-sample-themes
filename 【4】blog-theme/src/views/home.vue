@@ -1,7 +1,7 @@
 <!-- 首页 -->
 
 <template>
-  <div class="home-wrapper" @click="sortPopupShow = false">
+  <div class="home-wrapper"  @click="sortPopupShow = false">
 
     <!-- mobile -->
     <div class="mobile-home-banner" v-if="inMobile">
@@ -13,7 +13,7 @@
 
       <div class="header-blog-info">
         <div class="blog-title" v-if="nodeTitle" @click="blogInfoPopupShow = true">{{ nodeTitle }}</div>
-        <div class="blog-desc" v-if="nodeShortDescription" v-html="nodeShortDescription" @click="blogInfoPopupShow = true"></div>
+        <div class="blog-desc" v-if="nodeShortDescription" v-html="nodeShortDescriptionComputed" @click="blogInfoPopupShow = true"></div>
         <div class="tags" :class="{ 'margin-top0': !nodeTitle && !nodeShortDescription }">
           <div
             class="category-btn"
@@ -42,7 +42,7 @@
           v-if="!searchData.keywords"
           @click.stop="sortPopupShow = true"
         >
-          {{ createDateSortType === "-1" ? "最新" : "最早" }}
+          {{ createDateSortType === "-1" ? "最近" : "最早" }}
           <i class="freelog fl-icon-zhankaigengduo"></i>
 
           <transition name="slide-down-scale">
@@ -55,7 +55,7 @@
                     sortPopupShow = false;
                   "
                 >
-                  最新
+                  最近
                 </div>
                 <div
                   class="user-box-btn"
@@ -97,7 +97,7 @@
               <div class="blog-title" :title="nodeTitle">{{ nodeTitle }}</div>
               <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
             </div>
-            <div class="blog-desc" v-if="nodeShortDescription" v-html="nodeShortDescription" :title="nodeShortDescription"></div>
+            <div class="blog-desc" v-if="nodeShortDescription" v-html="nodeShortDescriptionComputed" :title="nodeShortDescription"></div>
             <div class="tags" :class="{ 'margin-top0': !nodeTitle && !nodeShortDescription }">
               <div
                 class="category-btn"
@@ -110,6 +110,8 @@
               </div>
             </div>
           </div>
+
+          <div class="model" v-if="banner"></div>
         </div>
       </template>
 
@@ -120,13 +122,13 @@
           @mouseover="sortPopupShow = true"
           @mouseleave="sortPopupShow = false"
         >
-          {{ createDateSortType === "-1" ? "最新更新" : "最早发布" }}
+          {{ createDateSortType === "-1" ? "最近发布" : "最早发布" }}
           <i class="freelog fl-icon-zhankaigengduo"></i>
 
           <transition name="slide-down-scale">
             <div class="sort-popup" v-show="sortPopupShow">
               <div class="sort-popup-body">
-                <div class="user-box-btn" @click="sort('-1')">最新更新</div>
+                <div class="user-box-btn" @click="sort('-1')">最近发布</div>
                 <div class="user-box-btn" @click="sort('1')">最早发布</div>
               </div>
             </div>
@@ -163,6 +165,7 @@ export default {
 
   setup() {
     const nodeInfo = freelogApp.nodeInfo;
+    console.log("nodeInfo", nodeInfo);
     
     const store = useStore();
     const tagsList: string[] = store.state.selfConfig.tags?.split(",")?.filter((ele: string) => ele);
@@ -188,6 +191,11 @@ export default {
 
     const availableListData = computed(() => {
       return datasOfGetList.listData.value.filter((ele: any) => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType!)) 
+    })
+
+    const nodeShortDescriptionComputed = computed(() => {
+      
+      return nodeInfo.nodeShortDescription?.replaceAll('\n', '<br />')
     })
 
     const methods = {
@@ -276,7 +284,8 @@ export default {
       ...methods,
       banner,
       inMobile,
-      availableListData
+      availableListData,
+      nodeShortDescriptionComputed
     };
   },
 };
@@ -286,7 +295,6 @@ export default {
 .home-wrapper {
   position: relative;
   width: 100%;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -403,7 +411,6 @@ export default {
     width: 100%;
     padding: 0 20px;
     box-sizing: border-box;
-    padding-bottom: 188px;
 
     .header {
       width: 100%;
@@ -411,7 +418,6 @@ export default {
       align-items: center;
       justify-content: space-between;
       padding: 30px 0;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 
       .sort {
         position: relative;
@@ -601,7 +607,7 @@ export default {
 
   // PC
   .home-body {
-    width: 85%;
+    width: 90%;
     min-width: 965px;
     max-width: 1600px;
     padding-bottom: 48px;
@@ -609,6 +615,7 @@ export default {
     .header-blog-info {
       position: relative;
       min-height: 314px;
+      overflow: hidden;
       
       &.withoutTitleBg {
         min-height: 100px;
@@ -616,7 +623,7 @@ export default {
 
       .blogger-avatar {
         width: 100%;
-        height: calc(100vw * 0.44);
+        aspect-ratio: 16 / 7;
         border-radius: 10px;
         border: 1px solid rgba(255, 255, 255, 0.4);
         box-sizing: border-box;
@@ -632,14 +639,26 @@ export default {
         }
       }
 
+      .model {
+        position: absolute;
+        left: 0;
+        top: 0;
+        z-index: 0;
+        height: 100%;
+        width: 100%;
+        border-radius: 10px;
+        background-image: linear-gradient( 180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 100%);
+      }
+
       .info-content {
         box-sizing: border-box;
         width: calc(100% - 50px);
         position: absolute;
         left: 50px;
-        bottom: 50px;
+        top: 335px;
         height: fit-content;
         padding-right: 50px;
+        z-index: 1;
 
         &.noBg {
           top: 50%;
@@ -697,10 +716,10 @@ export default {
           color: #fff;
           line-height: 28px;
           margin-top: 20px;
-          display: -webkit-box;
-          -webkit-box-orient: vertical;
-          -webkit-line-clamp: 2;
-          overflow: hidden;
+          // display: -webkit-box;
+          // -webkit-box-orient: vertical;
+          // -webkit-line-clamp: 2;
+          // overflow: hidden;
         }
 
         .tags {
