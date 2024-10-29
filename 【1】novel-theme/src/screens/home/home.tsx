@@ -120,7 +120,10 @@ const HomeBody = (props: {
   const { novelList, searching, total, tags, keywords, loading, myloading } = props;
   const { inMobile, userData, selfConfig } = useContext(globalContext);
   const tagsList: string[] =
-    (selfConfig.options_tags || selfConfig.tags)?.split(",").filter(Boolean) || [];
+    (selfConfig.options_tags || selfConfig.tags)
+      ?.split(",")
+      ?.map((tag: string) => tag.trim()) // 去掉每个字符串的前后空格
+      ?.filter(Boolean) || [];
   const { myShelf } = useMyShelf();
   const history = useMyHistory();
   const [filterBoxShow, setFilterBoxShow] = useState(false);

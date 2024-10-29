@@ -195,7 +195,8 @@ export default {
     const store = useStore();
     const tagsList: string[] = (store.state.selfConfig.options_tags || store.state.selfConfig.tags)
       ?.split(",")
-      .filter(Boolean);
+      ?.map((tag: string) => tag.trim()) // 去掉每个字符串的前后空格
+      ?.filter(Boolean);
     const { query, route, router, switchPage } = useMyRouter();
     const { listNumber, waterfall, waterfallList, getListNumber, initWaterfall, setWaterFall } =
       useMyWaterfall();
