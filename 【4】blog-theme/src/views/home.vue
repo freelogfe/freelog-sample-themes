@@ -1,7 +1,7 @@
 <!-- 首页 -->
 
 <template>
-  <div class="home-wrapper" @click="sortPopupShow = false">
+  <div class="home-wrapper"  @click="sortPopupShow = false">
 
     <!-- mobile -->
     <div class="mobile-home-banner" v-if="inMobile">
@@ -13,7 +13,7 @@
 
       <div class="header-blog-info">
         <div class="blog-title" v-if="nodeTitle" @click="blogInfoPopupShow = true">{{ nodeTitle }}</div>
-        <div class="blog-desc" v-if="nodeShortDescription" v-html="nodeShortDescription" @click="blogInfoPopupShow = true"></div>
+        <div class="blog-desc" v-if="nodeShortDescription" v-html="nodeShortDescriptionComputed" @click="blogInfoPopupShow = true"></div>
         <div class="tags" :class="{ 'margin-top0': !nodeTitle && !nodeShortDescription }">
           <div
             class="category-btn"
@@ -111,7 +111,7 @@
             </div>
           </div>
 
-          <div class="model"></div>
+          <div class="model" v-if="banner"></div>
         </div>
       </template>
 
@@ -122,13 +122,13 @@
           @mouseover="sortPopupShow = true"
           @mouseleave="sortPopupShow = false"
         >
-          {{ createDateSortType === "-1" ? "最近更新" : "最早发布" }}
+          {{ createDateSortType === "-1" ? "最近发布" : "最早发布" }}
           <i class="freelog fl-icon-zhankaigengduo"></i>
 
           <transition name="slide-down-scale">
             <div class="sort-popup" v-show="sortPopupShow">
               <div class="sort-popup-body">
-                <div class="user-box-btn" @click="sort('-1')">最近更新</div>
+                <div class="user-box-btn" @click="sort('-1')">最近发布</div>
                 <div class="user-box-btn" @click="sort('1')">最早发布</div>
               </div>
             </div>
@@ -295,7 +295,6 @@ export default {
 .home-wrapper {
   position: relative;
   width: 100%;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -412,7 +411,6 @@ export default {
     width: 100%;
     padding: 0 20px;
     box-sizing: border-box;
-    padding-bottom: 188px;
 
     .header {
       width: 100%;
@@ -420,7 +418,6 @@ export default {
       align-items: center;
       justify-content: space-between;
       padding: 30px 0;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 
       .sort {
         position: relative;

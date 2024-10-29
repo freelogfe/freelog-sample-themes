@@ -95,7 +95,7 @@ export default {
 		position: relative;
 		cursor: pointer;
 		overflow: hidden;
-		border-radius: 8px;
+		border-radius: 5px;
 		.article-cover {
 			img {
 				width: 100%;

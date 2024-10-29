@@ -115,11 +115,10 @@ export default {
 <style lang="scss" scoped>
 .signed-list-wrapper {
   position: relative;
-  min-height: 100vh;
 
   // mobile
   &.in-mobile {
-    padding-bottom: 218px;
+    padding-bottom: 30px;
     box-sizing: border-box;
 
     .content {
@@ -164,7 +163,7 @@ export default {
 
   // PC
   &.in-pc {
-    padding-bottom: 148px;
+    padding-bottom: 40px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;

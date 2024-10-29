@@ -48,7 +48,7 @@
           </div>
         </div>
 
-        <div class="article-divider">
+        <div class="article-divider" v-if="recommendList.length">
           <div></div>
         </div>
 
@@ -501,20 +501,16 @@ export default {
 <style lang="scss" scoped>
 .reader-wrapper {
   position: relative;
-  min-height: 100vh;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-bottom: 148px;
   box-sizing: border-box;
 
   &.in-mobile {
-    padding-bottom: 188px;
   }
 
   &.isIOS {
-    padding-bottom: 188px !important;
   }
 
   // mobile
@@ -531,7 +527,6 @@ export default {
 
     .article-info {
       width: 100%;
-      min-height: calc(100vh - 64px);
       background: #ffffff;
       box-sizing: border-box;
 
@@ -549,6 +544,7 @@ export default {
         margin-bottom: 30px;
         img {
           width: 100%;
+          border-radius: 5px;
         }
       }
 
@@ -1040,7 +1036,6 @@ export default {
         text-align: center;
         .info {
           padding-top: 30px;
-          padding-bottom: 187px;
 
           .info-header {
             display: flex;
@@ -1131,7 +1126,7 @@ export default {
     }
 
     .detail-weigui-pc {
-      height: calc(100vh - 146px);
+      height: calc(100vh - 148px);
       display: flex;
       justify-content: center;
       align-items: center;

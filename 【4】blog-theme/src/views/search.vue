@@ -9,13 +9,13 @@
         @mouseleave="sortPopupShow = false"
         v-if="listData.length"
       >
-        {{ createDateSortType === "-1" ? "最新更新" : "最早发布" }}
+        {{ createDateSortType === "-1" ? "最新发布" : "最早发布" }}
         <i class="freelog fl-icon-zhankaigengduo"></i>
 
         <transition name="slide-down-scale">
           <div class="sort-popup" v-show="sortPopupShow">
             <div class="sort-popup-body">
-              <div class="user-box-btn" @click="sort('-1')">最新更新</div>
+              <div class="user-box-btn" @click="sort('-1')">最新发布</div>
               <div class="user-box-btn" @click="sort('1')">最早发布</div>
             </div>
           </div>
@@ -114,7 +114,6 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-bottom: 48px;
 
     .search-body {
       width: 90%;
@@ -195,7 +194,6 @@ export default {
   }
   .search-wrapper-mobile {
     .search-body {
-      padding-bottom: 188px;
       .title {
         height: 47px;
         background: #F7F7F7;

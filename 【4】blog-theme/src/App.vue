@@ -1,7 +1,7 @@
 <template>
   <div v-if="!maskLoading">
     <my-header />
-    <div class="app-wrapper">
+    <div class="app-wrapper" :class="{ inMobile: inMobile }">
       <router-view v-slot="{ Component }">
         <keep-alive include="home">
           <component :is="Component" />
@@ -37,10 +37,16 @@ export default {
       return store.state.maskLoading
     })
 
+    const inMobile = computed(() => {
+      return store.state.inMobile
+    })
+
     const themeInfo = widgetApi.getData()?.themeInfo;
     console.log("当前应用版本为:", themeInfo?.version, "+++");
+
     return {
-      maskLoading
+      maskLoading,
+      inMobile
     }
   }
 };
@@ -51,6 +57,10 @@ export default {
 
 .app-wrapper {
   min-height: calc(100vh - 148px);
+
+  &.inMobile {
+    min-height: calc(100vh - 158px);
+  }
 }
 
 .maskLoading {
