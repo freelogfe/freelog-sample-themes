@@ -68,7 +68,7 @@
             :class="
               data.articleInfo?.articleType === 1
                 ? 'single-episode'
-                : data.serializeStatus === 0
+                : data.articleInfo.serializeStatus === 0
                 ? 'on-going'
                 : 'completed'
             "
