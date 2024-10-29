@@ -185,7 +185,7 @@ export const useMyCollection = {
         ]);
         result.push({
           ...subInfo.data.data,
-          coverImages: list.data.data[0].coverImages,
+          coverImages: list.data?.data?.[0]?.coverImages,
           versionInfo: { exhibitProperty: subInfo.data.data.articleInfo.articleProperty },
           defaulterIdentityType: subStatusList.data.data[0].defaulterIdentityType
         });
@@ -283,7 +283,7 @@ export const useMyPlay = {
         ]);
         result.push({
           ...subInfo.data.data,
-          coverImages: list.data.data[0].coverImages,
+          coverImages: list.data?.data?.[0]?.coverImages,
           versionInfo: { exhibitProperty: subInfo.data.data.articleInfo.articleProperty },
           defaulterIdentityType: subStatusList.data.data[0].defaulterIdentityType,
           albumName: list.data.data[0].exhibitName
@@ -301,7 +301,7 @@ export const useMyPlay = {
           const params = {
             collectionID: list.data.data[0].exhibitId,
             exhibitName: list.data.data[0].exhibitName,
-            images: list.data.data[0].coverImages,
+            images: list.data?.data?.[0]?.coverImages,
             options: {
               limit: 1_000,
               isShowDetailInfo: 1
