@@ -185,6 +185,7 @@ export const useMyCollection = {
         ]);
         result.push({
           ...subInfo.data.data,
+          onlineStatus: list.data?.data?.[0]?.status,
           coverImages: list.data?.data?.[0]?.coverImages,
           versionInfo: { exhibitProperty: subInfo.data.data.articleInfo.articleProperty },
           defaulterIdentityType: subStatusList.data.data[0].defaulterIdentityType
