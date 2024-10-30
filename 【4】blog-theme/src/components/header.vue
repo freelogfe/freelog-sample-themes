@@ -169,7 +169,7 @@
           v-else
         />
         
-        <div class="nav-btn" @click="switchPage('/')">首页</div>
+        <!-- <div class="nav-btn" @click="switchPage('/')">首页</div> -->
 
         <!-- 搜索框 -->
         <div class="search-box">

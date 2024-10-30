@@ -655,7 +655,7 @@ export default {
         width: calc(100% - 50px);
         position: absolute;
         left: 50px;
-        top: 335px;
+        bottom: 50px;
         height: fit-content;
         padding-right: 50px;
         z-index: 1;
