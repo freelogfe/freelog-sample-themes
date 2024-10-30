@@ -103,17 +103,22 @@ export default {
 
         /** 所有图片加载完成再进行标题跳转，否则会因为图片未加载时高度问题造成滚动条移动到错误位置 */
         const imgs = [...document.getElementsByTagName("img")].filter(item => !item.className);
-        let num = imgs.length;
-        imgs.forEach(img => {
-          img.onload = () => {
-            num--;
-            if (num === 0) context.emit("getDirectory", titles);
-          };
-          img.onerror = () => {
-            num--;
-            if (num === 0) context.emit("getDirectory", titles);
-          };
-        });
+
+        if (imgs.length) {
+          let num = imgs.length;
+          imgs.forEach(img => {
+            img.onload = () => {
+              num--;
+              if (num === 0) context.emit("getDirectory", titles);
+            };
+            img.onerror = () => {
+              num--;
+              if (num === 0) context.emit("getDirectory", titles);
+            };
+          });
+        } else {
+          context.emit("getDirectory", titles);
+        }
       });
     };
 
