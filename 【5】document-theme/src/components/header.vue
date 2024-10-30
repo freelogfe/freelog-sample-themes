@@ -132,6 +132,7 @@ import { reactive, SetupContext, toRefs } from "vue";
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
 import { useMyLocationHistory, useMyRouter } from "../utils/hooks";
+import { freelogApp } from "freelog-runtime";
 
 export default {
   name: "my-header",
@@ -150,10 +151,11 @@ export default {
     const methods = {
       /** 注册 */
       register() {
-        if (process.env.NODE_ENV === "development") {
-          window.open("https://user.testfreelog.com/logon");
-        } else {
+        const url = freelogApp.getCurrentUrl();
+        if (url.includes(".freelog.com")) {
           window.open("https://user.freelog.com/logon");
+        } else if (url.includes(".testfreelog.com")) {
+          window.open("https://user.testfreelog.com/logon");
         }
       },
 

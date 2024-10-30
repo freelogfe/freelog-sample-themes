@@ -1,3 +1,4 @@
+import { freelogApp } from "freelog-runtime";
 import "./header.scss";
 import MyLogo from "../../assets/images/logo.png";
 import MyMenu from "../../assets/images/menu.png";
@@ -449,10 +450,11 @@ export const Header = (props: {
                 <div
                   className="btn header-register-btn"
                   onClick={() => {
-                    if (process.env.NODE_ENV === "development") {
-                      window.open("https://user.testfreelog.com/logon");
-                    } else {
+                    const url = freelogApp.getCurrentUrl();
+                    if (url.includes(".freelog.com")) {
                       window.open("https://user.freelog.com/logon");
+                    } else if (url.includes(".testfreelog.com")) {
+                      window.open("https://user.testfreelog.com/logon");
                     }
                   }}
                 >
