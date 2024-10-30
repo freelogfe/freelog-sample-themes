@@ -747,6 +747,7 @@ export default {
       width: 100%;
       box-sizing: border-box;
       padding-top: 50px;
+      margin-bottom: 50px;
 
       .title-share {
         display: flex;
@@ -991,7 +992,6 @@ export default {
     }
 
     .recommend {
-      margin-top: 50px;
 
       .divider {
         height: 1px;
@@ -1022,6 +1022,7 @@ export default {
         grid-template-columns: repeat(3, 1fr);
         gap: 40px;
         margin-top: 40px;
+        margin-bottom: 40px;
 
         .article-wrapper:first-child {
           border-top: 1px solid rgba(0, 0, 0, 0.1);

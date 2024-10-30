@@ -75,6 +75,11 @@ export default {
 
 		onMounted(() => {
 			imgHeight.value = 0.68 * containerRef.value.offsetWidth
+			
+			window.addEventListener("resize", () => {
+				imgHeight.value = 0.68 * containerRef.value.offsetWidth
+			})
+
 		})
 
 		return {
