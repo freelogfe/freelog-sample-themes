@@ -29,7 +29,7 @@
       <transition name="fade">
         <div class="blog-info-popup" @click="blogInfoPopupShow = false" v-if="blogInfoPopupShow">
           <div class="blog-title">{{ nodeTitle }}</div>
-          <div class="blog-desc" v-html="nodeShortDescription"></div>
+          <div class="blog-desc" v-html="nodeShortDescriptionComputed"></div>
         </div>
       </transition>
     </div>
@@ -42,7 +42,7 @@
           v-if="!searchData.keywords"
           @click.stop="sortPopupShow = true"
         >
-          {{ createDateSortType === "-1" ? "最近" : "最早" }}
+          {{ createDateSortType === "-1" ? "最近发布" : "最早发布" }}
           <i class="freelog fl-icon-zhankaigengduo"></i>
 
           <transition name="slide-down-scale">
@@ -55,7 +55,7 @@
                     sortPopupShow = false;
                   "
                 >
-                  最近
+                  最近发布
                 </div>
                 <div
                   class="user-box-btn"
@@ -64,7 +64,7 @@
                     sortPopupShow = false;
                   "
                 >
-                  最早
+                  最早发布
                 </div>
               </div>
             </div>
