@@ -929,8 +929,10 @@ export default {
     addToPlayListSub(item) {
       useMyPlay.addToPlayList({ exhibitId: item.exhibitId, itemId: item.itemId });
     },
-    /** 是否为支持格式 */
-    ifSupportMimeSub(item) {
+    /** 是否为支持格式
+     * correctMimeType: 准确的格式
+     */
+    ifSupportMimeSub(item, correctMimeType = true) {
       const supportMimeList = [
         "audio/mp4",
         "audio/mpeg",
@@ -939,25 +941,29 @@ export default {
         "audio/webm",
         "audio/flac"
       ];
-      return supportMimeList.includes(item?.articleInfo?.articleProperty.mime);
+      if (correctMimeType) {
+        return supportMimeList.includes(item);
+      } else {
+        return supportMimeList.includes(item?.articleInfo?.articleProperty.mime);
+      }
     },
     albumSubBtnList(item) {
       return [
         {
-          icon: !this.ifSupportMimeSub(item)
+          icon: !this.ifSupportMimeSub(item, false)
             ? "fl-icon-wufabofang"
             : this.playingSub(item)
             ? "fl-icon-zanting-daibiankuang"
             : "fl-icon-bofang-daibiankuang",
           title: this.playingSub(item) ? "暂停" : "播放",
           operate: () => this.playOrPause(item),
-          disabled: !this.ifSupportMimeSub(item)
+          disabled: !this.ifSupportMimeSub(item, false)
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
           title: "加入播放列表",
           operate: () => this.addToPlayListSub(item),
-          disabled: this.isInPlayListSub(item) || !this.ifSupportMimeSub(item)
+          disabled: this.isInPlayListSub(item) || !this.ifSupportMimeSub(item, false)
         },
         {
           icon: this.isCollectedSub(item)
