@@ -544,6 +544,7 @@ export default {
         margin-bottom: 30px;
         img {
           width: 100%;
+          aspect-ratio: 100 / 68;
           border-radius: 5px;
         }
       }

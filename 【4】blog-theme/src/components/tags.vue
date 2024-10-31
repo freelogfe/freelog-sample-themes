@@ -144,14 +144,15 @@ export default {
     .tag {
       box-sizing: border-box;
       font-size: 12px;
-      color: #575e6a;
-      background-color: #ebecf0;
+      color: #666;
+      background-color: transparent;
       height: 24px;
       padding: 0 8px;
       border-radius: 24px;
       display: flex;
       align-items: center;
-  
+      border: 1px solid;
+
       .content {
         width: 100%;
         white-space: noWrap;
@@ -163,8 +164,7 @@ export default {
       &.in-mobile {
   
         &:active {
-          background-color: #a0a5ae;
-          color: #fff;
+          color: #222;
         }
       }
   
@@ -174,8 +174,7 @@ export default {
         transition: all 0.2s linear;
         
         &:hover {
-          background-color: #a0a5ae;
-          color: #fff;
+          color: #222;
         }
       }
     }
