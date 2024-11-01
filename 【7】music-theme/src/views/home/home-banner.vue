@@ -58,7 +58,7 @@ onMounted(() => {
     <div
       class="node-info"
       :style="{
-        height: store.nodeInfo.nodeLogo ? ` calc(100% - 80px)` : `calc(100% - 98px)`
+        height: store.nodeInfo.nodeLogo ? ` calc(100% - 158px)` : `calc(100% - 98px)`
       }"
     >
       <div class="avatar" v-if="selfConfig.options_node_logo">
