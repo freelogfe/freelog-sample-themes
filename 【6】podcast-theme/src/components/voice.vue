@@ -700,7 +700,6 @@ export default {
     /** 获取某个合集里的列表 */
     async getListInCollection(exhibitId) {
     const res = await freelogApp.getCollectionSubList(exhibitId, {
-      sortType: 1,
       skip: 0,
       limit: 5,
       isShowDetailInfo: 0

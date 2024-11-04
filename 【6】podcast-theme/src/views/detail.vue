@@ -552,7 +552,6 @@ export default {
       const limit = 5
       let skip = (this.currentPage - 1) * limit
       const res = await freelogApp.getCollectionSubList(this.voiceInfo.exhibitId, {
-        sortType: 1,
         skip,
         limit: 5,
         isShowDetailInfo: 1
