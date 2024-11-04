@@ -14,12 +14,9 @@
         <div class="blog-title" v-if="nodeTitle" @click="blogInfoPopupShow = true">
           {{ nodeTitle }}
         </div>
-        <div
-          class="blog-desc"
-          v-if="nodeShortDescription"
-          v-html="nodeShortDescription"
-          @click="blogInfoPopupShow = true"
-        ></div>
+        <div class="blog-desc" v-if="nodeShortDescription" @click="blogInfoPopupShow = true">
+          {{ nodeShortDescription }}
+        </div>
         <div class="tags" :class="{ 'margin-top0': !nodeTitle && !nodeShortDescription }">
           <div
             class="category-btn"
@@ -35,7 +32,9 @@
       <transition name="fade">
         <div class="blog-info-popup" @click="blogInfoPopupShow = false" v-if="blogInfoPopupShow">
           <div class="blog-title">{{ nodeTitle }}</div>
-          <div class="blog-desc" v-html="nodeShortDescription"></div>
+          <div class="blog-desc">
+            {{ nodeShortDescription }}
+          </div>
         </div>
       </transition>
     </div>
@@ -112,12 +111,9 @@
               <div class="blog-title" :title="nodeTitle">{{ nodeTitle }}</div>
               <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
             </div>
-            <div
-              class="blog-desc"
-              v-if="nodeShortDescription"
-              v-html="nodeShortDescription"
-              :title="nodeShortDescription"
-            ></div>
+            <div class="blog-desc" v-if="nodeShortDescription">
+              {{ nodeShortDescription }}
+            </div>
             <div class="tags" :class="{ 'margin-top0': !nodeTitle && !nodeShortDescription }">
               <div
                 class="category-btn"
@@ -375,6 +371,7 @@ export default {
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 3;
         overflow: hidden;
+        white-space: pre-wrap;
       }
 
       .tags {
@@ -435,6 +432,7 @@ export default {
         color: #ffffff;
         line-height: 20px;
         margin-top: 20px;
+        white-space: pre-wrap;
       }
     }
   }
@@ -740,6 +738,7 @@ export default {
           -webkit-box-orient: vertical;
           -webkit-line-clamp: 2;
           overflow: hidden;
+          white-space: pre-wrap;
         }
 
         .tags {
