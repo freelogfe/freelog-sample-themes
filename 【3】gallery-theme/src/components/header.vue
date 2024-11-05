@@ -51,7 +51,7 @@
 
       <div class="header-node-info" @click="nodeInfoPopupShow = true">
         <div class="node-title">{{ nodeTitle }}</div>
-        <div class="node-desc" v-html="nodeShortDescription"></div>
+        <div class="node-desc">{{ nodeShortDescription }}</div>
       </div>
     </template>
 
@@ -156,7 +156,7 @@
     <transition name="fade">
       <div class="node-info-popup" @click="nodeInfoPopupShow = false" v-if="nodeInfoPopupShow">
         <div class="node-title">{{ nodeTitle }}</div>
-        <div class="node-desc" v-html="nodeShortDescription"></div>
+        <div class="node-desc">{{ nodeShortDescription }}</div>
       </div>
     </transition>
   </div>
@@ -303,7 +303,7 @@
             <div class="node-title" :title="nodeTitle">{{ nodeTitle }}</div>
             <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
           </div>
-          <div class="node-desc" v-html="nodeShortDescription" :title="nodeShortDescription"></div>
+          <div class="node-desc" :title="nodeShortDescription">{{ nodeShortDescription }}</div>
         </div>
       </div>
     </template>
