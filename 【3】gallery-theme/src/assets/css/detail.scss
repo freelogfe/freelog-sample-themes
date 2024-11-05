@@ -440,12 +440,49 @@
         color: #222222;
         line-height: 20px;
         margin-left: 10px;
+        flex-shrink: 0;
       }
 
       .tags-wrapper {
         margin-left: 30px;
         height: 24px;
         overflow: hidden;
+      }
+
+      .more-tag {
+        position: relative;
+        font-weight: 400;
+        font-size: 12px;
+        color: #c127ff;
+        line-height: 18px;
+        margin-left: 20px;
+        cursor: pointer;
+        flex-shrink: 0;
+        padding-bottom: 15px;
+
+        &:hover {
+          .more-tag-popup {
+            opacity: 1;
+          }
+        }
+      }
+
+      .more-tag-popup {
+        position: absolute; /* Absolute positioning */
+        right: 0;
+        top: 31px;
+        width: 700px;
+        padding: 20px;
+        background: #ffffff;
+        box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        z-index: 99;
+        opacity: 0;
+
+        .tags-wrapper {
+          height: fit-content;
+          overflow: unset;
+        }
       }
     }
 

@@ -168,7 +168,20 @@
             <div class="author-name">
               {{ exhibitInfo?.articleInfo.articleOwnerName }}
             </div>
-            <tags :tags="exhibitInfo?.tags" v-if="exhibitInfo?.tags.length" />
+
+            <tags
+              :tags="exhibitInfo?.tags"
+              :shouldCalculateWidth="true"
+              v-if="exhibitInfo?.tags.length"
+              @updateTotalWidth="handleUpdateWidth"
+            />
+
+            <div class="more-tag" v-if="showMoreTagBtn">
+              更多>>
+              <div class="more-tag-popup">
+                <tags :tags="exhibitInfo?.tags" />
+              </div>
+            </div>
           </div>
 
           <div ref="contentArea" class="main-area">
@@ -310,6 +323,7 @@ export default {
       useMyWaterfall();
     const scrollArea = ref<any>(null);
     const contentArea = ref<any>(null);
+    const showMoreTagBtn = ref<boolean>();
 
     const data = reactive({
       loading: false,
@@ -365,6 +379,7 @@ export default {
           data.currentId = "";
           context.emit("update:id", "");
           switchPage(route.path, { id: "" }, "replace");
+          showMoreTagBtn.value = false;
         }
       },
 
@@ -540,6 +555,27 @@ export default {
       data.shareWidget = await freelogApp.mountArticleWidget(params);
     };
 
+    const handleUpdateWidth = (width: number) => {
+      let authorAvatarWidth = 0;
+      let authorNameWidth = 0;
+      if (data.exhibitInfo?.articleInfo.articleOwnerId) {
+        const avatarElement = document.querySelector(".author-avatar") as HTMLElement;
+        authorAvatarWidth = avatarElement.offsetWidth;
+      }
+
+      if (data.exhibitInfo?.articleInfo.articleOwnerName) {
+        const authorElement = document.querySelector(".exhibit-info .author-name") as HTMLElement;
+        authorNameWidth = authorElement.offsetWidth;
+      }
+
+      const leftWidth = authorAvatarWidth + 10 + authorNameWidth + 30; // 头像和名称的宽度
+      const middleWidth = ((data?.exhibitInfo?.tags?.length ?? 1) - 1) * 5 + width; // 标签宽度
+
+      if (leftWidth + middleWidth > 1230) {
+        showMoreTagBtn.value = true;
+      }
+    };
+
     watch(
       () => props.id,
       cur => {
@@ -633,7 +669,9 @@ export default {
       ...toRefs(data),
       ...methods,
       scrollArea,
-      contentArea
+      contentArea,
+      showMoreTagBtn,
+      handleUpdateWidth
     };
   }
 };

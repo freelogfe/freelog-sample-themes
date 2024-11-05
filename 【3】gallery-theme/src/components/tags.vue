@@ -18,7 +18,7 @@
 <script lang="ts">
 import { useMyRouter } from "@/utils/hooks";
 import { useStore } from "vuex";
-import { toRefs } from "vue";
+import { onMounted, toRefs } from "vue";
 
 export default {
   name: "tags",
@@ -26,11 +26,15 @@ export default {
   props: {
     tags: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
+    shouldCalculateWidth: {
+      type: Boolean,
+      default: false
+    }
   },
 
-  setup() {
+  setup(props: any, context: any) {
     const store = useStore();
     const { switchPage } = useMyRouter();
 
@@ -39,14 +43,28 @@ export default {
       searchTag(tag: string) {
         const query: { tags: string } = { tags: tag };
         switchPage("/home", query);
-      },
+      }
     };
 
+    onMounted(() => {
+      if (!props.inMobile && props.shouldCalculateWidth) {
+        let total = 0;
+        props.tags.forEach((_: any, index: number) => {
+          const tagElement = document.querySelector(
+            `.exhibit-info .tag:nth-child(${index + 1})`
+          ) as HTMLElement;
+          if (tagElement) {
+            total += tagElement.offsetWidth;
+          }
+        });
+        context.emit("updateTotalWidth", total);
+      }
+    });
     return {
       ...toRefs(store.state),
-      ...methods,
+      ...methods
     };
-  },
+  }
 };
 </script>
 
@@ -96,5 +114,9 @@ export default {
       }
     }
   }
+}
+
+.more-tag-popup .tags-wrapper .tag {
+  margin-bottom: 10px !important;
 }
 </style>
