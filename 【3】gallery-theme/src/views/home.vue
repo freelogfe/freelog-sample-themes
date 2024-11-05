@@ -18,6 +18,16 @@
       <my-loader v-if="homeLoading" />
 
       <template v-if="!homeLoading">
+        <div
+          class="text-btn mobile filter"
+          :class="{ disabled: myLoading }"
+          @click="filterBoxShow = true"
+          v-if="!searchData.keywords"
+        >
+          <i className="freelog fl-icon-shaixuan"></i>
+          <div class="filter-label">筛选</div>
+        </div>
+
         <div class="frame-list">
           <div class="waterfall" v-for="list in listNumber" :key="list">
             <my-frame
@@ -469,6 +479,22 @@ export default {
           line-height: 22px;
           margin-left: 5px;
         }
+      }
+    }
+
+    .filter {
+      display: flex;
+      justify-content: end;
+      margin: 15px 0 30px;
+
+      .freelog {
+        font-size: 18px;
+      }
+
+      .filter-label {
+        font-size: 16px;
+        line-height: 22px;
+        margin-left: 5px;
       }
     }
 
