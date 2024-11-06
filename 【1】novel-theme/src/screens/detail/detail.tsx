@@ -109,7 +109,7 @@ export const DetailScreen = (props: any) => {
   }, [scrollTop, clientHeight, scrollHeight]);
 
   return (
-    <detailContext.Provider value={{ novel }}>
+    <detailContext.Provider value={{ novel, setNovel }}>
       <div className="detail-wrapper">
         <Header />
         <DetailBody total={total} />
@@ -125,7 +125,7 @@ export const DetailScreen = (props: any) => {
 const DetailBody = (props: { total: number }) => {
   const { total } = props;
   const { inMobile, userData } = useContext(globalContext);
-  const { novel } = useContext(detailContext);
+  const { novel, setNovel } = useContext(detailContext);
   const collectionList = novel?.collectionList;
   const { isCollected, operateShelf } = useMyShelf(novel?.exhibitId);
   const history = useMyHistory();
@@ -133,6 +133,7 @@ const DetailBody = (props: { total: number }) => {
   const shareWidget = useRef<any>();
   const [introState, setIntroState] = useState(0);
   const [href, setHref] = useState("");
+  const [sortOrder, setSortOrder] = useState("asc");
 
   /** 移动端分享 */
   const share = () => {
@@ -176,6 +177,28 @@ const DetailBody = (props: { total: number }) => {
   const setShareWidgetShow = (value: boolean) => {
     shareWidget.current?.setData({ show: value });
   };
+
+  /**
+   * 切换正序，倒序
+   */
+  const handleSort = () => {
+    // 切换排序顺序
+    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  };
+
+  useEffect(() => {
+    // 使用排序函数
+    const compare = (a: any, b: any) => {
+      return sortOrder === "asc" ? a.sortId - b.sortId : b.sortId - a.sortId;
+    };
+
+    if (collectionList && collectionList.length) {
+      setNovel((pre: any) => ({
+        ...pre,
+        collectionList: collectionList.sort(compare)
+      }));
+    }
+  }, [sortOrder]);
 
   useEffect(() => {
     setHref(freelogApp.getCurrentUrl());
@@ -467,6 +490,10 @@ const DetailBody = (props: { total: number }) => {
               <div className="title-container">
                 <span className="title">目录</span>
                 <span className="count">({total}章)</span>
+                <div className="sort" onClick={handleSort}>
+                  <span>{sortOrder === "asc" ? "正序" : "倒序"}</span>
+                  <span className={`triangle ${sortOrder === "asc" ? "asc" : "desc"}`}></span>
+                </div>
               </div>
 
               <div className="sub-directory-container">

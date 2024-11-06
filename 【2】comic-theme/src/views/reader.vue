@@ -741,6 +741,12 @@
               <i class="freelog fl-icon-guanbi"></i>
             </div>
           </div>
+
+          <div class="sort" @click="handleSort" v-if="inMobile">
+            <span>{{ sortOrder === "asc" ? "正序" : "倒序" }}</span>
+            <span class="triangle" :class="sortOrder === 'asc' ? 'asc' : 'desc'"></span>
+          </div>
+
           <div class="sub-catalogue-wrapper" id="sub-catalogue-wrapper">
             <div
               class="sub"
@@ -787,8 +793,8 @@ import {
   reactive,
   watch,
   computed,
-  watchEffect,
-  onBeforeMount
+  onBeforeMount,
+  ref
 } from "vue";
 import { useStore } from "vuex";
 import { Swipe, SwipeItem } from "vant";
@@ -876,6 +882,7 @@ export default {
       collectionSubId: "",
       recommendList: [] as ExhibitItem[]
     });
+    const sortOrder = ref<string>("asc"); // 默认排序为正序
 
     const methods = {
       /** 点击页面 */
@@ -1161,6 +1168,22 @@ export default {
       searchTag(tag: string) {
         const query: { tags: string } = { tags: tag };
         switchPage("/home", query);
+      },
+
+      /**
+       * 切换正序，倒序
+       */
+      handleSort() {
+        // 切换排序顺序
+        sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
+
+        // 使用排序函数
+        const compare = (a: any, b: any) => {
+          return sortOrder.value === "asc" ? a.sortId - b.sortId : b.sortId - a.sortId;
+        };
+
+        // 根据当前排序顺序更新数据
+        data.comicInfo.collectionList?.sort(compare);
       }
     };
 
@@ -1606,7 +1629,8 @@ export default {
       ...toRefs(data),
       ...methods,
       currentSortID,
-      query
+      query,
+      sortOrder
     };
   }
 };

@@ -256,6 +256,11 @@
             <div class="title-container">
               <span class="title">目录</span>
               <span class="count">({{ total }}话)</span>
+
+              <div class="sort" @click="handleSort">
+                <span>{{ sortOrder === "asc" ? "正序" : "倒序" }}</span>
+                <span class="triangle" :class="sortOrder === 'asc' ? 'asc' : 'desc'"></span>
+              </div>
             </div>
 
             <div class="sub-directory-container">
@@ -328,6 +333,7 @@ export default {
     const { id } = query.value;
     const { isCollected, operateShelf } = useMyShelf(id);
     const introContent = ref<any>();
+    const sortOrder = ref<string>("asc"); // 默认排序为正序
 
     const data = reactive({
       comicInfo: {} as ExhibitItem,
@@ -379,6 +385,22 @@ export default {
         } else {
           switchPage("/reader", { id: data.comicInfo?.exhibitId });
         }
+      },
+
+      /**
+       * 切换正序，倒序
+       */
+      handleSort() {
+        // 切换排序顺序
+        sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
+
+        // 使用排序函数
+        const compare = (a: any, b: any) => {
+          return sortOrder.value === "asc" ? a.sortId - b.sortId : b.sortId - a.sortId;
+        };
+
+        // 根据当前排序顺序更新数据
+        collectionData.listData.sort(compare);
       }
     };
 
@@ -498,7 +520,8 @@ export default {
       introContent,
       ...toRefs(data),
       ...toRefs(collectionData),
-      ...methods
+      ...methods,
+      sortOrder
     };
   }
 };

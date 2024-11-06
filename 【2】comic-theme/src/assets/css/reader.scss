@@ -1162,6 +1162,41 @@
     }
   }
 
+  .sort {
+    display: flex;
+    align-items: center;
+    margin-top: 19px;
+    margin-bottom: -9px;
+    cursor: pointer;
+
+    &:hover {
+      color: #e7949f;
+      .triangle {
+        &.asc {
+          border-top: 4px solid #e7949f;
+        }
+        &.desc {
+          border-bottom: 4px solid #e7949f;
+        }
+      }
+    }
+
+    .triangle {
+      width: 0;
+      height: 0;
+      border-right: 3px solid transparent;
+      border-left: 3px solid transparent;
+      margin-left: 5px;
+
+      &.asc {
+        border-top: 4px solid #222222;
+      }
+      &.desc {
+        border-bottom: 4px solid #222222;
+      }
+    }
+  }
+
   .sub-catalogue-wrapper {
     padding: 20px 0 19px 0;
     .sub {

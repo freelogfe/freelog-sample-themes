@@ -194,6 +194,14 @@ export const ReaderScreen = (props: any) => {
     if (inMobile) setMobileBarShow(true);
   };
 
+  const handleChangeSort = (status: string) => {
+    const compare = (a: any, b: any) => {
+      return status === "asc" ? a.sortId - b.sortId : b.sortId - a.sortId;
+    };
+
+    setCollectionList(() => [...collectionList.sort(compare)]);
+  };
+
   useEffect(() => {
     return () => {
       (async function unmountWidget() {
@@ -315,6 +323,7 @@ export const ReaderScreen = (props: any) => {
             total={total}
             closeCatalogueModal={() => setModalStatus(false)}
             getCollectionList={getCollectionList}
+            updateSort={(status: string) => handleChangeSort(status)}
           />
         )}
       </div>

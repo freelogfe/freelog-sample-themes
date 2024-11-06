@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { globalContext } from "../../router";
 import { getUrlParams } from "../../utils/common";
@@ -16,8 +16,9 @@ export const CatalogueModal = (props: {
   total: number;
   closeCatalogueModal: () => void;
   getCollectionList: () => void;
+  updateSort?: (status: string) => void;
 }) => {
-  const { book, collectionList, total, closeCatalogueModal, getCollectionList } = props;
+  const { book, collectionList, total, closeCatalogueModal, getCollectionList, updateSort } = props;
   const { inMobile } = useContext(globalContext);
   const id = book?.exhibitId;
 
@@ -25,6 +26,19 @@ export const CatalogueModal = (props: {
   const history = useMyHistory();
   const location = useLocation();
   const { subId } = getUrlParams(location.search);
+  const [sortOrder, setSortOrder] = useState("asc");
+
+  /**
+   * 切换正序，倒序
+   */
+  const handleSort = () => {
+    // 切换排序顺序
+    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  };
+
+  useEffect(() => {
+    updateSort && updateSort(sortOrder);
+  }, [sortOrder]);
 
   useEffect(() => {
     if (scrollTop + clientHeight === scrollHeight) {
@@ -36,13 +50,26 @@ export const CatalogueModal = (props: {
     <React.Fragment>
       <div className="catalogue-modal" onClick={closeCatalogueModal}></div>
 
-      <div className={`catalogue-box-body ${!inMobile && "pc"}`}>
+      <div
+        className={`catalogue-box-body ${!inMobile && "pc"}`}
+        onClick={e => {
+          e.stopPropagation();
+        }}
+      >
         <div className="title-wrapper">
           <span className="title">{book?.exhibitTitle}</span>
           <div className="close-btn" onClick={closeCatalogueModal}>
             <i className="freelog fl-icon-guanbi"></i>
           </div>
         </div>
+
+        {inMobile && (
+          <div className="sort" onClick={handleSort}>
+            <span>{sortOrder === "asc" ? "正序" : "倒序"}</span>
+            <span className={`triangle ${sortOrder === "asc" ? "asc" : "desc"}`}></span>
+          </div>
+        )}
+
         {collectionList && !!collectionList.length && (
           <div className="sub-catalogue-wrapper">
             {collectionList.map((collectionItem: CollectionList) => {
