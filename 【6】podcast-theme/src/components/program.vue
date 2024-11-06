@@ -1,7 +1,7 @@
 <template>
   <div class="program-wrapper">
     <!-- pc -->
-    <div class="pc-program-wrapper" :class="{ 'unplayable': !ifSupportMime }">
+    <div class="inner-program-wrapper" :class="{ 'unplayable': !ifSupportMime, 'in-mobile': $store.state.inMobile }">
       <!-- 封面 -->
       <div
         ref="cover"
@@ -174,7 +174,19 @@ export default {
   box-sizing: border-box;
 }
 .program-wrapper {
-  .pc-program-wrapper {
+  .inner-program-wrapper {
+
+    &.in-mobile {
+      .cover-area {
+        opacity: 1;
+        .btn-modal .btn {
+          position: absolute;
+          left: 10px;
+          bottom: 10px;
+          opacity: 1;
+        }
+      }
+    }
 
     &.unplayable {
       .cover-area,
