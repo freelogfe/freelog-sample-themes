@@ -323,7 +323,7 @@ export default {
       return [
         {
           icon:
-            this.voiceInfo.articleInfo.articleType === 1
+            this.voiceInfo.articleInfo.articleType === 2
               ? !this.ifSupportMime
                 ? "fl-icon-wufabofang"
                 : this.playing

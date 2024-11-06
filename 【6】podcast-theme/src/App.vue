@@ -65,7 +65,11 @@ export default {
   color: #fff;
   font-size: 14px;
   height: 100vh;
-  overflow: auto;
+
+  // 解决移动端页面: <meta name="viewport"></meta>标签设置无效, 可无限左右滑动的问题;
+  overflow-y: auto;
+  overflow-x: hidden;
+
   &.pc {
     .page-wrapper {
       padding-bottom: 48px;
