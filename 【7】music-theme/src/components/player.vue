@@ -16,7 +16,7 @@
       <div
         class="player"
         :class="{ show: playerShow }"
-        @click="
+        @click.stop="
           () => {
             if (playingInfo) {
               playDialogShow = true;
@@ -73,7 +73,7 @@
           </div>
           <i class="freelog fl-icon-xiaoshuomulu1" @click.stop="openPlayList()"></i>
         </div>
-        <div class="progress-box" @touchstart="slidingProgress = true">
+        <div class="progress-box" @touchstart="slidingProgress = true" @click.stop>
           <el-slider
             class="progress"
             :class="{ 'no-voice': !playingInfo }"
