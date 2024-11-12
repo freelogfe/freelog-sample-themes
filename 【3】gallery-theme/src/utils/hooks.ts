@@ -43,7 +43,7 @@ export const useMyLocationHistory = () => {
 
   watch(
     () => router,
-    (cur) => {
+    cur => {
       const { current, replaced } = cur.options.history.state;
       const { locationHistory } = store.state;
       if (!locationHistory.length) {
@@ -72,7 +72,7 @@ export const useGetList = () => {
     loading: false,
     myLoading: false,
     total: 0,
-    skip: 0,
+    skip: 0
   });
 
   /** 获取展品列表 */
@@ -84,16 +84,21 @@ export const useGetList = () => {
     if (init) data.loading = true;
     data.myLoading = true;
     data.skip = init ? 0 : data.skip + 40;
-    const queryParams = { skip: data.skip, articleResourceTypes: "图片,视频", limit: params.limit || 40, ...params };
+    const queryParams = {
+      skip: data.skip,
+      articleResourceTypes: "图片,视频",
+      limit: params.limit || 40,
+      ...params
+    };
     const list = await freelogApp.getExhibitListByPaging(queryParams);
     const { dataList, totalItem } = list.data.data;
     if (dataList.length !== 0) {
-      const ids = dataList.map((item) => item.exhibitId).join();
+      const ids = dataList.map(item => item.exhibitId).join();
       const [signCountData, statusInfo] = await Promise.all([
         freelogApp.getExhibitSignCount(ids),
-        freelogApp.getExhibitAuthStatus(ids),
+        freelogApp.getExhibitAuthStatus(ids)
       ]);
-      (dataList as ExhibitItem[]).forEach((item) => {
+      (dataList as ExhibitItem[]).forEach(item => {
         let index;
         index = signCountData.data.data.findIndex(
           (resultItem: { subjectId: string }) => resultItem.subjectId === item.exhibitId
@@ -102,7 +107,8 @@ export const useGetList = () => {
         index = statusInfo.data.data.findIndex(
           (resultItem: { exhibitId: string }) => resultItem.exhibitId === item.exhibitId
         );
-        if (index !== -1) item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+        if (index !== -1)
+          item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
       });
     } else {
       store.commit("setData", { key: "homeLoading", value: false });
@@ -122,14 +128,14 @@ export const useGetList = () => {
   return {
     ...toRefs(data),
     getList,
-    clearData,
+    clearData
   };
 };
 
 /** 搜索 hook */
 export const useSearchHistory = () => {
   const data = reactive({
-    searchHistory: [] as string[],
+    searchHistory: [] as string[]
   });
 
   /** 获取搜索历史 */
@@ -142,7 +148,7 @@ export const useSearchHistory = () => {
   const searchWord = (keywords = "") => {
     keywords = keywords.trim();
     if (!keywords) return;
-    const index = data.searchHistory.findIndex((item) => item === keywords);
+    const index = data.searchHistory.findIndex(item => item === keywords);
     if (index !== -1) data.searchHistory.splice(index, 1);
     if (data.searchHistory.length === 10) data.searchHistory.pop();
     data.searchHistory.unshift(keywords);
@@ -151,7 +157,7 @@ export const useSearchHistory = () => {
 
   /** 删除搜索词 */
   const deleteWord = (keywords: string) => {
-    const index = data.searchHistory.findIndex((item) => item === keywords);
+    const index = data.searchHistory.findIndex(item => item === keywords);
     if (index === -1) return;
     data.searchHistory.splice(index, 1);
     localStorage.setItem("searchHistory", JSON.stringify(data.searchHistory));
@@ -177,7 +183,7 @@ export const useMySignedList = () => {
   const store = useStore();
   const data = reactive({
     mySignedList: <ExhibitItem[]>[],
-    loading: false,
+    loading: false
   });
 
   /** 获取已签约列表 */
@@ -196,22 +202,26 @@ export const useMySignedList = () => {
     const [list, signCountData, statusList] = await Promise.all([
       freelogApp.getExhibitListById({ exhibitIds: ids }),
       freelogApp.getExhibitSignCount(ids),
-      freelogApp.getExhibitAuthStatus(ids),
+      freelogApp.getExhibitAuthStatus(ids)
     ]);
-    (list.data.data as ExhibitItem[]).forEach((item) => {
-      const signCountItem = signCountData.data.data.find((signCount) => signCount.subjectId === item.exhibitId);
+    (list.data.data as ExhibitItem[]).forEach(item => {
+      const signCountItem = signCountData.data.data.find(
+        signCount => signCount.subjectId === item.exhibitId
+      );
       item.signCount = signCountItem?.count;
-      const statusItem = statusList.data.data.find((status) => status.exhibitId === item.exhibitId);
+      const statusItem = statusList.data.data.find(status => status.exhibitId === item.exhibitId);
       item.defaulterIdentityType = statusItem?.defaulterIdentityType;
     });
-    data.mySignedList = list.data.data.filter((item) => !item.articleInfo.resourceType.includes("主题"));
+    data.mySignedList = list.data.data.filter(
+      item => !item.articleInfo.resourceType.includes("主题")
+    );
   };
 
   getMySignedList();
 
   return {
     ...toRefs(data),
-    getMySignedList,
+    getMySignedList
   };
 };
 
@@ -221,7 +231,7 @@ export const useMyWaterfall = () => {
   const data = reactive({
     listNumber: 0,
     waterfallList: ["first", "second", "third", "fourth", "fifth"],
-    waterfall: {} as Record<string, ExhibitItem[]>,
+    waterfall: {} as Record<string, ExhibitItem[]>
   });
   let heightList: number[] = [];
 
@@ -255,11 +265,12 @@ export const useMyWaterfall = () => {
         minHeightItemIndex = heightList.length;
       } else if (heightList.length === data.listNumber) {
         const minHeight = Math.min(...heightList);
-        minHeightItemIndex = heightList.findIndex((item) => item === minHeight);
+        minHeightItemIndex = heightList.findIndex(item => item === minHeight);
       }
 
       data.waterfall[data.waterfallList[minHeightItemIndex]].push(listData[i]);
-      heightList[minHeightItemIndex] = (heightList[minHeightItemIndex] || 0) + (listData[i].height || 0);
+      heightList[minHeightItemIndex] =
+        (heightList[minHeightItemIndex] || 0) + (listData[i].height || 0);
     }
 
     nextTick(() => {
@@ -271,7 +282,7 @@ export const useMyWaterfall = () => {
     ...toRefs(data),
     getListNumber,
     initWaterfall,
-    setWaterFall,
+    setWaterFall
   };
 };
 
@@ -281,7 +292,7 @@ export const useMyScroll = () => {
   const data = reactive({
     scrollTop: 0,
     clientHeight: 0,
-    scrollHeight: 0,
+    scrollHeight: 0
   });
 
   /** 页面滚动 */
@@ -305,6 +316,6 @@ export const useMyScroll = () => {
 
   return {
     ...toRefs(data),
-    scrollTo,
+    scrollTo
   };
 };
