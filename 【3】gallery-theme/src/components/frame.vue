@@ -4,23 +4,27 @@
   <div
     class="frame-wrapper"
     :class="{
-      'in-pc': !inMobile,
+      'in-pc': !inMobile
     }"
     :style="{
       '--height': data.height + 'px',
-      '--url': 'url(' + data.coverImages[0] + ')',
+      '--url': 'url(' + data.coverImages[0] + ')'
     }"
   >
     <!-- mobile -->
     <div
       class="mobile-frame-wrapper"
       :class="{
-        'min-size': data.height === 120,
+        'min-size': data.height === 120
       }"
       v-if="inMobile"
     >
       <div class="cover-box">
-        <img class="image" :style="{ opacity: authLinkAbnormal ? 0.4 : 1 }" v-lazy="data.coverImages[0]" />
+        <img
+          class="image"
+          :style="{ opacity: authLinkAbnormal ? 0.4 : 1 }"
+          v-lazy="data.coverImages[0]"
+        />
 
         <!-- 下架标识 -->
         <div class="offline" v-if="data.onlineStatus === 0">已下架</div>
@@ -38,14 +42,20 @@
           <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
             {{ isAuth ? "已授权" : "未授权" }}
           </div>
-          <div class="sign-count" v-if="!inSignedList">签约量：{{ getSignCount(data.signCount) }}</div>
+          <div class="sign-count" v-if="!inSignedList">
+            签约量：{{ getSignCount(data.signCount) }}
+          </div>
         </div>
       </div>
 
       <!-- 资源信息 -->
       <div class="frame-info">
         <div class="title">
-          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="authLinkAbnormal" />
+          <img
+            class="auth-link-abnormal"
+            src="../assets/images/auth-link-abnormal.png"
+            v-if="authLinkAbnormal"
+          />
           {{ data.exhibitTitle }}
         </div>
         <tags :tags="data.tags" v-if="data.tags.length" />
@@ -60,20 +70,27 @@
     <div
       class="pc-frame-wrapper"
       :class="{
-        'min-size': data.height === 230,
+        'min-size': data.height === 230
       }"
       @mouseover="modalShow = true"
       @mouseleave="modalShow = false"
       v-if="!inMobile"
     >
-      <img class="image" :style="{ opacity: authLinkAbnormal ? 0.4 : 1 }" v-lazy="data.coverImages[0]" />
+      <img
+        class="image"
+        :style="{ opacity: authLinkAbnormal ? 0.4 : 1 }"
+        v-lazy="data.coverImages[0]"
+      />
 
       <!-- 下架标识 -->
       <div class="offline" v-if="data.onlineStatus === 0">已下架</div>
 
       <!-- 视频遮罩 -->
       <transition name="fade">
-        <div class="video-modal" v-if="data.articleInfo.resourceType.includes('视频') && !modalShow">
+        <div
+          class="video-modal"
+          v-if="data.articleInfo.resourceType.includes('视频') && !modalShow"
+        >
           <img class="video-image" src="../assets/images/video.png" />
         </div>
       </transition>
@@ -81,14 +98,20 @@
       <!-- 签约量 -->
       <transition name="fade">
         <div class="normal-bar" v-if="!modalShow">
-          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="authLinkAbnormal" />
+          <img
+            class="auth-link-abnormal"
+            src="../assets/images/auth-link-abnormal.png"
+            v-if="authLinkAbnormal"
+          />
           <div class="lock-circle" v-if="!isAuth">
             <img class="lock" src="../assets/images/mini-lock.png" />
           </div>
           <div class="auth-tag" :class="isAuth ? 'is-auth' : 'not-auth'" v-if="inSignedList">
             {{ isAuth ? "已授权" : "未授权" }}
           </div>
-          <div class="sign-count" v-if="!inSignedList">签约量：{{ getSignCount(data.signCount) }}</div>
+          <div class="sign-count" v-if="!inSignedList">
+            签约量：{{ getSignCount(data.signCount) }}
+          </div>
         </div>
       </transition>
 
@@ -99,10 +122,18 @@
       <transition name="slide-up">
         <div class="modal-content" v-if="modalShow">
           <div class="img-box">
-            <img class="img" src="../assets/images/video.png" v-if="data.articleInfo.resourceType.includes('视频')" />
+            <img
+              class="img"
+              src="../assets/images/video.png"
+              v-if="data.articleInfo.resourceType.includes('视频')"
+            />
           </div>
           <div class="title">
-            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" v-if="authLinkAbnormal" />
+            <img
+              class="auth-link-abnormal"
+              src="../assets/images/auth-link-abnormal.png"
+              v-if="authLinkAbnormal"
+            />
             <img
               class="lock"
               src="../assets/images/mini-lock.png"
@@ -141,18 +172,20 @@ export default {
   props: ["data", "inSignedList"],
 
   components: {
-    tags: defineAsyncComponent(() => import("../components/tags.vue")),
+    tags: defineAsyncComponent(() => import("../components/tags.vue"))
   },
 
   setup(props: { data: ExhibitItem }) {
     const store = useStore();
     const data = reactive({
       modalShow: false,
-      defaulterIdentityType: -1,
+      defaulterIdentityType: -1
     });
     /** 是否授权 */
     const isAuth = computed(
-      () => data.defaulterIdentityType === 0 || (data.defaulterIdentityType && data.defaulterIdentityType < 4)
+      () =>
+        data.defaulterIdentityType === 0 ||
+        (data.defaulterIdentityType && data.defaulterIdentityType < 4)
     );
     /** 授权链异常 */
     const authLinkAbnormal = computed(() => ![0, 4].includes(data.defaulterIdentityType));
@@ -168,12 +201,12 @@ export default {
         const authResult = await freelogApp.addAuth(id, { immediate: true });
         const { status } = authResult;
         if (status === 0) data.defaulterIdentityType = 0;
-      },
+      }
     };
 
     watch(
       () => props.data.defaulterIdentityType,
-      (cur) => {
+      cur => {
         if (cur === 0 || cur) data.defaulterIdentityType = cur;
       },
       { immediate: true }
@@ -185,9 +218,9 @@ export default {
       ...toRefs(data),
       isAuth,
       authLinkAbnormal,
-      ...methods,
+      ...methods
     };
-  },
+  }
 };
 </script>
 
