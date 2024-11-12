@@ -15,7 +15,45 @@
       <transition-group name="content-fade">
         <template v-if="exhibitInfo?.articleInfo?.status === 1">
           <template v-if="!loading">
-            <template v-if="exhibitInfo?.defaulterIdentityType === 0">
+            <div v-if="exhibitInfo.onlineStatus === 0">
+              <div class="exceptional-box">
+                <div class="icon">
+                  <i class="freelog fl-icon-a-yichang_tupianshipinmanhuaziyuan freeze"> </i>
+                </div>
+
+                <span class="exceptional-text"> 作品已下架，无法访问 </span>
+              </div>
+            </div>
+
+            <div v-else-if="![0, 4].includes(exhibitInfo?.defaulterIdentityType)">
+              <div class="exceptional-box">
+                <div class="icon">
+                  <i class="freelog fl-icon-a-yichang_tupianshipinmanhuaziyuan freeze"> </i>
+                </div>
+
+                <span class="exceptional-text"> 作品异常，无法访问 </span>
+              </div>
+            </div>
+
+            <div
+              class="lock-box"
+              v-else-if="exhibitInfo?.defaulterIdentityType === 4 || userData.isLogin === false"
+            >
+              <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
+              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+              <div class="get-btn" @click="getAuth()">获取授权</div>
+            </div>
+
+            <div v-else-if="!['图片', '视频'].includes(exhibitInfo?.articleInfo.resourceType[0])">
+              <div class="exceptional-box">
+                <div class="icon">
+                  <i class="freelog fl-icon-a-yichang_tupianshipinmanhuaziyuan freeze"> </i>
+                </div>
+
+                <span class="exceptional-text">此作品格式暂不支持访问 </span>
+              </div>
+            </div>
+            <template v-else-if="exhibitInfo?.defaulterIdentityType === 0">
               <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')" />
               <video
                 :src="content"
@@ -27,31 +65,15 @@
                 v-else-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
               ></video>
             </template>
-
-            <template v-else-if="exhibitInfo?.defaulterIdentityType">
-              <div class="auth-box" v-if="![0, 4].includes(exhibitInfo?.defaulterIdentityType)">
-                <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-                <div class="auth-link-tip">授权链异常，无法查看</div>
-                <div class="home-btn" @click="switchPage('/home')">进入首页</div>
-              </div>
-
-              <div
-                class="lock-box"
-                v-else-if="exhibitInfo?.defaulterIdentityType === 4 || userData.isLogin === false"
-              >
-                <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
-                <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-                <div class="get-btn" @click="getAuth()">获取授权</div>
-              </div>
-            </template>
           </template>
         </template>
 
         <template v-else>
           <div class="freeze-exhibit">
             <div class="icon">
-              <i class="freelog fl-icon-ziyuanweiguitishi_tuku freeze"></i>
+              <i class="freelog fl-icon-a-yichang_tupianshipinmanhuaziyuan freeze"> </i>
             </div>
+            <span class="exceptional-text"> 此作品因违规无法访问 </span>
           </div>
         </template>
       </transition-group>

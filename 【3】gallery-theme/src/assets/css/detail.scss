@@ -18,6 +18,31 @@
       transform: scale(0.6);
     }
 
+    .exceptional-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .icon {
+        text-align: center;
+        .freelog {
+          font-size: 164px;
+          opacity: 0.4;
+        }
+      }
+
+      .exceptional-text {
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 400;
+        font-size: 24px;
+        color: #222222;
+        line-height: 33px;
+        text-align: left;
+        opacity: 0.4;
+        margin-top: 20px;
+      }
+    }
+
     img,
     video {
       width: 100%;
@@ -147,9 +172,21 @@
 
     .freeze-exhibit {
       .icon {
+        text-align: center;
         .freeze {
           font-size: 158px;
           opacity: 0.4;
+        }
+
+        .exceptional-text {
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 400;
+          font-size: 24px;
+          color: #222222;
+          line-height: 33px;
+          text-align: left;
+          opacity: 0.4;
+          margin-top: 20px;
         }
       }
     }
