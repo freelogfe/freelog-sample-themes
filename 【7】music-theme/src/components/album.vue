@@ -249,6 +249,9 @@ onBeforeUnmount(() => {
           </div>
           <div class="info">
             <div class="top-area">
+              <div class="offline" v-if="item.onlineStatus === 0">
+                <span>已下架</span>
+              </div>
               <img
                 class="auth-link-abnormal"
                 :src="AuthLinkAbnormal"
@@ -565,6 +568,24 @@ onBeforeUnmount(() => {
 
         .top-area {
           display: flex;
+          .offline {
+            padding: 1px 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 5px;
+
+            span {
+              font-size: 10px;
+              line-height: 16px;
+              font-weight: 500;
+              color: #ffffff;
+              opacity: 0.8;
+            }
+          }
+
           .auth-link-abnormal {
             width: 16px;
             height: 16px;

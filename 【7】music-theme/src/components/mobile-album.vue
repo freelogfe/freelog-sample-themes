@@ -155,7 +155,11 @@ const getCollectionList = async (obj: {
   <!-- mobile -->
   <div class="mobile-album-wrap">
     <!-- 最新发布 | 最早发布 -->
-    <div class="album-drop-wrapper" ref="dropWrapper">
+    <div
+      class="album-drop-wrapper"
+      ref="dropWrapper"
+      v-if="$route.name === 'voice-list' && store.inMobile"
+    >
       <div class="selected-box" @click="handleShowDrop">
         <div class="txt">{{ selectedValue === 1 ? "最新发布" : "最早发布" }}</div>
         <div class="drop-trigger" :class="dropVisible ? 'rotate' : ''">
@@ -179,6 +183,7 @@ const getCollectionList = async (obj: {
                 :class="playing(item.exhibitId) ? 'fl-icon-zanting' : 'fl-icon-bofang-sanjiaoxing'"
               ></i>
             </div>
+            <div class="offline" v-if="item.onlineStatus === 0"><span>已下架</span></div>
           </div>
           <!-- 详细信息 -->
           <div class="info">
@@ -394,6 +399,26 @@ const getCollectionList = async (obj: {
             width: 100%;
             height: 100%;
             object-fit: cover;
+          }
+
+          .offline {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 40px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 0px 0px 4px 0px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            span {
+              font-size: 10px;
+              font-weight: 600;
+              color: #ffffff;
+              transform: scale(0.84);
+            }
           }
         }
 
