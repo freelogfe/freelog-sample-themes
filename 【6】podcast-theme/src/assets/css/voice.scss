@@ -80,6 +80,12 @@
           margin-bottom: 20px;
         }
 
+        .weigui-icon {
+          font-size: 16px;
+          color: #ee4040;
+          margin-right: 5px;
+        }
+
         .auth-link-abnormal {
           width: 16px;
           height: 16px;
@@ -97,13 +103,14 @@
           width: 49px;
           height: 20px;
           border-radius: 20px;
-          margin-left: 5px;
+          margin-right: 5px;
           font-size: 11px;
           font-weight: 600;
           color: #ffffff;
           display: flex;
           align-items: center;
           justify-content: center;
+          line-height: 20px;
 
           &.is-auth {
             background: #42c28c;
@@ -115,7 +122,6 @@
         }
 
         .title {
-          margin-left: 5px;
           flex: 1;
           width: 0;
           font-size: 16px;
@@ -132,12 +138,15 @@
           font-size: 18px;
           color: #fff;
           box-sizing: border-box;
+          margin-right: 5px;
         }
 
         .multiple {
           display: flex;
           align-items: center;
           box-sizing: border-box;
+          margin-right: 5px;
+
           .ing {
             box-sizing: border-box;
             font-size: 18px;
@@ -491,6 +500,12 @@
         display: flex;
         align-items: center;
 
+        .weigui-icon {
+          font-size: 16px;
+          color: #ee4040;
+          margin-right: 5px;
+        }
+
         .auth-link-abnormal {
           width: 16px;
           height: 16px;
@@ -515,7 +530,8 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          margin-left: 5px;
+          margin-right: 5px;
+
           &.is-auth {
             background: #42c28c;
           }
@@ -526,7 +542,6 @@
         }
 
         .title {
-          margin-left: 5px;
           flex: 1;
           width: 0;
           font-size: 16px;
@@ -550,11 +565,14 @@
           font-size: 18px;
           color: #fff;
           box-sizing: border-box;
+          margin-right: 5px;
         }
+
         .multiple {
           display: flex;
           align-items: center;
           box-sizing: border-box;
+          margin-right: 5px;
           .ing {
             box-sizing: border-box;
             font-size: 18px;
