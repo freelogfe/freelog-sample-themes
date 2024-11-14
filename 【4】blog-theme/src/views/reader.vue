@@ -303,7 +303,7 @@ export default {
         ...exhibitInfo.data.data,
         signCount: signCountData.data.data[0].count,
         defaulterIdentityType,
-      };
+      } as any;
 
       // 如果不是阅读类
       if (!(exhibitInfo?.data?.data?.versionInfo?.exhibitProperty?.mime as string)?.includes("text/")) {
@@ -328,7 +328,7 @@ export default {
 
         data.contentInfo = {
           content: info.data,
-          exhibitInfo: exhibitInfo.data.data,
+          exhibitInfo: exhibitInfo.data.data as any,
         };
       } else if (defaulterIdentityType === 4) {
         // 标的物未签约，自动弹出授权弹窗
