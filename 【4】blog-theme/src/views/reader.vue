@@ -161,7 +161,7 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, nextTick, onBeforeUnmount, reactive, toRefs, watch, ref, computed } from "vue";
+import { defineAsyncComponent, nextTick, onBeforeUnmount, reactive, toRefs, watch, computed } from "vue";
 import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
 import { ExhibitItem } from "@/api/interface";
 import { formatDate, relativeTime, signCount } from "@/utils/common";
@@ -226,7 +226,7 @@ export default {
       if (data.formatError) {
         return "此作品格式暂不支持访问"
       }
-
+      return "无法访问"
     })
 
     const methods = {

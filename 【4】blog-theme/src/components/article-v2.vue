@@ -46,7 +46,6 @@ import { formatDate } from "@/utils/common";
 import { defineAsyncComponent, onMounted, ref } from "vue";
 import { useMyRouter } from "@/utils/hooks";
 import { ExhibitItem } from "../api/interface";
-import { showToast } from "@/utils/common";
 
 export default {
   name: "my-article-v2",
@@ -64,13 +63,8 @@ export default {
 
 		/** 点击文章组件 */
 		const clickArticle = () => {
-			const { exhibitId, defaulterIdentityType = -1 } = props.data;
-
-			if (![0, 4].includes(defaulterIdentityType)) {
-				showToast("授权链异常，无法查看");
-				return;
-			}
-
+			const { exhibitId } = props.data;
+			
 			switchPage("/reader", { id: exhibitId });
 		};
 
