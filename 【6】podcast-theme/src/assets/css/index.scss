@@ -100,10 +100,14 @@ img {
 }
 
 .normal-btn {
-  color: #999999;
+  color: #999;
   background: rgba(255, 255, 255, 0.1);
   cursor: pointer;
   transition: all 0.2s linear;
+
+  &.second-level {
+    color: #FFFFFF;
+  }
 
   &:hover {
     background: #2784ff;

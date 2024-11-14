@@ -734,7 +734,7 @@ export const useMyPlay = {
       return;
     }
 
-    const { defaulterIdentityType, url, exhibitId, articleInfo } = exhibit;
+    const { defaulterIdentityType, url, exhibitId, articleInfo, onlineStatus } = exhibit;
 
     /* part0: 展品被封禁 */
     if (articleInfo.status === 2) {
@@ -742,8 +742,16 @@ export const useMyPlay = {
       if (["preVoice", "nextVoice"].includes(type)) {
         useMyPlay[type](exhibit, true)
         showToast(`当前展品《${exhibit.exhibitTitle}》已被封禁，正在为你播放后续歌曲!`)
+        return
       }
+      showToast(`当前展品《${exhibit.exhibitTitle}》已被封禁`)
       return
+    }
+
+    /* part0.1: 展品被封禁 */
+    if (onlineStatus === 0) {
+      showToast(`当前展品《${exhibit.exhibitTitle}》已被下架`)
+      return 
     }
 
     const { playing, playingSuccessRecorder, playList } = store.state;

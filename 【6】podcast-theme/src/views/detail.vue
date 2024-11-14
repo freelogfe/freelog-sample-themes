@@ -1,7 +1,7 @@
 <!-- 声音详情页 -->
 
 <template>
-  <div class="detail-wrapper">
+  <div class="detail-wrapper" :class="{ 'weigui': !(voiceInfo && voiceInfo.articleInfo.status === 1) }">
     <transition name="detail-fade">
       <template v-if="voiceInfo">
         <!-- 1: 正常; 2: 冻结; -->
@@ -11,6 +11,7 @@
             <div ref="cover" class="cover-area">
               <img class="cover" :src="voiceInfo.coverImages[0]" v-if="voiceInfo.coverImages[0]" />
               <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
+              <span class="offline" v-if="voiceInfo.onlineStatus === 0">已下架</span>
             </div>
             <div class="title-area">
               <img
@@ -76,7 +77,17 @@
           </div>
           <!-- mobile：合集的单品列表 -->
           <div class="mobile-detail-list" v-if="$store.state.inMobile && voiceInfo.articleInfo.articleType === 2">
-            <voice :data="item" v-for="item in list" :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`" mode="voice" subMode="inDetailPage" />
+            <div class="shortCut">
+              <label>包含声音</label>
+              <span>({{ total }})</span>
+              <div class="sort" @click="handleSort">
+                <span class="sort-txt">{{ dropDownShow.value ? "倒序" : "正序" }}</span>
+                <div class="drop-trigger" :class="{ rotate: dropDownShow.value }">
+                  <div class="triangle"></div>
+                </div>
+              </div>
+            </div>
+            <voice :data="item" v-for="item in list" :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`" mode="voice" subMode="inDetailPage" statusShow />
           </div>
           <div class="load-ready" v-if="$store.state.inMobile && voiceInfo.articleInfo.articleType === 2">
             <span v-if="list.length === 0">暂无任何声音</span>
@@ -87,6 +98,7 @@
           <div class="pc-detail-wrapper" v-if="!$store.state.inMobile">
             <div ref="cover" class="cover-area">
               <img class="cover" :src="voiceInfo.coverImages[0]" />
+              <span class="offline" v-if="voiceInfo.onlineStatus === 0">已下架</span>
             </div>
 
             <div class="right-area">
@@ -100,9 +112,9 @@
                 <div
                   v-if="voiceInfo.articleInfo.articleType === 1"
                   class="single freelog fl-icon-bokebiaoqian_danji"
-                  :class="{ 'opacity-40': authLinkAbnormal }"
+                  :class="{ 'opacity-40': authLinkAbnormal || offOrAuthErrorComputed }"
                 ></div>
-                <div v-else class="multiple" :class="{ 'opacity-40': authLinkAbnormal }">
+                <div v-else class="multiple" :class="{ 'opacity-40': authLinkAbnormal || offOrAuthErrorComputed }">
                   <span
                     class="ing freelog fl-icon-bokebiaoqian_lianzaizhong"
                     v-if="voiceInfo.articleInfo.serializeStatus === 0"
@@ -151,7 +163,7 @@
                 <template v-for="(item, index) in btnList">
                   <div
                     class="btn normal-btn"
-                    :class="{ 'play-btn': index === 0, disabled: item.disabled }"
+                    :class="{ 'play-btn': index === 0, disabled: item.disabled, 'second-level': index !== 0 }"
                     :key="item.title"
                     @click="item.operate"
                     v-if="!item.hidden"
@@ -179,10 +191,16 @@
             <div class="shortCut">
               <label>包含声音</label>
               <span>({{ total }})</span>
+              <div class="sort" @click="handleSort">
+                <span class="sort-txt">{{ dropDownShow.value ? "倒序" : "正序" }}</span>
+                <div class="drop-trigger" :class="{ rotate: dropDownShow.value }">
+                  <div class="triangle"></div>
+                </div>
+              </div>
             </div>
             <div class="list-container" v-if="list.length">
               <div class="list-item" v-for="item in list">
-                <voice :data="item" :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`" subMode="inDetailPage"></voice>
+                <voice :data="item" :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`" subMode="inDetailPage" statusShow></voice>
               </div>
             </div>
             <div class="no-data-tip" v-else>暂无任何声音, 请稍后查看</div>
@@ -202,92 +220,20 @@
             >
             </el-pagination>
           </div>
-        </div>
-        <div v-else class="detail-weigui">
-          <!-- mobile -->
-          <div class="detail-weigui-mobile" v-if="$store.state.inMobile">
-            <div class="mobile">
-              <div class="info">
-                <div class="info-header">
-                  <div ref="cover" class="cover-area">
-                    <img class="cover" :src="voiceInfo.coverImages[0]" v-if="voiceInfo.coverImages[0]" />
-                    <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
-                  </div>
-                  <div class="title-area">
-                    <img
-                      class="auth-link-abnormal"
-                      src="../assets/images/auth-link-abnormal.png"
-                      v-if="authLinkAbnormal"
-                    />
-                    <i
-                      class="freelog fl-icon-suoding lock"
-                      @click.stop="getAuth()"
-                      v-if="voiceInfo.defaulterIdentityType >= 4"
-                    ></i>
-                    <my-tooltip class="title" :content="voiceInfo.exhibitTitle">
-                      <span>{{ voiceInfo.exhibitTitle }}</span>
-                    </my-tooltip>
-                  </div>
-                </div>
-                <div class="info-area">
-                  <div class="info-item">
-                    <i class="freelog fl-icon-gengxinshijian"></i>
-                    <div class="item-value">{{ voiceInfo.updateDate | relativeTime }}</div>
-                  </div>
-                  <div class="info-item" v-if="voiceInfo.articleInfo.articleType === 2">
-                    <i class="freelog fl-icon-danji"></i>
-                    <div class="item-value">{{ total }}</div>
-                  </div>
-                  <div class="info-item">
-                    <i class="freelog fl-icon-yonghu"></i>
-                    <div class="item-value">{{ voiceInfo.signCount | signCount }}</div>
-                  </div>
-                  <div v-if="playingInfo && voiceInfo.articleInfo.articleType === 1" class="duration">
-                    时长{{ voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
-                  </div>
-                </div>
 
-              </div>
-              <span class="freelog fl-icon-ziyuanweiguitishi_yinle weigui-icon"></span>
-            </div>
-          </div>
-          <!-- pc -->
-          <div v-else class="detail-weigui-pc">
-            <div class="pc">
-              <span class="freelog fl-icon-ziyuanweiguitishi_yinle weigui-icon"></span>
-              <div class="info">
-                <div ref="cover" class="cover-area">
-                  <img class="cover" :src="voiceInfo.coverImages[0]" />
-                </div>
-                <img
-                  class="auth-link-abnormal"
-                  src="../assets/images/auth-link-abnormal.png"
-                  v-if="authLinkAbnormal"
-                />
-                <i class="freelog fl-icon-suoding lock" @click.stop="getAuth()" v-if="voiceInfo.defaulterIdentityType >= 4"></i>
-                <div
-                  v-if="voiceInfo.articleInfo.articleType === 1"
-                  class="single freelog fl-icon-bokebiaoqian_danji"
-                  :class="{ 'opacity-40': authLinkAbnormal }"
-                ></div>
-                <div v-else class="multiple" :class="{ 'opacity-40': authLinkAbnormal }">
-                  <span
-                    class="ing freelog fl-icon-bokebiaoqian_lianzaizhong"
-                    v-if="voiceInfo.articleInfo.serializeStatus === 0"
-                  ></span>
-                  <span class="end freelog fl-icon-bokebiaoqian_yiwanjie" v-else></span>
-                </div>
-  
-                <my-tooltip class="title" :content="voiceInfo.exhibitTitle">
-                  <span>{{ voiceInfo.exhibitTitle }}</span>
-                </my-tooltip>
-              </div>
-            </div>
-          </div>
+          <!-- 顶部异常提示 -->
+          <div class="err-notify" v-if="offOrAuthErrorComputed">{{ notifyMsgComputed }}</div>
         </div>
+        <div v-else class="detail-weigui-content">
+          <span class="freelog fl-icon-yichang_bokeziyuan weigui-icon"></span>
+          <p class="desc">此作品因违规无法访问</p>
+        </div>
+
+      
       </template>
     </transition>
   </div>
+
 </template>
 
 <script>
@@ -306,6 +252,9 @@ export default {
 
   data() {
     return {
+      dropDownShow: {
+        value: false // false 正序; true 倒序;
+      },
       id: "",
       voiceInfo: null,
       addAnimation: false,
@@ -349,9 +298,33 @@ export default {
     voiceInfo(newValue) {
       this.isCollected = useMyCollection.ifExist(newValue);
     },
+
+    "$store.state.inMobile"(cur) {
+      console.log("$store.state.inMobile", cur);
+      if (cur) {
+        
+        const dom = document.getElementById('appPodcast')
+        dom.addEventListener('scroll', this.scrollHandler)
+      }
+    }
   },
 
   computed: {
+    /** 处于下架/授权链异常 */
+    offOrAuthErrorComputed() {
+      return this.voiceInfo.onlineStatus === 0 || ![0, 4].includes(this.voiceInfo.defaulterIdentityType)
+    },
+
+    /** 异常信息提示文案 */
+    notifyMsgComputed() {
+      if (this.voiceInfo.onlineStatus === 0) {
+        return "作品已下架，无法访问"
+      }
+      if (![0, 4].includes(this.voiceInfo.defaulterIdentityType)) {
+        return "作品异常，无法访问"
+      }
+    },
+
     /** 授权链异常 */
     authLinkAbnormal() {
       return ![0, 4].includes(this.voiceInfo.defaulterIdentityType);
@@ -390,25 +363,25 @@ export default {
       return [
         {
           icon:
-            this.voiceInfo.articleInfo.articleType === 1
-              ? !this.ifSupportMime
-                ? "fl-icon-wufabofang"
-                : this.playing
-                ? "fl-icon-zanting-daibiankuang"
-                : "fl-icon-bofang-daibiankuang"
-              : "fl-icon-bofang-daibiankuang",
+            !this.ifSupportMime || this.offOrAuthErrorComputed
+              ? "fl-icon-wufabofang"
+              : this.voiceInfo.articleInfo.articleType === 1
+                  ? this.playing
+                    ? "fl-icon-zanting-daibiankuang"
+                    : "fl-icon-bofang-daibiankuang"
+                  : "fl-icon-bofang-daibiankuang",
           title:
-            this.voiceInfo.articleInfo.articleType === 1
-              ? !this.ifSupportMime
-                ? "无法播放"
-                : this.playing
-                ? "暂停"
-                : "播放"
-              : "播放全部",
+            !this.ifSupportMime || this.offOrAuthErrorComputed
+              ? "无法播放"  
+              : this.voiceInfo.articleInfo.articleType === 1
+                  ? this.playing
+                    ? "暂停"
+                    : "播放"
+                  : "播放全部",
           operate: this.playOrPause,
           disabled: !(
-            (this.voiceInfo.articleInfo.articleType === 2 && this.ifSupportMime) ||
-            (this.voiceInfo.articleInfo.articleType === 1 && this.ifSupportMime)
+            (this.voiceInfo.articleInfo.articleType === 2 && this.ifSupportMime && !this.offOrAuthErrorComputed) ||
+            (this.voiceInfo.articleInfo.articleType === 1 && this.ifSupportMime && !this.offOrAuthErrorComputed)
           )
         },
         {
@@ -416,10 +389,11 @@ export default {
           title: `加入播放列表`,
           operate: this.addToPlayList,
           disabled: !(
-            (this.voiceInfo.articleInfo.articleType === 2) ||
+            (this.voiceInfo.articleInfo.articleType === 2 && !this.offOrAuthErrorComputed) ||
             (this.voiceInfo.articleInfo.articleType === 1 &&
               !isInPlayList &&
-              this.ifSupportMime)
+              this.ifSupportMime && 
+              !this.offOrAuthErrorComputed)
           )
         },
         {
@@ -435,10 +409,6 @@ export default {
   },
 
   mounted() {
-    if (this.$store.state.inMobile) {
-      const dom = document.getElementById('appPodcast')
-      dom.addEventListener('scroll', this.scrollHandler)
-    }
     this.$store.dispatch("updateLastestAuthList")
   },
 
@@ -450,6 +420,17 @@ export default {
   },
 
   methods: {
+    /** 排序功能 */
+    handleSort() {
+      if (this.myLoading) {
+        return
+      }
+
+      this.dropDownShow.value = !this.dropDownShow.value
+      this.currentPage = 1
+      this.queryList()
+    },
+
     /** 播放/暂停 */
     async playOrPause() {
       if (this.voiceInfo.articleInfo.articleType === 2) {
@@ -535,7 +516,16 @@ export default {
         signCount: signCountData.data.data[0].count,
         defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType
       };
+
+      if (this.voiceInfo?.versionInfo?.exhibitProperty?.catalogueProperty?.collection_sort_list === "collection_sort_ascending") {
+        this.dropDownShow.value = false
+      } else {
+        this.dropDownShow.value = true
+      }
+
       this.href = freelogApp.getCurrentUrl();
+
+      console.log(this.voiceInfo);
 
       if (exhibitInfo.data.data.articleInfo.articleType === 2) {
         this.queryList()
@@ -549,12 +539,16 @@ export default {
 
     /** 分页 */
     async queryList() {
+      this.myLoading = true
       const limit = 5
       let skip = (this.currentPage - 1) * limit
+      // 1:升序 -1:降序
+      let sortType = this.dropDownShow.value ? -1 : 1
       const res = await freelogApp.getCollectionSubList(this.voiceInfo.exhibitId, {
         skip,
         limit: 5,
-        isShowDetailInfo: 1
+        isShowDetailInfo: 1,
+        sortType
       });
       if (res.data.errCode === 0) {
         const arr = res.data.data.dataList;
@@ -576,8 +570,12 @@ export default {
           };
         });
         this.total = res.data.data.totalItem
+        this.myLoading = false
+        console.log("queryList", this.list);
+        
       } else {
         console.warn(res.data);
+        this.myLoading = false
       }
     },
 
@@ -592,10 +590,13 @@ export default {
       this.myLoading = true
       const limit = 5
       let skip = (this.currentPage - 1) * limit
+      // 1:升序 -1:降序
+      let sortType = this.dropDownShow.value ? -1 : 1
       const res = await freelogApp.getCollectionSubList(this.voiceInfo.exhibitId, {
         skip,
         limit: 5,
-        isShowDetailInfo: 1
+        isShowDetailInfo: 1,
+        sortType
       });
       if (res.data.errCode === 0) {
         const arr = res.data.data.dataList;
@@ -626,6 +627,7 @@ export default {
 
     async scrollHandler(e) {
       const dom = document.getElementById('appPodcast')
+      
       if (dom.scrollHeight - dom.scrollTop - dom.clientHeight < 200) {
         if (this.myLoading) return
         if (this.list.length === this.total) return

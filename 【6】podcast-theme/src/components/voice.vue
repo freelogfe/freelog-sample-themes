@@ -11,7 +11,7 @@
       <div
         ref="cover"
         class="cover-area"
-        :class="{ 'opacity-40': authLinkAbnormal }"
+        :class="{ 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2 }"
         @click="skipToDetailPage"
       >
         <img class="cover" v-view-lazy="computedCover" />
@@ -23,6 +23,7 @@
         @click="skipToDetailPage"
       >
         <div class="title-area" :class="{ 'mb-20': mode === 'program' }">
+          <span class="freelog fl-icon-jinzhi weigui-icon opacity-40" v-if="data.articleInfo.status === 2"></span>
           <img
             class="auth-link-abnormal"
             src="../assets/images/auth-link-abnormal.png"
@@ -52,7 +53,7 @@
           <template v-if="authShow">
             <div
               class="tag is-auth"
-              :class="{ 'opacity-40': authLinkAbnormal }"
+              :class="{ 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2 }"
               v-if="data.defaulterIdentityType < 4"
             >
               已授权
@@ -61,7 +62,7 @@
               未授权
             </div>
           </template>
-          <div class="title" :class="{ 'opacity-40': authLinkAbnormal }">
+          <div class="title" :class="{ 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2 }">
             {{ computedTitle }}
           </div>
         </div>
@@ -148,7 +149,7 @@
       <div
         ref="cover"
         class="cover-area"
-        :class="{ 'opacity-40': authLinkAbnormal }"
+        :class="{ 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2 }"
         @click="skipToDetailPage"
       >
         <img class="cover" :src="computedCover" />
@@ -164,25 +165,25 @@
       </div>
       <div class="info-area" :class="{ 'in-detail-page': subMode === 'inDetailPage' }">
         <div class="title-area">
+          <span class="freelog fl-icon-jinzhi weigui-icon opacity-40" v-if="data.articleInfo.status === 2"></span>
           <img
-            class="auth-link-abnormal"
+            class="auth-link-abnormal opacity-40"
             src="../assets/images/auth-link-abnormal.png"
             v-if="authLinkAbnormal"
-            :class="{ 'opacity-40': authLinkAbnormal }"
           />
           <i
             class="freelog fl-icon-suoding lock"
             @click.stop="getAuth()"
             v-if="data.defaulterIdentityType >= 4"
-            :class="{ 'opacity-40': authLinkAbnormal, 'pointer-none': authLinkAbnormal }"
+            :class="{ 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2, 'pointer-none': authLinkAbnormal }"
           ></i>
           <template v-if="!data.child">
             <div
               v-if="data.articleInfo.articleType === 1"
               class="single freelog fl-icon-bokebiaoqian_danji"
-              :class="{ 'opacity-40': authLinkAbnormal }"
+              :class="{ 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2 }"
             ></div>
-            <div v-else class="multiple" :class="{ 'opacity-40': authLinkAbnormal }">
+            <div v-else class="multiple" :class="{ 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2 }">
               <span
                 class="ing freelog fl-icon-bokebiaoqian_lianzaizhong"
                 v-if="data.articleInfo.serializeStatus === 0"
@@ -193,18 +194,18 @@
           <template v-if="authShow">
             <div
               class="tag is-auth"
-              :class="{ 'opacity-40': authLinkAbnormal }"
+              :class="{ 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2 }"
               v-if="data.defaulterIdentityType < 4"
             >
               已授权
             </div>
-            <div class="tag not-auth" :class="{ 'opacity-40': authLinkAbnormal }" v-else>
+            <div class="tag not-auth" :class="{ 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2 }" v-else>
               未授权
             </div>
           </template>
           <my-tooltip
             class="title"
-            :class="{ 'opacity-40': authLinkAbnormal }"
+            :class="{ 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2 }"
             :content="computedTitle"
           >
             <span @click="skipToDetailPage">
@@ -397,12 +398,12 @@ export default {
     /** 时长 */
     computedEstimateDuration() {
       if (this.data.articleInfo.articleType === 1) {
-        return estimateDuration(this.data.versionInfo.exhibitProperty.duration);
+        return secondsToHMS(this.data.versionInfo.exhibitProperty.duration);
       } else {
         if (this.mode === 'voice'){
-          return estimateDuration(this.data?.child?.articleInfo?.articleProperty?.duration);
+          return secondsToHMS(this.data?.child?.articleInfo?.articleProperty?.duration);
         } else {
-          return estimateDuration(this.$store.state.playingInfo?.child?.articleInfo?.articleProperty?.duration)
+          return secondsToHMS(this.$store.state.playingInfo?.child?.articleInfo?.articleProperty?.duration)
         }
       }
     },
@@ -479,6 +480,11 @@ export default {
       return ![0, 4].includes(this.data.defaulterIdentityType);
     },
 
+    /** 处于下架异常 */
+    offErrorComputed() {
+      return this.data.onlineStatus === 0
+    },
+
     /** 是否为支持格式 */
     ifSupportMime() {
       const supportMimeList = supportAudio;
@@ -529,20 +535,20 @@ export default {
       const isInPlayList = useMyPlay.ifExist(this.data);
       return [
         {
-          icon: !this.ifSupportMime
+          icon: !this.ifSupportMime || this.offErrorComputed || this.authLinkAbnormal || this.data.articleInfo.status === 2
             ? "fl-icon-wufabofang"
             : this.playing
             ? "fl-icon-zanting-daibiankuang"
             : "fl-icon-bofang-daibiankuang",
           title: this.playing ? "暂停" : "播放",
           operate: this.playOrPause,
-          disabled: !this.ifSupportMime
+          disabled: !(this.ifSupportMime && !this.offErrorComputed && !this.authLinkAbnormal && this.data.articleInfo.status === 1)
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
           title: "加入播放列表",
           operate: this.addToPlayList,
-          disabled: isInPlayList || !this.ifSupportMime
+          disabled: isInPlayList || !this.ifSupportMime || this.offErrorComputed || this.authLinkAbnormal || this.data.articleInfo.status === 2
         },
         {
           icon: isCollected

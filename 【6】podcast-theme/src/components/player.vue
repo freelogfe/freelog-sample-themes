@@ -106,10 +106,13 @@
               v-for="(item, index) in playList"
               :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
               @click="playOrPauseList(item)"
-              :class="{ 'opacity-40': item.articleInfo.status === 2 || (item.child && item.child.authCode === 403) }"
             >
               <div class="left-area">
                 <div class="title-area">
+                  <div class="offline-icon" v-if="item.onlineStatus === 0">
+                    <span>已下架</span>
+                  </div>
+                  <span class="freelog fl-icon-jinzhi weigui-icon" v-if="item.articleInfo.status === 2"></span>
                   <img
                     class="icon"
                     src="../assets/images/auth-link-abnormal.png"
@@ -120,10 +123,10 @@
                     @click.stop="getAuth(item)"
                     v-if="item.defaulterIdentityType >= 4"
                   ></i>
-                  <div class="voice-title">{{ computedExhibitTitle(item) }}</div>
+                  <div class="voice-title" :class="{ 'opacity-40': item.articleInfo.status === 2 || (item.child && item.child.authCode === 403) }">{{ computedExhibitTitle(item) }}</div>
                 </div>
 
-                <div class="duration-area">
+                <div class="duration-area" :class="{ 'opacity-40': item.articleInfo.status === 2 || (item.child && item.child.authCode === 403) }">
                   <play-status
                     :playing="playing"
                     :desc="computedDuration"
@@ -264,12 +267,15 @@
             <template v-if="playList.length">
               <div
                 class="voice-item"
-                :class="{ 'opacity-40': item.articleInfo.status === 2 || (item.child && item.child.authCode === 403) }"
                 v-for="(item, index) in playList"
                 :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
                 @click="playOrPauseList(item)"
               >
                 <div class="left-area">
+                  <div class="offline-icon" v-if="item.onlineStatus === 0">
+                    <span>已下架</span>
+                  </div>
+                  <span class="freelog fl-icon-jinzhi weigui-icon" v-if="item.articleInfo.status === 2"></span>
                   <img
                     class="icon"
                     src="../assets/images/auth-link-abnormal.png"
@@ -280,14 +286,14 @@
                     @click.stop="getAuth(item)"
                     v-if="item.defaulterIdentityType >= 4"
                   ></i>
-                  <div class="title-area">
+                  <div class="title-area" :class="{ 'opacity-40': item.articleInfo.status === 2 || (item.child && item.child.authCode === 403) || item.onlineStatus === 0 }">
                     <my-tooltip class="title voice-title" :content="computedExhibitTitle(item)">
                       <span>{{ computedExhibitTitle(item) }}</span>
                     </my-tooltip>
                   </div>
                 </div>
 
-                <div class="right-area">
+                <div class="right-area" :class="{ 'opacity-40': item.articleInfo.status === 2 || (item.child && item.child.authCode === 403) || item.onlineStatus === 0 }">
                   <play-status
                     :playing="playing"
                     :desc="computedDuration"

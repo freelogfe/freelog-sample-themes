@@ -1,85 +1,13 @@
 <!-- 子作品详情页 -->
 <template>
-  <div class="detail-wrapper">
+  <div class="detail-wrapper" :class="{ 'weigui': voiceInfo && (voiceInfo.articleInfo.status === 2 || voiceInfo.child.authCode === 403) }">
     <transition name="detail-fade">
       <template v-if="voiceInfo">
         <!-- 1: 正常; 2: 冻结; -->
-        <div v-if="voiceInfo.articleInfo.status === 2 || voiceInfo.child.authCode === 403" class="detail-weigui">
-          <!-- mobile -->
-          <div class="detail-weigui-mobile" v-if="$store.state.inMobile">
-            <div class="mobile">
-              <div class="info">
-                <div class="info-header">
-                  <div ref="cover" class="cover-area">
-                    <img class="cover" :src="voiceInfo.child.articleInfo.coverImages[0]" v-if="voiceInfo.child.articleInfo.coverImages[0]" />
-                    <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
-                  </div>
-                  <div class="title-area">
-                    <img
-                      class="auth-link-abnormal"
-                      src="../assets/images/auth-link-abnormal.png"
-                      v-if="authLinkAbnormal"
-                    />
-                    <i
-                      class="freelog fl-icon-suoding lock"
-                      @click.stop="getAuth()"
-                      v-if="voiceInfo.defaulterIdentityType >= 4"
-                    ></i>
-                    <my-tooltip class="title" :content="voiceInfo.child.itemTitle">
-                      <span>{{ voiceInfo.child.itemTitle }}</span>
-                    </my-tooltip>
-                  </div>
-                </div>
-                <div class="info-area">
-                  <div class="info-item">
-                    <i class="freelog fl-icon-gengxinshijian"></i>
-                    <div class="item-value">{{ voiceInfo.child.createDate | relativeTime }}</div>
-                  </div>
-                  <div class="info-item">
-                    <i class="freelog fl-icon-yonghu"></i>
-                    <div class="item-value">{{ voiceInfo.signCount | signCount }}</div>
-                  </div>
-                  <div class="duration">
-                    时长{{ computedDuration }}
-                  </div>
-                </div>
-
-              </div>
-              <span class="freelog fl-icon-ziyuanweiguitishi_yinle weigui-icon"></span>
-            </div>
-          </div>
-          <!-- pc -->
-          <div v-else class="detail-weigui-pc">
-            <div class="pc">
-              <span class="freelog fl-icon-ziyuanweiguitishi_yinle weigui-icon"></span>
-              <div class="info">
-                <div ref="cover" class="cover-area">
-                  <img class="cover" :src="voiceInfo.child.articleInfo.coverImages[0]" />
-                </div>
-                <img
-                  class="auth-link-abnormal"
-                  src="../assets/images/auth-link-abnormal.png"
-                  v-if="authLinkAbnormal"
-                />
-                <i class="freelog fl-icon-suoding lock" @click.stop="getAuth()" v-if="voiceInfo.defaulterIdentityType >= 4"></i>
-                <div
-                  v-if="voiceInfo.articleInfo.articleType === 1"
-                  class="single freelog fl-icon-bokebiaoqian_danji"
-                  :class="{ 'opacity-40': authLinkAbnormal }"
-                ></div>
-                <div v-else class="multiple" :class="{ 'opacity-40': authLinkAbnormal }">
-                  <span
-                    class="ing freelog fl-icon-bokebiaoqian_lianzaizhong"
-                    v-if="voiceInfo.articleInfo.serializeStatus === 0"
-                  ></span>
-                  <span class="end freelog fl-icon-bokebiaoqian_yiwanjie" v-else></span>
-                </div>
-  
-                <my-tooltip class="title" :content="voiceInfo.child.itemTitle">
-                  <span>{{ voiceInfo.child.itemTitle }}</span>
-                </my-tooltip>
-              </div>
-            </div>
+        <div v-if="voiceInfo && (voiceInfo.articleInfo.status === 2 || voiceInfo.child.authCode === 403)" class="detail-weigui">
+          <div class="detail-weigui-content">
+            <span class="freelog fl-icon-yichang_bokeziyuan weigui-icon"></span>
+            <p class="desc">此作品因违规无法访问</p>
           </div>
         </div>
         <div v-else>
@@ -88,6 +16,7 @@
             <div ref="cover" class="cover-area">
               <img class="cover" :src="voiceInfo.child.articleInfo.coverImages[0]" v-if="voiceInfo.child.articleInfo.coverImages[0]" />
               <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
+              <span class="offline" v-if="voiceInfo.onlineStatus === 0">已下架</span>
             </div>
             <div class="title-area">
               <img
@@ -153,6 +82,7 @@
             <div ref="cover" class="cover-area">
               <img class="cover" :src="voiceInfo.child.articleInfo.coverImages[0]" v-if="voiceInfo.child.articleInfo.coverImages[0]" />
               <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
+              <span class="offline" v-if="voiceInfo.onlineStatus === 0">已下架</span>
             </div>
 
             <div class="right-area">
@@ -202,7 +132,7 @@
                 <template v-for="(item, index) in btnList">
                   <div
                     class="btn normal-btn"
-                    :class="{ 'play-btn': index === 0, disabled: item.disabled }"
+                    :class="{ 'play-btn': index === 0, disabled: item.disabled, 'second-level': index !== 0 }"
                     :key="item.title"
                     @click="item.operate"
                     v-if="!item.hidden"
@@ -222,6 +152,9 @@
               <img class="cover" :src="voiceInfo.child.articleInfo.coverImages[0]" />
             </div>
           </div>
+
+          <!-- 顶部异常提示 -->
+          <div class="err-notify" v-if="offOrAuthErrorComputed">{{ notifyMsgComputed }}</div>
         </div>
       
       </template>
@@ -276,6 +209,21 @@ export default {
     this.$store.dispatch("updateLastestAuthList")
   },
   computed: {
+    /** 处于下架/授权链异常 */
+    offOrAuthErrorComputed() {
+      return this.voiceInfo.onlineStatus === 0 || ![0, 4].includes(this.voiceInfo.defaulterIdentityType)
+    },
+
+    /** 异常信息提示文案 */
+    notifyMsgComputed() {
+      if (this.voiceInfo.onlineStatus === 0) {
+        return "作品已下架，无法访问"
+      }
+      if (![0, 4].includes(this.voiceInfo.defaulterIdentityType)) {
+        return "作品异常，无法访问"
+      }
+    },
+
     /** 固定时长 */
     computedDuration() {
       return secondsToHMS(this.voiceInfo.child?.articleInfo?.articleProperty?.duration); 
@@ -324,22 +272,22 @@ export default {
         {
           icon:
             this.voiceInfo.articleInfo.articleType === 2
-              ? !this.ifSupportMime
+              ? !this.ifSupportMime || this.offOrAuthErrorComputed
                 ? "fl-icon-wufabofang"
                 : this.playing
                 ? "fl-icon-zanting-daibiankuang"
                 : "fl-icon-bofang-daibiankuang"
               : "fl-icon-bofang-daibiankuang",
           title: 
-              !this.ifSupportMime
+              !this.ifSupportMime || this.offOrAuthErrorComputed
                 ? "无法播放"
                 : this.playing
                 ? "暂停"
               : "播放",
           operate: this.playOrPause,
           disabled: !(
-            (this.voiceInfo.articleInfo.articleType === 2 && this.ifSupportMime) ||
-            (this.voiceInfo.articleInfo.articleType === 1 && this.ifSupportMime)
+            (this.voiceInfo.articleInfo.articleType === 2 && this.ifSupportMime && !this.offOrAuthErrorComputed) ||
+            (this.voiceInfo.articleInfo.articleType === 1 && this.ifSupportMime && !this.offOrAuthErrorComputed)
           )
         },
         {
@@ -348,7 +296,8 @@ export default {
           operate: this.addToPlayList,
           disabled: !(this.voiceInfo.articleInfo.articleType === 2 &&
             !isInPlayList &&
-            this.ifSupportMime
+            this.ifSupportMime &&
+            !this.offOrAuthErrorComputed
           )
         },
         {
@@ -474,6 +423,24 @@ export default {
       justify-content: center;
       overflow: hidden;
       z-index: 1;
+
+      .offline {
+        position: absolute;
+        left: -4px;
+        top: -2px;
+        width: 48px;
+        height: 22px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 0px 0px 4px 0px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 12px;
+        font-weight: 600;
+        color: #ffffff;
+        transform: scale(0.84);
+      }
 
       .cover {
         height: 100%;
@@ -724,6 +691,24 @@ export default {
       overflow: hidden;
       flex-shrink: 0;
 
+      .offline {
+        position: absolute;
+        left: -4px;
+        top: -2px;
+        width: 48px;
+        height: 22px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 0px 0px 4px 0px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 12px;
+        font-weight: 600;
+        color: #ffffff;
+        transform: scale(0.84);
+      }
+
       .cover {
         height: 100%;
       }
@@ -903,207 +888,55 @@ export default {
       }
     }
   }
-  .detail-weigui {
-    .detail-weigui-mobile {
-      .mobile {
-        text-align: center;
-        .info {
-          padding-top: 30px;
-          padding-bottom: 187px;
 
-          .info-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
+  &.weigui {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
-            .cover-area {
-              position: relative;
-              width: 48px;
-              height: 48px;
-              background: #222;
-              border: 1px solid rgba(255, 255, 255, 0.1);
-              box-sizing: border-box;
-              border-radius: 10px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              overflow: hidden;
-              z-index: 1;
-              margin-right: 20px;
-              .cover {
-                height: 100%;
-              }
-            }
-        
-            .title-area {
-              display: flex;
-              align-items: center;
-              justify-content: center;
-        
-              .auth-link-abnormal {
-                width: 16px;
-                height: 16px;
-                margin-right: 5px;
-              }
-        
-              .lock {
-                font-size: 16px;
-                color: rgba(255, 255, 255, 0.6);
-                margin-right: 5px;
-              }
-        
-              .title {
-                font-size: 18px;
-                font-weight: 600;
-                color: #ffffff;
-                line-height: 24px;
-                overflow: hidden;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-              }
-            }
-        
-          }
+  .detail-weigui-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 348px;
 
-          .info-area {
-            color: rgba(255, 255, 255, 0.4);
-            display: flex;
-            justify-content: center;
-            margin-top: 10px;
-      
-            .info-item {
-              display: flex;
-              align-items: center;
-      
-              & + .info-item {
-                margin-left: 10px;
-              }
-      
-              .freelog {
-                font-size: 14px;
-              }
-      
-              .item-value {
-                font-size: 12px;
-                line-height: 18px;
-                margin-left: 5px;
-              }
-            }
-      
-            .duration {
-              font-size: 12px;
-              line-height: 18px;
-              margin-left: 10px;
-            }
-          }
-        }
-        .weigui-icon {
-          font-size: 165px;
-          opacity: 0.4;
-        }
-      }
+    .weigui-icon {
+      font-size: 220px;
+      opacity: 0.4;
     }
 
-    .detail-weigui-pc {
-      height: calc(100vh - 146px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-  
-      .pc {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        height: 348px;
-  
-        .weigui-icon {
-          font-size: 220px;
-          opacity: 0.4;
-        }
-  
-        .info {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 450px;
-          margin-top: 40px;
-  
-          .cover-area {
-            position: relative;
-            width: 48px;
-            height: 48px;
-            background: #222;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-sizing: border-box;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            flex-shrink: 0;
-            margin-right: 20px;
-            .cover {
-              height: 100%;
-            }
-          }
-  
-          .auth-link-abnormal {
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-          }
-  
-          .lock {
-            font-size: 20px;
-            color: rgba(255, 255, 255, 0.8);
-            margin-right: 10px;
-            cursor: pointer;
-          }
-  
-          .type-mark {
-            padding: 6px 15px;
-            border-radius: 10px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            font-size: 14px;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.4);
-            line-height: 20px;
-          }
-  
-          .title {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 20px;
-            font-weight: 600;
-            line-height: 56px;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            margin-left: 10px;
-          }
-  
-          .single {
-            opacity: 0.32;
-            color: #fff;
-            font-size: 20px;
-          }
-  
-          .multiple {
-            display: flex;
-            align-items: center;
-            .ing {
-              font-size: 20px;
-              color: #42c28c;
-            }
-            .end {
-              font-size: 20px;
-              color: #e9a923;
-            }
-          }
-  
-        }
-      }
+    .desc {
+      margin-top: 20px;
+      font-family: PingFangSC, PingFang SC;
+      font-weight: 400;
+      font-size: 24px;
+      line-height: 33px;
+      opacity: 0.4;
     }
+
+  }
+
+  .err-notify {
+    position: fixed;
+    z-index: 1;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    max-width: 460px;
+    height: 50px;
+    background: #FDEBEC;
+    box-shadow: 0px 2px 10px 0px rgba(238,64,64,0.2);
+    border-radius: 10px;
+    border: 1px solid #EE4040;
+    text-align: center;
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 600;
+    font-size: 14px;
+    color: #EE4040;
+    line-height: 50px;
+    text-shadow: 0px 2px 10px rgba(238,64,64,0.2);
   }
 }
 

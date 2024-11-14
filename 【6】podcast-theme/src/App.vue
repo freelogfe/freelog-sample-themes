@@ -72,6 +72,7 @@ export default {
 
   &.pc {
     .page-wrapper {
+      height: fit-content;
       padding-bottom: 48px;
 
       .router-view {
