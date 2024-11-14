@@ -1,5 +1,5 @@
 <template>
-  <div class="article-wrapper-v2" ref="containerRef">
+  <div class="article-wrapper-v2" ref="containerRef" :class="{ 'in-pc': !inMobile }">
 		<div class="cover-wrapper" @click="clickArticle">
 			<div class="article-cover" :style="`height:${imgHeight}px;`">
 				<img
@@ -43,9 +43,10 @@
 
 <script lang="ts">
 import { formatDate } from "@/utils/common";
-import { defineAsyncComponent, onMounted, ref } from "vue";
+import { defineAsyncComponent, onMounted, ref, computed } from "vue";
 import { useMyRouter } from "@/utils/hooks";
 import { ExhibitItem } from "../api/interface";
+import { useStore } from "vuex";
 
 export default {
   name: "my-article-v2",
@@ -57,9 +58,15 @@ export default {
   props: ["data", "inSignedList"],
 
   setup(props: { data: ExhibitItem }) {
+    const store = useStore();
 		const { switchPage } = useMyRouter();
 		const containerRef = ref(null) as any
 		const imgHeight = ref(200)
+
+		const inMobile = computed(() => {
+      return store.state.inMobile
+    })
+
 
 		/** 点击文章组件 */
 		const clickArticle = () => {
@@ -81,7 +88,8 @@ export default {
 			clickArticle,
 			formatDate,
 			containerRef,
-			imgHeight
+			imgHeight,
+			inMobile
 		};
 	},
 };
@@ -89,8 +97,12 @@ export default {
 
 <style scoped lang="scss">
 .article-wrapper-v2 {
-	min-width: 295px;
-	max-width: 370px;
+
+	&.in-pc {
+		min-width: 295px;
+		max-width: 370px;
+	}
+
 	.cover-wrapper {
 		position: relative;
 		cursor: pointer;

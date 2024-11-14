@@ -60,7 +60,7 @@
               <div
                 class="btn"
                 :class="{ active: route.path === '/home' }"
-                @click="route.path !== '/home' && switchPage('/home')"
+                @click="route.path !== '/home' && switchPage('/home');userBoxShow = false;"
               >
                 <i class="freelog fl-icon-shouye"></i>
                 <div class="btn-label">首页</div>
