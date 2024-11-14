@@ -6,6 +6,18 @@ export interface ExhibitItem extends ExhibitInfo {
   latestSignDate?: string;
   defaulterIdentityType?: number;
   intro?: string;
+  articleInfo: {
+    articleId: string;
+    articleName: string;
+    articleType: number;
+    articleOwnerId: number;
+    articleOwnerName: string;
+    resourceType: string[];
+    otherInfo?: {
+        [key: string]: any;
+    };
+    status: number;
+  }
 }
 
 /** freelog 相关入口 */

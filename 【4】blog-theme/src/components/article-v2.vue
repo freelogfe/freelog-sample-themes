@@ -13,8 +13,9 @@
 		</div>
 		<div class="date">{{ formatDate(data.createDate) }}</div>
 		<div class="article-title">
-			<span class="freelog fl-icon-warningxiaochicun auth-link-abnormal" v-if="![0, 4].includes(data.defaulterIdentityType)"></span>
-			<span class="freelog fl-icon-suoding lock" v-if="!inSignedList && data.defaulterIdentityType >= 4"></span>
+			<span class="freelog fl-icon-jinzhi weigui-icon" v-if="data?.articleInfo?.status === 2" title="此作品因违规无法访问"></span>
+			<span class="freelog fl-icon-warningxiaochicun auth-link-abnormal" v-if="![0, 4].includes(data.defaulterIdentityType)" title="作品异常，无法访问"></span>
+			<span class="freelog fl-icon-suoding lock" v-if="!inSignedList && data.defaulterIdentityType >= 4" title="获取授权"></span>
 			<span class="tag is-auth" v-if="inSignedList && data.defaulterIdentityType < 4">已授权</span>
 			<span class="tag not-auth" v-if="inSignedList && data.defaulterIdentityType >= 4">未授权</span>
 			<span
@@ -45,7 +46,6 @@ import { formatDate } from "@/utils/common";
 import { defineAsyncComponent, onMounted, ref } from "vue";
 import { useMyRouter } from "@/utils/hooks";
 import { ExhibitItem } from "../api/interface";
-import { showToast } from "@/utils/common";
 
 export default {
   name: "my-article-v2",
@@ -63,13 +63,8 @@ export default {
 
 		/** 点击文章组件 */
 		const clickArticle = () => {
-			const { exhibitId, defaulterIdentityType = -1 } = props.data;
-
-			if (![0, 4].includes(defaulterIdentityType)) {
-				showToast("授权链异常，无法查看");
-				return;
-			}
-
+			const { exhibitId } = props.data;
+			
 			switchPage("/reader", { id: exhibitId });
 		};
 
@@ -144,6 +139,12 @@ export default {
 		-webkit-line-clamp: 2;
 		line-clamp: 2;
 		padding-left: 1px;
+
+		.weigui-icon {
+			margin-right: 5px;
+			color: #EE4040;
+			font-size: 16px;
+		}
 
 		.auth-link-abnormal {
 			flex-shrink: 0;

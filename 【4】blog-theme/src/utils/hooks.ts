@@ -147,7 +147,7 @@ export const useGetList = () => {
         if (index !== -1) item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
       });
     }
-    data.listData = init ? dataList : [...data.listData, ...dataList]
+    data.listData = init ? dataList : [...data.listData, ...dataList] as any
     data.total = totalItem;
     if (init) data.loading = false;
     data.myLoading = false;
@@ -216,7 +216,7 @@ export const useMySignedList = () => {
       } else {
         return aTimeStamp - bTimeStamp
       }
-    })
+    }) as any
     console.log("data.mySignedList", data.mySignedList);
   };
 

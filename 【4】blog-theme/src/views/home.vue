@@ -190,6 +190,8 @@ export default {
     })
 
     const availableListData = computed(() => {
+      console.log(datasOfGetList.listData.value);
+      
       return datasOfGetList.listData.value.filter((ele: any) => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType!)) 
     })
 

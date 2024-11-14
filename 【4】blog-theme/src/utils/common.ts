@@ -3,7 +3,7 @@
  * @param time 时间戳、字符串日期等等
  * @param format 自定义输出结果格式（YYYY:年，MM:月，DD:日，hh:时，mm:分，ss:秒）
  */
-export const formatDate = (time: string | undefined, format = "YYYY-MM-DD hh:mm:ss") => {
+export const formatDate = (time: Date | string | undefined, format = "YYYY-MM-DD hh:mm:ss") => {
   if (!time) return;
 
   const date = new Date(time);

@@ -2,7 +2,15 @@
 
 <template>
   <div class="reader-wrapper" :class="{ 'in-mobile': inMobile }" v-if="articleData">
-    <div v-if="articleData?.articleInfo?.status === 1">
+    <div class="reader-weigui" v-if="articleData?.articleInfo?.status === 2 || articleData.onlineStatus === 0 || authLinkAbnormal || formatError">
+      <div class="detail-weigui-container">
+        <div class="content">
+          <span class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan weigui-icon"></span>
+          <span class="txt">{{ errorMsg }}</span>
+        </div>
+      </div>
+    </div>
+    <div v-else>
       <!-- mobile -->
       <div class="mobile-reader-body" v-if="inMobile">
         <div class="article-info">
@@ -149,73 +157,11 @@
         </div>
       </div>
     </div>
-    <div class="reader-weigui" v-else>
-      <!-- mobile -->
-      <div class="detail-weigui-mobile" v-if="inMobile">
-        <div class="mobile">
-          <div class="info">
-            <div class="info-header">
-              <div ref="cover" class="cover-area">
-                <img class="cover" :src="articleData?.coverImages[0]" v-if="articleData?.coverImages[0]" />
-                <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
-              </div>
-              <div class="title-area">
-                <img
-                  class="auth-link-abnormal"
-                  src="../assets/images/auth-link-abnormal.png"
-                  v-if="authLinkAbnormal"
-                />
-                <i
-                  class="freelog fl-icon-suoding lock"
-                  @click.stop="getAuth()"
-                  v-if="articleData?.defaulterIdentityType && articleData?.defaulterIdentityType >= 4"
-                ></i>
-                <div class="title" :content="articleData?.exhibitTitle">
-                  <span>{{ articleData?.exhibitTitle }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="info-area">
-              <div class="info-item">
-                <i class="freelog fl-icon-gengxinshijian"></i>
-                <div class="item-value">{{ relativeTime(articleData?.updateDate) }}</div>
-              </div>
-              <div class="info-item">
-                <i class="freelog fl-icon-yonghu"></i>
-                <div class="item-value">{{ signCount(articleData?.signCount) }}</div>
-              </div>
-            </div>
-          </div>
-          <span class="freelog fl-icon-ziyuanweiguitishi_wendang weigui-icon"></span>
-        </div>
-      </div>
-      <!-- pc -->
-      <div v-else class="detail-weigui-pc">
-        <div class="pc">
-          <span class="freelog fl-icon-ziyuanweiguitishi_wendang weigui-icon"></span>
-          <div class="info">
-            <div ref="cover" class="cover-area">
-              <img class="cover" :src="articleData?.coverImages[0]" />
-            </div>
-            <img
-              class="auth-link-abnormal"
-              src="../assets/images/auth-link-abnormal.png"
-              v-if="authLinkAbnormal"
-            />
-            <i class="freelog fl-icon-suoding lock" @click.stop="getAuth()" v-if="articleData?.defaulterIdentityType && articleData?.defaulterIdentityType >= 4"></i>
-            <div class="title" :content="articleData?.exhibitTitle">
-              <span>{{ articleData?.exhibitTitle }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, nextTick, onBeforeUnmount, reactive, toRefs, watch, ref, computed } from "vue";
+import { defineAsyncComponent, nextTick, onBeforeUnmount, reactive, toRefs, watch, computed } from "vue";
 import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
 import { ExhibitItem } from "@/api/interface";
 import { formatDate, relativeTime, signCount } from "@/utils/common";
@@ -251,7 +197,8 @@ export default {
       timeId: 0,
       directoryList: [] as Array<any>,
       currentTitle: null as any,
-      currentIndex: -1
+      currentIndex: -1,
+      formatError: false
     });
 
     const authLinkAbnormal = computed(() => {
@@ -264,6 +211,22 @@ export default {
 
     const userData = computed(() => {
       return store.state.userData
+    })
+
+    const errorMsg = computed(() => {
+      if (data.articleData?.articleInfo?.status === 2) {
+        return "此作品因违规无法访问"
+      }
+      if (data.articleData?.onlineStatus === 0) {
+        return "作品已下架，无法访问"
+      }
+      if (authLinkAbnormal.value) {
+        return "作品异常，无法访问"
+      }
+      if (data.formatError) {
+        return "此作品格式暂不支持访问"
+      }
+      return "无法访问"
     })
 
     const methods = {
@@ -340,11 +303,11 @@ export default {
         ...exhibitInfo.data.data,
         signCount: signCountData.data.data[0].count,
         defaulterIdentityType,
-      };
+      } as any;
 
       // 如果不是阅读类
       if (!(exhibitInfo?.data?.data?.versionInfo?.exhibitProperty?.mime as string)?.includes("text/")) {
-        showToast("不支持的文章格式")
+        data.formatError = true
         return
       }
       
@@ -365,7 +328,7 @@ export default {
 
         data.contentInfo = {
           content: info.data,
-          exhibitInfo: exhibitInfo.data.data,
+          exhibitInfo: exhibitInfo.data.data as any,
         };
       } else if (defaulterIdentityType === 4) {
         // 标的物未签约，自动弹出授权弹窗
@@ -492,7 +455,8 @@ export default {
       relativeTime,
       authLinkAbnormal,
       inMobile,
-      userData
+      userData,
+      errorMsg
     };
   },
 };
@@ -1033,107 +997,13 @@ export default {
   }
 
   .reader-weigui {
-    .detail-weigui-mobile {
-      .mobile {
-        text-align: center;
-        .info {
-          padding-top: 30px;
-
-          .info-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-
-            .cover-area {
-              position: relative;
-              width: 48px;
-              height: 48px;
-              background: #222;
-              border: 1px solid rgba(255, 255, 255, 0.1);
-              box-sizing: border-box;
-              border-radius: 10px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              overflow: hidden;
-              z-index: 1;
-              margin-right: 20px;
-              .cover {
-                height: 100%;
-              }
-            }
-        
-            .title-area {
-              display: flex;
-              align-items: center;
-              justify-content: center;
-        
-              .auth-link-abnormal {
-                width: 16px;
-                height: 16px;
-                margin-right: 5px;
-              }
-        
-              .lock {
-                font-size: 16px;
-                color: rgba(255, 255, 255, 0.6);
-                margin-right: 5px;
-              }
-        
-              .title {
-                font-size: 18px;
-                font-weight: 600;
-                color: #222;
-                line-height: 24px;
-                overflow: hidden;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-              }
-            }
-        
-          }
-
-          .info-area {
-            color: rgba(255, 255, 255, 0.4);
-            display: flex;
-            justify-content: center;
-            margin-top: 10px;
-      
-            .info-item {
-              display: flex;
-              align-items: center;
-      
-              & + .info-item {
-                margin-left: 10px;
-              }
-      
-              .freelog {
-                font-size: 14px;
-              }
-      
-              .item-value {
-                font-size: 12px;
-                line-height: 18px;
-                margin-left: 5px;
-              }
-            }
-          }
-        }
-        .weigui-icon {
-          font-size: 165px;
-          opacity: 0.4;
-        }
-      }
-    }
-
-    .detail-weigui-pc {
+    .detail-weigui-container {
       height: calc(100vh - 148px);
       display: flex;
       justify-content: center;
       align-items: center;
   
-      .pc {
+      .content {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -1143,68 +1013,18 @@ export default {
           font-size: 220px;
           opacity: 0.4;
         }
-  
-        .info {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 450px;
-          margin-top: 40px;
-  
-          .cover-area {
-            position: relative;
-            width: 48px;
-            height: 48px;
-            background: #222;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-sizing: border-box;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            flex-shrink: 0;
-            margin-right: 20px;
-            .cover {
-              height: 100%;
-            }
-          }
-  
-          .auth-link-abnormal {
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-          }
-  
-          .lock {
-            font-size: 20px;
-            color: rgba(255, 255, 255, 0.8);
-            margin-right: 10px;
-            cursor: pointer;
-          }
-  
-          .type-mark {
-            padding: 6px 15px;
-            border-radius: 10px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            font-size: 14px;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.4);
-            line-height: 20px;
-          }
-  
-          .title {
-            color: #222;
-            font-size: 20px;
-            font-weight: 600;
-            line-height: 56px;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            margin-left: 10px;
-          }
-  
+
+        .txt {
+          margin-top: 20px;
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 400;
+          font-size: 24px;
+          color: #222222;
+          line-height: 33px;
+          text-align: center;
+          opacity: 0.4;
         }
+
       }
     }
   }
