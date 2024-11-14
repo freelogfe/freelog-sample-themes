@@ -362,16 +362,14 @@ export default {
       const isInPlayList = useMyPlay.ifExist(this.voiceInfo);
       return [
         {
-          icon:
-            !this.ifSupportMime || this.offOrAuthErrorComputed
+          icon: this.offOrAuthErrorComputed
               ? "fl-icon-wufabofang"
               : this.voiceInfo.articleInfo.articleType === 1
                   ? this.playing
                     ? "fl-icon-zanting-daibiankuang"
                     : "fl-icon-bofang-daibiankuang"
                   : "fl-icon-bofang-daibiankuang",
-          title:
-            !this.ifSupportMime || this.offOrAuthErrorComputed
+          title: this.offOrAuthErrorComputed
               ? "无法播放"  
               : this.voiceInfo.articleInfo.articleType === 1
                   ? this.playing
@@ -380,8 +378,8 @@ export default {
                   : "播放全部",
           operate: this.playOrPause,
           disabled: !(
-            (this.voiceInfo.articleInfo.articleType === 2 && this.ifSupportMime && !this.offOrAuthErrorComputed) ||
-            (this.voiceInfo.articleInfo.articleType === 1 && this.ifSupportMime && !this.offOrAuthErrorComputed)
+            (this.voiceInfo.articleInfo.articleType === 2 && !this.offOrAuthErrorComputed) ||
+            (this.voiceInfo.articleInfo.articleType === 1 && !this.offOrAuthErrorComputed)
           )
         },
         {
@@ -433,9 +431,14 @@ export default {
 
     /** 播放/暂停 */
     async playOrPause() {
+      if (!this.ifSupportMime) {
+        showToast("此作品格式暂不支持访问")
+        return
+      }
+      
       if (this.voiceInfo.articleInfo.articleType === 2) {
         await useMyPlay.removePlayListBatch(this.voiceInfo.exhibitId)
-        useMyPlay.playOrPause(this.voiceInfo, "pool");
+        useMyPlay.playOrPause(this.voiceInfo, "pool", this.dropDownShow.value ? -1 : 1);
       } else {
         useMyPlay.playOrPause(this.voiceInfo);
       }

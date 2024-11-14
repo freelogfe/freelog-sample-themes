@@ -1,7 +1,7 @@
 <template>
   <div class="program-wrapper">
     <!-- pc -->
-    <div class="inner-program-wrapper" :class="{ 'unplayable': !ifSupportMime, 'in-mobile': $store.state.inMobile }">
+    <div class="inner-program-wrapper" :class="{ 'in-mobile': $store.state.inMobile }">
       <!-- 封面 -->
       <div
         ref="cover"
@@ -11,7 +11,7 @@
       >
         <img class="cover" :src="data.coverImages[0]" />
         <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
-        <div class="btn-modal" v-if="ifSupportMime">
+        <div class="btn-modal">
           <div class="btn" @click.stop="playOrPause()">
             <i
               class="freelog"
@@ -81,6 +81,7 @@ import { freelogApp } from "freelog-runtime";
 import { useMyPlay, useMyAuth } from "@/utils/hooks";
 import playStatus from "@/components/play-status";
 import { supportAudio, unSupportAudioIOS } from "@/api/data"
+import { showToast } from "../utils/common";
 
 export default {
   name: "program",
@@ -142,6 +143,12 @@ export default {
   methods: {
     /** 播放/暂停 */
     async playOrPause() {
+      // 检查是否是可播放的格式
+      if (!this.ifSupportMime) {
+        showToast("此作品格式暂不支持访问")
+        return
+      }
+
       if (this.data.articleInfo.articleType === 1) {
         useMyPlay.playOrPause(this.data);
       } else {
@@ -185,14 +192,6 @@ export default {
           bottom: 10px;
           opacity: 1;
         }
-      }
-    }
-
-    &.unplayable {
-      .cover-area,
-      .title,
-      .other-area {
-        opacity: 0.4;
       }
     }
 
