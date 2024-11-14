@@ -5,14 +5,6 @@
     display: flex;
     align-items: center;
 
-    &.unplayable {
-      .cover-area,
-      .info-area,
-      .btns-area {
-        opacity: 0.4;
-      }
-    }
-
     .cover-area {
       position: relative;
       width: 70px;
@@ -373,10 +365,6 @@
   .pc-voice-wrapper {
     display: flex;
     align-items: center;
-
-    &.unplayable {
-      opacity: 0.4;
-    }
 
     &:hover {
       .btns-area {

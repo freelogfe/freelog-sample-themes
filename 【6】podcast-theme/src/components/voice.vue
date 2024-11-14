@@ -5,7 +5,6 @@
     <!-- mobile -->
     <div
       class="mobile-voice-wrapper"
-      :class="{ unplayable: !ifSupportMime }"
       v-if="$store.state.inMobile"
     >
       <div
@@ -16,7 +15,6 @@
       >
         <img class="cover" v-view-lazy="computedCover" />
         <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
-        <div class="unplayable-tip" v-if="!ifSupportMime">无法播放</div>
       </div>
       <div
         class="info-area"
@@ -143,7 +141,6 @@
     <!-- PC -->
     <div
       class="pc-voice-wrapper"
-      :class="{ unplayable: !ifSupportMime }"
       v-if="$store.state.inMobile === false"
     >
       <div
@@ -154,7 +151,7 @@
       >
         <img class="cover" :src="computedCover" />
         <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
-        <div class="btn-modal" v-if="ifSupportMime">
+        <div class="btn-modal">
           <div class="btn" @click.stop="handlePlayOrPause">
             <i
               class="freelog"
@@ -235,7 +232,7 @@
             <i class="freelog fl-icon-zhuanji"></i>
             <div class="item-value">{{ data.exhibitTitle }}</div>
           </div>
-          <div class="info-item" v-if="!ifSupportMime">
+          <div class="info-item" v-if="this.offErrorComputed || this.authLinkAbnormal || this.data.articleInfo.status === 2">
             <i class="freelog fl-icon-wufabofang"></i>
             <div class="item-value">无法播放</div>
           </div>
@@ -535,14 +532,14 @@ export default {
       const isInPlayList = useMyPlay.ifExist(this.data);
       return [
         {
-          icon: !this.ifSupportMime || this.offErrorComputed || this.authLinkAbnormal || this.data.articleInfo.status === 2
+          icon: this.offErrorComputed || this.authLinkAbnormal || this.data.articleInfo.status === 2
             ? "fl-icon-wufabofang"
             : this.playing
             ? "fl-icon-zanting-daibiankuang"
             : "fl-icon-bofang-daibiankuang",
           title: this.playing ? "暂停" : "播放",
           operate: this.playOrPause,
-          disabled: !(this.ifSupportMime && !this.offErrorComputed && !this.authLinkAbnormal && this.data.articleInfo.status === 1)
+          disabled: !(!this.offErrorComputed && !this.authLinkAbnormal && this.data.articleInfo.status === 1)
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
@@ -567,14 +564,12 @@ export default {
       const isInPlayList = useMyPlay.ifExist(this.data);
       return [
         {
-          icon: !this.ifSupportMime
-            ? "fl-icon-wufabofang"
-            : this.playing
+          icon: this.playing
             ? "fl-icon-zanting-daibiankuang"
             : "fl-icon-bofang-daibiankuang",
-          label: !this.ifSupportMime ? "无法播放" : this.playing ? "暂停声音" : "播放声音",
+          label: this.playing ? "暂停声音" : "播放声音",
           operate: this.playOrPause,
-          disabled: !this.ifSupportMime
+          disabled: false
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
@@ -615,10 +610,20 @@ export default {
     },
     /** 播放/暂停 */
     handlePlayOrPause() {
+      // 检查是否是可播放的格式
+      if (!this.ifSupportMime) {
+        showToast("此作品格式暂不支持访问")
+        return
+      }
       this.playOrPause()
     },
     /** 播放/暂停 */
     playOrPause() {
+      // 检查是否是可播放的格式
+      if (!this.ifSupportMime) {
+        showToast("此作品格式暂不支持访问")
+        return
+      }
       if (this.data.articleInfo.articleType === 1) {
         useMyPlay.playOrPause(this.data);
       } else {

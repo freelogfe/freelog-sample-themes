@@ -727,7 +727,7 @@ export const useMyPlay = {
    * type: "pool" 表"合集"
    * type: "normal" 表"点选某首歌曲"(不是播放完成后自动播放下一首, 也不是手动点击播放下一首)
    */
-  async playOrPause(exhibit, type = "normal") {
+  async playOrPause(exhibit, type = "normal", sortType) {
     if (!exhibit) {
       store.commit("setData", { key: "playing", value: false });
       store.commit("setData", { key: "playingInfo", value: null });
@@ -870,7 +870,8 @@ export const useMyPlay = {
       // 2. 播放合集的第一个子作品
 
       // 获取所有子作品(按数量来确定要请求的数量)
-      const res = await this.getListInCollection(exhibitId);
+      const options = sortType ? { sortType } : {}
+      const res = await this.getListInCollection(exhibitId, options);
       if (!res) { 
         showToast("合集里没有可添加的作品！")
         return
