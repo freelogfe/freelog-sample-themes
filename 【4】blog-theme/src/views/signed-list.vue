@@ -135,7 +135,6 @@ export default {
           line-height: 100px;
           font-size: 34px;
           color: #222222;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
         }
 
         .search-box {
