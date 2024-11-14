@@ -13,8 +13,9 @@
 		</div>
 		<div class="date">{{ formatDate(data.createDate) }}</div>
 		<div class="article-title">
-			<span class="freelog fl-icon-warningxiaochicun auth-link-abnormal" v-if="![0, 4].includes(data.defaulterIdentityType)"></span>
-			<span class="freelog fl-icon-suoding lock" v-if="!inSignedList && data.defaulterIdentityType >= 4"></span>
+			<span class="freelog fl-icon-jinzhi weigui-icon" v-if="data?.articleInfo?.status === 2" title="此作品因违规无法访问"></span>
+			<span class="freelog fl-icon-warningxiaochicun auth-link-abnormal" v-if="![0, 4].includes(data.defaulterIdentityType)" title="作品异常，无法访问"></span>
+			<span class="freelog fl-icon-suoding lock" v-if="!inSignedList && data.defaulterIdentityType >= 4" title="获取授权"></span>
 			<span class="tag is-auth" v-if="inSignedList && data.defaulterIdentityType < 4">已授权</span>
 			<span class="tag not-auth" v-if="inSignedList && data.defaulterIdentityType >= 4">未授权</span>
 			<span
@@ -144,6 +145,12 @@ export default {
 		-webkit-line-clamp: 2;
 		line-clamp: 2;
 		padding-left: 1px;
+
+		.weigui-icon {
+			margin-right: 5px;
+			color: #EE4040;
+			font-size: 16px;
+		}
 
 		.auth-link-abnormal {
 			flex-shrink: 0;
