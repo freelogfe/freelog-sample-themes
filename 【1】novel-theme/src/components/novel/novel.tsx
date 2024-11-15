@@ -1,6 +1,7 @@
 import "./novel.scss";
 import Lock from "../../assets/images/mini-lock.png";
 import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
+import Freeze from "../../assets/images/freeze.png";
 import { ExhibitItem } from "../../api/interface";
 import { useMyHistory } from "../../utils/hooks";
 import { Tags } from "../tags/tags";
@@ -38,12 +39,18 @@ export const Novel = (props: {
           src={data.coverImages[0]}
           alt={data.exhibitTitle}
         />
-        {data.onlineStatus === 0 && <div className="offline">已下架</div>}
+        {data.articleInfo?.status !== 2 && data.onlineStatus === 0 && (
+          <div className="offline">已下架</div>
+        )}
       </div>
 
       <div className="book-name" title={data.exhibitTitle}>
-        {![0, 4].includes(data.defaulterIdentityType!) && (
-          <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
+        {data.articleInfo?.status === 2 ? (
+          <img className="freeze-lock" src={Freeze} alt="封禁" />
+        ) : (
+          ![0, 4].includes(data.defaulterIdentityType!) && (
+            <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
+          )
         )}
         <div className={`name ${![0, 4].includes(data.defaulterIdentityType!) && "opacity-40p"}`}>
           {data.exhibitTitle}
@@ -71,13 +78,19 @@ export const Novel = (props: {
             src={data.coverImages[0]}
             alt={data.exhibitTitle}
           />
-          {data.onlineStatus === 0 && <div className="offline">已下架</div>}
+          {data.articleInfo?.status !== 2 && data.onlineStatus === 0 && (
+            <div className="offline">已下架</div>
+          )}
         </div>
 
         <div className={`book-info ${mode === 3 && inMobile && "auth-book"}`}>
           <div className="book-name-box" title={data.exhibitTitle}>
-            {![0, 4].includes(data.defaulterIdentityType!) && (
-              <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
+            {data.articleInfo?.status === 2 ? (
+              <img className="freeze-lock" src={Freeze} alt="封禁" />
+            ) : (
+              ![0, 4].includes(data.defaulterIdentityType!) && (
+                <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
+              )
             )}
             {mode !== 3 && data.defaulterIdentityType! >= 4 && (
               <img className="lock" src={Lock} alt="未授权" />

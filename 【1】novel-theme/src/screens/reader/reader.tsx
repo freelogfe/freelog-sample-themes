@@ -53,6 +53,7 @@ export const ReaderScreen = (props: any) => {
     const { articleType } = exhibitInfo.data.data.articleInfo;
     if (articleType === 2) {
       getCollectionList(true);
+      getCollectionInfo();
     }
     getRecommendList();
     setBook({
@@ -119,6 +120,12 @@ export const ReaderScreen = (props: any) => {
     const res = await (freelogApp as any).getCollectionSubInfo(id, { itemId: subId });
     const { sortId } = res.data.data;
 
+    setBook((pre: any) => {
+      return {
+        ...pre,
+        articleInfo: res.data.data.articleInfo
+      };
+    });
     getCollectionList(false, sortId - 15 < 0 ? 0 : sortId - 15);
     setCurrentSortId(sortId);
   };
@@ -370,7 +377,6 @@ const ReaderBody = () => {
   /** 获取小说内容 */
   const getContent = useCallback(async () => {
     let authErrType: any = -1;
-
     const statusInfo = collection
       ? await (freelogApp as any).getCollectionSubAuth(id, { itemIds: subId })
       : await freelogApp.getExhibitAuthStatus(id);
@@ -438,24 +444,25 @@ const ReaderBody = () => {
       >
         {book.articleInfo?.status === 1 ? (
           <React.Fragment>
-            {defaulterIdentityType === 0 && (
-              <React.Fragment>
-                <div id="markdown" />
-                {collection && currentSortId === total && (
-                  <div className="no-more">— 已加载全部章节 —</div>
-                )}
-              </React.Fragment>
-            )}
-            {![null, 0, 4].includes(defaulterIdentityType) ? (
-              <div className="auth-box">
-                <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
-                <div className="auth-link-tip">授权链异常，无法查看</div>
-                <div className="home-btn" onClick={() => history.switchPage("/home")}>
-                  进入首页
+            {book.onlineStatus === 0 ? (
+              <div>
+                <div className="exceptional-box">
+                  <div className="icon">
+                    <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
+                  </div>
+
+                  <span className="exceptional-text"> 作品已下架，无法访问 </span>
                 </div>
               </div>
-            ) : defaulterIdentityType &&
-              (defaulterIdentityType === 4 || userData?.isLogin === false) ? (
+            ) : ![0, 4].includes(book?.defaulterIdentityType) ? (
+              <div className="exceptional-box">
+                <div className="icon">
+                  <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+                </div>
+
+                <span className="exceptional-text"> 作品异常，无法访问 </span>
+              </div>
+            ) : defaulterIdentityType === 4 || userData?.isLogin === false ? (
               <div className="lock-box">
                 <img className="lock" src={Lock} alt="未授权" />
                 <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
@@ -463,13 +470,31 @@ const ReaderBody = () => {
                   获得授权
                 </div>
               </div>
-            ) : null}
+            ) : !["阅读"].includes(book?.articleInfo.resourceType[0]) ? (
+              <div className="exceptional-box">
+                <div className="icon">
+                  <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+                </div>
+
+                <span className="exceptional-text">此作品格式暂不支持访问 </span>
+              </div>
+            ) : defaulterIdentityType === 0 ? (
+              <React.Fragment>
+                <div id="markdown" />
+                {collection && currentSortId === total && (
+                  <div className="no-more">— 已加载全部章节 —</div>
+                )}
+              </React.Fragment>
+            ) : (
+              <></>
+            )}
           </React.Fragment>
         ) : (
           <div className="freeze-exhibit">
             <div className="icon">
-              <i className="freelog fl-icon-ziyuanweiguitishi_wendang freeze"></i>
+              <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
             </div>
+            <span className="exceptional-text"> 此作品因违规无法访问 </span>
           </div>
         )}
 
@@ -526,24 +551,25 @@ const ReaderBody = () => {
         >
           {book.articleInfo?.status === 1 ? (
             <React.Fragment>
-              {defaulterIdentityType === 0 && (
-                <React.Fragment>
-                  <div id="markdown" />
-                  {collection && currentSortId === total && (
-                    <div className="no-more">— 已加载全部章节 —</div>
-                  )}
-                </React.Fragment>
-              )}
-              {![null, 0, 4].includes(defaulterIdentityType) ? (
-                <div className="auth-box">
-                  <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
-                  <div className="auth-link-tip">授权链异常，无法查看</div>
-                  <div className="home-btn" onClick={() => history.switchPage("/home")}>
-                    进入首页
+              {book.onlineStatus === 0 ? (
+                <div>
+                  <div className="exceptional-box">
+                    <div className="icon">
+                      <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
+                    </div>
+
+                    <span className="exceptional-text"> 作品已下架，无法访问 </span>
                   </div>
                 </div>
-              ) : defaulterIdentityType &&
-                (defaulterIdentityType === 4 || userData?.isLogin === false) ? (
+              ) : ![0, 4].includes(book?.defaulterIdentityType) ? (
+                <div className="exceptional-box">
+                  <div className="icon">
+                    <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+                  </div>
+
+                  <span className="exceptional-text"> 作品异常，无法访问 </span>
+                </div>
+              ) : defaulterIdentityType === 4 || userData?.isLogin === false ? (
                 <div className="lock-box">
                   <img className="lock" src={Lock} alt="未授权" />
                   <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
@@ -551,13 +577,31 @@ const ReaderBody = () => {
                     获得授权
                   </div>
                 </div>
-              ) : null}
+              ) : !["阅读"].includes(book?.articleInfo.resourceType[0]) ? (
+                <div className="exceptional-box">
+                  <div className="icon">
+                    <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+                  </div>
+
+                  <span className="exceptional-text">此作品格式暂不支持访问 </span>
+                </div>
+              ) : defaulterIdentityType === 0 ? (
+                <React.Fragment>
+                  <div id="markdown" />
+                  {collection && currentSortId === total && (
+                    <div className="no-more">— 已加载全部章节 —</div>
+                  )}
+                </React.Fragment>
+              ) : (
+                <></>
+              )}
             </React.Fragment>
           ) : (
             <div className="freeze-exhibit">
               <div className="icon">
-                <i className="freelog fl-icon-ziyuanweiguitishi_wendang freeze"></i>
+                <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
               </div>
+              <span className="exceptional-text"> 此作品因违规无法访问 </span>
             </div>
           )}
         </div>

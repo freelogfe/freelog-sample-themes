@@ -6,6 +6,8 @@ import { useMyHistory, useMyScroll } from "../../utils/hooks";
 
 import Lock from "../../assets/images/mini-lock.png";
 import RightArrow from "../../assets/images/right-arrow.png";
+import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
+import Freeze from "../../assets/images/freeze.png";
 import { CollectionList, ExhibitItem } from "../../api/interface";
 import "./catalogue-modal.scss";
 
@@ -91,10 +93,17 @@ export const CatalogueModal = (props: {
                   }}
                 >
                   <span className="sub-title">{collectionItem.itemTitle}</span>
-                  {![0, 4].includes(collectionItem.defaulterIdentityType) ? (
+                  {book?.onlineStatus}
+                  {collectionItem.articleInfo.status === 2 ? (
+                    <img className="freeze-lock" src={Freeze} alt="封禁" />
+                  ) : book?.onlineStatus === 0 ? (
+                    <div className="offline-lock">已下架</div>
+                  ) : ![0, 4].includes(collectionItem.defaulterIdentityType) ? (
+                    <img className="auth-lock" src={AuthLinkAbnormal} alt="授权链异常" />
+                  ) : collectionItem.defaulterIdentityType === 4 ? (
                     <img className="sub-lock" src={Lock} alt="未授权" />
                   ) : (
-                    inMobile && <img src={RightArrow} alt="" />
+                    inMobile && <img src={RightArrow} />
                   )}
                 </div>
               );

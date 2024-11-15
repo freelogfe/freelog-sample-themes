@@ -142,9 +142,24 @@
         cursor: pointer;
       }
 
+      .freeze-lock,
+      .auth-lock,
       .sub-lock {
         width: 16px;
         height: 16px;
+      }
+
+      .offline-lock {
+        width: 40px;
+        height: 20px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 0px 0px 4px 0px;
+        font-size: 10px;
+        font-weight: 600;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     }
 

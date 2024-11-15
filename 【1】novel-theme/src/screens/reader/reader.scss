@@ -47,6 +47,31 @@
       border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
 
+    .exceptional-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .icon {
+        text-align: center;
+        .freelog {
+          font-size: 164px;
+          opacity: 0.4;
+        }
+      }
+
+      .exceptional-text {
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 400;
+        font-size: 24px;
+        color: #222222;
+        line-height: 33px;
+        text-align: left;
+        opacity: 0.4;
+        margin-top: 20px;
+      }
+    }
+
     .auth-box {
       width: 100%;
       padding: 110px 0;
@@ -127,7 +152,10 @@
     }
 
     .freeze-exhibit {
+      text-align: center;
+
       .icon {
+        text-align: center;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -135,6 +163,17 @@
           font-size: 164px;
           opacity: 0.4;
         }
+      }
+
+      .exceptional-text {
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 400;
+        font-size: 24px;
+        color: #222222;
+        line-height: 33px;
+        text-align: left;
+        opacity: 0.4;
+        margin-top: 20px;
       }
     }
 
@@ -260,6 +299,31 @@
         margin-bottom: -10px;
       }
 
+      .exceptional-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .icon {
+          text-align: center;
+          .freelog {
+            font-size: 164px;
+            opacity: 0.4;
+          }
+        }
+
+        .exceptional-text {
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 400;
+          font-size: 24px;
+          color: #222222;
+          line-height: 33px;
+          text-align: left;
+          opacity: 0.4;
+          margin-top: 20px;
+        }
+      }
+
       .auth-box {
         width: 100%;
         padding: 110px 0;
@@ -340,14 +404,24 @@
       }
 
       .freeze-exhibit {
+        text-align: center;
         .icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          text-align: center;
           .freeze {
             font-size: 164px;
             opacity: 0.4;
           }
+        }
+
+        .exceptional-text {
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 400;
+          font-size: 24px;
+          color: #222222;
+          line-height: 33px;
+          text-align: left;
+          opacity: 0.4;
+          margin-top: 20px;
         }
       }
     }
