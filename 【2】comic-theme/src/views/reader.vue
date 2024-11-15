@@ -20,7 +20,44 @@
     <template v-if="!loading && inMobile">
       <div class="mobile-body-wrapper">
         <template v-if="comicInfo?.articleInfo?.status === 1">
-          <template v-if="comicInfo.defaulterIdentityType === 0">
+          <template v-if="comicInfo.onlineStatus === 0">
+            <div class="exceptional-box">
+              <div class="icon">
+                <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
+              </div>
+              <span class="exceptional-text"> 作品已下架，无法访问 </span>
+            </div>
+          </template>
+
+          <template v-else-if="![0, 4].includes(comicInfo?.defaulterIdentityType)">
+            <div className="exceptional-box">
+              <div className="icon">
+                <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+              </div>
+              <span className="exceptional-text"> 作品异常，无法访问 </span>
+            </div>
+          </template>
+
+          <template
+            v-else-if="comicInfo.defaulterIdentityType === 4 || userData?.isLogin === false"
+          >
+            <div class="lock-box">
+              <img class="lock" src="../assets/images/lock.png" alt="未授权" />
+              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+              <div class="get-btn" @click="getAuth()">获取授权</div>
+            </div>
+          </template>
+
+          <template v-else-if="!['漫画'].includes(comicInfo?.articleInfo.resourceType[0])">
+            <div className="exceptional-box">
+              <div className="icon">
+                <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+              </div>
+              <span className="exceptional-text">此作品格式暂不支持访问 </span>
+            </div>
+          </template>
+
+          <template v-else-if="comicInfo.defaulterIdentityType === 0">
             <template v-if="mode[0] === 'paging'">
               <my-swipe
                 class="paging-area"
@@ -101,33 +138,17 @@
               </div>
             </template>
           </template>
-
-          <template v-else-if="comicInfo.defaulterIdentityType">
-            <div class="auth-box" v-if="comicInfo.defaulterIdentityType !== 4">
-              <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-              <div class="auth-link-tip">授权链异常，无法查看</div>
-              <div class="home-btn" @click="switchPage('/home')">进入首页</div>
-            </div>
-
-            <div
-              class="lock-box"
-              v-else-if="comicInfo.defaulterIdentityType === 4 || userData?.isLogin === false"
-            >
-              <img class="lock" src="../assets/images/lock.png" alt="未授权" />
-              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-              <div class="get-btn" @click="getAuth()">获取授权</div>
-            </div>
-          </template>
         </template>
 
         <template v-else>
           <div class="freeze-exhibit">
             <div class="icon">
               <i
-                class="freelog fl-icon-ziyuanweiguitishi_wendang freeze"
+                class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"
                 :class="{ light: theme === 'light', dark: theme === 'dark' }"
               ></i>
             </div>
+            <span className="exceptional-text"> 此作品因违规无法访问 </span>
           </div>
         </template>
       </div>
@@ -216,7 +237,44 @@
     <template v-if="!loading && !inMobile">
       <div class="body-area" :class="theme">
         <template v-if="comicInfo?.articleInfo?.status === 1">
-          <template v-if="comicInfo.defaulterIdentityType === 0">
+          <template v-if="comicInfo.onlineStatus === 0">
+            <div class="exceptional-box">
+              <div class="icon">
+                <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
+              </div>
+              <span class="exceptional-text"> 作品已下架，无法访问 </span>
+            </div>
+          </template>
+
+          <template v-else-if="![0, 4].includes(comicInfo?.defaulterIdentityType)">
+            <div className="exceptional-box">
+              <div className="icon">
+                <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+              </div>
+              <span className="exceptional-text"> 作品异常，无法访问 </span>
+            </div>
+          </template>
+
+          <template
+            v-else-if="comicInfo.defaulterIdentityType === 4 || userData?.isLogin === false"
+          >
+            <div class="lock-box">
+              <img class="lock" src="../assets/images/lock.png" alt="未授权" />
+              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+              <div class="get-btn" @click="getAuth()">获取授权</div>
+            </div>
+          </template>
+
+          <template v-else-if="!['漫画'].includes(comicInfo?.articleInfo.resourceType[0])">
+            <div className="exceptional-box">
+              <div className="icon">
+                <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+              </div>
+              <span className="exceptional-text">此作品格式暂不支持访问 </span>
+            </div>
+          </template>
+
+          <template v-else-if="comicInfo.defaulterIdentityType === 0">
             <div class="paging-mode-area" v-if="mode[0] === 'paging'">
               <!-- 条漫/页漫、双页模式、非跨页匹配、当前为首页时，首页左侧显示空屏 -->
               <div
@@ -465,33 +523,17 @@
               </div>
             </div>
           </template>
-
-          <template v-else>
-            <div class="auth-box" v-if="comicInfo.defaulterIdentityType !== 4">
-              <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-              <div class="auth-link-tip">授权链异常，无法查看</div>
-              <div class="home-btn" @click="switchPage('/home')">进入首页</div>
-            </div>
-
-            <div
-              class="lock-box"
-              v-else-if="comicInfo.defaulterIdentityType === 4 || userData?.isLogin === false"
-            >
-              <img class="lock" src="../assets/images/lock.png" alt="未授权" />
-              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-              <div class="get-btn" @click="getAuth()">获取授权</div>
-            </div>
-          </template>
         </template>
 
         <template v-else>
           <div class="freeze-exhibit">
             <div class="icon">
               <i
-                class="freelog fl-icon-ziyuanweiguitishi_wendang freeze"
+                class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"
                 :class="{ light: theme === 'light', dark: theme === 'dark' }"
               ></i>
             </div>
+            <span className="exceptional-text"> 此作品因违规无法访问 </span>
           </div>
         </template>
       </div>
@@ -766,10 +808,25 @@
             >
               <span class="sub-title">{{ item.itemTitle }}</span>
               <img
-                v-if="[0, 4].includes(item.defaulterIdentityType)"
-                src="@/assets/images/right-arrow.png"
+                v-if="item.articleInfo.status === 2"
+                class="freeze-lock"
+                src="@/assets/images/freeze.png"
+                alt="封禁"
               />
-              <img v-else class="sub-lock" src="@/assets/images/mini-lock.png" alt="未授权" />
+              <div v-else-if="comicInfo.onlineStatus === 0" className="offline-lock">已下架</div>
+              <img
+                v-else-if="![0, 4].includes(item.defaulterIdentityType)"
+                class="auth-lock"
+                src="@/assets/images/auth-link-abnormal.png"
+                alt="授权链异常"
+              />
+              <img
+                v-else-if="item.defaulterIdentityType === 4"
+                class="sub-lock"
+                src="@/assets/images/mini-lock.png"
+                alt="未授权"
+              />
+              <img v-else src="@/assets/images/right-arrow.png" />
             </div>
 
             <div
@@ -1192,6 +1249,7 @@ export default {
       const exhibitInfo = await freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 });
       let comicMode;
       const { resourceType, articleType } = exhibitInfo.data.data.articleInfo;
+      data.comicInfo = exhibitInfo.data.data;
 
       if (resourceType[2] === "条漫") {
         comicMode = 1;
@@ -1208,6 +1266,7 @@ export default {
           itemId: subId
         });
         const { resourceType } = subInfoResponse.data.data.articleInfo;
+        data.comicInfo = { ...data.comicInfo, articleInfo: subInfoResponse.data.data.articleInfo };
 
         if (resourceType[2] === "条漫") {
           comicMode = 1;
@@ -1218,7 +1277,10 @@ export default {
         }
       }
 
-      data.comicInfo = { ...exhibitInfo.data.data, comicMode };
+      data.comicInfo = {
+        ...data.comicInfo,
+        comicMode
+      };
       data.comicMode = comicMode;
       getContent();
       getRecommendList();
@@ -1463,6 +1525,12 @@ export default {
       data.shareWidget = await freelogApp.mountArticleWidget(params);
     };
 
+    // 获取单品详细信息
+    const getCollectionInfo = async (subId?: string) => {
+      const res = await (freelogApp as any).getCollectionSubInfo(id, { itemId: subId });
+      data.comicInfo = { ...data.comicInfo, articleInfo: res.data.data.articleInfo };
+    };
+
     watch(
       () => scrollTop.value,
       cur => {
@@ -1513,6 +1581,7 @@ export default {
       cur => {
         if (query.value.subId) {
           getContent(cur);
+          getCollectionInfo(cur);
           data.collectionSubId = cur;
         }
       },

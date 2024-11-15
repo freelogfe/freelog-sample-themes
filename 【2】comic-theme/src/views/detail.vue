@@ -5,7 +5,22 @@
     <my-header />
 
     <!-- mobile -->
-    <div class="mobile-content" v-if="inMobile">
+    <div
+      class="mobile-content"
+      :class="` ${comicInfo?.articleInfo?.status === 2 && 'freeze-exhibit'}`"
+      v-if="inMobile"
+    >
+      <!-- 已下架、授权链异常 顶部提示窗  -->
+      <div
+        className="exceptional-message"
+        v-if="
+          comicInfo.onlineStatus === 0 ||
+          ![0, 4, undefined].includes(comicInfo?.defaulterIdentityType)
+        "
+      >
+        {{ comicInfo.onlineStatus === 0 ? "作品已下架，无法访问" : "作品异常，无法访问" }}
+      </div>
+
       <div
         class="auth-link-abnormal-tip"
         v-if="comicInfo.defaulterIdentityType && ![0, 4].includes(comicInfo.defaulterIdentityType)"
@@ -18,12 +33,15 @@
       <div class="comic-info">
         <div class="comic-base-info">
           <div class="comic-cover">
-            <img
-              class="comic-cover-image"
-              :src="comicInfo?.coverImages[0]"
-              :alt="comicInfo?.exhibitTitle"
-              v-if="comicInfo?.coverImages"
-            />
+            <div>
+              <img
+                class="comic-cover-image"
+                :src="comicInfo?.coverImages[0]"
+                :alt="comicInfo?.exhibitTitle"
+                v-if="comicInfo?.coverImages"
+              />
+              <div v-if="comicInfo.onlineStatus === 0" class="offline">已下架</div>
+            </div>
           </div>
 
           <div class="comic-content">
@@ -64,6 +82,7 @@
             :class="{
               disabled:
                 ![0, 4].includes(comicInfo.defaulterIdentityType ?? -1) ||
+                comicInfo.onlineStatus === 0 ||
                 (comicInfo.articleInfo.articleType === 2 && !listData.length)
             }"
             @click="handleToReader"
@@ -114,6 +133,10 @@
           <div class="sub-directory-container">
             <div
               class="sub"
+              :class="
+                (![0, 4].includes(item.defaulterIdentityType) || comicInfo.onlineStatus === 0) &&
+                'disabled'
+              "
               v-for="item in listData"
               :key="item.itemId"
               @click="
@@ -125,12 +148,27 @@
               "
             >
               <span class="sub-title">{{ item.itemTitle }}</span>
+
               <img
-                v-if="[0, 4].includes(item.defaulterIdentityType)"
-                src="../assets/images/right-arrow.png"
-                alt=""
+                v-if="item.articleInfo?.status === 2"
+                class="freeze-lock"
+                src="../assets/images/freeze.png"
+                alt="封禁"
               />
-              <img v-else class="sub-lock" src="../assets/images/mini-lock.png" alt="未授权" />
+              <div v-else-if="comicInfo.onlineStatus === 0" className="offline-lock">已下架</div>
+              <img
+                v-else-if="![0, 4].includes(item.defaulterIdentityType)"
+                class="auth-lock"
+                src="../assets/images/auth-link-abnormal.png"
+                alt="授权链异常"
+              />
+              <img
+                v-else-if="item.defaulterIdentityType === 4"
+                class="sub-lock"
+                src="../assets/images/mini-lock.png"
+                alt="未授权"
+              />
+              <img v-else src="../assets/images/right-arrow.png" alt="" />
             </div>
           </div>
 
@@ -149,7 +187,22 @@
     </div>
 
     <!-- PC -->
-    <div class="content" v-if="!inMobile">
+    <div
+      class="content"
+      :class="` ${comicInfo?.articleInfo?.status === 2 && 'freeze-exhibit'}`"
+      v-if="!inMobile"
+    >
+      <!-- 已下架、授权链异常 顶部提示窗  -->
+      <div
+        className="exceptional-message"
+        v-if="
+          comicInfo.onlineStatus === 0 ||
+          ![0, 4, undefined].includes(comicInfo?.defaulterIdentityType)
+        "
+      >
+        {{ comicInfo.onlineStatus === 0 ? "作品已下架，无法访问" : "作品异常，无法访问" }}
+      </div>
+
       <div
         class="auth-link-abnormal-tip"
         v-if="comicInfo.defaulterIdentityType && ![0, 4].includes(comicInfo.defaulterIdentityType)"
@@ -162,12 +215,15 @@
         <!-- 漫画信息 -->
         <div class="comic-info">
           <div class="comic-cover">
-            <img
-              class="comic-cover-image"
-              :src="comicInfo?.coverImages[0]"
-              :alt="comicInfo?.exhibitTitle"
-              v-if="comicInfo?.coverImages"
-            />
+            <div>
+              <img
+                class="comic-cover-image"
+                :src="comicInfo?.coverImages[0]"
+                :alt="comicInfo?.exhibitTitle"
+                v-if="comicInfo?.coverImages"
+              />
+              <div v-if="comicInfo.onlineStatus === 0" class="offline">已下架</div>
+            </div>
           </div>
 
           <div class="comic-content">
@@ -194,6 +250,7 @@
                   :class="{
                     disabled:
                       ![0, 4].includes(comicInfo.defaulterIdentityType ?? -1) ||
+                      comicInfo.onlineStatus === 0 ||
                       (comicInfo.articleInfo.articleType === 2 && !listData.length)
                   }"
                   @click="handleToReader"
@@ -266,6 +323,10 @@
             <div class="sub-directory-container">
               <div
                 class="sub"
+                :class="
+                  (![0, 4].includes(item.defaulterIdentityType) || comicInfo.onlineStatus === 0) &&
+                  'disabled'
+                "
                 v-for="item in listData"
                 :key="item.itemId"
                 @click="
@@ -278,7 +339,20 @@
               >
                 <span class="sub-title">{{ item.itemTitle }}</span>
                 <img
-                  v-if="![0, 4].includes(item.defaulterIdentityType)"
+                  v-if="item.articleInfo?.status === 2"
+                  class="freeze-lock"
+                  src="../assets/images/freeze.png"
+                  alt="封禁"
+                />
+                <div v-else-if="comicInfo.onlineStatus === 0" className="offline-lock">已下架</div>
+                <img
+                  v-else-if="![0, 4].includes(item.defaulterIdentityType)"
+                  class="auth-lock"
+                  src="../assets/images/auth-link-abnormal.png"
+                  alt="授权链异常"
+                />
+                <img
+                  v-else-if="item.defaulterIdentityType === 4"
                   class="sub-lock"
                   src="../assets/images/mini-lock.png"
                   alt="未授权"

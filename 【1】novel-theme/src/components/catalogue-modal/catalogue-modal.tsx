@@ -93,7 +93,6 @@ export const CatalogueModal = (props: {
                   }}
                 >
                   <span className="sub-title">{collectionItem.itemTitle}</span>
-                  {book?.onlineStatus}
                   {collectionItem.articleInfo.status === 2 ? (
                     <img className="freeze-lock" src={Freeze} alt="封禁" />
                   ) : book?.onlineStatus === 0 ? (

@@ -10,14 +10,22 @@
         :src="data.coverImages[0]"
         :alt="data.exhibitTitle"
       />
-      <div class="offline" v-if="data.onlineStatus === 0">已下架</div>
+      <div class="offline" v-if="data.articleInfo?.status !== 2 && data.onlineStatus === 0">
+        已下架
+      </div>
     </div>
 
     <div class="comic-name" :title="data.exhibitTitle">
       <img
+        class="freeze-lock"
+        src="../assets/images/freeze.png"
+        v-if="data.articleInfo?.status === 2"
+        alt="封禁"
+      />
+      <img
         class="auth-link-abnormal"
         src="../assets/images/auth-link-abnormal.png"
-        v-if="![0, 4].includes(data.defaulterIdentityType)"
+        v-else-if="![0, 4].includes(data.defaulterIdentityType)"
       />
       <div class="name" :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">
         {{ data.exhibitTitle }}
@@ -47,21 +55,30 @@
           :src="data.coverImages[0]"
           :alt="data.exhibitTitle"
         />
-        <div class="offline" v-if="data.onlineStatus === 0">已下架</div>
+        <div class="offline" v-if="data.articleInfo?.status !== 2 && data.onlineStatus === 0">
+          已下架
+        </div>
       </div>
 
       <div class="comic-info" :class="{ 'auth-comic': mode === 3 && inMobile }">
         <div class="comic-name-box" :title="data.exhibitTitle">
           <img
+            class="freeze-lock"
+            src="../assets/images/freeze.png"
+            v-if="data.articleInfo?.status === 2"
+            alt="封禁"
+          />
+          <img
             class="auth-link-abnormal"
             src="../assets/images/auth-link-abnormal.png"
-            v-if="![0, 4].includes(data.defaulterIdentityType)"
+            v-else-if="![0, 4].includes(data.defaulterIdentityType)"
+            alt="授权链异常"
           />
           <img
             class="lock"
             src="../assets/images/mini-lock.png"
             alt="未授权"
-            v-if="mode !== 3 && data.defaulterIdentityType >= 4"
+            v-else-if="mode !== 3 && data.defaulterIdentityType >= 4"
           />
           <div
             class="comic-status"
@@ -240,6 +257,7 @@ export default {
     display: flex;
     align-items: center;
 
+    .freeze-lock,
     .auth-link-abnormal {
       width: 16px;
       height: 16px;
@@ -322,6 +340,7 @@ export default {
         display: flex;
         align-items: center;
 
+        .freeze-lock,
         .auth-link-abnormal {
           width: 16px;
           height: 16px;
