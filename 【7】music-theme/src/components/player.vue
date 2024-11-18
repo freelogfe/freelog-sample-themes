@@ -114,12 +114,22 @@
                 <div class="title-area">
                   <img
                     class="icon"
+                    src="../assets/images/freeze.png"
+                    v-if="item.articleInfo?.status === 2"
+                    alt="封禁"
+                  />
+                  <div v-else-if="item.onlineStatus === 0" class="offline-lock">已下架</div>
+
+                  <img
+                    class="icon"
                     src="../assets/images/auth-link-abnormal.png"
-                    v-if="![0, 4].includes(item.defaulterIdentityType)"
+                    alt="授权链异常"
+                    v-else-if="![0, 4].includes(item.defaulterIdentityType)"
                   />
                   <i
                     class="freelog fl-icon-suoding lock"
                     @click.stop="getAuth(item)"
+                    alt="未授权"
                     v-if="item.defaulterIdentityType >= 4"
                   ></i>
                   <div class="voice-title">{{ item.itemTitle || item.exhibitTitle }}</div>
@@ -385,12 +395,21 @@
                     <div class="icon-lock-title-wrapper">
                       <img
                         class="icon"
+                        src="../assets/images/freeze.png"
+                        v-if="item.articleInfo?.status === 2"
+                        alt="封禁"
+                      />
+                      <div v-else-if="item.onlineStatus === 0" class="offline-lock">已下架</div>
+                      <img
+                        class="icon"
                         src="../assets/images/auth-link-abnormal.png"
-                        v-if="![0, 4].includes(item.defaulterIdentityType)"
+                        alt="授权链异常"
+                        v-else-if="![0, 4].includes(item.defaulterIdentityType)"
                       />
                       <i
                         class="freelog fl-icon-suoding lock"
                         @click.stop="getAuth(item)"
+                        alt="未授权"
                         v-if="item.defaulterIdentityType >= 4"
                       ></i>
                       <my-tooltip :content="item.itemTitle || item.exhibitTitle">
@@ -879,11 +898,9 @@ export default {
         navigator.clipboard
           .writeText(copiedShareHref)
           .then(() => {
-            console.log("来到这里了");
             showToast("链接复制成功～");
           })
           .catch(error => {
-            console.log("报错");
             const input = document.createElement("input");
             document.body.appendChild(input);
             input.setAttribute("value", copiedShareHref);

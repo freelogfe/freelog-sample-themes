@@ -9,6 +9,7 @@ import { secondsToHMS } from "@/utils/common";
 
 import MoreIcon from "@/assets/images/arrow.png";
 import AuthLinkAbnormal from "@/assets/images/auth-link-abnormal.png";
+import Freeze from "@/assets/images/freeze.png";
 import { Exhibit } from "@/interface";
 
 const store = useGlobalStore();
@@ -58,7 +59,6 @@ const playing = (obj: { exhibitId: string; itemId: string }) => {
 
 /** 播放/暂停 */
 const playOrPause = (item: Exhibit) => {
-  console.log("popular item", item);
   useMyPlay.playOrPause(item);
 };
 
@@ -211,13 +211,22 @@ const isSelectedData = item => {
               "
             >
               <img
+                class="freeze-lock"
+                :src="Freeze"
+                alt="封禁"
+                v-if="item.articleInfo?.status === 2"
+              />
+              <div v-else-if="item.onlineStatus === 0" class="offline-lock">已下架</div>
+              <img
                 class="auth-link-abnormal"
                 :src="AuthLinkAbnormal"
-                v-if="authLinkAbnormal(item.defaulterIdentityType)"
+                alt="授权链异常"
+                v-else-if="authLinkAbnormal(item.defaulterIdentityType)"
               />
               <i
                 class="freelog fl-icon-suoding lock"
                 @click.stop="getAuth(item)"
+                alt="未授权"
                 v-if="item.defaulterIdentityType >= 4"
               ></i>
               {{ item.exhibitTitle }}
@@ -568,9 +577,25 @@ const isSelectedData = item => {
               }
             }
 
+            .freeze-lock,
             .auth-link-abnormal {
               width: 16px;
               height: 16px;
+              margin-right: 5px;
+            }
+
+            .offline-lock {
+              flex-shrink: 0;
+              width: 40px;
+              height: 20px;
+              background: rgba(255, 255, 255, 0.2);
+              border-radius: 13px;
+              font-size: 10px;
+              font-weight: 600;
+              color: #ffffff;
+              display: flex;
+              align-items: center;
+              justify-content: center;
               margin-right: 5px;
             }
 
@@ -786,9 +811,25 @@ const isSelectedData = item => {
               }
             }
 
+            .freeze-lock,
             .auth-link-abnormal {
               width: 16px;
               height: 16px;
+              margin-right: 5px;
+            }
+
+            .offline-lock {
+              flex-shrink: 0;
+              width: 40px;
+              height: 20px;
+              background: rgba(255, 255, 255, 0.2);
+              border-radius: 13px;
+              font-size: 10px;
+              font-weight: 600;
+              color: #ffffff;
+              display: flex;
+              align-items: center;
+              justify-content: center;
               margin-right: 5px;
             }
 

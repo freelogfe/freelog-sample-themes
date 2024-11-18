@@ -4,25 +4,57 @@
     <!-- mobile -->
     <div
       class="mobile-voice-wrapper"
-      :class="{ unplayable: !ifSupportMime }"
+      :class="{
+        unplayable: !ifSupportMime || data.onlineStatus === 0 || data.articleInfo.status === 2
+      }"
       v-if="store.inMobile"
-      @click.stop="playOrPause()"
+      @click.stop="
+        !(!ifSupportMime || data.onlineStatus === 0 || data.articleInfo.status === 2) &&
+          playOrPause()
+      "
     >
-      <div ref="cover" class="cover-area" :class="{ 'opacity-40': authLinkAbnormal }">
+      <div
+        ref="cover"
+        class="cover-area"
+        :class="{
+          'opacity-40': authLinkAbnormal || data.onlineStatus === 0 || data.articleInfo.status === 2
+        }"
+      >
         <img class="cover" :src="data.coverImages[0]" />
         <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
-        <div class="unplayable-tip" v-if="!ifSupportMime">无法播放</div>
+        <div
+          class="unplayable-tip"
+          v-if="
+            !ifSupportMime ||
+            authLinkAbnormal ||
+            data.onlineStatus === 0 ||
+            data.articleInfo.status === 2
+          "
+        >
+          无法播放
+        </div>
       </div>
       <div class="info-area">
         <div class="title-area">
           <img
+            class="freeze-lock"
+            src="../assets/images/freeze.png"
+            alt="封禁"
+            v-if="data?.articleInfo?.status === 2"
+          />
+          <div class="offline" v-else-if="data.onlineStatus === 0 && statusShow">
+            <span>已下架</span>
+          </div>
+          <img
             class="auth-link-abnormal"
             src="../assets/images/auth-link-abnormal.png"
-            v-if="authLinkAbnormal"
+            alt="授权链异常"
+            v-else-if="authLinkAbnormal"
           />
           <i
             class="freelog fl-icon-suoding lock"
             @click.stop="getAuth()"
+            alt="未授权"
             v-if="data.defaulterIdentityType >= 4"
           ></i>
           <!-- <template v-if="authShow">
@@ -93,15 +125,27 @@
     <!-- PC -->
     <div
       class="pc-voice-wrapper"
-      :class="{ unplayable: !ifSupportMime }"
-      :title="!this.ifSupportMime || this.authLinkAbnormal ? '无法播放' : ''"
+      :class="{
+        unplayable: !ifSupportMime || data.onlineStatus === 0 || data.articleInfo.status === 2
+      }"
+      :title="
+        !ifSupportMime ||
+        authLinkAbnormal ||
+        data.onlineStatus === 0 ||
+        data.articleInfo.status === 2
+          ? '无法播放'
+          : ''
+      "
       v-if="store.inMobile === false"
     >
       <div class="left-box">
         <div
           ref="cover"
           class="cover-area"
-          :class="{ 'opacity-40': authLinkAbnormal }"
+          :class="{
+            'opacity-40':
+              authLinkAbnormal || data.onlineStatus === 0 || data.articleInfo.status === 2
+          }"
           @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
         >
           <img class="cover" :src="data.coverImages[0]" />
@@ -121,30 +165,27 @@
         >
           <div class="title-area">
             <img
+              class="freeze-lock"
+              src="../assets/images/freeze.png"
+              alt="封禁"
+              v-if="data?.articleInfo?.status === 2"
+            />
+            <div class="offline" v-else-if="data.onlineStatus === 0 && statusShow">
+              <span>已下架</span>
+            </div>
+            <img
               class="auth-link-abnormal"
               src="../assets/images/auth-link-abnormal.png"
-              v-if="authLinkAbnormal"
+              alt="授权链异常"
+              v-else-if="authLinkAbnormal"
             />
             <i
               class="freelog fl-icon-suoding lock"
               @click.stop="getAuth()"
+              alt="未授权"
               v-if="data.defaulterIdentityType >= 4"
             ></i>
-            <div class="offline" v-if="data.onlineStatus === 0 && statusShow">
-              <span>已下架</span>
-            </div>
-            <!-- <template v-if="authShow">
-              <div
-                class="tag is-auth"
-                :class="{ 'opacity-40': authLinkAbnormal }"
-                v-if="data.defaulterIdentityType < 4"
-              >
-                已授权
-              </div>
-              <div class="tag not-auth" :class="{ 'opacity-40': authLinkAbnormal }" v-else>
-                未授权
-              </div>
-            </template> -->
+
             <myTooltip :content="data.exhibitTitle">
               <span
                 class="title"
@@ -303,19 +344,28 @@ export default {
       return [
         {
           icon:
-            !this.ifSupportMime || this.authLinkAbnormal
+            !this.ifSupportMime ||
+            this.authLinkAbnormal ||
+            this.data.onlineStatus === 0 ||
+            this.data.articleInfo.status === 2
               ? "fl-icon-wufabofang"
               : this.playing
               ? "fl-icon-zanting-daibiankuang"
               : "fl-icon-bofang-daibiankuang",
           title:
-            !this.ifSupportMime || this.authLinkAbnormal
+            !this.ifSupportMime ||
+            this.authLinkAbnormal ||
+            this.data.onlineStatus === 0 ||
+            this.data.articleInfo.status === 2
               ? "无法播放"
               : this.playing
               ? "暂停"
               : "播放",
           operate: this.playOrPause,
-          disabled: !this.ifSupportMime
+          disabled:
+            !this.ifSupportMime ||
+            this.data.onlineStatus === 0 ||
+            this.data.articleInfo.status === 2
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
@@ -338,14 +388,20 @@ export default {
     menuBtnList() {
       return [
         {
-          icon: !this.ifSupportMime
-            ? "fl-icon-wufabofang"
-            : this.playing
-            ? "fl-icon-zanting-daibiankuang"
-            : "fl-icon-bofang-daibiankuang",
+          icon:
+            !this.ifSupportMime ||
+            this.data.onlineStatus === 0 ||
+            this.data.articleInfo.status === 2
+              ? "fl-icon-wufabofang"
+              : this.playing
+              ? "fl-icon-zanting-daibiankuang"
+              : "fl-icon-bofang-daibiankuang",
           label: !this.ifSupportMime ? "无法播放" : this.playing ? "暂停音乐" : "播放音乐",
           operate: this.playOrPause,
-          disabled: !this.ifSupportMime
+          disabled:
+            !this.ifSupportMime ||
+            this.data.onlineStatus === 0 ||
+            this.data.articleInfo.status === 2
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
@@ -394,7 +450,6 @@ export default {
 
     /** 播放/暂停 */
     playOrPause() {
-      console.log("this.data", this.data);
       useMyPlay.playOrPause(this.data);
     },
 

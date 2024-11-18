@@ -78,7 +78,7 @@
             class="lock"
             src="../assets/images/mini-lock.png"
             alt="未授权"
-            v-else-if="mode !== 3 && data.defaulterIdentityType >= 4"
+            v-if="mode !== 3 && data.defaulterIdentityType >= 4"
           />
           <div
             class="comic-status"

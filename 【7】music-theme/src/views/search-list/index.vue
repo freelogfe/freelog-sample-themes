@@ -121,7 +121,12 @@ export default {
 
           // 获取合集里的单品列表
           if (item.articleInfo.articleType === 2) {
-            await this.getCollectionList(item.exhibitId, item.exhibitName, item.coverImages);
+            await this.getCollectionList(
+              item.exhibitId,
+              item.exhibitName,
+              item.coverImages,
+              item.onlineStatus
+            );
           }
 
           this.listData.push(item);
@@ -132,7 +137,7 @@ export default {
     },
 
     /** 获取合集里的单品列表 */
-    async getCollectionList(collectionID, exhibitName, coverImages) {
+    async getCollectionList(collectionID, exhibitName, coverImages, onlineStatus) {
       const subList = await freelogApp.getCollectionSubList(collectionID, {
         skip: this.subSkip,
         limit: 1_000,
@@ -162,6 +167,7 @@ export default {
             item.coverImages = coverImages;
             item.versionInfo = { exhibitProperty: item.articleInfo.articleProperty };
             item.albumName = exhibitName;
+            item.onlineStatus = onlineStatus;
           });
         }
       }
@@ -172,7 +178,7 @@ export default {
 
       if (this.subTempData.length < this.subTotal) {
         this.subSkip = this.subSkip + 1_000;
-        await this.getCollectionList(collectionID, exhibitName, coverImages);
+        await this.getCollectionList(collectionID, exhibitName, coverImages, onlineStatus);
       } else {
         this.subTotal = 0;
         this.subSkip = 0;

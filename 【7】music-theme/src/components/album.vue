@@ -9,6 +9,7 @@ import MoreIcon from "@/assets/images/arrow.png";
 import TimeIcon from "@/assets/images/time.png";
 import AlbumIcon from "@/assets/images/album.png";
 import AuthLinkAbnormal from "@/assets/images/auth-link-abnormal.png";
+import Freeze from "@/assets/images/freeze.png";
 import type { Exhibit } from "@/interface";
 import { useGlobalStore } from "@/store/global";
 
@@ -249,17 +250,25 @@ onBeforeUnmount(() => {
           </div>
           <div class="info">
             <div class="top-area">
-              <div class="offline" v-if="item.onlineStatus === 0">
+              <img
+                class="freeze-lock"
+                :src="Freeze"
+                alt="封禁"
+                v-if="item.articleInfo?.status === 2"
+              />
+              <div class="offline" v-else-if="item.onlineStatus === 0">
                 <span>已下架</span>
               </div>
               <img
                 class="auth-link-abnormal"
                 :src="AuthLinkAbnormal"
-                v-if="authLinkAbnormal(item.defaulterIdentityType)"
+                alt="授权链异常"
+                v-else-if="authLinkAbnormal(item.defaulterIdentityType)"
               />
               <i
                 class="freelog fl-icon-suoding lock"
                 @click.stop="getAuth(item)"
+                alt="未授权"
                 v-if="item.defaulterIdentityType >= 4"
               ></i>
               <span
@@ -321,8 +330,18 @@ onBeforeUnmount(() => {
           <div class="info">
             <div class="top-area">
               <img
+                class="freeze-lock"
+                :src="Freeze"
+                alt="封禁"
+                v-if="item.articleInfo?.status === 2"
+              />
+              <div class="offline" v-else-if="item.onlineStatus === 0">
+                <span>已下架</span>
+              </div>
+              <img
                 class="auth-link-abnormal"
                 :src="AuthLinkAbnormal"
+                alt="授权链异常"
                 v-if="authLinkAbnormal(item.defaulterIdentityType)"
               />
               <i
@@ -586,6 +605,7 @@ onBeforeUnmount(() => {
             }
           }
 
+          .freeze-lock,
           .auth-link-abnormal {
             width: 16px;
             height: 16px;
@@ -780,6 +800,8 @@ onBeforeUnmount(() => {
 
         .top-area {
           display: flex;
+
+          .freeze-lock,
           .auth-link-abnormal {
             width: 16px;
             height: 16px;
