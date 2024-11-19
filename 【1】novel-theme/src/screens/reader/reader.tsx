@@ -473,7 +473,7 @@ const ReaderBody = () => {
             ) : !["阅读"].includes(book?.articleInfo.resourceType[0]) ? (
               <div className="exceptional-box">
                 <div className="icon">
-                  <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+                  <i className="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
                 </div>
 
                 <span className="exceptional-text">此作品格式暂不支持访问 </span>
@@ -580,7 +580,7 @@ const ReaderBody = () => {
               ) : !["阅读"].includes(book?.articleInfo.resourceType[0]) ? (
                 <div className="exceptional-box">
                   <div className="icon">
-                    <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+                    <i className="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
                   </div>
 
                   <span className="exceptional-text">此作品格式暂不支持访问 </span>

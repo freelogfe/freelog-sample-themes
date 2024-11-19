@@ -6,7 +6,7 @@
       <template v-if="!['音频'].includes(voiceInfo?.articleInfo.resourceType[0])">
         <div className="exceptional-box">
           <div className="icon">
-            <i className="freelog fl-icon-yichang_yinleziyuan freeze"> </i>
+            <i className="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
           </div>
           <span className="exceptional-text">此作品格式暂不支持访问 </span>
         </div>
@@ -355,7 +355,7 @@
       <template v-if="!['音频'].includes(voiceInfo?.articleInfo.resourceType[0])">
         <div className="exceptional-box">
           <div className="icon">
-            <i className="freelog fl-icon-yichang_yinleziyuan freeze"> </i>
+            <i className="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
           </div>
           <span className="exceptional-text">此作品格式暂不支持访问 </span>
         </div>

@@ -47,7 +47,7 @@
             <div v-else-if="!['图片', '视频'].includes(exhibitInfo?.articleInfo.resourceType[0])">
               <div class="exceptional-box">
                 <div class="icon">
-                  <i class="freelog fl-icon-a-yichang_tupianshipinmanhuaziyuan freeze"> </i>
+                  <i class="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
                 </div>
 
                 <span class="exceptional-text">此作品格式暂不支持访问 </span>
@@ -248,7 +248,7 @@
                   >
                     <div class="exceptional-box">
                       <div class="icon">
-                        <i class="freelog fl-icon-a-yichang_tupianshipinmanhuaziyuan freeze"> </i>
+                        <i class="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
                       </div>
 
                       <span class="exceptional-text">此作品格式暂不支持访问 </span>
