@@ -28,7 +28,12 @@ export const CatalogueModal = (props: {
   const history = useMyHistory();
   const location = useLocation();
   const { subId } = getUrlParams(location.search);
-  const [sortOrder, setSortOrder] = useState("asc");
+  const [sortOrder, setSortOrder] = useState(
+    (book?.versionInfo?.exhibitProperty?.catalogueProperty as any)?.collection_sort_list ===
+      "collection_sort_descending"
+      ? "desc"
+      : "asc"
+  );
 
   /**
    * 切换正序，倒序

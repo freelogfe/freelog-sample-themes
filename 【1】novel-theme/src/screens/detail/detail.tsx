@@ -27,6 +27,7 @@ export const DetailScreen = (props: any) => {
   const [novel, setNovel] = useState<ExhibitItem | null>(null);
   const [total, setTotal] = useState<number>(0);
   const skip = useRef(0);
+  const [sortOrder, setSortOrder] = useState("asc");
 
   // 获取合集下的单品列表
   const getCollectionList = useCallback(
@@ -83,6 +84,12 @@ export const DetailScreen = (props: any) => {
       const articleType = exhibitInfo.data.data.articleInfo.articleType;
       if (articleType === 2) {
         getCollectionList(true);
+        setSortOrder(
+          (novel?.versionInfo?.exhibitProperty?.catalogueProperty as any)?.collection_sort_list ===
+            "collection_sort_descending"
+            ? "desc"
+            : "asc"
+        );
       }
 
       const bookInfo = {
@@ -110,7 +117,7 @@ export const DetailScreen = (props: any) => {
   }, [scrollTop, clientHeight, scrollHeight]);
 
   return (
-    <detailContext.Provider value={{ novel, setNovel }}>
+    <detailContext.Provider value={{ novel, setNovel, sortOrder, setSortOrder }}>
       <div className="detail-wrapper">
         <Header />
         <DetailBody total={total} />
@@ -126,7 +133,7 @@ export const DetailScreen = (props: any) => {
 const DetailBody = (props: { total: number }) => {
   const { total } = props;
   const { inMobile, userData } = useContext(globalContext);
-  const { novel, setNovel } = useContext(detailContext);
+  const { novel, setNovel, sortOrder, setSortOrder } = useContext(detailContext);
   const collectionList = novel?.collectionList;
   const { isCollected, operateShelf } = useMyShelf(novel?.exhibitId);
   const history = useMyHistory();
@@ -134,7 +141,7 @@ const DetailBody = (props: { total: number }) => {
   const shareWidget = useRef<any>();
   const [introState, setIntroState] = useState(0);
   const [href, setHref] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc");
+  // const [sortOrder, setSortOrder] = useState("asc");
 
   /** 移动端分享 */
   const share = () => {

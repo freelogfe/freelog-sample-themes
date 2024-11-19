@@ -1262,6 +1262,13 @@ export default {
       // 合集逻辑
       if (articleType === 2) {
         getCollectionList(true);
+
+        sortOrder.value =
+          (exhibitInfo.data.data.versionInfo?.exhibitProperty?.catalogueProperty as any)
+            ?.collection_sort_list === "collection_sort_descending"
+            ? "desc"
+            : "asc";
+
         const subInfoResponse = await (freelogApp as any).getCollectionSubInfo(id, {
           itemId: subId
         });

@@ -489,6 +489,12 @@ export default {
       const articleType = exhibitInfo.data.data.articleInfo.articleType;
       if (articleType === 2) {
         getCollectionList(true);
+
+        sortOrder.value =
+          (exhibitInfo.data.data.versionInfo?.exhibitProperty?.catalogueProperty as any)
+            ?.collection_sort_list === "collection_sort_descending"
+            ? "desc"
+            : "asc";
       }
 
       const { count } = signCountData.data.data[0];
