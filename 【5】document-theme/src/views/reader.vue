@@ -13,34 +13,58 @@
       <!-- 内容区域 -->
       <div class="content-area" v-if="myLoading === false">
         <template v-if="documentData?.articleInfo?.status === 1">
-          <my-markdown :data="documentData" v-if="documentData?.defaulterIdentityType === 0" />
-          <template v-else-if="documentData?.defaulterIdentityType">
-            <div class="auth-box" v-if="documentData?.defaulterIdentityType !== 4">
-              <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-              <div class="auth-link-tip">授权链异常，无法查看</div>
+          <template v-if="documentData.onlineStatus === 0">
+            <div class="exceptional-box">
+              <div class="icon">
+                <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
+              </div>
+              <span class="exceptional-text"> 作品已下架，无法访问 </span>
             </div>
-            <div
-              class="lock-box"
-              v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false"
-            >
+          </template>
+
+          <template v-else-if="![0, 4].includes(documentData?.defaulterIdentityType)">
+            <div className="exceptional-box">
+              <div className="icon">
+                <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+              </div>
+              <span className="exceptional-text"> 作品异常，无法访问 </span>
+            </div>
+          </template>
+
+          <template
+            v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false"
+          >
+            <div class="lock-box">
               <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
               <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
               <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
             </div>
           </template>
+
+          <template v-else-if="!['阅读'].includes(documentData?.articleInfo.resourceType[0])">
+            <div className="exceptional-box">
+              <div className="icon">
+                <i className="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
+              </div>
+              <span className="exceptional-text">此作品格式暂不支持访问 </span>
+            </div>
+          </template>
+
+          <my-markdown :data="documentData" v-else-if="documentData?.defaulterIdentityType === 0" />
         </template>
 
         <template v-else>
           <div class="freeze-exhibit">
-            <div class="header">{{ documentData?.exhibitTitle }}</div>
+            <!-- <div class="header">{{ documentData?.exhibitTitle }}</div> -->
             <div class="icon">
-              <i class="freelog fl-icon-ziyuanweiguitishi_wendang freeze"></i>
+              <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
             </div>
+            <span className="exceptional-text"> 此作品因违规无法访问 </span>
           </div>
         </template>
 
         <div class="footer-area">
-          <div class="footer-bar">
+          <div class="footer-bar" v-if="documentData?.defaulterIdentityType === 0">
             <div>最近更新 {{ relativeTime(documentData?.updateDate) }}</div>
             <div class="divider"></div>
             <div>签约量 {{ documentData?.signCount }}</div>
@@ -156,14 +180,25 @@
 
                   <div class="other-box">
                     <img
+                      class="freeze-lock"
+                      src="../assets/images/freeze.png"
+                      alt="封禁"
+                      v-if="item?.articleInfo.status === 2"
+                    />
+
+                    <div class="offline" v-else-if="item?.onlineStatus === 0">已下架</div>
+
+                    <img
                       class="auth-link-abnormal"
                       src="../assets/images/auth-link-abnormal.png"
-                      v-if="![0, 4].includes(item.defaulterIdentityType)"
+                      alt="授权链异常"
+                      v-else-if="![0, 4].includes(item.defaulterIdentityType)"
                     />
                     <img
                       class="item-lock"
                       src="../assets/images/mini-lock.png"
-                      title="授权"
+                      alt="未授权"
+                      title="未授权"
                       @click.stop="getAuth(item)"
                       v-if="item.defaulterIdentityType >= 4"
                     />
@@ -172,38 +207,51 @@
               </template>
 
               <template v-if="viewOffline">
-                <div class="offline-tip">
+                <!-- <div class="offline-tip">
                   <div class="tip">当前文档已下架，已签约可继续浏览</div>
                   <div class="text-btn mobile" @click="switchPage('/reader')">返回列表</div>
-                </div>
+                </div> -->
 
-                <div class="list-item active" @click="clickDocument(documentData)">
-                  <div class="item-title-box">
-                    <div
-                      class="item-title"
-                      :style="{
-                        opacity: [0, 4].includes(documentData?.defaulterIdentityType) ? 1 : 0.4
-                      }"
-                    >
-                      {{ documentData?.exhibitTitle }}
+                <div class="list">
+                  <div class="list-item active" @click="clickDocument(documentData)">
+                    <div class="item-title-box">
+                      <div
+                        class="item-title"
+                        :style="{
+                          opacity: [0, 4].includes(documentData?.defaulterIdentityType) ? 1 : 0.4
+                        }"
+                      >
+                        {{ documentData?.exhibitTitle }}
+                      </div>
+                      <!-- <div class="offline">已下架</div> -->
                     </div>
-                    <div class="offline">已下架</div>
-                  </div>
 
-                  <div class="other-box">
-                    <img
-                      class="auth-link-abnormal"
-                      src="../assets/images/auth-link-abnormal.png"
-                      v-if="![0, 4].includes(documentData?.defaulterIdentityType)"
-                    />
+                    <div class="other-box">
+                      <img
+                        class="freeze-lock"
+                        src="../assets/images/freeze.png"
+                        alt="封禁"
+                        v-if="documentData?.articleInfo.status === 2"
+                      />
 
-                    <img
-                      class="item-lock"
-                      src="../assets/images/mini-lock.png"
-                      title="授权"
-                      @click.stop="getAuth(documentData)"
-                      v-if="documentData?.defaulterIdentityType >= 4"
-                    />
+                      <div class="offline" v-else-if="documentData?.onlineStatus === 0">已下架</div>
+
+                      <img
+                        class="auth-link-abnormal"
+                        src="../assets/images/auth-link-abnormal.png"
+                        alt="授权链异常"
+                        v-else-if="![0, 4].includes(documentData?.defaulterIdentityType)"
+                      />
+
+                      <img
+                        class="item-lock"
+                        src="../assets/images/mini-lock.png"
+                        alt="未授权"
+                        title="授权"
+                        @click.stop="getAuth(documentData)"
+                        v-if="documentData?.defaulterIdentityType >= 4"
+                      />
+                    </div>
                   </div>
                 </div>
               </template>
@@ -314,14 +362,22 @@
                 </div>
                 <div class="other-box">
                   <img
+                    class="freeze-lock"
+                    src="../assets/images/freeze.png"
+                    alt="封禁"
+                    v-if="item?.articleInfo.status === 2"
+                  />
+                  <img
                     class="auth-link-abnormal"
                     src="../assets/images/auth-link-abnormal.png"
-                    v-if="![0, 4].includes(item.defaulterIdentityType)"
+                    alt="授权链异常"
+                    v-else-if="![0, 4].includes(item.defaulterIdentityType)"
                   />
                   <img
                     class="item-lock"
                     src="../assets/images/mini-lock.png"
-                    title="授权"
+                    title="未授权"
+                    alt="未授权"
                     @click.stop="getAuth(item)"
                     v-if="item.defaulterIdentityType >= 4"
                   />
@@ -331,40 +387,53 @@
           </template>
 
           <template v-if="viewOffline">
-            <div class="offline-tip">
+            <!-- <div class="offline-tip">
               <div class="tip">当前文档已下架，已签约可继续浏览</div>
 
               <div class="text-btn" @click="switchPage('/reader')">返回列表</div>
-            </div>
+            </div> -->
 
-            <div class="list-item active" @click="clickDocument(documentData)">
-              <div class="item-title-box">
-                <div
-                  class="item-title"
-                  :style="{
-                    opacity: [0, 4].includes(documentData?.defaulterIdentityType) ? 1 : 0.4
-                  }"
-                  :title="documentData?.exhibitTitle"
-                >
-                  {{ documentData?.exhibitTitle }}
+            <div class="list">
+              <div class="list-item active" @click="clickDocument(documentData)">
+                <div class="item-title-box">
+                  <div
+                    class="item-title"
+                    :style="{
+                      opacity: [0, 4].includes(documentData?.defaulterIdentityType) ? 1 : 0.4
+                    }"
+                    :title="documentData?.exhibitTitle"
+                  >
+                    {{ documentData?.exhibitTitle }}
+                  </div>
+                  <!-- <div class="offline">已下架</div> -->
                 </div>
-                <div class="offline">已下架</div>
-              </div>
 
-              <div class="other-box">
-                <img
-                  class="auth-link-abnormal"
-                  src="../assets/images/auth-link-abnormal.png"
-                  v-if="![0, 4].includes(documentData?.defaulterIdentityType)"
-                />
+                <div class="other-box">
+                  <img
+                    class="freeze-lock"
+                    src="../assets/images/freeze.png"
+                    alt="封禁"
+                    v-if="documentData?.articleInfo.status === 2"
+                  />
 
-                <img
-                  class="item-lock"
-                  src="../assets/images/mini-lock.png"
-                  title="授权"
-                  @click.stop="getAuth(documentData)"
-                  v-if="documentData?.defaulterIdentityType >= 4"
-                />
+                  <div class="offline" v-else-if="documentData?.onlineStatus === 0">已下架</div>
+
+                  <img
+                    class="auth-link-abnormal"
+                    src="../assets/images/auth-link-abnormal.png"
+                    alt="授权链异常"
+                    v-else-if="![0, 4].includes(documentData?.defaulterIdentityType)"
+                  />
+
+                  <img
+                    class="item-lock"
+                    src="../assets/images/mini-lock.png"
+                    alt="未授权"
+                    title="未授权"
+                    @click.stop="getAuth(documentData)"
+                    v-if="documentData?.defaulterIdentityType >= 4"
+                  />
+                </div>
               </div>
             </div>
           </template>
@@ -379,38 +448,62 @@
       <div class="content-area" v-if="myLoading === false">
         <div class="content-body">
           <template v-if="documentData?.articleInfo?.status === 1">
-            <my-markdown
-              :data="documentData"
-              @getDirectory="getDirectory($event)"
-              v-if="documentData?.defaulterIdentityType === 0"
-            />
-            <template v-else>
-              <div class="auth-box" v-if="documentData?.defaulterIdentityType !== 4">
-                <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-                <div class="auth-link-tip">授权链异常，无法查看</div>
+            <template v-if="documentData.onlineStatus === 0">
+              <div class="exceptional-box">
+                <div class="icon">
+                  <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
+                </div>
+                <span class="exceptional-text"> 作品已下架，无法访问 </span>
               </div>
-              <div
-                class="lock-box"
-                v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false"
-              >
+            </template>
+
+            <template v-else-if="![0, 4].includes(documentData?.defaulterIdentityType)">
+              <div className="exceptional-box">
+                <div className="icon">
+                  <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+                </div>
+                <span className="exceptional-text"> 作品异常，无法访问 </span>
+              </div>
+            </template>
+
+            <template
+              v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false"
+            >
+              <div class="lock-box">
                 <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
                 <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
                 <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
               </div>
             </template>
+
+            <template v-else-if="!['阅读'].includes(documentData?.articleInfo.resourceType[0])">
+              <div className="exceptional-box">
+                <div className="icon">
+                  <i className="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
+                </div>
+                <span className="exceptional-text">此作品格式暂不支持访问 </span>
+              </div>
+            </template>
+
+            <my-markdown
+              :data="documentData"
+              @getDirectory="getDirectory($event)"
+              v-else-if="documentData?.defaulterIdentityType === 0"
+            />
           </template>
 
           <template v-else>
             <div class="freeze-exhibit">
-              <div class="header">{{ documentData?.exhibitTitle }}</div>
+              <!-- <div class="header">{{ documentData?.exhibitTitle }}</div> -->
               <div class="icon">
-                <i class="freelog fl-icon-ziyuanweiguitishi_wendang freeze"></i>
+                <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
               </div>
+              <span className="exceptional-text"> 此作品因违规无法访问 </span>
             </div>
           </template>
 
           <div class="footer-area">
-            <div class="footer-bar">
+            <div class="footer-bar" v-if="documentData?.defaulterIdentityType === 0">
               <div>最近更新 {{ relativeTime(documentData?.updateDate) }}</div>
               <div class="divider"></div>
               <div>签约量 {{ documentData?.signCount }}</div>
