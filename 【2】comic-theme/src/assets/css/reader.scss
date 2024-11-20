@@ -29,6 +29,14 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
+
+      &.light {
+        color: #2e2e2e;
+      }
+      &.dark {
+        color: #e9e9e9;
+      }
+
       .icon {
         text-align: center;
         .freelog {
@@ -40,7 +48,7 @@
         font-family: PingFangSC, PingFang SC;
         font-weight: 400;
         font-size: 24px;
-        color: #222222;
+        // color: #222222;
         line-height: 33px;
         text-align: left;
         opacity: 0.4;
@@ -313,7 +321,7 @@
         font-family: PingFangSC, PingFang SC;
         font-weight: 400;
         font-size: 24px;
-        color: #222222;
+        // color: #222222;
         line-height: 33px;
         text-align: left;
         opacity: 0.4;
@@ -602,6 +610,13 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
+
+      &.light {
+        color: #2e2e2e;
+      }
+      &.dark {
+        color: #e9e9e9;
+      }
       .icon {
         text-align: center;
         .freelog {
@@ -613,7 +628,7 @@
         font-family: PingFangSC, PingFang SC;
         font-weight: 400;
         font-size: 24px;
-        color: #222222;
+        // color: #222222;
         line-height: 33px;
         text-align: left;
         opacity: 0.4;
@@ -756,7 +771,7 @@
         font-family: PingFangSC, PingFang SC;
         font-weight: 400;
         font-size: 24px;
-        color: #222222;
+        // color: #222222;
         line-height: 33px;
         text-align: left;
         opacity: 0.4;

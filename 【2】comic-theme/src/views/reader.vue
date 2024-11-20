@@ -21,7 +21,10 @@
       <div class="mobile-body-wrapper">
         <template v-if="comicInfo?.articleInfo?.status === 1">
           <template v-if="comicInfo.onlineStatus === 0">
-            <div class="exceptional-box">
+            <div
+              class="exceptional-box"
+              :class="{ light: theme === 'light', dark: theme === 'dark' }"
+            >
               <div class="icon">
                 <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
               </div>
@@ -30,11 +33,14 @@
           </template>
 
           <template v-else-if="![0, 4].includes(comicInfo?.defaulterIdentityType)">
-            <div className="exceptional-box">
-              <div className="icon">
-                <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+            <div
+              class="exceptional-box"
+              :class="{ light: theme === 'light', dark: theme === 'dark' }"
+            >
+              <div class="icon">
+                <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
               </div>
-              <span className="exceptional-text"> 作品异常，无法访问 </span>
+              <span class="exceptional-text"> 作品异常，无法访问 </span>
             </div>
           </template>
 
@@ -49,11 +55,14 @@
           </template>
 
           <template v-else-if="!['漫画'].includes(comicInfo?.articleInfo.resourceType[0])">
-            <div className="exceptional-box">
-              <div className="icon">
-                <i className="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
+            <div
+              class="exceptional-box"
+              :class="{ light: theme === 'light', dark: theme === 'dark' }"
+            >
+              <div class="icon">
+                <i class="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
               </div>
-              <span className="exceptional-text">此作品格式暂不支持访问 </span>
+              <span class="exceptional-text">此作品格式暂不支持访问 </span>
             </div>
           </template>
 
@@ -148,7 +157,7 @@
                 :class="{ light: theme === 'light', dark: theme === 'dark' }"
               ></i>
             </div>
-            <span className="exceptional-text"> 此作品因违规无法访问 </span>
+            <span class="exceptional-text"> 此作品因违规无法访问 </span>
           </div>
         </template>
       </div>
@@ -238,7 +247,10 @@
       <div class="body-area" :class="theme">
         <template v-if="comicInfo?.articleInfo?.status === 1">
           <template v-if="comicInfo.onlineStatus === 0">
-            <div class="exceptional-box">
+            <div
+              class="exceptional-box"
+              :class="{ light: theme === 'light', dark: theme === 'dark' }"
+            >
               <div class="icon">
                 <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
               </div>
@@ -247,11 +259,14 @@
           </template>
 
           <template v-else-if="![0, 4].includes(comicInfo?.defaulterIdentityType)">
-            <div className="exceptional-box">
-              <div className="icon">
-                <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+            <div
+              class="exceptional-box"
+              :class="{ light: theme === 'light', dark: theme === 'dark' }"
+            >
+              <div class="icon">
+                <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
               </div>
-              <span className="exceptional-text"> 作品异常，无法访问 </span>
+              <span class="exceptional-text"> 作品异常，无法访问 </span>
             </div>
           </template>
 
@@ -266,11 +281,14 @@
           </template>
 
           <template v-else-if="!['漫画'].includes(comicInfo?.articleInfo.resourceType[0])">
-            <div className="exceptional-box">
-              <div className="icon">
-                <i className="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
+            <div
+              class="exceptional-box"
+              :class="{ light: theme === 'light', dark: theme === 'dark' }"
+            >
+              <div class="icon">
+                <i class="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
               </div>
-              <span className="exceptional-text">此作品格式暂不支持访问 </span>
+              <span class="exceptional-text">此作品格式暂不支持访问 </span>
             </div>
           </template>
 
@@ -533,7 +551,7 @@
                 :class="{ light: theme === 'light', dark: theme === 'dark' }"
               ></i>
             </div>
-            <span className="exceptional-text"> 此作品因违规无法访问 </span>
+            <span class="exceptional-text"> 此作品因违规无法访问 </span>
           </div>
         </template>
       </div>
@@ -813,7 +831,7 @@
                 src="@/assets/images/freeze.png"
                 alt="封禁"
               />
-              <div v-else-if="comicInfo.onlineStatus === 0" className="offline-lock">已下架</div>
+              <div v-else-if="comicInfo.onlineStatus === 0" class="offline-lock">已下架</div>
               <img
                 v-else-if="![0, 4].includes(item.defaulterIdentityType)"
                 class="auth-lock"
@@ -829,10 +847,7 @@
               <img v-else src="@/assets/images/right-arrow.png" />
             </div>
 
-            <div
-              className="tip no-more"
-              v-if="comicInfo?.collectionList?.length === collectionTotal"
-            >
+            <div class="tip no-more" v-if="comicInfo?.collectionList?.length === collectionTotal">
               — 已加载全部章节 —
             </div>
           </div>
