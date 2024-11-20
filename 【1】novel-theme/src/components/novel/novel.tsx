@@ -22,12 +22,40 @@ export const Novel = (props: {
 
   /** 跳转页面 */
   const toPath = (path: string) => {
+    if ((data.articleInfo as any)?.status === 2) {
+      showToast("此作品因违规无法访问");
+      return;
+    }
+
+    if (data.onlineStatus === 0) {
+      showToast("作品已下架，无法访问");
+      return;
+    }
+
     if (![0, 4].includes(data.defaulterIdentityType!)) {
-      showToast("授权链异常，无法查看");
+      showToast("作品异常，无法访问");
+      return;
+    }
+
+    if (!["阅读"].includes(data?.articleInfo.resourceType[0])) {
+      showToast("此作品格式暂不支持访问");
       return;
     }
 
     history.switchPage(`${path}?id=${data.exhibitId}`);
+  };
+
+  const isDisabled = () => {
+    const articleInfo = data?.articleInfo;
+    const onlineStatus = data?.onlineStatus;
+    const defaulterIdentityType = data?.defaulterIdentityType;
+
+    return (
+      (articleInfo as any)?.status === 2 ||
+      onlineStatus === 0 ||
+      ![0, 4].includes(defaulterIdentityType ?? -1) || // 提供默认值 -1 以防 defaulterIdentityType 为 undefined
+      !["阅读"].includes(articleInfo?.resourceType[0])
+    );
   };
 
   return mode === 4 ? (
@@ -145,9 +173,7 @@ export const Novel = (props: {
 
         {[2, 3].includes(mode) && (
           <div
-            className={`main-btn btn ${
-              ![0, 4].includes(data.defaulterIdentityType!) && "disabled"
-            }`}
+            className={`main-btn btn ${isDisabled() ? "disabled" : ""}`}
             onClick={e => {
               e.stopPropagation();
               toPath("/detail");

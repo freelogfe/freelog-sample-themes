@@ -40,7 +40,7 @@
           "
         >
           <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-          <div class="tip-text">授权链异常，无法查看</div>
+          <div class="tip-text">作品异常，无法访问</div>
         </div>
 
         <!-- 漫画信息 -->
@@ -238,7 +238,7 @@
           "
         >
           <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-          <div class="tip-text">授权链异常，无法查看</div>
+          <div class="tip-text">作品异常，无法访问</div>
         </div>
 
         <div class="content-box">

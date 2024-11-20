@@ -511,6 +511,8 @@ export default {
             console.log(event);
             data.loading = false;
           };
+        } else {
+          data.loading = false;
         }
       } else if (defaulterIdentityType === 4) {
         // 未签约并且授权链无异常

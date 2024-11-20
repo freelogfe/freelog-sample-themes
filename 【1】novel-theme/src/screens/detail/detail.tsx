@@ -252,7 +252,7 @@ const DetailBody = (props: { total: number }) => {
             {![0, 4].includes(novel.defaulterIdentityType) && (
               <div className="auth-link-abnormal-tip">
                 <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
-                <div className="tip-text">授权链异常，无法查看</div>
+                <div className="tip-text">作品异常，无法访问</div>
               </div>
             )}
             {/* 书籍信息 */}
@@ -431,7 +431,7 @@ const DetailBody = (props: { total: number }) => {
             {![0, 4].includes(novel.defaulterIdentityType) && (
               <div className="auth-link-abnormal-tip">
                 <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
-                <div className="tip-text">授权链异常，无法查看</div>
+                <div className="tip-text">作品异常，无法访问</div>
               </div>
             )}
             {/* 书籍信息 */}

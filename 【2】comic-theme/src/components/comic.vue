@@ -140,7 +140,13 @@
 
       <div
         class="main-btn btn"
-        :class="{ disabled: ![0, 4].includes(data.defaulterIdentityType) }"
+        :class="{
+          disabled:
+            data.articleInfo?.status === 2 ||
+            data.onlineStatus === 0 ||
+            ![0, 4].includes(data.defaulterIdentityType) ||
+            !['漫画'].includes(data.articleInfo?.resourceType[0])
+        }"
         @click.stop="toPath('/detail')"
         v-if="[2, 3].includes(mode)"
       >
@@ -182,8 +188,23 @@ export default {
       toPath(path: string) {
         const { exhibitId, defaulterIdentityType = -1 } = props.data;
 
-        if (![0, 4].includes(defaulterIdentityType)) {
-          showToast("授权链异常，无法查看");
+        if ((props.data.articleInfo as any)?.status === 2) {
+          showToast("此作品因违规无法访问");
+          return;
+        }
+
+        if (props.data.onlineStatus === 0) {
+          showToast("作品已下架，无法访问");
+          return;
+        }
+
+        if (![0, 4].includes(props.data.defaulterIdentityType!)) {
+          showToast("作品异常，无法访问");
+          return;
+        }
+
+        if (!["漫画"].includes(props.data?.articleInfo.resourceType[0])) {
+          showToast("此作品格式暂不支持访问");
           return;
         }
 
