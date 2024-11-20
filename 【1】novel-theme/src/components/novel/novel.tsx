@@ -39,13 +39,13 @@ export const Novel = (props: {
           src={data.coverImages[0]}
           alt={data.exhibitTitle}
         />
-        {data.articleInfo?.status !== 2 && data.onlineStatus === 0 && (
+        {(data.articleInfo as any)?.status !== 2 && data.onlineStatus === 0 && (
           <div className="offline">已下架</div>
         )}
       </div>
 
       <div className="book-name" title={data.exhibitTitle}>
-        {data.articleInfo?.status === 2 ? (
+        {(data.articleInfo as any)?.status === 2 ? (
           <img className="freeze-lock" src={Freeze} alt="封禁" />
         ) : (
           ![0, 4].includes(data.defaulterIdentityType!) && (
@@ -78,14 +78,14 @@ export const Novel = (props: {
             src={data.coverImages[0]}
             alt={data.exhibitTitle}
           />
-          {data.articleInfo?.status !== 2 && data.onlineStatus === 0 && (
+          {(data.articleInfo as any)?.status !== 2 && data.onlineStatus === 0 && (
             <div className="offline">已下架</div>
           )}
         </div>
 
         <div className={`book-info ${mode === 3 && inMobile && "auth-book"}`}>
           <div className="book-name-box" title={data.exhibitTitle}>
-            {data.articleInfo?.status === 2 ? (
+            {(data.articleInfo as any)?.status === 2 ? (
               <img className="freeze-lock" src={Freeze} alt="封禁" />
             ) : (
               ![0, 4].includes(data.defaulterIdentityType!) && (
