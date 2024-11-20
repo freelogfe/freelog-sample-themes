@@ -442,7 +442,7 @@ const ReaderBody = () => {
           } as any
         }
       >
-        {book.articleInfo?.status === 1 ? (
+        {book?.articleInfo?.status === 1 ? (
           <React.Fragment>
             {book.onlineStatus === 0 ? (
               <div>
@@ -549,7 +549,7 @@ const ReaderBody = () => {
             } as any
           }
         >
-          {book.articleInfo?.status === 1 ? (
+          {book?.articleInfo?.status === 1 ? (
             <React.Fragment>
               {book.onlineStatus === 0 ? (
                 <div>
