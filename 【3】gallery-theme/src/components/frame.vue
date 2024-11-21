@@ -22,7 +22,7 @@
       <div class="cover-box">
         <img
           class="image"
-          :style="{ opacity: authLinkAbnormal ? 0.4 : 1 }"
+          :style="{ opacity: isDisabled() ? 0.4 : 1 }"
           v-lazy="data.coverImages[0]"
         />
 
@@ -78,7 +78,7 @@
     >
       <img
         class="image"
-        :style="{ opacity: authLinkAbnormal ? 0.4 : 1 }"
+        :style="{ opacity: isDisabled() ? 0.4 : 1 }"
         v-lazy="data.coverImages[0]"
       />
 
@@ -191,6 +191,14 @@ export default {
     const authLinkAbnormal = computed(() => ![0, 4].includes(data.defaulterIdentityType));
 
     const methods = {
+      isDisabled() {
+        return (
+          (props.data.articleInfo as any)?.status === 2 ||
+          props.data.onlineStatus === 0 ||
+          ![0, 4].includes(props.data.defaulterIdentityType!) ||
+          !["图片", "视频"].includes(props.data?.articleInfo.resourceType[0])
+        );
+      },
       /** 获取用户头像 */
       getAvatarUrl(id: number) {
         return `https://image.freelog.com/avatar/${id}`;

@@ -6,7 +6,7 @@
     <div class="comic-cover-box">
       <img
         class="comic-cover"
-        :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
+        :class="{ 'opacity-40p': isDisabled() }"
         :src="data.coverImages[0]"
         :alt="data.exhibitTitle"
       />
@@ -27,15 +27,12 @@
         src="../assets/images/auth-link-abnormal.png"
         v-else-if="![0, 4].includes(data.defaulterIdentityType)"
       />
-      <div class="name" :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">
+      <div class="name" :class="{ 'opacity-40p': isDisabled() }">
         {{ data.exhibitTitle }}
       </div>
     </div>
 
-    <div
-      class="comic-author"
-      :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
-    >
+    <div class="comic-author" :class="{ 'opacity-40p': isDisabled() }">
       {{ data.articleInfo.articleOwnerName }}
     </div>
   </div>
@@ -51,7 +48,7 @@
       <div class="comic-cover-box">
         <img
           class="comic-cover"
-          :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
+          :class="{ 'opacity-40p': isDisabled() }"
           :src="data.coverImages[0]"
           :alt="data.exhibitTitle"
         />
@@ -90,10 +87,7 @@
                 : 'completed'
             "
           />
-          <div
-            class="comic-name"
-            :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
-          >
+          <div class="comic-name" :class="{ 'opacity-40p': isDisabled() }">
             {{ data.exhibitTitle }}
           </div>
           <div class="tag is-auth" v-if="mode === 3 && data.defaulterIdentityType < 4 && !inMobile">
@@ -107,18 +101,11 @@
           </div>
         </div>
 
-        <div
-          class="comic-author"
-          :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
-        >
+        <div class="comic-author" :class="{ 'opacity-40p': isDisabled() }">
           {{ data.articleInfo.articleOwnerName }}
         </div>
 
-        <div
-          class="tags"
-          :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
-          v-if="!(mode === 3 && inMobile)"
-        >
+        <div class="tags" :class="{ 'opacity-40p': isDisabled() }" v-if="!(mode === 3 && inMobile)">
           <tags :tags="data.tags" />
         </div>
 
@@ -134,7 +121,7 @@
 
       <i
         class="freelog fl-icon-zhankaigengduo"
-        :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
+        :class="{ 'opacity-40p': isDisabled() }"
         v-if="!(mode === 3 && inMobile)"
       ></i>
 
@@ -145,7 +132,7 @@
             data.articleInfo?.status === 2 ||
             data.onlineStatus === 0 ||
             ![0, 4].includes(data.defaulterIdentityType) ||
-            !['漫画'].includes(data.articleInfo?.resourceType[0])
+            !['阅读'].includes(data.articleInfo?.resourceType[0])
         }"
         @click.stop="toPath('/detail')"
         v-if="[2, 3].includes(mode)"
@@ -184,6 +171,15 @@ export default {
     let deleting = false;
 
     const methods = {
+      isDisabled() {
+        return (
+          (props.data.articleInfo as any)?.status === 2 ||
+          props.data.onlineStatus === 0 ||
+          ![0, 4].includes(props.data.defaulterIdentityType!) ||
+          !["阅读"].includes(props.data?.articleInfo.resourceType[0])
+        );
+      },
+
       /** 跳转页面 */
       toPath(path: string) {
         const { exhibitId, defaulterIdentityType = -1 } = props.data;
@@ -203,7 +199,7 @@ export default {
           return;
         }
 
-        if (!["漫画"].includes(props.data?.articleInfo.resourceType[0])) {
+        if (!["阅读"].includes(props.data?.articleInfo.resourceType[0])) {
           showToast("此作品格式暂不支持访问");
           return;
         }

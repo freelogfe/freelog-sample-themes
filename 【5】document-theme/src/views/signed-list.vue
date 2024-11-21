@@ -36,7 +36,7 @@
           />
           <div
             class="document-title"
-            :style="{ opacity: [0, 4].includes(item.defaulterIdentityType) ? 1 : 0.4 }"
+            :style="{ opacity: !isDisabled(item) ? 1 : 0.4 }"
             :title="item.exhibitTitle"
             @click="clickDocument(item)"
           >
@@ -96,6 +96,15 @@ export default {
         } else if (e.keyCode === 27) {
           data.searchKey = "";
         }
+      },
+
+      isDisabled(item: any) {
+        return (
+          (item.articleInfo as any)?.status === 2 ||
+          item.onlineStatus === 0 ||
+          ![0, 4].includes(item.defaulterIdentityType) ||
+          !["阅读"].includes(item?.articleInfo.resourceType[0])
+        );
       },
 
       /** 点击文档 */

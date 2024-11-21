@@ -776,25 +776,25 @@ export default {
       clickDocument(item: ExhibitItem) {
         const { exhibitId, defaulterIdentityType = -1 } = item;
 
-        if ((item.articleInfo as any)?.status === 2) {
-          showToast("此作品因违规无法访问");
-          return;
-        }
+        // if ((item.articleInfo as any)?.status === 2) {
+        //   showToast("此作品因违规无法访问");
+        //   return;
+        // }
 
-        if (item.onlineStatus === 0) {
-          showToast("作品已下架，无法访问");
-          return;
-        }
+        // if (item.onlineStatus === 0) {
+        //   showToast("作品已下架，无法访问");
+        //   return;
+        // }
 
-        if (![0, 4].includes(item.defaulterIdentityType!)) {
-          showToast("作品异常，无法访问");
-          return;
-        }
+        // if (![0, 4].includes(item.defaulterIdentityType!)) {
+        //   showToast("作品异常，无法访问");
+        //   return;
+        // }
 
-        if (!["阅读"].includes(item?.articleInfo.resourceType[0])) {
-          showToast("此作品格式暂不支持访问");
-          return;
-        }
+        // if (!["阅读"].includes(item?.articleInfo.resourceType[0])) {
+        //   showToast("此作品格式暂不支持访问");
+        //   return;
+        // }
 
         switchPage("/reader", { id: exhibitId });
       },

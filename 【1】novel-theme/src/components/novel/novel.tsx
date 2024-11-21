@@ -63,7 +63,7 @@ export const Novel = (props: {
     <div className="mobile-shelf-novel-wrapper" onClick={() => toPath("/detail")}>
       <div className="book-cover-box">
         <img
-          className={`book-cover ${![0, 4].includes(data.defaulterIdentityType!) && "opacity-40p"}`}
+          className={`book-cover ${isDisabled() && "opacity-40p"}`}
           src={data.coverImages[0]}
           alt={data.exhibitTitle}
         />
@@ -80,14 +80,10 @@ export const Novel = (props: {
             <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
           )
         )}
-        <div className={`name ${![0, 4].includes(data.defaulterIdentityType!) && "opacity-40p"}`}>
-          {data.exhibitTitle}
-        </div>
+        <div className={`name ${isDisabled() && "opacity-40p"}`}>{data.exhibitTitle}</div>
       </div>
 
-      <div
-        className={`book-author ${![0, 4].includes(data.defaulterIdentityType!) && "opacity-40p"}`}
-      >
+      <div className={`book-author ${isDisabled() && "opacity-40p"}`}>
         {data.articleInfo.articleOwnerName}
       </div>
     </div>
@@ -100,9 +96,7 @@ export const Novel = (props: {
       <div className="novel-content">
         <div className="book-cover-box">
           <img
-            className={`book-cover ${
-              ![0, 4].includes(data.defaulterIdentityType!) && "opacity-40p"
-            }`}
+            className={`book-cover ${isDisabled() && "opacity-40p"}`}
             src={data.coverImages[0]}
             alt={data.exhibitTitle}
           />
@@ -123,13 +117,7 @@ export const Novel = (props: {
             {mode !== 3 && data.defaulterIdentityType! >= 4 && (
               <img className="lock" src={Lock} alt="未授权" />
             )}
-            <div
-              className={`book-name ${
-                ![0, 4].includes(data.defaulterIdentityType!) && "opacity-40p"
-              }`}
-            >
-              {data.exhibitTitle}
-            </div>
+            <div className={`book-name ${isDisabled() && "opacity-40p"}`}>{data.exhibitTitle}</div>
             {mode === 3 && data.defaulterIdentityType! < 4 && !inMobile && (
               <div className="tag is-auth">已授权</div>
             )}
@@ -138,18 +126,12 @@ export const Novel = (props: {
             )}
           </div>
 
-          <div
-            className={`book-author ${
-              ![0, 4].includes(data.defaulterIdentityType!) && "opacity-40p"
-            }`}
-          >
+          <div className={`book-author ${isDisabled() && "opacity-40p"}`}>
             {data.articleInfo.articleOwnerName}
           </div>
 
           {!(mode === 3 && inMobile) && (
-            <div
-              className={`tags ${![0, 4].includes(data.defaulterIdentityType!) && "opacity-40p"}`}
-            >
+            <div className={`tags ${isDisabled() && "opacity-40p"}`}>
               <Tags data={data.tags} />
             </div>
           )}
@@ -164,11 +146,7 @@ export const Novel = (props: {
         </div>
 
         {!(mode === 3 && inMobile) && (
-          <i
-            className={`freelog fl-icon-zhankaigengduo ${
-              ![0, 4].includes(data.defaulterIdentityType!) && "opacity-40p"
-            }`}
-          ></i>
+          <i className={`freelog fl-icon-zhankaigengduo ${isDisabled() && "opacity-40p"}`}></i>
         )}
 
         {[2, 3].includes(mode) && (
