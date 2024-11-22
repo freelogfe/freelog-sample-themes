@@ -179,7 +179,17 @@ const isSelectedData = item => {
 
     <!-- 热门内容 -->
     <div class="popular-content-box" v-if="props.data.length">
-      <div class="content-item" v-for="(item, index) in props.data" :key="index">
+      <div
+        class="content-item"
+        :class="{
+          'opacity-40':
+            ![0, 4].includes(item.defaulterIdentityType) ||
+            item.onlineStatus === 0 ||
+            item?.articleInfo?.status === 2
+        }"
+        v-for="(item, index) in props.data"
+        :key="index"
+      >
         <div class="index">{{ changeIndex(index + 1) }}</div>
         <div class="info-box">
           <div class="cover-image">
@@ -312,7 +322,17 @@ const isSelectedData = item => {
 
     <!-- 热门内容 -->
     <div class="popular-content-box" v-if="props.data.length">
-      <div class="content-item" v-for="(item, index) in props.data" :key="index">
+      <div
+        class="content-item"
+        :class="{
+          'opacity-40':
+            ![0, 4].includes(item.defaulterIdentityType) ||
+            item.onlineStatus === 0 ||
+            item?.articleInfo?.status === 2
+        }"
+        v-for="(item, index) in props.data"
+        :key="index"
+      >
         <div class="info-box" @click="playOrPause(item)">
           <div class="cover-image">
             <img :src="item.coverImages[0]" alt="歌曲封面" />

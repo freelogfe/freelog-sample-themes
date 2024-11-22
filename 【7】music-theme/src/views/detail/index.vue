@@ -111,17 +111,36 @@
             >
               <div class="index">{{ changeIndex(index + 1) }}</div>
 
-              <div class="info-box">
+              <div
+                class="info-box"
+                :class="{
+                  'opacity-40':
+                    ![0, 4].includes(item.defaulterIdentityType) ||
+                    item.onlineStatus === 0 ||
+                    item?.articleInfo?.status === 2
+                }"
+              >
                 <div class="info">
                   <span class="title" @click.stop="playOrPause(item)">
                     <img
+                      class="freeze-lock"
+                      :src="Freeze"
+                      alt="封禁"
+                      v-if="item?.articleInfo?.status === 2"
+                    />
+                    <div class="offline" v-else-if="item.onlineStatus === 0">
+                      <span>已下架</span>
+                    </div>
+                    <img
                       class="auth-link-abnormal"
                       :src="AuthLinkAbnormal"
-                      v-if="authLinkAbnormal"
+                      alt="授权链异常"
+                      v-else-if="![0, 4].includes(item.defaulterIdentityType)"
                     />
                     <i
                       class="freelog fl-icon-suoding lock"
                       @click.stop="getAuth(item)"
+                      alt="未授权"
                       v-if="item.defaulterIdentityType >= 4"
                     ></i>
                     {{ item.exhibitTitle }}
@@ -552,7 +571,17 @@
           <div class="album-content" v-if="voiceInfo?.articleInfo.articleType === 2">
             <div class="title">包含音乐（{{ collectionData.length }}）</div>
             <div class="content-item-wrap">
-              <div class="content-item" v-for="(item, index) in collectionData" :key="item.itemId">
+              <div
+                class="content-item"
+                :class="{
+                  'opacity-40':
+                    ![0, 4].includes(item.defaulterIdentityType) ||
+                    item.onlineStatus === 0 ||
+                    item?.articleInfo?.status === 2
+                }"
+                v-for="(item, index) in collectionData"
+                :key="item.itemId"
+              >
                 <div class="index">{{ changeIndex(index + 1) }}</div>
                 <div
                   class="music"
@@ -576,7 +605,7 @@
                     class="auth-link-abnormal"
                     :src="AuthLinkAbnormal"
                     alt="授权链异常"
-                    v-else-if="authLinkAbnormal"
+                    v-else-if="![0, 4].includes(item.defaulterIdentityType)"
                   />
                   <i
                     class="freelog fl-icon-suoding lock"

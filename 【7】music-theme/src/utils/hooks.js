@@ -618,7 +618,8 @@ export const useMyPlay = {
         useMyPlay[type](exhibit);
       } else {
         // 非按顺序播放时，弹出提示
-        showToast("授权链异常");
+        // showToast("授权链异常");
+        showToast("作品异常，无法访问");
       }
       return;
     } else if (defaulterIdentityType === 4) {

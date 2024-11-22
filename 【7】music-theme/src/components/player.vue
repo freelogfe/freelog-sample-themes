@@ -106,6 +106,12 @@
           <template v-if="playList.length">
             <div
               class="voice-item"
+              :class="{
+                'opacity-40':
+                  ![0, 4].includes(item.defaulterIdentityType) ||
+                  item.onlineStatus === 0 ||
+                  item?.articleInfo?.status === 2
+              }"
               v-for="item in playList"
               :key="item.exhibitId"
               @click="playOrPauseList(item)"
@@ -376,6 +382,12 @@
             <template v-if="playList.length">
               <div
                 class="voice-item"
+                :class="{
+                  'opacity-40':
+                    ![0, 4].includes(item.defaulterIdentityType) ||
+                    item.onlineStatus === 0 ||
+                    item?.articleInfo?.status === 2
+                }"
                 v-for="item in playList"
                 :key="item.exhibitId"
                 @click="playOrPauseList(item)"
@@ -918,6 +930,26 @@ export default {
 
     /** 播放/暂停播放列表 */
     playOrPauseList(data) {
+      if (data.articleInfo?.status === 2) {
+        showToast("此作品因违规无法访问");
+        return;
+      }
+
+      if (data.onlineStatus === 0) {
+        showToast("作品已下架，无法访问");
+        return;
+      }
+
+      if (![0, 4].includes(data.defaulterIdentityType)) {
+        showToast("作品异常，无法访问");
+        return;
+      }
+
+      if (!["音频"].includes(data?.articleInfo.resourceType[0])) {
+        showToast("此作品格式暂不支持访问");
+        return;
+      }
+      console.log("data", data);
       useMyPlay.playOrPause(data);
     },
 

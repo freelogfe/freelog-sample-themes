@@ -5,12 +5,20 @@
     <div
       class="mobile-voice-wrapper"
       :class="{
-        unplayable: !ifSupportMime || data.onlineStatus === 0 || data.articleInfo.status === 2
+        unplayable:
+          !ifSupportMime ||
+          authLinkAbnormal ||
+          data.onlineStatus === 0 ||
+          data.articleInfo.status === 2
       }"
       v-if="store.inMobile"
       @click.stop="
-        !(!ifSupportMime || data.onlineStatus === 0 || data.articleInfo.status === 2) &&
-          playOrPause()
+        !(
+          !ifSupportMime ||
+          authLinkAbnormal ||
+          data.onlineStatus === 0 ||
+          data.articleInfo.status === 2
+        ) && playOrPause()
       "
     >
       <div
@@ -126,7 +134,11 @@
     <div
       class="pc-voice-wrapper"
       :class="{
-        unplayable: !ifSupportMime || data.onlineStatus === 0 || data.articleInfo.status === 2
+        unplayable:
+          !ifSupportMime ||
+          authLinkAbnormal ||
+          data.onlineStatus === 0 ||
+          data.articleInfo.status === 2
       }"
       :title="
         !ifSupportMime ||
