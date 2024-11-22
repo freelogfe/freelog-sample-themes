@@ -52,9 +52,16 @@
       <div class="frame-info">
         <div class="title">
           <img
+            class="freeze-lock"
+            src="../assets/images/freeze.png"
+            alt="封禁"
+            v-if="data.articleInfo?.status === 2"
+          />
+          <img
             class="auth-link-abnormal"
             src="../assets/images/auth-link-abnormal.png"
-            v-if="authLinkAbnormal"
+            alt="授权链异常"
+            v-else-if="authLinkAbnormal"
           />
           {{ data.exhibitTitle }}
         </div>
@@ -99,9 +106,16 @@
       <transition name="fade">
         <div class="normal-bar" v-if="!modalShow">
           <img
+            class="freeze-lock"
+            src="../assets/images/freeze.png"
+            alt="封禁"
+            v-if="data.articleInfo?.status === 2"
+          />
+          <img
             class="auth-link-abnormal"
             src="../assets/images/auth-link-abnormal.png"
-            v-if="authLinkAbnormal"
+            alt="授权链异常"
+            v-else-if="authLinkAbnormal"
           />
           <div class="lock-circle" v-if="!isAuth">
             <img class="lock" src="../assets/images/mini-lock.png" />
@@ -131,9 +145,17 @@
           <div class="title">
             <img
               class="auth-link-abnormal"
-              src="../assets/images/auth-link-abnormal.png"
-              v-if="authLinkAbnormal"
+              src="../assets/images/freeze.png"
+              alt="封禁"
+              v-if="data.articleInfo?.status === 2"
             />
+            <img
+              class="auth-link-abnormal"
+              src="../assets/images/auth-link-abnormal.png"
+              alt="授权链异常"
+              v-else-if="authLinkAbnormal"
+            />
+
             <img
               class="lock"
               src="../assets/images/mini-lock.png"
@@ -329,6 +351,7 @@ export default {
         overflow: hidden;
         word-break: break-all;
 
+        .freeze-lock,
         .auth-link-abnormal {
           width: 16px;
           height: 16px;
@@ -452,6 +475,7 @@ export default {
         line-height: 22px;
         word-break: break-all;
 
+        .freeze-lock,
         .auth-link-abnormal {
           width: 16px;
           height: 16px;
@@ -520,6 +544,7 @@ export default {
     align-items: center;
     justify-content: center;
 
+    .freeze-lock,
     .auth-link-abnormal {
       width: 20px;
       height: 20px;
