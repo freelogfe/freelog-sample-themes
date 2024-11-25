@@ -10,7 +10,7 @@
       :class="` ${comicInfo?.articleInfo?.status === 2 && 'freeze-exhibit'}`"
       v-if="inMobile"
     >
-      <template v-if="comicInfo?.articleInfo?.status">
+      <template v-if="comicInfo?.articleInfo?.status === 2">
         <div class="freeze-exhibit">
           <div class="icon">
             <i
@@ -47,7 +47,7 @@
         <div class="comic-info">
           <div class="comic-base-info">
             <div class="comic-cover">
-              <div>
+              <div class="comic-cover-image-wrap">
                 <img
                   class="comic-cover-image"
                   :src="comicInfo?.coverImages[0]"
@@ -245,7 +245,7 @@
           <!-- 漫画信息 -->
           <div class="comic-info">
             <div class="comic-cover">
-              <div>
+              <div class="comic-cover-image-wrap">
                 <img
                   class="comic-cover-image"
                   :src="comicInfo?.coverImages[0]"
