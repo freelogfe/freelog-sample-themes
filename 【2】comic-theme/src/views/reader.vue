@@ -54,7 +54,7 @@
             </div>
           </template>
 
-          <template v-else-if="!['漫画'].includes(comicInfo?.articleInfo.resourceType[0])">
+          <template v-else-if="!['漫画'].includes(comicInfo?.articleInfo.resourceType[1])">
             <div
               class="exceptional-box"
               :class="{ light: theme === 'light', dark: theme === 'dark' }"
@@ -87,14 +87,22 @@
                       item.name === 'RecommendFakeUrl'
                     "
                     class="paging-recommend-box"
+                    :class="{ 'no-more-box': currentSortID === collectionTotal || !query.subId }"
                   >
-                    <div class="no-more">— 已加载全部内容 —</div>
+                    <div class="no-more">
+                      <img
+                        v-if="theme === 'light'"
+                        src="@/assets/images/all-loaded-light.png"
+                        alt="已加载全部内容"
+                      />
+                      <img v-else src="@/assets/images/all-loaded-dark.png" alt="已加载全部内容" />
+                    </div>
                     <div v-if="recommendList.length">
                       <p class="more">更多漫画</p>
                       <div class="recommend-item-wrap">
                         <div
                           class="recommend-item"
-                          v-for="item in recommendList.slice(0, 6)"
+                          v-for="item in recommendList.slice(0, 3)"
                           :key="item.exhibitId"
                           @click="toDetailFromRecommend(item.exhibitId)"
                         >
@@ -105,6 +113,9 @@
                           <span class="name">{{ item.articleInfo?.articleOwnerName }}</span>
                         </div>
                       </div>
+                    </div>
+                    <div v-else class="to-home">
+                      <span @click.stop="switchPage('/home')">回首页寻找更多漫画 >></span>
                     </div>
                   </div>
                   <img v-else class="swipe-image" :src="item.url" oncontextmenu="return false" />
@@ -125,13 +136,21 @@
                 v-if="currentSortID === collectionTotal || !query.subId"
                 class="scroll-recommend-box"
               >
-                <div class="no-more">— 已加载全部内容 —</div>
+                <div class="no-more">
+                  <img
+                    v-if="theme === 'light'"
+                    src="@/assets/images/all-loaded-light.png"
+                    alt="已加载全部内容"
+                  />
+                  <img v-else src="@/assets/images/all-loaded-dark.png" alt="已加载全部内容" />
+                </div>
 
                 <div v-if="recommendList.length">
                   <p class="more">更多漫画</p>
                   <div class="recommend-item-wrap">
                     <div
                       class="recommend-item"
+                      :class="{ light: theme === 'light', dark: theme === 'dark' }"
                       v-for="item in recommendList.slice(0, 6)"
                       :key="item.exhibitId"
                       @click="toDetailFromRecommend(item.exhibitId)"
@@ -143,6 +162,10 @@
                       <span class="name">{{ item.articleInfo?.articleOwnerName }}</span>
                     </div>
                   </div>
+                </div>
+
+                <div v-else class="to-home">
+                  <span @click.stop="switchPage('/home')">回首页寻找更多漫画 >></span>
                 </div>
               </div>
             </template>
@@ -280,7 +303,7 @@
             </div>
           </template>
 
-          <template v-else-if="!['漫画'].includes(comicInfo?.articleInfo.resourceType[0])">
+          <template v-else-if="!['漫画'].includes(comicInfo?.articleInfo.resourceType[1])">
             <div
               class="exceptional-box"
               :class="{ light: theme === 'light', dark: theme === 'dark' }"
@@ -373,15 +396,24 @@
                   "
                   class="recommend-box"
                 >
-                  <div class="no-more">— 已加载全部内容 —</div>
+                  <div class="no-more">
+                    <img
+                      v-if="theme === 'light'"
+                      src="@/assets/images/all-loaded-light.png"
+                      alt="已加载全部内容"
+                    />
+                    <img v-else src="@/assets/images/all-loaded-dark.png" alt="已加载全部内容" />
+                  </div>
                   <div v-if="recommendList.length">
                     <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">
                       更多漫画
                     </p>
                     <div
                       class="recommend-item"
-                      v-for="item in recommendList.slice(0, 4)"
+                      :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                      v-for="item in recommendList.slice(0, 3)"
                       :key="item.exhibitId"
+                      @click="toDetailFromRecommend(item.exhibitId)"
                     >
                       <div class="cover-image">
                         <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
@@ -401,6 +433,9 @@
                         </div>
                       </div>
                     </div>
+                  </div>
+                  <div v-else class="to-home">
+                    <span @click.stop="switchPage('/home')">回首页寻找更多漫画 >></span>
                   </div>
                 </div>
               </div>
@@ -428,14 +463,22 @@
                 "
               >
                 <div v-if="currentSortID === collectionTotal || !query.subId" class="recommend-box">
-                  <div class="no-more">— 已加载全部内容 —</div>
+                  <div class="no-more">
+                    <img
+                      v-if="theme === 'light'"
+                      src="@/assets/images/all-loaded-light.png"
+                      alt="已加载全部内容"
+                    />
+                    <img v-else src="@/assets/images/all-loaded-dark.png" alt="已加载全部内容" />
+                  </div>
                   <div v-if="recommendList.length">
                     <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">
                       更多漫画
                     </p>
                     <div
                       class="recommend-item"
-                      v-for="item in recommendList.slice(0, 4)"
+                      :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                      v-for="item in recommendList.slice(0, 3)"
                       :key="item.exhibitId"
                       @click="toDetailFromRecommend(item.exhibitId)"
                     >
@@ -457,6 +500,9 @@
                         </div>
                       </div>
                     </div>
+                  </div>
+                  <div v-else class="to-home">
+                    <span @click.stop="switchPage('/home')">回首页寻找更多漫画 >></span>
                   </div>
                 </div>
               </div>
@@ -505,7 +551,14 @@
                 :class="theme"
               >
                 <div class="pc-scroll-recommend">
-                  <div class="no-more">— 已加载全部内容 —</div>
+                  <div class="no-more">
+                    <img
+                      v-if="theme === 'light'"
+                      src="@/assets/images/all-loaded-light.png"
+                      alt="已加载全部内容"
+                    />
+                    <img v-else src="@/assets/images/all-loaded-dark.png" alt="已加载全部内容" />
+                  </div>
                   <div v-if="recommendList.length">
                     <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">
                       更多漫画
@@ -513,7 +566,10 @@
                     <div class="recommend-item-wrap">
                       <div
                         class="recommend-item"
-                        v-for="item in recommendList.slice(0, 9)"
+                        :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                        v-for="item in recommendList.length > 5
+                          ? recommendList.slice(0, 5)
+                          : recommendList"
                         :key="item.exhibitId"
                         @click="toDetailFromRecommend(item.exhibitId)"
                       >
@@ -534,6 +590,12 @@
                             </div>
                           </div>
                         </div>
+                      </div>
+                      <div
+                        class="recommend-item-to-home"
+                        :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                      >
+                        <span @click.stop="switchPage('/home')">回首页寻找更多漫画 >></span>
                       </div>
                     </div>
                   </div>
