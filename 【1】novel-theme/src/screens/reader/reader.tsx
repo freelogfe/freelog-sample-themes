@@ -26,7 +26,14 @@ export const ReaderScreen = (props: any) => {
   const { collection } = getUrlParams(props.location.search);
   const { subId } = getUrlParams(props.location.search);
   const { inMobile } = useContext(globalContext);
-  const myTheme = JSON.parse(localStorage.getItem("theme") || "null");
+  // const myTheme = JSON.parse(localStorage.getItem("theme") || "null");
+  let myTheme = localStorage.getItem("theme") as any;
+  // 如果 theme 为 null 或非有效的 JSON 格式，返回 null
+  try {
+    myTheme = myTheme ? JSON.parse(myTheme) : null;
+  } catch (e) {
+    myTheme = null;
+  }
   const [book, setBook] = useState<ExhibitItem | null>(null);
   const [fontSize, setFontSize] = useState(22);
   const [theme, setTheme] = useState<ThemeItem>(myTheme?.bgColor ? myTheme : readerThemeList[0]);
