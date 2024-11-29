@@ -118,6 +118,23 @@
                       <span @click.stop="switchPage('/home')">回首页寻找更多漫画 >></span>
                     </div>
                   </div>
+
+                  <div
+                    v-else-if="item.name === 'NextFakeUrl'"
+                    class="next-chapter-box"
+                    :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                  >
+                    <span>当前一话已经加载完啦~</span>
+                    <div
+                      class="next-chapter-btn"
+                      :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                      @click="nextChapter()"
+                    >
+                      进入下一话
+                      <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                      <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                    </div>
+                  </div>
                   <img v-else class="swipe-image" :src="item.url" oncontextmenu="return false" />
                 </my-swipe-item>
               </my-swipe>
@@ -166,6 +183,23 @@
 
                 <div v-else class="to-home">
                   <span @click.stop="switchPage('/home')">回首页寻找更多漫画 >></span>
+                </div>
+              </div>
+
+              <div
+                class="next-chapter-box"
+                :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                v-else
+              >
+                <span>当前一话已经加载完啦~</span>
+                <div
+                  class="next-chapter-btn"
+                  :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                  @click="nextChapter()"
+                >
+                  进入下一话
+                  <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                  <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
                 </div>
               </div>
             </template>
@@ -319,14 +353,14 @@
             <div class="paging-mode-area" v-if="mode[0] === 'paging'">
               <!-- 条漫/页漫、双页模式、非跨页匹配、当前为首页时，首页左侧显示空屏 -->
               <div
-                class="blank-screen"
+                class="blank-screen 1"
                 v-if="
                   [1, 2].includes(comicMode) && mode[1] === 'double' && !amend && currentPage === 1
                 "
               ></div>
               <!-- 日漫、双页模式、页数不为1且当前为尾页/页数为1且跨页匹配时，尾页左侧显示空屏 -->
               <div
-                class="blank-screen"
+                class="blank-screen 2"
                 v-if="
                   comicMode === 3 &&
                   mode[1] === 'double' &&
@@ -382,11 +416,34 @@
               </div>
               <!-- 当前页 -->
               <div
-                class="content-image-box"
+                class="content-image-box nextChapterBoxWidth"
                 :class="{ single: mode[1] === 'single' }"
-                v-if="currentUrl"
+                v-if="currentUrl !== 'NextFakeUrl'"
               >
                 <img class="content-image" :src="currentUrl" />
+
+                <div
+                  class="next-chapter-box"
+                  :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                  :style="{ width: nextChapterBoxWidth }"
+                  v-if="
+                    mode[1] === 'single' &&
+                    query.collection &&
+                    currentSortID !== collectionTotal &&
+                    currentPage === contentImgList.length
+                  "
+                >
+                  <span>当前一话已经加载完啦~</span>
+                  <div
+                    class="next-chapter-btn"
+                    :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                    @click="nextChapter()"
+                  >
+                    进入下一话
+                    <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                    <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                  </div>
+                </div>
                 <!-- 单页-推荐 -->
                 <div
                   v-if="
@@ -454,7 +511,8 @@
               </div>
               <!-- 条漫/页漫、双页模式、页数不为1且当前为尾页/页数为1且跨页匹配时，尾页右侧显示空屏 -->
               <div
-                class="blank-screen"
+                class="blank-screen 3"
+                :class="{ 'flex-center': currentUrl === 'NextFakeUrl' }"
                 v-if="
                   [1, 2].includes(comicMode) &&
                   mode[1] === 'double' &&
@@ -505,10 +563,27 @@
                     <span @click.stop="switchPage('/home')">回首页寻找更多漫画 >></span>
                   </div>
                 </div>
+
+                <div
+                  class="next-chapter-box"
+                  :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                  v-else
+                >
+                  <span>当前一话已经加载完啦~</span>
+                  <div
+                    class="next-chapter-btn"
+                    :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                    @click="nextChapter()"
+                  >
+                    进入下一话
+                    <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                    <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                  </div>
+                </div>
               </div>
               <!-- 日漫、双页模式、非跨页匹配、当前为首页时，首页右侧显示空屏 -->
               <div
-                class="blank-screen"
+                class="blank-screen 4"
                 v-if="mode[1] === 'double' && comicMode === 3 && !amend && currentPage === 1"
               ></div>
 
@@ -521,6 +596,11 @@
                     mode[2] === 'manga')
                 "
               ></div>
+              <div style="color: red; position: absolute; top: 100px; left: 50%">
+                当前页数{{ currentPage }}-- 总数{{ contentImgList.length }}--{{ mode }}--comicMode{{
+                  comicMode
+                }}
+              </div>
               <div
                 class="next-btn"
                 @click="rightSwitchPage()"
@@ -545,6 +625,7 @@
                 v-for="item in contentImgList"
                 :key="item.name"
               />
+
               <div
                 v-if="currentSortID === collectionTotal || !query.subId"
                 class="pc-scroll-recommend-box"
@@ -599,6 +680,23 @@
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              <div
+                class="next-chapter-box"
+                :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                v-else
+              >
+                <span>当前一话已经加载完啦~</span>
+                <div
+                  class="next-chapter-btn"
+                  :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                  @click="nextChapter()"
+                >
+                  进入下一话
+                  <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                  <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
                 </div>
               </div>
             </div>
@@ -1437,6 +1535,7 @@ export default {
               subFilePath: "index.json"
             })
           : await freelogApp.getExhibitFileStream(id, { subFilePath: "index.json" });
+
         if (info?.status !== 200 || info.data.list.length === 0) {
           data.loading = false;
           mountShareWidget();
@@ -1489,6 +1588,9 @@ export default {
         // 条漫时，自动选择滚动模式
         // methods.changeMode("scroll", 0);
         methods.getPointInScroll();
+
+        // 移动端翻页模式下处理图片顺序
+        if (store.state.inMobile) dealListInPagingMobile();
       } else if ([2, 3].includes(data.comicMode)) {
         const res = await freelogApp.getUserData("comicLastViewedMode");
         const lastViewed = res?.data?.data || [];
@@ -1528,8 +1630,11 @@ export default {
         // 普通模式下（从左向右）
         data.mobilePagingList = [
           ...data.contentImgList,
-          ...(data.recommendList.length && (currentSortID.value === data.collectionTotal || !subId)
+          ...(currentSortID.value === data.collectionTotal || !subId
             ? [{ name: "RecommendFakeUrl", size: 0, url: "RecommendFakeUrl", width: 0, height: 0 }]
+            : []),
+          ...(currentSortID.value !== data.collectionTotal && subId
+            ? [{ name: "NextFakeUrl", size: 0, url: "NextFakeUrl", width: 0, height: 0 }]
             : [])
         ];
 
@@ -1538,8 +1643,11 @@ export default {
         // 日漫模式下（从右向左）
         data.mobilePagingList = [
           ...data.contentImgList,
-          ...(data.recommendList.length && (currentSortID.value === data.collectionTotal || !subId)
+          ...(currentSortID.value === data.collectionTotal || !subId
             ? [{ name: "RecommendFakeUrl", size: 0, url: "RecommendFakeUrl", width: 0, height: 0 }]
+            : []),
+          ...(currentSortID.value !== data.collectionTotal && subId
+            ? [{ name: "NextFakeUrl", size: 0, url: "NextFakeUrl", width: 0, height: 0 }]
             : [])
         ].reverse();
         currentIndex = data.mobilePagingList.length - data.currentPage;
@@ -1659,6 +1767,39 @@ export default {
       }
     );
 
+    watch(
+      () => data.mode,
+      () => {
+        if (store.state.inMobile) {
+          return;
+        }
+
+        // 翻页-双页
+        if (data.mode && data.mode[0] === "paging" && data.mode[1] === "double") {
+          if (data.contentImgList.length % 2 !== 0) {
+            data.contentImgList = [
+              ...data.contentImgList,
+              ...[
+                {
+                  name: "NextFakeUrl",
+                  size: 0,
+                  url: "NextFakeUrl",
+                  width: 0,
+                  height: 0
+                }
+              ]
+            ];
+          }
+        } else {
+          data.contentImgList = data.contentImgList.filter(i => i.name !== "NextFakeUrl");
+          methods.jump();
+        }
+      },
+      {
+        deep: true
+      }
+    );
+
     // 监听单品id，更新单品详情
     watch(
       () => query.value.subId,
@@ -1704,6 +1845,11 @@ export default {
       const targetID = filterData?.length && filterData[0].sortId;
 
       return targetID;
+    });
+
+    const nextChapterBoxWidth = computed(() => {
+      const width = document?.querySelector(".nextChapterBoxWidth")?.clientWidth;
+      return `${width}px`;
     });
 
     // 记录上一次阅读记录
@@ -1782,6 +1928,7 @@ export default {
       ...toRefs(data),
       ...methods,
       currentSortID,
+      nextChapterBoxWidth,
       query,
       sortOrder
     };
