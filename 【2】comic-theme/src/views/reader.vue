@@ -596,11 +596,7 @@
                     mode[2] === 'manga')
                 "
               ></div>
-              <div style="color: red; position: absolute; top: 100px; left: 50%">
-                当前页数{{ currentPage }}-- 总数{{ contentImgList.length }}--{{ mode }}--comicMode{{
-                  comicMode
-                }}
-              </div>
+
               <div
                 class="next-btn"
                 @click="rightSwitchPage()"
