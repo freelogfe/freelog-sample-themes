@@ -495,11 +495,13 @@
         margin-left: 20px;
         cursor: pointer;
         flex-shrink: 0;
-        padding-bottom: 15px;
+        // padding-bottom: 15px;
 
         &:hover {
           .more-tag-popup {
             opacity: 1;
+            pointer-events: auto; /* 恢复子元素的交互 */
+            transform: translateY(0);
           }
         }
       }
@@ -515,6 +517,19 @@
         border-radius: 4px;
         z-index: 99;
         opacity: 0;
+        pointer-events: none; /* 默认情况下禁用交互 */
+        transform: translateY(-10px); /* 初始状态向上偏移10px */
+        transition: opacity 0.3s ease, transform 0.3s ease;
+
+        &:before {
+          content: "";
+          position: absolute;
+          top: -25px; /* 创建透明的缓冲区 */
+          left: 0;
+          right: 0;
+          height: 25px;
+          background: transparent;
+        }
 
         .tags-wrapper {
           height: fit-content;
