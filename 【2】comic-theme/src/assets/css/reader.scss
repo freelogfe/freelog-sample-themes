@@ -1684,11 +1684,13 @@
   }
 
   .sort {
+    width: fit-content;
     display: flex;
     align-items: center;
     margin-top: 19px;
     margin-bottom: -9px;
     cursor: pointer;
+    z-index: 99;
 
     &:hover {
       color: #e7949f;

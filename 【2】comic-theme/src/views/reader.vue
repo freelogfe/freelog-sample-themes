@@ -958,7 +958,7 @@
             </div>
           </div>
 
-          <div class="sort" @click="handleSort" v-if="inMobile">
+          <div class="sort" @click="handleSort">
             <span>{{ sortOrder === "asc" ? "正序" : "倒序" }}</span>
             <span class="triangle" :class="sortOrder === 'asc' ? 'asc' : 'desc'"></span>
           </div>
