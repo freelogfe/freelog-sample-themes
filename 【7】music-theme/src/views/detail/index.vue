@@ -1,11 +1,29 @@
 <!-- 音乐、专辑详情页 -->
 <template>
   <div class="detail-wrapper" v-if="!loading">
-    <!-- <transition name="detail-fade"> -->
-    <!-- <template v-if="voiceInfo"> -->
     <!-- mobile -->
     <div class="mobile-detail-wrapper" v-if="store.inMobile">
-      <div class="normal-exhibit" v-if="voiceInfo.articleInfo.status === 1">
+      <template v-if="!['音频'].includes(voiceInfo?.articleInfo.resourceType[0])">
+        <div className="exceptional-box">
+          <div className="icon">
+            <i className="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
+          </div>
+          <span className="exceptional-text">此作品格式暂不支持访问 </span>
+        </div>
+      </template>
+
+      <div class="normal-exhibit" v-else-if="voiceInfo.articleInfo.status === 1">
+        <!-- 已下架、授权链异常 顶部提示窗  -->
+        <div
+          className="exceptional-message"
+          v-if="
+            voiceInfo.onlineStatus === 0 ||
+            ![0, 4, undefined].includes(voiceInfo?.defaulterIdentityType)
+          "
+        >
+          {{ voiceInfo.onlineStatus === 0 ? "作品已下架，无法访问" : "作品异常，无法访问" }}
+        </div>
+
         <div class="top-area">
           <!-- 封面 -->
           <div class="banner">
@@ -19,13 +37,24 @@
             <div class="title-date-wrap">
               <div class="title-area">
                 <img
+                  class="freeze-lock"
+                  :src="Freeze"
+                  alt="封禁"
+                  v-if="voiceInfo.articleInfo?.status === 2"
+                />
+                <div class="offline" v-else-if="voiceInfo.onlineStatus === 0">
+                  <span>已下架</span>
+                </div>
+                <img
                   class="auth-link-abnormal"
                   :src="AuthLinkAbnormalIcon"
-                  v-if="authLinkAbnormal"
+                  alt="授权链异常"
+                  v-else-if="authLinkAbnormal"
                 />
                 <i
                   class="freelog fl-icon-suoding lock"
                   @click.stop="getAuth()"
+                  alt="未授权"
                   v-if="voiceInfo?.defaulterIdentityType >= 4"
                 ></i>
                 <span class="title">{{ voiceInfo?.exhibitTitle }}</span>
@@ -34,7 +63,7 @@
               <div class="date-count">
                 <div class="info-item">
                   <i class="freelog fl-icon-gengxinshijian"></i>
-                  <div class="item-value">{{ relativeTime(voiceInfo?.updateDate) }}</div>
+                  <div class="item-value">{{ absoluteTime(voiceInfo?.updateDate) }}</div>
                 </div>
                 <div class="info-item">
                   <i class="freelog fl-icon-danji"></i>
@@ -82,17 +111,36 @@
             >
               <div class="index">{{ changeIndex(index + 1) }}</div>
 
-              <div class="info-box">
+              <div
+                class="info-box"
+                :class="{
+                  'opacity-40':
+                    ![0, 4].includes(item.defaulterIdentityType) ||
+                    item.onlineStatus === 0 ||
+                    item?.articleInfo?.status === 2
+                }"
+              >
                 <div class="info">
                   <span class="title" @click.stop="playOrPause(item)">
                     <img
+                      class="freeze-lock"
+                      :src="Freeze"
+                      alt="封禁"
+                      v-if="item?.articleInfo?.status === 2"
+                    />
+                    <div class="offline" v-else-if="item.onlineStatus === 0">
+                      <span>已下架</span>
+                    </div>
+                    <img
                       class="auth-link-abnormal"
                       :src="AuthLinkAbnormal"
-                      v-if="authLinkAbnormal"
+                      alt="授权链异常"
+                      v-else-if="![0, 4].includes(item.defaulterIdentityType)"
                     />
                     <i
                       class="freelog fl-icon-suoding lock"
                       @click.stop="getAuth(item)"
+                      alt="未授权"
                       v-if="item.defaulterIdentityType >= 4"
                     ></i>
                     {{ item.exhibitTitle }}
@@ -268,7 +316,7 @@
         </div>
       </div>
 
-      <div class="freeze-exhibit" v-else>
+      <!-- <div class="freeze-exhibit" v-else>
         <div class="freeze-info">
           <div ref="cover" class="cover-area">
             <img class="cover" :src="voiceInfo?.coverImages[0]" />
@@ -290,20 +338,7 @@
               v-if="voiceInfo?.defaulterIdentityType >= 4"
             ></i>
 
-            <!-- <div class="music-status">
-              <img
-                :src="SingleEpisode"
-                alt="单集"
-                v-if="voiceInfo.articleInfo?.articleType === 1"
-              />
-              <img
-                :src="OnGoing"
-                alt="连载中"
-                v-else-if="voiceInfo.articleInfo.serializeStatus === 0"
-              />
-              <img :src="Completed" alt="已完结" v-else />
-            </div> -->
-
+      
             <span class="title" @click.stop="getAuth()">{{ voiceInfo?.exhibitTitle }}</span>
           </div>
         </div>
@@ -312,7 +347,7 @@
             <div class="icon">
               <img :src="TimeIcon" alt="更新时间" />
             </div>
-            <span class="time">{{ relativeTime(voiceInfo.updateDate) }}</span>
+            <span class="time">{{ absoluteTime(voiceInfo.updateDate) }}</span>
           </div>
 
           <div class="album-box" v-if="voiceInfo.articleInfo.articleType === 2">
@@ -324,12 +359,39 @@
         <div class="icon">
           <i class="freelog fl-icon-ziyuanweiguitishi_yinle freeze"></i>
         </div>
+      </div> -->
+
+      <div v-else class="freeze-exhibit">
+        <div class="icon">
+          <i class="freelog fl-icon-yichang_yinleziyuan freeze"> </i>
+        </div>
+        <span class="exceptional-text"> 此作品因违规无法访问 </span>
       </div>
     </div>
 
     <!-- PC -->
     <div class="pc-detail-wrapper" v-if="!store.inMobile">
-      <div class="normal-exhibit" v-if="voiceInfo.articleInfo.status === 1">
+      <template v-if="!['音频'].includes(voiceInfo?.articleInfo.resourceType[0])">
+        <div className="exceptional-box">
+          <div className="icon">
+            <i className="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
+          </div>
+          <span className="exceptional-text">此作品格式暂不支持访问 </span>
+        </div>
+      </template>
+
+      <div class="normal-exhibit" v-else-if="voiceInfo.articleInfo.status === 1">
+        <!-- 已下架、授权链异常 顶部提示窗  -->
+        <div
+          className="exceptional-message"
+          v-if="
+            voiceInfo.onlineStatus === 0 ||
+            ![0, 4, undefined].includes(voiceInfo?.defaulterIdentityType)
+          "
+        >
+          {{ voiceInfo.onlineStatus === 0 ? "作品已下架，无法访问" : "作品异常，无法访问" }}
+        </div>
+
         <div ref="cover" class="cover-area">
           <img class="cover" :src="voiceInfo?.coverImages[0]" />
           <div class="btn-modal" v-if="ifSupportMime">
@@ -359,7 +421,7 @@
           <div class="info-area">
             <div class="info-item">
               <i class="freelog fl-icon-gengxinshijian"></i>
-              <div class="item-value">{{ relativeTime(voiceInfo?.updateDate) }}</div>
+              <div class="item-value">{{ absoluteTime(voiceInfo?.updateDate) }}</div>
             </div>
             <div class="info-item" v-if="albumName">
               <div class="item-value">收录于专辑</div>
@@ -509,7 +571,17 @@
           <div class="album-content" v-if="voiceInfo?.articleInfo.articleType === 2">
             <div class="title">包含音乐（{{ collectionData.length }}）</div>
             <div class="content-item-wrap">
-              <div class="content-item" v-for="(item, index) in collectionData" :key="item.itemId">
+              <div
+                class="content-item"
+                :class="{
+                  'opacity-40':
+                    ![0, 4].includes(item.defaulterIdentityType) ||
+                    item.onlineStatus === 0 ||
+                    item?.articleInfo?.status === 2
+                }"
+                v-for="(item, index) in collectionData"
+                :key="item.itemId"
+              >
                 <div class="index">{{ changeIndex(index + 1) }}</div>
                 <div
                   class="music"
@@ -520,6 +592,28 @@
                     })
                   "
                 >
+                  <img
+                    class="freeze-lock"
+                    :src="Freeze"
+                    alt="封禁"
+                    v-if="item?.articleInfo?.status === 2"
+                  />
+                  <div class="offline" v-else-if="item.onlineStatus === 0">
+                    <span>已下架</span>
+                  </div>
+                  <img
+                    class="auth-link-abnormal"
+                    :src="AuthLinkAbnormal"
+                    alt="授权链异常"
+                    v-else-if="![0, 4].includes(item.defaulterIdentityType)"
+                  />
+                  <i
+                    class="freelog fl-icon-suoding lock"
+                    @click.stop="getAuth(item)"
+                    alt="未授权"
+                    v-if="item.defaulterIdentityType >= 4"
+                  ></i>
+
                   <span class="music-text">{{ item.exhibitTitle }}</span>
                 </div>
                 <div class="album-sub-btns-area" :class="{ opacity: authLinkAbnormal }">
@@ -545,7 +639,7 @@
         </div>
       </div>
 
-      <div class="freeze-exhibit" v-else>
+      <!-- <div class="freeze-exhibit" v-else>
         <div class="icon">
           <i class="freelog fl-icon-ziyuanweiguitishi_yinle freeze"></i>
         </div>
@@ -585,24 +679,19 @@
               <img :src="Completed" alt="已完结" v-else />
             </div>
 
-            <!-- <my-tooltip :content="voiceInfo?.exhibitTitle"> -->
             <span class="title" @click.stop="getAuth()">{{ voiceInfo?.exhibitTitle }}</span>
-            <!-- </my-tooltip> -->
           </div>
         </div>
-      </div>
-
-      <!-- <div
-        class="cover-to-add"
-        :class="{ animation: addAnimation }"
-        :style="{ '--left': coverLeft + 'px', '--top': coverTop + 'px' }"
-      >
-        <img class="cover" :src="voiceInfo?.coverImages[0]" />
       </div> -->
+
+      <div v-else class="freeze-exhibit">
+        <div class="icon">
+          <i class="freelog fl-icon-yichang_yinleziyuan freeze"> </i>
+        </div>
+        <span class="exceptional-text"> 此作品因违规无法访问 </span>
+      </div>
     </div>
   </div>
-  <!-- </template> -->
-  <!-- </transition> -->
 </template>
 
 <script>
@@ -610,13 +699,14 @@ import { freelogApp } from "freelog-runtime";
 import playStatus from "@/components/play-status.vue";
 import myTooltip from "@/components/tooltip.vue";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
-import { showToast, relativeTime, secondsToHMS } from "@/utils/common";
+import { showToast, absoluteTime, secondsToHMS } from "@/utils/common";
 import { useGlobalStore } from "@/store/global";
 
 // 图片
 import AuthLinkAbnormalIcon from "@/assets/images/auth-link-abnormal.png";
 import MobileDefaultBanner from "@/assets/images/mobile-default-banner.webp";
 import AuthLinkAbnormal from "@/assets/images/auth-link-abnormal.png";
+import Freeze from "@/assets/images/freeze.png";
 import OnGoing from "@/assets/images/status/on-going.png";
 import Completed from "@/assets/images/status/completed.png";
 import SingleEpisode from "@/assets/images/status/single-episode.png";
@@ -637,6 +727,7 @@ export default {
       AuthLinkAbnormalIcon,
       MobileDefaultBanner,
       AuthLinkAbnormal,
+      Freeze,
       TimeIcon,
       id: "",
       subID: "",
@@ -650,7 +741,7 @@ export default {
       href: "",
       collectionData: [],
       store,
-      relativeTime,
+      absoluteTime,
       secondsToHMS,
       subTotal: 0,
       subSkip: 0,
@@ -722,7 +813,14 @@ export default {
       if (this.voiceInfo?.articleInfo?.articleType === 2) {
         return true;
       }
-      const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
+      const supportMimeList = [
+        "audio/mp4",
+        "audio/mpeg",
+        "audio/ogg",
+        "audio/wav",
+        "audio/webm",
+        "audio/flac"
+      ];
       return supportMimeList.includes(this.voiceInfo?.versionInfo.exhibitProperty.mime);
     },
 
@@ -752,27 +850,28 @@ export default {
         {
           icon:
             this.voiceInfo?.articleInfo?.articleType === 1
-              ? !this.ifSupportMime || this.authLinkAbnormal
+              ? !this.ifSupportMime || this.authLinkAbnormal || this.voiceInfo.onlineStatus === 0
                 ? "fl-icon-wufabofang"
                 : this.playing
                 ? "fl-icon-zanting-daibiankuang"
                 : "fl-icon-bofang-daibiankuang"
-              : !this.ifSupportMime || this.authLinkAbnormal
-              ? "fl-icon-zanting-daibiankuang"
+              : !this.ifSupportMime || this.authLinkAbnormal || this.voiceInfo.onlineStatus === 0
+              ? "fl-icon-wufabofang"
               : "fl-icon-bofang-daibiankuang",
           title:
             this.voiceInfo?.articleInfo?.articleType === 1
-              ? !this.ifSupportMime || this.authLinkAbnormal
+              ? !this.ifSupportMime || this.authLinkAbnormal || this.voiceInfo.onlineStatus === 0
                 ? "无法播放"
                 : this.playing
                 ? "暂停"
                 : "播放"
-              : !this.ifSupportMime || this.authLinkAbnormal
+              : !this.ifSupportMime || this.authLinkAbnormal || this.voiceInfo.onlineStatus === 0
               ? "无法播放"
               : "播放全部",
           operate:
             this.voiceInfo?.articleInfo?.articleType === 1 ? this.playOrPause : this.playOrPauseAll,
-          disabled: !this.ifSupportMime || this.authLinkAbnormal
+          disabled:
+            !this.ifSupportMime || this.authLinkAbnormal || this.voiceInfo.onlineStatus === 0
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
@@ -852,18 +951,24 @@ export default {
     menuBtnList(item) {
       return [
         {
-          icon: !this.ifSupportMimeSub(item.versionInfo?.exhibitProperty?.mime)
-            ? "fl-icon-wufabofang"
-            : this.playingSub({ exhibitId: item.exhibitId, itemId: item.itemId })
-            ? "fl-icon-zanting-daibiankuang"
-            : "fl-icon-bofang-daibiankuang",
-          label: !this.ifSupportMimeSub(item.versionInfo?.exhibitProperty?.mime)
-            ? "无法播放"
-            : this.playingSub({ exhibitId: item.exhibitId, itemId: item.itemId })
-            ? "暂停音乐"
-            : "播放音乐",
+          icon:
+            !this.ifSupportMimeSub(item.versionInfo?.exhibitProperty?.mime) ||
+            this.voiceInfo.onlineStatus === 0
+              ? "fl-icon-wufabofang"
+              : this.playingSub({ exhibitId: item.exhibitId, itemId: item.itemId })
+              ? "fl-icon-zanting-daibiankuang"
+              : "fl-icon-bofang-daibiankuang",
+          label:
+            !this.ifSupportMimeSub(item.versionInfo?.exhibitProperty?.mime) ||
+            this.voiceInfo.onlineStatus === 0
+              ? "无法播放"
+              : this.playingSub({ exhibitId: item.exhibitId, itemId: item.itemId })
+              ? "暂停音乐"
+              : "播放音乐",
           operate: () => this.playOrPause(item),
-          disabled: !this.ifSupportMimeSub(item.versionInfo?.exhibitProperty?.mime)
+          disabled:
+            !this.ifSupportMimeSub(item.versionInfo?.exhibitProperty?.mime) ||
+            this.voiceInfo.onlineStatus === 0
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
@@ -922,28 +1027,47 @@ export default {
     addToPlayListSub(item) {
       useMyPlay.addToPlayList({ exhibitId: item.exhibitId, itemId: item.itemId });
     },
-    /** 是否为支持格式 */
-    ifSupportMimeSub(item) {
-      const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
-      return supportMimeList.includes(item?.articleInfo?.articleProperty.mime);
+    /** 是否为支持格式
+     * correctMimeType: 准确的格式
+     */
+    ifSupportMimeSub(item, correctMimeType = true) {
+      const supportMimeList = [
+        "audio/mp4",
+        "audio/mpeg",
+        "audio/ogg",
+        "audio/wav",
+        "audio/webm",
+        "audio/flac"
+      ];
+      if (correctMimeType) {
+        return supportMimeList.includes(item);
+      } else {
+        return supportMimeList.includes(item?.articleInfo?.articleProperty.mime);
+      }
     },
     albumSubBtnList(item) {
       return [
         {
-          icon: !this.ifSupportMimeSub(item)
-            ? "fl-icon-wufabofang"
-            : this.playingSub(item)
-            ? "fl-icon-zanting-daibiankuang"
-            : "fl-icon-bofang-daibiankuang",
+          icon:
+            !this.ifSupportMimeSub(item, false) ||
+            this.voiceInfo.onlineStatus === 0 ||
+            item.articleInfo.status === 2
+              ? "fl-icon-wufabofang"
+              : this.playingSub(item)
+              ? "fl-icon-zanting-daibiankuang"
+              : "fl-icon-bofang-daibiankuang",
           title: this.playingSub(item) ? "暂停" : "播放",
           operate: () => this.playOrPause(item),
-          disabled: !this.ifSupportMimeSub(item)
+          disabled:
+            !this.ifSupportMimeSub(item, false) ||
+            this.voiceInfo.onlineStatus === 0 ||
+            item.articleInfo.status === 2
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
           title: "加入播放列表",
           operate: () => this.addToPlayListSub(item),
-          disabled: this.isInPlayListSub(item) || !this.ifSupportMimeSub(item)
+          disabled: this.isInPlayListSub(item) || !this.ifSupportMimeSub(item, false)
         },
         {
           icon: this.isCollectedSub(item)
@@ -1050,8 +1174,11 @@ export default {
           defaulterIdentityType: subStatusInfo.data.data[0].defaulterIdentityType,
           exhibitTitle: subInfo.data.data.itemTitle,
           updateDate: subInfo.data.data.articleInfo?.latestVersionReleaseDate,
-          url
+          url,
+          onlineStatus: exhibitInfo.data.data.onlineStatus
         };
+
+        console.log("voiceInfo", this.voiceInfo, exhibitInfo.data.data);
       } else {
         // 普通展品
         const [exhibitInfo, signCountData, statusInfo, url] = await Promise.all([
@@ -1068,10 +1195,10 @@ export default {
         };
 
         // 合集
-        const { articleInfo, exhibitName, coverImages } = exhibitInfo.data.data;
+        const { articleInfo, exhibitName, coverImages, onlineStatus } = exhibitInfo.data.data;
         if (articleInfo.articleType === 2) {
           this.collectionData = [];
-          this.getCollectionList(this.id, exhibitName, coverImages);
+          this.getCollectionList(this.id, exhibitName, coverImages, onlineStatus);
         }
       }
 
@@ -1085,7 +1212,7 @@ export default {
     },
 
     /** 获取合集里的单品列表 */
-    async getCollectionList(collectionID, exhibitName, coverImages) {
+    async getCollectionList(collectionID, exhibitName, coverImages, onlineStatus) {
       const subList = await freelogApp.getCollectionSubList(collectionID, {
         skip: this.subSkip,
         limit: 1_000,
@@ -1115,6 +1242,7 @@ export default {
             item.coverImages = coverImages;
             item.albumName = exhibitName;
             item.versionInfo = { exhibitProperty: item.articleInfo.articleProperty };
+            item.onlineStatus = onlineStatus;
           });
         }
       }
@@ -1124,7 +1252,7 @@ export default {
 
       if (this.subTempData.length < this.subTotal) {
         this.subSkip = this.subSkip + 1_000;
-        this.getCollectionList(collectionID, exhibitName, coverImages);
+        this.getCollectionList(collectionID, exhibitName, coverImages, onlineStatus);
       } else {
         this.subTotal = 0;
         this.subSkip = 0;

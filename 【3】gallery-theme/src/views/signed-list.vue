@@ -9,7 +9,12 @@
         <div class="signed-list-title">已签约图片/视频</div>
 
         <div class="search-box">
-          <input class="search-input input-none" v-model="searchKey" placeholder="搜索" @keyup="search($event)" />
+          <input
+            class="search-input input-none"
+            v-model="searchKey"
+            placeholder="搜索"
+            @keyup="search($event)"
+          />
           <i class="freelog fl-icon-content"></i>
         </div>
       </div>
@@ -59,18 +64,19 @@ export default {
     "my-frame": defineAsyncComponent(() => import("../components/frame.vue")),
     detail: defineAsyncComponent(() => import("../views/detail.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
-    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
+    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue"))
   },
 
   setup() {
     const store = useStore();
     const { query, switchPage } = useMyRouter();
     const { mySignedList, getMySignedList } = useMySignedList();
-    const { listNumber, waterfall, waterfallList, getListNumber, initWaterfall, setWaterFall } = useMyWaterfall();
+    const { listNumber, waterfall, waterfallList, getListNumber, initWaterfall, setWaterFall } =
+      useMyWaterfall();
 
     const data = reactive({
       searchKey: "",
-      currentId: null as null | string,
+      currentId: null as null | string
     });
 
     const methods = {
@@ -87,8 +93,23 @@ export default {
       clickFrame(item: ExhibitItem) {
         const { exhibitId, defaulterIdentityType = -1 } = item;
 
-        if (![0, 4].includes(defaulterIdentityType)) {
-          showToast("授权链异常，无法查看");
+        if ((item.articleInfo as any)?.status === 2) {
+          showToast("此作品因违规无法访问");
+          return;
+        }
+
+        if (item.onlineStatus === 0) {
+          showToast("作品已下架，无法访问");
+          return;
+        }
+
+        if (![0, 4].includes(item.defaulterIdentityType!)) {
+          showToast("作品异常，无法访问");
+          return;
+        }
+
+        if (!["图片", "视频"].includes(item?.articleInfo.resourceType[0])) {
+          showToast("此作品格式暂不支持访问");
           return;
         }
 
@@ -98,7 +119,7 @@ export default {
           data.currentId = exhibitId;
         }
         store.commit("setData", { key: "listData", value: mySignedList.value });
-      },
+      }
     };
 
     /** 屏幕尺寸变化切换瀑布流列数 */
@@ -173,9 +194,9 @@ export default {
       waterfall,
       waterfallList,
       ...toRefs(data),
-      ...methods,
+      ...methods
     };
-  },
+  }
 };
 </script>
 

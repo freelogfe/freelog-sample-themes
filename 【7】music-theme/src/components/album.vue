@@ -2,13 +2,14 @@
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { freelogApp } from "freelog-runtime";
 import { useRouter, useRoute } from "vue-router";
-import { relativeTime } from "@/utils/common.js";
+import { absoluteTime } from "@/utils/common.js";
 import { useMyPlay, useMyAuth } from "@/utils/hooks";
 // 图片
 import MoreIcon from "@/assets/images/arrow.png";
 import TimeIcon from "@/assets/images/time.png";
 import AlbumIcon from "@/assets/images/album.png";
 import AuthLinkAbnormal from "@/assets/images/auth-link-abnormal.png";
+import Freeze from "@/assets/images/freeze.png";
 import type { Exhibit } from "@/interface";
 import { useGlobalStore } from "@/store/global";
 
@@ -179,7 +180,6 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </div>
-
     <div v-if="route.name === 'album-list'">
       <!-- 最新发布 | 最早发布 -->
       <div class="album-drop-wrapper" ref="dropWrapper">
@@ -225,9 +225,8 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </div>
-
     <!-- 专辑内容 -->
-    <div class="album-content-box">
+    <div class="album-content-box" v-if="albumData.length">
       <div
         class="content-item"
         v-for="(item, index) in albumData"
@@ -252,13 +251,24 @@ onBeforeUnmount(() => {
           <div class="info">
             <div class="top-area">
               <img
+                class="freeze-lock"
+                :src="Freeze"
+                alt="封禁"
+                v-if="item.articleInfo?.status === 2"
+              />
+              <div class="offline" v-else-if="item.onlineStatus === 0">
+                <span>已下架</span>
+              </div>
+              <img
                 class="auth-link-abnormal"
                 :src="AuthLinkAbnormal"
-                v-if="authLinkAbnormal(item.defaulterIdentityType)"
+                alt="授权链异常"
+                v-else-if="authLinkAbnormal(item.defaulterIdentityType)"
               />
               <i
                 class="freelog fl-icon-suoding lock"
                 @click.stop="getAuth(item)"
+                alt="未授权"
                 v-if="item.defaulterIdentityType >= 4"
               ></i>
               <span
@@ -273,7 +283,7 @@ onBeforeUnmount(() => {
                 <div class="icon">
                   <img :src="TimeIcon" alt="更新时间" />
                 </div>
-                <span class="time">{{ relativeTime(item.updateDate) }}</span>
+                <span class="time">{{ absoluteTime(item.updateDate) }}</span>
               </div>
 
               <div class="album-box">
@@ -287,6 +297,8 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </div>
+
+    <div class="no-data" v-else>暂无任何专辑</div>
   </div>
   <!-- mobile -->
   <div class="mobile-album-wrap" v-else>
@@ -302,7 +314,7 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- 专辑内容 -->
-    <div class="album-content-box">
+    <div class="album-content-box" v-if="albumData.length">
       <div class="content-item" v-for="(item, index) in albumData" :key="index">
         <div class="info-box">
           <div class="cover-image">
@@ -318,8 +330,18 @@ onBeforeUnmount(() => {
           <div class="info">
             <div class="top-area">
               <img
+                class="freeze-lock"
+                :src="Freeze"
+                alt="封禁"
+                v-if="item.articleInfo?.status === 2"
+              />
+              <div class="offline" v-else-if="item.onlineStatus === 0">
+                <span>已下架</span>
+              </div>
+              <img
                 class="auth-link-abnormal"
                 :src="AuthLinkAbnormal"
+                alt="授权链异常"
                 v-if="authLinkAbnormal(item.defaulterIdentityType)"
               />
               <i
@@ -339,7 +361,7 @@ onBeforeUnmount(() => {
                 <div class="icon">
                   <img :src="TimeIcon" alt="更新时间" />
                 </div>
-                <span class="time">{{ relativeTime(item.updateDate) }}</span>
+                <span class="time">{{ absoluteTime(item.updateDate) }}</span>
               </div>
 
               <div class="album-box">
@@ -353,6 +375,7 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </div>
+    <div class="no-data" v-else>暂无任何专辑</div>
   </div>
 </template>
 
@@ -564,6 +587,25 @@ onBeforeUnmount(() => {
 
         .top-area {
           display: flex;
+          .offline {
+            padding: 1px 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 5px;
+
+            span {
+              font-size: 10px;
+              line-height: 16px;
+              font-weight: 500;
+              color: #ffffff;
+              opacity: 0.8;
+            }
+          }
+
+          .freeze-lock,
           .auth-link-abnormal {
             width: 16px;
             height: 16px;
@@ -626,6 +668,18 @@ onBeforeUnmount(() => {
         }
       }
     }
+  }
+
+  .no-data {
+    padding: 122px 0 152px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 400;
+    font-size: 30px;
+    color: #ffffff;
+    line-height: 36px;
+    opacity: 0.4;
   }
 }
 
@@ -746,6 +800,8 @@ onBeforeUnmount(() => {
 
         .top-area {
           display: flex;
+
+          .freeze-lock,
           .auth-link-abnormal {
             width: 16px;
             height: 16px;
@@ -808,6 +864,18 @@ onBeforeUnmount(() => {
         }
       }
     }
+  }
+
+  .no-data {
+    padding: 70px 0 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 400;
+    font-size: 24px;
+    color: #ffffff;
+    line-height: 40px;
+    opacity: 0.4;
   }
 }
 </style>

@@ -1,5 +1,11 @@
 <template>
-  <div ref="contentBody" class="markdown-wrapper" v-html="content" v-highlight oncontextmenu="return false"></div>
+  <div
+    ref="contentBody"
+    class="markdown-wrapper"
+    v-html="content"
+    v-highlight
+    oncontextmenu="return false"
+  ></div>
 </template>
 
 <script lang="ts">
@@ -49,17 +55,19 @@ export default {
 
       const deps = dependencyTree.filter((_: any, index: number) => index !== 0);
       let promiseArr = [] as Promise<any>[];
-      deps.forEach((dep) => {
+      deps.forEach(dep => {
         const isMediaResource =
-          dep.resourceType.includes("图片") || dep.resourceType.includes("视频") || dep.resourceType.includes("音频");
+          dep.resourceType.includes("图片") ||
+          dep.resourceType.includes("视频") ||
+          dep.resourceType.includes("音频");
         const depContent = (freelogApp as any).getExhibitDepFileStream(props.data.exhibitId, {
           nid: dep.nid,
-          returnUrl: isMediaResource,
+          returnUrl: isMediaResource
         });
         promiseArr.push(depContent);
       });
 
-      const res = await Promise.all(promiseArr)
+      const res = await Promise.all(promiseArr);
       res.forEach((dep, index) => {
         if (dep.data) {
           // 进一步判断是否为文本文件
@@ -72,115 +80,51 @@ export default {
           html = html.replace(reg, data);
         } else {
           // 媒体资源
-          const reg = new RegExp("src=['\"]" + `freelog://${deps[index].articleName}` + "['\"]", "g");
+          const reg = new RegExp(
+            "src=['\"]" + `freelog://${deps[index].articleName}` + "['\"]",
+            "g"
+          );
           html = html.replace(reg, `src="${dep}"`);
         }
       });
-      
 
       // 隐藏视频与音频的下载按钮
       html = html.replace(/<img/g, "<p><img");
       html = html.replace(/<video/g, '<p><video controlslist="nodownload"');
       html = html.replace(/<audio/g, '<p><audio controlslist="nodownload"');
 
-      // 后期要删除，新手任务相关功能
-      html = html.replace(
-        "src='https://file.freelog.com/objects/65250e98a6f027002e9ef8c5'",
-        "id='release_resource_video' src='https://file.freelog.com/objects/65250e98a6f027002e9ef8c5'"
-      );
-      html = html.replace(
-        "src='https://file.freelog.com/objects/65250c36a6f027002e9ef7d8'",
-        "id='create_node_video' src='https://file.freelog.com/objects/65250c36a6f027002e9ef7d8'"
-      );
-
       content.value = html;
 
       nextTick(() => {
         const elements = [...contentBody.value.children];
-        const titles = elements.filter((item: HTMLElement) => ["H1", "H2", "H3"].includes(item.nodeName));
-
-        if (store.state.userData.isLogin) videoPlayDuration();
+        const titles = elements.filter((item: HTMLElement) =>
+          ["H1", "H2", "H3"].includes(item.nodeName)
+        );
 
         /** 所有图片加载完成再进行标题跳转，否则会因为图片未加载时高度问题造成滚动条移动到错误位置 */
-        const imgs = [...document.getElementsByTagName("img")].filter((item) => !item.className);
-        let num = imgs.length;
-        imgs.forEach((img) => {
-          img.onload = () => {
-            num--;
-            if (num === 0) context.emit("getDirectory", titles);
-          };
-          img.onerror = () => {
-            num--;
-            if (num === 0) context.emit("getDirectory", titles);
-          };
-        });
-      });
-    };
+        const imgs = [...document.getElementsByTagName("img")].filter(item => !item.className);
 
-    /** 视频播放时长记录 */
-    const videoPlayDuration = () => {
-      const currentURL = freelogApp.getCurrentUrl();
-      const nodeIsOfficial = currentURL.startsWith("https://freelog3.freelog.com");
-      const docIsOfficial = props.data.exhibitId === "62ce6f8a456ff0002e32915f";
-      // 只在官方帮助中心节点且《快速上手》文档功能生效
-      if (!nodeIsOfficial || !docIsOfficial) return;
-
-      videoList = [
-        {
-          taskDuration: 0,
-          interval: null,
-          playTime: 0,
-        },
-        {
-          taskDuration: 0,
-          interval: null,
-          playTime: 0,
-        },
-      ];
-      const firstVideo = document.getElementById("release_resource_video");
-      const secondVideo = document.getElementById("create_node_video");
-      [firstVideo, secondVideo].forEach((video: any, index: number) => {
-        if (video) {
-          video.onloadeddata = (e: any) => {
-            videoList[index].taskDuration = e.target.duration * 0.4;
-          };
-          video.onplaying = () => {
-            const isComplete = videoList.filter((item) => item.playTime > item.taskDuration).length;
-            if (isComplete) return;
-
-            // 清除另一个视频的播放时长
-            videoList[index === 0 ? 1 : 0].playTime = 0;
-
-            videoList[index].interval = setInterval(() => {
-              videoList[index].playTime++;
-              if (videoList[index].playTime > videoList[index].taskDuration) {
-                // 完成任务
-                videoList.forEach((item) => {
-                  clearInterval(item.interval);
-                  item.interval = null;
-                });
-                completeTask();
-              }
-            }, 1000);
-          };
-          video.onpause = () => {
-            videoList.forEach((item) => {
-              clearInterval(item.interval);
-              item.interval = null;
-            });
-          };
+        if (imgs.length) {
+          let num = imgs.length;
+          imgs.forEach(img => {
+            img.onload = () => {
+              num--;
+              if (num === 0) context.emit("getDirectory", titles);
+            };
+            img.onerror = () => {
+              num--;
+              if (num === 0) context.emit("getDirectory", titles);
+            };
+          });
+        } else {
+          context.emit("getDirectory", titles);
         }
       });
     };
 
-    /** 内测任务完成 */
-    const completeTask = () => {
-      // freelogApp.pushMessage4Task({ taskConfigCode: "TS000011" });
-    };
-
     watch(
       () => props.data,
-      (cur) => {
+      cur => {
         if (!cur.content) return;
         getContent();
       },
@@ -189,9 +133,9 @@ export default {
 
     return {
       content,
-      contentBody,
+      contentBody
     };
-  },
+  }
 };
 </script>
 

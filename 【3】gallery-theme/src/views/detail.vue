@@ -8,39 +8,73 @@
       class="main-area"
       key="mainArea"
       :style="{
-        height: exhibitInfo?.defaulterIdentityType >= 4 ? '460px' : contentHeight + 'px',
+        height: exhibitInfo?.defaulterIdentityType >= 4 ? '460px' : contentHeight + 'px'
       }"
     >
       <my-loader v-if="loading" />
-
       <transition-group name="content-fade">
-        <template v-if="!loading">
-          <template v-if="exhibitInfo?.defaulterIdentityType === 0">
-            <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')" />
-            <video
-              :src="content"
-              controls
-              muted
-              autoplay
-              webkit-playsinline
-              playsinline
-              v-else-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
-            ></video>
-          </template>
+        <template v-if="exhibitInfo?.articleInfo?.status === 1">
+          <template v-if="!loading">
+            <div v-if="exhibitInfo.onlineStatus === 0">
+              <div class="exceptional-box">
+                <div class="icon">
+                  <i class="freelog fl-icon-a-yichang_tupianshipinmanhuaziyuan freeze"> </i>
+                </div>
 
-          <template v-else-if="exhibitInfo?.defaulterIdentityType">
-            <div class="auth-box" v-if="![0, 4].includes(exhibitInfo?.defaulterIdentityType)">
-              <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-              <div class="auth-link-tip">授权链异常，无法查看</div>
-              <div class="home-btn" @click="switchPage('/home')">进入首页</div>
+                <span class="exceptional-text"> 作品已下架，无法访问 </span>
+              </div>
             </div>
 
-            <div class="lock-box" v-else-if="exhibitInfo?.defaulterIdentityType === 4 || userData.isLogin === false">
+            <div v-else-if="![0, 4].includes(exhibitInfo?.defaulterIdentityType)">
+              <div class="exceptional-box">
+                <div class="icon">
+                  <i class="freelog fl-icon-a-yichang_tupianshipinmanhuaziyuan freeze"> </i>
+                </div>
+
+                <span class="exceptional-text"> 作品异常，无法访问 </span>
+              </div>
+            </div>
+
+            <div
+              class="lock-box"
+              v-else-if="exhibitInfo?.defaulterIdentityType === 4 || userData.isLogin === false"
+            >
               <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
               <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
               <div class="get-btn" @click="getAuth()">获取授权</div>
             </div>
+
+            <div v-else-if="!['图片', '视频'].includes(exhibitInfo?.articleInfo.resourceType[0])">
+              <div class="exceptional-box">
+                <div class="icon">
+                  <i class="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
+                </div>
+
+                <span class="exceptional-text">此作品格式暂不支持访问 </span>
+              </div>
+            </div>
+            <template v-else-if="exhibitInfo?.defaulterIdentityType === 0">
+              <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')" />
+              <video
+                :src="content"
+                controls
+                muted
+                autoplay
+                webkit-playsinline
+                playsinline
+                v-else-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
+              ></video>
+            </template>
           </template>
+        </template>
+
+        <template v-else>
+          <div class="freeze-exhibit">
+            <div class="icon">
+              <i class="freelog fl-icon-a-yichang_tupianshipinmanhuaziyuan freeze"> </i>
+            </div>
+            <span class="exceptional-text"> 此作品因违规无法访问 </span>
+          </div>
         </template>
       </transition-group>
 
@@ -55,7 +89,9 @@
         <div
           class="switch-btn next"
           @click="switchExhibit('ArrowRight')"
-          v-if="listData.length && exhibitInfo?.exhibitId !== listData[listData.length - 1].exhibitId"
+          v-if="
+            listData.length && exhibitInfo?.exhibitId !== listData[listData.length - 1].exhibitId
+          "
         >
           <i class="freelog fl-icon-zhankaigengduo"></i>
         </div>
@@ -71,7 +107,11 @@
         <tags :tags="exhibitInfo?.tags" v-if="exhibitInfo?.tags.length" />
         <div class="bottom-bar">
           <div class="author-info">
-            <img class="author-avatar" :src="getAvatarUrl(exhibitInfo?.articleInfo.articleOwnerId)" v-if="exhibitInfo?.articleInfo.articleOwnerId" />
+            <img
+              class="author-avatar"
+              :src="getAvatarUrl(exhibitInfo?.articleInfo.articleOwnerId)"
+              v-if="exhibitInfo?.articleInfo.articleOwnerId"
+            />
             <div class="author-name">
               {{ exhibitInfo?.articleInfo.articleOwnerName }}
             </div>
@@ -107,7 +147,13 @@
   <!-- PC -->
   <teleport to="#modal" v-if="!inMobile">
     <transition name="fade">
-      <div class="modal" v-if="currentId" @click="closePopup()" @touchmove.prevent.passive @scroll.stop.prevent>
+      <div
+        class="modal"
+        v-if="currentId"
+        @click="closePopup()"
+        @touchmove.prevent.passive
+        @scroll.stop.prevent
+      >
         <div class="close-btn" @click="closePopup()" v-if="currentId">
           <i class="freelog fl-icon-guanbi"></i>
         </div>
@@ -136,11 +182,28 @@
             </div>
           </div>
           <div class="exhibit-info">
-            <img class="author-avatar" :src="getAvatarUrl(exhibitInfo?.articleInfo.articleOwnerId)" v-if="exhibitInfo?.articleInfo.articleOwnerId" />
+            <img
+              class="author-avatar"
+              :src="getAvatarUrl(exhibitInfo?.articleInfo.articleOwnerId)"
+              v-if="exhibitInfo?.articleInfo.articleOwnerId"
+            />
             <div class="author-name">
               {{ exhibitInfo?.articleInfo.articleOwnerName }}
             </div>
-            <tags :tags="exhibitInfo?.tags" v-if="exhibitInfo?.tags.length" />
+
+            <tags
+              :tags="exhibitInfo?.tags"
+              :shouldCalculateWidth="true"
+              v-if="exhibitInfo?.tags.length"
+              @updateTotalWidth="handleUpdateWidth"
+            />
+
+            <div class="more-tag" v-if="showMoreTagBtn">
+              更多>>
+              <div class="more-tag-popup">
+                <tags :tags="exhibitInfo?.tags" />
+              </div>
+            </div>
           </div>
 
           <div ref="contentArea" class="main-area">
@@ -148,43 +211,80 @@
 
             <transition-group name="content-fade">
               <template v-if="!loading">
-                <template v-if="exhibitInfo?.defaulterIdentityType === 0 && contentMode">
-                  <img
-                    :class="{
-                      'width-full': contentMode === 1,
-                      'height-full': contentMode === 2,
-                    }"
-                    :src="content"
-                    oncontextmenu="return false"
-                    v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')"
-                  />
-                  <video
-                    :class="{
-                      'width-full': contentMode === 1,
-                      'height-full': contentMode === 2,
-                    }"
-                    :src="content"
-                    controls
-                    controlslist="nodownload"
-                    oncontextmenu="return false"
-                    v-else-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
-                  ></video>
-                </template>
+                <template v-if="exhibitInfo?.articleInfo?.status === 1">
+                  <div v-if="exhibitInfo.onlineStatus === 0">
+                    <div class="exceptional-box">
+                      <div class="icon">
+                        <i class="freelog fl-icon-a-yichang_tupianshipinmanhuaziyuan freeze"> </i>
+                      </div>
 
-                <template v-else-if="exhibitInfo?.defaulterIdentityType">
-                  <div class="auth-box" v-if="![0, 4].includes(exhibitInfo?.defaulterIdentityType)">
-                    <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-                    <div class="auth-link-tip">授权链异常，无法查看</div>
-                    <div class="home-btn" @click="closePopup()">进入首页</div>
+                      <span class="exceptional-text"> 作品已下架，无法访问 </span>
+                    </div>
+                  </div>
+
+                  <div v-else-if="![0, 4].includes(exhibitInfo?.defaulterIdentityType)">
+                    <div class="exceptional-box">
+                      <div class="icon">
+                        <i class="freelog fl-icon-a-yichang_tupianshipinmanhuaziyuan freeze"> </i>
+                      </div>
+
+                      <span class="exceptional-text"> 作品异常，无法访问 </span>
+                    </div>
                   </div>
 
                   <div
                     class="lock-box"
-                    v-else-if="exhibitInfo?.defaulterIdentityType === 4 || userData.isLogin === false"
+                    v-else-if="
+                      exhibitInfo?.defaulterIdentityType === 4 || userData.isLogin === false
+                    "
                   >
                     <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
                     <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
                     <div class="get-btn" @click="getAuth()">获取授权</div>
+                  </div>
+
+                  <div
+                    v-else-if="!['图片', '视频'].includes(exhibitInfo?.articleInfo.resourceType[0])"
+                  >
+                    <div class="exceptional-box">
+                      <div class="icon">
+                        <i class="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
+                      </div>
+
+                      <span class="exceptional-text">此作品格式暂不支持访问 </span>
+                    </div>
+                  </div>
+
+                  <template v-else-if="exhibitInfo?.defaulterIdentityType === 0 && contentMode">
+                    <img
+                      :class="{
+                        'width-full': contentMode === 1,
+                        'height-full': contentMode === 2
+                      }"
+                      :src="content"
+                      oncontextmenu="return false"
+                      v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')"
+                    />
+                    <video
+                      :class="{
+                        'width-full': contentMode === 1,
+                        'height-full': contentMode === 2
+                      }"
+                      :src="content"
+                      controls
+                      controlslist="nodownload"
+                      oncontextmenu="return false"
+                      v-else-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
+                    ></video>
+                  </template>
+                </template>
+
+                <template v-else>
+                  <div class="freeze-exhibit">
+                    <div class="icon">
+                      <i class="freelog fl-icon-a-yichang_tupianshipinmanhuaziyuan freeze"> </i>
+                    </div>
+                    <span class="exceptional-text"> 此作品因违规无法访问 </span>
                   </div>
                 </template>
               </template>
@@ -200,7 +300,10 @@
             <div
               class="switch-btn next"
               @click="switchExhibit('ArrowRight')"
-              v-if="listData.length && exhibitInfo?.exhibitId !== listData[listData.length - 1].exhibitId"
+              v-if="
+                listData.length &&
+                exhibitInfo?.exhibitId !== listData[listData.length - 1].exhibitId
+              "
             >
               <i class="freelog fl-icon-zhankaigengduo"></i>
             </div>
@@ -250,16 +353,18 @@ export default {
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
     "my-frame": defineAsyncComponent(() => import("../components/frame.vue")),
     "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
-    "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
+    "my-footer": defineAsyncComponent(() => import("../components/footer.vue"))
   },
 
   setup(props: { id: string }, context: SetupContext) {
     const store = useStore();
     const { route, query, switchPage } = useMyRouter();
     const datasOfGetList = useGetList();
-    const { listNumber, waterfall, waterfallList, getListNumber, initWaterfall, setWaterFall } = useMyWaterfall();
+    const { listNumber, waterfall, waterfallList, getListNumber, initWaterfall, setWaterFall } =
+      useMyWaterfall();
     const scrollArea = ref<any>(null);
     const contentArea = ref<any>(null);
+    const showMoreTagBtn = ref<boolean>();
 
     const data = reactive({
       loading: false,
@@ -271,7 +376,7 @@ export default {
       recommendShow: false,
       shareShow: false,
       href: "",
-      shareWidget: null as WidgetController | null,
+      shareWidget: null as WidgetController | null
     });
 
     const methods = {
@@ -291,7 +396,9 @@ export default {
 
       /** 切换图片 */
       switchExhibit(type: string) {
-        const currentIndex = store.state.listData.findIndex((item: ExhibitItem) => item.exhibitId === data.currentId);
+        const currentIndex = store.state.listData.findIndex(
+          (item: ExhibitItem) => item.exhibitId === data.currentId
+        );
         if (type === "ArrowLeft" && currentIndex !== 0)
           data.currentId = store.state.listData[currentIndex - 1].exhibitId;
         if (type === "ArrowRight" && currentIndex !== store.state.listData.length - 1)
@@ -313,6 +420,7 @@ export default {
           data.currentId = "";
           context.emit("update:id", "");
           switchPage(route.path, { id: "" }, "replace");
+          showMoreTagBtn.value = false;
         }
       },
 
@@ -331,7 +439,7 @@ export default {
       /** 控制分享弹窗显示 */
       setShareWidgetShow(value: boolean) {
         data.shareWidget?.setData({ show: value });
-      },
+      }
     };
 
     /** 快捷键 */
@@ -348,7 +456,7 @@ export default {
 
       const [exhibitInfo, statusInfo] = await Promise.all([
         freelogApp.getExhibitInfo(data.currentId, { isLoadVersionProperty: 1 }),
-        freelogApp.getExhibitAuthStatus(data.currentId),
+        freelogApp.getExhibitAuthStatus(data.currentId)
       ]);
       const { defaulterIdentityType = -1 } = statusInfo.data.data[0];
 
@@ -380,6 +488,10 @@ export default {
             data.content = info;
             data.loading = false;
           };
+          img.onerror = event => {
+            console.log(event);
+            data.loading = false;
+          };
         } else if (resourceType.includes("视频")) {
           const video: HTMLVideoElement = document.createElement("video");
           video.src = info;
@@ -395,6 +507,12 @@ export default {
           video.onloadeddata = ready;
           // onloadeddata 在 ios 不触发，onprogress 为了解决 ios 无法播放视频问题
           video.onprogress = ready;
+          video.onerror = event => {
+            console.log(event);
+            data.loading = false;
+          };
+        } else {
+          data.loading = false;
         }
       } else if (defaulterIdentityType === 4) {
         // 未签约并且授权链无异常
@@ -429,7 +547,11 @@ export default {
     const waterfallResize = () => {
       getListNumber();
       initWaterfall();
-      setWaterFall(datasOfGetList.listData.value.filter((item) => item.exhibitId !== data.currentId) as ExhibitItem[]);
+      setWaterFall(
+        datasOfGetList.listData.value.filter(
+          item => item.exhibitId !== data.currentId
+        ) as ExhibitItem[]
+      );
       data.recommendShow = datasOfGetList.listData.value.length !== 0;
     };
 
@@ -455,7 +577,7 @@ export default {
       if (data.shareWidget) await data.shareWidget.unmount();
 
       const subDeps = await freelogApp.getSelfDependencyTree();
-      const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-展品分享");
+      const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-展品分享");
       if (!widgetData) return;
 
       const { articleId, parentNid, nid } = widgetData;
@@ -469,23 +591,44 @@ export default {
         topExhibitId,
         container,
         renderWidgetOptions: {
-          data: { exhibit: data.exhibitInfo, type, routerType: "detail" },
-        },
+          data: { exhibit: data.exhibitInfo, type, routerType: "detail" }
+        }
         // widget_entry: "https://localhost:8201",
       };
       data.shareWidget = await freelogApp.mountArticleWidget(params);
     };
 
+    const handleUpdateWidth = (width: number) => {
+      let authorAvatarWidth = 0;
+      let authorNameWidth = 0;
+      if (data.exhibitInfo?.articleInfo.articleOwnerId) {
+        const avatarElement = document.querySelector(".author-avatar") as HTMLElement;
+        authorAvatarWidth = avatarElement.offsetWidth;
+      }
+
+      if (data.exhibitInfo?.articleInfo.articleOwnerName) {
+        const authorElement = document.querySelector(".exhibit-info .author-name") as HTMLElement;
+        authorNameWidth = authorElement.offsetWidth;
+      }
+
+      const leftWidth = authorAvatarWidth + 10 + authorNameWidth + 30; // 头像和名称的宽度
+      const middleWidth = ((data?.exhibitInfo?.tags?.length ?? 1) - 1) * 5 + width; // 标签宽度
+
+      if (leftWidth + middleWidth > 1230) {
+        showMoreTagBtn.value = true;
+      }
+    };
+
     watch(
       () => props.id,
-      (cur) => {
+      cur => {
         data.currentId = cur;
       }
     );
 
     watch(
       () => query.value.id,
-      (cur) => {
+      cur => {
         data.currentId = cur;
       },
       { immediate: true }
@@ -493,7 +636,7 @@ export default {
 
     watch(
       () => data.currentId,
-      (cur) => {
+      cur => {
         if (cur) {
           data.exhibitInfo = null;
           data.content = "";
@@ -547,7 +690,8 @@ export default {
             cur[i].height = height < minHeight ? minHeight : height;
             num++;
 
-            if (num === cur.length) setWaterFall(cur.filter((item: ExhibitItem) => item.exhibitId !== data.currentId));
+            if (num === cur.length)
+              setWaterFall(cur.filter((item: ExhibitItem) => item.exhibitId !== data.currentId));
           };
         }
         data.recommendShow = cur.length > 1;
@@ -569,8 +713,10 @@ export default {
       ...methods,
       scrollArea,
       contentArea,
+      showMoreTagBtn,
+      handleUpdateWidth
     };
-  },
+  }
 };
 </script>
 

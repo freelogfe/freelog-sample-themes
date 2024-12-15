@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { freelogApp } from "freelog-runtime";
 import { useRouter } from "vue-router";
-import { relativeTime } from "@/utils/common.js";
+import { absoluteTime } from "@/utils/common.js";
 import { useMyPlay, useMyAuth } from "@/utils/hooks";
 import { useGlobalStore } from "@/store/global";
 // 图片
@@ -10,6 +10,7 @@ import MoreIcon from "@/assets/images/arrow.png";
 import TimeIcon from "@/assets/images/time.png";
 import AlbumIcon from "@/assets/images/album.png";
 import AuthLinkAbnormal from "@/assets/images/auth-link-abnormal.png";
+import Freeze from "@/assets/images/freeze.png";
 import type { Exhibit } from "@/interface";
 
 const props = defineProps<{
@@ -18,6 +19,16 @@ const props = defineProps<{
 const router = useRouter();
 const store = useGlobalStore();
 const collectionData = ref<Exhibit[]>([]);
+const albumData = ref<Exhibit[]>(
+  props.data.sort((a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime())
+);
+const dropVisible = ref<boolean>(false);
+const selectedValue = ref<number>(1); // 1-最新发布 2-最早发布
+const dropWrapper = ref<HTMLElement | null>(null);
+
+const handleShowDrop = () => {
+  dropVisible.value = !dropVisible.value;
+};
 
 const authLinkAbnormal = (defaulterIdentityType: number) => {
   return ![0, 4].includes(defaulterIdentityType);
@@ -144,6 +155,19 @@ const getCollectionList = async (obj: {
 <template>
   <!-- mobile -->
   <div class="mobile-album-wrap">
+    <!-- 最新发布 | 最早发布 -->
+    <div
+      class="album-drop-wrapper"
+      ref="dropWrapper"
+      v-if="$route.name === 'voice-list' && store.inMobile"
+    >
+      <div class="selected-box" @click="handleShowDrop">
+        <div class="txt">{{ selectedValue === 1 ? "最新发布" : "最早发布" }}</div>
+        <div class="drop-trigger" :class="dropVisible ? 'rotate' : ''">
+          <div class="triangle"></div>
+        </div>
+      </div>
+    </div>
     <!-- 专辑内容 -->
     <div class="album-content-box">
       <div class="content-item" v-for="(item, index) in props.data" :key="index">
@@ -160,18 +184,30 @@ const getCollectionList = async (obj: {
                 :class="playing(item.exhibitId) ? 'fl-icon-zanting' : 'fl-icon-bofang-sanjiaoxing'"
               ></i>
             </div>
+            <div class="offline" v-if="item.onlineStatus === 0"><span>已下架</span></div>
           </div>
           <!-- 详细信息 -->
           <div class="info">
             <div class="top-area">
               <img
+                class="freeze-lock"
+                :src="Freeze"
+                alt="封禁"
+                v-if="item?.articleInfo?.status === 2"
+              />
+              <div class="offline" v-else-if="item.onlineStatus === 0">
+                <span>已下架</span>
+              </div>
+              <img
                 class="auth-link-abnormal"
                 :src="AuthLinkAbnormal"
-                v-if="authLinkAbnormal(item.defaulterIdentityType)"
+                alt="授权链异常"
+                v-else-if="authLinkAbnormal(item.defaulterIdentityType)"
               />
               <i
                 class="freelog fl-icon-suoding lock"
                 @click.stop="getAuth(item)"
+                alt="未授权"
                 v-if="item.defaulterIdentityType >= 4"
               ></i>
               <span
@@ -186,7 +222,7 @@ const getCollectionList = async (obj: {
                 <div class="icon">
                   <img :src="TimeIcon" alt="更新时间" />
                 </div>
-                <span class="time">{{ relativeTime(item.updateDate) }}</span>
+                <span class="time">{{ absoluteTime(item.updateDate) }}</span>
               </div>
 
               <div class="album-box">
@@ -206,6 +242,48 @@ const getCollectionList = async (obj: {
         </div>
       </div>
     </div>
+
+    <!-- 选项弹窗 -->
+    <transition name="fade">
+      <div class="modal" @click="dropVisible = false" v-if="dropVisible"></div>
+    </transition>
+    <transition name="slide-up-fade">
+      <div class="drop-list" v-if="dropVisible">
+        <div
+          class="drop-item"
+          :class="selectedValue === 1 && 'selected'"
+          @click="
+            () => {
+              selectedValue = 1;
+              handleShowDrop();
+              // 降序排列
+              albumData = albumData.sort(
+                (a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime()
+              );
+            }
+          "
+        >
+          最新发布
+        </div>
+        <div
+          class="drop-item"
+          :class="selectedValue === 2 && 'selected'"
+          @click="
+            () => {
+              selectedValue = 2;
+              handleShowDrop();
+              // 升序排列
+              albumData = albumData.sort(
+                (a, b) => new Date(a.updateDate).getTime() - new Date(b.updateDate).getTime()
+              );
+            }
+          "
+        >
+          最早发布
+        </div>
+        <div class="close-btn" @click.stop="dropVisible = false">取消</div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -239,6 +317,77 @@ const getCollectionList = async (obj: {
     }
   }
 
+  .album-drop-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin: 30px 0;
+    width: 100%;
+    height: 20px;
+
+    .selected-box {
+      display: flex;
+      align-items: center;
+      .txt {
+        height: 20px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #fff;
+        line-height: 20px;
+      }
+
+      .drop-trigger {
+        position: relative;
+        margin-left: 7px;
+        transition: transform 0.35s;
+
+        &.rotate {
+          transform: rotate(-180deg);
+        }
+
+        .triangle {
+          width: 0;
+          border-width: 6px 5px;
+          border-style: solid;
+          border-color: transparent;
+          border-top-color: #fff;
+          position: relative;
+          top: 3px;
+        }
+      }
+    }
+
+    .drop-list {
+      position: absolute;
+      top: 25px;
+      width: 240px;
+      background: #000;
+      box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+      padding: 5px 0;
+      z-index: 2;
+      -webkit-backdrop-filter: blur(25px);
+      backdrop-filter: blur(25px);
+
+      .drop-item {
+        padding-left: 20px;
+        height: 50px;
+        line-height: 50px;
+        color: hsla(0, 0%, 100%, 0.6);
+        cursor: pointer;
+
+        &.selected {
+          color: #fff;
+        }
+
+        &:hover {
+          background-color: #44d7b6;
+          color: #fff;
+        }
+      }
+    }
+  }
+
   .album-content-box {
     display: flex;
     flex-direction: column;
@@ -263,6 +412,26 @@ const getCollectionList = async (obj: {
             height: 100%;
             object-fit: cover;
           }
+
+          .offline {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 40px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 0px 0px 4px 0px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            span {
+              font-size: 10px;
+              font-weight: 600;
+              color: #ffffff;
+              transform: scale(0.84);
+            }
+          }
         }
 
         .info {
@@ -270,10 +439,30 @@ const getCollectionList = async (obj: {
 
           .top-area {
             display: flex;
+
+            .freeze-lock,
             .auth-link-abnormal {
               width: 16px;
               height: 16px;
               margin-right: 5px;
+            }
+
+            .offline {
+              padding: 1px 5px;
+              background: rgba(255, 255, 255, 0.2);
+              border-radius: 13px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin-right: 5px;
+
+              span {
+                font-size: 10px;
+                line-height: 16px;
+                font-weight: 500;
+                color: #ffffff;
+                opacity: 0.8;
+              }
             }
 
             .lock {
@@ -345,6 +534,65 @@ const getCollectionList = async (obj: {
           }
         }
       }
+    }
+  }
+
+  .modal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.2);
+    z-index: 300;
+  }
+
+  .drop-list {
+    position: fixed;
+    height: 226px;
+    text-align: center;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(20px);
+    z-index: 300;
+
+    .drop-item {
+      font-weight: 400;
+      font-size: 16px;
+      color: #ffffff;
+      line-height: 22px;
+      padding: 30px 0;
+      position: relative;
+
+      &:nth-child(2) {
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        width: 200px;
+        margin: 0 auto;
+      }
+
+      &.selected {
+        color: #44d7b6;
+        &::after {
+          position: absolute;
+          margin-left: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          content: "";
+          width: 12px;
+          height: 12px;
+          background: url("@/assets/images/selected.png");
+          background-size: contain;
+          background-repeat: no-repeat;
+          display: inline-block;
+        }
+      }
+    }
+
+    .close-btn {
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 20px 0;
     }
   }
 }

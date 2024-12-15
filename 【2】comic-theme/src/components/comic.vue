@@ -6,28 +6,33 @@
     <div class="comic-cover-box">
       <img
         class="comic-cover"
-        :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
+        :class="{ 'opacity-40p': isDisabled() }"
         :src="data.coverImages[0]"
         :alt="data.exhibitTitle"
       />
-      <div class="offline" v-if="data.onlineStatus === 0">已下架</div>
+      <div class="offline" v-if="data.articleInfo?.status !== 2 && data.onlineStatus === 0">
+        已下架
+      </div>
     </div>
 
     <div class="comic-name" :title="data.exhibitTitle">
       <img
+        class="freeze-lock"
+        src="../assets/images/freeze.png"
+        v-if="data.articleInfo?.status === 2"
+        alt="封禁"
+      />
+      <img
         class="auth-link-abnormal"
         src="../assets/images/auth-link-abnormal.png"
-        v-if="![0, 4].includes(data.defaulterIdentityType)"
+        v-else-if="![0, 4].includes(data.defaulterIdentityType)"
       />
-      <div class="name" :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }">
+      <div class="name" :class="{ 'opacity-40p': isDisabled() }">
         {{ data.exhibitTitle }}
       </div>
     </div>
 
-    <div
-      class="comic-author"
-      :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
-    >
+    <div class="comic-author" :class="{ 'opacity-40p': isDisabled() }">
       {{ data.articleInfo.articleOwnerName }}
     </div>
   </div>
@@ -43,19 +48,28 @@
       <div class="comic-cover-box">
         <img
           class="comic-cover"
-          :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
+          :class="{ 'opacity-40p': isDisabled() }"
           :src="data.coverImages[0]"
           :alt="data.exhibitTitle"
         />
-        <div class="offline" v-if="data.onlineStatus === 0">已下架</div>
+        <div class="offline" v-if="data.articleInfo?.status !== 2 && data.onlineStatus === 0">
+          已下架
+        </div>
       </div>
 
       <div class="comic-info" :class="{ 'auth-comic': mode === 3 && inMobile }">
         <div class="comic-name-box" :title="data.exhibitTitle">
           <img
+            class="freeze-lock"
+            src="../assets/images/freeze.png"
+            v-if="data.articleInfo?.status === 2"
+            alt="封禁"
+          />
+          <img
             class="auth-link-abnormal"
             src="../assets/images/auth-link-abnormal.png"
-            v-if="![0, 4].includes(data.defaulterIdentityType)"
+            v-else-if="![0, 4].includes(data.defaulterIdentityType)"
+            alt="授权链异常"
           />
           <img
             class="lock"
@@ -68,15 +82,12 @@
             :class="
               data.articleInfo?.articleType === 1
                 ? 'single-episode'
-                : data.serializeStatus === 0
+                : data.articleInfo.serializeStatus === 0
                 ? 'on-going'
                 : 'completed'
             "
           />
-          <div
-            class="comic-name"
-            :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
-          >
+          <div class="comic-name" :class="{ 'opacity-40p': isDisabled() }">
             {{ data.exhibitTitle }}
           </div>
           <div class="tag is-auth" v-if="mode === 3 && data.defaulterIdentityType < 4 && !inMobile">
@@ -90,18 +101,11 @@
           </div>
         </div>
 
-        <div
-          class="comic-author"
-          :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
-        >
+        <div class="comic-author" :class="{ 'opacity-40p': isDisabled() }">
           {{ data.articleInfo.articleOwnerName }}
         </div>
 
-        <div
-          class="tags"
-          :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
-          v-if="!(mode === 3 && inMobile)"
-        >
+        <div class="tags" :class="{ 'opacity-40p': isDisabled() }" v-if="!(mode === 3 && inMobile)">
           <tags :tags="data.tags" />
         </div>
 
@@ -117,13 +121,19 @@
 
       <i
         class="freelog fl-icon-zhankaigengduo"
-        :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
+        :class="{ 'opacity-40p': isDisabled() }"
         v-if="!(mode === 3 && inMobile)"
       ></i>
 
       <div
         class="main-btn btn"
-        :class="{ disabled: ![0, 4].includes(data.defaulterIdentityType) }"
+        :class="{
+          disabled:
+            data.articleInfo?.status === 2 ||
+            data.onlineStatus === 0 ||
+            ![0, 4].includes(data.defaulterIdentityType) ||
+            !['阅读'].includes(data.articleInfo?.resourceType[0])
+        }"
         @click.stop="toPath('/detail')"
         v-if="[2, 3].includes(mode)"
       >
@@ -161,12 +171,36 @@ export default {
     let deleting = false;
 
     const methods = {
+      isDisabled() {
+        return (
+          (props.data.articleInfo as any)?.status === 2 ||
+          props.data.onlineStatus === 0 ||
+          ![0, 4].includes(props.data.defaulterIdentityType!) ||
+          !["阅读"].includes(props.data?.articleInfo.resourceType[0])
+        );
+      },
+
       /** 跳转页面 */
       toPath(path: string) {
         const { exhibitId, defaulterIdentityType = -1 } = props.data;
 
-        if (![0, 4].includes(defaulterIdentityType)) {
-          showToast("授权链异常，无法查看");
+        if ((props.data.articleInfo as any)?.status === 2) {
+          showToast("此作品因违规无法访问");
+          return;
+        }
+
+        if (props.data.onlineStatus === 0) {
+          showToast("作品已下架，无法访问");
+          return;
+        }
+
+        if (![0, 4].includes(props.data.defaulterIdentityType!)) {
+          showToast("作品异常，无法访问");
+          return;
+        }
+
+        if (!["阅读"].includes(props.data?.articleInfo.resourceType[0])) {
+          showToast("此作品格式暂不支持访问");
           return;
         }
 
@@ -240,6 +274,7 @@ export default {
     display: flex;
     align-items: center;
 
+    .freeze-lock,
     .auth-link-abnormal {
       width: 16px;
       height: 16px;
@@ -322,6 +357,7 @@ export default {
         display: flex;
         align-items: center;
 
+        .freeze-lock,
         .auth-link-abnormal {
           width: 16px;
           height: 16px;

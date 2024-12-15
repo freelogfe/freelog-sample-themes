@@ -185,13 +185,17 @@ export const useMyCollection = {
         ]);
         result.push({
           ...subInfo.data.data,
-          coverImages: list.data.data[0].coverImages,
+          onlineStatus: list.data?.data?.[0]?.status,
+          coverImages: list.data?.data?.[0]?.coverImages,
           versionInfo: { exhibitProperty: subInfo.data.data.articleInfo.articleProperty },
           defaulterIdentityType: subStatusList.data.data[0].defaulterIdentityType
         });
       } else {
         const [list, statusList] = await Promise.all([
-          freelogApp.getExhibitListById({ exhibitIds: item.exhibitId, isLoadVersionProperty: 1 }),
+          freelogApp.getExhibitListById({
+            exhibitIds: item.exhibitId || item,
+            isLoadVersionProperty: 1
+          }),
           freelogApp.getExhibitAuthStatus(item.exhibitId)
         ]);
 
@@ -280,14 +284,17 @@ export const useMyPlay = {
         ]);
         result.push({
           ...subInfo.data.data,
-          coverImages: list.data.data[0].coverImages,
+          coverImages: list.data?.data?.[0]?.coverImages,
           versionInfo: { exhibitProperty: subInfo.data.data.articleInfo.articleProperty },
           defaulterIdentityType: subStatusList.data.data[0].defaulterIdentityType,
           albumName: list.data.data[0].exhibitName
         });
       } else {
         const [list, statusList] = await Promise.all([
-          freelogApp.getExhibitListById({ exhibitIds: item.exhibitId, isLoadVersionProperty: 1 }),
+          freelogApp.getExhibitListById({
+            exhibitIds: item.exhibitId || item,
+            isLoadVersionProperty: 1
+          }),
           freelogApp.getExhibitAuthStatus(item.exhibitId)
         ]);
 
@@ -295,7 +302,7 @@ export const useMyPlay = {
           const params = {
             collectionID: list.data.data[0].exhibitId,
             exhibitName: list.data.data[0].exhibitName,
-            images: list.data.data[0].coverImages,
+            images: list.data?.data?.[0]?.coverImages,
             options: {
               limit: 1_000,
               isShowDetailInfo: 1
@@ -611,7 +618,8 @@ export const useMyPlay = {
         useMyPlay[type](exhibit);
       } else {
         // 非按顺序播放时，弹出提示
-        showToast("授权链异常");
+        // showToast("授权链异常");
+        showToast("作品异常，无法访问");
       }
       return;
     } else if (defaulterIdentityType === 4) {
@@ -660,7 +668,7 @@ export const useMyPlay = {
       : `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ""}`;
     const index = playList.findIndex(item => `${item.exhibitId}${item.itemId ?? ""}` === id);
 
-    if (playMode === "NORMAL") {
+    if (["NORMAL", "REPEAT-ALL", "REPEAT-ONE"].includes(playMode)) {
       if (index === 0) {
         preVoiceInfo = playList[playList.length - 1];
       } else {
@@ -683,7 +691,7 @@ export const useMyPlay = {
       : `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ""}`;
     const index = playList.findIndex(item => `${item.exhibitId}${item.itemId ?? ""}` === id);
 
-    if (playMode === "NORMAL") {
+    if (["NORMAL", "REPEAT-ALL", "REPEAT-ONE"].includes(playMode)) {
       if (index === playList.length - 1) {
         nextVoiceInfo = playList[0];
       } else {

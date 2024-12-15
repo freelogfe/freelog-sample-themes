@@ -72,7 +72,12 @@ const getList = async () => {
       // 获取合集里的单品列表
       if (item.articleInfo.articleType === 2) {
         albumData.value.push(item);
-        await getCollectionList(item.exhibitId, item.exhibitTitle, item.coverImages);
+        await getCollectionList(
+          item.exhibitId,
+          item.exhibitTitle,
+          item.coverImages,
+          item.onlineStatus
+        );
       } else {
         listData.value.push(item);
       }
@@ -87,7 +92,12 @@ let subTotal = 0;
 let subSkip = 0;
 let subTempData = [];
 
-const getCollectionList = async (collectionID: string, exhibitTitle: string, images: string[]) => {
+const getCollectionList = async (
+  collectionID: string,
+  exhibitTitle: string,
+  images: string[],
+  onlineStatus: number
+) => {
   const subList = await freelogApp.getCollectionSubList(collectionID, {
     skip: subSkip,
     limit: 1_000,
@@ -118,6 +128,7 @@ const getCollectionList = async (collectionID: string, exhibitTitle: string, ima
         item.exhibitIntro = item.articleInfo.intro;
         item.albumName = exhibitTitle;
         item.exhibitId = collectionID;
+        item.onlineStatus = onlineStatus;
       });
     }
   }
@@ -127,7 +138,7 @@ const getCollectionList = async (collectionID: string, exhibitTitle: string, ima
 
   if (subTempData.length < subTotal) {
     subSkip = subSkip + 1_000;
-    await getCollectionList(collectionID, exhibitTitle, images);
+    await getCollectionList(collectionID, exhibitTitle, images, onlineStatus);
   } else {
     subTotal = 0;
     subSkip = 0;

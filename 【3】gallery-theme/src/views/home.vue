@@ -18,6 +18,16 @@
       <my-loader v-if="homeLoading" />
 
       <template v-if="!homeLoading">
+        <div
+          class="text-btn mobile filter"
+          :class="{ disabled: myLoading }"
+          @click="filterBoxShow = true"
+          v-if="!searchData.keywords"
+        >
+          <i className="freelog fl-icon-shaixuan"></i>
+          <div class="filter-label">筛选</div>
+        </div>
+
         <div class="frame-list">
           <div class="waterfall" v-for="list in listNumber" :key="list">
             <my-frame
@@ -31,7 +41,10 @@
         </div>
 
         <div className="tip" v-show="total === 0">当前节点暂无数据，请稍后查看</div>
-        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total && noMore">
+        <div
+          className="tip no-more"
+          v-show="listData.length !== 0 && listData.length === total && noMore"
+        >
           — 已加载全部 —
         </div>
       </template>
@@ -90,14 +103,19 @@
 
     <!-- PC -->
     <div class="home-body" v-if="!inMobile">
-      <div class="search-box-title" v-if="searchData.keywords">查询到{{ listData.length }}个相关结果</div>
+      <div class="search-box-title" v-if="searchData.keywords">
+        查询到{{ listData.length }}个相关结果
+      </div>
 
       <div class="filter-bar">
         <div class="filter-bar-bg"></div>
 
         <div
           class="category-btn"
-          :class="{ active: !searchData.tags && !searchData.articleResourceTypes, disabled: myLoading }"
+          :class="{
+            active: !searchData.tags && !searchData.articleResourceTypes,
+            disabled: myLoading
+          }"
           @click="selectTag()"
         >
           全部
@@ -138,7 +156,9 @@
         </div>
 
         <div className="tip" v-show="total === 0">当前节点暂无数据，请稍后查看</div>
-        <div className="tip no-more" v-show="total !== 0 && listData.length === total && noMore">— 已加载全部 —</div>
+        <div className="tip no-more" v-show="total !== 0 && listData.length === total && noMore">
+          — 已加载全部 —
+        </div>
       </template>
     </div>
 
@@ -146,12 +166,24 @@
 
     <login-btn />
 
-    <detail v-model:id="currentId" @refreshAuth="refreshAuth(currentId)" v-if="!inMobile && route.path === '/home'" />
+    <detail
+      v-model:id="currentId"
+      @refreshAuth="refreshAuth(currentId)"
+      v-if="!inMobile && route.path === '/home'"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, onActivated, onDeactivated, onUnmounted, reactive, toRefs, watch } from "vue";
+import {
+  defineAsyncComponent,
+  onActivated,
+  onDeactivated,
+  onUnmounted,
+  reactive,
+  toRefs,
+  watch
+} from "vue";
 import { useGetList, useMyRouter, useMyScroll, useMyWaterfall } from "../utils/hooks";
 import { useStore } from "vuex";
 import { ExhibitItem } from "@/api/interface";
@@ -166,14 +198,18 @@ export default {
     "my-frame": defineAsyncComponent(() => import("../components/frame.vue")),
     "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
     detail: defineAsyncComponent(() => import("../views/detail.vue")),
-    "login-btn": defineAsyncComponent(() => import("../components/login-btn.vue")),
+    "login-btn": defineAsyncComponent(() => import("../components/login-btn.vue"))
   },
 
   setup() {
     const store = useStore();
-    const tagsList: string[] = store.state.selfConfig.tags?.split(",");
+    const tagsList: string[] = (store.state.selfConfig.options_tags || store.state.selfConfig.tags)
+      ?.split(",")
+      ?.map((tag: string) => tag.trim()) // 去掉每个字符串的前后空格
+      ?.filter(Boolean);
     const { query, route, router, switchPage } = useMyRouter();
-    const { listNumber, waterfall, waterfallList, getListNumber, initWaterfall, setWaterFall } = useMyWaterfall();
+    const { listNumber, waterfall, waterfallList, getListNumber, initWaterfall, setWaterFall } =
+      useMyWaterfall();
     const { scrollTop, clientHeight, scrollHeight, scrollTo } = useMyScroll();
     const datasOfGetList = useGetList();
 
@@ -186,7 +222,7 @@ export default {
       },
       currentId: null as null | string,
       filterBoxShow: false,
-      noMore: false,
+      noMore: false
     });
 
     const methods = {
@@ -218,8 +254,23 @@ export default {
       clickFrame(item: ExhibitItem) {
         const { exhibitId, defaulterIdentityType = -1 } = item;
 
-        if (![0, 4].includes(defaulterIdentityType)) {
-          showToast("授权链异常，无法查看");
+        if ((item.articleInfo as any)?.status === 2) {
+          showToast("此作品因违规无法访问");
+          return;
+        }
+
+        if (item.onlineStatus === 0) {
+          showToast("作品已下架，无法访问");
+          return;
+        }
+
+        if (![0, 4].includes(item.defaulterIdentityType!)) {
+          showToast("作品异常，无法访问");
+          return;
+        }
+
+        if (!["图片", "视频"].includes(item?.articleInfo.resourceType[0])) {
+          showToast("此作品格式暂不支持访问");
           return;
         }
 
@@ -234,13 +285,15 @@ export default {
       /** 刷新授权状态 */
       refreshAuth(id: string) {
         for (let i = 0; i < waterfallList.value.length; i++) {
-          const index = waterfall.value[waterfallList.value[i]].findIndex((item: ExhibitItem) => item.exhibitId === id);
+          const index = waterfall.value[waterfallList.value[i]].findIndex(
+            (item: ExhibitItem) => item.exhibitId === id
+          );
           if (index !== -1) {
             waterfall.value[waterfallList.value[i]][index].defaulterIdentityType = 0;
             break;
           }
         }
-      },
+      }
     };
 
     /** 获取数据 */
@@ -343,7 +396,7 @@ export default {
 
     watch(
       () => store.state.homeLoading,
-      (cur) => {
+      cur => {
         if (cur) return;
 
         setTimeout(() => {
@@ -394,9 +447,9 @@ export default {
       ...datasOfGetList,
       ...toRefs(data),
       ...methods,
-      route,
+      route
     };
-  },
+  }
 };
 </script>
 
@@ -441,6 +494,22 @@ export default {
           line-height: 22px;
           margin-left: 5px;
         }
+      }
+    }
+
+    .filter {
+      display: flex;
+      justify-content: end;
+      margin: 15px 0 30px;
+
+      .freelog {
+        font-size: 18px;
+      }
+
+      .filter-label {
+        font-size: 16px;
+        line-height: 22px;
+        margin-left: 5px;
       }
     }
 

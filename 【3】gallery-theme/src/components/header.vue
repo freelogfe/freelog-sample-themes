@@ -2,17 +2,29 @@
 
 <template>
   <!-- 移动端头部 -->
-  <div class="mobile-header-wrapper" :class="{ 'in-home': homeHeader }" v-if="inMobile && !mobileSearching">
+  <div
+    class="mobile-header-wrapper"
+    :class="{ 'in-home': homeHeader }"
+    v-if="inMobile && !mobileSearching"
+  >
     <!-- header顶部 -->
     <div class="header-top" :class="{ logon: userData.isLogin }">
       <img
         class="logo"
-        :src="selfConfig.logoImage || require('../assets/images/logo.png')"
+        :src="
+          selfConfig.options_logoImage ||
+          selfConfig.logoImage ||
+          require('../assets/images/logo.png')
+        "
         referrerpolicy="no-referrer"
         @click="switchPage('/')"
         v-if="homeHeader"
       />
-      <div class="header-top-left" @click="locationHistory.length === 1 ? switchPage('/home') : routerBack()" v-else>
+      <div
+        class="header-top-left"
+        @click="locationHistory.length === 1 ? switchPage('/home') : routerBack()"
+        v-else
+      >
         <img class="back-arrow" src="../assets/images/arrow.png" />
         <div class="back-label">{{ locationHistory.length === 1 ? "首页" : "返回" }}</div>
       </div>
@@ -28,19 +40,29 @@
     <template v-if="homeHeader">
       <div class="header-other-info">
         <div class="node-avatar">
-          <img :src="nodeLogo || require('../assets/images/default-avatar.png')" alt="节点头像" class="avatar-img" />
+          <img
+            :src="nodeLogo || require('../assets/images/default-avatar.png')"
+            alt="节点头像"
+            class="avatar-img"
+          />
         </div>
         <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
       </div>
 
       <div class="header-node-info" @click="nodeInfoPopupShow = true">
         <div class="node-title">{{ nodeTitle }}</div>
-        <div class="node-desc" v-html="nodeShortDescription"></div>
+        <div class="node-desc">{{ nodeShortDescription }}</div>
       </div>
     </template>
 
     <transition name="fade">
-      <div id="modal" class="modal" @click="userBoxShow = false" @touchmove.prevent v-if="userBoxShow"></div>
+      <div
+        id="modal"
+        class="modal"
+        @click="userBoxShow = false"
+        @touchmove.prevent
+        v-if="userBoxShow"
+      ></div>
     </transition>
 
     <transition name="slide-right">
@@ -134,7 +156,7 @@
     <transition name="fade">
       <div class="node-info-popup" @click="nodeInfoPopupShow = false" v-if="nodeInfoPopupShow">
         <div class="node-title">{{ nodeTitle }}</div>
-        <div class="node-desc" v-html="nodeShortDescription"></div>
+        <div class="node-desc">{{ nodeShortDescription }}</div>
       </div>
     </transition>
   </div>
@@ -166,7 +188,11 @@
         <!-- logo -->
         <img
           class="logo"
-          :src="selfConfig.logoImage || require('../assets/images/logo.png')"
+          :src="
+            selfConfig.options_logoImage ||
+            selfConfig.logoImage ||
+            require('../assets/images/logo.png')
+          "
           @click="switchPage('/')"
         />
 
@@ -199,18 +225,21 @@
               v-if="searchHistoryShow && mySearchHistory.length !== 0"
             >
               <div class="history-list">
-              <div
-                class="history-item"
-                :class="{ catch: searchWordCatch === index }"
-                v-for="(item, index) in mySearchHistory"
-                :key="item"
-                @click="clickSearchHistory(item)"
-                @mousemove="searchWordCatch = index"
-                @mouseleave="searchWordCatch = null"
-              >
-                <div class="item-word">{{ item }}</div>
-                <i class="freelog fl-icon-guanbi delete-btn" @click.stop="deleteSearchHistory(item)"></i>
-              </div>
+                <div
+                  class="history-item"
+                  :class="{ catch: searchWordCatch === index }"
+                  v-for="(item, index) in mySearchHistory"
+                  :key="item"
+                  @click="clickSearchHistory(item)"
+                  @mousemove="searchWordCatch = index"
+                  @mouseleave="searchWordCatch = null"
+                >
+                  <div class="item-word">{{ item }}</div>
+                  <i
+                    class="freelog fl-icon-guanbi delete-btn"
+                    @click.stop="deleteSearchHistory(item)"
+                  ></i>
+                </div>
               </div>
 
               <div class="text-btn" @click="clearHistory()">清空搜索记录</div>
@@ -262,7 +291,11 @@
       <!-- 节点信息 -->
       <div class="header-node-info">
         <div class="node-avatar">
-          <img :src="nodeLogo || require('../assets/images/default-avatar.png')" alt="节点头像" class="avatar-img" />
+          <img
+            :src="nodeLogo || require('../assets/images/default-avatar.png')"
+            alt="节点头像"
+            class="avatar-img"
+          />
         </div>
 
         <div class="info-content">
@@ -270,7 +303,7 @@
             <div class="node-title" :title="nodeTitle">{{ nodeTitle }}</div>
             <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
           </div>
-          <div class="node-desc" v-html="nodeShortDescription" :title="nodeShortDescription"></div>
+          <div class="node-desc" :title="nodeShortDescription">{{ nodeShortDescription }}</div>
         </div>
       </div>
     </template>
@@ -290,16 +323,16 @@ export default {
   props: {
     homeHeader: {
       type: Boolean,
-      default: false,
+      default: false
     },
     readerHeader: {
       type: Boolean,
-      default: false,
+      default: false
     },
     mobileSearching: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
 
   setup(props: { homeHeader: boolean }) {
@@ -309,7 +342,9 @@ export default {
     const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
     const searchInput = ref();
     const searchHistoryPopup = ref();
-    const mySearchHistory = computed(() => searchHistory.value.filter((item) => item.includes(data.searchKey)));
+    const mySearchHistory = computed(() =>
+      searchHistory.value.filter(item => item.includes(data.searchKey))
+    );
 
     const data = reactive({
       signCount: 0,
@@ -318,7 +353,7 @@ export default {
       nodeInfoPopupShow: false,
       searchPopupShow: false,
       searchHistoryShow: false,
-      searchWordCatch: null as number | null,
+      searchWordCatch: null as number | null
     });
 
     const methods = {
@@ -405,8 +440,13 @@ export default {
 
       /** 注册 */
       register() {
-        window.open("https://user.freelog.com/logon");
-      },
+        const url = freelogApp.getCurrentUrl();
+        if (url.includes(".freelog.com")) {
+          window.open("https://user.freelog.com/logon");
+        } else if (url.includes(".testfreelog.com")) {
+          window.open("https://user.testfreelog.com/logon");
+        }
+      }
     };
 
     /** 根据点击区域判断历史搜索框是否关闭 */
@@ -436,7 +476,7 @@ export default {
 
     watch(
       () => data.searchHistoryShow,
-      (cur) => {
+      cur => {
         if (cur) {
           document.addEventListener("click", ifCloseHistoryPopup);
         } else {
@@ -465,9 +505,9 @@ export default {
       deleteWord,
       clearHistory,
       ...toRefs(data),
-      ...methods,
+      ...methods
     };
-  },
+  }
 };
 </script>
 

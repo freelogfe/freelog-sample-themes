@@ -8,10 +8,15 @@ const store = useGlobalStore();
 const signedData = ref<any[]>([]);
 
 const getList = async () => {
-  for (const item of store.signedList) {
+  for (const item of store?.signedList) {
     if (item.articleInfo.articleType === 2) {
       signedData.value?.push(item);
-      await getCollectionList(item.exhibitId, item.exhibitName, item.coverImages);
+      await getCollectionList(
+        item.exhibitId,
+        item.exhibitName,
+        item.coverImages,
+        item?.onlineStatus
+      );
     } else {
       signedData.value?.push(item);
     }
@@ -23,7 +28,12 @@ let subTotal = 0;
 let subSkip = 0;
 let subTempData = [];
 
-const getCollectionList = async (collectionID: string, exhibitName: string, images: string[]) => {
+const getCollectionList = async (
+  collectionID: string,
+  exhibitName: string,
+  images: string[],
+  onlineStatus: number
+) => {
   const subList = await freelogApp.getCollectionSubList(collectionID, {
     skip: subSkip,
     limit: 1_000,
@@ -54,6 +64,7 @@ const getCollectionList = async (collectionID: string, exhibitName: string, imag
         item.exhibitIntro = item.articleInfo.intro;
         item.albumName = exhibitName;
         item.exhibitId = collectionID;
+        item.onlineStatus = onlineStatus;
       });
     }
   }
@@ -64,7 +75,7 @@ const getCollectionList = async (collectionID: string, exhibitName: string, imag
 
   if (subTempData.length < subTotal) {
     subSkip = subSkip + 1_000;
-    await getCollectionList(collectionID, exhibitName, images);
+    await getCollectionList(collectionID, exhibitName, images, onlineStatus);
   } else {
     subTotal = 0;
     subSkip = 0;

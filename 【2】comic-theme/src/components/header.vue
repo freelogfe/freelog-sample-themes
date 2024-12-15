@@ -12,7 +12,11 @@
     <div class="header-top" :class="{ logon: userData?.isLogin }">
       <img
         class="logo"
-        :src="selfConfig.options_logoImage || require('../assets/images/logo.png')"
+        :src="
+          selfConfig.options_logoImage ||
+          selfConfig.logoImage ||
+          require('../assets/images/logo.png')
+        "
         referrerpolicy="no-referrer"
         @click="switchPage('/home')"
         v-if="homeHeader"
@@ -177,7 +181,11 @@
         <!-- logo -->
         <img
           class="logo"
-          :src="selfConfig.options_logoImage || require('../assets/images/logo.png')"
+          :src="
+            selfConfig.options_logoImage ||
+            selfConfig.logoImage ||
+            require('../assets/images/logo.png')
+          "
           @click="switchPage('/home')"
         />
 
@@ -280,6 +288,7 @@ import { useStore } from "vuex";
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { useMyLocationHistory, useMyRouter, useSearchHistory } from "@/utils/hooks";
 import { State } from "@/store/index";
+import { freelogApp } from "freelog-runtime";
 
 export default {
   name: "my-header",
@@ -401,7 +410,12 @@ export default {
 
       /** 注册 */
       register() {
-        window.open("https://user.freelog.com/logon");
+        const url = freelogApp.getCurrentUrl();
+        if (url.includes(".freelog.com")) {
+          window.open("https://user.freelog.com/logon");
+        } else if (url.includes(".testfreelog.com")) {
+          window.open("https://user.testfreelog.com/logon");
+        }
       }
     };
 

@@ -16,7 +16,12 @@
 
   <!-- PC -->
   <div class="footer-wrapper" v-if="!inMobile">
-    <div class="second-text-btn" v-for="(item, index) in freelogEntrances" :key="item.label" @click="toPage(item.url)">
+    <div
+      class="second-text-btn"
+      v-for="(item, index) in freelogEntrances"
+      :key="item.label"
+      @click="toPage(item.url)"
+    >
       <i :class="item.label" v-if="index === 0"></i>
       <span v-else>{{ item.label }}</span>
     </div>
@@ -38,15 +43,15 @@ export default {
       /** 打开新标签页 */
       toPage(url: string) {
         window.open(url);
-      },
+      }
     };
 
     return {
       freelogEntrances,
       ...toRefs(store.state),
-      ...methods,
+      ...methods
     };
-  },
+  }
 };
 </script>
 

@@ -18,6 +18,31 @@
       transform: scale(0.6);
     }
 
+    .exceptional-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .icon {
+        text-align: center;
+        .freelog {
+          font-size: 164px;
+          opacity: 0.4;
+        }
+      }
+
+      .exceptional-text {
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 400;
+        font-size: 24px;
+        color: #222222;
+        line-height: 33px;
+        text-align: left;
+        opacity: 0.4;
+        margin-top: 20px;
+      }
+    }
+
     img,
     video {
       width: 100%;
@@ -142,6 +167,27 @@
 
       &.next {
         right: 15px;
+      }
+    }
+
+    .freeze-exhibit {
+      .icon {
+        text-align: center;
+        .freeze {
+          font-size: 158px;
+          opacity: 0.4;
+        }
+
+        .exceptional-text {
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 400;
+          font-size: 24px;
+          color: #222222;
+          line-height: 33px;
+          text-align: left;
+          opacity: 0.4;
+          margin-top: 20px;
+        }
       }
     }
   }
@@ -431,12 +477,64 @@
         color: #222222;
         line-height: 20px;
         margin-left: 10px;
+        flex-shrink: 0;
       }
 
       .tags-wrapper {
         margin-left: 30px;
         height: 24px;
         overflow: hidden;
+      }
+
+      .more-tag {
+        position: relative;
+        font-weight: 400;
+        font-size: 12px;
+        color: #c127ff;
+        line-height: 18px;
+        margin-left: 20px;
+        cursor: pointer;
+        flex-shrink: 0;
+        // padding-bottom: 15px;
+
+        &:hover {
+          .more-tag-popup {
+            opacity: 1;
+            pointer-events: auto; /* 恢复子元素的交互 */
+            transform: translateY(0);
+          }
+        }
+      }
+
+      .more-tag-popup {
+        position: absolute; /* Absolute positioning */
+        right: 0;
+        top: 31px;
+        width: 700px;
+        padding: 20px;
+        background: #ffffff;
+        box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        z-index: 99;
+        opacity: 0;
+        pointer-events: none; /* 默认情况下禁用交互 */
+        transform: translateY(-10px); /* 初始状态向上偏移10px */
+        transition: opacity 0.3s ease, transform 0.3s ease;
+
+        &:before {
+          content: "";
+          position: absolute;
+          top: -25px; /* 创建透明的缓冲区 */
+          left: 0;
+          right: 0;
+          height: 25px;
+          background: transparent;
+        }
+
+        .tags-wrapper {
+          height: fit-content;
+          overflow: unset;
+        }
       }
     }
 
@@ -457,6 +555,31 @@
       .loader-wrapper {
         position: absolute;
         inset: 0;
+      }
+
+      .exceptional-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .icon {
+          text-align: center;
+          .freelog {
+            font-size: 164px;
+            opacity: 0.4;
+          }
+        }
+
+        .exceptional-text {
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 400;
+          font-size: 24px;
+          color: #222222;
+          line-height: 33px;
+          text-align: left;
+          opacity: 0.4;
+          margin-top: 20px;
+        }
       }
 
       .width-full {
@@ -588,6 +711,27 @@
 
         &.next {
           right: 15px;
+        }
+      }
+
+      .freeze-exhibit {
+        .icon {
+          text-align: center;
+          .freeze {
+            font-size: 164px;
+            opacity: 0.4;
+          }
+        }
+
+        .exceptional-text {
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 400;
+          font-size: 24px;
+          color: #222222;
+          line-height: 33px;
+          text-align: left;
+          opacity: 0.4;
+          margin-top: 20px;
         }
       }
 

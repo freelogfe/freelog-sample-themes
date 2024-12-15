@@ -4,7 +4,10 @@
   <div
     class="theme-entrance-wrapper"
     :class="{
-      show: $store.state.inMobile === false && $store.state.selfConfig.entranceShow === '显示'
+      show:
+        $store.state.inMobile === false &&
+        ($store.state.selfConfig.options_entranceShow === '显示' ||
+          $store.state.selfConfig.entranceShow === '显示')
     }"
     @click="toTheme()"
   >

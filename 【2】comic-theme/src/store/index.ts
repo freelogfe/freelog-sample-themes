@@ -64,7 +64,7 @@ export default createStore<State>({
       const userData = freelogApp.getCurrentUser();
       const selfConfig = await freelogApp.getSelfProperty();
       const inMobile = judgeDevice();
-      const theme = themeList[selfConfig.theme];
+      const theme = themeList[selfConfig.options_theme || selfConfig.theme];
 
       if (inMobile) {
         // 是否 IOS 设备

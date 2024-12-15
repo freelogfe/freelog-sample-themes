@@ -15,8 +15,8 @@ import { defineAsyncComponent } from "vue";
 export default {
   components: {
     "theme-entrance": defineAsyncComponent(() => import("./components/theme-entrance.vue")),
-    "login-btn": defineAsyncComponent(() => import("./components/login-btn.vue")),
-  },
+    "login-btn": defineAsyncComponent(() => import("./components/login-btn.vue"))
+  }
 };
 </script>
 

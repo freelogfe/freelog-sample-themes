@@ -298,8 +298,8 @@ export default {
   methods: {
     callLogin,
     async callLoginOutHome() {
-      await callLoginOut()
-      this.$router.myPush("/home")
+      await callLoginOut();
+      this.$router.myPush("/home");
     },
 
     /** 返回 */
@@ -344,11 +344,11 @@ export default {
         return;
       }
       if (this.$store.state.inMobile) {
-        this.$refs.searchInput.blur()
+        this.$refs.searchInput.blur();
       }
       this.searchWord();
       this.$store.commit("setData", { key: "searchKey", value: this.searchKey });
-      sessionStorage.setItem("searchKey", this.searchKey)
+      sessionStorage.setItem("searchKey", this.searchKey);
       this.searchHistoryShow = false;
       if (!this.$store.state.inMobile) this.$router.myPush({ path: "/search-list" });
     },
@@ -401,7 +401,7 @@ export default {
 
     /** 注册 */
     register() {
-      const url = freelogApp.getCurrentUrl()
+      const url = freelogApp.getCurrentUrl();
       if (url.includes(".freelog.com")) {
         window.open("https://user.freelog.com/logon");
       } else if (url.includes(".testfreelog.com")) {

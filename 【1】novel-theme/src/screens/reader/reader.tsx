@@ -13,7 +13,9 @@ import { getUrlParams } from "../../utils/common";
 import { CollectionList, ExhibitItem, ThemeItem } from "../../api/interface";
 import { readerThemeList } from "../../api/data";
 import Lock from "../../assets/images/lock.png";
-import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
+import AllLoadedDark from "../../assets/images/all-loaded-dark.png";
+import AllLoadedLight from "../../assets/images/all-loaded-light.png";
+
 import "./reader.scss";
 
 export const readerContext = React.createContext<any>({});
@@ -24,7 +26,14 @@ export const ReaderScreen = (props: any) => {
   const { collection } = getUrlParams(props.location.search);
   const { subId } = getUrlParams(props.location.search);
   const { inMobile } = useContext(globalContext);
-  const myTheme = JSON.parse(localStorage.getItem("theme") || "null");
+  // const myTheme = JSON.parse(localStorage.getItem("theme") || "null");
+  let myTheme = localStorage.getItem("theme") as any;
+  // 如果 theme 为 null 或非有效的 JSON 格式，返回 null
+  try {
+    myTheme = myTheme ? JSON.parse(myTheme) : null;
+  } catch (e) {
+    myTheme = null;
+  }
   const [book, setBook] = useState<ExhibitItem | null>(null);
   const [fontSize, setFontSize] = useState(22);
   const [theme, setTheme] = useState<ThemeItem>(myTheme?.bgColor ? myTheme : readerThemeList[0]);
@@ -53,6 +62,7 @@ export const ReaderScreen = (props: any) => {
     const { articleType } = exhibitInfo.data.data.articleInfo;
     if (articleType === 2) {
       getCollectionList(true);
+      getCollectionInfo();
     }
     getRecommendList();
     setBook({
@@ -109,9 +119,9 @@ export const ReaderScreen = (props: any) => {
       size: 10
     });
     const { data: recommendData } = res.data;
-    const sliceData = recommendData.slice(0, 6);
+    // const sliceData = recommendData.slice(0, 5);
 
-    setRecommendList(sliceData);
+    setRecommendList(recommendData);
   };
 
   // 获取单品详细信息
@@ -119,6 +129,12 @@ export const ReaderScreen = (props: any) => {
     const res = await (freelogApp as any).getCollectionSubInfo(id, { itemId: subId });
     const { sortId } = res.data.data;
 
+    setBook((pre: any) => {
+      return {
+        ...pre,
+        articleInfo: res.data.data.articleInfo
+      };
+    });
     getCollectionList(false, sortId - 15 < 0 ? 0 : sortId - 15);
     setCurrentSortId(sortId);
   };
@@ -192,6 +208,14 @@ export const ReaderScreen = (props: any) => {
     // if (!changeChapterPopupShow) setChangeChapterPopupShow(true);
     !changeChapterPopupShow ? setChangeChapterPopupShow(true) : setChangeChapterPopupShow(false);
     if (inMobile) setMobileBarShow(true);
+  };
+
+  const handleChangeSort = (status: string) => {
+    const compare = (a: any, b: any) => {
+      return status === "asc" ? a.sortId - b.sortId : b.sortId - a.sortId;
+    };
+
+    setCollectionList(() => [...collectionList.sort(compare)]);
   };
 
   useEffect(() => {
@@ -315,6 +339,7 @@ export const ReaderScreen = (props: any) => {
             total={total}
             closeCatalogueModal={() => setModalStatus(false)}
             getCollectionList={getCollectionList}
+            updateSort={(status: string) => handleChangeSort(status)}
           />
         )}
       </div>
@@ -361,7 +386,6 @@ const ReaderBody = () => {
   /** 获取小说内容 */
   const getContent = useCallback(async () => {
     let authErrType: any = -1;
-
     const statusInfo = collection
       ? await (freelogApp as any).getCollectionSubAuth(id, { itemIds: subId })
       : await freelogApp.getExhibitAuthStatus(id);
@@ -427,40 +451,77 @@ const ReaderBody = () => {
           } as any
         }
       >
-        {defaulterIdentityType === 0 && (
+        {book?.articleInfo?.status === 1 ? (
           <React.Fragment>
-            <div id="markdown" />
-            {collection && currentSortId === total && (
-              <div className="no-more">— 已加载全部章节 —</div>
+            {book.onlineStatus === 0 ? (
+              <div>
+                <div className="exceptional-box">
+                  <div className="icon">
+                    <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
+                  </div>
+
+                  <span className="exceptional-text"> 作品已下架，无法访问 </span>
+                </div>
+              </div>
+            ) : ![0, 4].includes(book?.defaulterIdentityType) ? (
+              <div className="exceptional-box">
+                <div className="icon">
+                  <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+                </div>
+
+                <span className="exceptional-text"> 作品异常，无法访问 </span>
+              </div>
+            ) : defaulterIdentityType === 4 || userData?.isLogin === false ? (
+              <div className="lock-box">
+                <img className="lock" src={Lock} alt="未授权" />
+                <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+                <div className="get-btn" onClick={() => getAuth()}>
+                  获得授权
+                </div>
+              </div>
+            ) : !["阅读"].includes(book?.articleInfo.resourceType[0]) ? (
+              <div className="exceptional-box">
+                <div className="icon">
+                  <i className="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
+                </div>
+
+                <span className="exceptional-text">此作品格式暂不支持访问 </span>
+              </div>
+            ) : defaulterIdentityType === 0 ? (
+              <React.Fragment>
+                <div id="markdown" />
+              </React.Fragment>
+            ) : (
+              <></>
             )}
           </React.Fragment>
+        ) : (
+          <div className="freeze-exhibit">
+            <div className="icon">
+              <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+            </div>
+            <span className="exceptional-text"> 此作品因违规无法访问 </span>
+          </div>
         )}
-        {![null, 0, 4].includes(defaulterIdentityType) ? (
-          <div className="auth-box">
-            <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
-            <div className="auth-link-tip">授权链异常，无法查看</div>
-            <div className="home-btn" onClick={() => history.switchPage("/home")}>
-              进入首页
-            </div>
+
+        {/* 已加载全部内容 */}
+        {collection && currentSortId === total && (
+          <div className="no-more">
+            {theme?.type === 1 ? (
+              <img src={AllLoadedDark} alt="已加载全部内容" />
+            ) : (
+              <img src={AllLoadedLight} alt="已加载全部内容" />
+            )}
           </div>
-        ) : defaulterIdentityType &&
-          (defaulterIdentityType === 4 || userData?.isLogin === false) ? (
-          <div className="lock-box">
-            <img className="lock" src={Lock} alt="未授权" />
-            <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-            <div className="get-btn" onClick={() => getAuth()}>
-              获得授权
-            </div>
-          </div>
-        ) : null}
-        {currentSortId === total && (
+        )}
+
+        {currentSortId === total && !!recommendList.length && (
           <div className={`recommend-wrap ${theme?.type === 1 ? "dark" : "light"}`}>
-            {/* 合集-上一章节-下一章节 */}
             <React.Fragment>
               {/* 更多书籍 */}
               <div className="more">更多书籍</div>
               <div className="recommend-box">
-                {recommendList.map((item: ExhibitItem) => {
+                {recommendList.slice(0, 6).map((item: ExhibitItem) => {
                   return (
                     <div
                       className="recommend-item"
@@ -480,6 +541,18 @@ const ReaderBody = () => {
                 })}
               </div>
             </React.Fragment>
+          </div>
+        )}
+
+        {currentSortId === total && !recommendList.length && (
+          <div
+            className="to-home"
+            onClick={e => {
+              e.stopPropagation();
+              history.switchPage("/home");
+            }}
+          >
+            回首页寻找更多书籍 &gt;&gt;
           </div>
         )}
       </div>
@@ -504,75 +577,60 @@ const ReaderBody = () => {
             } as any
           }
         >
-          {defaulterIdentityType === 0 && (
+          {book?.articleInfo?.status === 1 ? (
             <React.Fragment>
-              <div id="markdown" />
-              {collection && currentSortId === total && (
-                <div className="no-more">— 已加载全部章节 —</div>
+              {book.onlineStatus === 0 ? (
+                <div>
+                  <div className="exceptional-box">
+                    <div className="icon">
+                      <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
+                    </div>
+
+                    <span className="exceptional-text"> 作品已下架，无法访问 </span>
+                  </div>
+                </div>
+              ) : ![0, 4].includes(book?.defaulterIdentityType) ? (
+                <div className="exceptional-box">
+                  <div className="icon">
+                    <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+                  </div>
+
+                  <span className="exceptional-text"> 作品异常，无法访问 </span>
+                </div>
+              ) : defaulterIdentityType === 4 || userData?.isLogin === false ? (
+                <div className="lock-box">
+                  <img className="lock" src={Lock} alt="未授权" />
+                  <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+                  <div className="get-btn" onClick={() => getAuth()}>
+                    获得授权
+                  </div>
+                </div>
+              ) : !["阅读"].includes(book?.articleInfo.resourceType[0]) ? (
+                <div className="exceptional-box">
+                  <div className="icon">
+                    <i className="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
+                  </div>
+
+                  <span className="exceptional-text">此作品格式暂不支持访问 </span>
+                </div>
+              ) : defaulterIdentityType === 0 ? (
+                <React.Fragment>
+                  <div id="markdown" />
+                </React.Fragment>
+              ) : (
+                <></>
               )}
             </React.Fragment>
+          ) : (
+            <div className="freeze-exhibit">
+              <div className="icon">
+                <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+              </div>
+              <span className="exceptional-text"> 此作品因违规无法访问 </span>
+            </div>
           )}
-          {![null, 0, 4].includes(defaulterIdentityType) ? (
-            <div className="auth-box">
-              <img className="auth-link-abnormal" src={AuthLinkAbnormal} alt="授权链异常" />
-              <div className="auth-link-tip">授权链异常，无法查看</div>
-              <div className="home-btn" onClick={() => history.switchPage("/home")}>
-                进入首页
-              </div>
-            </div>
-          ) : defaulterIdentityType &&
-            (defaulterIdentityType === 4 || userData?.isLogin === false) ? (
-            <div className="lock-box">
-              <img className="lock" src={Lock} alt="未授权" />
-              <div className="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-              <div className="get-btn" onClick={() => getAuth()}>
-                获得授权
-              </div>
-            </div>
-          ) : null}
         </div>
         <div className={`recommend-wrap ${theme?.type === 1 ? "dark" : "light"}`}>
-          {currentSortId === total && (
-            <React.Fragment>
-              <div className="more">更多书籍</div>
-              <div className="recommend-box">
-                {recommendList.map((item: ExhibitItem) => {
-                  return (
-                    <div
-                      className="recommend-item"
-                      key={item.exhibitId}
-                      onClick={() => toDetailFromRecommend(item.exhibitId)}
-                    >
-                      <div className="cover-image">
-                        <img src={item.coverImages[0]} alt={item.exhibitTitle} />
-                      </div>
-
-                      <div className="recommend-info">
-                        <span className="title">{item.exhibitTitle}</span>
-                        <span className="name">{item?.articleInfo?.articleOwnerName}</span>
-                        <div className="tags-wrap">
-                          {item.tags.map((tag: string, index: number) => {
-                            return (
-                              <div
-                                className="tag"
-                                key={index}
-                                onClick={e => {
-                                  e.stopPropagation();
-                                  history.switchPage(`/home?tags=${tag}`);
-                                }}
-                              >
-                                {tag}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </React.Fragment>
-          )}
           {/* 合集-上一章节-下一章节 */}
           {collection && (
             <React.Fragment>
@@ -614,6 +672,80 @@ const ReaderBody = () => {
                 </div>
               </div>
             </React.Fragment>
+          )}
+          {/* 已加载全部内容 */}
+          {collection && currentSortId === total && (
+            <div className="no-more">
+              {theme?.type === 1 ? (
+                <img src={AllLoadedDark} alt="已加载全部内容" />
+              ) : (
+                <img src={AllLoadedLight} alt="已加载全部内容" />
+              )}
+            </div>
+          )}
+          {/* 更多书籍 */}
+          {currentSortId === total && !!recommendList.length && (
+            <React.Fragment>
+              <div className="more">更多书籍</div>
+              <div className="recommend-box">
+                {recommendList.slice(0, 5).map((item: ExhibitItem) => {
+                  return (
+                    <div
+                      className="recommend-item"
+                      key={item.exhibitId}
+                      onClick={() => toDetailFromRecommend(item.exhibitId)}
+                    >
+                      <div className="cover-image">
+                        <img src={item.coverImages[0]} alt={item.exhibitTitle} />
+                      </div>
+
+                      <div className="recommend-info">
+                        <span className="title">{item.exhibitTitle}</span>
+                        <span className="name">{item?.articleInfo?.articleOwnerName}</span>
+                        <div className="tags-wrap">
+                          {item.tags.map((tag: string, index: number) => {
+                            return (
+                              <div
+                                className="tag"
+                                key={index}
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  history.switchPage(`/home?tags=${tag}`);
+                                }}
+                              >
+                                {tag}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+                <div className="recommend-item-to-home">
+                  <span
+                    onClick={e => {
+                      e.stopPropagation();
+                      history.switchPage("/home");
+                    }}
+                  >
+                    回首页寻找更多书籍 &gt;&gt;
+                  </span>
+                </div>
+              </div>
+            </React.Fragment>
+          )}
+
+          {currentSortId === total && !recommendList.length && (
+            <div
+              className="to-home"
+              onClick={e => {
+                e.stopPropagation();
+                history.switchPage("/home");
+              }}
+            >
+              回首页寻找更多书籍 &gt;&gt;
+            </div>
           )}
         </div>
       </div>

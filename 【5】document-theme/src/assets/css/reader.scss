@@ -93,6 +93,69 @@
       justify-content: center;
       flex-shrink: 0;
 
+      .exceptional-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        .icon {
+          text-align: center;
+          .freelog {
+            font-size: 164px;
+            opacity: 0.4;
+          }
+        }
+        .exceptional-text {
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 400;
+          font-size: 24px;
+          color: #222222;
+          line-height: 33px;
+          text-align: left;
+          opacity: 0.4;
+          margin-top: 20px;
+        }
+      }
+
+      .freeze-exhibit {
+        // height: 950px;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        // justify-content: center;
+        .header {
+          padding-top: 30px;
+          font-weight: 600;
+          font-size: 30px;
+          color: #222222;
+          line-height: 36px;
+        }
+
+        .icon {
+          // height: 465px;
+          // display: flex;
+          // align-items: center;
+          // justify-content: center;
+          .freeze {
+            font-size: 164px;
+            opacity: 0.4;
+          }
+        }
+
+        .exceptional-text {
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 400;
+          font-size: 24px;
+          color: #222222;
+          line-height: 33px;
+          text-align: left;
+          opacity: 0.4;
+          margin-top: 20px;
+        }
+      }
+
       .markdown-wrapper {
         margin-top: 30px;
         margin-bottom: 417px;
@@ -508,6 +571,22 @@
           display: flex;
           justify-content: flex-end;
 
+          .offline {
+            flex-shrink: 0;
+            width: 40px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 5px;
+          }
+
+          .freeze-lock,
           .auth-link-abnormal {
             width: 16px;
             height: 16px;
@@ -885,6 +964,22 @@
             display: flex;
             justify-content: flex-end;
 
+            .offline {
+              flex-shrink: 0;
+              width: 40px;
+              height: 20px;
+              background: rgba(0, 0, 0, 0.4);
+              border-radius: 4px;
+              font-size: 10px;
+              font-weight: 600;
+              color: #ffffff;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin-left: 5px;
+            }
+
+            .freeze-lock,
             .auth-link-abnormal {
               width: 16px;
               height: 16px;
@@ -995,6 +1090,31 @@
         padding-bottom: 285px;
         box-sizing: border-box;
 
+        .exceptional-box {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+          .icon {
+            text-align: center;
+            .freelog {
+              font-size: 164px;
+              opacity: 0.4;
+            }
+          }
+          .exceptional-text {
+            font-family: PingFangSC, PingFang SC;
+            font-weight: 400;
+            font-size: 24px;
+            color: #222222;
+            line-height: 33px;
+            text-align: left;
+            opacity: 0.4;
+            margin-top: 20px;
+          }
+        }
+
         .markdown-wrapper {
           margin-top: 30px;
         }
@@ -1063,6 +1183,39 @@
             &:active {
               background-color: #2376e5;
             }
+          }
+        }
+
+        .freeze-exhibit {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          .header {
+            padding-top: 30px;
+            font-weight: 600;
+            font-size: 30px;
+            color: #222222;
+            line-height: 36px;
+          }
+
+          .icon {
+            .freeze {
+              font-size: 164px;
+              opacity: 0.4;
+            }
+          }
+
+          .exceptional-text {
+            font-family: PingFangSC, PingFang SC;
+            font-weight: 400;
+            font-size: 24px;
+            color: #222222;
+            line-height: 33px;
+            text-align: left;
+            opacity: 0.4;
+            margin-top: 20px;
           }
         }
 

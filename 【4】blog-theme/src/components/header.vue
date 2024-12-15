@@ -3,10 +3,14 @@
 <template>
   <!-- 移动端头部 -->
   <div id="headerWrapper">
-    <div class="mobile-header-wrapper" :class="{ 'in-home': $route.path === '/home' }" v-if="inMobile && $route.path !== '/search'">
+    <div
+      class="mobile-header-wrapper"
+      :class="{ 'in-home': $route.path === '/home' }"
+      v-if="inMobile && $route.path !== '/search'"
+    >
       <!-- header顶部 -->
       <div class="header-top" :class="{ logon: userData.isLogin }">
-        <template v-if="$route.path === '/home'">          
+        <template v-if="$route.path === '/home'">
           <img
             class="logo"
             :src="nodeLogo"
@@ -22,21 +26,38 @@
             v-else
           />
         </template>
-        <div class="header-top-left" @click="locationHistory.length === 1 || locationHistory.length === 0 ? switchPage('/home') : routerBack()" v-else>
+        <div
+          class="header-top-left"
+          @click="
+            locationHistory.length === 1 || locationHistory.length === 0
+              ? switchPage('/home')
+              : routerBack()
+          "
+          v-else
+        >
           <span class="back-arrow freelog fl-icon-zhankaigengduo"></span>
           <div class="back-label">{{ locationHistory.length === 1 ? "首页" : "返回" }}</div>
         </div>
 
         <div class="header-top-right">
-          <i class="freelog fl-icon-content" @click="searchPopupShow = true" v-if="!($route.path === '/reader')"></i>
+          <i
+            class="freelog fl-icon-content"
+            @click="searchPopupShow = true"
+            v-if="!($route.path === '/reader')"
+          ></i>
 
           <img class="menu" src="../assets/images/menu@3x.png" @click="userBoxShow = true" />
         </div>
       </div>
 
-    
       <transition name="fade">
-        <div id="modal" class="modal" @click="userBoxShow = false" @touchmove.prevent v-if="userBoxShow"></div>
+        <div
+          id="modal"
+          class="modal"
+          @click="userBoxShow = false"
+          @touchmove.prevent
+          v-if="userBoxShow"
+        ></div>
       </transition>
 
       <transition name="slide-right">
@@ -89,7 +110,6 @@
           </div>
         </div>
       </transition>
-
     </div>
 
     <transition name="fade">
@@ -128,7 +148,7 @@
         </div>
       </div>
     </transition>
-    
+
     <!-- 移动端搜索页头部 -->
     <div class="mobile-search-header-wrapper" v-if="inMobile && $route.path === '/search'">
       <div class="search-page-box">
@@ -156,19 +176,14 @@
     <div class="header-top">
       <div class="header-top-left">
         <!-- logo -->
-        <img
-          class="logo"
-          :src="nodeLogo"
-          @click="switchPage('/')"
-          v-if="nodeLogo"
-        />
+        <img class="logo" :src="nodeLogo" @click="switchPage('/')" v-if="nodeLogo" />
         <img
           class="logo"
           src="../assets/images/default-node-cover.png"
           @click="switchPage('/')"
           v-else
         />
-        
+
         <div class="nav-btn" @click="switchPage('/')">首页</div>
 
         <!-- 搜索框 -->
@@ -210,7 +225,10 @@
                   @mouseleave="searchWordCatch = null"
                 >
                   <div class="item-word">{{ item }}</div>
-                  <i class="freelog fl-icon-guanbi delete-btn" @click.stop="deleteSearchHistory(item)"></i>
+                  <i
+                    class="freelog fl-icon-guanbi delete-btn"
+                    @click.stop="deleteSearchHistory(item)"
+                  ></i>
                 </div>
               </div>
 
@@ -221,7 +239,6 @@
       </div>
 
       <div class="header-top-right">
-        
         <!-- 已登录用户信息 -->
         <div
           class="user-avatar"
@@ -278,7 +295,9 @@ export default {
     const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
     const searchInput = ref();
     const searchHistoryPopup = ref();
-    const mySearchHistory = computed(() => searchHistory.value.filter((item) => item.includes(data.searchKey)));
+    const mySearchHistory = computed(() =>
+      searchHistory.value.filter(item => item.includes(data.searchKey))
+    );
 
     const data = reactive({
       signCount: 0,
@@ -287,29 +306,29 @@ export default {
       userBoxShow: false,
       searchPopupShow: false,
       searchHistoryShow: false,
-      searchWordCatch: null as number | null,
+      searchWordCatch: null as number | null
     });
 
     const inMobile = computed(() => {
-      return store.state.inMobile
-    })
+      return store.state.inMobile;
+    });
 
-    const userData =  computed(() => {
+    const userData = computed(() => {
       console.log("store.state.userData", store.state.userData);
-      
-      return store.state.userData
-    })
 
-    const locationHistory =  computed(() => {
-      return store.state.locationHistory
-    })
-    
+      return store.state.userData;
+    });
+
+    const locationHistory = computed(() => {
+      return store.state.locationHistory;
+    });
+
     const methods = {
       /** 输入搜索词 */
       historyCancel() {
-        data.searchPopupShow = false
-        if (route.path === '/search') {
-          switchPage("/home")
+        data.searchPopupShow = false;
+        if (route.path === "/search") {
+          switchPage("/home");
         }
       },
       /** 输入搜索词 */
@@ -391,13 +410,13 @@ export default {
 
       /** 注册 */
       register() {
-        const url = freelogApp.getCurrentUrl()
+        const url = freelogApp.getCurrentUrl();
         if (url.includes(".freelog.com")) {
           window.open("https://user.freelog.com/logon");
         } else if (url.includes(".testfreelog.com")) {
           window.open("https://user.testfreelog.com/logon");
         }
-      },
+      }
     };
 
     /** 根据点击区域判断历史搜索框是否关闭 */
@@ -428,7 +447,7 @@ export default {
 
     watch(
       () => data.searchHistoryShow,
-      (cur) => {
+      cur => {
         if (cur) {
           document.addEventListener("click", ifCloseHistoryPopup);
         } else {
@@ -461,7 +480,7 @@ export default {
       ...methods,
       locationHistory
     };
-  },
+  }
 };
 </script>
 

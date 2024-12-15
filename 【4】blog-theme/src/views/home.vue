@@ -2,7 +2,6 @@
 
 <template>
   <div class="home-wrapper" @click="sortPopupShow = false">
-
     <!-- mobile -->
     <div class="mobile-home-banner" v-if="inMobile">
       <div class="header-other-info">
@@ -12,8 +11,12 @@
       </div>
 
       <div class="header-blog-info">
-        <div class="blog-title" v-if="nodeTitle" @click="blogInfoPopupShow = true">{{ nodeTitle }}</div>
-        <div class="blog-desc" v-if="nodeShortDescription" v-html="nodeShortDescription" @click="blogInfoPopupShow = true"></div>
+        <div class="blog-title" v-if="nodeTitle" @click="blogInfoPopupShow = true">
+          {{ nodeTitle }}
+        </div>
+        <div class="blog-desc" v-if="nodeShortDescription" @click="blogInfoPopupShow = true">
+          {{ nodeShortDescription }}
+        </div>
         <div class="tags" :class="{ 'margin-top0': !nodeTitle && !nodeShortDescription }">
           <div
             class="category-btn"
@@ -29,7 +32,9 @@
       <transition name="fade">
         <div class="blog-info-popup" @click="blogInfoPopupShow = false" v-if="blogInfoPopupShow">
           <div class="blog-title">{{ nodeTitle }}</div>
-          <div class="blog-desc" v-html="nodeShortDescription"></div>
+          <div class="blog-desc">
+            {{ nodeShortDescription }}
+          </div>
         </div>
       </transition>
     </div>
@@ -78,16 +83,25 @@
         <div class="article-list">
           <my-article-v2 :data="item" v-for="item in availableListData" :key="item.exhibitId" />
         </div>
-        <div className="tip" v-show="total === 0 || availableListData.length === 0">当前节点暂无任何数据，请稍后查看</div>
-        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部 —</div>
+        <div className="tip" v-show="total === 0 || availableListData.length === 0">
+          当前节点暂无任何数据，请稍后查看
+        </div>
+        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">
+          — 已加载全部 —
+        </div>
       </template>
     </div>
 
     <!-- PC -->
     <div class="home-body" v-if="!inMobile">
-      <template v-if="$route.path === '/home' && (banner || nodeTitle || nodeShortDescription || tagsList.length)">
+      <template
+        v-if="
+          $route.path === '/home' &&
+          (banner || nodeTitle || nodeShortDescription || tagsList.length)
+        "
+      >
         <!-- 博客信息 -->
-        <div class="header-blog-info" :class="{ 'withoutTitleBg': !banner && !nodeTitle }">
+        <div class="header-blog-info" :class="{ withoutTitleBg: !banner && !nodeTitle }">
           <div class="blogger-avatar" v-if="banner">
             <img :src="banner" alt="博客banner" class="avatar-img" />
           </div>
@@ -97,7 +111,9 @@
               <div class="blog-title" :title="nodeTitle">{{ nodeTitle }}</div>
               <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
             </div>
-            <div class="blog-desc" v-if="nodeShortDescription" v-html="nodeShortDescription" :title="nodeShortDescription"></div>
+            <div class="blog-desc" v-if="nodeShortDescription">
+              {{ nodeShortDescription }}
+            </div>
             <div class="tags" :class="{ 'margin-top0': !nodeTitle && !nodeShortDescription }">
               <div
                 class="category-btn"
@@ -140,15 +156,27 @@
         <div class="article-list">
           <my-article-v2 :data="item" v-for="item in availableListData" :key="item.exhibitId" />
         </div>
-        <div className="tip" v-show="total === 0 || availableListData.length === 0">当前节点暂无任何数据，请稍后查看</div>
-        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">— 已加载全部 —</div>
+        <div className="tip" v-show="total === 0 || availableListData.length === 0">
+          当前节点暂无任何数据，请稍后查看
+        </div>
+        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">
+          — 已加载全部 —
+        </div>
       </template>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, onActivated, onDeactivated, reactive, toRefs, watch, computed } from "vue";
+import {
+  defineAsyncComponent,
+  onActivated,
+  onDeactivated,
+  reactive,
+  toRefs,
+  watch,
+  computed
+} from "vue";
 import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
 import { useStore } from "vuex";
 import { freelogApp } from "freelog-runtime";
@@ -158,18 +186,21 @@ export default {
 
   components: {
     "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
-    "my-article-v2": defineAsyncComponent(() => import("../components/article-v2.vue")),
+    "my-article-v2": defineAsyncComponent(() => import("../components/article-v2.vue"))
   },
 
   setup() {
     const nodeInfo = freelogApp.nodeInfo;
-    
+
     const store = useStore();
-    const tagsList: string[] = store.state.selfConfig.tags?.split(",")?.filter((ele: string) => ele);
+    const tagsList: string[] = store.state.selfConfig.tags
+      ?.split(",")
+      ?.map((tag: string) => tag.trim()) // 去掉每个字符串的前后空格
+      ?.filter((ele: string) => ele);
     const { query, route, router, switchPage } = useMyRouter();
     const { scrollTop, clientHeight, scrollHeight, scrollTo } = useMyScroll();
     const datasOfGetList = useGetList();
-    
+
     const data = reactive({
       sortPopupShow: false,
       createDateSortType: "-1",
@@ -179,16 +210,18 @@ export default {
     });
 
     const banner = computed(() => {
-      return store.state.selfConfig.options_banner
-    })
+      return store.state.selfConfig.options_banner;
+    });
 
     const inMobile = computed(() => {
-      return store.state.inMobile
-    })
+      return store.state.inMobile;
+    });
 
     const availableListData = computed(() => {
-      return datasOfGetList.listData.value.filter((ele: any) => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType!)) 
-    })
+      return datasOfGetList.listData.value.filter(
+        (ele: any) => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType!)
+      );
+    });
 
     const methods = {
       /** 排序 */
@@ -213,12 +246,12 @@ export default {
         if (tag) query.tags = tag;
         if (keywords) query.keywords = keywords;
         switchPage("/search", query);
-      },
+      }
     };
 
     watch(
       () => scrollTop.value,
-      (cur) => {
+      cur => {
         if (cur + clientHeight.value === scrollHeight.value) {
           datasOfGetList.getList();
         }
@@ -229,7 +262,11 @@ export default {
       () => query.value,
       () => {
         if (route.path !== "/home") return;
-        if (data.searchData.keywords === query.value.keywords && data.searchData.tags === query.value.tags) return;
+        if (
+          data.searchData.keywords === query.value.keywords &&
+          data.searchData.tags === query.value.tags
+        )
+          return;
 
         getData();
       }
@@ -251,7 +288,7 @@ export default {
         if (authIds.length === 0) return;
 
         authIds.forEach((id: string) => {
-          const index = datasOfGetList.listData.value.findIndex((item) => item.exhibitId === id);
+          const index = datasOfGetList.listData.value.findIndex(item => item.exhibitId === id);
           if (index !== -1) datasOfGetList.listData.value[index].defaulterIdentityType = 0;
         });
         store.commit("setData", { key: "authIds", value: [] });
@@ -259,7 +296,7 @@ export default {
         getData();
       }
 
-      data.isInitial = false
+      data.isInitial = false;
     });
 
     onDeactivated(() => {
@@ -278,7 +315,7 @@ export default {
       inMobile,
       availableListData
     };
-  },
+  }
 };
 </script>
 
@@ -310,7 +347,7 @@ export default {
     }
 
     .header-blog-info {
-      background-color: #F7F7F7;
+      background-color: #f7f7f7;
       padding: 20px;
 
       .blog-title {
@@ -334,6 +371,7 @@ export default {
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 3;
         overflow: hidden;
+        white-space: pre-wrap;
       }
 
       .tags {
@@ -354,7 +392,7 @@ export default {
           color: #aaa;
           line-height: 20px;
           border-radius: 12px;
-          border: 1px solid #aaa;;
+          border: 1px solid #aaa;
           margin-bottom: 2px;
           cursor: pointer;
           transition: all 0.2s linear;
@@ -394,9 +432,9 @@ export default {
         color: #ffffff;
         line-height: 20px;
         margin-top: 20px;
+        white-space: pre-wrap;
       }
     }
-
   }
 
   .mobile-home-body {
@@ -582,7 +620,7 @@ export default {
           cursor: pointer;
 
           &.active {
-            background-color: #0F2027;
+            background-color: #0f2027;
             color: #fff;
           }
         }
@@ -609,7 +647,7 @@ export default {
     .header-blog-info {
       position: relative;
       min-height: 314px;
-      
+
       &.withoutTitleBg {
         min-height: 100px;
       }
@@ -658,7 +696,6 @@ export default {
             color: #666666 !important;
             border-color: #666666 !important;
           }
-
         }
 
         .title-signcount {
@@ -675,7 +712,7 @@ export default {
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
-            color: #FFFFFF;
+            color: #ffffff;
           }
 
           .sign-count {
@@ -701,6 +738,7 @@ export default {
           -webkit-box-orient: vertical;
           -webkit-line-clamp: 2;
           overflow: hidden;
+          white-space: pre-wrap;
         }
 
         .tags {
@@ -723,26 +761,25 @@ export default {
             color: #fff;
             line-height: 20px;
             border-radius: 12px;
-            border: 1px solid #FFFFFF;;
+            border: 1px solid #ffffff;
             margin-bottom: 2px;
             cursor: pointer;
             transition: all 0.2s linear;
             z-index: 1;
-  
+
             &:hover {
               opacity: 0.7;
             }
-  
+
             &:active {
               opacity: 0.7;
             }
-  
+
             & + .category-btn {
               margin-left: 10px;
             }
           }
         }
-
       }
     }
 
