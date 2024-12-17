@@ -466,6 +466,12 @@
               </div>
             </template>
 
+            <my-markdown
+              :data="documentData"
+              @getDirectory="getDirectory($event)"
+              v-else-if="documentData?.defaulterIdentityType === 0 && userData.isLogin === false"
+            />
+
             <template
               v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false"
             >
