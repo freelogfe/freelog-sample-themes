@@ -35,6 +35,22 @@
               </div>
             </div>
 
+            <!-- 静默签约 -->
+            <template
+              v-else-if="exhibitInfo?.defaulterIdentityType === 0 && userData.isLogin === false"
+            >
+              <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')" />
+              <video
+                :src="content"
+                controls
+                muted
+                autoplay
+                webkit-playsinline
+                playsinline
+                v-else-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
+              ></video>
+            </template>
+
             <div
               class="lock-box"
               v-else-if="exhibitInfo?.defaulterIdentityType === 4 || userData.isLogin === false"
@@ -53,6 +69,7 @@
                 <span class="exceptional-text">此作品格式暂不支持访问 </span>
               </div>
             </div>
+
             <template v-else-if="exhibitInfo?.defaulterIdentityType === 0">
               <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')" />
               <video
@@ -231,6 +248,36 @@
                       <span class="exceptional-text"> 作品异常，无法访问 </span>
                     </div>
                   </div>
+
+                  <!-- 静默签约 -->
+                  <template
+                    v-else-if="
+                      exhibitInfo?.defaulterIdentityType === 0 &&
+                      contentMode &&
+                      userData.isLogin === false
+                    "
+                  >
+                    <img
+                      :class="{
+                        'width-full': contentMode === 1,
+                        'height-full': contentMode === 2
+                      }"
+                      :src="content"
+                      oncontextmenu="return false"
+                      v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')"
+                    />
+                    <video
+                      :class="{
+                        'width-full': contentMode === 1,
+                        'height-full': contentMode === 2
+                      }"
+                      :src="content"
+                      controls
+                      controlslist="nodownload"
+                      oncontextmenu="return false"
+                      v-else-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
+                    ></video>
+                  </template>
 
                   <div
                     class="lock-box"
@@ -623,6 +670,9 @@ export default {
       () => props.id,
       cur => {
         data.currentId = cur;
+      },
+      {
+        immediate: true
       }
     );
 
