@@ -663,6 +663,8 @@ export default {
 
       if (leftWidth + middleWidth > 1230) {
         showMoreTagBtn.value = true;
+      } else {
+        showMoreTagBtn.value = false;
       }
     };
 
