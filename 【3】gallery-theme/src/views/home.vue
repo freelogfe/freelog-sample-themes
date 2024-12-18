@@ -177,6 +177,7 @@
 <script lang="ts">
 import {
   defineAsyncComponent,
+  nextTick,
   onActivated,
   onDeactivated,
   onUnmounted,
@@ -277,7 +278,11 @@ export default {
         if (store.state.inMobile) {
           switchPage("/detail", { id: exhibitId });
         } else {
-          data.currentId = exhibitId;
+          // 强制触发 Vue 的更新机制
+          data.currentId = null; // 先清空 currentId
+          nextTick(() => {
+            data.currentId = exhibitId; // 再赋值新 id
+          });
         }
         store.commit("setData", { key: "listData", value: datasOfGetList.listData.value });
       },
