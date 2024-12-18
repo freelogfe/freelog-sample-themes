@@ -308,13 +308,6 @@ export default {
       datasOfGetList.getList(data.searchData, true);
     };
 
-    /** 获取更多数据 */
-    const getMoreData = () => {
-      if (scrollTop.value + clientHeight.value === scrollHeight.value) {
-        datasOfGetList.getList();
-      }
-    };
-
     /** 屏幕尺寸变化切换瀑布流列数 */
     const waterfallResize = () => {
       getListNumber();
@@ -356,7 +349,11 @@ export default {
     watch(
       () => scrollTop.value,
       () => {
-        getMoreData();
+        (cur: number) => {
+          if (cur + clientHeight.value === scrollHeight.value) {
+            datasOfGetList.getList();
+          }
+        };
       }
     );
 
