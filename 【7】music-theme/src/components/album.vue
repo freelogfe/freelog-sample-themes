@@ -317,7 +317,10 @@ onBeforeUnmount(() => {
     <div class="album-content-box" v-if="albumData.length">
       <div class="content-item" v-for="(item, index) in albumData" :key="index">
         <div class="info-box">
-          <div class="cover-image">
+          <div
+            class="cover-image"
+            @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
+          >
             <img :src="item.coverImages[0]" alt="歌曲封面" />
             <div class="btn" @click.stop="playOrPause(item)">
               <!-- <i class="freelog" :class="'fl-icon-bofang-sanjiaoxing'"></i> -->
