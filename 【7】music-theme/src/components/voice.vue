@@ -41,6 +41,17 @@
         >
           无法播放
         </div>
+        <!-- 播放中标识 -->
+        <play-status
+          class="cover-status"
+          :playing="playing"
+          :statusText="false"
+          v-if="
+            playingInfo &&
+            `${playingInfo.exhibitId}${playingInfo.itemId ?? ''}` ===
+              `${data.exhibitId}${data.itemId ?? ''}`
+          "
+        />
       </div>
       <div class="info-area">
         <div class="title-area">
@@ -170,6 +181,17 @@
               ></i>
             </div>
           </div>
+          <!-- 播放中标识 -->
+          <play-status
+            class="cover-status"
+            :playing="playing"
+            :statusText="false"
+            v-if="
+              playingInfo &&
+              `${playingInfo.exhibitId}${playingInfo.itemId ?? ''}` ===
+                `${data.exhibitId}${data.itemId ?? ''}`
+            "
+          />
         </div>
         <div
           class="info-area"
@@ -237,7 +259,22 @@
         {{ data.albumName || "单曲" }}
       </div>
       <div class="right-box">
-        <div class="duration">{{ secondsToHMS(data.versionInfo?.exhibitProperty?.duration) }}</div>
+        <play-status
+          class="duration"
+          style="opacity: 1"
+          :playing="store.playing"
+          :desc="`${secondsToHMS(store.progress * 1000)} / ${secondsToHMS(
+            playingInfo.versionInfo.exhibitProperty.duration
+          )}`"
+          v-if="
+            playingInfo &&
+            `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ''}` ===
+              `${data?.exhibitId}${data?.itemId ?? ''}`
+          "
+        />
+        <div class="duration" v-else>
+          {{ secondsToHMS(data.versionInfo?.exhibitProperty?.duration) }}
+        </div>
       </div>
 
       <!-- <div
@@ -349,6 +386,11 @@ export default {
       const playingId = `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ""}`;
       const exhibit = `${this.data.exhibitId}${this.data.itemId ?? ""}`;
       return playing && playingId === exhibit;
+    },
+
+    /** 播放中声音信息 */
+    playingInfo() {
+      return this.store.playingInfo;
     },
 
     /** 操作按钮群 */

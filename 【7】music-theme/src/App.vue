@@ -97,5 +97,33 @@ const { inMobile } = storeToRefs(store);
       animation: fade-in 0.5s ease;
     }
   }
+
+  //  播放中标识
+  .cover-status {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000000;
+    opacity: 0.4;
+  }
+
+  //  播放中标识-适用于专辑
+  .cover-album-status {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    width: fit-content;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3px 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    backdrop-filter: blur(12px);
+    box-sizing: border-box;
+  }
 }
 </style>

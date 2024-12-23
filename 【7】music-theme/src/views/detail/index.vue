@@ -71,8 +71,24 @@
                 </div>
               </div>
 
-              <div v-if="voiceInfo?.articleInfo.articleType === 1" class="time-line">
-                {{ secondsToHMS(voiceInfo?.versionInfo?.exhibitProperty.duration) }}
+              <div v-if="voiceInfo?.articleInfo.articleType === 1">
+                <!-- 播放中标识 -->
+                <play-status
+                  class="time-line"
+                  style="opacity: 1"
+                  :playing="store.playing"
+                  :desc="`${secondsToHMS(store.progress * 1000)} / ${secondsToHMS(
+                    voiceInfo?.versionInfo?.exhibitProperty.duration
+                  )}`"
+                  v-if="
+                    playingInfo &&
+                    `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ''}` ===
+                      `${voiceInfo.exhibitId}${voiceInfo.itemId ?? ''}`
+                  "
+                />
+                <div class="time-line" v-else>
+                  {{ secondsToHMS(voiceInfo?.versionInfo?.exhibitProperty.duration) }}
+                </div>
               </div>
             </div>
 
@@ -402,6 +418,18 @@
               ></i>
             </div>
           </div>
+          <!-- 播放中标识-适用于专辑 -->
+          <play-status
+            class="cover-album-status"
+            :playing="playing"
+            color="#FFFFFF"
+            v-if="
+              playingInfo &&
+              (`${playingInfo.exhibitId}${playingInfo.itemId ?? ''}` ===
+                `${voiceInfo?.exhibitId}${voiceInfo?.itemId ?? ''}` ||
+                isPlayingAlbumMusic)
+            "
+          />
         </div>
 
         <div class="right-area">
@@ -630,7 +658,21 @@
                   </myTooltip>
                 </div>
                 <div class="singer">{{ item.articleInfo.articleProperty?.display_artist }}</div>
-                <div class="time">
+                <!-- 播放中标识 -->
+                <play-status
+                  class="time"
+                  style="opacity: 1"
+                  :playing="store.playing"
+                  :desc="`${secondsToHMS(store.progress * 1000)} / ${secondsToHMS(
+                    playingInfo.versionInfo.exhibitProperty.duration
+                  )}`"
+                  v-if="
+                    playingInfo &&
+                    `${playingInfo.exhibitId}${playingInfo.itemId ?? ''}` ===
+                      `${item.exhibitId}${item.itemId ?? ''}`
+                  "
+                />
+                <div class="time" v-else>
                   {{ secondsToHMS(item.articleInfo.articleProperty.duration) }}
                 </div>
               </div>
@@ -842,6 +884,13 @@ export default {
     /** 播放中声音信息 */
     playingInfo() {
       return this.store.playingInfo;
+    },
+
+    /** 播放中声音信息 */
+    isPlayingAlbumMusic() {
+      return this.collectionData
+        .map(i => `${i.exhibitId}${i.itemId ?? ""}`)
+        .includes(`${this.playingInfo.exhibitId}${this.playingInfo.itemId ?? ""}`);
     },
 
     /** 操作按钮群 */
