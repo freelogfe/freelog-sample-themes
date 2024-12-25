@@ -1134,8 +1134,9 @@ export default {
       if (this.playing) {
         this.store.setData({ key: "playing", value: false });
       } else {
-        // 首先专辑默认第一首播放，其余的全部加入播放列表
-        await useMyPlay.playOrPause(this.collectionData[0], "normal");
+        // 默认播放第一首符合条件的歌曲，其余的全部加入播放列表
+        const playableTracks = this.collectionData.filter(i => i.defaulterIdentityType === 0);
+        await useMyPlay.playOrPause(playableTracks[0], "normal");
 
         setTimeout(async () => {
           await useMyPlay.addToPlayList({
