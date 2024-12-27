@@ -105,7 +105,15 @@ export const useGetList = (inList = false) => {
         item.defaulterIdentityType = defaulterIdentityType;
       });
     }
-    data.listData = init ? dataList : [...data.listData, ...dataList];
+
+    data.listData = init
+      ? dataList.filter(
+          (i: any) => i.articleInfo?.status !== 2 && [0, 4].includes(i.defaulterIdentityType)
+        )
+      : [...data.listData, ...dataList].filter(
+          (i: any) => i.articleInfo?.status !== 2 && [0, 4].includes(i.defaulterIdentityType)
+        );
+
     inList && store.commit("setData", { key: "listData", value: data.listData });
     data.total = totalItem;
     setTimeout(() => {

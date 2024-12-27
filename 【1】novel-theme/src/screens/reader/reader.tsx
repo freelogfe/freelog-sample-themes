@@ -471,6 +471,10 @@ const ReaderBody = () => {
 
                 <span className="exceptional-text"> 作品异常，无法访问 </span>
               </div>
+            ) : defaulterIdentityType === 0 && userData?.isLogin === false ? (
+              <React.Fragment>
+                <div id="markdown" />
+              </React.Fragment>
             ) : defaulterIdentityType === 4 || userData?.isLogin === false ? (
               <div className="lock-box">
                 <img className="lock" src={Lock} alt="未授权" />
@@ -597,6 +601,10 @@ const ReaderBody = () => {
 
                   <span className="exceptional-text"> 作品异常，无法访问 </span>
                 </div>
+              ) : defaulterIdentityType === 0 && userData?.isLogin === false ? (
+                <React.Fragment>
+                  <div id="markdown" />
+                </React.Fragment>
               ) : defaulterIdentityType === 4 || userData?.isLogin === false ? (
                 <div className="lock-box">
                   <img className="lock" src={Lock} alt="未授权" />

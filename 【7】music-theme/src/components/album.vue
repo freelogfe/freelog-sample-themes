@@ -4,6 +4,9 @@ import { freelogApp } from "freelog-runtime";
 import { useRouter, useRoute } from "vue-router";
 import { absoluteTime } from "@/utils/common.js";
 import { useMyPlay, useMyAuth } from "@/utils/hooks";
+
+import playStatus from "@/components/play-status.vue";
+
 // 图片
 import MoreIcon from "@/assets/images/arrow.png";
 import TimeIcon from "@/assets/images/time.png";
@@ -38,8 +41,15 @@ const playing = (exhibitId: string) => {
     return;
   }
   const albumItemIds = collectionData.value.map(i => `${i.exhibitId}${i.itemId}`);
+
   const playingId = `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ""}`;
-  return playing && albumItemIds.includes(playingId);
+  return (
+    playing && (store.playingInfo?.exhibitId === exhibitId || albumItemIds.includes(playingId))
+  );
+};
+
+const isPlayingAlbumMusic = (exhibitId: string) => {
+  return store.playingInfo?.exhibitId === exhibitId;
 };
 
 /** 授权 */
@@ -62,7 +72,7 @@ const playOrPause = async item => {
         `${i.exhibitId}${i.itemId ?? ""}` === `${playingInfo.exhibitId}${playingInfo.itemId ?? ""}`
     );
 
-    useMyPlay.playOrPause(playingData[0]);
+    useMyPlay.playOrPause(playingInfo || playingData[0]);
     return;
   }
 
@@ -247,6 +257,14 @@ onBeforeUnmount(() => {
                 ></i>
               </div>
             </div>
+
+            <!-- 播放中标识-适用于专辑 -->
+            <play-status
+              class="cover-album-status"
+              :playing="store.playing"
+              color="#FFFFFF"
+              v-if="isPlayingAlbumMusic(item.exhibitId)"
+            />
           </div>
           <div class="info">
             <div class="top-area">
@@ -317,7 +335,10 @@ onBeforeUnmount(() => {
     <div class="album-content-box" v-if="albumData.length">
       <div class="content-item" v-for="(item, index) in albumData" :key="index">
         <div class="info-box">
-          <div class="cover-image">
+          <div
+            class="cover-image"
+            @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
+          >
             <img :src="item.coverImages[0]" alt="歌曲封面" />
             <div class="btn" @click.stop="playOrPause(item)">
               <!-- <i class="freelog" :class="'fl-icon-bofang-sanjiaoxing'"></i> -->

@@ -11,7 +11,7 @@
     </div>
     <div class="play-text">
       <span v-if="desc">{{ desc }}</span>
-      <span v-else>{{ playing ? "正在播放" : "已暂停" }}</span>
+      <span v-else-if="statusText">{{ playing ? "正在播放" : "已暂停" }}</span>
     </div>
   </div>
 </template>
@@ -34,6 +34,11 @@ export default {
     color: {
       type: String,
       default: "#44D7B6"
+    },
+    /**是否显示正常破防，已暂停文案 */
+    statusText: {
+      type: Boolean,
+      default: true
     }
   }
 };

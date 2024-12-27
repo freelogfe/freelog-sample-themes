@@ -31,6 +31,12 @@
             </div>
           </template>
 
+          <!-- 静默签约 -->
+          <my-markdown
+            :data="documentData"
+            v-else-if="documentData?.defaulterIdentityType === 0 && userData.isLogin === false"
+          />
+
           <template
             v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false"
           >
@@ -465,6 +471,13 @@
                 <span className="exceptional-text"> 作品异常，无法访问 </span>
               </div>
             </template>
+
+            <!-- 静默签约 -->
+            <my-markdown
+              :data="documentData"
+              @getDirectory="getDirectory($event)"
+              v-else-if="documentData?.defaulterIdentityType === 0 && userData.isLogin === false"
+            />
 
             <template
               v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false"

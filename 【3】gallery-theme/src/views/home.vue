@@ -177,6 +177,7 @@
 <script lang="ts">
 import {
   defineAsyncComponent,
+  nextTick,
   onActivated,
   onDeactivated,
   onUnmounted,
@@ -277,7 +278,11 @@ export default {
         if (store.state.inMobile) {
           switchPage("/detail", { id: exhibitId });
         } else {
-          data.currentId = exhibitId;
+          // 强制触发 Vue 的更新机制
+          data.currentId = null; // 先清空 currentId
+          nextTick(() => {
+            data.currentId = exhibitId; // 再赋值新 id
+          });
         }
         store.commit("setData", { key: "listData", value: datasOfGetList.listData.value });
       },
@@ -301,13 +306,6 @@ export default {
       data.searchData = query.value;
       datasOfGetList.clearData();
       datasOfGetList.getList(data.searchData, true);
-    };
-
-    /** 获取更多数据 */
-    const getMoreData = () => {
-      if (scrollTop.value + clientHeight.value === scrollHeight.value) {
-        datasOfGetList.getList();
-      }
     };
 
     /** 屏幕尺寸变化切换瀑布流列数 */
@@ -351,7 +349,11 @@ export default {
     watch(
       () => scrollTop.value,
       () => {
-        getMoreData();
+        (cur: number) => {
+          if (cur + clientHeight.value === scrollHeight.value) {
+            datasOfGetList.getList();
+          }
+        };
       }
     );
 

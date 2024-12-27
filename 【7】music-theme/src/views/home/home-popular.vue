@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import { useGlobalStore } from "@/store/global";
 
 import myTooltip from "@/components/tooltip.vue";
+import playStatus from "@/components/play-status.vue";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { secondsToHMS } from "@/utils/common";
 
@@ -209,6 +210,17 @@ const isSelectedData = item => {
                 ></i>
               </div>
             </div>
+            <!-- 播放中标识 -->
+            <play-status
+              class="cover-status"
+              :playing="store.playing"
+              :statusText="false"
+              v-if="
+                store.playingInfo &&
+                `${store.playingInfo.exhibitId}${store.playingInfo.itemId ?? ''}` ===
+                  `${item.exhibitId}${item.itemId ?? ''}`
+              "
+            />
           </div>
           <div class="info">
             <span
@@ -336,6 +348,17 @@ const isSelectedData = item => {
         <div class="info-box" @click="playOrPause(item)">
           <div class="cover-image">
             <img :src="item.coverImages[0]" alt="歌曲封面" />
+            <!-- 播放中标识 -->
+            <play-status
+              class="cover-status"
+              :playing="store.playing"
+              :statusText="false"
+              v-if="
+                store.playingInfo &&
+                `${store.playingInfo.exhibitId}${store.playingInfo.itemId ?? ''}` ===
+                  `${item.exhibitId}${item.itemId ?? ''}`
+              "
+            />
           </div>
           <div class="info">
             <span class="title">
@@ -541,6 +564,7 @@ const isSelectedData = item => {
               justify-content: center;
               opacity: 0;
               transition: all 0.5s ease;
+              z-index: 99;
 
               &:hover {
                 background: #44d7b6;
