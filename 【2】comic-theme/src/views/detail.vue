@@ -5,235 +5,120 @@
     <my-header />
 
     <!-- mobile -->
-    <div class="mobile-content" v-if="inMobile">
-      <div
-        class="auth-link-abnormal-tip"
-        v-if="comicInfo.defaulterIdentityType && ![0, 4].includes(comicInfo.defaulterIdentityType)"
+    <div
+      class="mobile-content"
+      :class="` ${comicInfo?.articleInfo?.status === 2 && 'freeze-exhibit'}`"
+      v-if="inMobile"
+    >
+      <template v-if="comicInfo?.articleInfo?.status === 2">
+        <div class="freeze-exhibit">
+          <div class="icon">
+            <i
+              class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"
+              :class="{ light: theme === 'light', dark: theme === 'dark' }"
+            ></i>
+          </div>
+          <span className="exceptional-text"> 此作品因违规无法访问 </span>
+        </div></template
       >
-        <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-        <div class="tip-text">授权链异常，无法查看</div>
-      </div>
-
-      <!-- 漫画信息 -->
-      <div class="comic-info">
-        <div class="comic-base-info">
-          <div class="comic-cover">
-            <img
-              class="comic-cover-image"
-              :src="comicInfo?.coverImages[0]"
-              :alt="comicInfo?.exhibitTitle"
-              v-if="comicInfo?.coverImages"
-            />
-          </div>
-
-          <div class="comic-content">
-            <div class="content-top">
-              <div class="comic-name">{{ comicInfo?.exhibitTitle }}</div>
-
-              <div class="comic-author">
-                {{ comicInfo?.articleInfo?.articleOwnerName }}
-              </div>
-
-              <div class="tags">
-                <tags :tags="comicInfo?.tags" />
-              </div>
-            </div>
-
-            <div class="content-bottom">
-              <div class="sign-count">{{ comicInfo?.signCount }}人签约</div>
-              <div class="share-btn" @click="share()">
-                <span class="share-btn-text">
-                  <i class="freelog fl-icon-fenxiang"></i>
-                  分享给更多人
-                </span>
-              </div>
-              <input id="href" class="hidden-input" :value="href" readOnly />
-            </div>
-          </div>
+      <template v-else>
+        <!-- 已下架、授权链异常 顶部提示窗  -->
+        <div
+          className="exceptional-message"
+          v-if="
+            comicInfo.onlineStatus === 0 ||
+            ![0, 4, undefined].includes(comicInfo?.defaulterIdentityType)
+          "
+        >
+          {{ comicInfo.onlineStatus === 0 ? "作品已下架，无法访问" : "作品异常，无法访问" }}
         </div>
-
-        <div class="comic-date-info">
-          <div class="date-info">创建时间：{{ formatDate(comicInfo?.createDate) }}</div>
-
-          <div class="date-info">最近更新：{{ formatDate(comicInfo?.updateDate) }}</div>
-        </div>
-
-        <div class="operate-btns">
-          <div
-            class="btn main-btn mobile"
-            :class="{
-              disabled:
-                ![0, 4].includes(comicInfo.defaulterIdentityType ?? -1) ||
-                (comicInfo.articleInfo.articleType === 2 && !listData.length)
-            }"
-            @click="handleToReader"
-          >
-            立即阅读
-          </div>
-          <div
-            class="btn"
-            :class="isCollected ? 'delete' : 'collect-btn mobile'"
-            @click="operateShelf(comicInfo)"
-          >
-            {{ isCollected ? "取消收藏" : "加入收藏" }}
-          </div>
-        </div>
-      </div>
-
-      <div class="divider"></div>
-
-      <!-- 漫画简介 -->
-      <div class="comic-intro">
-        <div class="intro-title">内容简介</div>
 
         <div
-          class="intro"
-          :class="introState === 1 ? 'fold' : 'unfold'"
-          v-if="comicInfo?.exhibitIntro"
+          class="auth-link-abnormal-tip"
+          v-if="
+            comicInfo.defaulterIdentityType && ![0, 4].includes(comicInfo.defaulterIdentityType)
+          "
         >
-          <div ref="introContent" class="intro-content">
-            {{ comicInfo?.exhibitIntro }}
-          </div>
-
-          <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">
-            ...查看全部
-          </div>
-        </div>
-        <div class="no-intro-tip" v-else>暂无简介</div>
-      </div>
-
-      <div class="divider" v-if="comicInfo?.articleInfo?.articleType === 2"></div>
-
-      <!-- 目录 -->
-      <template v-if="comicInfo?.articleInfo?.articleType === 2">
-        <div class="comic-catalogue" v-if="listData.length">
-          <div class="title-container">
-            <span class="title">目录</span>
-          </div>
-
-          <div class="sub-directory-container">
-            <div
-              class="sub"
-              v-for="item in listData"
-              :key="item.itemId"
-              @click="
-                switchPage('/reader', {
-                  id: comicInfo?.exhibitId,
-                  collection: true,
-                  subId: item.itemId
-                })
-              "
-            >
-              <span class="sub-title">{{ item.itemTitle }}</span>
-              <img
-                v-if="[0, 4].includes(item.defaulterIdentityType)"
-                src="../assets/images/right-arrow.png"
-                alt=""
-              />
-              <img v-else class="sub-lock" src="../assets/images/mini-lock.png" alt="未授权" />
-            </div>
-          </div>
-
-          <div className="tip no-more">— 已加载全部章节 —</div>
+          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+          <div class="tip-text">作品异常，无法访问</div>
         </div>
 
-        <div v-else class="comic-catalogue">
-          <div class="title-container">
-            <span class="title">目录</span>
-          </div>
-          <div class="no-update">未更新章节，暂时无法阅读</div>
-        </div>
-      </template>
-
-      <login-btn />
-    </div>
-
-    <!-- PC -->
-    <div class="content" v-if="!inMobile">
-      <div
-        class="auth-link-abnormal-tip"
-        v-if="comicInfo.defaulterIdentityType && ![0, 4].includes(comicInfo.defaulterIdentityType)"
-      >
-        <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-        <div class="tip-text">授权链异常，无法查看</div>
-      </div>
-
-      <div class="content-box">
         <!-- 漫画信息 -->
         <div class="comic-info">
-          <div class="comic-cover">
-            <img
-              class="comic-cover-image"
-              :src="comicInfo?.coverImages[0]"
-              :alt="comicInfo?.exhibitTitle"
-              v-if="comicInfo?.coverImages"
-            />
-          </div>
-
-          <div class="comic-content">
-            <div class="comic-name" :title="comicInfo?.exhibitTitle">
-              {{ comicInfo?.exhibitTitle }}
+          <div class="comic-base-info">
+            <div class="comic-cover">
+              <div class="comic-cover-image-wrap">
+                <img
+                  class="comic-cover-image"
+                  :src="comicInfo?.coverImages[0]"
+                  :alt="comicInfo?.exhibitTitle"
+                  v-if="comicInfo?.coverImages"
+                />
+                <div v-if="comicInfo.onlineStatus === 0" class="offline">已下架</div>
+              </div>
             </div>
 
-            <div class="comic-author">
-              {{ comicInfo?.articleInfo?.articleOwnerName }}
-            </div>
+            <div class="comic-content">
+              <div class="content-top">
+                <div class="comic-name">{{ comicInfo?.exhibitTitle }}</div>
 
-            <div class="tags">
-              <tags :tags="comicInfo?.tags" />
-            </div>
-
-            <div class="create-date">创建时间：{{ formatDate(comicInfo?.createDate) }}</div>
-
-            <div class="update-date">最近更新：{{ formatDate(comicInfo?.updateDate) }}</div>
-
-            <div class="btns-box">
-              <div class="operate-btns">
-                <div
-                  class="btn main-btn"
-                  :class="{
-                    disabled:
-                      ![0, 4].includes(comicInfo.defaulterIdentityType ?? -1) ||
-                      (comicInfo.articleInfo.articleType === 2 && !listData.length)
-                  }"
-                  @click="handleToReader"
-                >
-                  立即阅读
+                <div class="comic-author">
+                  {{ comicInfo?.articleInfo?.articleOwnerName }}
                 </div>
-                <div
-                  class="btn"
-                  :class="isCollected ? 'warning-btn' : 'collect-btn'"
-                  @click="operateShelf(comicInfo)"
-                >
-                  {{ isCollected ? "取消收藏" : "加入收藏" }}
+
+                <div class="tags">
+                  <tags :tags="comicInfo?.tags" />
                 </div>
               </div>
 
-              <div class="other-btns">
+              <div class="content-bottom">
                 <div class="sign-count">{{ comicInfo?.signCount }}人签约</div>
-                <div
-                  class="share-btn"
-                  @mouseenter.stop="setShareWidgetShow(true)"
-                  @mouseleave.stop="setShareWidgetShow(false)"
-                >
-                  <span class="share-btn-text" :class="{ active: shareShow }">
+                <div class="share-btn" @click="share()">
+                  <span class="share-btn-text">
                     <i class="freelog fl-icon-fenxiang"></i>
                     分享给更多人
                   </span>
-
-                  <div id="share" class="share-wrapper" />
                 </div>
+                <input id="href" class="hidden-input" :value="href" readOnly />
               </div>
+            </div>
+          </div>
+
+          <div class="comic-date-info">
+            <div class="date-info">创建时间：{{ formatDate(comicInfo?.createDate) }}</div>
+
+            <div class="date-info">最近更新：{{ formatDate(comicInfo?.updateDate) }}</div>
+          </div>
+
+          <div class="operate-btns">
+            <div
+              class="btn main-btn mobile"
+              :class="{
+                disabled:
+                  ![0, 4].includes(comicInfo.defaulterIdentityType ?? -1) ||
+                  comicInfo.onlineStatus === 0 ||
+                  (comicInfo.articleInfo.articleType === 2 && !listData.length)
+              }"
+              @click="handleToReader"
+            >
+              立即阅读
+            </div>
+            <div
+              class="btn"
+              :class="isCollected ? 'delete' : 'collect-btn mobile'"
+              @click="operateShelf(comicInfo)"
+            >
+              {{ isCollected ? "取消收藏" : "加入收藏" }}
             </div>
           </div>
         </div>
 
+        <div class="divider"></div>
+
         <!-- 漫画简介 -->
-        <div
-          class="comic-intro"
-          :class="comicInfo?.articleInfo?.articleType === 2 && 'need-border'"
-        >
+        <div class="comic-intro">
           <div class="intro-title">内容简介</div>
+
           <div
             class="intro"
             :class="introState === 1 ? 'fold' : 'unfold'"
@@ -250,17 +135,22 @@
           <div class="no-intro-tip" v-else>暂无简介</div>
         </div>
 
+        <div class="divider" v-if="comicInfo?.articleInfo?.articleType === 2"></div>
+
         <!-- 目录 -->
         <template v-if="comicInfo?.articleInfo?.articleType === 2">
           <div class="comic-catalogue" v-if="listData.length">
             <div class="title-container">
               <span class="title">目录</span>
-              <span class="count">({{ total }}话)</span>
             </div>
 
             <div class="sub-directory-container">
               <div
                 class="sub"
+                :class="
+                  (![0, 4].includes(item.defaulterIdentityType) || comicInfo.onlineStatus === 0) &&
+                  'disabled'
+                "
                 v-for="item in listData"
                 :key="item.itemId"
                 @click="
@@ -272,16 +162,31 @@
                 "
               >
                 <span class="sub-title">{{ item.itemTitle }}</span>
+
                 <img
-                  v-if="![0, 4].includes(item.defaulterIdentityType)"
+                  v-if="item.articleInfo?.status === 2"
+                  class="freeze-lock"
+                  src="../assets/images/freeze.png"
+                  alt="封禁"
+                />
+                <div v-else-if="comicInfo.onlineStatus === 0" className="offline-lock">已下架</div>
+                <img
+                  v-else-if="![0, 4].includes(item.defaulterIdentityType)"
+                  class="auth-lock"
+                  src="../assets/images/auth-link-abnormal.png"
+                  alt="授权链异常"
+                />
+                <img
+                  v-else-if="item.defaulterIdentityType === 4"
                   class="sub-lock"
                   src="../assets/images/mini-lock.png"
                   alt="未授权"
                 />
+                <img v-else src="../assets/images/right-arrow.png" alt="" />
               </div>
             </div>
 
-            <div className="tip no-more">— 已加载全部章节 —</div>
+            <div className="tip no-more" v-if="listData.length === total">— 已加载全部章节 —</div>
           </div>
 
           <div v-else class="comic-catalogue">
@@ -291,7 +196,215 @@
             <div class="no-update">未更新章节，暂时无法阅读</div>
           </div>
         </template>
-      </div>
+
+        <login-btn />
+      </template>
+    </div>
+
+    <!-- PC -->
+    <div
+      class="content"
+      :class="` ${comicInfo?.articleInfo?.status === 2 && 'freeze-exhibit'}`"
+      v-if="!inMobile"
+    >
+      <template v-if="comicInfo?.articleInfo?.status === 2">
+        <div class="freeze-exhibit">
+          <div class="icon">
+            <i
+              class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"
+              :class="{ light: theme === 'light', dark: theme === 'dark' }"
+            ></i>
+          </div>
+          <span className="exceptional-text"> 此作品因违规无法访问 </span>
+        </div>
+      </template>
+
+      <template v-else>
+        <!-- 已下架、授权链异常 顶部提示窗  -->
+        <div
+          className="exceptional-message"
+          v-if="
+            comicInfo.onlineStatus === 0 ||
+            ![0, 4, undefined].includes(comicInfo?.defaulterIdentityType)
+          "
+        >
+          {{ comicInfo.onlineStatus === 0 ? "作品已下架，无法访问" : "作品异常，无法访问" }}
+        </div>
+
+        <div
+          class="auth-link-abnormal-tip"
+          v-if="
+            comicInfo.defaulterIdentityType && ![0, 4].includes(comicInfo.defaulterIdentityType)
+          "
+        >
+          <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
+          <div class="tip-text">作品异常，无法访问</div>
+        </div>
+
+        <div class="content-box">
+          <!-- 漫画信息 -->
+          <div class="comic-info">
+            <div class="comic-cover">
+              <div class="comic-cover-image-wrap">
+                <img
+                  class="comic-cover-image"
+                  :src="comicInfo?.coverImages[0]"
+                  :alt="comicInfo?.exhibitTitle"
+                  v-if="comicInfo?.coverImages"
+                />
+                <div v-if="comicInfo.onlineStatus === 0" class="offline">已下架</div>
+              </div>
+            </div>
+
+            <div class="comic-content">
+              <div class="comic-name" :title="comicInfo?.exhibitTitle">
+                {{ comicInfo?.exhibitTitle }}
+              </div>
+
+              <div class="comic-author">
+                {{ comicInfo?.articleInfo?.articleOwnerName }}
+              </div>
+
+              <div class="tags">
+                <tags :tags="comicInfo?.tags" />
+              </div>
+
+              <div class="create-date">创建时间：{{ formatDate(comicInfo?.createDate) }}</div>
+
+              <div class="update-date">最近更新：{{ formatDate(comicInfo?.updateDate) }}</div>
+
+              <div class="btns-box">
+                <div class="operate-btns">
+                  <div
+                    class="btn main-btn"
+                    :class="{
+                      disabled:
+                        ![0, 4].includes(comicInfo.defaulterIdentityType ?? -1) ||
+                        comicInfo.onlineStatus === 0 ||
+                        (comicInfo.articleInfo.articleType === 2 && !listData.length)
+                    }"
+                    @click="handleToReader"
+                  >
+                    立即阅读
+                  </div>
+                  <div
+                    class="btn"
+                    :class="isCollected ? 'warning-btn' : 'collect-btn'"
+                    @click="operateShelf(comicInfo)"
+                  >
+                    {{ isCollected ? "取消收藏" : "加入收藏" }}
+                  </div>
+                </div>
+
+                <div class="other-btns">
+                  <div class="sign-count">{{ comicInfo?.signCount }}人签约</div>
+                  <div
+                    class="share-btn"
+                    @mouseenter.stop="setShareWidgetShow(true)"
+                    @mouseleave.stop="setShareWidgetShow(false)"
+                  >
+                    <span class="share-btn-text" :class="{ active: shareShow }">
+                      <i class="freelog fl-icon-fenxiang"></i>
+                      分享给更多人
+                    </span>
+
+                    <div id="share" class="share-wrapper" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 漫画简介 -->
+          <div
+            class="comic-intro"
+            :class="comicInfo?.articleInfo?.articleType === 2 && 'need-border'"
+          >
+            <div class="intro-title">内容简介</div>
+            <div
+              class="intro"
+              :class="introState === 1 ? 'fold' : 'unfold'"
+              v-if="comicInfo?.exhibitIntro"
+            >
+              <div ref="introContent" class="intro-content">
+                {{ comicInfo?.exhibitIntro }}
+              </div>
+
+              <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">
+                ...查看全部
+              </div>
+            </div>
+            <div class="no-intro-tip" v-else>暂无简介</div>
+          </div>
+
+          <!-- 目录 -->
+          <template v-if="comicInfo?.articleInfo?.articleType === 2">
+            <div class="comic-catalogue" v-if="listData.length">
+              <div class="title-container">
+                <span class="title">目录</span>
+                <span class="count">({{ total }}话)</span>
+
+                <div class="sort" @click="handleSort">
+                  <span>{{ sortOrder === "asc" ? "正序" : "倒序" }}</span>
+                  <span class="triangle" :class="sortOrder === 'asc' ? 'asc' : 'desc'"></span>
+                </div>
+              </div>
+
+              <div class="sub-directory-container">
+                <div
+                  class="sub"
+                  :class="
+                    (![0, 4].includes(item.defaulterIdentityType) ||
+                      comicInfo.onlineStatus === 0) &&
+                    'disabled'
+                  "
+                  v-for="item in listData"
+                  :key="item.itemId"
+                  @click="
+                    switchPage('/reader', {
+                      id: comicInfo?.exhibitId,
+                      collection: true,
+                      subId: item.itemId
+                    })
+                  "
+                >
+                  <span class="sub-title">{{ item.itemTitle }}</span>
+                  <img
+                    v-if="item.articleInfo?.status === 2"
+                    class="freeze-lock"
+                    src="../assets/images/freeze.png"
+                    alt="封禁"
+                  />
+                  <div v-else-if="comicInfo.onlineStatus === 0" className="offline-lock">
+                    已下架
+                  </div>
+                  <img
+                    v-else-if="![0, 4].includes(item.defaulterIdentityType)"
+                    class="auth-lock"
+                    src="../assets/images/auth-link-abnormal.png"
+                    alt="授权链异常"
+                  />
+                  <img
+                    v-else-if="item.defaulterIdentityType === 4"
+                    class="sub-lock"
+                    src="../assets/images/mini-lock.png"
+                    alt="未授权"
+                  />
+                </div>
+              </div>
+
+              <div className="tip no-more" v-if="listData.length === total">— 已加载全部章节 —</div>
+            </div>
+
+            <div v-else class="comic-catalogue">
+              <div class="title-container">
+                <span class="title">目录</span>
+              </div>
+              <div class="no-update">未更新章节，暂时无法阅读</div>
+            </div>
+          </template>
+        </div>
+      </template>
     </div>
 
     <my-footer />
@@ -328,6 +441,7 @@ export default {
     const { id } = query.value;
     const { isCollected, operateShelf } = useMyShelf(id);
     const introContent = ref<any>();
+    const sortOrder = ref<string>("asc"); // 默认排序为正序
 
     const data = reactive({
       comicInfo: {} as ExhibitItem,
@@ -379,6 +493,22 @@ export default {
         } else {
           switchPage("/reader", { id: data.comicInfo?.exhibitId });
         }
+      },
+
+      /**
+       * 切换正序，倒序
+       */
+      handleSort() {
+        // 切换排序顺序
+        sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
+
+        // 使用排序函数
+        const compare = (a: any, b: any) => {
+          return sortOrder.value === "asc" ? a.sortId - b.sortId : b.sortId - a.sortId;
+        };
+
+        // 根据当前排序顺序更新数据
+        collectionData.listData.sort(compare);
       }
     };
 
@@ -393,6 +523,12 @@ export default {
       const articleType = exhibitInfo.data.data.articleInfo.articleType;
       if (articleType === 2) {
         getCollectionList(true);
+
+        sortOrder.value =
+          (exhibitInfo.data.data.versionInfo?.exhibitProperty?.catalogueProperty as any)
+            ?.collection_sort_list === "collection_sort_descending"
+            ? "desc"
+            : "asc";
       }
 
       const { count } = signCountData.data.data[0];
@@ -439,11 +575,11 @@ export default {
       let { total, listData, skip } = collectionData;
 
       if (!init && listData.length >= total) return;
-      skip = init ? 0 : collectionData.skip + 30;
+      skip = init ? 0 : collectionData.skip + 50;
 
       const subList = await (freelogApp as any).getCollectionSubList(id, {
         skip,
-        limit: 30
+        limit: 50
       });
       const { dataList, totalItem } = subList.data.data;
       collectionData.total = totalItem;
@@ -498,7 +634,8 @@ export default {
       introContent,
       ...toRefs(data),
       ...toRefs(collectionData),
-      ...methods
+      ...methods,
+      sortOrder
     };
   }
 };

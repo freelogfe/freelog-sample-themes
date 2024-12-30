@@ -45,6 +45,12 @@
     display: flex;
     align-items: center;
 
+    .freeze-lock {
+      width: 16px;
+      height: 16px;
+      margin-right: 5px;
+    }
+
     .auth-link-abnormal {
       width: 16px;
       height: 16px;
@@ -126,6 +132,12 @@
         width: 100%;
         display: flex;
         align-items: center;
+
+        .freeze-lock {
+          width: 16px;
+          height: 16px;
+          margin-right: 5px;
+        }
 
         .auth-link-abnormal {
           width: 16px;

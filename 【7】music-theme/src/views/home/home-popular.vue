@@ -4,11 +4,13 @@ import { useRouter } from "vue-router";
 import { useGlobalStore } from "@/store/global";
 
 import myTooltip from "@/components/tooltip.vue";
+import playStatus from "@/components/play-status.vue";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { secondsToHMS } from "@/utils/common";
 
 import MoreIcon from "@/assets/images/arrow.png";
 import AuthLinkAbnormal from "@/assets/images/auth-link-abnormal.png";
+import Freeze from "@/assets/images/freeze.png";
 import { Exhibit } from "@/interface";
 
 const store = useGlobalStore();
@@ -36,7 +38,14 @@ const authLinkAbnormal = (defaulterIdentityType: number) => {
 
 /** 是否为支持格式 */
 const ifSupportMime = (mime: string) => {
-  const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
+  const supportMimeList = [
+    "audio/mp4",
+    "audio/mpeg",
+    "audio/ogg",
+    "audio/wav",
+    "audio/webm",
+    "audio/flac"
+  ];
   return supportMimeList.includes(mime);
 };
 
@@ -51,7 +60,6 @@ const playing = (obj: { exhibitId: string; itemId: string }) => {
 
 /** 播放/暂停 */
 const playOrPause = (item: Exhibit) => {
-  console.log("popular item", item);
   useMyPlay.playOrPause(item);
 };
 
@@ -171,8 +179,18 @@ const isSelectedData = item => {
     </div>
 
     <!-- 热门内容 -->
-    <div class="popular-content-box">
-      <div class="content-item" v-for="(item, index) in props.data" :key="index">
+    <div class="popular-content-box" v-if="props.data.length">
+      <div
+        class="content-item"
+        :class="{
+          'opacity-40':
+            ![0, 4].includes(item.defaulterIdentityType) ||
+            item.onlineStatus === 0 ||
+            item?.articleInfo?.status === 2
+        }"
+        v-for="(item, index) in props.data"
+        :key="index"
+      >
         <div class="index">{{ changeIndex(index + 1) }}</div>
         <div class="info-box">
           <div class="cover-image">
@@ -192,6 +210,17 @@ const isSelectedData = item => {
                 ></i>
               </div>
             </div>
+            <!-- 播放中标识 -->
+            <play-status
+              class="cover-status"
+              :playing="store.playing"
+              :statusText="false"
+              v-if="
+                store.playingInfo &&
+                `${store.playingInfo.exhibitId}${store.playingInfo.itemId ?? ''}` ===
+                  `${item.exhibitId}${item.itemId ?? ''}`
+              "
+            />
           </div>
           <div class="info">
             <span
@@ -204,13 +233,22 @@ const isSelectedData = item => {
               "
             >
               <img
+                class="freeze-lock"
+                :src="Freeze"
+                alt="封禁"
+                v-if="item.articleInfo?.status === 2"
+              />
+              <div v-else-if="item.onlineStatus === 0" class="offline-lock">已下架</div>
+              <img
                 class="auth-link-abnormal"
                 :src="AuthLinkAbnormal"
-                v-if="authLinkAbnormal(item.defaulterIdentityType)"
+                alt="授权链异常"
+                v-else-if="authLinkAbnormal(item.defaulterIdentityType)"
               />
               <i
                 class="freelog fl-icon-suoding lock"
                 @click.stop="getAuth(item)"
+                alt="未授权"
                 v-if="item.defaulterIdentityType >= 4"
               ></i>
               {{ item.exhibitTitle }}
@@ -278,6 +316,7 @@ const isSelectedData = item => {
         </div>
       </div>
     </div>
+    <div class="no-data" v-else>暂无任何音乐</div>
   </div>
 
   <!-- mobile -->
@@ -294,11 +333,32 @@ const isSelectedData = item => {
     </div>
 
     <!-- 热门内容 -->
-    <div class="popular-content-box">
-      <div class="content-item" v-for="(item, index) in props.data" :key="index">
+    <div class="popular-content-box" v-if="props.data.length">
+      <div
+        class="content-item"
+        :class="{
+          'opacity-40':
+            ![0, 4].includes(item.defaulterIdentityType) ||
+            item.onlineStatus === 0 ||
+            item?.articleInfo?.status === 2
+        }"
+        v-for="(item, index) in props.data"
+        :key="index"
+      >
         <div class="info-box" @click="playOrPause(item)">
           <div class="cover-image">
             <img :src="item.coverImages[0]" alt="歌曲封面" />
+            <!-- 播放中标识 -->
+            <play-status
+              class="cover-status"
+              :playing="store.playing"
+              :statusText="false"
+              v-if="
+                store.playingInfo &&
+                `${store.playingInfo.exhibitId}${store.playingInfo.itemId ?? ''}` ===
+                  `${item.exhibitId}${item.itemId ?? ''}`
+              "
+            />
           </div>
           <div class="info">
             <span class="title">
@@ -370,6 +430,7 @@ const isSelectedData = item => {
         </transition>
       </div>
     </div>
+    <div class="no-data" v-else>暂无任何音乐</div>
   </div>
 </template>
 
@@ -503,6 +564,7 @@ const isSelectedData = item => {
               justify-content: center;
               opacity: 0;
               transition: all 0.5s ease;
+              z-index: 99;
 
               &:hover {
                 background: #44d7b6;
@@ -559,9 +621,25 @@ const isSelectedData = item => {
               }
             }
 
+            .freeze-lock,
             .auth-link-abnormal {
               width: 16px;
               height: 16px;
+              margin-right: 5px;
+            }
+
+            .offline-lock {
+              flex-shrink: 0;
+              width: 40px;
+              height: 20px;
+              background: rgba(255, 255, 255, 0.2);
+              border-radius: 13px;
+              font-size: 10px;
+              font-weight: 600;
+              color: #ffffff;
+              display: flex;
+              align-items: center;
+              justify-content: center;
               margin-right: 5px;
             }
 
@@ -653,6 +731,18 @@ const isSelectedData = item => {
         }
       }
     }
+  }
+
+  .no-data {
+    padding: 122px 0 144px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 400;
+    font-size: 30px;
+    color: #ffffff;
+    line-height: 36px;
+    opacity: 0.4;
   }
 }
 
@@ -765,9 +855,25 @@ const isSelectedData = item => {
               }
             }
 
+            .freeze-lock,
             .auth-link-abnormal {
               width: 16px;
               height: 16px;
+              margin-right: 5px;
+            }
+
+            .offline-lock {
+              flex-shrink: 0;
+              width: 40px;
+              height: 20px;
+              background: rgba(255, 255, 255, 0.2);
+              border-radius: 13px;
+              font-size: 10px;
+              font-weight: 600;
+              color: #ffffff;
+              display: flex;
+              align-items: center;
+              justify-content: center;
               margin-right: 5px;
             }
 
@@ -914,6 +1020,18 @@ const isSelectedData = item => {
         }
       }
     }
+  }
+
+  .no-data {
+    padding: 90px 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 400;
+    font-size: 24px;
+    color: #ffffff;
+    line-height: 40px;
+    opacity: 0.4;
   }
 }
 </style>

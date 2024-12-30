@@ -61,7 +61,11 @@ export const HomeScreen = (props: any) => {
           });
         }
       }
-      setNovelList(pre => (init ? dataList : [...pre, ...dataList]));
+      setNovelList(pre =>
+        init
+          ? dataList.filter((i: any) => i.articleInfo?.status !== 2)
+          : [...pre, ...dataList].filter((i: any) => i.articleInfo?.status !== 2)
+      );
       setTotal(totalItem);
       if (init) setLoading(false);
       setMyloading(false);
@@ -115,7 +119,11 @@ const HomeBody = (props: {
 }) => {
   const { novelList, searching, total, tags, keywords, loading, myloading } = props;
   const { inMobile, userData, selfConfig } = useContext(globalContext);
-  const tagsList: string[] = selfConfig.tags?.split(",").filter(Boolean);
+  const tagsList: string[] =
+    (selfConfig.options_tags || selfConfig.tags)
+      ?.split(",")
+      ?.map((tag: string) => tag.trim()) // 去掉每个字符串的前后空格
+      ?.filter(Boolean) || [];
   const { myShelf } = useMyShelf();
   const history = useMyHistory();
   const [filterBoxShow, setFilterBoxShow] = useState(false);

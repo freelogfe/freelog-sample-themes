@@ -12,21 +12,65 @@
       <el-skeleton class="content-skeleton" :rows="9" animated v-if="myLoading === true" />
       <!-- 内容区域 -->
       <div class="content-area" v-if="myLoading === false">
-        <my-markdown :data="documentData" v-if="documentData?.defaulterIdentityType === 0" />
-        <template v-else-if="documentData?.defaulterIdentityType">
-          <div class="auth-box" v-if="documentData?.defaulterIdentityType !== 4">
-            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-            <div class="auth-link-tip">授权链异常，无法查看</div>
-          </div>
-          <div class="lock-box" v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false">
-            <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
-            <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-            <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
+        <template v-if="documentData?.articleInfo?.status === 1">
+          <template v-if="documentData.onlineStatus === 0">
+            <div class="exceptional-box">
+              <div class="icon">
+                <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
+              </div>
+              <span class="exceptional-text"> 作品已下架，无法访问 </span>
+            </div>
+          </template>
+
+          <template v-else-if="![0, 4].includes(documentData?.defaulterIdentityType)">
+            <div className="exceptional-box">
+              <div className="icon">
+                <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+              </div>
+              <span className="exceptional-text"> 作品异常，无法访问 </span>
+            </div>
+          </template>
+
+          <!-- 静默签约 -->
+          <my-markdown
+            :data="documentData"
+            v-else-if="documentData?.defaulterIdentityType === 0 && userData.isLogin === false"
+          />
+
+          <template
+            v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false"
+          >
+            <div class="lock-box">
+              <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
+              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+              <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
+            </div>
+          </template>
+
+          <template v-else-if="!['阅读'].includes(documentData?.articleInfo.resourceType[0])">
+            <div className="exceptional-box">
+              <div className="icon">
+                <i className="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
+              </div>
+              <span className="exceptional-text">此作品格式暂不支持访问 </span>
+            </div>
+          </template>
+
+          <my-markdown :data="documentData" v-else-if="documentData?.defaulterIdentityType === 0" />
+        </template>
+
+        <template v-else>
+          <div class="freeze-exhibit">
+            <!-- <div class="header">{{ documentData?.exhibitTitle }}</div> -->
+            <div class="icon">
+              <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
+            </div>
+            <span className="exceptional-text"> 此作品因违规无法访问 </span>
           </div>
         </template>
 
         <div class="footer-area">
-          <div class="footer-bar">
+          <div class="footer-bar" v-if="documentData?.defaulterIdentityType === 0">
             <div>最近更新 {{ relativeTime(documentData?.updateDate) }}</div>
             <div class="divider"></div>
             <div>签约量 {{ documentData?.signCount }}</div>
@@ -41,7 +85,7 @@
               :title="currentIndex ? listData[currentIndex - 1].exhibitTitle : ''"
               @click="
                 switchPage('/reader', {
-                  id: listData[currentIndex - 1].exhibitId,
+                  id: listData[currentIndex - 1].exhibitId
                 })
               "
             >
@@ -56,10 +100,12 @@
             <div
               class="switch-btn next"
               :class="{ invalid: currentIndex === listData.length - 1 }"
-              :title="currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : ''"
+              :title="
+                currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : ''
+              "
               @click="
                 switchPage('/reader', {
-                  id: listData[currentIndex + 1].exhibitId,
+                  id: listData[currentIndex + 1].exhibitId
                 })
               "
             >
@@ -67,7 +113,9 @@
                 <div class="btn-title">下一篇</div>
                 <div class="document-title">
                   {{
-                    currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : "当前为最后一篇"
+                    currentIndex !== listData.length - 1
+                      ? listData[currentIndex + 1].exhibitTitle
+                      : "当前为最后一篇"
                   }}
                 </div>
               </div>
@@ -128,21 +176,35 @@
                   "
                 >
                   <div class="item-title-box">
-                    <div class="item-title" :style="{ opacity: [0, 4].includes(item.defaulterIdentityType) ? 1 : 0.4 }">
+                    <div
+                      class="item-title"
+                      :style="{ opacity: [0, 4].includes(item.defaulterIdentityType) ? 1 : 0.4 }"
+                    >
                       {{ item.exhibitTitle }}
                     </div>
                   </div>
 
                   <div class="other-box">
                     <img
+                      class="freeze-lock"
+                      src="../assets/images/freeze.png"
+                      alt="封禁"
+                      v-if="item?.articleInfo.status === 2"
+                    />
+
+                    <div class="offline" v-else-if="item?.onlineStatus === 0">已下架</div>
+
+                    <img
                       class="auth-link-abnormal"
                       src="../assets/images/auth-link-abnormal.png"
-                      v-if="![0, 4].includes(item.defaulterIdentityType)"
+                      alt="授权链异常"
+                      v-else-if="![0, 4].includes(item.defaulterIdentityType)"
                     />
                     <img
                       class="item-lock"
                       src="../assets/images/mini-lock.png"
-                      title="授权"
+                      alt="未授权"
+                      title="未授权"
                       @click.stop="getAuth(item)"
                       v-if="item.defaulterIdentityType >= 4"
                     />
@@ -151,36 +213,51 @@
               </template>
 
               <template v-if="viewOffline">
-                <div class="offline-tip">
+                <!-- <div class="offline-tip">
                   <div class="tip">当前文档已下架，已签约可继续浏览</div>
                   <div class="text-btn mobile" @click="switchPage('/reader')">返回列表</div>
-                </div>
+                </div> -->
 
-                <div class="list-item active" @click="clickDocument(documentData)">
-                  <div class="item-title-box">
-                    <div
-                      class="item-title"
-                      :style="{ opacity: [0, 4].includes(documentData?.defaulterIdentityType) ? 1 : 0.4 }"
-                    >
-                      {{ documentData?.exhibitTitle }}
+                <div class="list">
+                  <div class="list-item active" @click="clickDocument(documentData)">
+                    <div class="item-title-box">
+                      <div
+                        class="item-title"
+                        :style="{
+                          opacity: [0, 4].includes(documentData?.defaulterIdentityType) ? 1 : 0.4
+                        }"
+                      >
+                        {{ documentData?.exhibitTitle }}
+                      </div>
+                      <!-- <div class="offline">已下架</div> -->
                     </div>
-                    <div class="offline">已下架</div>
-                  </div>
 
-                  <div class="other-box">
-                    <img
-                      class="auth-link-abnormal"
-                      src="../assets/images/auth-link-abnormal.png"
-                      v-if="![0, 4].includes(documentData?.defaulterIdentityType)"
-                    />
+                    <div class="other-box">
+                      <img
+                        class="freeze-lock"
+                        src="../assets/images/freeze.png"
+                        alt="封禁"
+                        v-if="documentData?.articleInfo.status === 2"
+                      />
 
-                    <img
-                      class="item-lock"
-                      src="../assets/images/mini-lock.png"
-                      title="授权"
-                      @click.stop="getAuth(documentData)"
-                      v-if="documentData?.defaulterIdentityType >= 4"
-                    />
+                      <div class="offline" v-else-if="documentData?.onlineStatus === 0">已下架</div>
+
+                      <img
+                        class="auth-link-abnormal"
+                        src="../assets/images/auth-link-abnormal.png"
+                        alt="授权链异常"
+                        v-else-if="![0, 4].includes(documentData?.defaulterIdentityType)"
+                      />
+
+                      <img
+                        class="item-lock"
+                        src="../assets/images/mini-lock.png"
+                        alt="未授权"
+                        title="授权"
+                        @click.stop="getAuth(documentData)"
+                        v-if="documentData?.defaulterIdentityType >= 4"
+                      />
+                    </div>
                   </div>
                 </div>
               </template>
@@ -254,7 +331,10 @@
                         @mouseleave="searchWordCatch = null"
                       >
                         <div class="item-word">{{ item }}</div>
-                        <i class="freelog fl-icon-guanbi delete-btn" @click.stop="deleteSearchHistory(item)"></i>
+                        <i
+                          class="freelog fl-icon-guanbi delete-btn"
+                          @click.stop="deleteSearchHistory(item)"
+                        ></i>
                       </div>
                     </div>
 
@@ -288,14 +368,22 @@
                 </div>
                 <div class="other-box">
                   <img
+                    class="freeze-lock"
+                    src="../assets/images/freeze.png"
+                    alt="封禁"
+                    v-if="item?.articleInfo.status === 2"
+                  />
+                  <img
                     class="auth-link-abnormal"
                     src="../assets/images/auth-link-abnormal.png"
-                    v-if="![0, 4].includes(item.defaulterIdentityType)"
+                    alt="授权链异常"
+                    v-else-if="![0, 4].includes(item.defaulterIdentityType)"
                   />
                   <img
                     class="item-lock"
                     src="../assets/images/mini-lock.png"
-                    title="授权"
+                    title="未授权"
+                    alt="未授权"
                     @click.stop="getAuth(item)"
                     v-if="item.defaulterIdentityType >= 4"
                   />
@@ -305,38 +393,53 @@
           </template>
 
           <template v-if="viewOffline">
-            <div class="offline-tip">
+            <!-- <div class="offline-tip">
               <div class="tip">当前文档已下架，已签约可继续浏览</div>
 
               <div class="text-btn" @click="switchPage('/reader')">返回列表</div>
-            </div>
+            </div> -->
 
-            <div class="list-item active" @click="clickDocument(documentData)">
-              <div class="item-title-box">
-                <div
-                  class="item-title"
-                  :style="{ opacity: [0, 4].includes(documentData?.defaulterIdentityType) ? 1 : 0.4 }"
-                  :title="documentData?.exhibitTitle"
-                >
-                  {{ documentData?.exhibitTitle }}
+            <div class="list">
+              <div class="list-item active" @click="clickDocument(documentData)">
+                <div class="item-title-box">
+                  <div
+                    class="item-title"
+                    :style="{
+                      opacity: [0, 4].includes(documentData?.defaulterIdentityType) ? 1 : 0.4
+                    }"
+                    :title="documentData?.exhibitTitle"
+                  >
+                    {{ documentData?.exhibitTitle }}
+                  </div>
+                  <!-- <div class="offline">已下架</div> -->
                 </div>
-                <div class="offline">已下架</div>
-              </div>
 
-              <div class="other-box">
-                <img
-                  class="auth-link-abnormal"
-                  src="../assets/images/auth-link-abnormal.png"
-                  v-if="![0, 4].includes(documentData?.defaulterIdentityType)"
-                />
+                <div class="other-box">
+                  <img
+                    class="freeze-lock"
+                    src="../assets/images/freeze.png"
+                    alt="封禁"
+                    v-if="documentData?.articleInfo.status === 2"
+                  />
 
-                <img
-                  class="item-lock"
-                  src="../assets/images/mini-lock.png"
-                  title="授权"
-                  @click.stop="getAuth(documentData)"
-                  v-if="documentData?.defaulterIdentityType >= 4"
-                />
+                  <div class="offline" v-else-if="documentData?.onlineStatus === 0">已下架</div>
+
+                  <img
+                    class="auth-link-abnormal"
+                    src="../assets/images/auth-link-abnormal.png"
+                    alt="授权链异常"
+                    v-else-if="![0, 4].includes(documentData?.defaulterIdentityType)"
+                  />
+
+                  <img
+                    class="item-lock"
+                    src="../assets/images/mini-lock.png"
+                    alt="未授权"
+                    title="未授权"
+                    @click.stop="getAuth(documentData)"
+                    v-if="documentData?.defaulterIdentityType >= 4"
+                  />
+                </div>
               </div>
             </div>
           </template>
@@ -350,25 +453,70 @@
       <!-- 内容区域 -->
       <div class="content-area" v-if="myLoading === false">
         <div class="content-body">
-          <my-markdown
-            :data="documentData"
-            @getDirectory="getDirectory($event)"
-            v-if="documentData?.defaulterIdentityType === 0"
-          />
-          <template v-else-if="documentData?.defaulterIdentityType">
-            <div class="auth-box" v-if="documentData?.defaulterIdentityType !== 4">
-              <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-              <div class="auth-link-tip">授权链异常，无法查看</div>
-            </div>
-            <div class="lock-box" v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false">
-              <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
-              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-              <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
+          <template v-if="documentData?.articleInfo?.status === 1">
+            <template v-if="documentData.onlineStatus === 0">
+              <div class="exceptional-box">
+                <div class="icon">
+                  <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
+                </div>
+                <span class="exceptional-text"> 作品已下架，无法访问 </span>
+              </div>
+            </template>
+
+            <template v-else-if="![0, 4].includes(documentData?.defaulterIdentityType)">
+              <div className="exceptional-box">
+                <div className="icon">
+                  <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+                </div>
+                <span className="exceptional-text"> 作品异常，无法访问 </span>
+              </div>
+            </template>
+
+            <!-- 静默签约 -->
+            <my-markdown
+              :data="documentData"
+              @getDirectory="getDirectory($event)"
+              v-else-if="documentData?.defaulterIdentityType === 0 && userData.isLogin === false"
+            />
+
+            <template
+              v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false"
+            >
+              <div class="lock-box">
+                <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
+                <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+                <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
+              </div>
+            </template>
+
+            <template v-else-if="!['阅读'].includes(documentData?.articleInfo.resourceType[0])">
+              <div className="exceptional-box">
+                <div className="icon">
+                  <i className="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
+                </div>
+                <span className="exceptional-text">此作品格式暂不支持访问 </span>
+              </div>
+            </template>
+
+            <my-markdown
+              :data="documentData"
+              @getDirectory="getDirectory($event)"
+              v-else-if="documentData?.defaulterIdentityType === 0"
+            />
+          </template>
+
+          <template v-else>
+            <div class="freeze-exhibit">
+              <!-- <div class="header">{{ documentData?.exhibitTitle }}</div> -->
+              <div class="icon">
+                <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
+              </div>
+              <span className="exceptional-text"> 此作品因违规无法访问 </span>
             </div>
           </template>
 
           <div class="footer-area">
-            <div class="footer-bar">
+            <div class="footer-bar" v-if="documentData?.defaulterIdentityType === 0">
               <div>最近更新 {{ relativeTime(documentData?.updateDate) }}</div>
               <div class="divider"></div>
               <div>签约量 {{ documentData?.signCount }}</div>
@@ -383,7 +531,7 @@
                 :title="currentIndex ? listData[currentIndex - 1].exhibitTitle : ''"
                 @click="
                   switchPage('/reader', {
-                    id: listData[currentIndex - 1].exhibitId,
+                    id: listData[currentIndex - 1].exhibitId
                   })
                 "
               >
@@ -398,10 +546,14 @@
               <div
                 class="switch-btn next"
                 :class="{ invalid: currentIndex === listData.length - 1 }"
-                :title="currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : ''"
+                :title="
+                  currentIndex !== listData.length - 1
+                    ? listData[currentIndex + 1].exhibitTitle
+                    : ''
+                "
                 @click="
                   switchPage('/reader', {
-                    id: listData[currentIndex + 1].exhibitId,
+                    id: listData[currentIndex + 1].exhibitId
                   })
                 "
               >
@@ -409,7 +561,9 @@
                   <div class="btn-title">下一篇</div>
                   <div class="document-title">
                     {{
-                      currentIndex !== listData.length - 1 ? listData[currentIndex + 1].exhibitTitle : "当前为最后一篇"
+                      currentIndex !== listData.length - 1
+                        ? listData[currentIndex + 1].exhibitTitle
+                        : "当前为最后一篇"
                     }}
                   </div>
                 </div>
@@ -433,7 +587,7 @@
             :class="{
               active: currentTitle === item.innerText,
               second: item.nodeName === 'H2',
-              third: item.nodeName === 'H3',
+              third: item.nodeName === 'H3'
             }"
             :title="item.innerText"
             v-for="item in directoryList"
@@ -482,7 +636,7 @@ export default {
     "my-markdown": defineAsyncComponent(() => import("../components/markdown.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     "back-top": defineAsyncComponent(() => import("../components/back-top.vue")),
-    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
+    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue"))
   },
 
   setup() {
@@ -493,7 +647,9 @@ export default {
     const datasOfGetList = useGetList();
     const searchInput = ref();
     const searchHistoryPopup = ref();
-    const mySearchHistory = computed(() => searchHistory.value.filter((item) => item.includes(data.searchKey)));
+    const mySearchHistory = computed(() =>
+      searchHistory.value.filter(item => item.includes(data.searchKey))
+    );
 
     const data = reactive({
       myLoading: null as boolean | null,
@@ -509,11 +665,11 @@ export default {
       directoryShow: false,
       viewOffline: false, // 查看已下架展品
       href: "",
-      shareWidget: null as WidgetController | null,
+      shareWidget: null as WidgetController | null
     });
 
     const currentIndex = computed(() => {
-      return datasOfGetList.listData.value.findIndex((item) => item.exhibitId === data.currentId);
+      return datasOfGetList.listData.value.findIndex(item => item.exhibitId === data.currentId);
     });
 
     const methods = {
@@ -608,7 +764,7 @@ export default {
 
       /** 跳到标题位置 */
       jumpToTitle(title: string) {
-        const el: any = data.directoryList.find((item) => item.innerText === title);
+        const el: any = data.directoryList.find(item => item.innerText === title);
         if (!el) return;
 
         scrollTo(el.offsetTop);
@@ -633,10 +789,25 @@ export default {
       clickDocument(item: ExhibitItem) {
         const { exhibitId, defaulterIdentityType = -1 } = item;
 
-        if (![0, 4].includes(defaulterIdentityType)) {
-          showToast("授权链异常，无法查看");
-          return;
-        }
+        // if ((item.articleInfo as any)?.status === 2) {
+        //   showToast("此作品因违规无法访问");
+        //   return;
+        // }
+
+        // if (item.onlineStatus === 0) {
+        //   showToast("作品已下架，无法访问");
+        //   return;
+        // }
+
+        // if (![0, 4].includes(item.defaulterIdentityType!)) {
+        //   showToast("作品异常，无法访问");
+        //   return;
+        // }
+
+        // if (!["阅读"].includes(item?.articleInfo.resourceType[0])) {
+        //   showToast("此作品格式暂不支持访问");
+        //   return;
+        // }
 
         switchPage("/reader", { id: exhibitId });
       },
@@ -644,7 +815,7 @@ export default {
       /** 控制分享弹窗显示 */
       setShareWidgetShow(value: boolean) {
         data.shareWidget?.setData({ show: value });
-      },
+      }
     };
 
     /** 获取列表数据 */
@@ -659,7 +830,9 @@ export default {
     const getDocumentData = async () => {
       data.myLoading = true;
       const exhibitId = data.currentId;
-      let documentData = datasOfGetList.listData.value.find((item) => item.exhibitId === exhibitId) as ExhibitItem;
+      let documentData = datasOfGetList.listData.value.find(
+        item => item.exhibitId === exhibitId
+      ) as ExhibitItem;
       data.viewOffline = false;
 
       const requestArr: Promise<any>[] = [freelogApp.getExhibitSignCount(exhibitId)];
@@ -672,7 +845,7 @@ export default {
         documentData = {
           ...exhibitInfo.data.data,
           signCount: signCountData.data.data[0].count,
-          defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
+          defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType
         };
         if (exhibitInfo.data.errCode === 0) data.viewOffline = true;
       } else {
@@ -711,11 +884,11 @@ export default {
 
       if (e.key === "ArrowLeft" && currentIndex.value !== 0)
         switchPage("/reader", {
-          id: datasOfGetList.listData.value[currentIndex.value - 1].exhibitId,
+          id: datasOfGetList.listData.value[currentIndex.value - 1].exhibitId
         });
       if (e.key === "ArrowRight" && currentIndex.value !== datasOfGetList.listData.value.length - 1)
         switchPage("/reader", {
-          id: datasOfGetList.listData.value[currentIndex.value + 1].exhibitId,
+          id: datasOfGetList.listData.value[currentIndex.value + 1].exhibitId
         });
     };
 
@@ -748,7 +921,7 @@ export default {
       if (data.shareWidget) await data.shareWidget.unmount();
 
       const subDeps = await freelogApp.getSelfDependencyTree();
-      const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-展品分享");
+      const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-展品分享");
       if (!widgetData) return;
 
       const { articleId, parentNid, nid } = widgetData;
@@ -761,8 +934,8 @@ export default {
         topExhibitId,
         container,
         renderWidgetOptions: {
-          data: { exhibit: data.documentData, type: "文档", routerType: "content" },
-        },
+          data: { exhibit: data.documentData, type: "文档", routerType: "content" }
+        }
         // widget_entry: "https://localhost:8201",
       };
       data.shareWidget = await freelogApp.mountArticleWidget(params);
@@ -770,7 +943,7 @@ export default {
 
     watch(
       () => data.searchHistoryShow,
-      (cur) => {
+      cur => {
         if (cur) {
           document.addEventListener("click", ifCloseHistoryPopup);
         } else {
@@ -781,7 +954,7 @@ export default {
 
     watch(
       () => datasOfGetList.listData.value,
-      (cur) => {
+      cur => {
         data.searching = !!data.searchKey;
         if (!cur.length && !data.searching) {
           data.currentId = "";
@@ -799,7 +972,7 @@ export default {
 
     watch(
       () => query.value,
-      (cur) => {
+      cur => {
         if (route.path !== "/reader") return;
 
         const { total } = datasOfGetList;
@@ -816,7 +989,7 @@ export default {
 
     watch(
       () => scrollTop.value,
-      (cur) => {
+      cur => {
         methods.setShareWidgetShow(false);
 
         for (let i = data.directoryList.length - 1; i >= 0; i--) {
@@ -851,9 +1024,9 @@ export default {
       searchHistoryPopup,
       ...toRefs(data),
       currentIndex,
-      ...methods,
+      ...methods
     };
-  },
+  }
 };
 </script>
 

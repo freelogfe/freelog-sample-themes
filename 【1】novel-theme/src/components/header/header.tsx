@@ -1,3 +1,4 @@
+import { freelogApp } from "freelog-runtime";
 import "./header.scss";
 import MyLogo from "../../assets/images/logo.png";
 import MyMenu from "../../assets/images/menu.png";
@@ -125,7 +126,7 @@ export const Header = (props: {
             // logo
             <img
               className="logo"
-              src={selfConfig.logoImage || MyLogo}
+              src={selfConfig.options_logoImage || selfConfig.logoImage || MyLogo}
               alt="logo"
               referrerPolicy="no-referrer"
               onClick={() => history.switchPage("/home")}
@@ -323,7 +324,7 @@ export const Header = (props: {
             {/* logo */}
             <img
               className="logo"
-              src={selfConfig.logoImage || MyLogo}
+              src={selfConfig.options_logoImage || selfConfig.logoImage || MyLogo}
               alt="logo"
               onClick={() => history.switchPage("/home")}
             />
@@ -436,16 +437,26 @@ export const Header = (props: {
               </div>
             ) : (
               <div className="user-btns">
-                <div className="btn header-login-btn" onClick={(e: any) => {
-                  callLogin();
-                  e.stopPropagation(); 
-                  return false;
-                }}>
+                <div
+                  className="btn header-login-btn"
+                  onClick={(e: any) => {
+                    callLogin();
+                    e.stopPropagation();
+                    return false;
+                  }}
+                >
                   登录
                 </div>
                 <div
                   className="btn header-register-btn"
-                  onClick={() => window.open("https://user.freelog.com/logon")}
+                  onClick={() => {
+                    const url = freelogApp.getCurrentUrl();
+                    if (url.includes(".freelog.com")) {
+                      window.open("https://user.freelog.com/logon");
+                    } else if (url.includes(".testfreelog.com")) {
+                      window.open("https://user.testfreelog.com/logon");
+                    }
+                  }}
                 >
                   注册
                 </div>

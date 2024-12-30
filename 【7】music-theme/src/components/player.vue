@@ -16,7 +16,7 @@
       <div
         class="player"
         :class="{ show: playerShow }"
-        @click="
+        @click.stop="
           () => {
             if (playingInfo) {
               playDialogShow = true;
@@ -73,7 +73,7 @@
           </div>
           <i class="freelog fl-icon-xiaoshuomulu1" @click.stop="openPlayList()"></i>
         </div>
-        <div class="progress-box" @touchstart="slidingProgress = true">
+        <div class="progress-box" @touchstart="slidingProgress = true" @click.stop>
           <el-slider
             class="progress"
             :class="{ 'no-voice': !playingInfo }"
@@ -106,6 +106,12 @@
           <template v-if="playList.length">
             <div
               class="voice-item"
+              :class="{
+                'opacity-40':
+                  ![0, 4].includes(item.defaulterIdentityType) ||
+                  item.onlineStatus === 0 ||
+                  item?.articleInfo?.status === 2
+              }"
               v-for="item in playList"
               :key="item.exhibitId"
               @click="playOrPauseList(item)"
@@ -114,12 +120,22 @@
                 <div class="title-area">
                   <img
                     class="icon"
+                    src="../assets/images/freeze.png"
+                    v-if="item.articleInfo?.status === 2"
+                    alt="封禁"
+                  />
+                  <div v-else-if="item.onlineStatus === 0" class="offline-lock">已下架</div>
+
+                  <img
+                    class="icon"
                     src="../assets/images/auth-link-abnormal.png"
-                    v-if="![0, 4].includes(item.defaulterIdentityType)"
+                    alt="授权链异常"
+                    v-else-if="![0, 4].includes(item.defaulterIdentityType)"
                   />
                   <i
                     class="freelog fl-icon-suoding lock"
                     @click.stop="getAuth(item)"
+                    alt="未授权"
                     v-if="item.defaulterIdentityType >= 4"
                   ></i>
                   <div class="voice-title">{{ item.itemTitle || item.exhibitTitle }}</div>
@@ -366,6 +382,12 @@
             <template v-if="playList.length">
               <div
                 class="voice-item"
+                :class="{
+                  'opacity-40':
+                    ![0, 4].includes(item.defaulterIdentityType) ||
+                    item.onlineStatus === 0 ||
+                    item?.articleInfo?.status === 2
+                }"
                 v-for="item in playList"
                 :key="item.exhibitId"
                 @click="playOrPauseList(item)"
@@ -385,12 +407,21 @@
                     <div class="icon-lock-title-wrapper">
                       <img
                         class="icon"
+                        src="../assets/images/freeze.png"
+                        v-if="item.articleInfo?.status === 2"
+                        alt="封禁"
+                      />
+                      <div v-else-if="item.onlineStatus === 0" class="offline-lock">已下架</div>
+                      <img
+                        class="icon"
                         src="../assets/images/auth-link-abnormal.png"
-                        v-if="![0, 4].includes(item.defaulterIdentityType)"
+                        alt="授权链异常"
+                        v-else-if="![0, 4].includes(item.defaulterIdentityType)"
                       />
                       <i
                         class="freelog fl-icon-suoding lock"
                         @click.stop="getAuth(item)"
+                        alt="未授权"
                         v-if="item.defaulterIdentityType >= 4"
                       ></i>
                       <my-tooltip :content="item.itemTitle || item.exhibitTitle">
@@ -472,7 +503,7 @@ export default {
       startTouchX: 0,
       touchMoveX: 0,
       closeTimer: null,
-      modes: ["NORMAL", "RANDOM"], // 播放模式列表
+      modes: ["NORMAL", "REPEAT-ALL", "REPEAT-ONE", "RANDOM"], // 播放模式列表
       currentModeIndex: 0, // 当前模式索引
       currentRandomIndex: 0, // 当前随机播放索引
       shuffledList: [], // 随机播放列表
@@ -526,7 +557,7 @@ export default {
 
         if (this.playList && this.store.inMobile) {
           const index = this.playList.findIndex(
-            item => item.exhibitId === this.playingInfo.exhibitId
+            item => item.exhibitId === this.playingInfo?.exhibitId
           );
           this.touchMoveX = -this.infoAreaWidth * index;
         }
@@ -630,7 +661,14 @@ export default {
       return [
         {
           name: "mode",
-          icon: this.currentPlayMode === "NORMAL" ? "fl-icon-shunxubofang" : "fl-icon-suijibofang1",
+          icon:
+            this.currentPlayMode === "NORMAL"
+              ? "fl-icon-shunxubofang"
+              : this.currentPlayMode === "RANDOM"
+              ? "fl-icon-suijibofang1"
+              : this.currentPlayMode === "REPEAT-ONE"
+              ? "fl-icon-liebiaoxunhuanbeifen"
+              : "fl-icon-liebiaoxunhuan",
           operate: () => {
             this.changePlayMode();
           }
@@ -665,7 +703,14 @@ export default {
       return [
         {
           name: "mode",
-          icon: this.currentPlayMode === "NORMAL" ? "fl-icon-shunxubofang" : "fl-icon-suijibofang1",
+          icon:
+            this.currentPlayMode === "NORMAL"
+              ? "fl-icon-shunxubofang"
+              : this.currentPlayMode === "RANDOM"
+              ? "fl-icon-suijibofang1"
+              : this.currentPlayMode === "REPEAT-ONE"
+              ? "fl-icon-liebiaoxunhuanbeifen"
+              : "fl-icon-liebiaoxunhuan",
           operate: () => {
             this.changePlayMode();
           }
@@ -742,7 +787,7 @@ export default {
 
     /** 上一首 */
     preVoice(data) {
-      if (this.currentPlayMode === "NORMAL") {
+      if (["NORMAL", "REPEAT-ALL", "REPEAT-ONE"].includes(this.currentPlayMode)) {
         useMyPlay.preVoice();
       } else {
         this.currentRandomIndex = this.currentRandomIndex - 1;
@@ -756,7 +801,7 @@ export default {
 
     /** 下一首 */
     nextVoice(data, type) {
-      if (this.currentPlayMode === "NORMAL") {
+      if (["NORMAL", "REPEAT-ALL", "REPEAT-ONE"].includes(this.currentPlayMode)) {
         useMyPlay.nextVoice();
       } else {
         if (type === "AUTO") {
@@ -802,6 +847,13 @@ export default {
         }
 
         this.nextVoice();
+      } else if (this.currentPlayMode === "REPEAT-ALL") {
+        this.nextVoice();
+      } else if (this.currentPlayMode === "REPEAT-ONE") {
+        const tempData = this.playingInfo;
+        await this.store.setData({ key: "progress", value: 0 });
+        await this.store.setData({ key: "playingInfo", value: null });
+        useMyPlay.playOrPause(tempData);
       } else {
         this.currentRandomIndex = this.currentRandomIndex + 1;
         // 重置当前随机播放索引
@@ -816,7 +868,14 @@ export default {
     playError() {
       if (!this.playing) return;
 
-      const supportMimeList = ["audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm"];
+      const supportMimeList = [
+        "audio/mp4",
+        "audio/mpeg",
+        "audio/ogg",
+        "audio/wav",
+        "audio/webm",
+        "audio/flac"
+      ];
       if (!supportMimeList.includes(this.playingInfo?.versionInfo.exhibitProperty.mime)) {
         showToast("无法播放");
         return;
@@ -851,11 +910,9 @@ export default {
         navigator.clipboard
           .writeText(copiedShareHref)
           .then(() => {
-            console.log("来到这里了");
             showToast("链接复制成功～");
           })
           .catch(error => {
-            console.log("报错");
             const input = document.createElement("input");
             document.body.appendChild(input);
             input.setAttribute("value", copiedShareHref);
@@ -873,6 +930,26 @@ export default {
 
     /** 播放/暂停播放列表 */
     playOrPauseList(data) {
+      if (data.articleInfo?.status === 2) {
+        showToast("此作品因违规无法访问");
+        return;
+      }
+
+      if (data.onlineStatus === 0) {
+        showToast("作品已下架，无法访问");
+        return;
+      }
+
+      if (![0, 4].includes(data.defaulterIdentityType)) {
+        showToast("作品异常，无法访问");
+        return;
+      }
+
+      if (!["音频"].includes(data?.articleInfo.resourceType[0])) {
+        showToast("此作品格式暂不支持访问");
+        return;
+      }
+      console.log("data", data);
       useMyPlay.playOrPause(data);
     },
 

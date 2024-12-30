@@ -115,6 +115,7 @@
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 3;
       overflow: hidden;
+      white-space: pre-wrap;
     }
   }
 
@@ -439,6 +440,7 @@
       color: #ffffff;
       line-height: 20px;
       margin-top: 20px;
+      white-space: pre-wrap;
     }
   }
 }
@@ -874,6 +876,7 @@
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
         overflow: hidden;
+        white-space: pre-wrap;
       }
     }
   }

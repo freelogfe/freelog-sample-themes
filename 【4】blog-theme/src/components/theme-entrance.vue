@@ -4,7 +4,7 @@
   <div
     class="theme-entrance-wrapper"
     :class="{ show: !inMobile && selfConfig.entranceShow.trim() === '显示' }"
-    style="box-shadow:rgba(15, 32, 39, 0.25) 0px 2px 10px 0px;"
+    style="box-shadow: rgba(15, 32, 39, 0.25) 0px 2px 10px 0px"
     @click="toTheme()"
   >
     <i class="freelog fl-icon-shiyongzhuti text-center"></i>
@@ -25,18 +25,18 @@ export default {
     const store = useStore();
 
     const inMobile = computed(() => {
-      return store.state.inMobile
-    })
+      return store.state.inMobile;
+    });
 
     const selfConfig = computed(() => {
-      return store.state.selfConfig
-    })
+      return store.state.selfConfig;
+    });
 
     const methods = {
       /** 打开主题资源详情页 */
       toTheme() {
         window.open(themeEntrance.url);
-      },
+      }
     };
 
     return {
@@ -45,7 +45,7 @@ export default {
       ...methods,
       selfConfig
     };
-  },
+  }
 };
 </script>
 
@@ -58,7 +58,7 @@ export default {
   height: 80px;
   padding: 15px 10px;
   box-sizing: border-box;
-  background: linear-gradient(315deg, #2C5364, #0F2027);
+  background: linear-gradient(315deg, #2c5364, #0f2027);
   border-radius: 20px 0px 0px 20px;
   display: flex;
   flex-direction: column;

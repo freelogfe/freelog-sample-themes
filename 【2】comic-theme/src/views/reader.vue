@@ -19,35 +19,136 @@
     <!-- mobile -->
     <template v-if="!loading && inMobile">
       <div class="mobile-body-wrapper">
-        <template v-if="comicInfo.defaulterIdentityType === 0">
-          <template v-if="mode[0] === 'paging'">
-            <my-swipe
-              class="paging-area"
-              :initial-swipe="swipeIndex"
-              :loop="false"
-              :show-indicators="false"
-              @change="swipePage"
-              :lazy-render="true"
+        <template v-if="comicInfo?.articleInfo?.status === 1">
+          <template v-if="comicInfo.onlineStatus === 0">
+            <div
+              class="exceptional-box"
+              :class="{ light: theme === 'light', dark: theme === 'dark' }"
             >
-              <my-swipe-item
-                class="swipe-image-box"
-                v-for="item in mobilePagingList"
-                :key="item.name"
-              >
-                <div
-                  v-if="
-                    currentSortID === collectionTotal &&
-                    recommendList.length &&
-                    item.name === 'RecommendFakeUrl'
-                  "
-                  class="paging-recommend-box"
-                >
-                  <div class="no-more">— 已加载全部内容 —</div>
+              <div class="icon">
+                <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
+              </div>
+              <span class="exceptional-text"> 作品已下架，无法访问 </span>
+            </div>
+          </template>
 
+          <template v-else-if="![0, 4].includes(comicInfo?.defaulterIdentityType)">
+            <div
+              class="exceptional-box"
+              :class="{ light: theme === 'light', dark: theme === 'dark' }"
+            >
+              <div class="icon">
+                <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+              </div>
+              <span class="exceptional-text"> 作品异常，无法访问 </span>
+            </div>
+          </template>
+
+          <!-- 静默签约 -->
+          <template
+            v-else-if="comicInfo.defaulterIdentityType === 0 && userData?.isLogin === false"
+          >
+            <template v-if="mode[0] === 'paging'">
+              <my-swipe
+                class="paging-area"
+                :initial-swipe="swipeIndex"
+                :loop="false"
+                :show-indicators="false"
+                @change="swipePage"
+                :lazy-render="true"
+              >
+                <my-swipe-item
+                  class="swipe-image-box"
+                  v-for="item in mobilePagingList"
+                  :key="item.name"
+                >
+                  <div
+                    v-if="
+                      (currentSortID === collectionTotal || !query.subId) &&
+                      item.name === 'RecommendFakeUrl'
+                    "
+                    class="paging-recommend-box"
+                    :class="{ 'no-more-box': currentSortID === collectionTotal || !query.subId }"
+                  >
+                    <div class="no-more">
+                      <img
+                        v-if="theme === 'light'"
+                        src="@/assets/images/all-loaded-light.png"
+                        alt="已加载全部内容"
+                      />
+                      <img v-else src="@/assets/images/all-loaded-dark.png" alt="已加载全部内容" />
+                    </div>
+                    <div v-if="recommendList.length">
+                      <p class="more">更多漫画</p>
+                      <div class="recommend-item-wrap">
+                        <div
+                          class="recommend-item"
+                          v-for="item in recommendList.slice(0, 3)"
+                          :key="item.exhibitId"
+                          @click="toDetailFromRecommend(item.exhibitId)"
+                        >
+                          <div class="cover-image">
+                            <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                          </div>
+                          <span class="title">{{ item.exhibitTitle }}</span>
+                          <span class="name">{{ item.articleInfo?.articleOwnerName }}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div v-else class="to-home">
+                      <span @click.stop="switchPage('/home')">回首页寻找更多漫画 >></span>
+                    </div>
+                  </div>
+
+                  <div
+                    v-else-if="item.name === 'NextFakeUrl'"
+                    class="next-chapter-box"
+                    :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                  >
+                    <span>当前一话已经加载完啦~</span>
+                    <div
+                      class="next-chapter-btn"
+                      :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                      @click="nextChapter()"
+                    >
+                      进入下一话
+                      <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                      <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                    </div>
+                  </div>
+                  <img v-else class="swipe-image" :src="item.url" oncontextmenu="return false" />
+                </my-swipe-item>
+              </my-swipe>
+            </template>
+
+            <template v-else-if="mode[0] === 'scroll'">
+              <img
+                class="content-image"
+                :style="{ height: item.height + 'px' }"
+                v-lazy="item.url"
+                oncontextmenu="return false"
+                v-for="item in contentImgList"
+                :key="item.name"
+              />
+              <div
+                v-if="currentSortID === collectionTotal || !query.subId"
+                class="scroll-recommend-box"
+              >
+                <div class="no-more">
+                  <img
+                    v-if="theme === 'light'"
+                    src="@/assets/images/all-loaded-light.png"
+                    alt="已加载全部内容"
+                  />
+                  <img v-else src="@/assets/images/all-loaded-dark.png" alt="已加载全部内容" />
+                </div>
+
+                <div v-if="recommendList.length">
                   <p class="more">更多漫画</p>
                   <div class="recommend-item-wrap">
                     <div
                       class="recommend-item"
+                      :class="{ light: theme === 'light', dark: theme === 'dark' }"
                       v-for="item in recommendList.slice(0, 6)"
                       :key="item.exhibitId"
                       @click="toDetailFromRecommend(item.exhibitId)"
@@ -60,59 +161,202 @@
                     </div>
                   </div>
                 </div>
-                <img v-else class="swipe-image" :src="item.url" oncontextmenu="return false" />
-              </my-swipe-item>
-            </my-swipe>
-          </template>
 
-          <template v-else-if="mode[0] === 'scroll'">
-            <img
-              class="content-image"
-              :style="{ height: item.height + 'px' }"
-              v-lazy="item.url"
-              oncontextmenu="return false"
-              v-for="item in contentImgList"
-              :key="item.name"
-            />
-            <div
-              v-if="currentSortID === collectionTotal && recommendList.length"
-              class="scroll-recommend-box"
-            >
-              <div class="no-more">— 已加载全部内容 —</div>
-
-              <p class="more">更多漫画</p>
-              <div class="recommend-item-wrap">
-                <div
-                  class="recommend-item"
-                  v-for="item in recommendList.slice(0, 6)"
-                  :key="item.exhibitId"
-                  @click="toDetailFromRecommend(item.exhibitId)"
-                >
-                  <div class="cover-image">
-                    <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
-                  </div>
-                  <span class="title">{{ item.exhibitTitle }}</span>
-                  <span class="name">{{ item.articleInfo?.articleOwnerName }}</span>
+                <div v-else class="to-home">
+                  <span @click.stop="switchPage('/home')">回首页寻找更多漫画 >></span>
                 </div>
               </div>
+
+              <div
+                class="next-chapter-box"
+                :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                v-else
+              >
+                <span>当前一话已经加载完啦~</span>
+                <div
+                  class="next-chapter-btn"
+                  :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                  @click="nextChapter()"
+                >
+                  进入下一话
+                  <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                  <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                </div>
+              </div>
+            </template>
+          </template>
+
+          <template
+            v-else-if="comicInfo.defaulterIdentityType === 4 || userData?.isLogin === false"
+          >
+            <div class="lock-box">
+              <img class="lock" src="../assets/images/lock.png" alt="未授权" />
+              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+              <div class="get-btn" @click="getAuth()">获取授权</div>
             </div>
+          </template>
+
+          <template v-else-if="!['漫画'].includes(comicInfo?.articleInfo.resourceType[1])">
+            <div
+              class="exceptional-box"
+              :class="{ light: theme === 'light', dark: theme === 'dark' }"
+            >
+              <div class="icon">
+                <i class="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
+              </div>
+              <span class="exceptional-text">此作品格式暂不支持访问 </span>
+            </div>
+          </template>
+
+          <template v-else-if="comicInfo.defaulterIdentityType === 0">
+            <template v-if="mode[0] === 'paging'">
+              <my-swipe
+                class="paging-area"
+                :initial-swipe="swipeIndex"
+                :loop="false"
+                :show-indicators="false"
+                @change="swipePage"
+                :lazy-render="true"
+              >
+                <my-swipe-item
+                  class="swipe-image-box"
+                  v-for="item in mobilePagingList"
+                  :key="item.name"
+                >
+                  <div
+                    v-if="
+                      (currentSortID === collectionTotal || !query.subId) &&
+                      item.name === 'RecommendFakeUrl'
+                    "
+                    class="paging-recommend-box"
+                    :class="{ 'no-more-box': currentSortID === collectionTotal || !query.subId }"
+                  >
+                    <div class="no-more">
+                      <img
+                        v-if="theme === 'light'"
+                        src="@/assets/images/all-loaded-light.png"
+                        alt="已加载全部内容"
+                      />
+                      <img v-else src="@/assets/images/all-loaded-dark.png" alt="已加载全部内容" />
+                    </div>
+                    <div v-if="recommendList.length">
+                      <p class="more">更多漫画</p>
+                      <div class="recommend-item-wrap">
+                        <div
+                          class="recommend-item"
+                          v-for="item in recommendList.slice(0, 3)"
+                          :key="item.exhibitId"
+                          @click="toDetailFromRecommend(item.exhibitId)"
+                        >
+                          <div class="cover-image">
+                            <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                          </div>
+                          <span class="title">{{ item.exhibitTitle }}</span>
+                          <span class="name">{{ item.articleInfo?.articleOwnerName }}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div v-else class="to-home">
+                      <span @click.stop="switchPage('/home')">回首页寻找更多漫画 >></span>
+                    </div>
+                  </div>
+
+                  <div
+                    v-else-if="item.name === 'NextFakeUrl'"
+                    class="next-chapter-box"
+                    :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                  >
+                    <span>当前一话已经加载完啦~</span>
+                    <div
+                      class="next-chapter-btn"
+                      :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                      @click="nextChapter()"
+                    >
+                      进入下一话
+                      <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                      <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                    </div>
+                  </div>
+                  <img v-else class="swipe-image" :src="item.url" oncontextmenu="return false" />
+                </my-swipe-item>
+              </my-swipe>
+            </template>
+
+            <template v-else-if="mode[0] === 'scroll'">
+              <img
+                class="content-image"
+                :style="{ height: item.height + 'px' }"
+                v-lazy="item.url"
+                oncontextmenu="return false"
+                v-for="item in contentImgList"
+                :key="item.name"
+              />
+              <div
+                v-if="currentSortID === collectionTotal || !query.subId"
+                class="scroll-recommend-box"
+              >
+                <div class="no-more">
+                  <img
+                    v-if="theme === 'light'"
+                    src="@/assets/images/all-loaded-light.png"
+                    alt="已加载全部内容"
+                  />
+                  <img v-else src="@/assets/images/all-loaded-dark.png" alt="已加载全部内容" />
+                </div>
+
+                <div v-if="recommendList.length">
+                  <p class="more">更多漫画</p>
+                  <div class="recommend-item-wrap">
+                    <div
+                      class="recommend-item"
+                      :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                      v-for="item in recommendList.slice(0, 6)"
+                      :key="item.exhibitId"
+                      @click="toDetailFromRecommend(item.exhibitId)"
+                    >
+                      <div class="cover-image">
+                        <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                      </div>
+                      <span class="title">{{ item.exhibitTitle }}</span>
+                      <span class="name">{{ item.articleInfo?.articleOwnerName }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-else class="to-home">
+                  <span @click.stop="switchPage('/home')">回首页寻找更多漫画 >></span>
+                </div>
+              </div>
+
+              <div
+                class="next-chapter-box"
+                :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                v-else
+              >
+                <span>当前一话已经加载完啦~</span>
+                <div
+                  class="next-chapter-btn"
+                  :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                  @click="nextChapter()"
+                >
+                  进入下一话
+                  <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                  <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                </div>
+              </div>
+            </template>
           </template>
         </template>
 
-        <template v-else-if="comicInfo.defaulterIdentityType">
-          <div class="auth-box" v-if="comicInfo.defaulterIdentityType !== 4">
-            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-            <div class="auth-link-tip">授权链异常，无法查看</div>
-            <div class="home-btn" @click="switchPage('/home')">进入首页</div>
-          </div>
-
-          <div
-            class="lock-box"
-            v-else-if="comicInfo.defaulterIdentityType === 4 || userData?.isLogin === false"
-          >
-            <img class="lock" src="../assets/images/lock.png" alt="未授权" />
-            <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-            <div class="get-btn" @click="getAuth()">获取授权</div>
+        <template v-else>
+          <div class="freeze-exhibit">
+            <div class="icon">
+              <i
+                class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"
+                :class="{ light: theme === 'light', dark: theme === 'dark' }"
+              ></i>
+            </div>
+            <span class="exceptional-text"> 此作品因违规无法访问 </span>
           </div>
         </template>
       </div>
@@ -200,261 +444,764 @@
     <!-- PC -->
     <template v-if="!loading && !inMobile">
       <div class="body-area" :class="theme">
-        <template v-if="comicInfo.defaulterIdentityType === 0">
-          <div class="paging-mode-area" v-if="mode[0] === 'paging'">
-            <!-- 条漫/页漫、双页模式、非跨页匹配、当前为首页时，首页左侧显示空屏 -->
+        <template v-if="comicInfo?.articleInfo?.status === 1">
+          <template v-if="comicInfo.onlineStatus === 0">
             <div
-              class="blank-screen"
-              v-if="
-                [1, 2].includes(comicMode) && mode[1] === 'double' && !amend && currentPage === 1
-              "
-            ></div>
-            <!-- 日漫、双页模式、页数不为1且当前为尾页/页数为1且跨页匹配时，尾页左侧显示空屏 -->
-            <div
-              class="blank-screen"
-              v-if="
-                comicMode === 3 &&
-                mode[1] === 'double' &&
-                ((contentImgList.length !== 1 && currentPage === contentImgList.length) ||
-                  (contentImgList.length === 1 && amend))
-              "
+              class="exceptional-box"
+              :class="{ light: theme === 'light', dark: theme === 'dark' }"
             >
-              <div
-                v-if="currentSortID === collectionTotal && recommendList.length"
-                class="recommend-box"
-              >
-                <div class="no-more">— 已加载全部内容 —</div>
-                <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">更多漫画</p>
-                <div
-                  class="recommend-item"
-                  v-for="item in recommendList.slice(0, 4)"
-                  :key="item.exhibitId"
-                  @click="toDetailFromRecommend(item.exhibitId)"
-                >
-                  <div class="cover-image">
-                    <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
-                  </div>
-                  <div class="recommend-info">
-                    <span class="name">{{ item.exhibitTitle }}</span>
-                    <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
-                    <div class="tags-wrap">
-                      <div
-                        class="tag"
-                        v-for="(tag, index) in item.tags"
-                        :key="index"
-                        @click.stop="searchTag(tag)"
-                      >
-                        {{ tag }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div class="icon">
+                <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
               </div>
+              <span class="exceptional-text"> 作品已下架，无法访问 </span>
             </div>
-            <!-- 日漫、双页模式、跨页匹配/非跨页匹配且当前不为首页、当前页不为尾页时，当前页左侧显示下一页 -->
-            <div
-              class="content-image-box"
-              v-if="
-                comicMode === 3 &&
-                mode[1] === 'double' &&
-                (amend || (!amend && currentPage !== 1)) &&
-                currentPage !== contentImgList.length &&
-                nextUrl
-              "
-            >
-              <img class="content-image" :src="nextUrl" />
-            </div>
-            <!-- 当前页 -->
-            <div
-              class="content-image-box"
-              :class="{ single: mode[1] === 'single' }"
-              v-if="currentUrl"
-            >
-              <img class="content-image" :src="currentUrl" />
-              <!-- 单页-推荐 -->
-              <div
-                v-if="
-                  !nextUrl &&
-                  mode[1] === 'single' &&
-                  currentSortID === collectionTotal &&
-                  recommendList.length
-                "
-                class="recommend-box"
-              >
-                <div class="no-more">— 已加载全部内容 —</div>
-                <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">更多漫画</p>
-                <div
-                  class="recommend-item"
-                  v-for="item in recommendList.slice(0, 4)"
-                  :key="item.exhibitId"
-                >
-                  <div class="cover-image">
-                    <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
-                  </div>
-                  <div class="recommend-info">
-                    <span class="name">{{ item.exhibitTitle }}</span>
-                    <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
-                    <div class="tags-wrap">
-                      <div
-                        class="tag"
-                        v-for="(tag, index) in item.tags"
-                        :key="index"
-                        @click.stop="searchTag(tag)"
-                      >
-                        {{ tag }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- 条漫/页漫、双页模式、跨页匹配/非跨页匹配且当前不为首页、当前页不为尾页时，当前页右侧显示下一页 -->
-            <div
-              class="content-image-box"
-              v-if="
-                [1, 2].includes(comicMode) &&
-                mode[1] === 'double' &&
-                (amend || (!amend && currentPage !== 1)) &&
-                currentPage !== contentImgList.length &&
-                nextUrl
-              "
-            >
-              <img class="content-image" :src="nextUrl" />
-            </div>
-            <!-- 条漫/页漫、双页模式、页数不为1且当前为尾页/页数为1且跨页匹配时，尾页右侧显示空屏 -->
-            <div
-              class="blank-screen"
-              v-if="
-                [1, 2].includes(comicMode) &&
-                mode[1] === 'double' &&
-                ((contentImgList.length !== 1 && currentPage === contentImgList.length) ||
-                  (contentImgList.length === 1 && amend))
-              "
-            >
-              <div
-                v-if="currentSortID === collectionTotal && recommendList.length"
-                class="recommend-box"
-              >
-                <div class="no-more">— 已加载全部内容 —</div>
-                <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">更多漫画</p>
-                <div
-                  class="recommend-item"
-                  v-for="item in recommendList.slice(0, 4)"
-                  :key="item.exhibitId"
-                  @click="toDetailFromRecommend(item.exhibitId)"
-                >
-                  <div class="cover-image">
-                    <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
-                  </div>
-                  <div class="recommend-info">
-                    <span class="name">{{ item.exhibitTitle }}</span>
-                    <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
-                    <div class="tags-wrap">
-                      <div
-                        class="tag"
-                        v-for="(tag, index) in item.tags"
-                        :key="index"
-                        @click.stop="searchTag(tag)"
-                      >
-                        {{ tag }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- 日漫、双页模式、非跨页匹配、当前为首页时，首页右侧显示空屏 -->
-            <div
-              class="blank-screen"
-              v-if="mode[1] === 'double' && comicMode === 3 && !amend && currentPage === 1"
-            ></div>
+          </template>
 
+          <template v-else-if="![0, 4].includes(comicInfo?.defaulterIdentityType)">
             <div
-              class="pre-btn"
-              @click="leftSwitchPage()"
-              v-if="
-                (currentPage !== 1 && mode[2] === 'normal') ||
-                (currentPage < contentImgList.length - (mode[1] === 'single' ? 0 : 1) &&
-                  mode[2] === 'manga')
-              "
-            ></div>
-            <div
-              class="next-btn"
-              @click="rightSwitchPage()"
-              v-if="
-                (currentPage < contentImgList.length - (mode[1] === 'single' ? 0 : 1) &&
-                  mode[2] === 'normal') ||
-                (currentPage !== 1 && mode[2] === 'manga')
-              "
-            ></div>
-          </div>
+              class="exceptional-box"
+              :class="{ light: theme === 'light', dark: theme === 'dark' }"
+            >
+              <div class="icon">
+                <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
+              </div>
+              <span class="exceptional-text"> 作品异常，无法访问 </span>
+            </div>
+          </template>
 
-          <div
-            class="scroll-mode-area"
-            :style="{ height: totalHeight + 'px' }"
-            v-else-if="mode[0] === 'scroll'"
+          <!-- 静默签约 -->
+          <template
+            v-else-if="comicInfo.defaulterIdentityType === 0 && userData?.isLogin === false"
           >
-            <img
-              class="content-image"
-              :style="{ height: item.height + 'px' }"
-              v-lazy="item.url"
-              oncontextmenu="return false"
-              v-for="item in contentImgList"
-              :key="item.name"
-            />
-            <div
-              v-if="currentSortID === collectionTotal && recommendList.length"
-              class="pc-scroll-recommend-box"
-              :class="theme"
-            >
-              <div class="pc-scroll-recommend">
-                <div class="no-more">— 已加载全部内容 —</div>
-                <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">更多漫画</p>
-                <div class="recommend-item-wrap">
-                  <div
-                    class="recommend-item"
-                    v-for="item in recommendList.slice(0, 9)"
-                    :key="item.exhibitId"
-                    @click="toDetailFromRecommend(item.exhibitId)"
-                  >
-                    <div class="cover-image">
-                      <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
-                    </div>
-                    <div class="recommend-info">
-                      <span class="name">{{ item.exhibitTitle }}</span>
-                      <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
-                      <div class="tags-wrap">
-                        <div
-                          class="tag"
-                          v-for="(tag, index) in item.tags"
-                          :key="index"
-                          @click.stop="searchTag(tag)"
-                        >
-                          {{ tag }}
+            <div class="paging-mode-area" v-if="mode[0] === 'paging'">
+              <!-- 条漫/页漫、双页模式、非跨页匹配、当前为首页时，首页左侧显示空屏 -->
+              <div
+                class="blank-screen 1"
+                v-if="
+                  [1, 2].includes(comicMode) && mode[1] === 'double' && !amend && currentPage === 1
+                "
+              ></div>
+              <!-- 日漫、双页模式、页数不为1且当前为尾页/页数为1且跨页匹配时，尾页左侧显示空屏 -->
+              <div
+                class="blank-screen 2"
+                v-if="
+                  comicMode === 3 &&
+                  mode[1] === 'double' &&
+                  ((contentImgList.length !== 1 && currentPage === contentImgList.length) ||
+                    (contentImgList.length === 1 && amend))
+                "
+              >
+                <div v-if="currentSortID === collectionTotal || !query.subId" class="recommend-box">
+                  <div class="no-more">— 已加载全部内容 —</div>
+                  <div v-if="recommendList.length">
+                    <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">
+                      更多漫画
+                    </p>
+                    <div
+                      class="recommend-item"
+                      v-for="item in recommendList.slice(0, 4)"
+                      :key="item.exhibitId"
+                      @click="toDetailFromRecommend(item.exhibitId)"
+                    >
+                      <div class="cover-image">
+                        <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                      </div>
+                      <div class="recommend-info">
+                        <span class="name">{{ item.exhibitTitle }}</span>
+                        <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
+                        <div class="tags-wrap">
+                          <div
+                            class="tag"
+                            v-for="(tag, index) in item.tags"
+                            :key="index"
+                            @click.stop="searchTag(tag)"
+                          >
+                            {{ tag }}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+              <!-- 日漫、双页模式、跨页匹配/非跨页匹配且当前不为首页、当前页不为尾页时，当前页左侧显示下一页 -->
+              <div
+                class="content-image-box"
+                v-if="
+                  comicMode === 3 &&
+                  mode[1] === 'double' &&
+                  (amend || (!amend && currentPage !== 1)) &&
+                  currentPage !== contentImgList.length &&
+                  nextUrl
+                "
+              >
+                <img class="content-image" :src="nextUrl" />
+              </div>
+              <!-- 当前页 -->
+              <div
+                class="content-image-box nextChapterBoxWidth"
+                :class="{ single: mode[1] === 'single' }"
+                v-if="currentUrl !== 'NextFakeUrl'"
+              >
+                <img class="content-image" :src="currentUrl" />
+
+                <div
+                  class="next-chapter-box"
+                  :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                  :style="{ width: nextChapterBoxWidth }"
+                  v-if="
+                    mode[1] === 'single' &&
+                    query.collection &&
+                    currentSortID !== collectionTotal &&
+                    currentPage === contentImgList.length
+                  "
+                >
+                  <span>当前一话已经加载完啦~</span>
+                  <div
+                    class="next-chapter-btn"
+                    :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                    @click="nextChapter()"
+                  >
+                    进入下一话
+                    <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                    <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                  </div>
+                </div>
+                <!-- 单页-推荐 -->
+                <div
+                  v-if="
+                    !nextUrl &&
+                    mode[1] === 'single' &&
+                    (currentSortID === collectionTotal || !query.subId)
+                  "
+                  class="recommend-box"
+                >
+                  <div class="no-more">
+                    <img
+                      v-if="theme === 'light'"
+                      src="@/assets/images/all-loaded-light.png"
+                      alt="已加载全部内容"
+                    />
+                    <img v-else src="@/assets/images/all-loaded-dark.png" alt="已加载全部内容" />
+                  </div>
+                  <div v-if="recommendList.length">
+                    <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">
+                      更多漫画
+                    </p>
+                    <div
+                      class="recommend-item"
+                      :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                      v-for="item in recommendList.slice(0, 3)"
+                      :key="item.exhibitId"
+                      @click="toDetailFromRecommend(item.exhibitId)"
+                    >
+                      <div class="cover-image">
+                        <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                      </div>
+                      <div class="recommend-info">
+                        <span class="name">{{ item.exhibitTitle }}</span>
+                        <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
+                        <div class="tags-wrap">
+                          <div
+                            class="tag"
+                            v-for="(tag, index) in item.tags"
+                            :key="index"
+                            @click.stop="searchTag(tag)"
+                          >
+                            {{ tag }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-else class="to-home">
+                    <span @click.stop="switchPage('/home')">回首页寻找更多漫画 >></span>
+                  </div>
+                </div>
+              </div>
+              <!-- 条漫/页漫、双页模式、跨页匹配/非跨页匹配且当前不为首页、当前页不为尾页时，当前页右侧显示下一页 -->
+              <div
+                class="content-image-box"
+                v-if="
+                  [1, 2].includes(comicMode) &&
+                  mode[1] === 'double' &&
+                  (amend || (!amend && currentPage !== 1)) &&
+                  currentPage !== contentImgList.length &&
+                  nextUrl
+                "
+              >
+                <img class="content-image" :src="nextUrl" />
+              </div>
+              <!-- 条漫/页漫、双页模式、页数不为1且当前为尾页/页数为1且跨页匹配时，尾页右侧显示空屏 -->
+              <div
+                class="blank-screen 3"
+                :class="{ 'flex-center': currentUrl === 'NextFakeUrl' }"
+                v-if="
+                  [1, 2].includes(comicMode) &&
+                  mode[1] === 'double' &&
+                  ((contentImgList.length !== 1 && currentPage === contentImgList.length) ||
+                    (contentImgList.length === 1 && amend))
+                "
+              >
+                <div v-if="currentSortID === collectionTotal || !query.subId" class="recommend-box">
+                  <div class="no-more">
+                    <img
+                      v-if="theme === 'light'"
+                      src="@/assets/images/all-loaded-light.png"
+                      alt="已加载全部内容"
+                    />
+                    <img v-else src="@/assets/images/all-loaded-dark.png" alt="已加载全部内容" />
+                  </div>
+                  <div v-if="recommendList.length">
+                    <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">
+                      更多漫画
+                    </p>
+                    <div
+                      class="recommend-item"
+                      :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                      v-for="item in recommendList.slice(0, 3)"
+                      :key="item.exhibitId"
+                      @click="toDetailFromRecommend(item.exhibitId)"
+                    >
+                      <div class="cover-image">
+                        <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                      </div>
+                      <div class="recommend-info">
+                        <span class="name">{{ item.exhibitTitle }}</span>
+                        <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
+                        <div class="tags-wrap">
+                          <div
+                            class="tag"
+                            v-for="(tag, index) in item.tags"
+                            :key="index"
+                            @click.stop="searchTag(tag)"
+                          >
+                            {{ tag }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-else class="to-home">
+                    <span @click.stop="switchPage('/home')">回首页寻找更多漫画 >></span>
+                  </div>
+                </div>
+
+                <div
+                  class="next-chapter-box"
+                  :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                  v-else
+                >
+                  <span>当前一话已经加载完啦~</span>
+                  <div
+                    class="next-chapter-btn"
+                    :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                    @click="nextChapter()"
+                  >
+                    进入下一话
+                    <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                    <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                  </div>
+                </div>
+              </div>
+              <!-- 日漫、双页模式、非跨页匹配、当前为首页时，首页右侧显示空屏 -->
+              <div
+                class="blank-screen 4"
+                v-if="mode[1] === 'double' && comicMode === 3 && !amend && currentPage === 1"
+              ></div>
+
+              <div
+                class="pre-btn"
+                @click="leftSwitchPage()"
+                v-if="
+                  (currentPage !== 1 && mode[2] === 'normal') ||
+                  (currentPage < contentImgList.length - (mode[1] === 'single' ? 0 : 1) &&
+                    mode[2] === 'manga')
+                "
+              ></div>
+
+              <div
+                class="next-btn"
+                @click="rightSwitchPage()"
+                v-if="
+                  (currentPage < contentImgList.length - (mode[1] === 'single' ? 0 : 1) &&
+                    mode[2] === 'normal') ||
+                  (currentPage !== 1 && mode[2] === 'manga')
+                "
+              ></div>
             </div>
-          </div>
-        </template>
 
-        <template v-else-if="comicInfo.defaulterIdentityType">
-          <div class="auth-box" v-if="comicInfo.defaulterIdentityType !== 4">
-            <img class="auth-link-abnormal" src="../assets/images/auth-link-abnormal.png" />
-            <div class="auth-link-tip">授权链异常，无法查看</div>
-            <div class="home-btn" @click="switchPage('/home')">进入首页</div>
-          </div>
+            <div
+              class="scroll-mode-area"
+              :style="{ height: totalHeight + 'px' }"
+              v-else-if="mode[0] === 'scroll'"
+            >
+              <img
+                class="content-image"
+                :style="{ height: item.height + 'px' }"
+                v-lazy="item.url"
+                oncontextmenu="return false"
+                v-for="item in contentImgList"
+                :key="item.name"
+              />
 
-          <div
-            class="lock-box"
+              <div
+                v-if="currentSortID === collectionTotal || !query.subId"
+                class="pc-scroll-recommend-box"
+                :class="theme"
+              >
+                <div class="pc-scroll-recommend">
+                  <div class="no-more">
+                    <img
+                      v-if="theme === 'light'"
+                      src="@/assets/images/all-loaded-light.png"
+                      alt="已加载全部内容"
+                    />
+                    <img v-else src="@/assets/images/all-loaded-dark.png" alt="已加载全部内容" />
+                  </div>
+                  <div v-if="recommendList.length">
+                    <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">
+                      更多漫画
+                    </p>
+                    <div class="recommend-item-wrap">
+                      <div
+                        class="recommend-item"
+                        :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                        v-for="item in recommendList.length > 5
+                          ? recommendList.slice(0, 5)
+                          : recommendList"
+                        :key="item.exhibitId"
+                        @click="toDetailFromRecommend(item.exhibitId)"
+                      >
+                        <div class="cover-image">
+                          <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                        </div>
+                        <div class="recommend-info">
+                          <span class="name">{{ item.exhibitTitle }}</span>
+                          <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
+                          <div class="tags-wrap">
+                            <div
+                              class="tag"
+                              v-for="(tag, index) in item.tags"
+                              :key="index"
+                              @click.stop="searchTag(tag)"
+                            >
+                              {{ tag }}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        class="recommend-item-to-home"
+                        :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                      >
+                        <span @click.stop="switchPage('/home')">回首页寻找更多漫画 >></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="next-chapter-box"
+                :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                v-else
+              >
+                <span>当前一话已经加载完啦~</span>
+                <div
+                  class="next-chapter-btn"
+                  :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                  @click="nextChapter()"
+                >
+                  进入下一话
+                  <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                  <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <template
             v-else-if="comicInfo.defaulterIdentityType === 4 || userData?.isLogin === false"
           >
-            <img class="lock" src="../assets/images/lock.png" alt="未授权" />
-            <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-            <div class="get-btn" @click="getAuth()">获取授权</div>
+            <div class="lock-box">
+              <img class="lock" src="../assets/images/lock.png" alt="未授权" />
+              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+              <div class="get-btn" @click="getAuth()">获取授权</div>
+            </div>
+          </template>
+
+          <template v-else-if="!['漫画'].includes(comicInfo?.articleInfo.resourceType[1])">
+            <div
+              class="exceptional-box"
+              :class="{ light: theme === 'light', dark: theme === 'dark' }"
+            >
+              <div class="icon">
+                <i class="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
+              </div>
+              <span class="exceptional-text">此作品格式暂不支持访问 </span>
+            </div>
+          </template>
+
+          <template v-else-if="comicInfo.defaulterIdentityType === 0">
+            <div class="paging-mode-area" v-if="mode[0] === 'paging'">
+              <!-- 条漫/页漫、双页模式、非跨页匹配、当前为首页时，首页左侧显示空屏 -->
+              <div
+                class="blank-screen 1"
+                v-if="
+                  [1, 2].includes(comicMode) && mode[1] === 'double' && !amend && currentPage === 1
+                "
+              ></div>
+              <!-- 日漫、双页模式、页数不为1且当前为尾页/页数为1且跨页匹配时，尾页左侧显示空屏 -->
+              <div
+                class="blank-screen 2"
+                v-if="
+                  comicMode === 3 &&
+                  mode[1] === 'double' &&
+                  ((contentImgList.length !== 1 && currentPage === contentImgList.length) ||
+                    (contentImgList.length === 1 && amend))
+                "
+              >
+                <div v-if="currentSortID === collectionTotal || !query.subId" class="recommend-box">
+                  <div class="no-more">— 已加载全部内容 —</div>
+                  <div v-if="recommendList.length">
+                    <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">
+                      更多漫画
+                    </p>
+                    <div
+                      class="recommend-item"
+                      v-for="item in recommendList.slice(0, 4)"
+                      :key="item.exhibitId"
+                      @click="toDetailFromRecommend(item.exhibitId)"
+                    >
+                      <div class="cover-image">
+                        <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                      </div>
+                      <div class="recommend-info">
+                        <span class="name">{{ item.exhibitTitle }}</span>
+                        <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
+                        <div class="tags-wrap">
+                          <div
+                            class="tag"
+                            v-for="(tag, index) in item.tags"
+                            :key="index"
+                            @click.stop="searchTag(tag)"
+                          >
+                            {{ tag }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- 日漫、双页模式、跨页匹配/非跨页匹配且当前不为首页、当前页不为尾页时，当前页左侧显示下一页 -->
+              <div
+                class="content-image-box"
+                v-if="
+                  comicMode === 3 &&
+                  mode[1] === 'double' &&
+                  (amend || (!amend && currentPage !== 1)) &&
+                  currentPage !== contentImgList.length &&
+                  nextUrl
+                "
+              >
+                <img class="content-image" :src="nextUrl" />
+              </div>
+              <!-- 当前页 -->
+              <div
+                class="content-image-box nextChapterBoxWidth"
+                :class="{ single: mode[1] === 'single' }"
+                v-if="currentUrl !== 'NextFakeUrl'"
+              >
+                <img class="content-image" :src="currentUrl" />
+
+                <div
+                  class="next-chapter-box"
+                  :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                  :style="{ width: nextChapterBoxWidth }"
+                  v-if="
+                    mode[1] === 'single' &&
+                    query.collection &&
+                    currentSortID !== collectionTotal &&
+                    currentPage === contentImgList.length
+                  "
+                >
+                  <span>当前一话已经加载完啦~</span>
+                  <div
+                    class="next-chapter-btn"
+                    :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                    @click="nextChapter()"
+                  >
+                    进入下一话
+                    <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                    <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                  </div>
+                </div>
+                <!-- 单页-推荐 -->
+                <div
+                  v-if="
+                    !nextUrl &&
+                    mode[1] === 'single' &&
+                    (currentSortID === collectionTotal || !query.subId)
+                  "
+                  class="recommend-box"
+                >
+                  <div class="no-more">
+                    <img
+                      v-if="theme === 'light'"
+                      src="@/assets/images/all-loaded-light.png"
+                      alt="已加载全部内容"
+                    />
+                    <img v-else src="@/assets/images/all-loaded-dark.png" alt="已加载全部内容" />
+                  </div>
+                  <div v-if="recommendList.length">
+                    <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">
+                      更多漫画
+                    </p>
+                    <div
+                      class="recommend-item"
+                      :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                      v-for="item in recommendList.slice(0, 3)"
+                      :key="item.exhibitId"
+                      @click="toDetailFromRecommend(item.exhibitId)"
+                    >
+                      <div class="cover-image">
+                        <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                      </div>
+                      <div class="recommend-info">
+                        <span class="name">{{ item.exhibitTitle }}</span>
+                        <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
+                        <div class="tags-wrap">
+                          <div
+                            class="tag"
+                            v-for="(tag, index) in item.tags"
+                            :key="index"
+                            @click.stop="searchTag(tag)"
+                          >
+                            {{ tag }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-else class="to-home">
+                    <span @click.stop="switchPage('/home')">回首页寻找更多漫画 >></span>
+                  </div>
+                </div>
+              </div>
+              <!-- 条漫/页漫、双页模式、跨页匹配/非跨页匹配且当前不为首页、当前页不为尾页时，当前页右侧显示下一页 -->
+              <div
+                class="content-image-box"
+                v-if="
+                  [1, 2].includes(comicMode) &&
+                  mode[1] === 'double' &&
+                  (amend || (!amend && currentPage !== 1)) &&
+                  currentPage !== contentImgList.length &&
+                  nextUrl
+                "
+              >
+                <img class="content-image" :src="nextUrl" />
+              </div>
+              <!-- 条漫/页漫、双页模式、页数不为1且当前为尾页/页数为1且跨页匹配时，尾页右侧显示空屏 -->
+              <div
+                class="blank-screen 3"
+                :class="{ 'flex-center': currentUrl === 'NextFakeUrl' }"
+                v-if="
+                  [1, 2].includes(comicMode) &&
+                  mode[1] === 'double' &&
+                  ((contentImgList.length !== 1 && currentPage === contentImgList.length) ||
+                    (contentImgList.length === 1 && amend))
+                "
+              >
+                <div v-if="currentSortID === collectionTotal || !query.subId" class="recommend-box">
+                  <div class="no-more">
+                    <img
+                      v-if="theme === 'light'"
+                      src="@/assets/images/all-loaded-light.png"
+                      alt="已加载全部内容"
+                    />
+                    <img v-else src="@/assets/images/all-loaded-dark.png" alt="已加载全部内容" />
+                  </div>
+                  <div v-if="recommendList.length">
+                    <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">
+                      更多漫画
+                    </p>
+                    <div
+                      class="recommend-item"
+                      :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                      v-for="item in recommendList.slice(0, 3)"
+                      :key="item.exhibitId"
+                      @click="toDetailFromRecommend(item.exhibitId)"
+                    >
+                      <div class="cover-image">
+                        <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                      </div>
+                      <div class="recommend-info">
+                        <span class="name">{{ item.exhibitTitle }}</span>
+                        <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
+                        <div class="tags-wrap">
+                          <div
+                            class="tag"
+                            v-for="(tag, index) in item.tags"
+                            :key="index"
+                            @click.stop="searchTag(tag)"
+                          >
+                            {{ tag }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-else class="to-home">
+                    <span @click.stop="switchPage('/home')">回首页寻找更多漫画 >></span>
+                  </div>
+                </div>
+
+                <div
+                  class="next-chapter-box"
+                  :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                  v-else
+                >
+                  <span>当前一话已经加载完啦~</span>
+                  <div
+                    class="next-chapter-btn"
+                    :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                    @click="nextChapter()"
+                  >
+                    进入下一话
+                    <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                    <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                  </div>
+                </div>
+              </div>
+              <!-- 日漫、双页模式、非跨页匹配、当前为首页时，首页右侧显示空屏 -->
+              <div
+                class="blank-screen 4"
+                v-if="mode[1] === 'double' && comicMode === 3 && !amend && currentPage === 1"
+              ></div>
+
+              <div
+                class="pre-btn"
+                @click="leftSwitchPage()"
+                v-if="
+                  (currentPage !== 1 && mode[2] === 'normal') ||
+                  (currentPage < contentImgList.length - (mode[1] === 'single' ? 0 : 1) &&
+                    mode[2] === 'manga')
+                "
+              ></div>
+
+              <div
+                class="next-btn"
+                @click="rightSwitchPage()"
+                v-if="
+                  (currentPage < contentImgList.length - (mode[1] === 'single' ? 0 : 1) &&
+                    mode[2] === 'normal') ||
+                  (currentPage !== 1 && mode[2] === 'manga')
+                "
+              ></div>
+            </div>
+
+            <div
+              class="scroll-mode-area"
+              :style="{ height: totalHeight + 'px' }"
+              v-else-if="mode[0] === 'scroll'"
+            >
+              <img
+                class="content-image"
+                :style="{ height: item.height + 'px' }"
+                v-lazy="item.url"
+                oncontextmenu="return false"
+                v-for="item in contentImgList"
+                :key="item.name"
+              />
+
+              <div
+                v-if="currentSortID === collectionTotal || !query.subId"
+                class="pc-scroll-recommend-box"
+                :class="theme"
+              >
+                <div class="pc-scroll-recommend">
+                  <div class="no-more">
+                    <img
+                      v-if="theme === 'light'"
+                      src="@/assets/images/all-loaded-light.png"
+                      alt="已加载全部内容"
+                    />
+                    <img v-else src="@/assets/images/all-loaded-dark.png" alt="已加载全部内容" />
+                  </div>
+                  <div v-if="recommendList.length">
+                    <p class="more" :style="{ color: theme === 'light' ? 'inherit' : '' }">
+                      更多漫画
+                    </p>
+                    <div class="recommend-item-wrap">
+                      <div
+                        class="recommend-item"
+                        :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                        v-for="item in recommendList.length > 5
+                          ? recommendList.slice(0, 5)
+                          : recommendList"
+                        :key="item.exhibitId"
+                        @click="toDetailFromRecommend(item.exhibitId)"
+                      >
+                        <div class="cover-image">
+                          <img :src="item.coverImages[0]" :alt="item.exhibitTitle" />
+                        </div>
+                        <div class="recommend-info">
+                          <span class="name">{{ item.exhibitTitle }}</span>
+                          <span class="type">{{ item?.articleInfo?.articleOwnerName }}</span>
+                          <div class="tags-wrap">
+                            <div
+                              class="tag"
+                              v-for="(tag, index) in item.tags"
+                              :key="index"
+                              @click.stop="searchTag(tag)"
+                            >
+                              {{ tag }}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        class="recommend-item-to-home"
+                        :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                      >
+                        <span @click.stop="switchPage('/home')">回首页寻找更多漫画 >></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="next-chapter-box"
+                :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                v-else
+              >
+                <span>当前一话已经加载完啦~</span>
+                <div
+                  class="next-chapter-btn"
+                  :class="{ light: theme === 'light', dark: theme === 'dark' }"
+                  @click="nextChapter()"
+                >
+                  进入下一话
+                  <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                  <img src="@/assets/images/next-chapter.png" alt="进入下一话" />
+                </div>
+              </div>
+            </div>
+          </template>
+        </template>
+
+        <template v-else>
+          <div class="freeze-exhibit">
+            <div class="icon">
+              <i
+                class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"
+                :class="{ light: theme === 'light', dark: theme === 'dark' }"
+              ></i>
+            </div>
+            <span class="exceptional-text"> 此作品因违规无法访问 </span>
           </div>
         </template>
       </div>
@@ -704,6 +1451,12 @@
               <i class="freelog fl-icon-guanbi"></i>
             </div>
           </div>
+
+          <div class="sort" @click="handleSort">
+            <span>{{ sortOrder === "asc" ? "正序" : "倒序" }}</span>
+            <span class="triangle" :class="sortOrder === 'asc' ? 'asc' : 'desc'"></span>
+          </div>
+
           <div class="sub-catalogue-wrapper" id="sub-catalogue-wrapper">
             <div
               class="sub"
@@ -723,16 +1476,28 @@
             >
               <span class="sub-title">{{ item.itemTitle }}</span>
               <img
-                v-if="[0, 4].includes(item.defaulterIdentityType)"
-                src="@/assets/images/right-arrow.png"
+                v-if="item.articleInfo.status === 2"
+                class="freeze-lock"
+                src="@/assets/images/freeze.png"
+                alt="封禁"
               />
-              <img v-else class="sub-lock" src="@/assets/images/mini-lock.png" alt="未授权" />
+              <div v-else-if="comicInfo.onlineStatus === 0" class="offline-lock">已下架</div>
+              <img
+                v-else-if="![0, 4].includes(item.defaulterIdentityType)"
+                class="auth-lock"
+                src="@/assets/images/auth-link-abnormal.png"
+                alt="授权链异常"
+              />
+              <img
+                v-else-if="item.defaulterIdentityType === 4"
+                class="sub-lock"
+                src="@/assets/images/mini-lock.png"
+                alt="未授权"
+              />
+              <img v-else src="@/assets/images/right-arrow.png" />
             </div>
 
-            <div
-              className="tip no-more"
-              v-if="comicInfo?.collectionList?.length === collectionTotal"
-            >
+            <div class="tip no-more" v-if="comicInfo?.collectionList?.length === collectionTotal">
               — 已加载全部章节 —
             </div>
           </div>
@@ -750,8 +1515,8 @@ import {
   reactive,
   watch,
   computed,
-  watchEffect,
-  onBeforeMount
+  onBeforeMount,
+  ref
 } from "vue";
 import { useStore } from "vuex";
 import { Swipe, SwipeItem } from "vant";
@@ -839,6 +1604,7 @@ export default {
       collectionSubId: "",
       recommendList: [] as ExhibitItem[]
     });
+    const sortOrder = ref<string>("asc"); // 默认排序为正序
 
     const methods = {
       /** 点击页面 */
@@ -1124,6 +1890,22 @@ export default {
       searchTag(tag: string) {
         const query: { tags: string } = { tags: tag };
         switchPage("/home", query);
+      },
+
+      /**
+       * 切换正序，倒序
+       */
+      handleSort() {
+        // 切换排序顺序
+        sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
+
+        // 使用排序函数
+        const compare = (a: any, b: any) => {
+          return sortOrder.value === "asc" ? a.sortId - b.sortId : b.sortId - a.sortId;
+        };
+
+        // 根据当前排序顺序更新数据
+        data.comicInfo.collectionList?.sort(compare);
       }
     };
 
@@ -1132,6 +1914,7 @@ export default {
       const exhibitInfo = await freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 });
       let comicMode;
       const { resourceType, articleType } = exhibitInfo.data.data.articleInfo;
+      data.comicInfo = exhibitInfo.data.data;
 
       if (resourceType[2] === "条漫") {
         comicMode = 1;
@@ -1144,10 +1927,18 @@ export default {
       // 合集逻辑
       if (articleType === 2) {
         getCollectionList(true);
+
+        sortOrder.value =
+          (exhibitInfo.data.data.versionInfo?.exhibitProperty?.catalogueProperty as any)
+            ?.collection_sort_list === "collection_sort_descending"
+            ? "desc"
+            : "asc";
+
         const subInfoResponse = await (freelogApp as any).getCollectionSubInfo(id, {
           itemId: subId
         });
         const { resourceType } = subInfoResponse.data.data.articleInfo;
+        data.comicInfo = { ...data.comicInfo, articleInfo: subInfoResponse.data.data.articleInfo };
 
         if (resourceType[2] === "条漫") {
           comicMode = 1;
@@ -1158,7 +1949,10 @@ export default {
         }
       }
 
-      data.comicInfo = { ...exhibitInfo.data.data, comicMode };
+      data.comicInfo = {
+        ...data.comicInfo,
+        comicMode
+      };
       data.comicMode = comicMode;
       getContent();
       getRecommendList();
@@ -1232,7 +2026,7 @@ export default {
             })
           : await freelogApp.getExhibitFileStream(id, { subFilePath: "index.json" });
 
-        if (info.status !== 200 || info.data.list.length === 0) {
+        if (info?.status !== 200 || info.data.list.length === 0) {
           data.loading = false;
           mountShareWidget();
           return;
@@ -1284,6 +2078,9 @@ export default {
         // 条漫时，自动选择滚动模式
         // methods.changeMode("scroll", 0);
         methods.getPointInScroll();
+
+        // 移动端翻页模式下处理图片顺序
+        if (store.state.inMobile) dealListInPagingMobile();
       } else if ([2, 3].includes(data.comicMode)) {
         const res = await freelogApp.getUserData("comicLastViewedMode");
         const lastViewed = res?.data?.data || [];
@@ -1293,6 +2090,9 @@ export default {
         // 页漫/日漫时，自动选择翻页模式（如本地有记录翻页模式的选择，优先取本地记录的模式）
         // const comicReadMode = localStorage.getItem("comicReadMode");
         if (comicReadMode) data.mode = comicReadMode;
+        if (comicReadMode[0] === "scroll") {
+          methods.getPointInScroll();
+        }
         // 移动端翻页模式下处理图片顺序
         if (store.state.inMobile) dealListInPagingMobile();
       }
@@ -1320,8 +2120,11 @@ export default {
         // 普通模式下（从左向右）
         data.mobilePagingList = [
           ...data.contentImgList,
-          ...(data.recommendList.length && currentSortID.value === data.collectionTotal
+          ...(currentSortID.value === data.collectionTotal || !subId
             ? [{ name: "RecommendFakeUrl", size: 0, url: "RecommendFakeUrl", width: 0, height: 0 }]
+            : []),
+          ...(currentSortID.value !== data.collectionTotal && subId
+            ? [{ name: "NextFakeUrl", size: 0, url: "NextFakeUrl", width: 0, height: 0 }]
             : [])
         ];
 
@@ -1330,8 +2133,11 @@ export default {
         // 日漫模式下（从右向左）
         data.mobilePagingList = [
           ...data.contentImgList,
-          ...(data.recommendList.length && currentSortID.value === data.collectionTotal
+          ...(currentSortID.value === data.collectionTotal || !subId
             ? [{ name: "RecommendFakeUrl", size: 0, url: "RecommendFakeUrl", width: 0, height: 0 }]
+            : []),
+          ...(currentSortID.value !== data.collectionTotal && subId
+            ? [{ name: "NextFakeUrl", size: 0, url: "NextFakeUrl", width: 0, height: 0 }]
             : [])
         ].reverse();
         currentIndex = data.mobilePagingList.length - data.currentPage;
@@ -1401,6 +2207,12 @@ export default {
       data.shareWidget = await freelogApp.mountArticleWidget(params);
     };
 
+    // 获取单品详细信息
+    const getCollectionInfo = async (subId?: string) => {
+      const res = await (freelogApp as any).getCollectionSubInfo(id, { itemId: subId });
+      data.comicInfo = { ...data.comicInfo, articleInfo: res.data.data.articleInfo };
+    };
+
     watch(
       () => scrollTop.value,
       cur => {
@@ -1445,12 +2257,46 @@ export default {
       }
     );
 
+    watch(
+      () => data.mode,
+      () => {
+        if (store.state.inMobile) {
+          return;
+        }
+
+        // 翻页-双页
+        if (data.mode && data.mode[0] === "paging" && data.mode[1] === "double") {
+          if (data.contentImgList.length % 2 !== 0) {
+            data.contentImgList = [
+              ...data.contentImgList,
+              ...[
+                {
+                  name: "NextFakeUrl",
+                  size: 0,
+                  url: "NextFakeUrl",
+                  width: 0,
+                  height: 0
+                }
+              ]
+            ];
+          }
+        } else {
+          data.contentImgList = data.contentImgList.filter(i => i.name !== "NextFakeUrl");
+          methods.jump();
+        }
+      },
+      {
+        deep: true
+      }
+    );
+
     // 监听单品id，更新单品详情
     watch(
       () => query.value.subId,
       cur => {
         if (query.value.subId) {
           getContent(cur);
+          getCollectionInfo(cur);
           data.collectionSubId = cur;
         }
       },
@@ -1489,6 +2335,11 @@ export default {
       const targetID = filterData?.length && filterData[0].sortId;
 
       return targetID;
+    });
+
+    const nextChapterBoxWidth = computed(() => {
+      const width = document?.querySelector(".nextChapterBoxWidth")?.clientWidth;
+      return `${width}px`;
     });
 
     // 记录上一次阅读记录
@@ -1567,7 +2418,9 @@ export default {
       ...toRefs(data),
       ...methods,
       currentSortID,
-      query
+      nextChapterBoxWidth,
+      query,
+      sortOrder
     };
   }
 };

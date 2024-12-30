@@ -3,7 +3,11 @@
 <template>
   <div
     class="theme-entrance-wrapper"
-    :class="{ show: !inMobile && selfConfig.entranceShow === '显示' }"
+    :class="{
+      show:
+        !inMobile &&
+        (selfConfig.options_entranceShow === '显示' || selfConfig.entranceShow === '显示')
+    }"
     @click="toTheme()"
   >
     <i class="freelog fl-icon-shiyongzhuti text-center"></i>
@@ -27,15 +31,15 @@ export default {
       /** 打开主题资源详情页 */
       toTheme() {
         window.open(themeEntrance.url);
-      },
+      }
     };
 
     return {
       themeEntrance,
       ...toRefs(store.state),
-      ...methods,
+      ...methods
     };
-  },
+  }
 };
 </script>
 

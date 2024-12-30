@@ -40,7 +40,7 @@ export const useMyLocationHistory = () => {
 
   watch(
     () => router,
-    (cur) => {
+    cur => {
       const { current, replaced } = cur.options.history.state;
       const { locationHistory } = store.state;
       if (!locationHistory.length) {
@@ -67,7 +67,7 @@ export const useGetList = (inList = false) => {
     listData: <ExhibitItem[]>[],
     loading: false,
     total: 0,
-    skip: 0,
+    skip: 0
   });
 
   /** 获取展品列表 */
@@ -77,21 +77,25 @@ export const useGetList = (inList = false) => {
 
     data.loading = true;
     data.skip = init ? 0 : data.skip + 100;
-    const sort = sortMappings.find((item) => item.label === store.state.selfConfig.sort);
+    const sort = sortMappings.find(
+      item =>
+        item.label === store.state.selfConfig.options_sort ||
+        item.label === store.state.selfConfig.sort
+    );
     const queryParams = {
       skip: data.skip,
       articleResourceTypes: "文章",
       limit: params.limit || 100,
       sort: sort?.value || "updateDate:-1",
       isLoadVersionProperty: 1,
-      ...params,
+      ...params
     };
     const list = await freelogApp.getExhibitListByPaging(queryParams);
     const { dataList, totalItem } = list.data.data;
     if (dataList.length !== 0) {
-      const ids = dataList.map((item) => item.exhibitId).join();
+      const ids = dataList.map(item => item.exhibitId).join();
       const statusInfo = await freelogApp.getExhibitAuthStatus(ids);
-      (dataList as ExhibitItem[]).forEach((item) => {
+      (dataList as ExhibitItem[]).forEach(item => {
         const index = statusInfo.data.data.findIndex(
           (resultItem: { exhibitId: string }) => resultItem.exhibitId === item.exhibitId
         );
@@ -101,7 +105,15 @@ export const useGetList = (inList = false) => {
         item.defaulterIdentityType = defaulterIdentityType;
       });
     }
-    data.listData = init ? dataList : [...data.listData, ...dataList];
+
+    data.listData = init
+      ? dataList.filter(
+          (i: any) => i.articleInfo?.status !== 2 && [0, 4].includes(i.defaulterIdentityType)
+        )
+      : [...data.listData, ...dataList].filter(
+          (i: any) => i.articleInfo?.status !== 2 && [0, 4].includes(i.defaulterIdentityType)
+        );
+
     inList && store.commit("setData", { key: "listData", value: data.listData });
     data.total = totalItem;
     setTimeout(() => {
@@ -118,7 +130,7 @@ export const useGetList = (inList = false) => {
   return {
     ...toRefs(data),
     getList,
-    clearData,
+    clearData
   };
 };
 
@@ -131,7 +143,7 @@ export const useMySignedList = () => {
   const store = useStore();
   const data = reactive({
     mySignedList: <ExhibitItem[] | null>null,
-    loading: false,
+    loading: false
   });
 
   /** 获取签约列表 */
@@ -149,9 +161,9 @@ export const useMySignedList = () => {
 
     const [list, statusList] = await Promise.all([
       freelogApp.getExhibitListById({ exhibitIds: ids }),
-      freelogApp.getExhibitAuthStatus(ids),
+      freelogApp.getExhibitAuthStatus(ids)
     ]);
-    (list.data.data as ExhibitItem[]).forEach((item) => {
+    (list.data.data as ExhibitItem[]).forEach(item => {
       const statusItem = statusList.data.data.find(
         (status: { exhibitId: string }) => status.exhibitId === item.exhibitId
       );
@@ -160,21 +172,23 @@ export const useMySignedList = () => {
       const { defaulterIdentityType = -1 } = statusItem;
       item.defaulterIdentityType = defaulterIdentityType;
     });
-    data.mySignedList = list.data.data.filter((item) => !item.articleInfo.resourceType.includes("主题"));
+    data.mySignedList = list.data.data.filter(
+      item => !item.articleInfo.resourceType.includes("主题")
+    );
   };
 
   getMySignedList();
 
   return {
     ...toRefs(data),
-    getMySignedList,
+    getMySignedList
   };
 };
 
 /** 搜索 hook */
 export const useSearchHistory = () => {
   const data = reactive({
-    searchHistory: [] as string[],
+    searchHistory: [] as string[]
   });
 
   /** 获取搜索历史 */
@@ -187,7 +201,7 @@ export const useSearchHistory = () => {
   const searchWord = (keywords = "") => {
     keywords = keywords.trim();
     if (!keywords) return;
-    const index = data.searchHistory.findIndex((item) => item === keywords);
+    const index = data.searchHistory.findIndex(item => item === keywords);
     if (index !== -1) data.searchHistory.splice(index, 1);
     if (data.searchHistory.length === 10) data.searchHistory.pop();
     data.searchHistory.unshift(keywords);
@@ -196,7 +210,7 @@ export const useSearchHistory = () => {
 
   /** 删除搜索词 */
   const deleteWord = (keywords: string) => {
-    const index = data.searchHistory.findIndex((item) => item === keywords);
+    const index = data.searchHistory.findIndex(item => item === keywords);
     if (index === -1) return;
     data.searchHistory.splice(index, 1);
     localStorage.setItem("searchHistory", JSON.stringify(data.searchHistory));
@@ -219,7 +233,7 @@ export const useMyScroll = () => {
   const data = reactive({
     scrollTop: 0,
     clientHeight: 0,
-    scrollHeight: 0,
+    scrollHeight: 0
   });
 
   /** 页面滚动 */
@@ -249,6 +263,6 @@ export const useMyScroll = () => {
   return {
     ...toRefs(data),
     scrollTo,
-    scrollToTop,
+    scrollToTop
   };
 };

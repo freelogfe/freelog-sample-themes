@@ -2282,7 +2282,7 @@ aws4@^1.8.0:
 
 axios@^0.21.1:
   version "0.21.4"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.4.tgz#c67b90dc0568e5c1cf2b0b858c43ba28e2eda575"
+  resolved "https://registry.npmmirror.com/axios/-/axios-0.21.4.tgz#c67b90dc0568e5c1cf2b0b858c43ba28e2eda575"
   integrity sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==
   dependencies:
     follow-redirects "^1.14.0"
@@ -4574,10 +4574,15 @@ flush-write-stream@^1.0.0:
     inherits "^2.0.3"
     readable-stream "^2.3.6"
 
-follow-redirects@^1.0.0, follow-redirects@^1.14.0:
+follow-redirects@^1.0.0:
   version "1.15.6"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.6.tgz#7f815c0cda4249c74ff09e95ef97c23b5fd0399b"
   integrity sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==
+
+follow-redirects@^1.14.0:
+  version "1.15.9"
+  resolved "https://registry.npmmirror.com/follow-redirects/-/follow-redirects-1.15.9.tgz#a604fa10e443bf98ca94228d9eebcc2e8a2c8ee1"
+  integrity sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==
 
 for-each@^0.3.3:
   version "0.3.3"
@@ -4648,10 +4653,10 @@ fragment-cache@^0.2.1:
   dependencies:
     map-cache "^0.2.2"
 
-freelog-runtime@^3.8.9:
-  version "3.8.9"
-  resolved "https://registry.npmmirror.com/freelog-runtime/-/freelog-runtime-3.8.9.tgz#6a26c95692dd7f94be883968add2c6091f8f8c31"
-  integrity sha512-8f1K2C6ngib6jlK+bHKrL/ydfW9r4MaLfbg//EbK0ihkdNp4pCsmgPylyk4HX+k1vZxGAD9H8Nhfguya8gIZkQ==
+freelog-runtime@4.0.2:
+  version "4.0.2"
+  resolved "https://registry.npmmirror.com/freelog-runtime/-/freelog-runtime-4.0.2.tgz#28642307abd98dc999c69ecc93434f27722dc7fe"
+  integrity sha512-N0uLBU7Mop+IY3Ta7v3TCuX2TSrYYo9DvsmUshd3OiVa9jFTsqG2V+zX2RyHs9YC2LMs/2Vtek8cT8TIuizVQA==
   dependencies:
     axios "^0.21.1"
 

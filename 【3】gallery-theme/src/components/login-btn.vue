@@ -23,12 +23,12 @@ export default {
   setup() {
     const store = useStore();
     const data = reactive({
-      show: false,
+      show: false
     });
 
     watch(
       () => store.state.userData,
-      (cur) => {
+      cur => {
         data.show = !cur.isLogin;
       },
       { immediate: true }
@@ -37,9 +37,9 @@ export default {
     return {
       callLogin,
       ...toRefs(store.state),
-      ...toRefs(data),
+      ...toRefs(data)
     };
-  },
+  }
 };
 </script>
 

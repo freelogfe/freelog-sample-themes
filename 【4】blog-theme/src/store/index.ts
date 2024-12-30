@@ -39,7 +39,7 @@ export default createStore({
     /** 更新数据 */
     setData(state: any, payload: any) {
       state[payload.key] = payload.value;
-    },
+    }
   },
 
   actions: {
@@ -48,7 +48,7 @@ export default createStore({
       const userData = freelogApp.getCurrentUser();
       const selfConfig = await freelogApp.getSelfProperty();
       console.log("getSelfProperty", selfConfig);
-      
+
       const inMobile = judgeDevice();
 
       if (inMobile) {
@@ -57,10 +57,10 @@ export default createStore({
         context.commit("setData", { key: "isIOS", value: isIOS });
       }
 
-      const theme = themeList[selfConfig.theme || '沉静'];
+      const theme = themeList[selfConfig.theme || "沉静"];
       context.commit("setData", {
         key: "userData",
-        value: userData ? { ...userData, isLogin: true } : { isLogin: false },
+        value: userData ? { ...userData, isLogin: true } : { isLogin: false }
       });
       context.commit("setData", { key: "selfConfig", value: selfConfig });
       context.commit("setData", { key: "inMobile", value: inMobile });
@@ -68,9 +68,12 @@ export default createStore({
       context.commit("setData", { key: "locationHistory", value: [] });
 
       const app = document.getElementById("app");
-      app?.setAttribute("style", `--gradientColor: ${theme.gradientColor}; --deriveColor: ${theme.deriveColor}`);
-    },
+      app?.setAttribute(
+        "style",
+        `--gradientColor: ${theme.gradientColor}; --deriveColor: ${theme.deriveColor}`
+      );
+    }
   },
 
-  modules: {},
+  modules: {}
 });

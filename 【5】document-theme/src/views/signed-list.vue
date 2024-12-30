@@ -9,7 +9,12 @@
         <div class="signed-list-title">已签约文档</div>
 
         <div class="search-box">
-          <input class="search-input input-none" v-model="searchKey" placeholder="搜索" @keyup="search($event)" />
+          <input
+            class="search-input input-none"
+            v-model="searchKey"
+            placeholder="搜索"
+            @keyup="search($event)"
+          />
           <i class="freelog fl-icon-content"></i>
         </div>
       </div>
@@ -17,14 +22,21 @@
       <div class="document-box" v-for="item in mySignedList" :key="item.exhibitId">
         <div class="document-title-box">
           <img
+            class="freeze-lock"
+            src="../assets/images/freeze.png"
+            alt="封禁"
+            v-if="item?.articleInfo.status === 2"
+          />
+          <div class="offline" v-else-if="item.onlineStatus === 0">已下架</div>
+          <img
             class="auth-link-abnormal"
             src="../assets/images/auth-link-abnormal.png"
-            v-if="![0, 4].includes(item.defaulterIdentityType)"
+            alt="授权链异常"
+            v-else-if="![0, 4].includes(item.defaulterIdentityType)"
           />
-          <div class="offline" v-if="item.onlineStatus === 0">已下架</div>
           <div
             class="document-title"
-            :style="{ opacity: [0, 4].includes(item.defaulterIdentityType) ? 1 : 0.4 }"
+            :style="{ opacity: !isDisabled(item) ? 1 : 0.4 }"
             :title="item.exhibitTitle"
             @click="clickDocument(item)"
           >
@@ -64,7 +76,7 @@ export default {
   components: {
     "my-header": defineAsyncComponent(() => import("../components/header.vue")),
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
-    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
+    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue"))
   },
 
   setup() {
@@ -73,7 +85,7 @@ export default {
     const { mySignedList, getMySignedList } = useMySignedList();
 
     const data = reactive({
-      searchKey: "",
+      searchKey: ""
     });
 
     const methods = {
@@ -86,21 +98,45 @@ export default {
         }
       },
 
+      isDisabled(item: any) {
+        return (
+          (item.articleInfo as any)?.status === 2 ||
+          item.onlineStatus === 0 ||
+          ![0, 4].includes(item.defaulterIdentityType) ||
+          !["阅读"].includes(item?.articleInfo.resourceType[0])
+        );
+      },
+
       /** 点击文档 */
       clickDocument(item: ExhibitItem) {
         const { exhibitId, defaulterIdentityType } = item;
 
-        if (![0, 4].includes(defaulterIdentityType || -1)) {
-          showToast("授权链异常，无法查看");
+        if ((item.articleInfo as any)?.status === 2) {
+          showToast("此作品因违规无法访问");
+          return;
+        }
+
+        if (item.onlineStatus === 0) {
+          showToast("作品已下架，无法访问");
+          return;
+        }
+
+        if (![0, 4].includes(item.defaulterIdentityType!)) {
+          showToast("作品异常，无法访问");
+          return;
+        }
+
+        if (!["阅读"].includes(item?.articleInfo.resourceType[0])) {
+          showToast("此作品格式暂不支持访问");
           return;
         }
 
         switchPage("/reader", { id: exhibitId });
-      },
+      }
     };
 
     return { callLogin, ...toRefs(store.state), mySignedList, ...toRefs(data), ...methods };
-  },
+  }
 };
 </script>
 
@@ -155,6 +191,7 @@ export default {
           display: flex;
           align-items: center;
 
+          .freeze-lock,
           .auth-link-abnormal {
             width: 16px;
             height: 16px;
@@ -296,6 +333,7 @@ export default {
           display: flex;
           align-items: center;
 
+          .freeze-lock,
           .auth-link-abnormal {
             width: 16px;
             height: 16px;

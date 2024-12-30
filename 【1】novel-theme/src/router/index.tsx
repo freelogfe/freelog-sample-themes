@@ -62,7 +62,7 @@ const RouterView = () => {
   const initGlobalData = async () => {
     const userData: any = freelogApp.getCurrentUser();
     const selfConfig = await freelogApp.getSelfProperty();
-    const theme = themeList[selfConfig.theme];
+    const theme = themeList[selfConfig.options_theme || selfConfig.theme];
     setUserData(userData ? Object.assign(userData, { isLogin: true }) : { isLogin: false });
     setSelfConfig(selfConfig);
     setInMobile(judgeDevice());
