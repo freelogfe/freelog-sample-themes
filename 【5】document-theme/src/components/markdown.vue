@@ -44,7 +44,10 @@ export default {
     const getContent = async () => {
       let html = "";
       const { exhibitProperty, dependencyTree } = props.data.versionInfo as ExhibitVersionInfo;
-      if (exhibitProperty?.mime === "text/markdown") {
+      if (
+        typeof exhibitProperty?.mime === "string" &&
+        exhibitProperty?.mime.includes("text/markdown")
+      ) {
         // markdown 文件，以 markdown 解析
         const converter = new showdown.Converter();
         html = converter.makeHtml(props.data.content || "");
