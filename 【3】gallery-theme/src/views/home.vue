@@ -55,47 +55,81 @@
       <transition name="slide-right">
         <div class="filter-box-body" v-if="filterBoxShow">
           <div class="filter-box-header">
-            <div class="header-title">按标签筛选</div>
+            <div class="header-title">筛选</div>
             <div class="close-btn" @click="filterBoxShow = false">
               <i class="freelog fl-icon-guanbi"></i>
             </div>
           </div>
           <div class="tags-box">
-            <div
-              class="tag"
-              :class="{ active: !searchData.tags && !searchData.articleResourceTypes }"
-              @click="
-                filterBoxShow = false;
-                selectTag();
-              "
-            >
-              全部
-            </div>
-            <div class="tags-box-list">
-              <div
-                class="tag"
-                :class="{ active: searchData.tags === item }"
-                v-for="item in tagsList"
-                :key="item"
-                @click="
-                  filterBoxShow = false;
-                  selectTag(item);
-                "
-              >
-                {{ item }}
-              </div>
+            <!-- 类型 -->
+            <div class="top-bar">
+              类型：
+              <div class="category-btn-box">
+                <div
+                  class="tag"
+                  :class="{
+                    active: !tempSearchData.articleResourceTypes,
+                    disabled: myLoading
+                  }"
+                  @click="selectAllType()"
+                >
+                  全部
+                </div>
 
-              <div
-                class="tag"
-                :class="{ active: searchData.articleResourceTypes === '视频' }"
-                @click="
-                  filterBoxShow = false;
-                  filterVideo();
-                "
-              >
-                视频
+                <div
+                  class="tag"
+                  :class="{
+                    active: tempSearchData.articleResourceTypes === '图片',
+                    disabled: myLoading
+                  }"
+                  @click="filterImage()"
+                >
+                  图片
+                </div>
+
+                <div
+                  class="tag"
+                  :class="{
+                    active: tempSearchData.articleResourceTypes === '视频',
+                    disabled: myLoading
+                  }"
+                  @click="filterVideo()"
+                >
+                  视频
+                </div>
               </div>
             </div>
+
+            <!-- 标签 -->
+            <div class="bottom-bar">
+              标签：
+
+              <div class="category-btn-box">
+                <div
+                  class="tag"
+                  :class="{
+                    active: !tempSearchData.tags,
+                    disabled: myLoading
+                  }"
+                  @click="selectTag()"
+                >
+                  全部
+                </div>
+
+                <div
+                  class="tag"
+                  :class="{ active: tempSearchData.tags === item }"
+                  v-for="item in tagsList"
+                  :key="item"
+                  @click="selectTag(item)"
+                >
+                  {{ item }}
+                </div>
+              </div>
+            </div>
+
+            <!-- 点击确定后执行筛选 -->
+            <div class="confirm-btn" @click="confirmFilter">确定</div>
           </div>
         </div>
       </transition>
@@ -107,36 +141,62 @@
         查询到{{ listData.length }}个相关结果
       </div>
 
-      <div class="filter-bar">
-        <div class="filter-bar-bg"></div>
+      <!-- 更改样式 -->
+      <div class="filter-bar-box">
+        <!-- 类型 -->
+        <div class="top-bar">
+          类型：
 
-        <div
-          class="category-btn"
-          :class="{
-            active: !searchData.tags && !searchData.articleResourceTypes,
-            disabled: myLoading
-          }"
-          @click="selectTag()"
-        >
-          全部
+          <div
+            class="category-btn"
+            :class="{
+              active: !searchData.articleResourceTypes,
+              disabled: myLoading
+            }"
+            @click="selectAllType()"
+          >
+            全部
+          </div>
+          <div
+            class="category-btn"
+            :class="{ active: searchData.articleResourceTypes === '图片', disabled: myLoading }"
+            @click="filterImage()"
+          >
+            图片
+          </div>
+
+          <div
+            class="category-btn"
+            :class="{ active: searchData.articleResourceTypes === '视频', disabled: myLoading }"
+            @click="filterVideo()"
+          >
+            视频
+          </div>
         </div>
 
-        <div
-          class="category-btn"
-          :class="{ active: searchData.tags === item, disabled: myLoading }"
-          v-for="item in tagsList"
-          :key="item"
-          @click="selectTag(item)"
-        >
-          {{ item }}
-        </div>
+        <!-- 标签 -->
+        <div class="bottom-bar">
+          标签：
 
-        <div
-          class="category-btn"
-          :class="{ active: searchData.articleResourceTypes === '视频', disabled: myLoading }"
-          @click="filterVideo()"
-        >
-          视频
+          <div
+            class="category-btn"
+            :class="{
+              active: !searchData.tags,
+              disabled: myLoading
+            }"
+            @click="selectTag()"
+          >
+            全部
+          </div>
+          <div
+            class="category-btn"
+            :class="{ active: searchData.tags === item }"
+            v-for="item in tagsList"
+            :key="item"
+            @click="selectTag(item)"
+          >
+            {{ item }}
+          </div>
         </div>
       </div>
 
@@ -221,6 +281,12 @@ export default {
         id?: string;
         articleResourceTypes?: string;
       },
+      tempSearchData: {} as {
+        keywords?: string;
+        tags?: string;
+        id?: string;
+        articleResourceTypes?: string;
+      },
       currentId: null as null | string,
       filterBoxShow: false,
       noMore: false
@@ -233,22 +299,67 @@ export default {
         switchPage("/home");
       },
 
-      /** 筛选标签 */
-      selectTag(tag: string) {
-        const { keywords } = data.searchData;
-        const query: { keywords?: string; tags?: string } = {};
-        if (tag) query.tags = tag;
+      // 更新筛选条件并切换页面
+      updateQuery(queryParams: { [key: string]: any }) {
+        const { keywords, tags, articleResourceTypes } = data.searchData;
+        const query: { keywords?: string; tags?: string; articleResourceTypes?: string } = {};
+
         if (keywords) query.keywords = keywords;
+        if (tags) query.tags = tags;
+
+        if (articleResourceTypes) query.articleResourceTypes = articleResourceTypes;
+        // 将传入的参数合并到查询条件
+        Object.assign(query, queryParams);
+
         switchPage("/home", query);
       },
 
-      /** 筛选视频展品 */
+      // 选中所有类型
+      selectAllType() {
+        if (store.state.inMobile) {
+          data.tempSearchData.articleResourceTypes = undefined; // 仅修改临时数据
+        } else {
+          this.updateQuery({ articleResourceTypes: undefined });
+        }
+      },
+
+      // 选中标签
+      selectTag(tag?: string) {
+        if (store.state.inMobile) {
+          data.tempSearchData.tags = tag === undefined ? undefined : tag;
+        } else {
+          this.updateQuery(tag === undefined ? { tags: undefined } : { tags: tag });
+        }
+      },
+
+      // 选中视频
       filterVideo() {
-        const { keywords } = data.searchData;
-        const query: { keywords?: string; articleResourceTypes?: string } = {};
-        if (keywords) query.keywords = keywords;
-        query.articleResourceTypes = "视频";
-        switchPage("/home", query);
+        if (store.state.inMobile) {
+          data.tempSearchData.articleResourceTypes =
+            data.tempSearchData.articleResourceTypes !== "视频" ? "视频" : undefined;
+        } else {
+          const articleResourceTypes =
+            data.searchData.articleResourceTypes !== "视频" ? "视频" : undefined;
+          this.updateQuery({ articleResourceTypes });
+        }
+      },
+
+      // 选中图片
+      filterImage() {
+        if (store.state.inMobile) {
+          data.tempSearchData.articleResourceTypes =
+            data.tempSearchData.articleResourceTypes !== "图片" ? "图片" : undefined;
+        } else {
+          const articleResourceTypes =
+            data.searchData.articleResourceTypes !== "图片" ? "图片" : undefined;
+          this.updateQuery({ articleResourceTypes });
+        }
+      },
+
+      // 移动端“确定”按钮，应用筛选条件
+      confirmFilter() {
+        data.filterBoxShow = false;
+        this.updateQuery(data.tempSearchData);
       },
 
       /** 点击图片/视频组件 */
@@ -566,6 +677,7 @@ export default {
       background: #ffffff;
       border-radius: 0px 10px 10px 0px;
       padding: 0 20px;
+      padding-bottom: 30px;
       box-sizing: border-box;
       overflow-y: auto;
       display: flex;
@@ -611,14 +723,19 @@ export default {
         display: flex;
         flex-direction: column;
         margin-top: 30px;
-        padding-left: 12px;
         box-sizing: border-box;
 
-        .tags-box-list {
-          width: 100%;
+        .top-bar,
+        .bottom-bar {
           display: flex;
-          flex-wrap: wrap;
-          margin-top: 15px;
+          flex-direction: column;
+          color: #666666;
+
+          .category-btn-box {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 15px;
+          }
         }
 
         .tag {
@@ -631,13 +748,30 @@ export default {
           font-size: 14px;
           color: #575e6a;
           line-height: 20px;
-          margin: 0 5px 15px;
+          margin: 0 10px 15px 0;
           cursor: pointer;
+          max-width: 100%;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
 
           &.active {
             background: var(--deriveColor);
             color: #fff;
           }
+        }
+
+        .confirm-btn {
+          width: 100%;
+          height: 48px;
+          background: #c127ff;
+          border-radius: 4px;
+          font-weight: 600;
+          font-size: 16px;
+          color: #ffffff;
+          line-height: 48px;
+          text-align: center;
+          margin-top: auto;
         }
       }
     }
@@ -666,6 +800,63 @@ export default {
       flex-wrap: wrap;
       margin-top: 30px;
       margin-bottom: 40px;
+
+      .filter-bar-bg {
+        position: absolute;
+        inset: 0;
+        background-color: var(--deriveColor);
+        opacity: 0.04;
+      }
+
+      .category-btn {
+        position: relative;
+        padding: 2px 8px;
+        box-sizing: border-box;
+        font-size: 14px;
+        color: #666;
+        line-height: 20px;
+        border-radius: 12px;
+        margin-bottom: 2px;
+        cursor: pointer;
+        transition: all 0.2s linear;
+        z-index: 1;
+
+        &:hover {
+          color: var(--deriveColor);
+        }
+
+        &:active {
+          color: var(--deriveColor);
+          opacity: 0.8;
+        }
+
+        &.active {
+          background-color: var(--deriveColor);
+          color: #fff;
+        }
+
+        & + .category-btn {
+          margin-left: 4px;
+        }
+      }
+    }
+
+    .filter-bar-box {
+      margin-top: 40px;
+      margin-bottom: 40px;
+      display: flex;
+      flex-direction: column;
+      color: #666666;
+
+      .top-bar {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .bottom-bar {
+        display: flex;
+        flex-wrap: wrap;
+      }
 
       .filter-bar-bg {
         position: absolute;
