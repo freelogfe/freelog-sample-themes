@@ -851,11 +851,14 @@ export default {
       .top-bar {
         display: flex;
         flex-wrap: wrap;
+        margin-bottom: 14px;
+        line-height: 26px;
       }
 
       .bottom-bar {
         display: flex;
         flex-wrap: wrap;
+        line-height: 26px;
       }
 
       .filter-bar-bg {
@@ -877,6 +880,10 @@ export default {
         cursor: pointer;
         transition: all 0.2s linear;
         z-index: 1;
+
+        &:nth-child(1) {
+          margin-left: 12px;
+        }
 
         &:hover {
           color: var(--deriveColor);
