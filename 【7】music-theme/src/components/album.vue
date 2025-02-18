@@ -85,8 +85,9 @@ const playOrPause = async item => {
   const { exhibitName, coverImages } = exhibitInfo.data.data[0];
 
   await getCollectionList({ exhibitId: item.exhibitId, exhibitName, coverImages });
-  // 首先专辑默认第一首播放，其余的全部加入播放列表
-  await useMyPlay.playOrPause(collectionData.value[0], "normal");
+  // 默认播放第一首符合条件的歌曲，其余的全部加入播放列表
+  const playableTracks = collectionData.value.filter(i => i.defaulterIdentityType === 0);
+  await useMyPlay.playOrPause(playableTracks[0], "normal");
 
   setTimeout(async () => {
     await useMyPlay.addToPlayList({
