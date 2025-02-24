@@ -256,7 +256,7 @@
           data.albumName && $router.myPush({ path: '/detail', query: { id: data.exhibitId } })
         "
       >
-        {{ data.albumName || "单曲" }}
+        {{ data.albumName || "-" }}
       </div>
       <div class="right-box">
         <play-status
