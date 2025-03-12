@@ -63,7 +63,9 @@
               <div class="date-count">
                 <div class="info-item">
                   <i class="freelog fl-icon-gengxinshijian"></i>
-                  <div class="item-value">{{ absoluteTime(voiceInfo?.updateDate) }}</div>
+                  <div class="item-value">
+                    {{ absoluteTime(voiceInfo?.versionInfo?.exhibitProperty.release_date) }}
+                  </div>
                 </div>
                 <div class="info-item">
                   <i class="freelog fl-icon-danji"></i>
@@ -449,7 +451,9 @@
           <div class="info-area">
             <div class="info-item">
               <i class="freelog fl-icon-gengxinshijian"></i>
-              <div class="item-value">{{ absoluteTime(voiceInfo?.updateDate) }}</div>
+              <div class="item-value">
+                {{ absoluteTime(voiceInfo?.versionInfo?.exhibitProperty.release_date) }}
+              </div>
             </div>
             <div class="info-item" v-if="albumName">
               <div class="item-value">收录于专辑</div>
