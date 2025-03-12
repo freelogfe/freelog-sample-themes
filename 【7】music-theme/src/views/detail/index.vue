@@ -64,7 +64,12 @@
                 <div class="info-item">
                   <i class="freelog fl-icon-gengxinshijian"></i>
                   <div class="item-value">
-                    {{ absoluteTime(voiceInfo?.versionInfo?.exhibitProperty.release_date) }}
+                    {{
+                      absoluteTime(
+                        voiceInfo?.versionInfo?.exhibitProperty.release_date ||
+                          voiceInfo?.createDate
+                      )
+                    }}
                   </div>
                 </div>
                 <div class="info-item">
@@ -452,7 +457,11 @@
             <div class="info-item">
               <i class="freelog fl-icon-gengxinshijian"></i>
               <div class="item-value">
-                {{ absoluteTime(voiceInfo?.versionInfo?.exhibitProperty.release_date) }}
+                {{
+                  absoluteTime(
+                    voiceInfo?.versionInfo?.exhibitProperty.release_date || voiceInfo?.createDate
+                  )
+                }}
               </div>
             </div>
             <div class="info-item" v-if="albumName">
