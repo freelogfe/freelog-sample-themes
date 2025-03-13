@@ -535,7 +535,16 @@
                   nextUrl
                 "
               >
-                <img class="content-image" :src="nextUrl" />
+                <img
+                  v-show="isNextLoaded"
+                  class="content-image"
+                  :src="nextUrl"
+                  @load="
+                    () => {
+                      isNextLoaded = true;
+                    }
+                  "
+                />
               </div>
               <!-- 当前页 -->
               <div
@@ -543,7 +552,16 @@
                 :class="{ single: mode[1] === 'single' }"
                 v-if="currentUrl !== 'NextFakeUrl'"
               >
-                <img class="content-image" :src="currentUrl" />
+                <img
+                  v-show="isCurrentLoaded"
+                  class="content-image"
+                  :src="currentUrl"
+                  @load="
+                    () => {
+                      isCurrentLoaded = true;
+                    }
+                  "
+                />
 
                 <div
                   class="next-chapter-box"
@@ -630,7 +648,16 @@
                   nextUrl
                 "
               >
-                <img class="content-image" :src="nextUrl" />
+                <img
+                  class="content-image"
+                  v-show="isNextLoaded"
+                  :src="nextUrl"
+                  @load="
+                    () => {
+                      isNextLoaded = true;
+                    }
+                  "
+                />
               </div>
               <!-- 条漫/页漫、双页模式、页数不为1且当前为尾页/页数为1且跨页匹配时，尾页右侧显示空屏 -->
               <div
@@ -906,7 +933,16 @@
                   nextUrl
                 "
               >
-                <img class="content-image" :src="nextUrl" />
+                <img
+                  v-show="isNextLoaded"
+                  class="content-image"
+                  :src="nextUrl"
+                  @load="
+                    () => {
+                      isNextLoaded = true;
+                    }
+                  "
+                />
               </div>
               <!-- 当前页 -->
               <div
@@ -914,7 +950,16 @@
                 :class="{ single: mode[1] === 'single' }"
                 v-if="currentUrl !== 'NextFakeUrl'"
               >
-                <img class="content-image" :src="currentUrl" />
+                <img
+                  v-show="isCurrentLoaded"
+                  class="content-image"
+                  :src="currentUrl"
+                  @load="
+                    () => {
+                      isCurrentLoaded = true;
+                    }
+                  "
+                />
 
                 <div
                   class="next-chapter-box"
@@ -1001,7 +1046,16 @@
                   nextUrl
                 "
               >
-                <img class="content-image" :src="nextUrl" />
+                <img
+                  v-show="isNextLoaded"
+                  class="content-image"
+                  :src="nextUrl"
+                  @load="
+                    () => {
+                      isNextLoaded = true;
+                    }
+                  "
+                />
               </div>
               <!-- 条漫/页漫、双页模式、页数不为1且当前为尾页/页数为1且跨页匹配时，尾页右侧显示空屏 -->
               <div
@@ -1605,6 +1659,8 @@ export default {
       recommendList: [] as ExhibitItem[]
     });
     const sortOrder = ref<string>("asc"); // 默认排序为正序
+    const isCurrentLoaded = ref<boolean>(false);
+    const isNextLoaded = ref<boolean>(false);
 
     const methods = {
       /** 点击页面 */
@@ -1727,6 +1783,8 @@ export default {
         if (page < 1) return;
         data.currentPage = page;
         data.jumpPage = page;
+        isCurrentLoaded.value = false;
+        isNextLoaded.value = false;
       },
 
       /** 向后翻页 */
@@ -1741,6 +1799,8 @@ export default {
         if (page > data.contentImgList.length) return;
         data.currentPage = page;
         data.jumpPage = page;
+        isCurrentLoaded.value = false;
+        isNextLoaded.value = false;
       },
 
       /** 更改跨页匹配 */
@@ -2090,7 +2150,7 @@ export default {
         // 页漫/日漫时，自动选择翻页模式（如本地有记录翻页模式的选择，优先取本地记录的模式）
         // const comicReadMode = localStorage.getItem("comicReadMode");
         if (comicReadMode) data.mode = comicReadMode;
-        if (comicReadMode[0] === "scroll") {
+        if (comicReadMode?.[0] === "scroll") {
           methods.getPointInScroll();
         }
         // 移动端翻页模式下处理图片顺序
@@ -2420,7 +2480,9 @@ export default {
       currentSortID,
       nextChapterBoxWidth,
       query,
-      sortOrder
+      sortOrder,
+      isCurrentLoaded,
+      isNextLoaded
     };
   }
 };
