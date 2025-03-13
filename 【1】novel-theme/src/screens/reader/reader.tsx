@@ -9,7 +9,7 @@ import { CatalogueModal } from "../../components/catalogue-modal/catalogue-modal
 import { showToast } from "../../components/toast/toast";
 import { Loader } from "../../components/loader/loader";
 import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
-import { getUrlParams } from "../../utils/common";
+import { getUrlParams, formatWordCount, formatDate } from "../../utils/common";
 import { CollectionList, ExhibitItem, ThemeItem } from "../../api/interface";
 import { readerThemeList } from "../../api/data";
 import Lock from "../../assets/images/lock.png";
@@ -451,6 +451,19 @@ const ReaderBody = () => {
           } as any
         }
       >
+        <div className="info-area">
+          <span>最近更新：{formatDate(book?.updateDate)}</span>
+          {(book?.articleInfo?.articleProperty?.wordCount ||
+            book?.versionInfo?.exhibitProperty?.wordCount) && (
+            <span>
+              {formatWordCount(
+                book?.articleInfo?.articleProperty?.wordCount ||
+                  book?.versionInfo?.exhibitProperty?.wordCount
+              )}
+              字
+            </span>
+          )}
+        </div>
         {book?.articleInfo?.status === 1 ? (
           <React.Fragment>
             {book.onlineStatus === 0 ? (
@@ -581,6 +594,19 @@ const ReaderBody = () => {
             } as any
           }
         >
+          <div className="info-area">
+            <span>最近更新：{formatDate(book?.updateDate)}</span>
+            {(book?.articleInfo?.articleProperty?.wordCount ||
+              book?.versionInfo?.exhibitProperty?.wordCount) && (
+              <span>
+                {formatWordCount(
+                  book?.articleInfo?.articleProperty?.wordCount ||
+                    book?.versionInfo?.exhibitProperty?.wordCount
+                )}
+                字
+              </span>
+            )}
+          </div>
           {book?.articleInfo?.status === 1 ? (
             <React.Fragment>
               {book.onlineStatus === 0 ? (

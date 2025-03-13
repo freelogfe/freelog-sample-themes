@@ -49,3 +49,23 @@ export const getUrlParams = (str: string) => {
   });
   return result;
 };
+
+/**
+ * 万字以下显示具体数字，万字以上精确到小数
+ * @param value
+ * @returns
+ */
+export const formatWordCount = (value: number) => {
+  console.log("value", value);
+
+  if (!value) {
+    return;
+  }
+
+  if (value < 10000) {
+    return value.toString();
+  } else {
+    let result = (value / 10000).toFixed(2).replace(/\.?0+$/, ""); // 去掉无用的 .00 或 .0
+    return result + "万";
+  }
+};

@@ -164,6 +164,12 @@
             display: flex;
             align-items: center;
 
+            .word-count {
+              font-size: 14px;
+              color: #222222;
+              margin-right: 20px;
+            }
+
             .sign-count {
               font-size: 14px;
               line-height: 20px;
@@ -704,6 +710,12 @@
             .other-btns {
               display: flex;
               align-items: center;
+
+              .word-count {
+                font-size: 14px;
+                color: #222222;
+                margin-right: 30px;
+              }
 
               .sign-count {
                 font-size: 14px;

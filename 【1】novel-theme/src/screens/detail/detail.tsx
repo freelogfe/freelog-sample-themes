@@ -9,7 +9,7 @@ import { LoginBtn } from "../../components/login-btn/login-btn";
 import { showToast } from "../../components/toast/toast";
 
 import { CollectionList, ExhibitItem } from "../../api/interface";
-import { formatDate, getUrlParams } from "../../utils/common";
+import { formatDate, getUrlParams, formatWordCount } from "../../utils/common";
 import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
 import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
 import Freeze from "../../assets/images/freeze.png";
@@ -281,13 +281,24 @@ const DetailBody = (props: { total: number }) => {
                   </div>
 
                   <div className="content-bottom">
+                    {(novel?.versionInfo?.exhibitProperty?.collection_word_count ||
+                      novel?.versionInfo?.exhibitProperty?.wordCount) && (
+                      <div className="word-count">
+                        {formatWordCount(
+                          collectionList?.length && !!collectionList.length
+                            ? novel?.versionInfo?.exhibitProperty?.collection_word_count
+                            : novel?.versionInfo?.exhibitProperty?.wordCount
+                        )}
+                        字
+                      </div>
+                    )}
                     <div className="sign-count">{novel.signCount}人签约</div>
-                    <div className="share-btn" onClick={() => share()}>
+                    {/* <div className="share-btn" onClick={() => share()}>
                       <span className="share-btn-text">
                         <i className="freelog fl-icon-fenxiang"></i>
                         分享给更多人
                       </span>
-                    </div>
+                    </div> */}
                     <input id="href" className="hidden-input" value={href} readOnly />
                   </div>
                 </div>
@@ -504,6 +515,18 @@ const DetailBody = (props: { total: number }) => {
                   </div>
 
                   <div className="other-btns">
+                    {(novel?.versionInfo?.exhibitProperty?.collection_word_count ||
+                      novel?.versionInfo?.exhibitProperty?.wordCount) && (
+                      <div className="word-count">
+                        {formatWordCount(
+                          collectionList?.length && !!collectionList.length
+                            ? novel?.versionInfo?.exhibitProperty?.collection_word_count
+                            : novel?.versionInfo?.exhibitProperty?.wordCount
+                        )}
+                        字
+                      </div>
+                    )}
+
                     <div className="sign-count">{novel.signCount}人签约</div>
                     <div
                       className="share-btn"
