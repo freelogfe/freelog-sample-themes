@@ -2318,9 +2318,9 @@ export default {
     );
 
     watch(
-      () => data.mode,
+      () => [data.mode, data.contentImgList],
       () => {
-        if (store.state.inMobile) {
+        if (store.state.inMobile || !data.contentImgList.length) {
           return;
         }
 
@@ -2346,7 +2346,8 @@ export default {
         }
       },
       {
-        deep: true
+        deep: true,
+        immediate: true
       }
     );
 
