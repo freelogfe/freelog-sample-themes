@@ -65,7 +65,7 @@ export const formatWordCount = (value: number) => {
   if (value < 10000) {
     return value.toString();
   } else {
-    let result = (value / 10000).toFixed(2).replace(/\.?0+$/, ""); // 去掉无用的 .00 或 .0
+    let result = (value / 10000).toFixed(1).replace(/\.?0+$/, ""); // 去掉无用的 .00 或 .0
     return result + "万";
   }
 };
