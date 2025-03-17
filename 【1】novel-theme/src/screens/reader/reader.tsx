@@ -65,9 +65,12 @@ export const ReaderScreen = (props: any) => {
       getCollectionInfo();
     }
     getRecommendList();
-    setBook({
-      ...exhibitInfo.data.data,
-      defaulterIdentityType: statusInfo.data.data[0]?.defaulterIdentityType ?? null
+    setBook((pre: any) => {
+      return {
+        ...pre,
+        ...exhibitInfo.data.data,
+        defaulterIdentityType: statusInfo.data.data[0]?.defaulterIdentityType ?? null
+      };
     });
   }, [id]);
 
@@ -438,7 +441,7 @@ const ReaderBody = () => {
     // eslint-disable-next-line
   }, [book, content]);
 
-  if (loading) {
+  if (loading || !book) {
     return <Loader />;
   } else if (inMobile === true) {
     // mobile
