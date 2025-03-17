@@ -1570,7 +1570,8 @@ import {
   watch,
   computed,
   onBeforeMount,
-  ref
+  ref,
+  watchEffect
 } from "vue";
 import { useStore } from "vuex";
 import { Swipe, SwipeItem } from "vant";
@@ -2317,39 +2318,34 @@ export default {
       }
     );
 
-    watch(
-      () => [data.mode, data.contentImgList],
-      () => {
-        if (store.state.inMobile || !data.contentImgList.length) {
-          return;
-        }
-
-        // 翻页-双页
-        if (data.mode && data.mode[0] === "paging" && data.mode[1] === "double") {
-          if (data.contentImgList.length % 2 !== 0) {
-            data.contentImgList = [
-              ...data.contentImgList,
-              ...[
-                {
-                  name: "NextFakeUrl",
-                  size: 0,
-                  url: "NextFakeUrl",
-                  width: 0,
-                  height: 0
-                }
-              ]
-            ];
-          }
-        } else {
-          data.contentImgList = data.contentImgList.filter(i => i.name !== "NextFakeUrl");
-          methods.jump();
-        }
-      },
-      {
-        deep: true,
-        immediate: true
+    watchEffect(() => {
+      if (store.state.inMobile) {
+        return;
       }
-    );
+
+      if (!data.contentImgList || data.contentImgList.length === 0) {
+        return;
+      }
+
+      // 翻页-双页
+      if (data.mode && data.mode[0] === "paging" && data.mode[1] === "double") {
+        if (data.contentImgList.length % 2 !== 0) {
+          data.contentImgList = [
+            ...data.contentImgList,
+            {
+              name: "NextFakeUrl",
+              size: 0,
+              url: "NextFakeUrl",
+              width: 0,
+              height: 0
+            }
+          ];
+        }
+      } else {
+        data.contentImgList = data.contentImgList.filter(i => i.name !== "NextFakeUrl");
+        methods.jump();
+      }
+    });
 
     // 监听单品id，更新单品详情
     watch(
