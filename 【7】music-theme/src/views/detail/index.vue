@@ -72,7 +72,7 @@
                     }}
                   </div>
                 </div>
-                <div class="info-item">
+                <div class="info-item" v-if="voiceInfo?.signCount">
                   <i class="freelog fl-icon-danji"></i>
                   <div class="item-value">{{ voiceInfo?.signCount }}</div>
                 </div>
@@ -453,8 +453,8 @@
             </my-tooltip>
           </div>
 
-          <div class="info-area">
-            <div class="info-item">
+          <div class="info-area" v-if="albumName">
+            <!-- <div class="info-item">
               <i class="freelog fl-icon-gengxinshijian"></i>
               <div class="item-value">
                 {{
@@ -463,7 +463,7 @@
                   )
                 }}
               </div>
-            </div>
+            </div> -->
             <div class="info-item" v-if="albumName">
               <div class="item-value">收录于专辑</div>
               <div

@@ -100,7 +100,7 @@
             <i class="freelog fl-icon-gengxinshijian"></i>
             <div class="item-value">{{ absoluteTime(data.updateDate) }}</div>
           </div>
-          <div class="info-item">
+          <div class="info-item" v-if="data.signCount">
             <i class="freelog fl-icon-danji"></i>
             <div class="item-value">{{ data.signCount }}</div>
           </div>
