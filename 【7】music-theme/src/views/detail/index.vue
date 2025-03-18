@@ -284,6 +284,16 @@
                 <span class="name">风格:</span>
                 <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.music_genre }}</span>
               </div>
+
+              <div
+                class="detail-item"
+                v-if="voiceInfo?.versionInfo?.exhibitProperty.collection_duration"
+              >
+                <span class="name">总时长:</span>
+                <span class="value">{{
+                  secondsToHMS(voiceInfo?.versionInfo?.exhibitProperty.collection_duration)
+                }}</span>
+              </div>
             </div>
 
             <div class="info-detail" v-if="subID && hasSubInfoDetail">
@@ -527,6 +537,16 @@
             <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.music_genre">
               <span class="name">风格:</span>
               <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.music_genre }}</span>
+            </div>
+
+            <div
+              class="detail-item"
+              v-if="voiceInfo?.versionInfo?.exhibitProperty.collection_duration"
+            >
+              <span class="name">总时长:</span>
+              <span class="value">{{
+                secondsToHMS(voiceInfo?.versionInfo?.exhibitProperty.collection_duration)
+              }}</span>
             </div>
           </div>
 
@@ -962,7 +982,8 @@ export default {
         song_lyricist,
         song_composer,
         song_arranger,
-        music_genre
+        music_genre,
+        collection_duration
       } = this.voiceInfo?.versionInfo?.exhibitProperty;
 
       return (
@@ -974,7 +995,8 @@ export default {
         song_lyricist ||
         song_composer ||
         song_arranger ||
-        music_genre
+        music_genre ||
+        collection_duration
       );
     },
 
