@@ -3,10 +3,11 @@
  * @param time 时间戳、字符串日期等等
  * @param format 自定义输出结果格式（YYYY:年，MM:月，DD:日，hh:时，mm:分，ss:秒）
  */
-export const formatDate = (time, format = "YYYY-MM-DD hh:mm:ss") => {
-  if (!time) return;
-
-  const date = new Date(time);
+export const formatDate = (date, format = "YYYY-MM-DD hh:mm:ss") => {
+  if (!(date instanceof Date) || isNaN(date.getTime())) {
+    console.error("Invalid Date:", date);
+    return "";
+  }
 
   const year = String(date.getFullYear());
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -15,14 +16,13 @@ export const formatDate = (time, format = "YYYY-MM-DD hh:mm:ss") => {
   const minutes = String(date.getMinutes()).padStart(2, "0");
   const seconds = String(date.getSeconds()).padStart(2, "0");
 
-  const result = format
+  return format
     .replace("YYYY", year)
     .replace("MM", month)
     .replace("DD", day)
     .replace("hh", hour)
     .replace("mm", minutes)
     .replace("ss", seconds);
-  return result;
 };
 
 /**
@@ -71,7 +71,29 @@ export const relativeTime = time => {
  * @param time 时间戳、字符串日期等等
  */
 export const absoluteTime = time => {
-  return formatDate(time, "YYYY/MM/DD");
+  if (!time) return "";
+
+  let formattedTime = time;
+
+  if (typeof time === "string") {
+    // 修复 iOS 解析问题
+    if (time.includes("T") || time.includes("Z")) {
+      // ISO 8601 格式，直接解析
+      formattedTime = new Date(time);
+    } else {
+      // 替换 "-" 为 "/" 以兼容 iOS
+      formattedTime = new Date(time.replace(/-/g, "/"));
+    }
+  } else {
+    formattedTime = new Date(time);
+  }
+
+  if (isNaN(formattedTime.getTime())) {
+    console.error("Invalid Date:", time);
+    return "";
+  }
+
+  return formatDate(formattedTime, "YYYY/MM/DD");
 };
 
 /**
