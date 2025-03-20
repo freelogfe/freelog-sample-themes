@@ -23,7 +23,7 @@
           class="play-status-wrapper"
           v-if="$store.state.playingInfo && $store.state.playingInfo.exhibitId === data.exhibitId"
         >
-          <play-status :playing="playing" />
+          <play-status :playing="playing" color="#FFFFFF" />
         </div>
       </div>
       <!-- 中间 -->
@@ -221,8 +221,7 @@ export default {
             opacity: 1;
           }
         }
-
-        div[playing="true"] {
+        .play-status-wrapper {
           display: none;
         }
       }
@@ -298,8 +297,14 @@ export default {
 
       .play-status-wrapper {
         position: absolute;
-        right: 20px;
-        bottom: 13px;
+        right: 10px;
+        bottom: 10px;
+        width: 89px;
+        height: 24px;
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        backdrop-filter: blur(12px);
+        padding-left: 11px;
       }
     }
     .title {

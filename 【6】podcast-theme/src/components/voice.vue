@@ -282,10 +282,10 @@
 import playStatus from "@/components/play-status";
 import myTooltip from "@/components/tooltip";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
-import { relativeTime, signCount, secondsToHMS, estimateDuration } from "@/utils/filter";
-import { freelogApp } from "freelog-runtime";
-import { supportAudio, unSupportAudioIOS } from "@/api/data"
+import { relativeTime, secondsToHMS } from "@/utils/filter";
+import { supportAudio, unSupportAudioIOS } from "@/api/data";
 import { showToast } from "../utils/common";
+import { collection_item_title_rtitle, collection_item_title_sn, collection_item_title_custom, collection_item_title_empty } from "@/config/collection_item_title";
 
 export default {
   name: "voice",
@@ -328,20 +328,8 @@ export default {
       moreMenuShow: false,
       addAnimation: false,
       coverLeft: 0,
-      coverTop: 0,
-      collectionList: []
+      coverTop: 0
     };
-  },
-
-  watch: {
-    data: {
-      handler(newData) {
-        if (newData.articleInfo.articleType === 2) {
-          this.getListInCollection(newData.exhibitId);
-        }
-      },
-      immediate: true
-    }
   },
 
   computed: {
@@ -448,7 +436,14 @@ export default {
         return this.data.exhibitTitle;
       } else {
         if (this.mode === 'voice') { 
-          return this.data?.child?.itemTitle || "";
+          const collection_item_title = this.data?.versionInfo?.exhibitProperty?.catalogueProperty?.collection_item_title
+          if (collection_item_title === collection_item_title_sn) {
+            return this.data?.child?.articleInfo?.articleProperty?.number || this.data?.child?.articleInfo?.articleTitle || "";
+          } else if (collection_item_title === collection_item_title_custom) {
+            return this.data?.child?.itemTitle || this.data?.child?.articleInfo?.articleTitle || "";
+          } else {
+            return this.data?.child?.articleInfo?.articleTitle || ""
+          }
         } else {
           return this.data.exhibitTitle;
         }
@@ -707,20 +702,6 @@ export default {
       if (this.authLinkAbnormal) return
       useMyAuth.getAuth(this.data);
     },
-
-    /** 获取某个合集里的列表 */
-    async getListInCollection(exhibitId) {
-    const res = await freelogApp.getCollectionSubList(exhibitId, {
-      skip: 0,
-      limit: 5,
-      isShowDetailInfo: 0
-    });
-    if (res.data.errCode === 0) {
-      this.collectionList = res.data.data.dataList;
-    } else {
-      console.warn(res.data);
-    }
-  },
   }
 };
 </script>
