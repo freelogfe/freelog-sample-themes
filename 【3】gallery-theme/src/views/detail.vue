@@ -466,7 +466,7 @@ export default {
           data.shareWidget?.unmount();
           data.currentId = "";
           context.emit("update:id", "");
-          switchPage(route.path, { id: "" }, "replace");
+          switchPage(route.path, { ...route.query, id: "" }, "replace");
           showMoreTagBtn.value = false;
         }
       },
@@ -697,7 +697,7 @@ export default {
           getData();
           if (!store.state.inMobile) {
             const path = route.path === "/detail" ? "/home" : route.path;
-            switchPage(path, { id: data.currentId }, "replace");
+            switchPage(path, { ...route.query, id: data.currentId }, "replace");
           } else {
             switchPage("/detail", { id: data.currentId });
           }
