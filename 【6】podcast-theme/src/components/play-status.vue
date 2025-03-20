@@ -85,6 +85,7 @@ export default {
     color: var(--color);
     line-height: 18px;
     margin-left: 6px;
+    font-weight: 400;
   }
 }
 
