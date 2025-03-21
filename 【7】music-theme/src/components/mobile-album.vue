@@ -222,7 +222,9 @@ const getCollectionList = async (obj: {
                 <div class="icon">
                   <img :src="TimeIcon" alt="更新时间" />
                 </div>
-                <span class="time">{{ absoluteTime(item.updateDate) }}</span>
+                <span class="time">{{
+                  absoluteTime(item?.versionInfo?.exhibitProperty?.release_date || item.createDate)
+                }}</span>
               </div>
 
               <div class="album-box">

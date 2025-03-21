@@ -252,10 +252,15 @@
                 <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.label_name }}</span>
               </div>
 
-              <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.release_date">
+              <div
+                class="detail-item"
+                v-if="voiceInfo?.versionInfo?.exhibitProperty.release_date || voiceInfo?.createDate"
+              >
                 <span class="name">发行时间:</span>
                 <span class="value">{{
-                  voiceInfo?.versionInfo?.exhibitProperty.release_date
+                  absoluteTime(
+                    voiceInfo?.versionInfo?.exhibitProperty.release_date || voiceInfo?.createDate
+                  )
                 }}</span>
               </div>
 
@@ -315,7 +320,7 @@
               <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.release_date">
                 <span class="name">发行时间:</span>
                 <span class="value">{{
-                  voiceInfo?.versionInfo?.exhibitProperty.release_date
+                  absoluteTime(voiceInfo?.versionInfo?.exhibitProperty.release_date)
                 }}</span>
               </div>
 
@@ -514,9 +519,16 @@
               <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.label_name }}</span>
             </div>
 
-            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.release_date">
+            <div
+              class="detail-item"
+              v-if="voiceInfo?.versionInfo?.exhibitProperty.release_date || voiceInfo?.createDate"
+            >
               <span class="name">发行时间:</span>
-              <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.release_date }}</span>
+              <span class="value">{{
+                absoluteTime(
+                  voiceInfo?.versionInfo?.exhibitProperty.release_date || voiceInfo?.createDate
+                )
+              }}</span>
             </div>
 
             <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.song_lyricist">
@@ -565,7 +577,9 @@
 
             <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.release_date">
               <span class="name">发行时间:</span>
-              <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.release_date }}</span>
+              <span class="value">{{
+                absoluteTime(voiceInfo?.versionInfo?.exhibitProperty.release_date)
+              }}</span>
             </div>
 
             <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.lyric_language">
@@ -996,7 +1010,8 @@ export default {
         song_composer ||
         song_arranger ||
         music_genre ||
-        collection_duration
+        collection_duration ||
+        this.voiceInfo.createDate
       );
     },
 

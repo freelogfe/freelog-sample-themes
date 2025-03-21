@@ -26,6 +26,7 @@ export const DetailScreen = (props: any) => {
   const { id } = getUrlParams(props.location.search);
   const [novel, setNovel] = useState<ExhibitItem | null>(null);
   const [total, setTotal] = useState<number>(0);
+  const [collectionRecentDate, setCollectionRecentDate] = useState<string>("");
   const skip = useRef(0);
   const [sortOrder, setSortOrder] = useState("asc");
 
@@ -104,9 +105,20 @@ export const DetailScreen = (props: any) => {
     }
   }, [id]);
 
+  const getRecentDate = async () => {
+    const getRecentDate = await (freelogApp as any).getCollectionSubList(id, {
+      skip: skip.current,
+      limit: 1,
+      sortType: -1
+    });
+
+    setCollectionRecentDate(getRecentDate.data.data.dataList[0]?.createDate);
+  };
+
   useEffect(() => {
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
+    getRecentDate();
     getNovelInfo();
   }, []);
 
@@ -120,7 +132,7 @@ export const DetailScreen = (props: any) => {
     <detailContext.Provider value={{ novel, setNovel, sortOrder, setSortOrder }}>
       <div className="detail-wrapper">
         <Header />
-        <DetailBody total={total} />
+        <DetailBody total={total} collectionRecentDate={collectionRecentDate} />
         <Footer />
         <LoginBtn />
         <ThemeEntrance />
@@ -130,8 +142,8 @@ export const DetailScreen = (props: any) => {
 };
 
 /** 详情页主体内容 */
-const DetailBody = (props: { total: number }) => {
-  const { total } = props;
+const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
+  const { total, collectionRecentDate } = props;
   const { inMobile, userData } = useContext(globalContext);
   const { novel, setNovel, sortOrder, setSortOrder } = useContext(detailContext);
   const collectionList = novel?.collectionList;
@@ -306,8 +318,9 @@ const DetailBody = (props: { total: number }) => {
 
               <div className="novel-date-info">
                 <div className="date-info">创建时间：{formatDate(novel.createDate)}</div>
-
-                <div className="date-info">最近更新：{formatDate(novel.updateDate)}</div>
+                <div className="date-info">
+                  最近更新：{formatDate(collectionRecentDate || novel.updateDate)}
+                </div>
               </div>
 
               <div className="operate-btns">
@@ -466,17 +479,14 @@ const DetailBody = (props: { total: number }) => {
 
                   <div className="novel-name">{novel.exhibitTitle}</div>
                 </div>
-
                 <div className="novel-author">{novel.articleInfo.articleOwnerName}</div>
-
                 <div className="tags">
                   <Tags data={novel.tags || []} />
                 </div>
-
                 <div className="create-date">创建时间：{formatDate(novel.createDate)}</div>
-
-                <div className="update-date">最近更新：{formatDate(novel.updateDate)}</div>
-
+                <div className="update-date">
+                  最近更新：{formatDate(collectionRecentDate || novel.updateDate)}
+                </div>
                 <div className="btns-box">
                   <div className="operate-btns">
                     <div
