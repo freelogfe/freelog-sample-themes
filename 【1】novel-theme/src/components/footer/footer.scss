@@ -1,0 +1,44 @@
+// mobile
+.mobile-footer-wrapper {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  height: 98px;
+  background-color: rgba(0, 0, 0, 0.03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .second-text-btn {
+    font-size: 14px;
+    line-height: 18px;
+    padding: 0 20px;
+
+    & + .second-text-btn {
+      border-left: 1px solid rgba(0, 0, 0, 0.15);
+    }
+  }
+}
+
+// PC
+.footer-wrapper {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  height: 48px;
+  background-color: #fafbfc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .second-text-btn {
+    font-size: 12px;
+    padding: 0 20px;
+
+    & + .second-text-btn {
+      border-left: 1px solid rgba(0, 0, 0, 0.15);
+    }
+  }
+}
