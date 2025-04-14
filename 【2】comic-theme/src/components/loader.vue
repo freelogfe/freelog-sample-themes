@@ -35,7 +35,7 @@
       bottom: 0;
       font-size: 35px;
       color: saddlebrown;
-      font-family: serif;
+      // font-family: serif;
       font-weight: bold;
       text-align: center;
       line-height: 100px;

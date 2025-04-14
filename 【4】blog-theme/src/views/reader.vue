@@ -1016,7 +1016,7 @@ export default {
 
         .txt {
           margin-top: 20px;
-          font-family: PingFangSC, PingFang SC;
+          // font-family: PingFangSC, PingFang SC;
           font-weight: 400;
           font-size: 24px;
           color: #222222;

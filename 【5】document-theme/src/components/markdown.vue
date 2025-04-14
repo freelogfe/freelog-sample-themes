@@ -246,7 +246,7 @@ export default {
     line-height: 1.45;
     background-color: #323232;
     border-radius: 3px;
-    font-family: sans-serif;
+    // font-family: sans-serif;
     letter-spacing: 0.6px;
 
     & + pre {

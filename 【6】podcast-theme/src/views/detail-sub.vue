@@ -1,10 +1,20 @@
 <!-- 子作品详情页 -->
 <template>
-  <div class="detail-wrapper" :class="{ 'weigui': voiceInfo && (voiceInfo.articleInfo.status === 2 || voiceInfo.child.authCode === 403) }">
+  <div
+    class="detail-wrapper"
+    :class="{
+      weigui: voiceInfo && (voiceInfo.articleInfo.status === 2 || voiceInfo.child.authCode === 403)
+    }"
+  >
     <transition name="detail-fade">
       <template v-if="voiceInfo">
         <!-- 1: 正常; 2: 冻结; -->
-        <div v-if="voiceInfo && (voiceInfo.articleInfo.status === 2 || voiceInfo.child.authCode === 403)" class="detail-weigui">
+        <div
+          v-if="
+            voiceInfo && (voiceInfo.articleInfo.status === 2 || voiceInfo.child.authCode === 403)
+          "
+          class="detail-weigui"
+        >
           <div class="detail-weigui-content">
             <span class="freelog fl-icon-yichang_bokeziyuan weigui-icon"></span>
             <p class="desc">此作品因违规无法访问</p>
@@ -14,7 +24,11 @@
           <!-- mobile -->
           <div class="mobile-detail-wrapper" v-if="$store.state.inMobile">
             <div ref="cover" class="cover-area">
-              <img class="cover" :src="voiceInfo.child.articleInfo.coverImages[0]" v-if="voiceInfo.child.articleInfo.coverImages[0]" />
+              <img
+                class="cover"
+                :src="voiceInfo.child.articleInfo.coverImages[0]"
+                v-if="voiceInfo.child.articleInfo.coverImages[0]"
+              />
               <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
               <span class="offline" v-if="voiceInfo.onlineStatus === 0">已下架</span>
             </div>
@@ -42,12 +56,22 @@
                 <i class="freelog fl-icon-yonghu"></i>
                 <div class="item-value">{{ voiceInfo.signCount | signCount }}</div>
               </div>
-              <div class="info-item" @click="$router.myPush({ path: '/detail', query: { id: voiceInfo.exhibitId } })">
+              <div
+                class="info-item"
+                @click="$router.myPush({ path: '/detail', query: { id: voiceInfo.exhibitId } })"
+              >
                 <i class="freelog fl-icon-zhuanji"></i>
                 <div class="item-value zj-title">{{ voiceInfo.exhibitTitle }}</div>
               </div>
-              <div v-if="playingInfo && voiceInfo.articleInfo.articleType === 2 && playingInfo.child.itemId === voiceInfo.child.itemId" class="duration">
-                时长{{ playingInfo.child.articleInfo.articleProperty.duration | secondsToHMS }} 
+              <div
+                v-if="
+                  playingInfo &&
+                  voiceInfo.articleInfo.articleType === 2 &&
+                  playingInfo.child.itemId === voiceInfo.child.itemId
+                "
+                class="duration"
+              >
+                时长{{ playingInfo.child.articleInfo.articleProperty.duration | secondsToHMS }}
               </div>
             </div>
             <div
@@ -80,7 +104,11 @@
           <!-- PC -->
           <div class="pc-detail-wrapper" v-if="!$store.state.inMobile">
             <div ref="cover" class="cover-area">
-              <img class="cover" :src="voiceInfo.child.articleInfo.coverImages[0]" v-if="voiceInfo.child.articleInfo.coverImages[0]" />
+              <img
+                class="cover"
+                :src="voiceInfo.child.articleInfo.coverImages[0]"
+                v-if="voiceInfo.child.articleInfo.coverImages[0]"
+              />
               <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
               <span class="offline" v-if="voiceInfo.onlineStatus === 0">已下架</span>
             </div>
@@ -92,7 +120,11 @@
                   src="../assets/images/auth-link-abnormal.png"
                   v-if="authLinkAbnormal"
                 />
-                <i class="freelog fl-icon-suoding lock" @click.stop="getAuth()" v-if="voiceInfo.defaulterIdentityType >= 4"></i>
+                <i
+                  class="freelog fl-icon-suoding lock"
+                  @click.stop="getAuth()"
+                  v-if="voiceInfo.defaulterIdentityType >= 4"
+                ></i>
                 <my-tooltip class="title" :content="voiceInfo.child.itemTitle">
                   <span>{{ voiceInfo.child.itemTitle }}</span>
                 </my-tooltip>
@@ -107,7 +139,10 @@
                   <i class="freelog fl-icon-yonghu"></i>
                   <div class="item-value">{{ voiceInfo.signCount | signCount }}</div>
                 </div>
-                <div class="info-item to-pool" @click="$router.myPush({ path: '/detail', query: { id: voiceInfo.exhibitId } })">
+                <div
+                  class="info-item to-pool"
+                  @click="$router.myPush({ path: '/detail', query: { id: voiceInfo.exhibitId } })"
+                >
                   <i class="freelog fl-icon-zhuanji"></i>
                   <div class="item-value">{{ voiceInfo.exhibitTitle }}</div>
                 </div>
@@ -119,12 +154,20 @@
                     时长{{ computedDuration }}
                   </div>
                   <transition name="slide-right">
-                    <div class="playing-mark" v-if="playingInfo.exhibitId === voiceInfo.exhibitId && playingInfo.child.itemId === voiceInfo.child.itemId">
+                    <div
+                      class="playing-mark"
+                      v-if="
+                        playingInfo.exhibitId === voiceInfo.exhibitId &&
+                        playingInfo.child.itemId === voiceInfo.child.itemId
+                      "
+                    >
                       <play-status :playing="$store.state.playing" />
                       <div class="progress">
                         <span>{{ ($store.state.progress * 1000) | secondsToHMS }}</span>
                         <span class="progress-divider">/</span>
-                        <span>{{ playingInfo.child.articleInfo.articleProperty.duration | secondsToHMS }}</span>
+                        <span>{{
+                          playingInfo.child.articleInfo.articleProperty.duration | secondsToHMS
+                        }}</span>
                       </div>
                     </div>
                   </transition>
@@ -132,7 +175,11 @@
                 <template v-for="(item, index) in btnList">
                   <div
                     class="btn normal-btn"
-                    :class="{ 'play-btn': index === 0, disabled: item.disabled, 'second-level': index !== 0 }"
+                    :class="{
+                      'play-btn': index === 0,
+                      disabled: item.disabled,
+                      'second-level': index !== 0
+                    }"
                     :key="item.title"
                     @click="item.operate"
                     v-if="!item.hidden"
@@ -156,7 +203,6 @@
           <!-- 顶部异常提示 -->
           <div class="err-notify" v-if="offOrAuthErrorComputed">{{ notifyMsgComputed }}</div>
         </div>
-      
       </template>
     </transition>
   </div>
@@ -168,8 +214,8 @@ import myTooltip from "@/components/tooltip";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { secondsToHMS, showToast } from "@/utils/common";
 import voice from "@/components/voice";
-import { freelogApp } from 'freelog-runtime'
-import { supportAudio, unSupportAudioIOS } from "@/api/data"
+import { freelogApp } from "freelog-runtime";
+import { supportAudio, unSupportAudioIOS } from "@/api/data";
 
 export default {
   name: "detail-sub",
@@ -199,34 +245,36 @@ export default {
       immediate: true
     },
     "$store.state.lastestAuthList"(cur) {
-      const target = cur.find(ele => ele.exhibitId === this.voiceInfo.exhibitId)
+      const target = cur.find(ele => ele.exhibitId === this.voiceInfo.exhibitId);
       if (target) {
         this.voiceInfo.defaulterIdentityType = target.defaulterIdentityType;
       }
     }
   },
   mounted() {
-    this.$store.dispatch("updateLastestAuthList")
+    this.$store.dispatch("updateLastestAuthList");
   },
   computed: {
     /** 处于下架/授权链异常 */
     offOrAuthErrorComputed() {
-      return this.voiceInfo.onlineStatus === 0 || ![0, 4].includes(this.voiceInfo.defaulterIdentityType)
+      return (
+        this.voiceInfo.onlineStatus === 0 || ![0, 4].includes(this.voiceInfo.defaulterIdentityType)
+      );
     },
 
     /** 异常信息提示文案 */
     notifyMsgComputed() {
       if (this.voiceInfo.onlineStatus === 0) {
-        return "作品已下架，无法访问"
+        return "作品已下架，无法访问";
       }
       if (![0, 4].includes(this.voiceInfo.defaulterIdentityType)) {
-        return "作品异常，无法访问"
+        return "作品异常，无法访问";
       }
     },
 
     /** 固定时长 */
     computedDuration() {
-      return secondsToHMS(this.voiceInfo.child?.articleInfo?.articleProperty?.duration); 
+      return secondsToHMS(this.voiceInfo.child?.articleInfo?.articleProperty?.duration);
     },
 
     /** 授权链异常 */
@@ -237,17 +285,17 @@ export default {
     /** 是否为支持格式 */
     ifSupportMime() {
       const supportMimeList = supportAudio;
-      const isIOS = this.$store.state.isIOS
+      const isIOS = this.$store.state.isIOS;
       if (this.voiceInfo.articleInfo.articleType === 1) {
-        const mime = this.voiceInfo.versionInfo.exhibitProperty.mime
+        const mime = this.voiceInfo.versionInfo.exhibitProperty.mime;
         if (isIOS) {
-          return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime)
+          return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime);
         }
         return supportMimeList.includes(mime);
       } else {
-        const mime = this.voiceInfo?.child?.articleInfo?.articleProperty?.mime
+        const mime = this.voiceInfo?.child?.articleInfo?.articleProperty?.mime;
         if (isIOS) {
-          return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime)
+          return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime);
         }
         return supportMimeList.includes(mime);
       }
@@ -256,7 +304,11 @@ export default {
     /** 是否播放中 */
     playing() {
       const { playing, playingInfo } = this.$store.state;
-      return playing && playingInfo.exhibitId === this.voiceInfo.exhibitId && playingInfo.child.itemId === this.voiceInfo.child.itemId;
+      return (
+        playing &&
+        playingInfo.exhibitId === this.voiceInfo.exhibitId &&
+        playingInfo.child.itemId === this.voiceInfo.child.itemId
+      );
     },
 
     /** 播放中声音信息 */
@@ -278,32 +330,35 @@ export default {
                 ? "fl-icon-zanting-daibiankuang"
                 : "fl-icon-bofang-daibiankuang"
               : "fl-icon-bofang-daibiankuang",
-          title: 
-              !this.ifSupportMime || this.offOrAuthErrorComputed
-                ? "无法播放"
-                : this.playing
-                ? "暂停"
+          title:
+            !this.ifSupportMime || this.offOrAuthErrorComputed
+              ? "无法播放"
+              : this.playing
+              ? "暂停"
               : "播放",
           operate: this.playOrPause,
           disabled: !(
-            (this.voiceInfo.articleInfo.articleType === 2 && this.ifSupportMime && !this.offOrAuthErrorComputed) ||
-            (this.voiceInfo.articleInfo.articleType === 1 && this.ifSupportMime && !this.offOrAuthErrorComputed)
+            (this.voiceInfo.articleInfo.articleType === 2 &&
+              this.ifSupportMime &&
+              !this.offOrAuthErrorComputed) ||
+            (this.voiceInfo.articleInfo.articleType === 1 &&
+              this.ifSupportMime &&
+              !this.offOrAuthErrorComputed)
           )
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
           title: "加入播放列表",
           operate: this.addToPlayList,
-          disabled: !(this.voiceInfo.articleInfo.articleType === 2 &&
+          disabled: !(
+            this.voiceInfo.articleInfo.articleType === 2 &&
             !isInPlayList &&
             this.ifSupportMime &&
             !this.offOrAuthErrorComputed
           )
         },
         {
-          icon: isCollected
-            ? "fl-icon-shoucangxiaoshuoyishoucang"
-            : "fl-icon-shoucangxiaoshuo",
+          icon: isCollected ? "fl-icon-shoucangxiaoshuoyishoucang" : "fl-icon-shoucangxiaoshuo",
           title: isCollected ? "取消收藏" : "收藏",
           operate: this.operateCollect
         },
@@ -319,7 +374,7 @@ export default {
 
     /** 加入播放列表 */
     async addToPlayList() {
-      const { exhibitId, articleInfo, child } = this.voiceInfo
+      const { exhibitId, articleInfo, child } = this.voiceInfo;
       if (articleInfo.articleType === 2) {
         useMyPlay.addToPlayList({
           id: exhibitId,
@@ -363,9 +418,9 @@ export default {
 
     /** 获取声音详情 */
     async getVoiceInfo() {
-      let result = {}
-      const itemId = this.$route.query.itemId
-      const id = this.$route.query.id
+      let result = {};
+      const itemId = this.$route.query.itemId;
+      const id = this.$route.query.id;
       if (id && itemId) {
         // 处理分享
         const [info, statusInfo, url, detail, subStatusInfo] = await Promise.all([
@@ -380,22 +435,22 @@ export default {
           }),
           freelogApp.getCollectionSubAuth(id, {
             itemIds: itemId
-          }),
-        ]); 
-        
+          })
+        ]);
+
         info.data.data.defaulterIdentityType = statusInfo.data.data[0].defaulterIdentityType;
-        info.data.data.child = detail.data.data
+        info.data.data.child = detail.data.data;
         info.data.data.child.url = url;
         info.data.data.child.authCode = subStatusInfo.data.data[0].authCode;
-        result = info.data.data
+        result = info.data.data;
       }
-      this.voiceInfo = result
+      this.voiceInfo = result;
     },
 
     /** 授权 */
     async getAuth() {
       useMyAuth.getAuth(this.voiceInfo);
-    },
+    }
   }
 };
 </script>
@@ -506,7 +561,6 @@ export default {
           overflow: hidden;
           text-overflow: ellipsis;
         }
-
       }
 
       .duration {
@@ -606,7 +660,7 @@ export default {
       .txt {
         font-weight: 400;
         font-size: 14px;
-        color: #FFFFFF;
+        color: #ffffff;
         line-height: 20px;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -625,7 +679,7 @@ export default {
       }
       .btn {
         font-size: 12px;
-        color: #FFFFFF;
+        color: #ffffff;
         opacity: 0.6;
         margin-left: 10px;
       }
@@ -779,8 +833,6 @@ export default {
             line-height: 18px;
             margin-left: 5px;
           }
-
-          
         }
         .to-pool {
           cursor: pointer;
@@ -908,13 +960,12 @@ export default {
 
     .desc {
       margin-top: 20px;
-      font-family: PingFangSC, PingFang SC;
+      // font-family: PingFangSC, PingFang SC;
       font-weight: 400;
       font-size: 24px;
       line-height: 33px;
       opacity: 0.4;
     }
-
   }
 
   .err-notify {
@@ -926,17 +977,17 @@ export default {
     width: 60%;
     max-width: 460px;
     height: 50px;
-    background: #FDEBEC;
-    box-shadow: 0px 2px 10px 0px rgba(238,64,64,0.2);
+    background: #fdebec;
+    box-shadow: 0px 2px 10px 0px rgba(238, 64, 64, 0.2);
     border-radius: 10px;
-    border: 1px solid #EE4040;
+    border: 1px solid #ee4040;
     text-align: center;
-    font-family: PingFangSC, PingFang SC;
+    // font-family: PingFangSC, PingFang SC;
     font-weight: 600;
     font-size: 14px;
-    color: #EE4040;
+    color: #ee4040;
     line-height: 50px;
-    text-shadow: 0px 2px 10px rgba(238,64,64,0.2);
+    text-shadow: 0px 2px 10px rgba(238, 64, 64, 0.2);
   }
 }
 
@@ -947,5 +998,4 @@ export default {
 .detail-fade-enter {
   opacity: 0;
 }
-
 </style>
