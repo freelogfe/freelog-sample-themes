@@ -249,7 +249,7 @@ const isSelectedData = item => {
                 class="freelog fl-icon-suoding lock"
                 @click.stop="getAuth(item)"
                 alt="未授权"
-                v-if="item.defaulterIdentityType >= 4"
+                v-else-if="item.defaulterIdentityType >= 4"
               ></i>
               {{ item.exhibitTitle }}
             </span>

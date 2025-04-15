@@ -55,7 +55,7 @@
                   class="freelog fl-icon-suoding lock"
                   @click.stop="getAuth()"
                   alt="未授权"
-                  v-if="voiceInfo?.defaulterIdentityType >= 4"
+                  v-else-if="voiceInfo?.defaulterIdentityType >= 4"
                 ></i>
                 <span class="title">{{ voiceInfo?.exhibitTitle }}</span>
               </div>
@@ -164,7 +164,7 @@
                       class="freelog fl-icon-suoding lock"
                       @click.stop="getAuth(item)"
                       alt="未授权"
-                      v-if="item.defaulterIdentityType >= 4"
+                      v-else-if="item.defaulterIdentityType >= 4"
                     ></i>
                     {{ item.exhibitTitle }}
                   </span>
@@ -686,7 +686,7 @@
                     class="freelog fl-icon-suoding lock"
                     @click.stop="getAuth(item)"
                     alt="未授权"
-                    v-if="item.defaulterIdentityType >= 4"
+                    v-else-if="item.defaulterIdentityType >= 4"
                   ></i>
 
                   <span class="music-text">{{ item.exhibitTitle }}</span>

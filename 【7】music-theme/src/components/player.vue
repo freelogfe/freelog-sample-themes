@@ -136,7 +136,7 @@
                     class="freelog fl-icon-suoding lock"
                     @click.stop="getAuth(item)"
                     alt="未授权"
-                    v-if="item.defaulterIdentityType >= 4"
+                    v-else-if="item.defaulterIdentityType >= 4"
                   ></i>
                   <div class="voice-title">{{ item.itemTitle || item.exhibitTitle }}</div>
                 </div>
@@ -422,7 +422,7 @@
                         class="freelog fl-icon-suoding lock"
                         @click.stop="getAuth(item)"
                         alt="未授权"
-                        v-if="item.defaulterIdentityType >= 4"
+                        v-else-if="item.defaulterIdentityType >= 4"
                       ></i>
                       <my-tooltip :content="item.itemTitle || item.exhibitTitle">
                         <span class="title voice-title">{{

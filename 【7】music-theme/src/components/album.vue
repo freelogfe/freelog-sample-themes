@@ -288,7 +288,7 @@ onBeforeUnmount(() => {
                 class="freelog fl-icon-suoding lock"
                 @click.stop="getAuth(item)"
                 alt="未授权"
-                v-if="item.defaulterIdentityType >= 4"
+                v-else-if="item.defaulterIdentityType >= 4"
               ></i>
               <span
                 class="title"
@@ -366,12 +366,12 @@ onBeforeUnmount(() => {
                 class="auth-link-abnormal"
                 :src="AuthLinkAbnormal"
                 alt="授权链异常"
-                v-if="authLinkAbnormal(item.defaulterIdentityType)"
+                v-else-if="authLinkAbnormal(item.defaulterIdentityType)"
               />
               <i
                 class="freelog fl-icon-suoding lock"
                 @click.stop="getAuth(item)"
-                v-if="item.defaulterIdentityType >= 4"
+                v-else-if="item.defaulterIdentityType >= 4"
               ></i>
               <span
                 class="title"

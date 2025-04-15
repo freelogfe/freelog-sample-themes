@@ -74,7 +74,7 @@
             class="freelog fl-icon-suoding lock"
             @click.stop="getAuth()"
             alt="未授权"
-            v-if="data.defaulterIdentityType >= 4"
+            v-else-if="data.defaulterIdentityType >= 4"
           ></i>
           <!-- <template v-if="authShow">
             <div
@@ -217,7 +217,7 @@
               class="freelog fl-icon-suoding lock"
               @click.stop="getAuth()"
               alt="未授权"
-              v-if="data.defaulterIdentityType >= 4"
+              v-else-if="data.defaulterIdentityType >= 4"
             ></i>
 
             <myTooltip :content="data.exhibitTitle">
