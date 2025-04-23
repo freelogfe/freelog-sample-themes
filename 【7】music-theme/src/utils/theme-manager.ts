@@ -9,7 +9,6 @@ export const currentTheme = ref<ThemeType>((localStorage.getItem("theme") as The
 // 切换主题
 export function toggleTheme(theme: ThemeType) {
   applyTheme(theme);
-  console.log("最底层", theme);
   localStorage.setItem("theme", theme);
 }
 

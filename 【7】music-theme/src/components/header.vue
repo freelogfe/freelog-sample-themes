@@ -286,14 +286,12 @@ export default {
   data() {
     const store = useGlobalStore();
 
-    console.log(11111, localStorage.getItem("systemMode"));
-
     return {
       searchKey: "",
       searchHistory: [] as string[],
       userBoxShow: false,
       searchHistoryShow: false,
-      systemMode: Boolean(localStorage.getItem("systemMode")) || false,
+      systemMode: JSON.parse(localStorage.getItem("systemMode") || "false"),
       searchWordCatch: null as number | null,
       tabList: [
         { value: "/home", label: "首页" },
@@ -531,16 +529,15 @@ export default {
     },
 
     handleSystemMode(status: boolean) {
-      console.log("状态", status);
       // 开启按钮
       if (status) {
         const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
         const mode = isDarkMode ? "dark" : "light";
         toggleTheme(mode);
 
-        localStorage.setItem("systemMode", true);
+        localStorage.setItem("systemMode", JSON.stringify(true));
       } else {
-        localStorage.setItem("systemMode", false);
+        localStorage.setItem("systemMode", JSON.stringify(false));
       }
     }
   }
