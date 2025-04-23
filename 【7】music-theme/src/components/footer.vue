@@ -64,7 +64,7 @@ export default {
   left: 0;
   bottom: 0;
   right: 0;
-  background-color: #222;
+  background-color: var(--text-point-third-color);
   z-index: 100;
 
   // mobile

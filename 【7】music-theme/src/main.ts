@@ -3,6 +3,10 @@ import { createPinia } from "pinia";
 import { useGlobalStore } from "@/store/global";
 import { freelogApp, initFreelogApp } from "freelog-runtime";
 import mapRoutes from "@/utils/map-routes";
+// 导入主题初始化函数
+import { initTheme } from "@/utils/theme-manager";
+// 导入主题样式
+import "@/assets/css/theme.less";
 
 import App from "./App.vue";
 import router from "./router";
@@ -10,6 +14,9 @@ import router from "./router";
 window.mount = async () => {
   const isMicroApp = !window.__MICRO_APP_ENVIRONMENT__;
   console.log(isMicroApp ? "%c独立模块" : "%c子应用", "color:red; padding:10px; font-size: 15px");
+
+  // 初始化主题
+  initTheme();
 
   initFreelogApp();
   /* 路由映射: mapShareUrl会调用映射函数得到地址, 并异步导航  */

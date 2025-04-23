@@ -5,6 +5,7 @@ import { nextTick } from "vue";
 import { judgeDevice, judgeIOSDevice } from "@/utils/common";
 // @ts-ignore
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
+import { currentTheme, toggleTheme, ThemeType } from "@/utils/theme-manager";
 import { freelogApp } from "freelog-runtime";
 
 interface UserData {
@@ -39,6 +40,7 @@ export interface State {
   nodeInfo: Record<string, any>;
   playMode: string | null;
   playerShowStatus: false;
+  theme: ThemeType;
 }
 
 export const useGlobalStore = defineStore("global", {
@@ -64,7 +66,8 @@ export const useGlobalStore = defineStore("global", {
       searchKey: "", // 搜索关键词
       nodeInfo: {},
       playMode: null, // 播放模式，顺序播放、随机播放,
-      playerShowStatus: false // 播放器收起展开状态 false：收起；true:展开
+      playerShowStatus: false, // 播放器收起展开状态 false：收起；true:展开
+      theme: currentTheme.value as ThemeType
     };
   },
   getters: {},
@@ -75,6 +78,7 @@ export const useGlobalStore = defineStore("global", {
     },
     /** 初始化 store */
     async initStoreData() {
+      // this.initThemeState();
       // freelogApp.setUserData("playIdList", []);
       // freelogApp.setUserData("collectionIdList", []);
 
@@ -170,5 +174,15 @@ export const useGlobalStore = defineStore("global", {
       // 如果有之前播放的声音，且声音依然存在于播放列表中，则获取声音信息
       if (playingId && playIdList.includes(playingId)) useMyPlay.getPlayingInfo(playingId);
     }
+    // initThemeState() {
+    //   this.theme = currentTheme.value;
+    // },
+    // toggleTheme(theme: ThemeType) {
+    //   console.log("来自store", theme);
+    //   toggleTheme(theme);
+
+    //   console.log("改完之后的", currentTheme.value);
+    //   this.theme = currentTheme.value;
+    // }
   }
 });

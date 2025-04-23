@@ -44,7 +44,7 @@ export default {
   right: 0px;
   width: 100px;
   height: 80px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--text-fourth-color);
   box-shadow: 0px 2px 10px 0px rgba(0, 0, 0, 0.15);
   border-radius: 20px 0px 0px 20px;
   display: flex;

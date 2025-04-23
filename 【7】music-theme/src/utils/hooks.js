@@ -187,7 +187,7 @@ export const useMyCollection = {
           ...subInfo.data.data,
           onlineStatus: list.data?.data?.[0]?.status,
           coverImages: list.data?.data?.[0]?.coverImages,
-          versionInfo: { exhibitProperty: subInfo.data.data.articleInfo.articleProperty },
+          versionInfo: { exhibitProperty: subInfo.data.data.articleInfo?.articleProperty },
           defaulterIdentityType: subStatusList.data.data[0].defaulterIdentityType
         });
       } else {
@@ -285,7 +285,7 @@ export const useMyPlay = {
         result.push({
           ...subInfo.data.data,
           coverImages: list.data?.data?.[0]?.coverImages,
-          versionInfo: { exhibitProperty: subInfo.data.data.articleInfo.articleProperty },
+          versionInfo: { exhibitProperty: subInfo.data.data.articleInfo?.articleProperty },
           defaulterIdentityType: subStatusList.data.data[0].defaulterIdentityType,
           albumName: list.data.data[0].exhibitName
         });

@@ -631,8 +631,12 @@
             </transition>
             <template v-for="(item, index) in btnList">
               <div
-                class="btn normal-btn"
-                :class="{ 'play-btn': index === 0, disabled: item.disabled }"
+                class="btn"
+                :class="{
+                  'play-btn': index === 0,
+                  disabled: item.disabled,
+                  'normal-btn': index !== 0
+                }"
                 :key="item.title"
                 @click="item.operate"
                 v-if="!item.hidden"

@@ -7,8 +7,10 @@ import myTooltip from "@/components/tooltip.vue";
 import playStatus from "@/components/play-status.vue";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { secondsToHMS } from "@/utils/common";
+import { currentTheme } from "@/utils/theme-manager";
 
 import MoreIcon from "@/assets/images/arrow.png";
+import DarkMoreIcon from "@/assets/images/dark-arrow.png";
 import AuthLinkAbnormal from "@/assets/images/auth-link-abnormal.png";
 import Freeze from "@/assets/images/freeze.png";
 import { Exhibit } from "@/interface";
@@ -173,7 +175,7 @@ const isSelectedData = item => {
       <div class="more" @click="router.myPush({ path: '/voice-list' })">
         所有音乐
         <div class="more-icon">
-          <img :src="MoreIcon" alt="更多" />
+          <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
         </div>
       </div>
     </div>
@@ -327,7 +329,7 @@ const isSelectedData = item => {
       <div class="more" @click="router.myPush({ path: '/voice-list' })">
         所有音乐
         <div class="more-icon">
-          <img :src="MoreIcon" alt="更多" />
+          <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
         </div>
       </div>
     </div>
@@ -448,9 +450,9 @@ const isSelectedData = item => {
     .title {
       font-weight: 600;
       font-size: 20px;
-      color: #ffffff;
+      color: var(--text-color);
       line-height: 28px;
-      opacity: 0.6;
+      opacity: 0.8;
     }
 
     .more {
@@ -458,8 +460,8 @@ const isSelectedData = item => {
       align-items: center;
       font-weight: 600;
       font-size: 14px;
-      color: #ffffff;
-      opacity: 0.6;
+      color: var(--text-color);
+      opacity: 0.8;
       line-height: 20px;
       cursor: pointer;
 
@@ -501,7 +503,7 @@ const isSelectedData = item => {
         width: 40px;
         font-weight: 600;
         font-size: 16px;
-        color: #ffffff;
+        color: var(--text-color);
         line-height: 22px;
         text-align: left;
         opacity: 0.2;
@@ -516,7 +518,7 @@ const isSelectedData = item => {
           position: relative;
           width: 70px;
           height: 70px;
-          background: rgba(0, 0, 0, 0.2);
+          background: var(--bg-second-color);
           border-radius: 6px;
           margin-right: 15px;
           overflow: hidden;
@@ -529,7 +531,7 @@ const isSelectedData = item => {
             // }
 
             .btn-modal {
-              background: rgba(0, 0, 0, 0.2);
+              background: var(--bg-second-color);
 
               .btn {
                 opacity: 1;
@@ -546,7 +548,6 @@ const isSelectedData = item => {
           .btn-modal {
             position: absolute;
             inset: 0;
-            background: rgba(0, 0, 0, 0);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -557,7 +558,7 @@ const isSelectedData = item => {
               width: 48px;
               height: 48px;
               border-radius: 50%;
-              background: rgba(255, 255, 255, 0.4);
+              background: var(--bg-fourth-color);
               backdrop-filter: blur(1px);
               display: flex;
               align-items: center;
@@ -571,7 +572,7 @@ const isSelectedData = item => {
               }
 
               &:active {
-                background: rgba(255, 255, 255, 0.4);
+                background: var(--bg-fourth-color);
               }
 
               .freelog {
@@ -601,7 +602,7 @@ const isSelectedData = item => {
             width: 196px;
             font-weight: 600;
             font-size: 16px;
-            color: #ffffff;
+            color: var(--text-color);
             line-height: 22px;
             opacity: 0.8;
             cursor: pointer;
@@ -617,7 +618,7 @@ const isSelectedData = item => {
                 opacity: 1 !important;
               }
               .lock {
-                color: #ffffff;
+                color: var(--text-color);
               }
             }
 
@@ -632,11 +633,11 @@ const isSelectedData = item => {
               flex-shrink: 0;
               width: 40px;
               height: 20px;
-              background: rgba(255, 255, 255, 0.2);
+              background: var(--text-second-color);
               border-radius: 13px;
               font-size: 10px;
               font-weight: 600;
-              color: #ffffff;
+              color: var(--text-color);
               display: flex;
               align-items: center;
               justify-content: center;
@@ -652,7 +653,7 @@ const isSelectedData = item => {
             width: 196px;
             font-weight: 400;
             font-size: 12px;
-            color: #ffffff;
+            color: var(--text-color);
             line-height: 18px;
             overflow: hidden;
             white-space: nowrap;
@@ -662,7 +663,7 @@ const isSelectedData = item => {
           .type {
             font-weight: 400;
             font-size: 12px;
-            color: #ffffff;
+            color: var(--text-color);
             line-height: 18px;
             opacity: 0.4;
 
@@ -702,7 +703,7 @@ const isSelectedData = item => {
             top: 14px;
             width: 91px;
             height: 100px;
-            background: rgba(34, 34, 34);
+            background: var(--bg-color);
             box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
             border-radius: 4px;
             backdrop-filter: blur(25px);
@@ -714,6 +715,7 @@ const isSelectedData = item => {
               justify-content: center;
               align-items: center;
               cursor: pointer;
+              color: var(--text-color);
 
               &:hover {
                 background: #44d7b6;
@@ -723,7 +725,8 @@ const isSelectedData = item => {
                 margin-left: 0;
                 margin-right: 5px;
                 &:hover {
-                  color: rgba(255, 255, 255, 0.8);
+                  color: var(--text-color);
+                  opacity: 0.8;
                 }
               }
             }
@@ -740,7 +743,7 @@ const isSelectedData = item => {
     justify-content: center;
     font-weight: 400;
     font-size: 30px;
-    color: #ffffff;
+    color: var(--text-color);
     line-height: 36px;
     opacity: 0.4;
   }
@@ -759,9 +762,9 @@ const isSelectedData = item => {
     .title {
       font-weight: 600;
       font-size: 20px;
-      color: #ffffff;
+      color: var(--text-color);
       line-height: 28px;
-      opacity: 0.6;
+      opacity: 0.8;
     }
 
     .more {
@@ -769,8 +772,8 @@ const isSelectedData = item => {
       align-items: center;
       font-weight: 600;
       font-size: 14px;
-      color: #ffffff;
-      opacity: 0.6;
+      color: var(--text-color);
+      opacity: 0.8;
       line-height: 20px;
       cursor: pointer;
 
@@ -811,7 +814,7 @@ const isSelectedData = item => {
           position: relative;
           width: 62px;
           height: 62px;
-          background: rgba(0, 0, 0, 0.2);
+          background: var(--bg-second-color);
           border-radius: 6px;
           margin-right: 10px;
           overflow: hidden;
@@ -835,7 +838,7 @@ const isSelectedData = item => {
             width: 196px;
             font-weight: 600;
             font-size: 16px;
-            color: #ffffff;
+            color: var(--text-color);
             line-height: 22px;
             opacity: 0.8;
             cursor: pointer;
@@ -851,7 +854,7 @@ const isSelectedData = item => {
                 opacity: 1 !important;
               }
               .lock {
-                color: #ffffff;
+                color: var(--text-color);
               }
             }
 
@@ -866,11 +869,11 @@ const isSelectedData = item => {
               flex-shrink: 0;
               width: 40px;
               height: 20px;
-              background: rgba(255, 255, 255, 0.2);
+              background: var(--text-second-color);
               border-radius: 13px;
               font-size: 10px;
               font-weight: 600;
-              color: #ffffff;
+              color: var(--text-color);
               display: flex;
               align-items: center;
               justify-content: center;
@@ -886,7 +889,7 @@ const isSelectedData = item => {
             width: 196px;
             font-weight: 400;
             font-size: 12px;
-            color: #ffffff;
+            color: var(--text-color);
             line-height: 18px;
             overflow: hidden;
             white-space: nowrap;
@@ -896,7 +899,7 @@ const isSelectedData = item => {
           .type {
             font-weight: 400;
             font-size: 12px;
-            color: #ffffff;
+            color: var(--text-color);
             line-height: 18px;
             opacity: 0.4;
 
@@ -917,7 +920,7 @@ const isSelectedData = item => {
           .time {
             font-weight: 400;
             font-size: 12px;
-            color: #ffffff;
+            color: var(--text-color);
             line-height: 18px;
             margin-right: 15px;
           }
@@ -933,7 +936,7 @@ const isSelectedData = item => {
         top: 0;
         right: 0;
         bottom: 0;
-        background-color: rgba(0, 0, 0, 0.2);
+        background-color: var(--bg-second-color);
         z-index: 300;
       }
 
@@ -960,19 +963,18 @@ const isSelectedData = item => {
             display: flex;
             flex-direction: column;
             align-items: center;
-            color: rgba(255, 255, 255, 0.6);
+            color: var(--text-sixth-color);
 
             &:active {
-              color: rgba(255, 255, 255, 0.4);
-
+              color: var(--text-fourth-color);
               .freelog {
-                background: rgba(255, 255, 255, 0.03);
+                background: var(--text-point-third-color);
               }
             }
 
             &.disabled {
-              background: rgba(255, 255, 255, 0.02);
-              color: rgba(255, 255, 255, 0.24);
+              // background: var(--text-point-second-color);
+              color: var(--text-second-color);
               pointer-events: none;
             }
 
@@ -984,7 +986,7 @@ const isSelectedData = item => {
               width: 48px;
               height: 48px;
               font-size: 24px;
-              background: rgba(255, 255, 255, 0.05);
+              background: var(--text-point-fifth-color);
               border-radius: 10px;
               display: flex;
               align-items: center;
@@ -1012,10 +1014,10 @@ const isSelectedData = item => {
           align-items: center;
           justify-content: center;
           font-size: 14px;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-sixth-color);
 
           &:active {
-            color: rgba(255, 255, 255, 0.4);
+            color: var(--text-fourth-color);
           }
         }
       }
@@ -1029,7 +1031,7 @@ const isSelectedData = item => {
     justify-content: center;
     font-weight: 400;
     font-size: 24px;
-    color: #ffffff;
+    color: var(--text-color);
     line-height: 40px;
     opacity: 0.4;
   }

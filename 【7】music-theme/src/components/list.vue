@@ -371,7 +371,7 @@ export default {
 
     .title {
       font-size: 34px;
-      color: #ffffff;
+      color: var(--text-color);
       line-height: 40px;
       margin-bottom: 30px;
     }
@@ -396,7 +396,7 @@ export default {
           line-height: 38px;
           font-size: 14px;
           font-weight: 600;
-          color: #ffffff;
+          color: var(--text-color);
           opacity: 0.4;
           transition: all 0.2s ease-out;
           cursor: pointer;
@@ -440,7 +440,7 @@ export default {
         margin-top: 30px;
         font-weight: 400;
         font-size: 12px;
-        color: #ffffff;
+        color: var(--text-color);
         line-height: 18px;
         opacity: 0.4;
       }
@@ -469,9 +469,9 @@ export default {
     .search-title {
       font-size: 36px;
       font-weight: 600;
-      color: #ffffff;
+      color: var(--text-color);
       line-height: 56px;
-      opacity: 0.6;
+      opacity: 0.8;
       margin-bottom: 40px;
       word-break: break-all;
     }
@@ -487,7 +487,7 @@ export default {
           line-height: 38px;
           font-size: 14px;
           font-weight: 600;
-          color: #ffffff;
+          color: var(--text-color);
           opacity: 0.4;
           transition: all 0.2s ease-out;
           cursor: pointer;
@@ -531,7 +531,7 @@ export default {
         margin-top: 30px;
         font-weight: 400;
         font-size: 12px;
-        color: #ffffff;
+        color: var(--text-color);
         line-height: 18px;
         opacity: 0.4;
       }
@@ -552,7 +552,7 @@ export default {
           height: 20px;
           font-weight: 600;
           font-size: 14px;
-          color: #fff;
+          color: var(--text-color);
           line-height: 20px;
         }
 
@@ -570,7 +570,7 @@ export default {
             border-width: 6px 5px;
             border-style: solid;
             border-color: transparent;
-            border-top-color: #fff;
+            border-top-color: var(--text-color);
             position: relative;
             top: 3px;
           }
@@ -616,6 +616,7 @@ export default {
         justify-content: space-between;
         align-items: center;
         // background: #292929;
+        background: var(--text-point-third-color);
         border-radius: 6px;
         padding: 6px 0px;
         margin-bottom: 15px;
@@ -623,7 +624,7 @@ export default {
         span {
           font-weight: 400;
           font-size: 12px;
-          color: #ffffff;
+          color: var(--text-color);
           line-height: 18px;
           opacity: 0.4;
 
@@ -674,7 +675,7 @@ export default {
           height: 20px;
           font-weight: 600;
           font-size: 14px;
-          color: #fff;
+          color: var(--text-color);
           line-height: 20px;
         }
 
@@ -692,7 +693,7 @@ export default {
             border-width: 6px 5px;
             border-style: solid;
             border-color: transparent;
-            border-top-color: #fff;
+            border-top-color: var(--text-color);
             position: relative;
             top: 3px;
           }
@@ -705,7 +706,7 @@ export default {
         top: 0;
         right: 0;
         bottom: 0;
-        background-color: rgba(0, 0, 0, 0.2);
+        background-color: var(--bg-second-color);
         z-index: 300;
       }
 
@@ -755,6 +756,7 @@ export default {
         .close-btn {
           border-top: 1px solid rgba(255, 255, 255, 0.05);
           padding: 20px 0;
+          color: #ffffff;
         }
       }
     }
@@ -772,7 +774,7 @@ export default {
     position: absolute;
     left: 0;
     right: 0;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-fourth-color);
     display: flex;
     // align-items: center;
     padding-top: calc((100vh - 272px) * 0.4 - 18px);

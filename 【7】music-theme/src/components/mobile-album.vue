@@ -4,11 +4,14 @@ import { freelogApp } from "freelog-runtime";
 import { useRouter } from "vue-router";
 import { absoluteTime } from "@/utils/common.js";
 import { useMyPlay, useMyAuth } from "@/utils/hooks";
+import { currentTheme } from "@/utils/theme-manager";
 import { useGlobalStore } from "@/store/global";
 // 图片
 import MoreIcon from "@/assets/images/arrow.png";
+import DarkMoreIcon from "@/assets/images/dark-arrow.png";
 import TimeIcon from "@/assets/images/time.png";
 import AlbumIcon from "@/assets/images/album.png";
+import DarkAlbumIcon from "@/assets/images/dark-album.png";
 import AuthLinkAbnormal from "@/assets/images/auth-link-abnormal.png";
 import Freeze from "@/assets/images/freeze.png";
 import type { Exhibit } from "@/interface";
@@ -229,7 +232,7 @@ const getCollectionList = async (obj: {
 
               <div class="album-box">
                 <div class="icon">
-                  <img :src="AlbumIcon" alt="专辑" />
+                  <img :src="currentTheme === 'light' ? DarkAlbumIcon : AlbumIcon" alt="专辑" />
                 </div>
                 <span class="album">{{ item.signCount }}</span>
               </div>
@@ -239,7 +242,7 @@ const getCollectionList = async (obj: {
             class="more-icon"
             @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
           >
-            <img :src="MoreIcon" alt="更多" />
+            <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
           </div>
         </div>
       </div>
@@ -462,7 +465,7 @@ const getCollectionList = async (obj: {
                 font-size: 10px;
                 line-height: 16px;
                 font-weight: 500;
-                color: #ffffff;
+                color: var(--text-color);
                 opacity: 0.8;
               }
             }
@@ -475,7 +478,7 @@ const getCollectionList = async (obj: {
             .title {
               font-weight: 600;
               font-size: 14px;
-              color: #ffffff;
+              color: var(--text-color);
               line-height: 20px;
               opacity: 0.8;
               cursor: pointer;
@@ -512,7 +515,7 @@ const getCollectionList = async (obj: {
               .album {
                 font-weight: 400;
                 font-size: 12px;
-                color: #ffffff;
+                color: var(--text-color);
                 line-height: 18px;
               }
 

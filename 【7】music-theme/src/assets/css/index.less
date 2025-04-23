@@ -1,7 +1,7 @@
 #app {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-  "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
-  "Noto Color Emoji";
+    "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: left;
@@ -36,7 +36,8 @@ img {
 }
 
 .text-btn {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-color);
+  opacity: 0.8;
   cursor: pointer;
   transition: all 0.2s linear;
 
@@ -65,26 +66,30 @@ img {
   }
 
   &.disabled {
-    color: rgba(255, 255, 255, 0.32);
+    color: var(--text-color);
+    opacity: 0.32;
     pointer-events: none;
   }
 }
 
 .second-text-btn {
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--text-color);
+  opacity: 0.3;
   cursor: pointer;
   transition: all 0.2s linear;
 
   &:hover {
-    color: #fff;
+    color: var(--text-color);
   }
 
   &:active {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-color);
+    opacity: 0.8;
   }
 
   &.mobile {
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-color);
+    opacity: 0.4;
     cursor: default;
     transition: none;
 
@@ -93,15 +98,17 @@ img {
     }
 
     &:active {
-      color: rgba(255, 255, 255, 0.8);
+      color: var(--text-color);
+      opacity: 0.8;
       pointer-events: auto;
     }
   }
 }
 
 .normal-btn {
-  color: #999999;
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-sixth-color);
+  background: var(--text-first-color);
+  // opacity: 0.1;
   cursor: pointer;
   transition: all 0.2s linear;
 
@@ -130,17 +137,17 @@ img {
 }
 
 .header-register-btn {
-  color: #222222;
-  background: rgba(255, 255, 255, 0.8);
+  color: var(--text-reverse-color);
+  background: var(--text-eighth-color);
   cursor: pointer;
   transition: all 0.2s linear;
 
   &:hover {
-    background: #fff;
+    background: var(--text-color);
   }
 
   &:active {
-    background: rgba(255, 255, 255, 0.8);
+    background: var(--text-eighth-color);
   }
 
   &.mobile {
@@ -174,8 +181,8 @@ img {
 }
 
 .play-btn {
-  color: #222;
-  background: #fff;
+  color: var(--text-reverse-color);
+  background: var(--text-eighth-color);
   cursor: pointer;
   transition: all 0.2s linear;
 
@@ -352,5 +359,101 @@ img {
     &:last-child {
       border-radius: 0 0 4px 4px;
     }
+  }
+}
+
+.skin-box {
+  width: 240px !important;
+  padding: 20px;
+  background: var(--bg-skin) !important;
+  backdrop-filter: blur(25px);
+  border: none !important;
+  padding: 20px !important;
+  box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2) !important;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 40px;
+
+  .btn {
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+    font-size: 14px;
+    padding-left: 20px;
+    box-sizing: border-box;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+
+    &:last-child {
+      border-radius: 0 0 4px 4px;
+    }
+  }
+
+  .light-mode,
+  .dark-mode {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 60px;
+    border-radius: 5px;
+    cursor: pointer;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+
+    &.selected {
+      border: 2px solid #44d7b6;
+    }
+
+    &:hover {
+      border: 2px solid rgba(0, 0, 0, 0.1);
+    }
+
+    &:active {
+      border: 2px solid #42c28c;
+    }
+  }
+
+  .light-mode {
+    background: linear-gradient(135deg, #ffffff 0%, #f4f4f4 100%);
+  }
+
+  .dark-mode {
+    background: linear-gradient(135deg, #666666 0%, #101010 100%);
+  }
+
+  .switch {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .system-mode {
+      color: var(--text-other-color);
+    }
+
+    .el-switch__core {
+      min-width: 30px;
+    }
+  }
+}
+
+.skin-text {
+  cursor: pointer;
+  color: var(--text-color);
+  opacity: 0.4;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  .fl-icon-pifu {
+    margin-right: 6px;
+  }
+
+  .text {
+    font-weight: 600;
+    line-height: 20px;
   }
 }

@@ -46,8 +46,8 @@ const { inMobile } = storeToRefs(store);
 
 #music-theme {
   position: relative;
-  background-color: #101010;
-  color: #fff;
+  background-color: var(--bg-color);
+  color: var(--text-color);
   font-size: 14px;
 
   &.pc {
@@ -120,7 +120,7 @@ const { inMobile } = storeToRefs(store);
     justify-content: center;
     align-items: center;
     padding: 3px 10px;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--bg-second-color);
     border-radius: 12px;
     backdrop-filter: blur(12px);
     box-sizing: border-box;
