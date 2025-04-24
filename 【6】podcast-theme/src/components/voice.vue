@@ -442,7 +442,7 @@ export default {
           } else if (collection_item_title === collection_item_title_custom) {
             return this.data?.child?.itemTitle || this.data?.child?.articleInfo?.articleTitle || "";
           } else {
-            return this.data?.child?.articleInfo?.articleTitle || ""
+            return this.data?.child?.itemTitle || this.data?.child?.articleInfo?.articleTitle || ""
           }
         } else {
           return this.data.exhibitTitle;
