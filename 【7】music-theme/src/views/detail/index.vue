@@ -1299,10 +1299,11 @@ export default {
         };
 
         // 合集
-        const { articleInfo, exhibitName, coverImages, onlineStatus } = exhibitInfo.data.data;
+        const { articleInfo, exhibitName, coverImages, onlineStatus, versionInfo } =
+          exhibitInfo.data.data;
         if (articleInfo.articleType === 2) {
           this.collectionData = [];
-          this.getCollectionList(this.id, exhibitName, coverImages, onlineStatus);
+          this.getCollectionList(this.id, exhibitName, coverImages, onlineStatus, versionInfo);
         }
       }
 
@@ -1316,7 +1317,7 @@ export default {
     },
 
     /** 获取合集里的单品列表 */
-    async getCollectionList(collectionID, exhibitName, coverImages, onlineStatus) {
+    async getCollectionList(collectionID, exhibitName, coverImages, onlineStatus, versionInfo) {
       const subList = await freelogApp.getCollectionSubList(collectionID, {
         skip: this.subSkip,
         limit: 1_000,
@@ -1340,7 +1341,11 @@ export default {
               item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
             }
 
-            item.exhibitTitle = item.itemTitle;
+            item.exhibitTitle =
+              versionInfo.exhibitProperty.catalogueProperty.collection_item_title ===
+              "collection_item_title_rtitle"
+                ? item.articleInfo.articleTitle
+                : item.itemTitle;
             item.exhibitIntro = item.articleInfo.intro;
             item.exhibitId = collectionID;
             item.coverImages = coverImages;
@@ -1356,7 +1361,7 @@ export default {
 
       if (this.subTempData.length < this.subTotal) {
         this.subSkip = this.subSkip + 1_000;
-        this.getCollectionList(collectionID, exhibitName, coverImages, onlineStatus);
+        this.getCollectionList(collectionID, exhibitName, coverImages, onlineStatus, versionInfo);
       } else {
         this.subTotal = 0;
         this.subSkip = 0;
