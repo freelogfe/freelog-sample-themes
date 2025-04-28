@@ -581,7 +581,8 @@ export default {
         position: absolute;
         top: 25px;
         width: 240px;
-        background: #000;
+        background: var(--bg-skin);
+        color: var(--text-eighth-color);
         box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2);
         border-radius: 4px;
         padding: 5px 0;
@@ -593,11 +594,11 @@ export default {
           padding-left: 20px;
           height: 50px;
           line-height: 50px;
-          color: hsla(0, 0%, 100%, 0.6);
+          // color: hsla(0, 0%, 100%, 0.6);
           cursor: pointer;
 
           &.selected {
-            color: #fff;
+            // color: #fff;
           }
 
           &:hover {
@@ -618,7 +619,7 @@ export default {
         // background: #292929;
         background: var(--text-point-third-color);
         border-radius: 6px;
-        padding: 6px 0px;
+        padding: 6px 10px;
         margin-bottom: 15px;
 
         span {

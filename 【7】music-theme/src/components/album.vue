@@ -501,6 +501,8 @@ onBeforeUnmount(() => {
       top: 25px;
       width: 240px;
       background: #000;
+      background: var(--bg-skin);
+      color: var(--text-eighth-color);
       box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2);
       border-radius: 4px;
       padding: 5px 0;
@@ -512,11 +514,11 @@ onBeforeUnmount(() => {
         padding-left: 20px;
         height: 50px;
         line-height: 50px;
-        color: hsla(0, 0%, 100%, 0.6);
+        // color: hsla(0, 0%, 100%, 0.6);
         cursor: pointer;
 
         &.selected {
-          color: #fff;
+          // color: #fff;
         }
 
         &:hover {

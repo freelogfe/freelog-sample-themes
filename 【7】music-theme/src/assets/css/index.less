@@ -319,8 +319,7 @@ img {
 
 .header-user-box {
   width: 240px !important;
-  // background: rgba(0, 0, 0, 0.2) !important;
-  background: rgba(68, 68, 68, 0.3) !important;
+  background: var(--bg-skin) !important;
   backdrop-filter: blur(25px);
   border: none !important;
   padding: 0 !important;
@@ -341,7 +340,7 @@ img {
   .username {
     font-size: 16px;
     line-height: 22px;
-    color: #fff;
+    color: var(--text-eighth-color);
     font-weight: bold;
     margin-top: 15px;
     margin-bottom: 20px;
@@ -354,7 +353,8 @@ img {
     font-size: 14px;
     padding-left: 20px;
     box-sizing: border-box;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    color:var( --text-sixth-color);
+    border-top: 1px solid var( --text-first-color);
 
     &:last-child {
       border-radius: 0 0 4px 4px;
@@ -399,19 +399,19 @@ img {
     height: 60px;
     border-radius: 5px;
     cursor: pointer;
-    box-sizing: border-box;
+    outline: none;
+    transition: outline 0.2s;
     margin-bottom: 10px;
-
     &.selected {
-      border: 2px solid #44d7b6;
+      outline: 2px solid #44d7b6;
     }
-
+  
     &:hover {
-      border: 2px solid rgba(0, 0, 0, 0.1);
+      outline: 2px solid rgba(0, 0, 0, 0.1);
     }
-
+  
     &:active {
-      border: 2px solid #42c28c;
+      outline: 2px solid #42c28c;
     }
   }
 

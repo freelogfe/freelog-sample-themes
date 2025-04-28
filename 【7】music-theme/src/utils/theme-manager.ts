@@ -1,10 +1,11 @@
 import { ref } from "vue";
+import { useGlobalStore } from "@/store/global";
 
 // 主题类型
 export type ThemeType = "light" | "dark";
 
 // 当前主题
-export const currentTheme = ref<ThemeType>((localStorage.getItem("theme") as ThemeType) || "light");
+export const currentTheme = ref<ThemeType>("light");
 
 // 切换主题
 export function toggleTheme(theme: ThemeType) {
@@ -32,6 +33,12 @@ export function initTheme() {
   //   currentTheme.value = prefersDark ? "dark" : "light";
   //   localStorage.setItem("theme", currentTheme.value);
   // }
+
+  const store = useGlobalStore();
+
+  const theme =
+    (localStorage.getItem("theme") as ThemeType) || store.selfConfig.options_system_mode || "light";
+  currentTheme.value = theme;
 
   applyTheme(currentTheme.value);
 }
