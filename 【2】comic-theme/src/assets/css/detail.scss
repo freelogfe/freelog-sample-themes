@@ -484,7 +484,7 @@
       .comic-info {
         display: flex;
         padding-bottom: 30px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        // border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
         .comic-cover {
           position: relative;
@@ -557,7 +557,7 @@
           }
 
           .tags {
-            margin-top: 12px;
+            margin: 20px 0;
             height: 24px;
             overflow: hidden;
           }
@@ -576,13 +576,34 @@
             height: 18px;
             color: #999999;
             margin-top: 4px;
+
+            .on-going {
+              font-weight: 600;
+              font-size: 12px;
+              color: #42c28c;
+              line-height: 18px;
+              margin-right: 10px;
+            }
+
+            .completed {
+              font-weight: 600;
+              font-size: 12px;
+              color: #e9a923;
+              line-height: 18px;
+              margin-right: 10px;
+            }
+
+            .latest-comic {
+              margin-left: 5px;
+              margin-right: 15px;
+            }
           }
 
           .btns-box {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-top: 12px;
+            margin-top: 20px;
 
             .operate-btns {
               display: flex;
@@ -663,7 +684,7 @@
     }
 
     .comic-intro {
-      padding: 25px 0;
+      padding: 20px 0;
       // border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
       &.need-border {
@@ -671,10 +692,10 @@
       }
 
       .intro-title {
-        font-size: 16px;
-        line-height: 22px;
+        font-size: 20px;
+        line-height: 26px;
         color: #222222;
-        font-weight: bold;
+        font-weight: 600;
       }
 
       .intro {
@@ -725,20 +746,20 @@
     }
 
     .comic-catalogue {
-      padding: 24px 0 29px 0;
+      padding: 30px 0;
       .title-container {
         display: flex;
+        align-items: center;
         .title {
           font-weight: 600;
-          font-size: 16px;
+          font-size: 20px;
           color: #222222;
-          line-height: 22px;
+          line-height: 26px;
         }
         .count {
           font-weight: 400;
-          font-size: 16px;
+          font-size: 14px;
           color: #999999;
-          line-height: 22px;
           margin-left: 10px;
         }
         .sort {
@@ -776,8 +797,43 @@
         }
       }
 
+      .latest-tip-box {
+        display: flex;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.02);
+        border-radius: 4px;
+        padding: 9px 10px;
+        margin-top: 20px;
+
+        .latest-title {
+          padding: 2px 5px;
+          font-weight: 400;
+          font-size: 12px;
+          color: #ffffff;
+          line-height: 18px;
+          background: #fa6400;
+          border-radius: 4px;
+        }
+
+        .latest-comic {
+          font-weight: 400;
+          font-size: 12px;
+          color: #666666;
+          line-height: 18px;
+          margin-left: 10px;
+        }
+
+        .time {
+          font-weight: 400;
+          font-size: 12px;
+          color: #666666;
+          line-height: 18px;
+          margin-left: auto;
+        }
+      }
+
       .sub-directory-container {
-        margin-top: 25px;
+        margin-top: 15px;
         display: flex;
         align-items: center;
         flex-wrap: wrap;
@@ -788,12 +844,12 @@
           align-items: center;
           justify-content: space-between;
           width: 280px;
-          padding: 14px 0 15px 0;
+          padding: 15px 0;
           font-weight: 400;
           font-size: 14px;
           color: #222222;
           line-height: 20px;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+          // border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
           &.disabled {
             opacity: 0.4;
@@ -805,10 +861,24 @@
           }
 
           .sub-title {
+            display: flex;
+            align-items: center;
             text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
             cursor: pointer;
+
+            &.is-latest {
+              &::before {
+                content: "";
+                display: inline-block;
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: #fa6400;
+                margin-right: 7px;
+              }
+            }
           }
 
           .freeze-lock,
