@@ -18,25 +18,41 @@
 			<span class="freelog fl-icon-suoding lock" v-if="!inSignedList && data.defaulterIdentityType >= 4" title="获取授权"></span>
 			<span class="tag is-auth" v-if="inSignedList && data.defaulterIdentityType < 4">已授权</span>
 			<span class="tag not-auth" v-if="inSignedList && data.defaulterIdentityType >= 4">未授权</span>
-			<span
-				class="title"
-				:class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
-				:title="data.exhibitTitle"
-				@click="clickArticle()"
-			>
-				{{ data.exhibitTitle }}
-			</span>
+			<div class="title-container">
+				<span
+					class="title"
+					ref="titleRef"
+					:class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
+					@click="clickArticle()"
+					@mouseenter="handleTitleHover"
+					@mouseleave="showTitleTooltip = false"
+				>
+					{{ data.exhibitTitle }}
+				</span>
+				<div class="title-tooltip" v-show="showTitleTooltip">
+					{{ data.exhibitTitle }}
+				</div>
+			</div>
 		</div>
 		<div
-			class="article-intro"
-			:class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
-			:title="data.exhibitIntro || ''"
+			class="article-intro-container"
 			v-if="data.exhibitIntro"
 		>
-			{{ data.exhibitIntro || "" }}
+			<div
+				class="article-intro"
+				ref="introRef"
+				:class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
+				@mouseenter="handleIntroHover"
+				@mouseleave="showIntroTooltip = false"
+			>
+				{{ data.exhibitIntro || "" }}
+			</div>
+			<div class="intro-tooltip" v-show="showIntroTooltip">
+				{{ data.exhibitIntro }}
+			</div>
 		</div>
 		<div class="tags" v-if="data?.tags?.length">
-			<tags :tags="data?.tags" :maxWidthObj="{ isVaild: true, maxWidth: 80 }" />
+			<tags :tags="data?.tags" :maxWidthObj="{ isVaild: false, maxWidth: 80 }" />
 		</div>
 	</div>
 </template>
@@ -62,6 +78,10 @@ export default {
 		const { switchPage } = useMyRouter();
 		const containerRef = ref(null) as any
 		const imgHeight = ref(200)
+		const showTitleTooltip = ref(false)
+		const titleRef = ref(null) as any
+		const showIntroTooltip = ref(false)
+		const introRef = ref(null) as any
 
 		const inMobile = computed(() => {
       return store.state.inMobile
@@ -74,6 +94,24 @@ export default {
 			
 			switchPage("/reader", { id: exhibitId });
 		};
+
+		/** 处理标题悬停事件 */
+		const handleTitleHover = () => {
+			if (titleRef.value && !inMobile.value) {
+				// 检查文本是否溢出
+				const isOverflowing = titleRef.value.scrollHeight > titleRef.value.clientHeight;
+				showTitleTooltip.value = isOverflowing;
+			}
+		}
+
+		/** 处理简介悬停事件 */
+		const handleIntroHover = () => {
+			if (introRef.value && !inMobile.value) {
+				// 检查文本是否溢出
+				const isOverflowing = introRef.value.scrollHeight > introRef.value.clientHeight;
+				showIntroTooltip.value = isOverflowing;
+			}
+		}
 
 		onMounted(() => {
 			imgHeight.value = 0.68 * containerRef.value.offsetWidth
@@ -89,7 +127,13 @@ export default {
 			formatDate,
 			containerRef,
 			imgHeight,
-			inMobile
+			inMobile,
+			showTitleTooltip,
+			titleRef,
+			handleTitleHover,
+			showIntroTooltip,
+			introRef,
+			handleIntroHover
 		};
 	},
 };
@@ -144,7 +188,7 @@ export default {
 		color: #222222;
 		line-height: 22px;
 		margin-top: 10px;
-		overflow: hidden;
+		// overflow: hidden;
 		text-overflow: ellipsis;
 		display: -webkit-box;
 		-webkit-box-orient: vertical;
@@ -172,12 +216,21 @@ export default {
 			color: #999999;
 		}
 
+		.title-container {
+			position: relative;
+			display: inline-block;
+		}
+
 		.title {
 			max-width: 100%;
 			cursor: pointer;
 			transition: all 0.2s linear;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			display: -webkit-box;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 2;
 		
-
 			&:hover {
 				opacity: 0.8;
 			}
@@ -185,6 +238,25 @@ export default {
 			&:active {
 				opacity: 0.6;
 			}
+		}
+
+		.title-tooltip {
+			position: absolute;
+			width: 300px;
+			max-width: 300px;
+			box-sizing:border-box;
+			background: rgba(0, 0, 0, 0.6);
+			color: #FFFFFF;
+			font-size: 12px;
+			line-height: 18px;
+			border-radius: 6px;
+			padding: 10px;
+			z-index: 10;
+			top: -5px;
+			left:calc(100% + 10px);
+			margin-top: 5px;
+			word-wrap: break-word;
+			overflow: hidden;
 		}
 
 		.tag {
@@ -210,12 +282,15 @@ export default {
 		}
 
 	}
+	.article-intro-container {
+		position: relative;
+		margin-top: 10px;
+	}
 	.article-intro {
 		font-weight: 400;
 		font-size: 14px;
 		color: #666666;
 		line-height: 20px;
-		margin-top: 10px;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		display: -webkit-box;
@@ -223,10 +298,28 @@ export default {
 		-webkit-line-clamp: 2;
 		line-clamp: 2;
 	}
+	.intro-tooltip {
+		position: absolute;
+		width: 300px;
+		max-width: 300px;
+		box-sizing:border-box;
+		background: rgba(0, 0, 0, 0.6);
+		color: #FFFFFF;
+		font-size: 12px;
+		line-height: 18px;
+		border-radius: 6px;
+		padding: 10px;
+		z-index: 10;
+		top: -5px;
+		left:calc(100% + 10px);
+		margin-top: 5px;
+		word-wrap: break-word;
+		overflow: hidden;
+	}
 	.tags {
 		margin-top: 10px;
 		height: 24px;
-		overflow: hidden;
+		// overflow: hidden;
 	}
 
 }
