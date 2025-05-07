@@ -1274,7 +1274,14 @@ export default {
         this.voiceInfo = {
           ...subInfo.data.data,
           coverImages: exhibitInfo.data.data.coverImages,
-          versionInfo: { exhibitProperty: subInfo.data.data.articleInfo?.articleProperty },
+          versionInfo: {
+            exhibitProperty: {
+              ...subInfo.data.data.articleInfo?.articleProperty,
+              release_date:
+                subInfo.data.data.articleInfo?.articleProperty?.release_date ||
+                subInfo.data.data.articleInfo?.firstVersionReleaseDate
+            }
+          },
           defaulterIdentityType: subStatusInfo.data.data[0].defaulterIdentityType,
           exhibitTitle: subInfo.data.data.itemTitle,
           updateDate: subInfo.data.data.articleInfo?.latestVersionReleaseDate,
