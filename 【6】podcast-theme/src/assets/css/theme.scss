@@ -1,0 +1,67 @@
+@import "./theme-variables.scss";
+
+:root {
+  // 默认使用亮色主题变量
+  --bg-color: var(--light-bg);
+  --bg-second-color: var(--light-second-bg);
+  --bg-fourth-color: var(--light-fourth-bg);
+  --bg-fifth-color: var(--light-fifth-bg);
+  --bg-eighth-color: var(--light-eighth-bg);
+  --bg-gradient-color: var(--light-gradient-bg);
+
+  --text-color: var(--light-text);
+  --text-other-color: var(--light-other-text);
+  --text-reverse-color: var(--light-reverse-text);
+  --text-first-color: var(--light-first-text);
+  --text-second-color: var(--light-second-text);
+  --text-fourth-color: var(--light-fourth-text);
+  --text-sixth-color: var(--light-sixth-text);
+  --text-eighth-color: var(--light-eighth-text);
+
+  --text-point-second-color: var(--light-point-second-text);
+  --text-point-third-color: var(--light-point-third-text);
+  --text-point-fifth-color: var(--light-point-fifth-text);
+  --text-point-sixth-color: var(--light-point-sixth-text);
+
+  --unique-text: var(--light-unique-text);
+  --bg-skin: var(--light-skin-bg);
+
+  --secondary-text-color: var(--light-secondary-text);
+  --border-color: var(--light-border);
+  --card-bg-color: var(--light-card-bg);
+  --hover-bg-color: var(--light-hover-bg);
+}
+
+/*! scopecss-disable */
+// 暗色主题
+[data-theme="dark"] {
+  --bg-color: var(--dark-bg);
+  --bg-second-color: var(--dark-second-bg);
+  --bg-fourth-color: var(--dark-fourth-bg);
+  --bg-fifth-color: var(--dark-fifth-bg);
+  --bg-eighth-color: var(--dark-eighth-bg);
+  --bg-gradient-color: var(--dark-gradient-bg);
+
+  --text-color: var(--dark-text);
+  --text-other-color: var(--dark-other-text);
+  --text-reverse-color: var(--dark-reverse-text);
+  --text-first-color: var(--dark-first-text);
+  --text-second-color: var(--dark-second-text);
+  --text-fourth-color: var(--dark-fourth-text);
+  --text-sixth-color: var(--dark-sixth-text);
+  --text-eighth-color: var(--dark-eighth-text);
+
+  --text-point-second-color: var(--dark-point-second-text);
+  --text-point-third-color: var(--dark-point-third-text);
+  --text-point-fifth-color: var(--dark-point-fifth-text);
+  --text-point-sixth-color: var(--dark-point-sixth-text);
+
+  --unique-text: var(--dark-unique-text);
+  --bg-skin: var(--dark-skin-bg);
+
+  --secondary-text-color: var(--dark-secondary-text);
+  --border-color: var(--dark-border);
+  --card-bg-color: var(--dark-card-bg);
+  --hover-bg-color: var(--dark-hover-bg);
+}
+/*! scopecss-enable */

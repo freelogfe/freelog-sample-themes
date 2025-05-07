@@ -38,7 +38,7 @@
 
         font-size: 12px;
         font-weight: 600;
-        color: #ffffff;
+        color: var(--text-color);
         transform: scale(0.84);
       }
 
@@ -62,14 +62,14 @@
 
       .lock {
         font-size: 16px;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--text-sixth-color);
         margin-right: 5px;
       }
 
       .title {
         font-size: 18px;
         font-weight: 600;
-        color: #ffffff;
+        color: var(--text-color);
         line-height: 24px;
         overflow: hidden;
         white-space: nowrap;
@@ -78,7 +78,7 @@
     }
 
     .info-area {
-      color: rgba(255, 255, 255, 0.4);
+      color: var(--text-fourth-color);
       display: flex;
       margin-top: 10px;
 
@@ -120,7 +120,7 @@
       margin-top: 30px;
 
       &:active {
-        background: rgba(255, 255, 255, 0.8);
+        background: var(--text-eighth-color);
         color: rgba(34, 34, 34, 0.8);
       }
 
@@ -148,12 +148,12 @@
       .btn {
         padding: 0 10px;
         height: 40px;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--text-sixth-color);
         display: flex;
         align-items: center;
 
         &:active {
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--text-fourth-color);
         }
 
         &.disabled {
@@ -186,7 +186,7 @@
 
     .intro {
       font-size: 14px;
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--text-sixth-color);
       line-height: 20px;
       margin-top: 20px;
     }
@@ -198,7 +198,7 @@
       .txt {
         font-weight: 400;
         font-size: 14px;
-        color: #FFFFFF;
+        color: var(--text-color);
         line-height: 20px;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -217,7 +217,7 @@
       }
       .btn {
         font-size: 12px;
-        color: #FFFFFF;
+        color: var(--text-color);
         opacity: 0.6;
         margin-left: 10px;
       }
@@ -276,7 +276,7 @@
       align-items: center;
       font-weight: 600;
       font-size: 14px;
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--text-sixth-color);
       line-height: 20px;
       height: 20px;
       margin-bottom: 20px;
@@ -290,7 +290,7 @@
         line-height: 20px;
         height: 20px;
         font-size: 14px;
-        color: #FFFFFF;
+        color: var(--text-color);
         display: flex;
         opacity: 0.6;
         cursor: pointer;
@@ -313,7 +313,7 @@
             border-width: 4px 3px;
             border-style: solid;
             border-color: transparent;
-            border-top-color: #ffffff;
+            border-top-color: var(--text-color);
             position: relative;
             top: 9px;
           }
@@ -329,7 +329,7 @@
     text-align: center;
     font-weight: 400;
     font-size: 14px;
-    color: #FFFFFF;
+    color: var(--text-color);
     line-height: 20px;
     opacity: 0.2;
   }
@@ -372,7 +372,7 @@
 
         font-size: 12px;
         font-weight: 600;
-        color: #ffffff;
+        color: var(--text-color);
         transform: scale(0.84);
       }
 
@@ -395,7 +395,7 @@
 
         .lock {
           font-size: 30px;
-          color: rgba(255, 255, 255, 0.8);
+          color: var(--text-eighth-color);
           margin-right: 20px;
           cursor: pointer;
         }
@@ -406,14 +406,14 @@
           border: 2px solid rgba(255, 255, 255, 0.2);
           font-size: 14px;
           font-weight: 600;
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--text-fourth-color);
           line-height: 20px;
         }
 
         .title {
           flex: 1;
           width: 0;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-sixth-color);
           font-size: 36px;
           font-weight: 600;
           line-height: 56px;
@@ -425,7 +425,7 @@
 
         .single {
           opacity: 0.32;
-          color: #fff;
+          color: var(--text-other-color);
           font-size: 34px;
         }
 
@@ -445,7 +445,7 @@
 
       .intro {
         font-size: 14px;
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--text-fourth-color);
         line-height: 20px;
         word-break: break-all;
         margin-top: 20px;
@@ -458,7 +458,7 @@
         .info-item {
           display: flex;
           align-items: center;
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--text-fourth-color);
 
           & + .info-item {
             margin-left: 20px;
@@ -483,7 +483,7 @@
 
         .duration {
           font-size: 14px;
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--text-fourth-color);
           line-height: 20px;
           margin-right: 20px;
         }
@@ -491,7 +491,7 @@
         .playing-mark {
           display: flex;
           align-items: center;
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--text-fourth-color);
           margin-right: 20px;
 
           .progress {
@@ -583,7 +583,7 @@
       align-items: center;
       font-weight: 600;
       font-size: 20px;
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--text-sixth-color);
       line-height: 28px;
       height: 28px;
       margin-bottom: 15px;
@@ -596,7 +596,7 @@
         font-weight: 400;
         line-height: 28px;
         font-size: 14px;
-        color: #FFFFFF;
+        color: var(--text-color);
         display: flex;
         opacity: 0.6;
         cursor: pointer;
@@ -619,7 +619,7 @@
             border-width: 6px 5px;
             border-style: solid;
             border-color: transparent;
-            border-top-color: #ffffff;
+            border-top-color: var(--text-color);
             position: relative;
             top: 12px;
           }

@@ -61,7 +61,7 @@ export default {
   left: 0;
   bottom: 0;
   right: 0;
-  background-color: #222;
+  background-color: var(--text-point-third-color);
   z-index: 100;
 
   // mobile
@@ -78,6 +78,7 @@ export default {
       justify-content: center;
 
       .second-text-btn {
+        color: var(--text-color);
         font-size: 14px;
         line-height: 18px;
       }
@@ -95,6 +96,8 @@ export default {
 
     .second-text-btn {
       font-size: 12px;
+      color: var(--text-color);
+      opacity:0.3;      
     }
   }
 }

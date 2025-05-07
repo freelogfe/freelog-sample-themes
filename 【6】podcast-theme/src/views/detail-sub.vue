@@ -517,7 +517,7 @@ export default {
 
       .lock {
         font-size: 16px;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--text-sixth-color);
         margin-right: 5px;
       }
 
@@ -533,7 +533,7 @@ export default {
     }
 
     .info-area {
-      color: rgba(255, 255, 255, 0.4);
+      color: var(--text-fourth-color);
       display: flex;
       margin-top: 10px;
 
@@ -610,12 +610,12 @@ export default {
       .btn {
         padding: 0 10px;
         height: 40px;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--text-sixth-color);
         display: flex;
         align-items: center;
 
         &:active {
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--text-fourth-color);
         }
 
         &.disabled {
@@ -648,7 +648,7 @@ export default {
 
     .intro {
       font-size: 14px;
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--text-sixth-color);
       line-height: 20px;
       margin-top: 20px;
     }
@@ -793,7 +793,7 @@ export default {
         .title {
           flex: 1;
           width: 0;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-sixth-color);
           font-size: 36px;
           font-weight: 600;
           line-height: 56px;
@@ -805,7 +805,7 @@ export default {
 
       .intro {
         font-size: 14px;
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--text-fourth-color);
         line-height: 20px;
         word-break: break-all;
         margin-top: 20px;
@@ -818,7 +818,7 @@ export default {
         .info-item {
           display: flex;
           align-items: center;
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--text-fourth-color);
 
           & + .info-item {
             margin-left: 20px;
@@ -837,7 +837,7 @@ export default {
         .to-pool {
           cursor: pointer;
           &:hover {
-            color: rgba(255, 255, 255, 0.6);
+            color: var(--text-sixth-color);
           }
         }
       }
@@ -849,7 +849,7 @@ export default {
 
         .duration {
           font-size: 14px;
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--text-fourth-color);
           line-height: 20px;
           margin-right: 20px;
         }
@@ -857,7 +857,7 @@ export default {
         .playing-mark {
           display: flex;
           align-items: center;
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--text-fourth-color);
           margin-right: 20px;
 
           .progress {

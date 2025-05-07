@@ -61,8 +61,8 @@ export default {
 }
 
 #appPodcast {
-  background-color: #222;
-  color: #fff;
+  background-color: var(--bg-color);
+  color: var(--text-color);
   font-size: 14px;
   height: 100vh;
 
@@ -117,5 +117,18 @@ export default {
       animation: fade-in 0.5s ease;
     }
   }
+}
+
+.theme-toggle-btn {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  padding: 8px 16px;
+  background-color: var(--card-bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
 }
 </style>

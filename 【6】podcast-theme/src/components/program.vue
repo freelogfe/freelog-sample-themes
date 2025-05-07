@@ -23,7 +23,7 @@
           class="play-status-wrapper"
           v-if="$store.state.playingInfo && $store.state.playingInfo.exhibitId === data.exhibitId"
         >
-          <play-status :playing="playing" color="#FFFFFF" />
+          <play-status :playing="playing" color="var(--text-other-color)" />
         </div>
       </div>
       <!-- 中间 -->
@@ -245,7 +245,7 @@ export default {
         span {
           font-size: 10px;
           font-weight: 600;
-          color: #ffffff;
+          color: var(--text-other-color);
           transform: scale(0.84);
         }
       }
@@ -264,7 +264,7 @@ export default {
           width: 50px;
           height: 50px;
           border-radius: 50%;
-          background: rgba(255, 255, 255, 0.4);
+          background:var(--text-fourth-color);
           backdrop-filter: blur(1px);
           display: flex;
           align-items: center;
@@ -277,7 +277,7 @@ export default {
           }
 
           &:active {
-            background: rgba(255, 255, 255, 0.4);
+            background:var(--text-fourth-color);
           }
 
           .freelog {
@@ -321,7 +321,7 @@ export default {
       .single {
         opacity: 0.32;
         font-size: 18px;
-        color: #fff;
+        color: var(--text-other-color);
       }
       .multiple {
         display: flex;
@@ -339,7 +339,7 @@ export default {
         height: 20px;
         font-weight: 600;
         font-size: 14px;
-        color: #ffffff;
+        color: var(--text-other-color);
         line-height: 20px;
         text-align: left;
         cursor: pointer;
@@ -357,7 +357,7 @@ export default {
       }
       .lock {
         font-size: 16px;
-        color: rgba(255, 255, 255, 0.8);
+        color:var(--text-eighth-color);
         margin-right: 5px;
         cursor: pointer;
       }
@@ -369,7 +369,7 @@ export default {
       .info-item {
         display: flex;
         align-items: center;
-        color: rgba(255, 255, 255, 0.4);
+        color:var(--text-fourth-color);
 
         & + .info-item {
           margin-left: 20px;

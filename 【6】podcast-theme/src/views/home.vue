@@ -435,7 +435,7 @@ export default {
           word-break: break-all;
           font-size: 40px;
           font-weight: 600;
-          color: #ffffff;
+          color: var(--text-other-color);
           line-height: 60px;
           display: -webkit-box;
           -webkit-box-orient: vertical;
@@ -472,13 +472,13 @@ export default {
       .node-title {
         font-size: 24px;
         font-weight: 600;
-        color: #ffffff;
+        color: var(--text-other-color);
         line-height: 30px;
       }
 
       .node-desc {
         font-size: 14px;
-        color: #ffffff;
+        color: var(--text-other-color);
         line-height: 20px;
         margin-top: 20px;
       }
@@ -499,7 +499,7 @@ export default {
         .top-title {
           font-size: 20px;
           font-weight: 600;
-          color: #ffffff;
+          color: var(--text-other-color);
           line-height: 28px;
           opacity: 0.6;
         }
@@ -617,7 +617,7 @@ export default {
         .hot-title {
           font-weight: 600;
           font-size: 20px;
-          color: #ffffff;
+          color: var(--text-other-color);
           line-height: 28px;
           margin-right: auto;
           opacity: 0.6;
@@ -635,7 +635,7 @@ export default {
             height: 20px;
             font-weight: 600;
             font-size: 14px;
-            color: #ffffff;
+            color: var(--text-other-color);
             line-height: 20px;
           }
           .freelog {
@@ -684,7 +684,7 @@ export default {
 
               }
               span {
-                color: #FFFFFF;
+                color: var(--text-other-color);
                 opacity: 0.6;
                 font-size: 24px;
                 text-align: center;
@@ -699,7 +699,7 @@ export default {
               margin-top: auto;
               font-weight: 600;
               font-size: 14px;
-              color: #FFFFFF;
+              color: var(--text-other-color);
               line-height: 20px;
               opacity: 0.6;
               cursor: pointer;
@@ -750,7 +750,7 @@ export default {
           word-break: break-all;
           font-size: 40px;
           font-weight: 600;
-          color: #ffffff;
+          color: var(--text-other-color);
           line-height: 60px;
           opacity: 0.8;
           display: -webkit-box;
@@ -762,7 +762,7 @@ export default {
         .node-intro {
           opacity: 0.6;
           font-size: 14px;
-          color: #ffffff;
+          color: var(--text-other-color);
           line-height: 20px;
           margin-top: 25px;
           word-break: break-all;
@@ -784,7 +784,7 @@ export default {
 
           .count {
             font-size: 14px;
-            color: #ffffff;
+            color: var(--text-other-color);
             line-height: 20px;
             margin-left: 5px;
           }
@@ -805,7 +805,7 @@ export default {
         .top-title {
           font-size: 20px;
           font-weight: 600;
-          color: #ffffff;
+          color: var(--text-other-color);
           line-height: 28px;
           opacity: 0.6;
         }
@@ -976,7 +976,7 @@ export default {
         .hot-title {
           font-weight: 600;
           font-size: 20px;
-          color: #ffffff;
+          color: var(--text-other-color);
           line-height: 28px;
           margin-right: auto;
           opacity: 0.6;
@@ -994,7 +994,7 @@ export default {
             height: 20px;
             font-weight: 600;
             font-size: 14px;
-            color: #ffffff;
+            color: var(--text-other-color);
             line-height: 20px;
           }
           .freelog {
