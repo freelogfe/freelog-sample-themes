@@ -10,6 +10,7 @@ import { useGlobalStore } from "@/store/global";
 import MoreIcon from "@/assets/images/arrow.png";
 import DarkMoreIcon from "@/assets/images/dark-arrow.png";
 import TimeIcon from "@/assets/images/time.png";
+import DarkTimeIcon from "@/assets/images/dark-time.png";
 import AlbumIcon from "@/assets/images/album.png";
 import DarkAlbumIcon from "@/assets/images/dark-album.png";
 import AuthLinkAbnormal from "@/assets/images/auth-link-abnormal.png";
@@ -223,7 +224,7 @@ const getCollectionList = async (obj: {
             <div class="desc">
               <div class="time-box">
                 <div class="icon">
-                  <img :src="TimeIcon" alt="更新时间" />
+                  <img :src="currentTheme === 'light' ? DarkTimeIcon : TimeIcon" alt="更新时间" />
                 </div>
                 <span class="time">{{
                   absoluteTime(item?.versionInfo?.exhibitProperty?.release_date || item.createDate)

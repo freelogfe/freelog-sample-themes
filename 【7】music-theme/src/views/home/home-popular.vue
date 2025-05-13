@@ -708,6 +708,7 @@ const isSelectedData = item => {
             border-radius: 4px;
             backdrop-filter: blur(25px);
             overflow: hidden;
+            z-index: 99;
 
             .more-item {
               height: 50px;
