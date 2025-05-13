@@ -11,7 +11,7 @@
 			</div>	
 			<div class="offline" v-if="data.onlineStatus === 0 && inSignedList">已下架</div>
 		</div>
-		<div class="date">{{ formatDate(data.createDate) }}</div>
+    <div class="date">{{ formatDate(data?.articleInfo?.versions?.[0]?.createDate) }}</div>
 		<div class="article-title">
 			<span class="freelog fl-icon-jinzhi weigui-icon" v-if="data?.articleInfo?.status === 2" title="此作品因违规无法访问"></span>
 			<span class="freelog fl-icon-warningxiaochicun auth-link-abnormal" v-if="![0, 4].includes(data.defaulterIdentityType)" title="作品异常，无法访问"></span>

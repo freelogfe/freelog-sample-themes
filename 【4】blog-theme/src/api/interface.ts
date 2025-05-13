@@ -13,11 +13,15 @@ export interface ExhibitItem extends ExhibitInfo {
     articleOwnerId: number;
     articleOwnerName: string;
     resourceType: string[];
+    versions: {
+      version: string;
+      createDate: string;
+    }[];
     otherInfo?: {
-        [key: string]: any;
+      [key: string]: any;
     };
     status: number;
-  }
+  };
 }
 
 /** freelog 相关入口 */

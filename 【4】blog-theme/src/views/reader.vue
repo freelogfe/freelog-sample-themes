@@ -21,7 +21,7 @@
             <div class="article-title">{{ articleData?.exhibitTitle }}</div>
             <div class="other-info">
               <div class="info-left">
-                <div class="info">{{ formatDate(articleData?.createDate) }}</div>
+                <div class="info">{{ formatDate(articleData?.articleInfo?.versions?.[0]?.createDate) }}</div>
               </div>
               <div class="share-btn" @click="share()">
                 <span class="share-btn-text"><i class="freelog fl-icon-fenxiang"></i>分享</span>
@@ -89,7 +89,7 @@
             </div>
           </div>
           <div class="other-info">
-            <div class="info">{{ formatDate(articleData?.createDate) }}</div>
+            <div class="info">{{ formatDate(articleData?.articleInfo?.versions?.[0]?.createDate) }}</div>
           </div>
           <div class="tags" v-if="articleData?.tags?.length">
             <tags :tags="articleData?.tags" />
