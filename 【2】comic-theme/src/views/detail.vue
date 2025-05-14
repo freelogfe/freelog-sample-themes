@@ -637,6 +637,10 @@ export default {
     // 记录用户点击最近更新一话
     const handleLatestComic = (item: any) => {
       if (latestComicItem?.value?.itemId === item.itemId) {
+        if (!latestComicData.value) {
+          latestComicData.value = [];
+        }
+
         const existingIndex = latestComicData.value.findIndex((i: any) => i.id === id);
 
         if (existingIndex !== -1) {
@@ -657,6 +661,7 @@ export default {
             new Date(b.articleInfo?.latestVersionReleaseDate).getTime() -
             new Date(a.articleInfo?.latestVersionReleaseDate).getTime()
         );
+
         return items[0];
       }
 
@@ -665,11 +670,11 @@ export default {
 
     // 用户是否已点击最近更新一话
     const isClickedLatestComic = computed(() => {
+      if (!latestComicData.value) return null;
       const existingIndex = latestComicData.value.findIndex((i: any) => i.id === id);
       if (existingIndex !== -1) {
         return latestComicData.value[existingIndex];
       }
-
       return null;
     });
 
