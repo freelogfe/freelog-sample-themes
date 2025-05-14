@@ -667,7 +667,7 @@ onBeforeUnmount(() => {
         .desc {
           margin-top: 10px;
           display: flex;
-          opacity: 0.4;
+          // opacity: 0.4;
 
           .time-box,
           .album-box {
@@ -691,6 +691,7 @@ onBeforeUnmount(() => {
               font-size: 12px;
               color: var(--text-color);
               line-height: 18px;
+              opacity: 0.4;
             }
 
             .time {
@@ -863,7 +864,7 @@ onBeforeUnmount(() => {
         .desc {
           margin-top: 10px;
           display: flex;
-          opacity: 0.4;
+          // opacity: 0.4;
 
           .time-box,
           .album-box {
@@ -887,6 +888,7 @@ onBeforeUnmount(() => {
               font-size: 12px;
               color: var(--text-color);
               line-height: 18px;
+              opacity: 0.4;
             }
 
             .time {

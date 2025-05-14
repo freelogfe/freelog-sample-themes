@@ -494,7 +494,7 @@ const getCollectionList = async (obj: {
           .desc {
             margin-top: 10px;
             display: flex;
-            opacity: 0.4;
+            // opacity: 0.4;
 
             .time-box,
             .album-box {
@@ -518,6 +518,7 @@ const getCollectionList = async (obj: {
                 font-size: 12px;
                 color: var(--text-color);
                 line-height: 18px;
+                opacity: 0.4;
               }
 
               .time {
