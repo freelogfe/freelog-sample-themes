@@ -87,7 +87,13 @@
           <div class="comic-date-info">
             <div class="date-info">创建时间：{{ formatDate(comicInfo?.createDate) }}</div>
 
-            <div class="date-info">最近更新：{{ formatDate(comicInfo?.updateDate) }}</div>
+            <div class="date-info">
+              最近更新：{{
+                comicInfo.articleInfo?.articleType === 1
+                  ? formatDate(comicInfo?.articleInfo?.versions[0]?.createDate)
+                  : formatDate(latestComicItem?.articleInfo?.firstVersionReleaseDate)
+              }}
+            </div>
           </div>
 
           <div class="operate-btns">
@@ -271,7 +277,7 @@
 
               <div class="update-date">
                 <div v-if="comicInfo.articleInfo?.articleType === 1">
-                  最近更新：{{ formatDate(comicInfo?.updateDate) }}
+                  最近更新：{{ formatDate(comicInfo?.articleInfo?.versions[0]?.createDate) }}
                 </div>
 
                 <div v-else-if="comicInfo.articleInfo?.serializeStatus === 0">
@@ -279,7 +285,7 @@
 
                   最近更新：
                   <span class="latest-comic">{{ latestComicItem?.itemTitle }}</span>
-                  {{ formatDate(comicInfo?.updateDate) }}
+                  {{ formatDate(latestComicItem?.articleInfo?.firstVersionReleaseDate) }}
                 </div>
 
                 <div v-else-if="comicInfo.articleInfo?.serializeStatus === 1">
@@ -364,7 +370,9 @@
               >
                 <div class="latest-title">最近更新</div>
                 <div class="latest-comic">{{ latestComicItem?.itemTitle }}</div>
-                <span class="time">{{ formatDate(comicInfo?.updateDate) }}</span>
+                <span class="time">
+                  {{ formatDate(latestComicItem?.articleInfo?.firstVersionReleaseDate) }}
+                </span>
               </div>
 
               <div class="sub-directory-container">
