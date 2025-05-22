@@ -9,6 +9,7 @@
   height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: none; /* 禁用弹性滚动效果 */
 }
 
 body {
