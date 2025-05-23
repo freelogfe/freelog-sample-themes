@@ -56,8 +56,6 @@ export const getUrlParams = (str: string) => {
  * @returns
  */
 export const formatWordCount = (value: number) => {
-  console.log("value", value);
-
   if (!value) {
     return;
   }

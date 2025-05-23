@@ -112,7 +112,7 @@ export const DetailScreen = (props: any) => {
       sortType: -1
     });
 
-    setCollectionRecentDate(getRecentDate.data.data.dataList[0]?.createDate);
+    setCollectionRecentDate(getRecentDate.data.data?.dataList[0]?.createDate);
   };
 
   useEffect(() => {
