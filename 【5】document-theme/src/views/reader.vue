@@ -585,14 +585,14 @@
           <div
             class="directory-item"
             :class="{
-              active: currentTitle === item.innerText,
+              active: currentTitle === item.innerText && index === currentTitleIndex,
               second: item.nodeName === 'H2',
               third: item.nodeName === 'H3'
             }"
             :title="item.innerText"
-            v-for="item in directoryList"
+            v-for="(item, index) in directoryList"
             :key="item.id"
-            @click="jumpToTitle(item.innerText)"
+            @click="jumpToTitle(item.innerText, index)"
           >
             <span>{{ item.innerText }}</span>
           </div>
@@ -643,7 +643,7 @@ export default {
     const store = useStore();
     const { query, switchPage, route } = useMyRouter();
     const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
-    const { scrollTop, scrollTo, scrollToTop } = useMyScroll();
+    const { scrollTop, scrollTo, scrollToTop, scrollHeight, clientHeight, scroll } = useMyScroll();
     const datasOfGetList = useGetList();
     const searchInput = ref();
     const searchHistoryPopup = ref();
@@ -657,6 +657,7 @@ export default {
       documentData: null as ExhibitItem | null,
       directoryList: [] as HTMLElement[],
       currentTitle: "",
+      currentTitleIndex: 0,
       searchKey: "",
       searching: false,
       searchPopupShow: false,
@@ -759,17 +760,65 @@ export default {
       /** 获取目录数据 */
       getDirectory(directoryList: HTMLElement[]) {
         data.directoryList = directoryList;
-        if (data.currentTitle) methods.jumpToTitle(data.currentTitle);
+        if (data.currentTitle) {
+          setTimeout(() => {
+            methods.jumpToTitle(data.currentTitle);
+          }, 40);
+        }
       },
 
-      /** 跳到标题位置 */
-      jumpToTitle(title: string) {
-        const el: any = data.directoryList.find(item => item.innerText === title);
+      /** 跳到标题位置, 需保证在 debouncedScroll 后执行 */
+      jumpToTitle(title: string, index?: number) {
+        let el: any;
+        if (index) {
+          el = data.directoryList.find((item, i) => item.innerText === title && i === index);
+        } else {
+          el = data.directoryList.find(item => item.innerText === title);
+        }
         if (!el) return;
 
-        scrollTo(el.offsetTop);
-      },
+        /* 向下滚动时, 滚动到底时则不滚动;
+         * 向上滚动时, 暂无;
+         */
 
+        // if 向下滚动时 else 向上滚动
+        if (el.offsetTop > scrollTop.value) {
+          // 滚动到底时则不滚动
+          if (clientHeight.value + scrollTop.value >= scrollHeight.value) {
+            data.currentTitle = title;
+            if (index) {
+              data.currentTitleIndex = index;
+            } else {
+              data.currentTitleIndex = data.directoryList.findIndex(
+                item => item.innerText === title
+              );
+            }
+            return;
+          }
+        } else if (el.offsetTop < scrollTop.value) {
+        }
+
+        // 当前滚动位置与所选标题位置不同时才滚动
+        if (scrollTop.value !== el.offsetTop) {
+          scrollTo(el.offsetTop);
+          // setTimeout(() => {
+          //   // 滚动完成后, 可能出现早已触底的情况, 此时高亮的是前面的标题
+          //   if (
+          //     clientHeight.value + scrollTop.value >= scrollHeight.value &&
+          //     title !== data.currentTitle
+          //   ) {
+          //     data.currentTitle = title;
+          //     if (index) {
+          //       data.currentTitleIndex = index;
+          //     } else {
+          //       data.currentTitleIndex = data.directoryList.findIndex(
+          //         item => item.innerText === title
+          //       );
+          //     }
+          //   }
+          // }, 1000);
+        }
+      },
       /** 搜索 */
       search() {
         const { searchKey } = data;
@@ -855,7 +904,7 @@ export default {
 
       data.documentData = documentData;
       data.href = freelogApp.getCurrentUrl();
-      mountShareWidget();
+      await mountShareWidget();
       scrollToTop("auto");
       data.directoryList = [];
 
@@ -996,6 +1045,7 @@ export default {
           if (cur >= data.directoryList[i].offsetTop) {
             const currentTitle = data.directoryList[i].innerText;
             data.currentTitle = currentTitle;
+            data.currentTitleIndex = i;
             switchPage("/reader", { id: data.currentId, title: currentTitle });
             break;
           }

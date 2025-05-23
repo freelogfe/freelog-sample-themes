@@ -8,20 +8,26 @@ import hljs from "highlight.js";
 import "highlight.js/styles/a11y-dark.css";
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
-import { initFreelogApp } from "freelog-runtime";
+import { initFreelogApp, freelogApp } from "freelog-runtime";
 
 const myWindow: any = window;
 let app: App<Element> | null = null;
 let router: VueRouter.Router | null = null;
 let history: VueRouter.RouterHistory | null = null;
 
-myWindow.mount = () => {
+myWindow.mount = async () => {
   initFreelogApp();
+
+  await (freelogApp as any).mapShareUrl({
+    content: (exhibitId: string) => {
+      return `/reader?id=${exhibitId}`;
+    }
+  });
 
   history = VueRouter.createWebHistory();
   router = VueRouter.createRouter({
     history,
-    routes,
+    routes
   });
 
   app = createApp(AppPage);
@@ -31,7 +37,7 @@ myWindow.mount = () => {
 
   // 定义⾃定义指令 highlight 代码⾼亮
   hljs.configure({ ignoreUnescapedHTML: true });
-  app.directive("highlight", (el) => {
+  app.directive("highlight", el => {
     const blocks = el.querySelectorAll("pre code");
     blocks.forEach((block: any) => {
       hljs.highlightBlock(block);
