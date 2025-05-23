@@ -643,7 +643,7 @@ export default {
     const store = useStore();
     const { query, switchPage, route } = useMyRouter();
     const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
-    const { scrollTop, scrollTo, scrollToTop, scrollHeight, clientHeight, scroll } = useMyScroll();
+    const { scrollTop, scrollTo, scrollToTop, scrollHeight, clientHeight } = useMyScroll();
     const datasOfGetList = useGetList();
     const searchInput = ref();
     const searchHistoryPopup = ref();
@@ -836,7 +836,7 @@ export default {
 
       /** 点击文档 */
       clickDocument(item: ExhibitItem) {
-        const { exhibitId, defaulterIdentityType = -1 } = item;
+        const { exhibitId } = item;
 
         // if ((item.articleInfo as any)?.status === 2) {
         //   showToast("此作品因违规无法访问");
