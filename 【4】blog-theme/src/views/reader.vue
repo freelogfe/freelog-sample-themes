@@ -853,11 +853,11 @@ export default {
                     transition: all 0.2s linear;
 
                     &.second {
-                      padding-left: 50px;
+                      padding-left: 20px;
                     }
 
                     &.third {
-                      padding-left: 70px;
+                      padding-left: 40px;
                     }
 
                     &:hover,
