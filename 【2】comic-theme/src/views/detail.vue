@@ -713,13 +713,9 @@ export default {
     // 最近更新的一话
     const latestComicItem = computed(() => {
       if (data.comicInfo?.articleInfo?.articleType === 2) {
-        const items = [...collectionData.listData].sort(
-          (a: any, b: any) =>
-            new Date(b.articleInfo?.latestVersionReleaseDate).getTime() -
-            new Date(a.articleInfo?.latestVersionReleaseDate).getTime()
-        );
+        const items = [...collectionData.listData].sort((a: any, b: any) => a.sortId - b.sortId);
 
-        return items[0];
+        return items[items.length - 1];
       }
 
       return null;
