@@ -2044,15 +2044,19 @@ export default {
         if (dataList.length !== 0) {
           const ids = dataList.map((item: any) => item.itemId).join();
           const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
-          if (statusInfo.data.data) {
+
+          if (statusInfo?.data?.data && Array.isArray(statusInfo.data.data)) {
             (dataList as CollectionList[]).forEach(item => {
               const index = statusInfo.data.data.findIndex(
-                (resultItem: { itemId: string }) => resultItem.itemId === item.itemId
+                (resultItem: { itemId: string }) => resultItem?.itemId === item?.itemId
               );
               if (index !== -1) {
-                item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+                item.defaulterIdentityType = statusInfo.data.data[index]?.defaulterIdentityType;
               }
             });
+          } else {
+            // 添加错误处理和调试信息
+            console.warn("获取单品授权状态失败", statusInfo?.data?.data);
           }
 
           data.comicInfo.collectionList = collectionList

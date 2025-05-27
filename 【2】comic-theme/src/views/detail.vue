@@ -310,7 +310,7 @@
                   </div>
                   <div
                     class="btn"
-                    :class="isCollected ? 'warning-btn' : 'collect-btn'"
+                    :class="isCollected ? 'warning-btn cancel-collect-btn' : 'collect-btn'"
                     @click="operateShelf(comicInfo)"
                   >
                     {{ isCollected ? "取消收藏" : "加入收藏" }}
@@ -386,9 +386,9 @@
                   v-for="item in listData"
                   :key="item.itemId"
                   @click="
-                    () => {
-                      handleLatestComic(item);
-                      handleReaderHistory(item);
+                    async () => {
+                      await handleLatestComic(item);
+                      await handleReaderHistory(item);
                       switchPage('/reader', {
                         id: comicInfo?.exhibitId,
                         collection: true,
@@ -640,11 +640,11 @@ export default {
         const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
         if (statusInfo.data.data) {
           (dataList as CollectionList[]).forEach(item => {
-            const index = statusInfo.data.data.findIndex(
+            const index = statusInfo?.data?.data?.findIndex(
               (resultItem: { itemId: string }) => resultItem.itemId === item.itemId
             );
             if (index !== -1) {
-              item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+              item.defaulterIdentityType = statusInfo?.data?.data[index].defaulterIdentityType;
             }
           });
         }
@@ -653,7 +653,7 @@ export default {
     };
 
     // 记录用户点击最近更新一话
-    const handleLatestComic = (item: any) => {
+    const handleLatestComic = async (item: any) => {
       if (latestComicItem?.value?.itemId === item.itemId) {
         if (!latestComicData.value) {
           latestComicData.value = [];
@@ -667,12 +667,12 @@ export default {
           latestComicData.value.push({ id, info: item });
         }
 
-        freelogApp.setUserData("comicLatestViewedHistory", latestComicData.value);
+        await freelogApp.setUserData("comicLatestViewedHistory", latestComicData.value);
       }
     };
 
     // 记录用户阅读历史
-    const handleReaderHistory = (item: any) => {
+    const handleReaderHistory = async (item: any) => {
       if (!historyComicData.value) {
         historyComicData.value = [];
       }
@@ -713,7 +713,7 @@ export default {
       }
 
       // 保存到用户数据
-      freelogApp.setUserData("comicViewedHistory", historyComicData.value);
+      await freelogApp.setUserData("comicViewedHistory", historyComicData.value);
       // freelogApp.setUserData("comicViewedHistory", []);
     };
 
