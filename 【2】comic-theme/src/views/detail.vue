@@ -520,6 +520,13 @@ export default {
               (i: { id: string }) => i.id === data.comicInfo?.exhibitId
             );
             const subId = lastViewed[index]?.subId;
+            const subIdInfo = collectionData.listData.find(i => {
+              if (subId) {
+                return i.itemId === subId;
+              }
+              return i.itemId === collectionData.listData[0].itemId;
+            });
+            handleReaderHistory(subIdInfo);
             switchPage("/reader", {
               id: data.comicInfo?.exhibitId,
               collection: true,
