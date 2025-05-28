@@ -1846,6 +1846,9 @@ export default {
             collectionList?.filter(i => i.sortId === currentSortID.value - 1)[0]?.itemId) ||
           0;
 
+        const subIdInfo = collectionList?.find(i => i.itemId === preSubID);
+        subIdInfo && handleReaderHistory(subIdInfo);
+
         replacePage("/reader", {
           id: data.comicInfo?.exhibitId,
           collection: true,
@@ -1864,6 +1867,9 @@ export default {
             currentSortID.value !== data.collectionTotal &&
             collectionList?.filter(i => i.sortId === currentSortID.value + 1)[0]?.itemId) ||
           0;
+
+        const subIdInfo = collectionList?.find(i => i.itemId === nextSubID);
+        subIdInfo && handleReaderHistory(subIdInfo);
 
         replacePage("/reader", {
           id: data.comicInfo?.exhibitId,
