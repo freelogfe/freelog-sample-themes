@@ -1518,15 +1518,18 @@
               v-for="item in comicInfo.collectionList"
               :key="item.itemId"
               @click="
-                currentPage = 1;
-                jumpPage = 1;
-                setCatalogueModal();
-                handleReaderHistory(item);
-                switchPage('/reader', {
-                  id: comicInfo?.exhibitId,
-                  collection: true,
-                  subId: item.itemId
-                });
+                async () => {
+                  currentPage = 1;
+                  jumpPage = 1;
+                  setCatalogueModal();
+                  await handleLatestComic(item);
+                  await handleReaderHistory(item);
+                  switchPage('/reader', {
+                    id: comicInfo?.exhibitId,
+                    collection: true,
+                    subId: item.itemId
+                  });
+                }
               "
             >
               <span class="sub-title">{{ item.itemTitle }}</span>
@@ -1663,6 +1666,7 @@ export default {
     const sortOrder = ref<string>("asc"); // 默认排序为正序
     const isCurrentLoaded = ref<boolean>(false);
     const isNextLoaded = ref<boolean>(false);
+    const latestComicData = ref<{ id: number; info: CollectionList[] }[]>([]);
     const historyComicData = ref<{ id: number; info: CollectionList[] }[]>([]);
 
     const methods = {
@@ -1835,7 +1839,7 @@ export default {
       },
 
       // 上一话
-      previousChapter() {
+      async previousChapter() {
         data.currentPage = 1;
         data.jumpPage = 1;
         const { collectionList } = data.comicInfo;
@@ -1847,7 +1851,10 @@ export default {
           0;
 
         const subIdInfo = collectionList?.find(i => i.itemId === preSubID);
-        subIdInfo && handleReaderHistory(subIdInfo);
+        if (subIdInfo) {
+          await handleReaderHistory(subIdInfo);
+          await handleLatestComic(subIdInfo);
+        }
 
         replacePage("/reader", {
           id: data.comicInfo?.exhibitId,
@@ -1869,7 +1876,10 @@ export default {
           0;
 
         const subIdInfo = collectionList?.find(i => i.itemId === nextSubID);
-        subIdInfo && handleReaderHistory(subIdInfo);
+        if (subIdInfo) {
+          await handleReaderHistory(subIdInfo);
+          await handleLatestComic(subIdInfo);
+        }
 
         replacePage("/reader", {
           id: data.comicInfo?.exhibitId,
@@ -1995,6 +2005,9 @@ export default {
 
       // 合集逻辑
       if (articleType === 2) {
+        const latestViewedResponse = await freelogApp.getUserData("comicLatestViewedHistory");
+        latestComicData.value = latestViewedResponse?.data?.data;
+
         const comicViewedResponse = await freelogApp.getUserData("comicViewedHistory");
         historyComicData.value = comicViewedResponse?.data?.data || [];
 
@@ -2414,6 +2427,19 @@ export default {
       return `${width}px`;
     });
 
+    // 最近更新的一话
+    const latestComicItem = computed(() => {
+      if (data.comicInfo?.collectionList) {
+        const items = Array.from(data.comicInfo.collectionList).sort(
+          (a: any, b: any) => a.sortId - b.sortId
+        );
+
+        return items[items.length - 1];
+      }
+
+      return null;
+    });
+
     // 记录上一次阅读记录
     const handleLastViewedHistory = async (data: { id: string; subId: string }) => {
       const lastViewedResponse = await freelogApp.getUserData("comicLastViewedHistory");
@@ -2462,8 +2488,27 @@ export default {
       freelogApp.setUserData("comicLastViewedMode", lastViewed);
     };
 
+    // 记录用户点击最近更新一话
+    const handleLatestComic = async (item: any) => {
+      if (latestComicItem?.value?.itemId === item.itemId) {
+        if (!latestComicData.value) {
+          latestComicData.value = [];
+        }
+
+        const existingIndex = latestComicData.value.findIndex((i: any) => i.id === id);
+
+        if (existingIndex !== -1) {
+          latestComicData.value[existingIndex] = { id, info: item };
+        } else {
+          latestComicData.value.push({ id, info: item });
+        }
+
+        await freelogApp.setUserData("comicLatestViewedHistory", latestComicData.value);
+      }
+    };
+
     // 记录用户阅读历史
-    const handleReaderHistory = (item: any) => {
+    const handleReaderHistory = async (item: any) => {
       if (!historyComicData.value) {
         historyComicData.value = [];
       }
@@ -2504,7 +2549,7 @@ export default {
       }
 
       // 保存到用户数据
-      freelogApp.setUserData("comicViewedHistory", historyComicData.value);
+      await freelogApp.setUserData("comicViewedHistory", historyComicData.value);
     };
 
     onBeforeMount(() => {
@@ -2540,6 +2585,7 @@ export default {
       sortOrder,
       isCurrentLoaded,
       isNextLoaded,
+      handleLatestComic,
       handleReaderHistory
     };
   }
