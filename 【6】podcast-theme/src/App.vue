@@ -46,6 +46,16 @@ export default {
     //   const temp = window.getComputedStyle(document.documentElement).getPropertyValue("--sat")
     //   console.log(temp, temp1);
     // }, 3000)
+
+    window.addEventListener(
+      "touchmove",
+      function (event) {
+        if (event.scale !== undefined && event.scale !== 1) {
+          event.preventDefault();
+        }
+      },
+      { passive: false }
+    );
   }
 };
 </script>
@@ -97,7 +107,7 @@ export default {
   }
 
   &.mobile .page-wrapper {
-    padding-bottom: 238px;
+    padding-bottom: 278px;
 
     .router-view {
       width: 100%;

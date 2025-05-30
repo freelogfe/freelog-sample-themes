@@ -254,12 +254,16 @@
 
               <div
                 class="detail-item"
-                v-if="voiceInfo?.versionInfo?.exhibitProperty.release_date || voiceInfo?.createDate"
+                v-if="
+                  voiceInfo?.versionInfo?.exhibitProperty.release_date ||
+                  voiceInfo?.articleInfo?.versions?.[0]?.createDate
+                "
               >
                 <span class="name">发行时间:</span>
                 <span class="value">{{
                   absoluteTime(
-                    voiceInfo?.versionInfo?.exhibitProperty.release_date || voiceInfo?.createDate
+                    voiceInfo?.versionInfo?.exhibitProperty.release_date ||
+                      voiceInfo?.articleInfo?.versions?.[0]?.createDate
                   )
                 }}</span>
               </div>
@@ -521,12 +525,16 @@
 
             <div
               class="detail-item"
-              v-if="voiceInfo?.versionInfo?.exhibitProperty.release_date || voiceInfo?.createDate"
+              v-if="
+                voiceInfo?.versionInfo?.exhibitProperty.release_date ||
+                voiceInfo?.articleInfo?.versions?.[0]?.createDate
+              "
             >
               <span class="name">发行时间:</span>
               <span class="value">{{
                 absoluteTime(
-                  voiceInfo?.versionInfo?.exhibitProperty.release_date || voiceInfo?.createDate
+                  voiceInfo?.versionInfo?.exhibitProperty.release_date ||
+                    voiceInfo?.articleInfo?.versions?.[0]?.createDate
                 )
               }}</span>
             </div>
@@ -1015,7 +1023,7 @@ export default {
         song_arranger ||
         music_genre ||
         collection_duration ||
-        this.voiceInfo.createDate
+        this.voiceInfo.articleInfo?.versions?.[0]?.createDate
       );
     },
 

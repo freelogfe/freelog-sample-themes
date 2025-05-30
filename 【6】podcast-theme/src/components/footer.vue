@@ -67,7 +67,7 @@ export default {
   // mobile
   .mobile-footer-wrapper {
     width: 100%;
-    height: 238px;
+    height: 278px;
     background-color: rgba(255, 255, 255, 0.02);
 
     .btns-area {
