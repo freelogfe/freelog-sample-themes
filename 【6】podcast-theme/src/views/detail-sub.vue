@@ -3,7 +3,11 @@
   <div
     class="detail-wrapper"
     :class="{
-      weigui: voiceInfo && (voiceInfo.articleInfo.status === 2 || voiceInfo.child.authCode === 403)
+      weigui:
+        voiceInfo &&
+        (voiceInfo.articleInfo.status === 2 ||
+          voiceInfo.child.articleInfo.status === 2 ||
+          voiceInfo.child.authCode === 403)
     }"
   >
     <transition name="detail-fade">
@@ -11,7 +15,10 @@
         <!-- 1: 正常; 2: 冻结; -->
         <div
           v-if="
-            voiceInfo && (voiceInfo.articleInfo.status === 2 || voiceInfo.child.authCode === 403)
+            voiceInfo &&
+            (voiceInfo.articleInfo.status === 2 ||
+              voiceInfo.child.articleInfo.status === 2 ||
+              voiceInfo.child.authCode === 403)
           "
           class="detail-weigui"
         >

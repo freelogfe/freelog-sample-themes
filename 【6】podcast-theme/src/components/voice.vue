@@ -3,25 +3,24 @@
 <template>
   <div class="voice-wrapper">
     <!-- mobile -->
-    <div
-      class="mobile-voice-wrapper"
-      v-if="$store.state.inMobile"
-    >
+    <div class="mobile-voice-wrapper" v-if="$store.state.inMobile">
       <div
         ref="cover"
         class="cover-area"
-        :class="{ 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2 }"
+        :class="{
+          'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2
+        }"
         @click="skipToDetailPage"
       >
         <img class="cover" v-view-lazy="computedCover" />
         <div class="offline" v-if="data.onlineStatus === 0 && statusShow"><span>已下架</span></div>
       </div>
-      <div
-        class="info-area"
-        @click="skipToDetailPage"
-      >
+      <div class="info-area" @click="skipToDetailPage">
         <div class="title-area" :class="{ 'mb-20': mode === 'program' }">
-          <span class="freelog fl-icon-jinzhi weigui-icon opacity-40" v-if="data.articleInfo.status === 2"></span>
+          <span
+            class="freelog fl-icon-jinzhi weigui-icon opacity-40"
+            v-if="data.articleInfo.status === 2"
+          ></span>
           <img
             class="auth-link-abnormal"
             src="../assets/images/auth-link-abnormal.png"
@@ -51,7 +50,9 @@
           <template v-if="authShow">
             <div
               class="tag is-auth"
-              :class="{ 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2 }"
+              :class="{
+                'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2
+              }"
               v-if="data.defaulterIdentityType < 4"
             >
               已授权
@@ -60,7 +61,12 @@
               未授权
             </div>
           </template>
-          <div class="title" :class="{ 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2 }">
+          <div
+            class="title"
+            :class="{
+              'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2
+            }"
+          >
             {{ computedTitle }}
           </div>
         </div>
@@ -80,9 +86,13 @@
             <i class="freelog fl-icon-yonghu"></i>
             <div class="item-value">{{ data.signCount | signCount }}</div>
           </div>
-          <div class="info-item exhibit-title" 
-            v-if="data.articleInfo.articleType === 2 && mode === 'voice' && subMode !== 'inDetailPage'" 
-            @click.stop="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })">
+          <div
+            class="info-item exhibit-title"
+            v-if="
+              data.articleInfo.articleType === 2 && mode === 'voice' && subMode !== 'inDetailPage'
+            "
+            @click.stop="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
+          >
             <i class="freelog fl-icon-zhuanji"></i>
             <div class="item-value">{{ data.exhibitTitle }}</div>
           </div>
@@ -93,7 +103,7 @@
           class="freelog playOrStop"
           :class="{ [btnList[0].icon]: true, disabled: btnList[0].disabled }"
           @click="playOrPause()"
-        /> 
+        />
         <el-progress
           v-if="playing"
           class="progress"
@@ -105,7 +115,10 @@
           :stroke-width="2"
           :show-text="false"
         />
-        <i class="freelog fl-icon-gengduo_yuandian_zongxiang gengduo" @click="moreMenuShow = true" />
+        <i
+          class="freelog fl-icon-gengduo_yuandian_zongxiang gengduo"
+          @click="moreMenuShow = true"
+        />
       </div>
       <div
         class="cover-to-add"
@@ -139,14 +152,17 @@
     </div>
 
     <!-- PC -->
-    <div
-      class="pc-voice-wrapper"
-      v-if="$store.state.inMobile === false"
-    >
+    <div class="pc-voice-wrapper" v-if="$store.state.inMobile === false">
       <div
         ref="cover"
         class="cover-area"
-        :class="{ 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2 }"
+        :class="{
+          'opacity-40':
+            authLinkAbnormal ||
+            offErrorComputed ||
+            data.articleInfo.status === 2 ||
+            data.child.articleInfo.status === 2
+        }"
         @click="skipToDetailPage"
       >
         <img class="cover" :src="computedCover" />
@@ -162,7 +178,10 @@
       </div>
       <div class="info-area" :class="{ 'in-detail-page': subMode === 'inDetailPage' }">
         <div class="title-area">
-          <span class="freelog fl-icon-jinzhi weigui-icon opacity-40" v-if="data.articleInfo.status === 2"></span>
+          <span
+            class="freelog fl-icon-jinzhi weigui-icon opacity-40"
+            v-if="data.articleInfo.status === 2 || data.child.articleInfo.status === 2"
+          ></span>
           <img
             class="auth-link-abnormal opacity-40"
             src="../assets/images/auth-link-abnormal.png"
@@ -172,15 +191,30 @@
             class="freelog fl-icon-suoding lock"
             @click.stop="getAuth()"
             v-if="data.defaulterIdentityType >= 4"
-            :class="{ 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2, 'pointer-none': authLinkAbnormal }"
+            :class="{
+              'opacity-40':
+                authLinkAbnormal ||
+                offErrorComputed ||
+                data.articleInfo.status === 2 ||
+                data.child.articleInfo.status === 2,
+              'pointer-none': authLinkAbnormal
+            }"
           ></i>
           <template v-if="!data.child">
             <div
               v-if="data.articleInfo.articleType === 1"
               class="single freelog fl-icon-bokebiaoqian_danji"
-              :class="{ 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2 }"
+              :class="{
+                'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2
+              }"
             ></div>
-            <div v-else class="multiple" :class="{ 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2 }">
+            <div
+              v-else
+              class="multiple"
+              :class="{
+                'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2
+              }"
+            >
               <span
                 class="ing freelog fl-icon-bokebiaoqian_lianzaizhong"
                 v-if="data.articleInfo.serializeStatus === 0"
@@ -191,18 +225,40 @@
           <template v-if="authShow">
             <div
               class="tag is-auth"
-              :class="{ 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2 }"
+              :class="{
+                'opacity-40':
+                  authLinkAbnormal ||
+                  offErrorComputed ||
+                  data.articleInfo.status === 2 ||
+                  data.child.articleInfo.status === 2
+              }"
               v-if="data.defaulterIdentityType < 4"
             >
               已授权
             </div>
-            <div class="tag not-auth" :class="{ 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2 }" v-else>
+            <div
+              class="tag not-auth"
+              :class="{
+                'opacity-40':
+                  authLinkAbnormal ||
+                  offErrorComputed ||
+                  data.articleInfo.status === 2 ||
+                  data.child.articleInfo.status === 2
+              }"
+              v-else
+            >
               未授权
             </div>
           </template>
           <my-tooltip
             class="title"
-            :class="{ 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2 }"
+            :class="{
+              'opacity-40':
+                authLinkAbnormal ||
+                offErrorComputed ||
+                data.articleInfo.status === 2 ||
+                data.child.articleInfo.status === 2
+            }"
             :content="computedTitle"
           >
             <span @click="skipToDetailPage">
@@ -217,7 +273,7 @@
           <div class="info-item">
             <i class="freelog fl-icon-gengxinshijian"></i>
             <div class="item-value">{{ computedUpdate }}</div>
-          </div> 
+          </div>
           <div class="info-item" v-if="mode === 'program' && data.articleInfo.articleType === 2">
             <i class="freelog fl-icon-danji"></i>
             <div class="item-value">{{ data.totalItem || 0 }}</div>
@@ -226,13 +282,26 @@
             <i class="freelog fl-icon-yonghu"></i>
             <div class="item-value">{{ data.signCount | signCount }}</div>
           </div>
-          <div class="info-item to-pool" :class="{ vaild: subMode !== 'inDetailPage' }" 
-            v-if="data.articleInfo.articleType === 2 && mode === 'voice' && subMode !== 'inDetailPage'"
-            @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })">
+          <div
+            class="info-item to-pool"
+            :class="{ vaild: subMode !== 'inDetailPage' }"
+            v-if="
+              data.articleInfo.articleType === 2 && mode === 'voice' && subMode !== 'inDetailPage'
+            "
+            @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
+          >
             <i class="freelog fl-icon-zhuanji"></i>
             <div class="item-value">{{ data.exhibitTitle }}</div>
           </div>
-          <div class="info-item" v-if="this.offErrorComputed || this.authLinkAbnormal || this.data.articleInfo.status === 2">
+          <div
+            class="info-item"
+            v-if="
+              this.offErrorComputed ||
+              this.authLinkAbnormal ||
+              this.data.articleInfo.status === 2 ||
+              this.data.child.articleInfo.status === 2
+            "
+          >
             <i class="freelog fl-icon-wufabofang"></i>
             <div class="item-value">无法播放</div>
           </div>
@@ -285,7 +354,12 @@ import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { relativeTime, secondsToHMS } from "@/utils/filter";
 import { supportAudio, unSupportAudioIOS } from "@/api/data";
 import { showToast } from "../utils/common";
-import { collection_item_title_rtitle, collection_item_title_sn, collection_item_title_custom, collection_item_title_empty } from "@/config/collection_item_title";
+import {
+  collection_item_title_rtitle,
+  collection_item_title_sn,
+  collection_item_title_custom,
+  collection_item_title_empty
+} from "@/config/collection_item_title";
 
 export default {
   name: "voice",
@@ -335,13 +409,13 @@ export default {
   computed: {
     /** 播放进度 */
     percentage() {
-      const playingInfo = this.$store.state.playingInfo
+      const playingInfo = this.$store.state.playingInfo;
       if (playingInfo) {
-        let duration 
+        let duration;
         if (playingInfo.articleInfo.articleType === 1) {
           duration = playingInfo.versionInfo.exhibitProperty.duration;
         } else {
-          duration = playingInfo.child.articleInfo.articleProperty.duration
+          duration = playingInfo.child.articleInfo.articleProperty.duration;
         }
         if (duration) {
           const progress = ((this.$store.state.progress * 1000) / duration) * 100;
@@ -361,7 +435,7 @@ export default {
           this.$store.state.playingInfo.exhibitId === this.data.exhibitId
         );
       } else {
-        if (this.mode === 'voice') {
+        if (this.mode === "voice") {
           return (
             this.$store.state.playingInfo &&
             this.$store.state.playingInfo.exhibitId === this.data.exhibitId &&
@@ -385,10 +459,12 @@ export default {
       if (this.data.articleInfo.articleType === 1) {
         return secondsToHMS(this.data.versionInfo.exhibitProperty.duration);
       } else {
-        if (this.mode === 'voice'){
+        if (this.mode === "voice") {
           return secondsToHMS(this.data?.child?.articleInfo?.articleProperty?.duration);
         } else {
-          return secondsToHMS(this.$store.state.playingInfo?.child?.articleInfo?.articleProperty?.duration)
+          return secondsToHMS(
+            this.$store.state.playingInfo?.child?.articleInfo?.articleProperty?.duration
+          );
         }
       }
     },
@@ -398,9 +474,11 @@ export default {
       if (this.data.articleInfo.articleType === 1) {
         return secondsToHMS(this.$store.state.playingInfo.versionInfo.exhibitProperty.duration);
       } else {
-        if (this.mode === 'voice'){
-          return secondsToHMS(this.$store.state.playingInfo?.child?.articleInfo?.articleProperty?.duration);
-        } 
+        if (this.mode === "voice") {
+          return secondsToHMS(
+            this.$store.state.playingInfo?.child?.articleInfo?.articleProperty?.duration
+          );
+        }
       }
     },
 
@@ -409,10 +487,10 @@ export default {
       if (this.data.articleInfo.articleType === 1) {
         return relativeTime(this.data.updateDate);
       } else {
-        if (this.mode === 'voice') { 
+        if (this.mode === "voice") {
           return relativeTime(this.data?.child?.createDate);
         } else {
-          return relativeTime(this.data.updateDate);          
+          return relativeTime(this.data.updateDate);
         }
       }
     },
@@ -422,10 +500,10 @@ export default {
       if (this.data.articleInfo.articleType === 1) {
         return this.data.exhibitIntro;
       } else {
-        if (this.mode === 'voice') { 
+        if (this.mode === "voice") {
           return this.data?.child?.articleInfo?.intro || "";
         } else {
-          return this.data.exhibitIntro;  
+          return this.data.exhibitIntro;
         }
       }
     },
@@ -435,14 +513,19 @@ export default {
       if (this.data.articleInfo.articleType === 1) {
         return this.data.exhibitTitle;
       } else {
-        if (this.mode === 'voice') { 
-          const collection_item_title = this.data?.versionInfo?.exhibitProperty?.catalogueProperty?.collection_item_title
+        if (this.mode === "voice") {
+          const collection_item_title =
+            this.data?.versionInfo?.exhibitProperty?.catalogueProperty?.collection_item_title;
           if (collection_item_title === collection_item_title_sn) {
-            return this.data?.child?.articleInfo?.articleProperty?.number || this.data?.child?.articleInfo?.articleTitle || "";
+            return (
+              this.data?.child?.articleInfo?.articleProperty?.number ||
+              this.data?.child?.articleInfo?.articleTitle ||
+              ""
+            );
           } else if (collection_item_title === collection_item_title_custom) {
             return this.data?.child?.itemTitle || this.data?.child?.articleInfo?.articleTitle || "";
           } else {
-            return this.data?.child?.itemTitle || this.data?.child?.articleInfo?.articleTitle || ""
+            return this.data?.child?.articleInfo?.articleTitle || "";
           }
         } else {
           return this.data.exhibitTitle;
@@ -455,11 +538,11 @@ export default {
       if (this.data.articleInfo.articleType === 1) {
         return this.data.coverImages[0];
       } else {
-        if (this.mode === 'voice') {
+        if (this.mode === "voice") {
           if (this.data?.child?.articleInfo?.coverImages[0]) {
             return this.data?.child?.articleInfo?.coverImages[0];
           } else {
-            return '//static.freelog.com/static/default_cover.png';
+            return "//static.freelog.com/static/default_cover.png";
           }
         } else {
           return this.data.coverImages[0];
@@ -474,29 +557,29 @@ export default {
 
     /** 处于下架异常 */
     offErrorComputed() {
-      return this.data.onlineStatus === 0
+      return this.data.onlineStatus === 0;
     },
 
     /** 是否为支持格式 */
     ifSupportMime() {
       const supportMimeList = supportAudio;
-      const isIOS = this.$store.state.isIOS
+      const isIOS = this.$store.state.isIOS;
 
       if (this.data.articleInfo.articleType === 1) {
-        const mime = this.data.versionInfo.exhibitProperty.mime
+        const mime = this.data.versionInfo.exhibitProperty.mime;
         if (isIOS) {
-          return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime)
+          return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime);
         }
         return supportMimeList.includes(mime);
       } else {
-        if (this.mode === 'voice') {
-          const mime = this.data?.child?.articleInfo?.articleProperty?.mime
+        if (this.mode === "voice") {
+          const mime = this.data?.child?.articleInfo?.articleProperty?.mime;
           if (isIOS) {
-            return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime)
+            return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime);
           }
           return supportMimeList.includes(mime);
         } else {
-          return this.data.articleInfo.resourceType[0] === '音频'
+          return this.data.articleInfo.resourceType[0] === "音频";
         }
       }
     },
@@ -504,18 +587,20 @@ export default {
     /** 是否播放中 */
     playing() {
       const { playing: _play, playingInfo } = this.$store.state;
-      if (!playingInfo) return _play
+      if (!playingInfo) return _play;
       if (playingInfo.articleInfo.articleType === 1) {
         return _play && playingInfo.exhibitId === this.data.exhibitId;
       } else {
         if (this.data.child) {
-          return _play && 
-            playingInfo.exhibitId === this.data.exhibitId && 
+          return (
+            _play &&
+            playingInfo.exhibitId === this.data.exhibitId &&
             playingInfo.child &&
-            playingInfo.child.itemId && 
+            playingInfo.child.itemId &&
             this.data.child &&
             this.data.child.itemId &&
             playingInfo.child.itemId === this.data.child.itemId
+          );
         }
         return _play && playingInfo.exhibitId === this.data.exhibitId;
       }
@@ -527,25 +612,33 @@ export default {
       const isInPlayList = useMyPlay.ifExist(this.data);
       return [
         {
-          icon: this.offErrorComputed || this.authLinkAbnormal || this.data.articleInfo.status === 2
-            ? "fl-icon-wufabofang"
-            : this.playing
-            ? "fl-icon-zanting-daibiankuang"
-            : "fl-icon-bofang-daibiankuang",
+          icon:
+            this.offErrorComputed || this.authLinkAbnormal || this.data.articleInfo.status === 2
+              ? "fl-icon-wufabofang"
+              : this.playing
+              ? "fl-icon-zanting-daibiankuang"
+              : "fl-icon-bofang-daibiankuang",
           title: this.playing ? "暂停" : "播放",
           operate: this.playOrPause,
-          disabled: !(!this.offErrorComputed && !this.authLinkAbnormal && this.data.articleInfo.status === 1)
+          disabled: !(
+            !this.offErrorComputed &&
+            !this.authLinkAbnormal &&
+            this.data.articleInfo.status === 1
+          )
         },
         {
           icon: "fl-icon-jiarubofangliebiao",
           title: "加入播放列表",
           operate: this.addToPlayList,
-          disabled: isInPlayList || !this.ifSupportMime || this.offErrorComputed || this.authLinkAbnormal || this.data.articleInfo.status === 2
+          disabled:
+            isInPlayList ||
+            !this.ifSupportMime ||
+            this.offErrorComputed ||
+            this.authLinkAbnormal ||
+            this.data.articleInfo.status === 2
         },
         {
-          icon: isCollected
-            ? "fl-icon-shoucangxiaoshuoyishoucang"
-            : "fl-icon-shoucangxiaoshuo",
+          icon: isCollected ? "fl-icon-shoucangxiaoshuoyishoucang" : "fl-icon-shoucangxiaoshuo",
           title: isCollected ? "取消收藏" : "收藏",
           operate: this.operateCollect
         },
@@ -559,9 +652,7 @@ export default {
       const isInPlayList = useMyPlay.ifExist(this.data);
       return [
         {
-          icon: this.playing
-            ? "fl-icon-zanting-daibiankuang"
-            : "fl-icon-bofang-daibiankuang",
+          icon: this.playing ? "fl-icon-zanting-daibiankuang" : "fl-icon-bofang-daibiankuang",
           label: this.playing ? "暂停声音" : "播放声音",
           operate: this.playOrPause,
           disabled: false
@@ -574,9 +665,7 @@ export default {
         },
         { icon: "fl-icon-danji", label: "查看声音详情", operate: this.skipToDetailPage },
         {
-          icon: isCollected
-            ? "fl-icon-shoucangxiaoshuoyishoucang"
-            : "fl-icon-shoucangxiaoshuo",
+          icon: isCollected ? "fl-icon-shoucangxiaoshuoyishoucang" : "fl-icon-shoucangxiaoshuo",
           label: isCollected ? "取消收藏" : "收藏",
           operate: this.operateCollect
         }
@@ -588,18 +677,18 @@ export default {
     /** 跳转到声音详情 */
     async skipToDetailPage() {
       if (this.data.articleInfo.articleType === 1) {
-        this.$router.myPush({ path: '/detail', query: { id: this.data.exhibitId } })
+        this.$router.myPush({ path: "/detail", query: { id: this.data.exhibitId } });
       } else {
-        if (this.mode === 'voice') {
-          this.$router.myPush({ 
-            path: '/detail-sub', 
-            query: { 
-              id: this.data.exhibitId, 
+        if (this.mode === "voice") {
+          this.$router.myPush({
+            path: "/detail-sub",
+            query: {
+              id: this.data.exhibitId,
               itemId: this.data.child.itemId
-            } 
-          })
+            }
+          });
         } else {
-          this.$router.myPush({ path: '/detail', query: { id: this.data.exhibitId } })
+          this.$router.myPush({ path: "/detail", query: { id: this.data.exhibitId } });
         }
       }
     },
@@ -607,25 +696,25 @@ export default {
     handlePlayOrPause() {
       // 检查是否是可播放的格式
       if (!this.ifSupportMime) {
-        showToast("此作品格式暂不支持访问")
-        return
+        showToast("此作品格式暂不支持访问");
+        return;
       }
-      this.playOrPause()
+      this.playOrPause();
     },
     /** 播放/暂停 */
     playOrPause() {
       // 检查是否是可播放的格式
       if (!this.ifSupportMime) {
-        showToast("此作品格式暂不支持访问")
-        return
+        showToast("此作品格式暂不支持访问");
+        return;
       }
       if (this.data.articleInfo.articleType === 1) {
         useMyPlay.playOrPause(this.data);
       } else {
-        if (this.mode === 'voice') {
+        if (this.mode === "voice") {
           useMyPlay.playOrPause(this.data);
         } else {
-          useMyPlay.playOrPause(this.data, 'pool');
+          useMyPlay.playOrPause(this.data, "pool");
         }
       }
     },
@@ -642,29 +731,32 @@ export default {
         setTimeout(() => {
           this.addAnimation = false;
         }, 700);
-      }
-      const { articleInfo, exhibitId, child } = this.data
-      if (articleInfo.articleType === 2 && this.mode === 'program') {
+      };
+      const { articleInfo, exhibitId, child } = this.data;
+      if (articleInfo.articleType === 2 && this.mode === "program") {
         const res = await useMyPlay.getListInCollection(exhibitId);
-        if (!res) { 
-          showToast("合集里没有可添加的作品！")
-          return
-        } 
+        if (!res) {
+          showToast("合集里没有可添加的作品！");
+          return;
+        }
         this.$store.commit("setCachePool", {
           key: exhibitId,
           value: JSON.parse(JSON.stringify(res))
         });
-        await useMyPlay.addToPlayListBatch({
-          exhibitId, 
-          addArr: res.filter(ele => {
-            const mime = ele?.articleInfo?.articleProperty?.mime
-            if (this.$store.state.isIOS) {
-              return supportAudio.includes(mime) && !unSupportAudioIOS.includes(mime)
-            }
-            return supportAudio.includes(mime)
-          }),
-          callback,
-        }, true)
+        await useMyPlay.addToPlayListBatch(
+          {
+            exhibitId,
+            addArr: res.filter(ele => {
+              const mime = ele?.articleInfo?.articleProperty?.mime;
+              if (this.$store.state.isIOS) {
+                return supportAudio.includes(mime) && !unSupportAudioIOS.includes(mime);
+              }
+              return supportAudio.includes(mime);
+            }),
+            callback
+          },
+          true
+        );
       } else {
         if (articleInfo.articleType === 2) {
           useMyPlay.addToPlayList({
@@ -681,7 +773,6 @@ export default {
           });
         }
       }
-      
     },
 
     /** 收藏/取消收藏 */
@@ -699,9 +790,9 @@ export default {
 
     /** 授权 */
     async getAuth() {
-      if (this.authLinkAbnormal) return
+      if (this.authLinkAbnormal) return;
       useMyAuth.getAuth(this.data);
-    },
+    }
   }
 };
 </script>
