@@ -176,7 +176,7 @@ export default {
           (props.data.articleInfo as any)?.status === 2 ||
           props.data.onlineStatus === 0 ||
           ![0, 4].includes(props.data.defaulterIdentityType!) ||
-          !["阅读"].includes(props.data?.articleInfo.resourceType[0])
+          !["阅读", "漫画"].includes(props.data?.articleInfo.resourceType[0])
         );
       },
 
@@ -199,7 +199,7 @@ export default {
           return;
         }
 
-        if (!["阅读"].includes(props.data?.articleInfo.resourceType[0])) {
+        if (!["阅读", "漫画"].includes(props.data?.articleInfo.resourceType[0])) {
           showToast("此作品格式暂不支持访问");
           return;
         }

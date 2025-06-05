@@ -124,7 +124,7 @@ export default {
 
     .title {
       font-size: 34px;
-      color: #ffffff;
+      color: var(--text-other-color);
       line-height: 40px;
       margin-bottom: 30px;
     }
@@ -159,7 +159,7 @@ export default {
     .search-title {
       font-size: 36px;
       font-weight: 600;
-      color: #ffffff;
+      color: var(--text-other-color);
       line-height: 56px;
       opacity: 0.6;
       margin-bottom: 50px;

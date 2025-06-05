@@ -208,6 +208,49 @@
           <div class="btn normal-btn" @click="callLogin()">登录</div>
           <div class="btn header-register-btn" @click="register()">注册</div>
         </div>
+
+        <el-popover
+          popper-class="skin-box"
+          placement="bottom-end"
+          trigger="hover"
+          transition="slide-down-scale"
+          :visible-arrow="false"
+        >
+          <div
+            class="light-mode"
+            :class="currentTheme === 'light' && 'selected'"
+            v-show="!systemMode"
+            @click="toggleTheme('light')"
+          >
+            浅色模式
+          </div>
+
+          <div
+            class="dark-mode"
+            :class="currentTheme === 'dark' && 'selected'"
+            v-show="!systemMode"
+            @click="toggleTheme('dark')"
+          >
+            深色模式
+          </div>
+
+          <div class="switch">
+            <span class="system-mode">跟随系统</span>
+            <el-switch
+              v-model="systemMode"
+              style="
+                --el-switch-on-color: rgba(66, 194, 140, 1);
+                --el-switch-off-color: rgba(229, 231, 235, 1);
+              "
+              @change="handleSystemMode"
+            />
+          </div>
+
+          <div class="skin-text" slot="reference">
+            <i class="freelog fl-icon-pifu"></i>
+            <span class="skin">换肤</span>
+          </div>
+        </el-popover>
       </div>
     </div>
   </div>
@@ -216,6 +259,7 @@
 <script>
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { freelogApp } from "freelog-runtime";
+import { currentTheme, toggleTheme } from "@/utils/theme-manager";
 
 export default {
   name: "my-header",
@@ -231,7 +275,10 @@ export default {
         { value: "/home", label: "首页" },
         { value: "/program-list", label: "所有节目" },
         { value: "/collection-list", label: "收藏" }
-      ]
+      ],
+      currentTheme,
+      toggleTheme,
+      systemMode: JSON.parse(localStorage.getItem("podcast-systemMode") || "false"),
     };
   },
 
@@ -443,6 +490,19 @@ export default {
         this.searchHistoryShow = false;
       } else {
         this.$refs.searchInput.focus();
+      }
+    },
+
+    handleSystemMode(status) {
+      // 开启按钮
+      if (status) {
+        const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const mode = isDarkMode ? "dark" : "light";
+        toggleTheme(mode);
+
+        localStorage.setItem("podcast-systemMode", JSON.stringify(true));
+      } else {
+        localStorage.setItem("podcast-systemMode", JSON.stringify(false));
       }
     }
   }

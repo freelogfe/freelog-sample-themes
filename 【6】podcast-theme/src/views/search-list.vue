@@ -362,7 +362,7 @@ export default {
       height: 40px;
       font-weight: 400;
       font-size: 34px;
-      color: #ffffff;
+      color: var(--text-other-color);
       line-height: 40px;
       opacity: 0.6;
     }
@@ -386,7 +386,7 @@ export default {
               height: 20px;
               font-weight: 600;
               font-size: 14px;
-              color: #ffffff;
+              color: var(--text-other-color);
               line-height: 20px;
             }
             .drop-trigger {
@@ -397,7 +397,7 @@ export default {
                 border-width: 6px 5px;
                 border-style: solid;
                 border-color: transparent;
-                border-top-color: #ffffff;
+                border-top-color: var(--text-other-color);
                 position: relative;
                 top: 3px;
               }
@@ -407,7 +407,8 @@ export default {
             position: absolute;
             top: 25px;
             width: 240px;
-            background: rgba(0, 0, 0);
+            background:var(--bg-skin);
+            color: var(--text-eighth-color);
             box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
             border-radius: 4px;
             padding: 5px 0px;
@@ -417,13 +418,13 @@ export default {
               padding-left: 20px;
               height: 50px;
               line-height: 50px;
-              color: rgba(255, 255, 255, 0.6);
+              // color: rgba(255, 255, 255, 0.6);
               &:hover {
                 background-color: #2784ff;
-                color: #ffffff;
+                color: var(--text-other-color);
               }
               &.selected {
-                color: rgba(255, 255, 255, 1);
+                // color: rgba(255, 255, 255, 1);
               }
             }
           }
@@ -441,7 +442,7 @@ export default {
         text-align: center;
         font-weight: 400;
         font-size: 14px;
-        color: #FFFFFF;
+        color: var(--text-other-color);
         opacity: 0.2;
       }
     }
@@ -460,7 +461,7 @@ export default {
       height: 56px;
       font-weight: 600;
       font-size: 36px;
-      color: #ffffff;
+      color: var(--text-other-color);
       line-height: 56px;
       opacity: 0.6;
     }
@@ -484,7 +485,7 @@ export default {
               height: 20px;
               font-weight: 600;
               font-size: 14px;
-              color: #ffffff;
+              color: var(--text-other-color);
               line-height: 20px;
             }
             .drop-trigger {
@@ -495,7 +496,7 @@ export default {
                 border-width: 6px 5px;
                 border-style: solid;
                 border-color: transparent;
-                border-top-color: #ffffff;
+                border-top-color: var(--text-other-color);
                 position: relative;
                 top: 3px;
               }
@@ -505,7 +506,8 @@ export default {
             position: absolute;
             top: 25px;
             width: 240px;
-            background: rgba(0, 0, 0);
+            background:var(--bg-skin);
+            color: var(--text-eighth-color);
             box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
             border-radius: 4px;
             padding: 5px 0px;
@@ -515,13 +517,13 @@ export default {
               padding-left: 20px;
               height: 50px;
               line-height: 50px;
-              color: rgba(255, 255, 255, 0.6);
+              // color: rgba(255, 255, 255, 0.6);
               &:hover {
                 background-color: #2784ff;
-                color: #ffffff;
+                color: var(--text-other-color);
               }
               &.selected {
-                color: rgba(255, 255, 255, 1);
+                // color: rgba(255, 255, 255, 1);
               }
             }
           }

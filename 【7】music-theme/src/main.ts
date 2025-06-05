@@ -3,6 +3,10 @@ import { createPinia } from "pinia";
 import { useGlobalStore } from "@/store/global";
 import { freelogApp, initFreelogApp } from "freelog-runtime";
 import mapRoutes from "@/utils/map-routes";
+// 导入主题初始化函数
+import { initTheme } from "@/utils/theme-manager";
+// 导入主题样式
+import "@/assets/css/theme.less";
 
 import App from "./App.vue";
 import router from "./router";
@@ -22,7 +26,10 @@ window.mount = async () => {
   app.mount("#app");
 
   const store = useGlobalStore();
-  store.initStoreData();
+  await store.initStoreData();
+
+  // 初始化主题
+  initTheme();
 
   // 函数侦听整个 state
   watch(

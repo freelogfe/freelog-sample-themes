@@ -3,7 +3,7 @@
 <template>
   <div
     class="theme-entrance-wrapper"
-    :class="{ show: !inMobile && selfConfig.entranceShow.trim() === '显示' }"
+    :class="{ show: !inMobile && selfConfig.entranceShow?.trim() === '显示' }"
     style="box-shadow: rgba(15, 32, 39, 0.25) 0px 2px 10px 0px"
     @click="toTheme()"
   >

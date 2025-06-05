@@ -4,13 +4,17 @@ import { freelogApp } from "freelog-runtime";
 import { useRouter, useRoute } from "vue-router";
 import { absoluteTime } from "@/utils/common.js";
 import { useMyPlay, useMyAuth } from "@/utils/hooks";
+import { currentTheme } from "@/utils/theme-manager";
 
 import playStatus from "@/components/play-status.vue";
 
 // 图片
 import MoreIcon from "@/assets/images/arrow.png";
+import DarkMoreIcon from "@/assets/images/dark-arrow.png";
 import TimeIcon from "@/assets/images/time.png";
+import DarkTimeIcon from "@/assets/images/dark-time.png";
 import AlbumIcon from "@/assets/images/album.png";
+import DarkAlbumIcon from "@/assets/images/dark-album.png";
 import AuthLinkAbnormal from "@/assets/images/auth-link-abnormal.png";
 import Freeze from "@/assets/images/freeze.png";
 import type { Exhibit } from "@/interface";
@@ -187,7 +191,7 @@ onBeforeUnmount(() => {
       <div class="more" @click="router.myPush({ path: '/album-list' })">
         所有专辑
         <div class="more-icon">
-          <img :src="MoreIcon" alt="更多" />
+          <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
         </div>
       </div>
     </div>
@@ -288,7 +292,7 @@ onBeforeUnmount(() => {
                 class="freelog fl-icon-suoding lock"
                 @click.stop="getAuth(item)"
                 alt="未授权"
-                v-if="item.defaulterIdentityType >= 4"
+                v-else-if="item.defaulterIdentityType >= 4"
               ></i>
               <span
                 class="title"
@@ -300,7 +304,7 @@ onBeforeUnmount(() => {
             <div class="desc">
               <div class="time-box">
                 <div class="icon">
-                  <img :src="TimeIcon" alt="更新时间" />
+                  <img :src="currentTheme === 'light' ? DarkTimeIcon : TimeIcon" alt="更新时间" />
                 </div>
                 <span class="time">{{
                   absoluteTime(item?.versionInfo?.exhibitProperty?.release_date || item.createDate)
@@ -309,7 +313,7 @@ onBeforeUnmount(() => {
 
               <div class="album-box">
                 <div class="icon">
-                  <img :src="AlbumIcon" alt="专辑" />
+                  <img :src="currentTheme === 'light' ? DarkAlbumIcon : AlbumIcon" alt="专辑" />
                 </div>
                 <span class="album">{{ item.signCount }}</span>
               </div>
@@ -329,7 +333,7 @@ onBeforeUnmount(() => {
       <div class="more" @click="router.myPush({ path: '/album-list' })">
         所有专辑
         <div class="more-icon">
-          <img :src="MoreIcon" alt="更多" />
+          <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
         </div>
       </div>
     </div>
@@ -366,12 +370,12 @@ onBeforeUnmount(() => {
                 class="auth-link-abnormal"
                 :src="AuthLinkAbnormal"
                 alt="授权链异常"
-                v-if="authLinkAbnormal(item.defaulterIdentityType)"
+                v-else-if="authLinkAbnormal(item.defaulterIdentityType)"
               />
               <i
                 class="freelog fl-icon-suoding lock"
                 @click.stop="getAuth(item)"
-                v-if="item.defaulterIdentityType >= 4"
+                v-else-if="item.defaulterIdentityType >= 4"
               ></i>
               <span
                 class="title"
@@ -383,7 +387,7 @@ onBeforeUnmount(() => {
             <div class="desc">
               <div class="time-box">
                 <div class="icon">
-                  <img :src="TimeIcon" alt="更新时间" />
+                  <img :src="currentTheme === 'light' ? DarkTimeIcon : TimeIcon" alt="更新时间" />
                 </div>
                 <span class="time">{{
                   absoluteTime(item?.versionInfo?.exhibitProperty?.release_date || item.createDate)
@@ -392,7 +396,7 @@ onBeforeUnmount(() => {
 
               <div class="album-box">
                 <div class="icon">
-                  <img :src="AlbumIcon" alt="专辑" />
+                  <img :src="currentTheme === 'light' ? DarkAlbumIcon : AlbumIcon" alt="专辑" />
                 </div>
                 <span class="album">{{ item.signCount }}</span>
               </div>
@@ -420,9 +424,9 @@ onBeforeUnmount(() => {
     .title {
       font-weight: 600;
       font-size: 20px;
-      color: #ffffff;
+      color: var(--text-color);
       line-height: 28px;
-      opacity: 0.6;
+      opacity: 0.8;
     }
 
     .more {
@@ -430,8 +434,8 @@ onBeforeUnmount(() => {
       align-items: center;
       font-weight: 600;
       font-size: 14px;
-      color: #ffffff;
-      opacity: 0.6;
+      color: var(--text-color);
+      opacity: 0.8;
       line-height: 20px;
       cursor: pointer;
 
@@ -468,7 +472,7 @@ onBeforeUnmount(() => {
         height: 20px;
         font-weight: 600;
         font-size: 14px;
-        color: #fff;
+        color: var(--text-color);
         line-height: 20px;
       }
 
@@ -486,7 +490,7 @@ onBeforeUnmount(() => {
           border-width: 6px 5px;
           border-style: solid;
           border-color: transparent;
-          border-top-color: #fff;
+          border-top-color: var(--text-color);
           position: relative;
           top: 3px;
         }
@@ -498,6 +502,8 @@ onBeforeUnmount(() => {
       top: 25px;
       width: 240px;
       background: #000;
+      background: var(--bg-skin);
+      color: var(--text-eighth-color);
       box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2);
       border-radius: 4px;
       padding: 5px 0;
@@ -509,11 +515,11 @@ onBeforeUnmount(() => {
         padding-left: 20px;
         height: 50px;
         line-height: 50px;
-        color: hsla(0, 0%, 100%, 0.6);
+        // color: hsla(0, 0%, 100%, 0.6);
         cursor: pointer;
 
         &.selected {
-          color: #fff;
+          // color: #fff;
         }
 
         &:hover {
@@ -626,7 +632,7 @@ onBeforeUnmount(() => {
               font-size: 10px;
               line-height: 16px;
               font-weight: 500;
-              color: #ffffff;
+              color: var(--text-color);
               opacity: 0.8;
             }
           }
@@ -646,7 +652,7 @@ onBeforeUnmount(() => {
           .title {
             font-weight: 600;
             font-size: 14px;
-            color: #ffffff;
+            color: var(--text-color);
             line-height: 20px;
             opacity: 0.8;
             cursor: pointer;
@@ -661,7 +667,7 @@ onBeforeUnmount(() => {
         .desc {
           margin-top: 10px;
           display: flex;
-          opacity: 0.4;
+          // opacity: 0.4;
 
           .time-box,
           .album-box {
@@ -683,8 +689,9 @@ onBeforeUnmount(() => {
             .album {
               font-weight: 400;
               font-size: 12px;
-              color: #ffffff;
+              color: var(--text-color);
               line-height: 18px;
+              opacity: 0.4;
             }
 
             .time {
@@ -703,7 +710,7 @@ onBeforeUnmount(() => {
     justify-content: center;
     font-weight: 400;
     font-size: 30px;
-    color: #ffffff;
+    color: var(--text-color);
     line-height: 36px;
     opacity: 0.4;
   }
@@ -723,7 +730,7 @@ onBeforeUnmount(() => {
     .title {
       font-weight: 600;
       font-size: 20px;
-      color: #ffffff;
+      color: var(--text-color);
       line-height: 28px;
       opacity: 0.6;
     }
@@ -733,7 +740,7 @@ onBeforeUnmount(() => {
       align-items: center;
       font-weight: 600;
       font-size: 14px;
-      color: #ffffff;
+      color: var(--text-color);
       opacity: 0.6;
       line-height: 20px;
       cursor: pointer;
@@ -842,7 +849,7 @@ onBeforeUnmount(() => {
           .title {
             font-weight: 600;
             font-size: 14px;
-            color: #ffffff;
+            color: var(--text-color);
             line-height: 20px;
             opacity: 0.8;
             cursor: pointer;
@@ -857,7 +864,7 @@ onBeforeUnmount(() => {
         .desc {
           margin-top: 10px;
           display: flex;
-          opacity: 0.4;
+          // opacity: 0.4;
 
           .time-box,
           .album-box {
@@ -879,8 +886,9 @@ onBeforeUnmount(() => {
             .album {
               font-weight: 400;
               font-size: 12px;
-              color: #ffffff;
+              color: var(--text-color);
               line-height: 18px;
+              opacity: 0.4;
             }
 
             .time {
@@ -899,7 +907,7 @@ onBeforeUnmount(() => {
     justify-content: center;
     font-weight: 400;
     font-size: 24px;
-    color: #ffffff;
+    color: var(--text-color);
     line-height: 40px;
     opacity: 0.4;
   }

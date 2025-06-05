@@ -4,12 +4,19 @@
       <div class="tip">此主题供开发者使用，不支持常规展品的运营和展示。</div>
       <div class="tip">
         如需浏览更多主题，请前往
-        <div class="btn" @click="openPage('https://console.freelog.com/market?query=主题')">资源市场</div>
+        <div class="btn" @click="openPage('https://console.freelog.com/market?query=主题')">
+          资源市场
+        </div>
         。
       </div>
 
       <div class="footer-wrapper">
-        <div class="footer-btn" v-for="(item, index) in freelogEntrances" :key="item.label" @click="openPage(item.url)">
+        <div
+          class="footer-btn"
+          v-for="(item, index) in freelogEntrances"
+          :key="item.label"
+          @click="openPage(item.url)"
+        >
           <i class="freelog" :class="item.label" v-if="index === 0"></i>
           <span v-else>{{ item.label }}</span>
         </div>
@@ -32,7 +39,7 @@ export default defineComponent({
 
   setup() {
     const data = reactive({
-      inMobile: <boolean | null>null,
+      inMobile: <boolean | null>null
     });
 
     const assetsData = {
@@ -41,16 +48,16 @@ export default defineComponent({
         { label: "fl-icon-a-featherlogo5", url: "https://www.freelog.com/" },
         {
           label: "关于freelog",
-          url: "https://freelog4.freelog.com/$freelog-61f252ef6fe5c1002e2c7b4b=/home_id=62d0d202456ff0002e3295ab",
-        },
-      ] as freelogEntranceItem[],
+          url: "https://freelog4.freelog.com/$freelog-61f252ef6fe5c1002e2c7b4b=/home_id=62d0d202456ff0002e3295ab"
+        }
+      ] as freelogEntranceItem[]
     };
 
     const methods = {
       /** 打开新标签页 */
       openPage(url: string) {
         window.open(url);
-      },
+      }
     };
 
     /** 判断设备 */
@@ -71,16 +78,17 @@ export default defineComponent({
     return {
       ...toRefs(data),
       ...assetsData,
-      ...methods,
+      ...methods
     };
-  },
+  }
 });
 </script>
 
 <style>
 #app {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Microsoft Yahei, Roboto, Oxygen, Ubuntu, Cantarell,
-    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 14px;

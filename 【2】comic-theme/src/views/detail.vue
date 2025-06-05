@@ -87,7 +87,13 @@
           <div class="comic-date-info">
             <div class="date-info">创建时间：{{ formatDate(comicInfo?.createDate) }}</div>
 
-            <div class="date-info">最近更新：{{ formatDate(comicInfo?.updateDate) }}</div>
+            <div class="date-info">
+              最近更新：{{
+                comicInfo.articleInfo?.articleType === 1
+                  ? formatDate(comicInfo?.articleInfo?.versions[0]?.createDate)
+                  : formatDate(latestComicItem?.articleInfo?.firstVersionReleaseDate)
+              }}
+            </div>
           </div>
 
           <div class="operate-btns">
@@ -97,7 +103,7 @@
                 disabled:
                   ![0, 4].includes(comicInfo.defaulterIdentityType ?? -1) ||
                   comicInfo.onlineStatus === 0 ||
-                  (comicInfo.articleInfo.articleType === 2 && !listData.length)
+                  (comicInfo.articleInfo?.articleType === 2 && !listData.length)
               }"
               @click="handleToReader"
             >
@@ -269,9 +275,24 @@
                 <tags :tags="comicInfo?.tags" />
               </div>
 
-              <div class="create-date">创建时间：{{ formatDate(comicInfo?.createDate) }}</div>
+              <div class="update-date">
+                <div v-if="comicInfo.articleInfo?.articleType === 1">
+                  最近更新：{{ formatDate(comicInfo?.articleInfo?.versions[0]?.createDate) }}
+                </div>
 
-              <div class="update-date">最近更新：{{ formatDate(comicInfo?.updateDate) }}</div>
+                <div v-else-if="comicInfo.articleInfo?.serializeStatus === 0">
+                  <span class="on-going"> 连载中 </span>
+
+                  最近更新：
+                  <span class="latest-comic">{{ latestComicItem?.itemTitle }}</span>
+                  {{ formatDate(latestComicItem?.articleInfo?.firstVersionReleaseDate) }}
+                </div>
+
+                <div v-else-if="comicInfo.articleInfo?.serializeStatus === 1">
+                  <span class="completed"> 已完结 </span>
+                  共 {{ listData.length }} 话
+                </div>
+              </div>
 
               <div class="btns-box">
                 <div class="operate-btns">
@@ -289,7 +310,7 @@
                   </div>
                   <div
                     class="btn"
-                    :class="isCollected ? 'warning-btn' : 'collect-btn'"
+                    :class="isCollected ? 'warning-btn cancel-collect-btn' : 'collect-btn'"
                     @click="operateShelf(comicInfo)"
                   >
                     {{ isCollected ? "取消收藏" : "加入收藏" }}
@@ -316,22 +337,12 @@
           </div>
 
           <!-- 漫画简介 -->
-          <div
-            class="comic-intro"
-            :class="comicInfo?.articleInfo?.articleType === 2 && 'need-border'"
-          >
+          <div class="comic-intro">
             <div class="intro-title">内容简介</div>
-            <div
-              class="intro"
-              :class="introState === 1 ? 'fold' : 'unfold'"
-              v-if="comicInfo?.exhibitIntro"
-            >
+
+            <div class="intro" v-if="comicInfo?.exhibitIntro">
               <div ref="introContent" class="intro-content">
                 {{ comicInfo?.exhibitIntro }}
-              </div>
-
-              <div class="view-all-btn" @click="introState = 3" v-if="introState === 1">
-                ...查看全部
               </div>
             </div>
             <div class="no-intro-tip" v-else>暂无简介</div>
@@ -342,12 +353,26 @@
             <div class="comic-catalogue" v-if="listData.length">
               <div class="title-container">
                 <span class="title">目录</span>
-                <span class="count">({{ total }}话)</span>
+                <span class="count">
+                  {{ comicInfo.articleInfo?.serializeStatus === 1 ? "已完结" : "连载中" }}
+                  · 共{{ total }}话
+                </span>
 
                 <div class="sort" @click="handleSort">
                   <span>{{ sortOrder === "asc" ? "正序" : "倒序" }}</span>
                   <span class="triangle" :class="sortOrder === 'asc' ? 'asc' : 'desc'"></span>
                 </div>
+              </div>
+
+              <div
+                class="latest-tip-box"
+                v-if="isClickedLatestComic?.info?.itemId !== latestComicItem.itemId"
+              >
+                <div class="latest-title">最近更新</div>
+                <div class="latest-comic">{{ latestComicItem?.itemTitle }}</div>
+                <span class="time">
+                  {{ formatDate(latestComicItem?.articleInfo?.firstVersionReleaseDate) }}
+                </span>
               </div>
 
               <div class="sub-directory-container">
@@ -361,14 +386,25 @@
                   v-for="item in listData"
                   :key="item.itemId"
                   @click="
-                    switchPage('/reader', {
-                      id: comicInfo?.exhibitId,
-                      collection: true,
-                      subId: item.itemId
-                    })
+                    async () => {
+                      await handleLatestComic(item);
+                      await handleReaderHistory(item);
+                      switchPage('/reader', {
+                        id: comicInfo?.exhibitId,
+                        collection: true,
+                        subId: item.itemId
+                      });
+                    }
                   "
                 >
-                  <span class="sub-title">{{ item.itemTitle }}</span>
+                  <span
+                    class="sub-title"
+                    :class="
+                      !currentHistoryComic?.find(i => i.itemId === item.itemId) && 'is-latest'
+                    "
+                  >
+                    {{ item.itemTitle }}
+                  </span>
                   <img
                     v-if="item.articleInfo?.status === 2"
                     class="freeze-lock"
@@ -414,7 +450,7 @@
 </template>
 
 <script lang="ts">
-import { onBeforeUnmount } from "vue";
+import { computed, onBeforeUnmount } from "vue";
 import { useStore } from "vuex";
 import { defineAsyncComponent, reactive, ref, toRefs, watch } from "@vue/runtime-core";
 import { WidgetController, freelogApp } from "freelog-runtime";
@@ -450,6 +486,8 @@ export default {
       href: "",
       shareWidget: null as WidgetController | null
     });
+    const latestComicData = ref<{ id: number; info: CollectionList[] }[]>([]);
+    const historyComicData = ref<{ id: number; info: CollectionList[] }[]>([]);
 
     const collectionData = reactive({
       listData: [] as CollectionList[],
@@ -482,6 +520,13 @@ export default {
               (i: { id: string }) => i.id === data.comicInfo?.exhibitId
             );
             const subId = lastViewed[index]?.subId;
+            const subIdInfo = collectionData.listData.find(i => {
+              if (subId) {
+                return i.itemId === subId;
+              }
+              return i.itemId === collectionData.listData[0].itemId;
+            });
+            handleReaderHistory(subIdInfo);
             switchPage("/reader", {
               id: data.comicInfo?.exhibitId,
               collection: true,
@@ -519,6 +564,12 @@ export default {
         freelogApp.getExhibitSignCount(id),
         freelogApp.getExhibitAuthStatus(id)
       ]);
+
+      const latestViewedResponse = await freelogApp.getUserData("comicLatestViewedHistory");
+      latestComicData.value = latestViewedResponse?.data?.data;
+
+      const comicViewedResponse = await freelogApp.getUserData("comicViewedHistory");
+      historyComicData.value = comicViewedResponse?.data?.data || [];
 
       const articleType = exhibitInfo.data.data.articleInfo.articleType;
       if (articleType === 2) {
@@ -589,17 +640,112 @@ export default {
         const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
         if (statusInfo.data.data) {
           (dataList as CollectionList[]).forEach(item => {
-            const index = statusInfo.data.data.findIndex(
+            const index = statusInfo?.data?.data?.findIndex(
               (resultItem: { itemId: string }) => resultItem.itemId === item.itemId
             );
             if (index !== -1) {
-              item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+              item.defaulterIdentityType = statusInfo?.data?.data[index].defaulterIdentityType;
             }
           });
         }
       }
       collectionData.listData = init ? dataList : [...listData, ...dataList];
     };
+
+    // 记录用户点击最近更新一话
+    const handleLatestComic = async (item: any) => {
+      if (latestComicItem?.value?.itemId === item.itemId) {
+        if (!latestComicData.value) {
+          latestComicData.value = [];
+        }
+
+        const existingIndex = latestComicData.value.findIndex((i: any) => i.id === id);
+
+        if (existingIndex !== -1) {
+          latestComicData.value[existingIndex] = { id, info: item };
+        } else {
+          latestComicData.value.push({ id, info: item });
+        }
+
+        await freelogApp.setUserData("comicLatestViewedHistory", latestComicData.value);
+      }
+    };
+
+    // 记录用户阅读历史
+    const handleReaderHistory = async (item: any) => {
+      if (!historyComicData.value) {
+        historyComicData.value = [];
+      }
+
+      // 查找当前漫画ID是否已存在于历史记录中
+      const existingIndex = historyComicData.value.findIndex((i: any) => i.id === id);
+
+      if (existingIndex !== -1) {
+        // 如果漫画ID已存在，检查该章节是否已记录
+        const existingComic = historyComicData.value[existingIndex];
+
+        // 确保info是一个数组
+        if (!Array.isArray(existingComic.info)) {
+          existingComic.info = existingComic.info ? [existingComic.info] : [];
+        }
+
+        // 检查当前章节是否已存在于记录中
+        const chapterIndex = existingComic.info.findIndex((chapter: any) => {
+          return chapter.itemId === item.itemId;
+        });
+
+        if (chapterIndex !== -1) {
+          // 如果章节已存在，更新它
+          // existingComic.info[chapterIndex] = item;
+        } else {
+          // 如果章节不存在，添加到数组中
+          existingComic.info.push(item);
+        }
+
+        // 更新历史记录
+        historyComicData.value[existingIndex] = existingComic;
+      } else {
+        // 如果漫画ID不存在，创建新记录，将info设为数组
+        historyComicData.value.push({
+          id,
+          info: [item]
+        });
+      }
+
+      // 保存到用户数据
+      await freelogApp.setUserData("comicViewedHistory", historyComicData.value);
+      // freelogApp.setUserData("comicViewedHistory", []);
+    };
+
+    // 最近更新的一话
+    const latestComicItem = computed(() => {
+      if (data.comicInfo?.articleInfo?.articleType === 2) {
+        const items = [...collectionData.listData].sort((a: any, b: any) => a.sortId - b.sortId);
+
+        return items[items.length - 1];
+      }
+
+      return null;
+    });
+
+    // 用户是否已点击最近更新一话
+    const isClickedLatestComic = computed(() => {
+      if (!latestComicData.value) return null;
+      const existingIndex = latestComicData.value.findIndex((i: any) => i.id === id);
+
+      if (existingIndex !== -1) {
+        return latestComicData.value[existingIndex];
+      }
+
+      return null;
+    });
+
+    // 当前漫画的阅读历史
+    const currentHistoryComic = computed(() => {
+      const res = historyComicData.value?.find((i: any) => i.id === id);
+
+      return res?.info || [];
+    });
 
     watch(
       () => introContent.value,
@@ -635,7 +781,13 @@ export default {
       ...toRefs(data),
       ...toRefs(collectionData),
       ...methods,
-      sortOrder
+      sortOrder,
+      historyComicData,
+      currentHistoryComic,
+      latestComicItem,
+      handleLatestComic,
+      handleReaderHistory,
+      isClickedLatestComic
     };
   }
 };

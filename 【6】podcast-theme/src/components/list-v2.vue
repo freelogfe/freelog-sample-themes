@@ -123,14 +123,14 @@ export default {
 
     .title {
       font-size: 34px;
-      color: #ffffff;
+      color: var(--text-other-color);
       line-height: 40px;
       margin-bottom: 30px;
     }
 
     .search-title {
       font-size: 16px;
-      color: rgba(255, 255, 255, 0.4);
+      color: var(--text-fourth-color);
       line-height: 22px;
       margin-bottom: 30px;
     }
@@ -158,7 +158,7 @@ export default {
     .search-title {
       font-size: 36px;
       font-weight: 600;
-      color: #ffffff;
+      color: var(--text-other-color);
       line-height: 56px;
       opacity: 0.6;
       margin-bottom: 50px;
@@ -192,7 +192,7 @@ export default {
       width: 100%;
       text-align: center;
       font-size: 14px;
-      color: rgba(255, 255, 255, 0.2);
+      color: var(--text-second-color);
       line-height: 20px;
     }
   }
@@ -201,7 +201,7 @@ export default {
     position: absolute;
     left: 0;
     right: 0;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-fourth-color);
     display: flex;
     align-items: center;
     justify-content: center;

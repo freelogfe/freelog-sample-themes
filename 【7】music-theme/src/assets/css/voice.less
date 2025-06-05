@@ -17,7 +17,7 @@
       width: 70px;
       height: 70px;
       background: #222;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      // border: 1px solid rgba(255, 255, 255, 0.1);
       box-sizing: border-box;
       border-radius: 10px;
       display: flex;
@@ -46,7 +46,7 @@
         span {
           font-size: 10px;
           font-weight: 600;
-          color: #ffffff;
+          color: var(--text-color);
           transform: scale(0.84);
         }
       }
@@ -61,7 +61,7 @@
         align-items: center;
         justify-content: center;
         font-size: 12px;
-        color: #ffffff;
+        color: var(--text-color);
       }
     }
 
@@ -96,14 +96,14 @@
             font-size: 10px;
             line-height: 16px;
             font-weight: 500;
-            color: #ffffff;
+            color: var(--text-color);
             opacity: 0.8;
           }
         }
 
         .lock {
           font-size: 16px;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-sixth-color);
           margin-right: 5px;
         }
 
@@ -115,7 +115,7 @@
           margin-right: 5px;
           font-size: 11px;
           font-weight: 600;
-          color: #ffffff;
+          color: var(--text-color);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -134,7 +134,7 @@
           width: 0;
           font-size: 16px;
           font-weight: 600;
-          color: #fff;
+          color: var(--text-color);
           line-height: 22px;
           overflow: hidden;
           white-space: nowrap;
@@ -149,7 +149,7 @@
         overflow: hidden;
         font-size: 14px;
         line-height: 20px;
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--text-fourth-color);
         margin-top: 2px;
       }
 
@@ -160,7 +160,7 @@
         .info-item {
           display: flex;
           align-items: center;
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--text-fourth-color);
 
           & + .info-item {
             margin-left: 10px;
@@ -180,7 +180,7 @@
     }
 
     .btns-area {
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--text-sixth-color);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -199,7 +199,7 @@
         }
 
         &:active {
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--text-fourth-color);
         }
 
         &.disabled {
@@ -245,7 +245,7 @@
           color: rgba(255, 255, 255, 0.6);
 
           &:active {
-            color: rgba(255, 255, 255, 0.4);
+            color: var(--text-fourth-color);
 
             .freelog {
               background: rgba(255, 255, 255, 0.03);
@@ -297,7 +297,7 @@
         color: rgba(255, 255, 255, 0.6);
 
         &:active {
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--text-fourth-color);
         }
       }
     }
@@ -371,7 +371,7 @@
         width: 50px;
         height: 50px;
         background: #222;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        // border: 1px solid rgba(255, 255, 255, 0.1);
         box-sizing: border-box;
         border-radius: 10px;
         display: flex;
@@ -413,7 +413,7 @@
           span {
             font-size: 10px;
             font-weight: 600;
-            color: #ffffff;
+            color: var(--text-color);
             transform: scale(0.84);
           }
         }
@@ -433,7 +433,7 @@
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.4);
+            background: var(--text-fourth-color);
             backdrop-filter: blur(1px);
             display: flex;
             align-items: center;
@@ -446,7 +446,7 @@
             }
 
             &:active {
-              background: rgba(255, 255, 255, 0.4);
+              background: var(--text-fourth-color);
             }
 
             .freelog {
@@ -482,7 +482,6 @@
           display: flex;
           align-items: center;
 
-
           .freeze-lock,
           .auth-link-abnormal {
             width: 16px;
@@ -492,7 +491,7 @@
 
           .lock {
             font-size: 16px;
-            color: rgba(255, 255, 255, 0.8);
+            // color: var(  --text-eighth-color);
             margin-right: 5px;
             cursor: pointer;
           }
@@ -511,7 +510,7 @@
               font-size: 10px;
               line-height: 16px;
               font-weight: 500;
-              color: #ffffff;
+              color: var(--text-color);
               opacity: 0.8;
             }
           }
@@ -524,7 +523,7 @@
             margin-right: 5px;
             font-size: 12px;
             font-weight: 600;
-            color: #ffffff;
+            color: var(--text-color);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -543,7 +542,7 @@
             // width: 0;
             font-size: 16px;
             font-weight: 600;
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--text-eighth-color);
             line-height: 22px;
             overflow: hidden;
             white-space: nowrap;
@@ -561,7 +560,7 @@
         .intro {
           width: 100%;
           font-size: 12px;
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--text-fourth-color);
           line-height: 18px;
           display: -webkit-box;
           -webkit-box-orient: vertical;
@@ -576,7 +575,7 @@
           .info-item {
             display: flex;
             align-items: center;
-            color: rgba(255, 255, 255, 0.4);
+            color: var(--text-fourth-color);
 
             & + .info-item {
               margin-left: 20px;
@@ -630,7 +629,7 @@
       font-weight: 400;
       font-size: 12px;
       line-height: 18px;
-      color: rgba(255, 255, 255, 0.4);
+      color: var(--text-fourth-color);
 
       &.album {
         cursor: pointer;
@@ -646,7 +645,7 @@
       .duration {
         font-size: 12px;
         font-weight: 400;
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--text-fourth-color);
         flex-shrink: 0;
       }
     }

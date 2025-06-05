@@ -46,6 +46,16 @@ export default {
     //   const temp = window.getComputedStyle(document.documentElement).getPropertyValue("--sat")
     //   console.log(temp, temp1);
     // }, 3000)
+
+    window.addEventListener(
+      "touchmove",
+      function (event) {
+        if (event.scale !== undefined && event.scale !== 1) {
+          event.preventDefault();
+        }
+      },
+      { passive: false }
+    );
   }
 };
 </script>
@@ -61,8 +71,8 @@ export default {
 }
 
 #appPodcast {
-  background-color: #222;
-  color: #fff;
+  background-color: var(--bg-color);
+  color: var(--text-color);
   font-size: 14px;
   height: 100vh;
 
@@ -97,7 +107,7 @@ export default {
   }
 
   &.mobile .page-wrapper {
-    padding-bottom: 238px;
+    padding-bottom: 278px;
 
     .router-view {
       width: 100%;
@@ -117,5 +127,18 @@ export default {
       animation: fade-in 0.5s ease;
     }
   }
+}
+
+.theme-toggle-btn {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  padding: 8px 16px;
+  background-color: var(--card-bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
 }
 </style>

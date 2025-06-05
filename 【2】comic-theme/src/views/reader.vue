@@ -1518,14 +1518,18 @@
               v-for="item in comicInfo.collectionList"
               :key="item.itemId"
               @click="
-                currentPage = 1;
-                jumpPage = 1;
-                setCatalogueModal();
-                switchPage('/reader', {
-                  id: comicInfo?.exhibitId,
-                  collection: true,
-                  subId: item.itemId
-                });
+                async () => {
+                  currentPage = 1;
+                  jumpPage = 1;
+                  setCatalogueModal();
+                  await handleLatestComic(item);
+                  await handleReaderHistory(item);
+                  switchPage('/reader', {
+                    id: comicInfo?.exhibitId,
+                    collection: true,
+                    subId: item.itemId
+                  });
+                }
               "
             >
               <span class="sub-title">{{ item.itemTitle }}</span>
@@ -1662,6 +1666,8 @@ export default {
     const sortOrder = ref<string>("asc"); // 默认排序为正序
     const isCurrentLoaded = ref<boolean>(false);
     const isNextLoaded = ref<boolean>(false);
+    const latestComicData = ref<{ id: number; info: CollectionList[] }[]>([]);
+    const historyComicData = ref<{ id: number; info: CollectionList[] }[]>([]);
 
     const methods = {
       /** 点击页面 */
@@ -1833,7 +1839,7 @@ export default {
       },
 
       // 上一话
-      previousChapter() {
+      async previousChapter() {
         data.currentPage = 1;
         data.jumpPage = 1;
         const { collectionList } = data.comicInfo;
@@ -1843,6 +1849,12 @@ export default {
             currentSortID.value !== 0 &&
             collectionList?.filter(i => i.sortId === currentSortID.value - 1)[0]?.itemId) ||
           0;
+
+        const subIdInfo = collectionList?.find(i => i.itemId === preSubID);
+        if (subIdInfo) {
+          await handleReaderHistory(subIdInfo);
+          await handleLatestComic(subIdInfo);
+        }
 
         replacePage("/reader", {
           id: data.comicInfo?.exhibitId,
@@ -1862,6 +1874,12 @@ export default {
             currentSortID.value !== data.collectionTotal &&
             collectionList?.filter(i => i.sortId === currentSortID.value + 1)[0]?.itemId) ||
           0;
+
+        const subIdInfo = collectionList?.find(i => i.itemId === nextSubID);
+        if (subIdInfo) {
+          await handleReaderHistory(subIdInfo);
+          await handleLatestComic(subIdInfo);
+        }
 
         replacePage("/reader", {
           id: data.comicInfo?.exhibitId,
@@ -1987,6 +2005,12 @@ export default {
 
       // 合集逻辑
       if (articleType === 2) {
+        const latestViewedResponse = await freelogApp.getUserData("comicLatestViewedHistory");
+        latestComicData.value = latestViewedResponse?.data?.data;
+
+        const comicViewedResponse = await freelogApp.getUserData("comicViewedHistory");
+        historyComicData.value = comicViewedResponse?.data?.data || [];
+
         getCollectionList(true);
 
         sortOrder.value =
@@ -2039,15 +2063,19 @@ export default {
         if (dataList.length !== 0) {
           const ids = dataList.map((item: any) => item.itemId).join();
           const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
-          if (statusInfo.data.data) {
+
+          if (statusInfo?.data?.data && Array.isArray(statusInfo.data.data)) {
             (dataList as CollectionList[]).forEach(item => {
               const index = statusInfo.data.data.findIndex(
-                (resultItem: { itemId: string }) => resultItem.itemId === item.itemId
+                (resultItem: { itemId: string }) => resultItem?.itemId === item?.itemId
               );
               if (index !== -1) {
-                item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+                item.defaulterIdentityType = statusInfo.data.data[index]?.defaulterIdentityType;
               }
             });
+          } else {
+            // 添加错误处理和调试信息
+            console.warn("获取单品授权状态失败", statusInfo?.data?.data);
           }
 
           data.comicInfo.collectionList = collectionList
@@ -2399,6 +2427,19 @@ export default {
       return `${width}px`;
     });
 
+    // 最近更新的一话
+    const latestComicItem = computed(() => {
+      if (data.comicInfo?.collectionList) {
+        const items = Array.from(data.comicInfo.collectionList).sort(
+          (a: any, b: any) => a.sortId - b.sortId
+        );
+
+        return items[items.length - 1];
+      }
+
+      return null;
+    });
+
     // 记录上一次阅读记录
     const handleLastViewedHistory = async (data: { id: string; subId: string }) => {
       const lastViewedResponse = await freelogApp.getUserData("comicLastViewedHistory");
@@ -2447,6 +2488,70 @@ export default {
       freelogApp.setUserData("comicLastViewedMode", lastViewed);
     };
 
+    // 记录用户点击最近更新一话
+    const handleLatestComic = async (item: any) => {
+      if (latestComicItem?.value?.itemId === item.itemId) {
+        if (!latestComicData.value) {
+          latestComicData.value = [];
+        }
+
+        const existingIndex = latestComicData.value.findIndex((i: any) => i.id === id);
+
+        if (existingIndex !== -1) {
+          latestComicData.value[existingIndex] = { id, info: item };
+        } else {
+          latestComicData.value.push({ id, info: item });
+        }
+
+        await freelogApp.setUserData("comicLatestViewedHistory", latestComicData.value);
+      }
+    };
+
+    // 记录用户阅读历史
+    const handleReaderHistory = async (item: any) => {
+      if (!historyComicData.value) {
+        historyComicData.value = [];
+      }
+
+      // 查找当前漫画ID是否已存在于历史记录中
+      const existingIndex = historyComicData.value.findIndex((i: any) => i.id === id);
+
+      if (existingIndex !== -1) {
+        // 如果漫画ID已存在，检查该章节是否已记录
+        const existingComic = historyComicData.value[existingIndex];
+
+        // 确保info是一个数组
+        if (!Array.isArray(existingComic.info)) {
+          existingComic.info = existingComic.info ? [existingComic.info] : [];
+        }
+
+        // 检查当前章节是否已存在于记录中
+        const chapterIndex = existingComic.info.findIndex((chapter: any) => {
+          return chapter.itemId === item.itemId;
+        });
+
+        if (chapterIndex !== -1) {
+          // 如果章节已存在，更新它
+          // existingComic.info[chapterIndex] = item;
+        } else {
+          // 如果章节不存在，添加到数组中
+          existingComic.info.push(item);
+        }
+
+        // 更新历史记录
+        historyComicData.value[existingIndex] = existingComic;
+      } else {
+        // 如果漫画ID不存在，创建新记录，将info设为数组
+        historyComicData.value.push({
+          id,
+          info: [item]
+        });
+      }
+
+      // 保存到用户数据
+      await freelogApp.setUserData("comicViewedHistory", historyComicData.value);
+    };
+
     onBeforeMount(() => {
       getComicInfo();
     });
@@ -2479,7 +2584,9 @@ export default {
       query,
       sortOrder,
       isCurrentLoaded,
-      isNextLoaded
+      isNextLoaded,
+      handleLatestComic,
+      handleReaderHistory
     };
   }
 };

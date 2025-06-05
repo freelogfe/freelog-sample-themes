@@ -55,7 +55,7 @@
                   class="freelog fl-icon-suoding lock"
                   @click.stop="getAuth()"
                   alt="未授权"
-                  v-if="voiceInfo?.defaulterIdentityType >= 4"
+                  v-else-if="voiceInfo?.defaulterIdentityType >= 4"
                 ></i>
                 <span class="title">{{ voiceInfo?.exhibitTitle }}</span>
               </div>
@@ -164,7 +164,7 @@
                       class="freelog fl-icon-suoding lock"
                       @click.stop="getAuth(item)"
                       alt="未授权"
-                      v-if="item.defaulterIdentityType >= 4"
+                      v-else-if="item.defaulterIdentityType >= 4"
                     ></i>
                     {{ item.exhibitTitle }}
                   </span>
@@ -254,12 +254,16 @@
 
               <div
                 class="detail-item"
-                v-if="voiceInfo?.versionInfo?.exhibitProperty.release_date || voiceInfo?.createDate"
+                v-if="
+                  voiceInfo?.versionInfo?.exhibitProperty.release_date ||
+                  voiceInfo?.articleInfo?.versions?.[0]?.createDate
+                "
               >
                 <span class="name">发行时间:</span>
                 <span class="value">{{
                   absoluteTime(
-                    voiceInfo?.versionInfo?.exhibitProperty.release_date || voiceInfo?.createDate
+                    voiceInfo?.versionInfo?.exhibitProperty.release_date ||
+                      voiceInfo?.articleInfo?.versions?.[0]?.createDate
                   )
                 }}</span>
               </div>
@@ -521,12 +525,16 @@
 
             <div
               class="detail-item"
-              v-if="voiceInfo?.versionInfo?.exhibitProperty.release_date || voiceInfo?.createDate"
+              v-if="
+                voiceInfo?.versionInfo?.exhibitProperty.release_date ||
+                voiceInfo?.articleInfo?.versions?.[0]?.createDate
+              "
             >
               <span class="name">发行时间:</span>
               <span class="value">{{
                 absoluteTime(
-                  voiceInfo?.versionInfo?.exhibitProperty.release_date || voiceInfo?.createDate
+                  voiceInfo?.versionInfo?.exhibitProperty.release_date ||
+                    voiceInfo?.articleInfo?.versions?.[0]?.createDate
                 )
               }}</span>
             </div>
@@ -631,8 +639,12 @@
             </transition>
             <template v-for="(item, index) in btnList">
               <div
-                class="btn normal-btn"
-                :class="{ 'play-btn': index === 0, disabled: item.disabled }"
+                class="btn"
+                :class="{
+                  'play-btn': index === 0,
+                  disabled: item.disabled,
+                  'normal-btn': index !== 0
+                }"
                 :key="item.title"
                 @click="item.operate"
                 v-if="!item.hidden"
@@ -686,7 +698,7 @@
                     class="freelog fl-icon-suoding lock"
                     @click.stop="getAuth(item)"
                     alt="未授权"
-                    v-if="item.defaulterIdentityType >= 4"
+                    v-else-if="item.defaulterIdentityType >= 4"
                   ></i>
 
                   <span class="music-text">{{ item.exhibitTitle }}</span>
@@ -1011,7 +1023,7 @@ export default {
         song_arranger ||
         music_genre ||
         collection_duration ||
-        this.voiceInfo.createDate
+        this.voiceInfo.articleInfo?.versions?.[0]?.createDate
       );
     },
 
@@ -1270,7 +1282,14 @@ export default {
         this.voiceInfo = {
           ...subInfo.data.data,
           coverImages: exhibitInfo.data.data.coverImages,
-          versionInfo: { exhibitProperty: subInfo.data.data.articleInfo?.articleProperty },
+          versionInfo: {
+            exhibitProperty: {
+              ...subInfo.data.data.articleInfo?.articleProperty,
+              release_date:
+                subInfo.data.data.articleInfo?.articleProperty?.release_date ||
+                subInfo.data.data.articleInfo?.firstVersionReleaseDate
+            }
+          },
           defaulterIdentityType: subStatusInfo.data.data[0].defaulterIdentityType,
           exhibitTitle: subInfo.data.data.itemTitle,
           updateDate: subInfo.data.data.articleInfo?.latestVersionReleaseDate,
@@ -1295,10 +1314,11 @@ export default {
         };
 
         // 合集
-        const { articleInfo, exhibitName, coverImages, onlineStatus } = exhibitInfo.data.data;
+        const { articleInfo, exhibitName, coverImages, onlineStatus, versionInfo } =
+          exhibitInfo.data.data;
         if (articleInfo.articleType === 2) {
           this.collectionData = [];
-          this.getCollectionList(this.id, exhibitName, coverImages, onlineStatus);
+          this.getCollectionList(this.id, exhibitName, coverImages, onlineStatus, versionInfo);
         }
       }
 
@@ -1312,7 +1332,7 @@ export default {
     },
 
     /** 获取合集里的单品列表 */
-    async getCollectionList(collectionID, exhibitName, coverImages, onlineStatus) {
+    async getCollectionList(collectionID, exhibitName, coverImages, onlineStatus, versionInfo) {
       const subList = await freelogApp.getCollectionSubList(collectionID, {
         skip: this.subSkip,
         limit: 1_000,
@@ -1336,7 +1356,11 @@ export default {
               item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
             }
 
-            item.exhibitTitle = item.itemTitle;
+            item.exhibitTitle =
+              versionInfo.exhibitProperty.catalogueProperty.collection_item_title ===
+              "collection_item_title_rtitle"
+                ? item.articleInfo.articleTitle
+                : item.itemTitle;
             item.exhibitIntro = item.articleInfo.intro;
             item.exhibitId = collectionID;
             item.coverImages = coverImages;
@@ -1352,7 +1376,7 @@ export default {
 
       if (this.subTempData.length < this.subTotal) {
         this.subSkip = this.subSkip + 1_000;
-        this.getCollectionList(collectionID, exhibitName, coverImages, onlineStatus);
+        this.getCollectionList(collectionID, exhibitName, coverImages, onlineStatus, versionInfo);
       } else {
         this.subTotal = 0;
         this.subSkip = 0;

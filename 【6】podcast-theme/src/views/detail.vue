@@ -1,13 +1,20 @@
 <!-- 声音详情页 -->
 
 <template>
-  <div class="detail-wrapper" :class="{ 'weigui': !(voiceInfo && voiceInfo.articleInfo.status === 1) }">
+  <div
+    class="detail-wrapper"
+    :class="{ weigui: !(voiceInfo && voiceInfo.articleInfo.status === 1) }"
+  >
     <transition name="detail-fade">
       <template v-if="voiceInfo">
         <!-- 1: 正常; 2: 冻结; -->
         <div v-if="voiceInfo && voiceInfo.articleInfo.status === 1">
           <!-- mobile -->
-          <div class="mobile-detail-wrapper" :class="{ pool: voiceInfo.articleInfo.articleType === 2 }" v-if="$store.state.inMobile">
+          <div
+            class="mobile-detail-wrapper"
+            :class="{ pool: voiceInfo.articleInfo.articleType === 2 }"
+            v-if="$store.state.inMobile"
+          >
             <div ref="cover" class="cover-area">
               <img class="cover" :src="voiceInfo.coverImages[0]" v-if="voiceInfo.coverImages[0]" />
               <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
@@ -62,10 +69,16 @@
               </template>
               <input id="href" class="hidden-input" :value="href" readOnly />
             </div>
-            <div class="intro" v-if="voiceInfo.articleInfo.articleType === 1">{{ voiceInfo.exhibitIntro }}</div>
+            <div class="intro" v-if="voiceInfo.articleInfo.articleType === 1">
+              {{ voiceInfo.exhibitIntro }}
+            </div>
             <div class="intro-pool" v-else>
               <div class="txt" :class="{ active: showIntro }">{{ voiceInfo.exhibitIntro }}</div>
-              <div v-if="voiceInfo.exhibitIntro.length" class="btn freelog fl-icon-zhankaigengduo" @click="showIntro = !showIntro"></div>
+              <div
+                v-if="voiceInfo.exhibitIntro.length"
+                class="btn freelog fl-icon-zhankaigengduo"
+                @click="showIntro = !showIntro"
+              ></div>
             </div>
             <div
               class="cover-to-add"
@@ -76,7 +89,10 @@
             </div>
           </div>
           <!-- mobile：合集的单品列表 -->
-          <div class="mobile-detail-list" v-if="$store.state.inMobile && voiceInfo.articleInfo.articleType === 2">
+          <div
+            class="mobile-detail-list"
+            v-if="$store.state.inMobile && voiceInfo.articleInfo.articleType === 2"
+          >
             <div class="shortCut">
               <label>包含声音</label>
               <span>({{ total }})</span>
@@ -87,9 +103,19 @@
                 </div>
               </div>
             </div>
-            <voice :data="item" v-for="item in list" :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`" mode="voice" subMode="inDetailPage" statusShow />
+            <voice
+              :data="item"
+              v-for="item in list"
+              :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
+              mode="voice"
+              subMode="inDetailPage"
+              statusShow
+            />
           </div>
-          <div class="load-ready" v-if="$store.state.inMobile && voiceInfo.articleInfo.articleType === 2">
+          <div
+            class="load-ready"
+            v-if="$store.state.inMobile && voiceInfo.articleInfo.articleType === 2"
+          >
             <span v-if="list.length === 0">暂无任何声音</span>
             <span v-if="list.length !== 0 && this.list.length === this.total">已加载全部</span>
           </div>
@@ -108,13 +134,21 @@
                   src="../assets/images/auth-link-abnormal.png"
                   v-if="authLinkAbnormal"
                 />
-                <i class="freelog fl-icon-suoding lock" @click.stop="getAuth()" v-if="voiceInfo.defaulterIdentityType >= 4"></i>
+                <i
+                  class="freelog fl-icon-suoding lock"
+                  @click.stop="getAuth()"
+                  v-if="voiceInfo.defaulterIdentityType >= 4"
+                ></i>
                 <div
                   v-if="voiceInfo.articleInfo.articleType === 1"
                   class="single freelog fl-icon-bokebiaoqian_danji"
                   :class="{ 'opacity-40': authLinkAbnormal || offOrAuthErrorComputed }"
                 ></div>
-                <div v-else class="multiple" :class="{ 'opacity-40': authLinkAbnormal || offOrAuthErrorComputed }">
+                <div
+                  v-else
+                  class="multiple"
+                  :class="{ 'opacity-40': authLinkAbnormal || offOrAuthErrorComputed }"
+                >
                   <span
                     class="ing freelog fl-icon-bokebiaoqian_lianzaizhong"
                     v-if="voiceInfo.articleInfo.serializeStatus === 0"
@@ -144,7 +178,13 @@
 
               <div class="btns-area">
                 <template v-if="playingInfo">
-                  <div class="duration" v-if="playingInfo.exhibitId !== voiceInfo.exhibitId && voiceInfo.articleInfo.articleType === 1">
+                  <div
+                    class="duration"
+                    v-if="
+                      playingInfo.exhibitId !== voiceInfo.exhibitId &&
+                      voiceInfo.articleInfo.articleType === 1
+                    "
+                  >
                     时长{{ voiceInfo.versionInfo.exhibitProperty.duration | secondsToHMS }}
                   </div>
                   <transition name="slide-right">
@@ -163,7 +203,11 @@
                 <template v-for="(item, index) in btnList">
                   <div
                     class="btn normal-btn"
-                    :class="{ 'play-btn': index === 0, disabled: item.disabled, 'second-level': index !== 0 }"
+                    :class="{
+                      'play-btn': index === 0,
+                      disabled: item.disabled,
+                      'second-level': index !== 0
+                    }"
                     :key="item.title"
                     @click="item.operate"
                     v-if="!item.hidden"
@@ -200,7 +244,12 @@
             </div>
             <div class="list-container" v-if="list.length">
               <div class="list-item" v-for="item in list">
-                <voice :data="item" :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`" subMode="inDetailPage" statusShow></voice>
+                <voice
+                  :data="item"
+                  :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
+                  subMode="inDetailPage"
+                  statusShow
+                ></voice>
               </div>
             </div>
             <div class="no-data-tip" v-else>暂无任何声音, 请稍后查看</div>
@@ -228,12 +277,9 @@
           <span class="freelog fl-icon-yichang_bokeziyuan weigui-icon"></span>
           <p class="desc">此作品因违规无法访问</p>
         </div>
-
-      
       </template>
     </transition>
   </div>
-
 </template>
 
 <script>
@@ -243,7 +289,7 @@ import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { showToast } from "@/utils/common";
 import { freelogApp } from "freelog-runtime";
 import voice from "@/components/voice";
-import { supportAudio, unSupportAudioIOS } from "@/api/data"
+import { supportAudio, unSupportAudioIOS } from "@/api/data";
 
 export default {
   name: "detail",
@@ -280,7 +326,7 @@ export default {
       immediate: true
     },
 
-    "$store.state.lastestAuthList"(cur) {   
+    "$store.state.lastestAuthList"(cur) {
       cur.forEach(ele => {
         if (ele.exhibitId === this.voiceInfo.exhibitId) {
           this.voiceInfo.defaulterIdentityType = ele.defaulterIdentityType;
@@ -302,9 +348,8 @@ export default {
     "$store.state.inMobile"(cur) {
       console.log("$store.state.inMobile", cur);
       if (cur) {
-        
-        const dom = document.getElementById('appPodcast')
-        dom.addEventListener('scroll', this.scrollHandler)
+        const dom = document.getElementById("appPodcast");
+        dom.addEventListener("scroll", this.scrollHandler);
       }
     }
   },
@@ -312,16 +357,18 @@ export default {
   computed: {
     /** 处于下架/授权链异常 */
     offOrAuthErrorComputed() {
-      return this.voiceInfo.onlineStatus === 0 || ![0, 4].includes(this.voiceInfo.defaulterIdentityType)
+      return (
+        this.voiceInfo.onlineStatus === 0 || ![0, 4].includes(this.voiceInfo.defaulterIdentityType)
+      );
     },
 
     /** 异常信息提示文案 */
     notifyMsgComputed() {
       if (this.voiceInfo.onlineStatus === 0) {
-        return "作品已下架，无法访问"
+        return "作品已下架，无法访问";
       }
       if (![0, 4].includes(this.voiceInfo.defaulterIdentityType)) {
-        return "作品异常，无法访问"
+        return "作品异常，无法访问";
       }
     },
 
@@ -333,15 +380,15 @@ export default {
     /** 是否为支持格式 */
     ifSupportMime() {
       const supportMimeList = supportAudio;
-      const isIOS = this.$store.state.isIOS
+      const isIOS = this.$store.state.isIOS;
       if (this.voiceInfo.articleInfo.articleType === 1) {
-        const mime = this.voiceInfo.versionInfo.exhibitProperty.mime
+        const mime = this.voiceInfo.versionInfo.exhibitProperty.mime;
         if (isIOS) {
-          return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime)
+          return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime);
         }
         return supportMimeList.includes(mime);
       } else {
-        return this.voiceInfo.articleInfo.resourceType[0] === '音频'
+        return this.voiceInfo.articleInfo.resourceType[0] === "音频";
       }
     },
 
@@ -363,19 +410,19 @@ export default {
       return [
         {
           icon: this.offOrAuthErrorComputed
-              ? "fl-icon-wufabofang"
-              : this.voiceInfo.articleInfo.articleType === 1
-                  ? this.playing
-                    ? "fl-icon-zanting-daibiankuang"
-                    : "fl-icon-bofang-daibiankuang"
-                  : "fl-icon-bofang-daibiankuang",
+            ? "fl-icon-wufabofang"
+            : this.voiceInfo.articleInfo.articleType === 1
+            ? this.playing
+              ? "fl-icon-zanting-daibiankuang"
+              : "fl-icon-bofang-daibiankuang"
+            : "fl-icon-bofang-daibiankuang",
           title: this.offOrAuthErrorComputed
-              ? "无法播放"  
-              : this.voiceInfo.articleInfo.articleType === 1
-                  ? this.playing
-                    ? "暂停"
-                    : "播放"
-                  : "播放全部",
+            ? "无法播放"
+            : this.voiceInfo.articleInfo.articleType === 1
+            ? this.playing
+              ? "暂停"
+              : "播放"
+            : "播放全部",
           operate: this.playOrPause,
           disabled: !(
             (this.voiceInfo.articleInfo.articleType === 2 && !this.offOrAuthErrorComputed) ||
@@ -390,14 +437,12 @@ export default {
             (this.voiceInfo.articleInfo.articleType === 2 && !this.offOrAuthErrorComputed) ||
             (this.voiceInfo.articleInfo.articleType === 1 &&
               !isInPlayList &&
-              this.ifSupportMime && 
+              this.ifSupportMime &&
               !this.offOrAuthErrorComputed)
           )
         },
         {
-          icon: isCollected
-            ? "fl-icon-shoucangxiaoshuoyishoucang"
-            : "fl-icon-shoucangxiaoshuo",
+          icon: isCollected ? "fl-icon-shoucangxiaoshuoyishoucang" : "fl-icon-shoucangxiaoshuo",
           title: isCollected ? "取消收藏" : "收藏",
           operate: this.operateCollect
         },
@@ -407,13 +452,13 @@ export default {
   },
 
   mounted() {
-    this.$store.dispatch("updateLastestAuthList")
+    this.$store.dispatch("updateLastestAuthList");
   },
 
   beforeDestroy() {
     if (this.$store.state.inMobile) {
-      const dom = document.getElementById('appPodcast')
-      dom.removeEventListener('scroll', this.scrollHandler)
+      const dom = document.getElementById("appPodcast");
+      dom.removeEventListener("scroll", this.scrollHandler);
     }
   },
 
@@ -421,23 +466,23 @@ export default {
     /** 排序功能 */
     handleSort() {
       if (this.myLoading) {
-        return
+        return;
       }
 
-      this.dropDownShow.value = !this.dropDownShow.value
-      this.currentPage = 1
-      this.queryList()
+      this.dropDownShow.value = !this.dropDownShow.value;
+      this.currentPage = 1;
+      this.queryList();
     },
 
     /** 播放/暂停 */
     async playOrPause() {
       if (!this.ifSupportMime) {
-        showToast("此作品格式暂不支持访问")
-        return
+        showToast("此作品格式暂不支持访问");
+        return;
       }
-      
+
       if (this.voiceInfo.articleInfo.articleType === 2) {
-        await useMyPlay.removePlayListBatch(this.voiceInfo.exhibitId)
+        await useMyPlay.removePlayListBatch(this.voiceInfo.exhibitId);
         useMyPlay.playOrPause(this.voiceInfo, "pool", this.dropDownShow.value ? -1 : 1);
       } else {
         useMyPlay.playOrPause(this.voiceInfo);
@@ -446,41 +491,47 @@ export default {
 
     /** 加入播放列表 */
     async addToPlayList() {
-      const { exhibitId, articleInfo } = this.voiceInfo
+      const { exhibitId, articleInfo } = this.voiceInfo;
       if (articleInfo.articleType === 2) {
         const res = await useMyPlay.getListInCollection(exhibitId);
-        if (!res) { 
-          showToast("合集里没有可添加的作品！")
-          return
-        } 
+        if (!res) {
+          showToast("合集里没有可添加的作品！");
+          return;
+        }
         this.$store.commit("setCachePool", {
           key: exhibitId,
           value: JSON.parse(JSON.stringify(res))
         });
-        await useMyPlay.addToPlayListBatch({
-          exhibitId, 
-          addArr: res.filter(ele => {
-            const mime = ele?.articleInfo?.articleProperty?.mime
-            if (this.$store.state.isIOS) {
-              return supportAudio.includes(mime) && !unSupportAudioIOS.includes(mime)
-            }
-            return supportAudio.includes(mime)
-          })
-        }, true)
+        await useMyPlay.addToPlayListBatch(
+          {
+            exhibitId,
+            addArr: res.filter(ele => {
+              const mime = ele?.articleInfo?.articleProperty?.mime;
+              if (this.$store.state.isIOS) {
+                return supportAudio.includes(mime) && !unSupportAudioIOS.includes(mime);
+              }
+              return supportAudio.includes(mime);
+            })
+          },
+          true
+        );
       } else {
-        useMyPlay.addToPlayList({
-          id: exhibitId,
-          isExhibit: true
-        }, () => {
-          const app = document.getElementById("appPodcast");
-          const { offsetTop, offsetLeft } = this.$refs.cover;
-          this.coverLeft = offsetLeft;
-          this.coverTop = offsetTop - app.scrollTop;
-          this.addAnimation = true;
-          setTimeout(() => {
-            this.addAnimation = false;
-          }, 700);
-        });
+        useMyPlay.addToPlayList(
+          {
+            id: exhibitId,
+            isExhibit: true
+          },
+          () => {
+            const app = document.getElementById("appPodcast");
+            const { offsetTop, offsetLeft } = this.$refs.cover;
+            this.coverLeft = offsetLeft;
+            this.coverTop = offsetTop - app.scrollTop;
+            this.addAnimation = true;
+            setTimeout(() => {
+              this.addAnimation = false;
+            }, 700);
+          }
+        );
       }
     },
 
@@ -513,25 +564,25 @@ export default {
         freelogApp.getExhibitSignCount(this.id),
         freelogApp.getExhibitAuthStatus(this.id)
       ]);
-      
+
       this.voiceInfo = {
         ...exhibitInfo.data.data,
         signCount: signCountData.data.data[0].count,
         defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType
       };
-
-      if (this.voiceInfo?.versionInfo?.exhibitProperty?.catalogueProperty?.collection_sort_list === "collection_sort_ascending") {
-        this.dropDownShow.value = false
+      if (
+        this.voiceInfo?.versionInfo?.exhibitProperty?.catalogueProperty?.collection_sort_list ===
+        "collection_sort_ascending"
+      ) {
+        this.dropDownShow.value = false;
       } else {
-        this.dropDownShow.value = true
+        this.dropDownShow.value = true;
       }
 
       this.href = freelogApp.getCurrentUrl();
 
-      console.log(this.voiceInfo);
-
       if (exhibitInfo.data.data.articleInfo.articleType === 2) {
-        this.queryList()
+        this.queryList();
       }
     },
 
@@ -542,11 +593,11 @@ export default {
 
     /** 分页 */
     async queryList() {
-      this.myLoading = true
-      const limit = 5
-      let skip = (this.currentPage - 1) * limit
+      this.myLoading = true;
+      const limit = 5;
+      let skip = (this.currentPage - 1) * limit;
       // 1:升序 -1:降序
-      let sortType = this.dropDownShow.value ? -1 : 1
+      let sortType = this.dropDownShow.value ? -1 : 1;
       const res = await freelogApp.getCollectionSubList(this.voiceInfo.exhibitId, {
         skip,
         limit: 5,
@@ -557,13 +608,10 @@ export default {
         const arr = res.data.data.dataList;
         for (let index = arr.length - 1; index >= 0; index--) {
           const element = arr[index];
-          const url = await freelogApp.getCollectionSubFileStream(
-            this.voiceInfo.exhibitId,
-            {
-              itemId: element.itemId,
-              returnUrl: true
-            }
-          );
+          const url = await freelogApp.getCollectionSubFileStream(this.voiceInfo.exhibitId, {
+            itemId: element.itemId,
+            returnUrl: true
+          });
           element.url = url;
         }
         this.list = arr.map(ele => {
@@ -572,29 +620,27 @@ export default {
             child: ele
           };
         });
-        this.total = res.data.data.totalItem
-        this.myLoading = false
-        console.log("queryList", this.list);
-        
+        this.total = res.data.data.totalItem;
+        this.myLoading = false;
       } else {
         console.warn(res.data);
-        this.myLoading = false
+        this.myLoading = false;
       }
     },
 
     /** 分页 */
     handleCurrentChange(current) {
-      this.currentPage = current
-      this.queryList()
+      this.currentPage = current;
+      this.queryList();
     },
 
     /** mobile动态加载 */
     async queryListMobile() {
-      this.myLoading = true
-      const limit = 5
-      let skip = (this.currentPage - 1) * limit
+      this.myLoading = true;
+      const limit = 5;
+      let skip = (this.currentPage - 1) * limit;
       // 1:升序 -1:降序
-      let sortType = this.dropDownShow.value ? -1 : 1
+      let sortType = this.dropDownShow.value ? -1 : 1;
       const res = await freelogApp.getCollectionSubList(this.voiceInfo.exhibitId, {
         skip,
         limit: 5,
@@ -605,37 +651,36 @@ export default {
         const arr = res.data.data.dataList;
         for (let index = arr.length - 1; index >= 0; index--) {
           const element = arr[index];
-          const url = await freelogApp.getCollectionSubFileStream(
-            this.voiceInfo.exhibitId,
-            {
-              itemId: element.itemId,
-              returnUrl: true
-            }
-          );
+          const url = await freelogApp.getCollectionSubFileStream(this.voiceInfo.exhibitId, {
+            itemId: element.itemId,
+            returnUrl: true
+          });
           element.url = url;
         }
-        this.list.push(...arr.map(ele => {
-          return {
-            ...this.voiceInfo,
-            child: ele
-          };
-        }));
-        this.total = res.data.data.totalItem
-        this.myLoading = false
+        this.list.push(
+          ...arr.map(ele => {
+            return {
+              ...this.voiceInfo,
+              child: ele
+            };
+          })
+        );
+        this.total = res.data.data.totalItem;
+        this.myLoading = false;
       } else {
         console.warn(res.data);
-        this.myLoading = false
+        this.myLoading = false;
       }
     },
 
     async scrollHandler(e) {
-      const dom = document.getElementById('appPodcast')
-      
+      const dom = document.getElementById("appPodcast");
+
       if (dom.scrollHeight - dom.scrollTop - dom.clientHeight < 200) {
-        if (this.myLoading) return
-        if (this.list.length === this.total) return
-        this.currentPage++
-        await this.queryListMobile()
+        if (this.myLoading) return;
+        if (this.list.length === this.total) return;
+        this.currentPage++;
+        await this.queryListMobile();
       }
     }
   }

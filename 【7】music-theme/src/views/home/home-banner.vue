@@ -134,7 +134,7 @@ onMounted(() => {
         left: 0;
         width: 100%;
         height: 100%;
-        background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
+        background-image: var(--bg-gradient-color);
       }
     }
   }
@@ -168,7 +168,7 @@ onMounted(() => {
       height: 60px;
       font-weight: 600;
       font-size: 40px;
-      color: #ffffff;
+      color: var(--text-color);
       line-height: 60px;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -201,7 +201,7 @@ onMounted(() => {
       .visit-count {
         font-weight: 400;
         font-size: 14px;
-        color: #ffffff;
+        color: var(--text-color);
         line-height: 20px;
         opacity: 0.6;
       }
@@ -250,7 +250,7 @@ onMounted(() => {
       height: 36px;
       font-weight: 600;
       font-size: 30px;
-      color: #ffffff;
+      color: var(--text-color);
       line-height: 36px;
       opacity: 0.8;
     }
@@ -280,7 +280,7 @@ onMounted(() => {
       .visit-count {
         font-weight: 400;
         font-size: 14px;
-        color: #ffffff;
+        color: var(--text-color);
         line-height: 20px;
         opacity: 0.6;
       }

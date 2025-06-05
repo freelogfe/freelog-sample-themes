@@ -230,6 +230,7 @@ export const useSearchHistory = () => {
 /** 滚动 hook */
 export const useMyScroll = () => {
   const app = document.getElementById("app");
+
   const data = reactive({
     scrollTop: 0,
     clientHeight: 0,
@@ -258,11 +259,20 @@ export const useMyScroll = () => {
     app?.removeEventListener("scroll", scroll);
   });
 
-  scroll();
+  let timer: any = null;
+  const debouncedScroll = () => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      scroll();
+    }, 30);
+  };
+  const observer = new MutationObserver(debouncedScroll);
+  observer.observe(app!, { childList: true, subtree: true });
 
   return {
     ...toRefs(data),
     scrollTo,
-    scrollToTop
+    scrollToTop,
+    scroll
   };
 };

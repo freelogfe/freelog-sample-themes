@@ -333,7 +333,7 @@
             justify-content: center;
             font-size: 16px;
             font-weight: 600;
-            color: #ffffff;
+            color: var(--text-color);
             background-color: #44d7b6;
 
             &:active {
@@ -381,7 +381,7 @@
           line-height: 38px;
           font-size: 14px;
           font-weight: 600;
-          color: #ffffff;
+          color: var(--text-color);
           opacity: 0.4;
           transition: all 0.2s ease-out;
           cursor: pointer;
@@ -394,8 +394,8 @@
             left: 51%;
             right: 51%;
             bottom: 0;
-            background-color: #fff;
-            opacity: 1;
+            background-color: var(--text-color);
+            opacity: 0.8;
             height: 2px;
             border-radius: 2px;
             transition: all 0.2s ease-out;
@@ -439,7 +439,7 @@
             font-size: 14px;
             color: #222;
             padding: 0 39px !important;
-            background-color: rgba(255, 255, 255, 0.06) !important;
+            background-color: var(--text-point-sixth-color) !important;
             transition: all 0.2s linear;
 
             &:hover {
@@ -568,6 +568,12 @@
               bottom: 12px;
               font-size: 12px;
               line-height: 18px;
+              color: #fffc;
+
+              &:hover {
+                color: #44d7b6;
+                opacity: 1;
+              }
             }
           }
         }
@@ -578,10 +584,12 @@
           border-radius: 50%;
           border: 1px solid #d1d1d1;
           cursor: pointer;
+          margin-right: 20px;
         }
 
         .user-btns {
           display: flex;
+          margin-right: 40px;
 
           .btn {
             height: 38px;

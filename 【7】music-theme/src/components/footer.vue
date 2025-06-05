@@ -64,13 +64,13 @@ export default {
   left: 0;
   bottom: 0;
   right: 0;
-  background-color: #222;
+  background-color: var(--text-point-third-color);
   z-index: 100;
 
   // mobile
   .mobile-footer-wrapper {
     width: 100%;
-    height: 178px;
+    height: 278px;
     background-color: rgba(255, 255, 255, 0.02);
 
     .btns-area {

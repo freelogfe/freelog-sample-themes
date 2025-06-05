@@ -4,11 +4,15 @@ import { freelogApp } from "freelog-runtime";
 import { useRouter } from "vue-router";
 import { absoluteTime } from "@/utils/common.js";
 import { useMyPlay, useMyAuth } from "@/utils/hooks";
+import { currentTheme } from "@/utils/theme-manager";
 import { useGlobalStore } from "@/store/global";
 // 图片
 import MoreIcon from "@/assets/images/arrow.png";
+import DarkMoreIcon from "@/assets/images/dark-arrow.png";
 import TimeIcon from "@/assets/images/time.png";
+import DarkTimeIcon from "@/assets/images/dark-time.png";
 import AlbumIcon from "@/assets/images/album.png";
+import DarkAlbumIcon from "@/assets/images/dark-album.png";
 import AuthLinkAbnormal from "@/assets/images/auth-link-abnormal.png";
 import Freeze from "@/assets/images/freeze.png";
 import type { Exhibit } from "@/interface";
@@ -208,7 +212,7 @@ const getCollectionList = async (obj: {
                 class="freelog fl-icon-suoding lock"
                 @click.stop="getAuth(item)"
                 alt="未授权"
-                v-if="item.defaulterIdentityType >= 4"
+                v-else-if="item.defaulterIdentityType >= 4"
               ></i>
               <span
                 class="title"
@@ -220,7 +224,7 @@ const getCollectionList = async (obj: {
             <div class="desc">
               <div class="time-box">
                 <div class="icon">
-                  <img :src="TimeIcon" alt="更新时间" />
+                  <img :src="currentTheme === 'light' ? DarkTimeIcon : TimeIcon" alt="更新时间" />
                 </div>
                 <span class="time">{{
                   absoluteTime(item?.versionInfo?.exhibitProperty?.release_date || item.createDate)
@@ -229,7 +233,7 @@ const getCollectionList = async (obj: {
 
               <div class="album-box">
                 <div class="icon">
-                  <img :src="AlbumIcon" alt="专辑" />
+                  <img :src="currentTheme === 'light' ? DarkAlbumIcon : AlbumIcon" alt="专辑" />
                 </div>
                 <span class="album">{{ item.signCount }}</span>
               </div>
@@ -239,7 +243,7 @@ const getCollectionList = async (obj: {
             class="more-icon"
             @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
           >
-            <img :src="MoreIcon" alt="更多" />
+            <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
           </div>
         </div>
       </div>
@@ -462,7 +466,7 @@ const getCollectionList = async (obj: {
                 font-size: 10px;
                 line-height: 16px;
                 font-weight: 500;
-                color: #ffffff;
+                color: var(--text-color);
                 opacity: 0.8;
               }
             }
@@ -475,7 +479,7 @@ const getCollectionList = async (obj: {
             .title {
               font-weight: 600;
               font-size: 14px;
-              color: #ffffff;
+              color: var(--text-color);
               line-height: 20px;
               opacity: 0.8;
               cursor: pointer;
@@ -490,7 +494,7 @@ const getCollectionList = async (obj: {
           .desc {
             margin-top: 10px;
             display: flex;
-            opacity: 0.4;
+            // opacity: 0.4;
 
             .time-box,
             .album-box {
@@ -512,8 +516,9 @@ const getCollectionList = async (obj: {
               .album {
                 font-weight: 400;
                 font-size: 12px;
-                color: #ffffff;
+                color: var(--text-color);
                 line-height: 18px;
+                opacity: 0.4;
               }
 
               .time {

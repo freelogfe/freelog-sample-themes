@@ -8,8 +8,23 @@ import FreelogPlayer from "@/components/player.vue";
 import FreelogThemeEntrance from "@/components/theme-entrance.vue";
 import FreelogShare from "@/components/share.vue";
 
+// 扩展 TouchEvent 类型以包含 Safari 特有的 scale 属性
+interface SafariTouchEvent extends TouchEvent {
+  scale?: number;
+}
+
 const store = useGlobalStore();
 const { inMobile } = storeToRefs(store);
+
+window.addEventListener(
+  "touchmove",
+  function (event: SafariTouchEvent) {
+    if (event.scale !== undefined && event.scale !== 1) {
+      event.preventDefault();
+    }
+  },
+  { passive: false }
+);
 </script>
 
 <template>
@@ -46,8 +61,8 @@ const { inMobile } = storeToRefs(store);
 
 #music-theme {
   position: relative;
-  background-color: #101010;
-  color: #fff;
+  background-color: var(--bg-color);
+  color: var(--text-color);
   font-size: 14px;
 
   &.pc {
@@ -77,7 +92,7 @@ const { inMobile } = storeToRefs(store);
   }
 
   &.mobile .page-wrapper {
-    padding-bottom: 178px;
+    padding-bottom: 278px;
 
     .router-view {
       width: 100%;
@@ -120,7 +135,7 @@ const { inMobile } = storeToRefs(store);
     justify-content: center;
     align-items: center;
     padding: 3px 10px;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--bg-second-color);
     border-radius: 12px;
     backdrop-filter: blur(12px);
     box-sizing: border-box;

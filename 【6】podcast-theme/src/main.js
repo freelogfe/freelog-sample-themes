@@ -1,7 +1,7 @@
 import "./public-path";
 import Vue from "vue";
 import VueRouter from "vue-router";
-import App from "./App.vue"
+import App from "./App.vue";
 import routes from "./router";
 import store from "./store";
 import ElementUI from "element-ui";
@@ -10,8 +10,11 @@ import vView from "vue-view-lazy";
 import * as filters from "@/utils/filter";
 import { freelogApp, initFreelogApp } from "freelog-runtime";
 import "@/directives";
-import mapRoutes from "@/utils/map-routes"
-import { scrollIntoView, sleep } from "@/utils/common"
+import mapRoutes from "@/utils/map-routes";
+import { scrollIntoView, sleep } from "@/utils/common";
+import { initTheme } from "@/utils/theme-manager";
+// import "@/assets/css/theme-variables.scss";
+import "@/assets/css/theme.scss";
 
 Vue.use(vView);
 Vue.use(ElementUI);
@@ -138,8 +141,10 @@ window.mount = async () => {
       }
     })
   }
-  
-  store.dispatch("initStoreData");
+
+  await store.dispatch("initStoreData");
+  // 初始化主题
+  initTheme();
 };
 
 window.unmount = () => {

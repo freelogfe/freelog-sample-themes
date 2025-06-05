@@ -17,6 +17,10 @@
       align-items: center;
       z-index: 102;
       transition: bottom 0.3s ease;
+      -webkit-overflow-scrolling: touch;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
 
       &.show {
         bottom: 20px;
@@ -274,7 +278,7 @@
                 justify-content: center;
     
                 span {
-                  font-family: PingFangSC, PingFang SC;
+                  // font-family: PingFangSC, PingFang SC;
                   font-weight: 500;
                   font-size: 10px;
                   color: #FFFFFF;
@@ -297,7 +301,7 @@
 
               .lock {
                 font-size: 14px;
-                color: rgba(255, 255, 255, 0.8);
+                color: var(--text-eighth-color);
                 margin-right: 5px;
               }
 
@@ -307,7 +311,7 @@
                 font-size: 12px;
                 line-height: 18px;
                 font-weight: 600;
-                color: rgba(255, 255, 255, 0.8);
+                color: var(--text-eighth-color);
                 overflow: hidden;
                 white-space: nowrap;
                 text-overflow: ellipsis;
@@ -456,7 +460,7 @@
     bottom: 0;
     right: 5px;
     height: 84px;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--text-point-second-color);
     backdrop-filter: blur(25px);
     display: flex;
     align-items: center;
@@ -475,7 +479,7 @@
 
         .freelog {
           font-size: 36px;
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--text-fourth-color);
           cursor: pointer;
           transition: all 0.2s linear;
 
@@ -550,7 +554,7 @@
                 transition: all 0.2s linear;
 
                 &.voice-title {
-                  color: rgba(255, 255, 255, 0.8);
+                  color: var(--text-eighth-color);
                 }
 
                 &:hover {
@@ -564,7 +568,7 @@
               font-size: 14px;
               font-weight: 600;
               line-height: 20px;
-              color: rgba(255, 255, 255, 0.4);
+              color: var(--text-fourth-color);
             }
 
             .progress-area {
@@ -627,7 +631,7 @@
           height: 30px;
           border-radius: 4px;
           font-size: 18px;
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--text-fourth-color);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -754,7 +758,7 @@
     bottom: 94px;
     width: 680px;
     height: 350px;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--text-point-second-color);
     box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     backdrop-filter: blur(25px);
@@ -774,7 +778,7 @@
       .popup-title {
         font-size: 12px;
         font-weight: 600;
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--text-fourth-color);
         line-height: 18px;
       }
 
@@ -841,7 +845,7 @@
             justify-content: center;
 
             span {
-              font-family: PingFangSC, PingFang SC;
+              // font-family: PingFangSC, PingFang SC;
               font-weight: 500;
               font-size: 10px;
               color: #FFFFFF;
@@ -864,7 +868,7 @@
 
           .lock {
             font-size: 14px;
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--text-eighth-color);
             margin-right: 5px;
           }
 
@@ -883,7 +887,7 @@
               }
 
               &.voice-title {
-                color: rgba(255, 255, 255, 0.8);
+                color: var(--text-eighth-color);
               }
             }
           }
