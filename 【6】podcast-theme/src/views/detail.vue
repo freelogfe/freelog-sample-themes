@@ -570,7 +570,6 @@ export default {
         signCount: signCountData.data.data[0].count,
         defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType
       };
-      console.log("ssj", this.voiceInfo);
       if (
         this.voiceInfo?.versionInfo?.exhibitProperty?.catalogueProperty?.collection_sort_list ===
         "collection_sort_ascending"
@@ -581,8 +580,6 @@ export default {
       }
 
       this.href = freelogApp.getCurrentUrl();
-
-      console.log(this.voiceInfo);
 
       if (exhibitInfo.data.data.articleInfo.articleType === 2) {
         this.queryList();
@@ -625,7 +622,6 @@ export default {
         });
         this.total = res.data.data.totalItem;
         this.myLoading = false;
-        console.log("queryList", this.list);
       } else {
         console.warn(res.data);
         this.myLoading = false;

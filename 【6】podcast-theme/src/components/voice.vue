@@ -8,7 +8,11 @@
         ref="cover"
         class="cover-area"
         :class="{
-          'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2
+          'opacity-40':
+            authLinkAbnormal ||
+            offErrorComputed ||
+            (data.articleInfo && data.articleInfo.status === 2) ||
+            (data.child && data.child.articleInfo && data.child.articleInfo.status === 2)
         }"
         @click="skipToDetailPage"
       >
@@ -19,7 +23,10 @@
         <div class="title-area" :class="{ 'mb-20': mode === 'program' }">
           <span
             class="freelog fl-icon-jinzhi weigui-icon opacity-40"
-            v-if="data.articleInfo.status === 2"
+            v-if="
+              (data.articleInfo && data.articleInfo.status === 2) ||
+              (data.child && data.child.articleInfo && data.child.articleInfo.status === 2)
+            "
           ></span>
           <img
             class="auth-link-abnormal"
@@ -51,7 +58,11 @@
             <div
               class="tag is-auth"
               :class="{
-                'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2
+                'opacity-40':
+                  authLinkAbnormal ||
+                  offErrorComputed ||
+                  (data.articleInfo && data.articleInfo.status === 2) ||
+                  (data.child && data.child.articleInfo && data.child.articleInfo.status === 2)
               }"
               v-if="data.defaulterIdentityType < 4"
             >
@@ -64,7 +75,11 @@
           <div
             class="title"
             :class="{
-              'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2
+              'opacity-40':
+                authLinkAbnormal ||
+                offErrorComputed ||
+                (data.articleInfo && data.articleInfo.status === 2) ||
+                (data.child && data.child.articleInfo && data.child.articleInfo.status === 2)
             }"
           >
             {{ computedTitle }}
@@ -160,8 +175,8 @@
           'opacity-40':
             authLinkAbnormal ||
             offErrorComputed ||
-            data.articleInfo.status === 2 ||
-            data.child.articleInfo.status === 2
+            (data.articleInfo && data.articleInfo.status === 2) ||
+            (data.child && data.child.articleInfo && data.child.articleInfo.status === 2)
         }"
         @click="skipToDetailPage"
       >
@@ -180,7 +195,10 @@
         <div class="title-area">
           <span
             class="freelog fl-icon-jinzhi weigui-icon opacity-40"
-            v-if="data.articleInfo.status === 2 || data.child.articleInfo.status === 2"
+            v-if="
+              (data.articleInfo && data.articleInfo.status === 2) ||
+              (data.child && data.child.articleInfo && data.child.articleInfo.status === 2)
+            "
           ></span>
           <img
             class="auth-link-abnormal opacity-40"
@@ -256,8 +274,8 @@
               'opacity-40':
                 authLinkAbnormal ||
                 offErrorComputed ||
-                data.articleInfo.status === 2 ||
-                data.child.articleInfo.status === 2
+                (data.articleInfo && data.articleInfo.status === 2) ||
+                (data.child && data.child.articleInfo && data.child.articleInfo.status === 2)
             }"
             :content="computedTitle"
           >
@@ -298,8 +316,10 @@
             v-if="
               this.offErrorComputed ||
               this.authLinkAbnormal ||
-              this.data.articleInfo.status === 2 ||
-              this.data.child.articleInfo.status === 2
+              (this.data.articleInfo && this.data.articleInfo.status === 2) ||
+              (this.data.child &&
+                this.data.child.articleInfo &&
+                this.data.child.articleInfo.status === 2)
             "
           >
             <i class="freelog fl-icon-wufabofang"></i>
@@ -412,7 +432,7 @@ export default {
       const playingInfo = this.$store.state.playingInfo;
       if (playingInfo) {
         let duration;
-        if (playingInfo.articleInfo.articleType === 1) {
+        if (playingInfo?.articleInfo?.articleType === 1) {
           duration = playingInfo.versionInfo.exhibitProperty.duration;
         } else {
           duration = playingInfo.child.articleInfo.articleProperty.duration;
@@ -429,7 +449,7 @@ export default {
     },
     /** 播放状态 */
     showPlayStatus() {
-      if (this.data.articleInfo.articleType === 1) {
+      if (this.data?.articleInfo?.articleType === 1) {
         return (
           this.$store.state.playingInfo &&
           this.$store.state.playingInfo.exhibitId === this.data.exhibitId
@@ -456,7 +476,7 @@ export default {
 
     /** 时长 */
     computedEstimateDuration() {
-      if (this.data.articleInfo.articleType === 1) {
+      if (this.data?.articleInfo?.articleType === 1) {
         return secondsToHMS(this.data.versionInfo.exhibitProperty.duration);
       } else {
         if (this.mode === "voice") {
@@ -471,7 +491,7 @@ export default {
 
     /** 正在播放的时长 */
     computedDuration() {
-      if (this.data.articleInfo.articleType === 1) {
+      if (this.data?.articleInfo?.articleType === 1) {
         return secondsToHMS(this.$store.state.playingInfo.versionInfo.exhibitProperty.duration);
       } else {
         if (this.mode === "voice") {
@@ -484,7 +504,7 @@ export default {
 
     /** 更新时间 */
     computedUpdate() {
-      if (this.data.articleInfo.articleType === 1) {
+      if (this.data?.articleInfo?.articleType === 1) {
         return relativeTime(this.data.updateDate);
       } else {
         if (this.mode === "voice") {
@@ -497,7 +517,7 @@ export default {
 
     /** 简介 */
     computedIntro() {
-      if (this.data.articleInfo.articleType === 1) {
+      if (this.data?.articleInfo?.articleType === 1) {
         return this.data.exhibitIntro;
       } else {
         if (this.mode === "voice") {
@@ -510,7 +530,7 @@ export default {
 
     /** 标题 */
     computedTitle() {
-      if (this.data.articleInfo.articleType === 1) {
+      if (this.data?.articleInfo?.articleType === 1) {
         return this.data.exhibitTitle;
       } else {
         if (this.mode === "voice") {
@@ -535,7 +555,7 @@ export default {
 
     /** 封面 */
     computedCover() {
-      if (this.data.articleInfo.articleType === 1) {
+      if (this.data?.articleInfo?.articleType === 1) {
         return this.data.coverImages[0];
       } else {
         if (this.mode === "voice") {

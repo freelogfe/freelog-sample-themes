@@ -780,11 +780,23 @@ export default {
         /* 向下滚动时, 滚动到底时则不滚动;
          * 向上滚动时, 暂无;
          */
-
         // if 向下滚动时 else 向上滚动
+        console.log(
+          "el.offsetTop",
+          el.offsetTop,
+          scrollTop.value,
+          clientHeight.value + scrollTop.value >= scrollHeight.value,
+          clientHeight.value + scrollTop.value,
+          "clientHeight.value",
+          clientHeight.value,
+          "scrollHeight.value",
+          scrollHeight.value
+        );
+
         if (el.offsetTop > scrollTop.value) {
           // 滚动到底时则不滚动
-          if (clientHeight.value + scrollTop.value >= scrollHeight.value) {
+          const sumRound = Math.round(clientHeight.value + scrollTop.value);
+          if (sumRound >= scrollHeight.value) {
             data.currentTitle = title;
             if (index) {
               data.currentTitleIndex = index;
@@ -795,28 +807,11 @@ export default {
             }
             return;
           }
-        } else if (el.offsetTop < scrollTop.value) {
         }
 
         // 当前滚动位置与所选标题位置不同时才滚动
         if (scrollTop.value !== el.offsetTop) {
           scrollTo(el.offsetTop);
-          // setTimeout(() => {
-          //   // 滚动完成后, 可能出现早已触底的情况, 此时高亮的是前面的标题
-          //   if (
-          //     clientHeight.value + scrollTop.value >= scrollHeight.value &&
-          //     title !== data.currentTitle
-          //   ) {
-          //     data.currentTitle = title;
-          //     if (index) {
-          //       data.currentTitleIndex = index;
-          //     } else {
-          //       data.currentTitleIndex = data.directoryList.findIndex(
-          //         item => item.innerText === title
-          //       );
-          //     }
-          //   }
-          // }, 1000);
         }
       },
       /** 搜索 */
@@ -1038,16 +1033,31 @@ export default {
 
     watch(
       () => scrollTop.value,
-      cur => {
+      (cur, prev) => {
         methods.setShareWidgetShow(false);
 
-        for (let i = data.directoryList.length - 1; i >= 0; i--) {
-          if (cur >= data.directoryList[i].offsetTop) {
-            const currentTitle = data.directoryList[i].innerText;
-            data.currentTitle = currentTitle;
-            data.currentTitleIndex = i;
-            switchPage("/reader", { id: data.currentId, title: currentTitle });
-            break;
+        // 区分向上滚动和向下滚动
+        if (cur > prev) {
+          for (let i = data.directoryList.length - 1; i >= 0; i--) {
+            const curRound = Math.round(cur);
+            if (curRound >= data.directoryList[i].offsetTop) {
+              const currentTitle = data.directoryList[i].innerText;
+              data.currentTitle = currentTitle;
+              data.currentTitleIndex = i;
+              switchPage("/reader", { id: data.currentId, title: currentTitle });
+              break;
+            }
+          }
+        } else {
+          for (let i = 0; i < data.directoryList.length; i++) {
+            const curRound = Math.round(cur);
+            if (curRound <= data.directoryList[i].offsetTop) {
+              const currentTitle = data.directoryList[i].innerText;
+              data.currentTitle = currentTitle;
+              data.currentTitleIndex = i;
+              switchPage("/reader", { id: data.currentId, title: currentTitle });
+              break;
+            }
           }
         }
       }

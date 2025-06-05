@@ -6,8 +6,8 @@
       weigui:
         voiceInfo &&
         (voiceInfo.articleInfo.status === 2 ||
-          voiceInfo.child.articleInfo.status === 2 ||
-          voiceInfo.child.authCode === 403)
+          (voiceInfo.child && voiceInfo.child.articleInfo && voiceInfo.child.articleInfo.status === 2) ||
+          (voiceInfo.child && voiceInfo.child.authCode === 403))
     }"
   >
     <transition name="detail-fade">
@@ -17,8 +17,8 @@
           v-if="
             voiceInfo &&
             (voiceInfo.articleInfo.status === 2 ||
-              voiceInfo.child.articleInfo.status === 2 ||
-              voiceInfo.child.authCode === 403)
+              (voiceInfo.child && voiceInfo.child.articleInfo && voiceInfo.child.articleInfo.status === 2) ||
+              (voiceInfo.child && voiceInfo.child.authCode === 403))
           "
           class="detail-weigui"
         >
