@@ -242,7 +242,6 @@ export const useMyScroll = () => {
     data.scrollTop = app?.scrollTop || 0;
     data.clientHeight = app?.clientHeight || 0;
     data.scrollHeight = app?.scrollHeight || 0;
-    console.log("app scroll data", data);
   };
 
   /** 滚动到指定位置 */
