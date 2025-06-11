@@ -272,7 +272,7 @@
               </div>
 
               <div class="tags">
-                <tags :tags="comicInfo?.tags" />
+                <new-tags :tags="comicInfo?.tags" />
               </div>
 
               <div class="update-date">
@@ -283,6 +283,7 @@
                 <div v-else-if="comicInfo.articleInfo?.serializeStatus === 0">
                   <span class="on-going"> 连载中 </span>
 
+                  <span class="update-count">更新至{{ total }}话</span>
                   最近更新：
                   <span class="latest-comic">{{ latestComicItem?.itemTitle }}</span>
                   {{ formatDate(latestComicItem?.articleInfo?.firstVersionReleaseDate) }}
@@ -290,7 +291,11 @@
 
                 <div v-else-if="comicInfo.articleInfo?.serializeStatus === 1">
                   <span class="completed"> 已完结 </span>
-                  共 {{ listData.length }} 话
+
+                  <span class="update-count">共 {{ listData.length }} 话</span>
+                  最近更新：
+                  <span class="latest-comic">{{ latestComicItem?.itemTitle }}</span>
+                  {{ formatDate(latestComicItem?.articleInfo?.firstVersionReleaseDate) }}
                 </div>
               </div>
 
@@ -354,8 +359,13 @@
               <div class="title-container">
                 <span class="title">目录</span>
                 <span class="count">
-                  {{ comicInfo.articleInfo?.serializeStatus === 1 ? "已完结" : "连载中" }}
-                  · 共{{ total }}话
+                  <span
+                    class="status"
+                    :class="comicInfo.articleInfo?.serializeStatus === 1 ? 'completed' : 'ongoing'"
+                  >
+                    {{ comicInfo.articleInfo?.serializeStatus === 1 ? "已完结" : "连载中" }}
+                  </span>
+                  更新至{{ total }}话
                 </span>
 
                 <div class="sort" @click="handleSort">
@@ -467,7 +477,8 @@ export default {
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     "login-btn": defineAsyncComponent(() => import("../components/login-btn.vue")),
     "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
-    tags: defineAsyncComponent(() => import("../components/tags.vue"))
+    tags: defineAsyncComponent(() => import("../components/tags.vue")),
+    "new-tags": defineAsyncComponent(() => import("../components/new-tags.vue"))
   },
 
   setup() {
