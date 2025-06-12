@@ -453,7 +453,9 @@
 .header-wrapper {
   width: 100%;
   padding: 0 140px;
-  background: var(--gradientColor);
+  // background: var(--gradientColor);
+  background: rgba(0, 0, 0, 0.02);
+  // background: rgba(0, 0, 0, 0.02);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -461,17 +463,28 @@
 
   .header-box {
     width: 1160px;
-    height: 70px;
+    height: 80px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: relative;
+
+    @media (min-width: 1600px) {
+      width: 1400px;
+    }
 
     .header-left {
       display: flex;
       align-items: center;
 
+      &.no-logo {
+        justify-content: flex-start;
+      }
+
       .logo {
-        height: 24px;
+        width: 125px;
+        height: 50px;
+        object-fit: cover;
         cursor: pointer;
 
         .freelog {
@@ -484,261 +497,274 @@
           margin-right: 5px;
         }
       }
+    }
 
-      .search-box {
-        position: relative;
-        width: 240px;
-        height: 32px;
+    .search-box {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 460px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      z-index: 99;
+
+      &.no-logo {
+        position: static;
+        transform: none;
+        left: auto;
+        margin-left: 0;
+      }
+
+      // 响应式设计
+      @media (max-width: 1600px) {
+        width: 340px;
+      }
+
+      .search-input {
+        height: 38px;
+        border-radius: 32px;
+        flex: 1;
+        font-size: 14px;
+        color: #222;
+        padding: 0 34px !important;
+        background-color: rgba(0, 0, 0, 0.05) !important;
+        transition: all 0.2s linear;
+
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.08) !important;
+        }
+
+        &:focus,
+        &.in-focus {
+          background-color: #fff !important;
+
+          & ~ .fl-icon-content {
+            color: #8e8e93;
+          }
+        }
+      }
+
+      .fl-icon-content {
+        position: absolute;
+        left: 10px;
+        font-size: 14px;
         display: flex;
         align-items: center;
-        margin-left: 40px;
+        justify-content: center;
+        color: rgba(142, 142, 147, 0.4);
+      }
 
-        .search-input {
-          height: 32px;
-          border-radius: 32px;
-          flex: 1;
-          font-size: 14px;
-          color: #222;
-          padding: 0 34px !important;
-          background-color: rgba(255, 255, 255, 0.1) !important;
-          transition: all 0.2s linear;
+      .clear-btn {
+        position: absolute;
+        right: 10px;
+        font-size: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 2px;
+      }
 
-          &:hover {
-            background-color: rgba(255, 255, 255, 0.18) !important;
+      .search-history {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        margin-top: 5px;
+        min-height: 170px;
+        background-color: #fff;
+        background: #ffffff;
+        box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        padding: 4px;
+        padding-bottom: 50px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 2;
+
+        .history-list {
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+          min-height: 170px;
+          max-height: 400px;
+          overflow-y: auto;
+
+          &::-webkit-scrollbar {
+            width: 5px;
           }
 
-          &:focus,
-          &.in-focus {
-            background-color: #fff !important;
+          &::-webkit-scrollbar-thumb {
+            width: 5px;
+            border-radius: 5px;
+            background-color: rgba(0, 0, 0, 0.1);
+          }
 
-            & ~ .fl-icon-content {
-              color: #8e8e93;
+          .history-item {
+            position: relative;
+            flex-shrink: 0;
+            width: 100%;
+            min-height: 34px;
+            border-radius: 4px;
+            padding: 8px 11px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s linear;
+
+            &.catch,
+            &:hover {
+              background: rgba(0, 0, 0, 0.03);
+
+              .freelog {
+                opacity: 1;
+              }
+            }
+
+            .item-word {
+              font-size: 12px;
+              line-height: 18px;
+              color: #222222;
+              word-break: break-all;
+              margin-right: 10px;
+            }
+
+            .delete-btn {
+              width: 10px;
+              height: 10px;
+              font-size: 10px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: #999;
+              cursor: pointer;
+              transition: all 0.2s linear;
+              opacity: 0;
+
+              &:hover {
+                color: #a9a9ad;
+              }
             }
           }
         }
 
-        .fl-icon-content {
+        .text-btn {
           position: absolute;
-          left: 10px;
-          font-size: 14px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: rgba(255, 255, 255, 0.6);
+          bottom: 12px;
+          font-size: 12px;
+          line-height: 18px;
         }
+      }
+    }
+  }
 
-        .clear-btn {
-          position: absolute;
-          right: 10px;
-          font-size: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-top: 2px;
-        }
+  .header-right {
+    display: flex;
+    align-items: center;
 
-        .search-history {
-          position: absolute;
-          left: 0;
-          right: 0;
-          top: 100%;
-          margin-top: 5px;
-          min-height: 170px;
-          background-color: #fff;
+    .nav-btn {
+      padding: 0 20px;
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 400;
+      color: #666666;
+      border-right: 1px solid rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: all 0.2s linear;
+
+      &:hover {
+        color: #e7949f;
+      }
+    }
+
+    .user-avatar {
+      position: relative;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      margin-left: 25px;
+
+      .avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+      }
+
+      .user-box {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        padding-top: 10px;
+        cursor: default;
+        z-index: 100;
+
+        .user-box-body {
+          width: 240px;
           background: #ffffff;
           box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
           border-radius: 4px;
-          padding: 4px;
-          padding-bottom: 50px;
-          box-sizing: border-box;
           display: flex;
           flex-direction: column;
           align-items: center;
-          z-index: 2;
 
-          .history-list {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            min-height: 170px;
-            max-height: 400px;
-            overflow-y: auto;
-
-            &::-webkit-scrollbar {
-              width: 5px;
-            }
-
-            &::-webkit-scrollbar-thumb {
-              width: 5px;
-              border-radius: 5px;
-              background-color: rgba(0, 0, 0, 0.1);
-            }
-
-            .history-item {
-              position: relative;
-              flex-shrink: 0;
-              width: 100%;
-              min-height: 34px;
-              border-radius: 4px;
-              padding: 8px 11px;
-              box-sizing: border-box;
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-              cursor: pointer;
-              transition: all 0.2s linear;
-
-              &.catch,
-              &:hover {
-                background: rgba(0, 0, 0, 0.03);
-
-                .freelog {
-                  opacity: 1;
-                }
-              }
-
-              .item-word {
-                font-size: 12px;
-                line-height: 18px;
-                color: #222222;
-                word-break: break-all;
-                margin-right: 10px;
-              }
-
-              .delete-btn {
-                width: 10px;
-                height: 10px;
-                font-size: 10px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: #999;
-                cursor: pointer;
-                transition: all 0.2s linear;
-                opacity: 0;
-
-                &:hover {
-                  color: #a9a9ad;
-                }
-              }
-            }
+          .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 1px solid #d1d1d1;
+            margin-top: 20px;
           }
 
-          .text-btn {
-            position: absolute;
-            bottom: 12px;
-            font-size: 12px;
-            line-height: 18px;
+          .username {
+            font-size: 16px;
+            line-height: 22px;
+            color: #222222;
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 20px;
+          }
+
+          .btn {
+            width: 100%;
+            height: 50px;
+            line-height: 50px;
+            font-size: 14px;
+            padding-left: 20px;
+            box-sizing: border-box;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+
+            &:last-child {
+              border-radius: 0 0 4px 4px;
+            }
           }
         }
       }
     }
 
-    .header-right {
+    .user-btns {
       display: flex;
-      align-items: center;
+      margin-left: 25px;
 
-      .nav-btn {
-        padding: 0 25px;
+      .btn {
+        height: 32px;
+        padding: 0 15px;
+        box-sizing: border-box;
+        border-radius: 4px;
         font-size: 14px;
-        line-height: 16px;
-        font-weight: 600;
-        color: #ffffff;
-        border-right: 1px solid rgba(255, 255, 255, 0.2);
-        opacity: 0.8;
-        cursor: pointer;
-        transition: all 0.2s linear;
-
-        &:hover {
-          opacity: 1;
-        }
-      }
-
-      .user-avatar {
-        position: relative;
+        font-weight: bold;
         display: flex;
         align-items: center;
+        justify-content: center;
         cursor: pointer;
-        margin-left: 25px;
-
-        .avatar {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          border: 1px solid rgba(255, 255, 255, 0.4);
-        }
-
-        .user-box {
-          position: absolute;
-          right: 0;
-          top: 100%;
-          padding-top: 10px;
-          cursor: default;
-          z-index: 100;
-
-          .user-box-body {
-            width: 240px;
-            background: #ffffff;
-            box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-
-            .avatar {
-              width: 60px;
-              height: 60px;
-              border-radius: 50%;
-              border: 1px solid #d1d1d1;
-              margin-top: 20px;
-            }
-
-            .username {
-              font-size: 16px;
-              line-height: 22px;
-              color: #222222;
-              font-weight: bold;
-              margin-top: 15px;
-              margin-bottom: 20px;
-            }
-
-            .btn {
-              width: 100%;
-              height: 50px;
-              line-height: 50px;
-              font-size: 14px;
-              padding-left: 20px;
-              box-sizing: border-box;
-              border-top: 1px solid rgba(0, 0, 0, 0.05);
-
-              &:last-child {
-                border-radius: 0 0 4px 4px;
-              }
-            }
-          }
-        }
       }
 
-      .user-btns {
-        display: flex;
-        margin-left: 25px;
-
-        .btn {
-          height: 32px;
-          padding: 0 15px;
-          box-sizing: border-box;
-          border-radius: 4px;
-          font-size: 14px;
-          font-weight: bold;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-        }
-
-        .header-register-btn {
-          margin-left: 10px;
-        }
+      .header-register-btn {
+        margin-left: 10px;
       }
     }
   }

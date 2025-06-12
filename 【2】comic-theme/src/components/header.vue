@@ -177,20 +177,12 @@
   <!-- PC -->
   <div class="header-wrapper" v-if="!inMobile">
     <div class="header-box">
-      <div class="header-left">
+      <div class="header-left" :class="{ 'no-logo': !hasLogo }">
         <!-- logo -->
-        <img
-          class="logo"
-          :src="
-            selfConfig.options_logoImage ||
-            selfConfig.logoImage ||
-            require('../assets/images/logo.png')
-          "
-          @click="switchPage('/home')"
-        />
+        <img class="logo" :src="nodeInfo?.nodeLogo" @click="switchPage('/home')" v-if="hasLogo" />
 
         <!-- 搜索框 -->
-        <div class="search-box">
+        <div class="search-box" :class="{ 'no-logo': !hasLogo }">
           <input
             ref="searchInput"
             class="search-input input-none"
@@ -318,6 +310,11 @@ export default {
       searchHistory.value.filter(item => item.includes(data.searchKey))
     );
 
+    const hasLogo = computed(() => {
+      const config = store.state?.nodeInfo;
+      return !!config?.nodeLogo;
+    });
+
     const data = reactive({
       searchKey: "",
       userBoxShow: false,
@@ -411,10 +408,10 @@ export default {
       /** 注册 */
       register() {
         const url = freelogApp.getCurrentUrl();
-        const mainUrl = url.split("?")[0]
-        const reg = /\.([^.]*)\.com/
-        const domain = reg.exec(mainUrl)
-        const domainName = domain ? domain[1] : "freelog"
+        const mainUrl = url.split("?")[0];
+        const reg = /\.([^.]*)\.com/;
+        const domain = reg.exec(mainUrl);
+        const domainName = domain ? domain[1] : "freelog";
         window.open(`https://user.${domainName}.com/logon`);
       }
     };
@@ -470,6 +467,7 @@ export default {
       searchHistoryPopup,
       searchHistory,
       mySearchHistory,
+      hasLogo,
       searchWord,
       deleteWord,
       clearHistory,

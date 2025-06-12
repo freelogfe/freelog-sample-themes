@@ -506,6 +506,8 @@ export default {
       skip: 0
     });
 
+    const collectionDataDesc = ref();
+
     const methods = {
       /** 移动端分享 */
       share() {
@@ -585,6 +587,8 @@ export default {
       const articleType = exhibitInfo.data.data.articleInfo.articleType;
       if (articleType === 2) {
         getCollectionList(true);
+        // 目的：获取合集的倒序内容
+        getCollectionListBySortTypeDesc();
 
         sortOrder.value =
           (exhibitInfo.data.data.versionInfo?.exhibitProperty?.catalogueProperty as any)
@@ -663,6 +667,18 @@ export default {
       collectionData.listData = init ? dataList : [...listData, ...dataList];
     };
 
+    /** 获取合集的倒序内容 */
+    const getCollectionListBySortTypeDesc = async () => {
+      const res = await freelogApp.getCollectionSubList(id, {
+        sortType: -1,
+        skip: 0,
+        limit: 50,
+        isShowDetailInfo: 1
+      });
+
+      collectionDataDesc.value = res.data.data as any;
+    };
+
     // 记录用户点击最近更新一话
     const handleLatestComic = async (item: any) => {
       if (latestComicItem?.value?.itemId === item.itemId) {
@@ -731,9 +747,7 @@ export default {
     // 最近更新的一话
     const latestComicItem = computed(() => {
       if (data.comicInfo?.articleInfo?.articleType === 2) {
-        const items = [...collectionData.listData].sort((a: any, b: any) => a.sortId - b.sortId);
-
-        return items[items.length - 1];
+        return collectionDataDesc.value?.dataList[0];
       }
 
       return null;

@@ -28,6 +28,10 @@ export default {
     tags: {
       type: Array as PropType<string[]>,
       default: () => []
+    },
+    hoverColor: {
+      type: String,
+      default: "#e7949f"
     }
   },
 
@@ -92,7 +96,7 @@ export default {
       }
 
       &:hover {
-        color: #e7949f;
+        color: v-bind("hoverColor");
       }
     }
   }

@@ -15,6 +15,7 @@ export interface State {
   myShelf: ExhibitItem[] | null;
   authIds: string[]; // 授权集合，用于刷新列表授权状态
   maskLoading: boolean;
+  nodeInfo: any;
 }
 
 /** 当前登录用户数据 */
@@ -48,7 +49,8 @@ export default createStore<State>({
     shelfIds: [],
     myShelf: null,
     authIds: [], // 授权集合，用于刷新列表授权状态
-    maskLoading: false
+    maskLoading: false,
+    nodeInfo: {}
   },
 
   mutations: {
@@ -63,6 +65,8 @@ export default createStore<State>({
     async initStoreData(context) {
       const userData = freelogApp.getCurrentUser();
       const selfConfig = await freelogApp.getSelfProperty();
+      const nodeInfo = await freelogApp.nodeInfo;
+
       const inMobile = judgeDevice();
       const theme = themeList[selfConfig.options_theme || selfConfig.theme];
 
@@ -76,6 +80,7 @@ export default createStore<State>({
         value: userData ? { ...userData, isLogin: true } : { isLogin: false }
       });
       context.commit("setData", { key: "selfConfig", value: selfConfig });
+      context.commit("setData", { key: "nodeInfo", value: nodeInfo });
       context.commit("setData", { key: "inMobile", value: inMobile });
       context.commit("setData", { key: "theme", value: theme });
       context.commit("setData", { key: "locationHistory", value: [] });

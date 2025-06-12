@@ -77,7 +77,7 @@
             alt="未授权"
             v-if="mode !== 3 && data.defaulterIdentityType >= 4"
           />
-          <div
+          <!-- <div
             class="comic-status"
             :class="
               data.articleInfo?.articleType === 1
@@ -86,7 +86,7 @@
                 ? 'on-going'
                 : 'completed'
             "
-          />
+          /> -->
           <div class="comic-name" :class="{ 'opacity-40p': isDisabled() }">
             {{ data.exhibitTitle }}
           </div>
@@ -105,8 +105,32 @@
           {{ data.articleInfo.articleOwnerName }}
         </div>
 
-        <div class="tags" :class="{ 'opacity-40p': isDisabled() }" v-if="!(mode === 3 && inMobile)">
-          <tags :tags="data.tags" />
+        <div
+          class="tags"
+          :class="{ 'opacity-40p': isDisabled() }"
+          v-if="!(mode === 3 && inMobile) && data.tags.length > 0"
+        >
+          <new-tags :tags="data.tags" hover-color="#5D9191" />
+        </div>
+
+        <div class="update-date" v-if="!inMobile">
+          <div v-if="data.articleInfo?.articleType === 1">单集</div>
+
+          <div v-else-if="data.articleInfo?.serializeStatus === 0">
+            <span class="on-going"> 连载中 </span>
+
+            <span class="update-count">更新至{{ data?.collectionList?.totalItem }}话</span>
+            最近更新：
+            <span class="latest-comic">{{ data?.collectionList?.dataList?.[0]?.itemTitle }}</span>
+          </div>
+
+          <div v-else-if="data.articleInfo?.serializeStatus === 1">
+            <span class="completed"> 已完结 </span>
+
+            <span class="update-count">共 {{ data?.collectionList?.totalItem }} 话</span>
+            最近更新：
+            <span class="latest-comic">{{ data?.collectionList?.dataList?.[0]?.itemTitle }}</span>
+          </div>
         </div>
 
         <div
@@ -159,7 +183,8 @@ export default {
   name: "comic",
 
   components: {
-    tags: defineAsyncComponent(() => import("../components/tags.vue"))
+    // tags: defineAsyncComponent(() => import("../components/tags.vue")),
+    "new-tags": defineAsyncComponent(() => import("../components/new-tags.vue"))
   },
 
   // mode: 1-默认首页 2-收藏 3-签约记录 4-移动端首页收藏
@@ -439,8 +464,57 @@ export default {
 
       .tags {
         margin-top: 12px;
-        height: 24px;
+        height: 18px;
         overflow: hidden;
+      }
+
+      .update-date {
+        font-size: 12px;
+        line-height: 18px;
+        height: 18px;
+        color: #999999;
+        margin-top: 10px;
+
+        .on-going {
+          font-weight: 600;
+          font-size: 12px;
+          color: #42c28c;
+          line-height: 18px;
+          // margin-right: 10px;
+        }
+
+        .completed {
+          font-weight: 600;
+          font-size: 12px;
+          color: #e9a923;
+          line-height: 18px;
+          // margin-right: 10px;
+        }
+
+        .completed::after,
+        .on-going::after {
+          content: "";
+          width: 1px;
+          height: 10px;
+          background: #000000;
+          opacity: 0.1;
+          display: inline-block;
+          margin: 0 5px;
+        }
+
+        .update-count::after {
+          content: "";
+          width: 1px;
+          height: 10px;
+          background: #000000;
+          opacity: 0.1;
+          display: inline-block;
+          margin: 0 5px;
+        }
+
+        .latest-comic {
+          margin-right: 10px;
+        }
       }
     }
   }
@@ -514,11 +588,11 @@ export default {
   &.in-pc {
     border-radius: 6px;
     padding: 10px;
-    background: linear-gradient(90deg, rgba(0, 0, 0, 0.04) 0%, rgba(255, 255, 255, 0.1) 100%);
+    background: rgba(0, 0, 0, 0.02);
     cursor: pointer;
 
     &:hover {
-      background: linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0%, rgba(255, 255, 255, 0.1) 100%);
+      background: rgba(0, 0, 0, 0.06);
     }
 
     .comic-cover-box {

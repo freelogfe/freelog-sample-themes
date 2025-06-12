@@ -233,7 +233,7 @@ export const useGetList = () => {
         freelogApp.getExhibitSignCount(ids),
         freelogApp.getExhibitAuthStatus(ids)
       ]);
-      (dataList as ExhibitItem[]).forEach(item => {
+      for (const item of dataList as ExhibitItem[]) {
         let index;
         index = signCountData.data.data.findIndex(
           (resultItem: { subjectId: string }) => resultItem.subjectId === item.exhibitId
@@ -244,7 +244,18 @@ export const useGetList = () => {
         );
         if (index !== -1)
           item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
-      });
+
+        if (item.articleInfo.articleType === 2) {
+          const res = await freelogApp.getCollectionSubList(item.exhibitId, {
+            sortType: -1,
+            skip: 0,
+            limit: 50,
+            isShowDetailInfo: 1
+          });
+
+          item.collectionList = res.data.data as any;
+        }
+      }
     }
     data.listData = init
       ? dataList.filter((i: any) => i.articleInfo?.status !== 2)
