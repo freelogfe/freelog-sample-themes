@@ -669,7 +669,7 @@ export default {
 
     /** 获取合集的倒序内容 */
     const getCollectionListBySortTypeDesc = async () => {
-      const res = await freelogApp.getCollectionSubList(id, {
+      const res = await (freelogApp as any).getCollectionSubList(id, {
         sortType: -1,
         skip: 0,
         limit: 50,

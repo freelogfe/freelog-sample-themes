@@ -104,12 +104,23 @@ export const useMyShelf = (id?: string) => {
       freelogApp.getExhibitListById({ exhibitIds }),
       freelogApp.getExhibitAuthStatus(exhibitIds)
     ]);
-    (list.data.data as ExhibitItem[]).forEach(item => {
+    for (const item of list.data.data as ExhibitItem[]) {
       const statusItem = statusList.data.data.find(
         (status: { exhibitId: string }) => status.exhibitId === item.exhibitId
       );
       item.defaulterIdentityType = statusItem?.defaulterIdentityType;
-    });
+
+      if (item.articleInfo.articleType === 2) {
+        const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
+          sortType: -1,
+          skip: 0,
+          limit: 50,
+          isShowDetailInfo: 1
+        });
+
+        item.collectionList = res.data.data as any;
+      }
+    }
     store.commit("setData", { key: "myShelf", value: list.data.data });
   };
 
@@ -246,7 +257,7 @@ export const useGetList = () => {
           item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
 
         if (item.articleInfo.articleType === 2) {
-          const res = await freelogApp.getCollectionSubList(item.exhibitId, {
+          const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
             sortType: -1,
             skip: 0,
             limit: 50,
@@ -303,12 +314,23 @@ export const useMySignedList = () => {
       freelogApp.getExhibitListById({ exhibitIds: ids }),
       freelogApp.getExhibitAuthStatus(ids)
     ]);
-    (list.data.data as ExhibitItem[]).forEach(item => {
+    for (const item of list.data.data as ExhibitItem[]) {
       const statusItem = statusList.data.data.find(
         (status: { exhibitId: string }) => status.exhibitId === item.exhibitId
       );
       item.defaulterIdentityType = statusItem?.defaulterIdentityType;
-    });
+
+      if (item.articleInfo.articleType === 2) {
+        const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
+          sortType: -1,
+          skip: 0,
+          limit: 50,
+          isShowDetailInfo: 1
+        });
+
+        item.collectionList = res.data.data as any;
+      }
+    }
     data.mySignedList = list.data.data.filter(
       item => !item.articleInfo.resourceType.includes("主题")
     );
