@@ -195,6 +195,7 @@ export const ReaderScreen = (props: any) => {
       }
       // widget_entry: "https://localhost:8202",
     };
+
     widgetList.current.markdown = await freelogApp.mountArticleWidget(params);
   };
 
@@ -312,7 +313,8 @@ export const ReaderScreen = (props: any) => {
     currentSortId,
     total,
     collectionList,
-    recommendList
+    recommendList,
+    widgetList
   };
 
   return (
@@ -369,7 +371,8 @@ const ReaderBody = () => {
     currentSortId,
     total,
     collectionList,
-    recommendList
+    recommendList,
+    widgetList
   } = useContext(readerContext);
 
   const [content, setContent] = useState<string>("");
@@ -391,6 +394,7 @@ const ReaderBody = () => {
 
   /** 获取小说内容 */
   const getContent = useCallback(async () => {
+    setContent(""); // 先清空内容
     let authErrType: any = -1;
     const statusInfo = collection
       ? await (freelogApp as any).getCollectionSubAuth(id, { itemIds: subId })
@@ -524,6 +528,13 @@ const ReaderBody = () => {
     }
     // eslint-disable-next-line
   }, [book, content]);
+
+  useEffect(() => {
+    if (!content && widgetList.current.markdown) {
+      widgetList.current.markdown.unmount();
+      widgetList.current.markdown = null;
+    }
+  }, [content]);
 
   if (loading || !book) {
     return <Loader />;
