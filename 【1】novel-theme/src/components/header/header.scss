@@ -466,7 +466,8 @@
 .header-wrapper {
   width: 100%;
   padding: 0 140px;
-  background: var(--gradientColor);
+  // background: var(--gradientColor);
+  background: rgba(0, 0, 0, 0.02);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -474,17 +475,28 @@
 
   .header-box {
     width: 1160px;
-    height: 70px;
+    height: 80px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: relative;
+
+    @media (min-width: 1600px) {
+      width: 1400px;
+    }
 
     .header-left {
       display: flex;
       align-items: center;
 
+      &.no-logo {
+        justify-content: flex-start;
+      }
+
       .logo {
-        height: 24px;
+        width: 125px;
+        height: 50px;
+        object-fit: cover;
         cursor: pointer;
 
         .freelog {
@@ -499,25 +511,39 @@
       }
 
       .small-search-box {
-        position: relative;
-        width: 240px;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 460px;
         height: 32px;
         display: flex;
         align-items: center;
-        margin-left: 40px;
+        z-index: 99;
+
+        &.no-logo {
+          position: static;
+          transform: none;
+          left: auto;
+          margin-left: 0;
+        }
+
+        // 响应式设计
+        @media (max-width: 1600px) {
+          width: 340px;
+        }
 
         .search-input {
-          height: 32px;
+          height: 38px;
           border-radius: 32px;
           flex: 1;
           font-size: 14px;
           color: #222;
           padding: 0 34px !important;
-          background-color: rgba(255, 255, 255, 0.1) !important;
+          background-color: rgba(0, 0, 0, 0.05) !important;
           transition: all 0.2s linear;
 
           &:hover {
-            background-color: rgba(255, 255, 255, 0.18) !important;
+            background-color: rgba(255, 255, 255, 0.08) !important;
           }
 
           &:focus,
@@ -537,7 +563,7 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          color: rgba(255, 255, 255, 0.6);
+          color: rgba(142, 142, 147, 0.4);
         }
 
         .clear-btn {
@@ -556,6 +582,7 @@
           right: 0;
           top: 100%;
           margin-top: 5px;
+          min-height: 170px;
           background-color: #fff;
           background: #ffffff;
           box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
@@ -566,7 +593,7 @@
           display: flex;
           flex-direction: column;
           align-items: center;
-          z-index: 1;
+          z-index: 2;
 
           .history-list {
             display: flex;
@@ -651,18 +678,17 @@
       align-items: center;
 
       .nav-btn {
-        padding: 0 25px;
+        padding: 0 20px;
         font-size: 14px;
-        line-height: 16px;
-        font-weight: 600;
-        color: #ffffff;
-        border-right: 1px solid rgba(255, 255, 255, 0.2);
-        opacity: 0.8;
+        line-height: 20px;
+        font-weight: 400;
+        color: #666666;
+        border-right: 1px solid rgba(0, 0, 0, 0.1);
         cursor: pointer;
         transition: all 0.2s linear;
 
         &:hover {
-          opacity: 1;
+          color: #5d9191;
         }
       }
 

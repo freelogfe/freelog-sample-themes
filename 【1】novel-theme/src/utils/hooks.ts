@@ -32,14 +32,27 @@ export const useMyShelf = (id?: string) => {
       freelogApp.getExhibitListById({ exhibitIds }),
       freelogApp.getExhibitAuthStatus(exhibitIds)
     ]);
-    ids.forEach((id: string) => {
+
+    for (const id of ids) {
       const book = list.data.data.find(item => item.exhibitId === id) as ExhibitItem;
       if (!book) return;
       const statusItem = statusList.data.data.find(
         (item: { exhibitId: string }) => item.exhibitId === id
       );
       book.defaulterIdentityType = statusItem?.defaulterIdentityType;
-    });
+
+      if (book.articleInfo.articleType === 2) {
+        const res = await (freelogApp as any).getCollectionSubList(book.exhibitId, {
+          sortType: -1,
+          skip: 0,
+          limit: 50,
+          isShowDetailInfo: 1
+        });
+
+        book.collectionList = res.data.data as any;
+      }
+    }
+
     setMyShelf(list.data.data);
   };
 
@@ -112,12 +125,24 @@ export const useMySignedList = () => {
       freelogApp.getExhibitListById({ exhibitIds: ids }),
       freelogApp.getExhibitAuthStatus(ids)
     ]);
-    list.data.data.forEach((item: ExhibitItem) => {
+
+    for (const item of list.data.data as ExhibitItem[]) {
       const statusItem = statusList.data.data.find(
         (status: { exhibitId: string }) => status.exhibitId === item.exhibitId
       );
       item.defaulterIdentityType = statusItem?.defaulterIdentityType;
-    });
+
+      if (item.articleInfo.articleType === 2) {
+        const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
+          sortType: -1,
+          skip: 0,
+          limit: 50,
+          isShowDetailInfo: 1
+        });
+
+        item.collectionList = res.data.data as any;
+      }
+    }
 
     setMySignedList(
       list.data.data.filter((item: ExhibitItem) => !item.articleInfo.resourceType.includes("主题"))

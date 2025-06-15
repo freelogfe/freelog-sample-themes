@@ -1,8 +1,8 @@
-import React, { useContext, useRef, useState, useEffect, useCallback } from "react";
+import React, { useContext, useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { freelogApp } from "freelog-runtime";
 import { globalContext } from "../../router";
 import { Header } from "../../components/header/header";
-import { Tags } from "../../components/tags/tags";
+import { NewTags } from "../../components/tags/new-tags";
 import { Footer } from "../../components/footer/footer";
 import { ThemeEntrance } from "../../components/theme-entrance/theme-entrance";
 import { LoginBtn } from "../../components/login-btn/login-btn";
@@ -29,6 +29,9 @@ export const DetailScreen = (props: any) => {
   const [collectionRecentDate, setCollectionRecentDate] = useState<string>("");
   const skip = useRef(0);
   const [sortOrder, setSortOrder] = useState("asc");
+  const [collectionDataDesc, setCollectionDataDesc] = useState<any>(null);
+  const [latestComicData, setLatestComicData] = useState<any[]>([]);
+  const [historyComicData, setHistoryComicData] = useState<any[]>([]);
 
   // 获取合集下的单品列表
   const getCollectionList = useCallback(
@@ -73,6 +76,98 @@ export const DetailScreen = (props: any) => {
     [id, novel]
   );
 
+  /** 获取合集的倒序内容 */
+  const getCollectionListBySortTypeDesc = async () => {
+    const res = await (freelogApp as any).getCollectionSubList(id, {
+      sortType: -1,
+      skip: 0,
+      limit: 50,
+      isShowDetailInfo: 1
+    });
+
+    setCollectionDataDesc(res.data.data);
+  };
+
+  // 最近更新的一话
+  const latestComicItem = useMemo(() => {
+    if (novel?.articleInfo?.articleType === 2) {
+      return collectionDataDesc?.dataList?.[0];
+    }
+    return null;
+  }, [novel?.articleInfo?.articleType, collectionDataDesc]);
+
+  // 用户是否已点击最近更新一话
+  const isClickedLatestComic = useMemo(() => {
+    if (!latestComicData) return null;
+    const existingIndex = latestComicData.findIndex((i: any) => i.id === id);
+
+    if (existingIndex !== -1) {
+      return latestComicData[existingIndex];
+    }
+
+    return null;
+  }, [latestComicData, id]);
+
+  // 当前漫画的阅读历史
+  const currentHistoryComic = useMemo(() => {
+    const res = historyComicData?.find((i: any) => i.id === id);
+    return res?.info || [];
+  }, [historyComicData, id]);
+
+  // 记录用户点击最近更新一话
+  const handleLatestComic = async (item: any) => {
+    if (latestComicItem?.itemId === item.itemId) {
+      const newLatestComicData = [...(latestComicData || [])];
+      const existingIndex = newLatestComicData.findIndex((i: any) => i.id === id);
+
+      if (existingIndex !== -1) {
+        newLatestComicData[existingIndex] = { id, info: item };
+      } else {
+        newLatestComicData.push({ id, info: item });
+      }
+
+      setLatestComicData(newLatestComicData);
+      await freelogApp.setUserData("comicLatestViewedHistory", newLatestComicData);
+    }
+  };
+
+  // 记录用户阅读历史
+  const handleReaderHistory = async (item: any) => {
+    const newHistoryComicData = [...(historyComicData || [])];
+    const existingIndex = newHistoryComicData.findIndex((i: any) => i.id === id);
+
+    if (existingIndex !== -1) {
+      const existingComic = newHistoryComicData[existingIndex];
+
+      // 确保info是一个数组
+      if (!Array.isArray(existingComic.info)) {
+        existingComic.info = existingComic.info ? [existingComic.info] : [];
+      }
+
+      // 检查当前章节是否已存在于记录中
+      const chapterIndex = existingComic.info.findIndex((chapter: any) => {
+        return chapter.itemId === item.itemId;
+      });
+
+      if (chapterIndex === -1) {
+        // 如果章节不存在，添加到数组中
+        existingComic.info.push(item);
+      }
+
+      // 更新历史记录
+      newHistoryComicData[existingIndex] = existingComic;
+    } else {
+      // 如果漫画ID不存在，创建新记录，将info设为数组
+      newHistoryComicData.push({
+        id,
+        info: [item]
+      });
+    }
+
+    setHistoryComicData(newHistoryComicData);
+    await freelogApp.setUserData("comicViewedHistory", newHistoryComicData);
+  };
+
   /** 获取小说信息 */
   const getNovelInfo = useCallback(async () => {
     try {
@@ -85,6 +180,8 @@ export const DetailScreen = (props: any) => {
       const articleType = exhibitInfo.data.data.articleInfo.articleType;
       if (articleType === 2) {
         getCollectionList(true);
+        // 目的：获取合集的倒序内容Add commentMore actions
+        getCollectionListBySortTypeDesc();
         setSortOrder(
           (novel?.versionInfo?.exhibitProperty?.catalogueProperty as any)?.collection_sort_list ===
             "collection_sort_descending"
@@ -129,7 +226,19 @@ export const DetailScreen = (props: any) => {
   }, [scrollTop, clientHeight, scrollHeight]);
 
   return (
-    <detailContext.Provider value={{ novel, setNovel, sortOrder, setSortOrder }}>
+    <detailContext.Provider
+      value={{
+        novel,
+        setNovel,
+        sortOrder,
+        setSortOrder,
+        latestComicItem,
+        isClickedLatestComic,
+        currentHistoryComic,
+        handleLatestComic,
+        handleReaderHistory
+      }}
+    >
       <div className="detail-wrapper">
         <Header />
         <DetailBody total={total} collectionRecentDate={collectionRecentDate} />
@@ -145,7 +254,17 @@ export const DetailScreen = (props: any) => {
 const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
   const { total, collectionRecentDate } = props;
   const { inMobile, userData } = useContext(globalContext);
-  const { novel, setNovel, sortOrder, setSortOrder } = useContext(detailContext);
+  const {
+    novel,
+    setNovel,
+    sortOrder,
+    setSortOrder,
+    latestComicItem,
+    isClickedLatestComic,
+    currentHistoryComic,
+    handleLatestComic,
+    handleReaderHistory
+  } = useContext(detailContext);
   const collectionList = novel?.collectionList;
   const { isCollected, operateShelf } = useMyShelf(novel?.exhibitId);
   const history = useMyHistory();
@@ -288,7 +407,7 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                     <div className="novel-author">{novel.articleInfo.articleOwnerName}</div>
 
                     <div className="tags">
-                      <Tags data={novel.tags || []} />
+                      <NewTags data={novel.tags || []} />
                     </div>
                   </div>
 
@@ -481,12 +600,30 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                 </div>
                 <div className="novel-author">{novel.articleInfo.articleOwnerName}</div>
                 <div className="tags">
-                  <Tags data={novel.tags || []} />
+                  <NewTags data={novel.tags || []} />
                 </div>
-                <div className="create-date">创建时间：{formatDate(novel.createDate)}</div>
                 <div className="update-date">
-                  最近更新：{formatDate(collectionRecentDate || novel.updateDate)}
+                  {novel?.articleInfo?.articleType === 1 ? (
+                    <div>最近更新：{formatDate(novel?.articleInfo?.versions?.[0]?.createDate)}</div>
+                  ) : novel?.articleInfo?.serializeStatus === 0 ? (
+                    <div>
+                      <span className="on-going">连载中</span>
+                      <span className="update-count">更新至{total}话</span>
+                      最近更新：
+                      <span className="latest-comic">{collectionList?.[0]?.itemTitle}</span>
+                      {formatDate(collectionList?.[0]?.articleInfo?.firstVersionReleaseDate)}
+                    </div>
+                  ) : novel?.articleInfo?.serializeStatus === 1 ? (
+                    <div>
+                      <span className="completed">已完结</span>
+                      <span className="update-count">共 {collectionList?.length} 话</span>
+                      最近更新：
+                      <span className="latest-comic">{collectionList?.[0]?.itemTitle}</span>
+                      {formatDate(collectionList?.[0]?.articleInfo?.firstVersionReleaseDate)}
+                    </div>
+                  ) : null}
                 </div>
+
                 <div className="btns-box">
                   <div className="operate-btns">
                     <div
@@ -517,7 +654,9 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                       立即阅读
                     </div>
                     <div
-                      className={`btn ${isCollected ? "warning-btn" : "collect-btn"}`}
+                      className={`btn ${
+                        isCollected ? "warning-btn cancel-collect-btn" : "collect-btn"
+                      }`}
                       onClick={() => operateShelf(novel)}
                     >
                       {isCollected ? "移出书架" : "加入书架"}
@@ -585,12 +724,32 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
               <div className="novel-catalogue">
                 <div className="title-container">
                   <span className="title">目录</span>
-                  <span className="count">({total}章)</span>
+                  <span className="count">
+                    <span
+                      className={`status ${
+                        novel?.articleInfo?.serializeStatus === 1 ? "completed" : "ongoing"
+                      }`}
+                    >
+                      {novel?.articleInfo?.serializeStatus === 1 ? "已完结" : "连载中"}
+                    </span>
+                    更新至{total}章
+                  </span>
+
                   <div className="sort" onClick={handleSort}>
                     <span>{sortOrder === "asc" ? "正序" : "倒序"}</span>
                     <span className={`triangle ${sortOrder === "asc" ? "asc" : "desc"}`}></span>
                   </div>
                 </div>
+
+                {isClickedLatestComic?.info?.itemId !== latestComicItem?.itemId && (
+                  <div className="latest-tip-box">
+                    <div className="latest-title">最近更新</div>
+                    <div className="latest-comic">{collectionList?.[0]?.itemTitle}</div>
+                    <span className="time">
+                      {formatDate(collectionList?.[0]?.articleInfo?.firstVersionReleaseDate)}
+                    </span>
+                  </div>
+                )}
 
                 <div className="sub-directory-container">
                   {collectionList.map((collectionItem: CollectionList) => {
@@ -610,7 +769,15 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                           )
                         }
                       >
-                        <span className="sub-title">{collectionItem.itemTitle}</span>
+                        <span
+                          className={`sub-title ${
+                            !currentHistoryComic?.find(
+                              (i: any) => i.itemId === collectionItem.itemId
+                            ) && "is-latest"
+                          }`}
+                        >
+                          {collectionItem.itemTitle}
+                        </span>
                         {collectionItem.articleInfo.status === 2 ? (
                           <img className="freeze-lock" src={Freeze} alt="封禁" />
                         ) : novel.onlineStatus === 0 ? (

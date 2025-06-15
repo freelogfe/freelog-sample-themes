@@ -453,10 +453,26 @@
           }
 
           .sub-title {
-            font-weight: 400;
-            font-size: 14px;
-            color: #222222;
+            display: block;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            cursor: pointer;
             line-height: 20px;
+
+            &.is-latest {
+              &::before {
+                content: "";
+                display: inline-block;
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: #fa6400;
+                margin-right: 7px;
+                position: relative;
+                top: -1px;
+              }
+            }
           }
 
           img {
@@ -580,8 +596,6 @@
 
       .novel-info {
         display: flex;
-        padding-bottom: 40px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
         .novel-cover {
           position: relative;
@@ -631,10 +645,11 @@
             }
 
             .novel-name {
+              font-family: PingFangSC-Semibold;
               font-size: 24px;
-              font-weight: 600;
               color: #222222;
               line-height: 30px;
+              font-weight: 600;
             }
           }
 
@@ -642,12 +657,12 @@
             font-size: 13px;
             color: #666666;
             line-height: 18px;
-            margin-top: 10px;
+            margin-top: 15px;
           }
 
           .tags {
             max-width: 500px;
-            height: 24px;
+            height: 18px;
             overflow: hidden;
             margin-top: 12px;
           }
@@ -662,28 +677,72 @@
           .update-date {
             font-size: 12px;
             line-height: 18px;
+            height: 18px;
             color: #999999;
-            margin-top: 4px;
+            margin-top: 15px;
+
+            .on-going {
+              font-weight: 600;
+              font-size: 12px;
+              color: #42c28c;
+              line-height: 18px;
+              // margin-right: 10px;
+            }
+
+            .completed {
+              font-weight: 600;
+              font-size: 12px;
+              color: #e9a923;
+              line-height: 18px;
+              // margin-right: 10px;
+            }
+
+            .completed::after,
+            .on-going::after {
+              content: "";
+              width: 1px;
+              height: 10px;
+              background: #000000;
+              opacity: 0.1;
+              display: inline-block;
+              margin: 0 5px;
+            }
+
+            .update-count::after {
+              content: "";
+              width: 1px;
+              height: 10px;
+              background: #000000;
+              opacity: 0.1;
+              display: inline-block;
+              margin: 0 5px;
+            }
+
+            .latest-comic {
+              margin-right: 10px;
+            }
           }
 
           .btns-box {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-top: 12px;
+            margin-top: 21px;
 
             .operate-btns {
               display: flex;
 
               .btn {
                 padding: 0 20px;
-                height: 38px;
+                width: 120px;
+                height: 46px;
                 border-radius: 4px;
                 font-size: 14px;
                 font-weight: bold;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                box-sizing: border-box;
 
                 & + .btn {
                   margin-left: 10px;
@@ -756,14 +815,14 @@
     }
 
     .novel-intro {
-      padding: 30px 0;
+      padding: 50px 0;
       // border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
       .intro-title {
-        font-size: 16px;
-        line-height: 22px;
+        font-size: 20px;
+        line-height: 26px;
         color: #222222;
-        font-weight: bold;
+        font-weight: 600;
       }
 
       .intro {
@@ -808,7 +867,7 @@
         font-size: 14px;
         color: #999999;
         line-height: 20px;
-        margin-top: 25px;
+        margin-top: 20px;
       }
     }
 
@@ -874,23 +933,46 @@
     }
 
     .novel-catalogue {
-      padding: 30px 0 29px 0;
-      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      padding-bottom: 30px;
       .title-container {
         display: flex;
+        align-items: center;
 
         .title {
           font-weight: 600;
-          font-size: 16px;
+          font-size: 20px;
           color: #222222;
-          line-height: 22px;
+          line-height: 26px;
         }
+
         .count {
           font-weight: 400;
-          font-size: 16px;
-          color: #999999;
-          line-height: 22px;
+          font-size: 12px;
+          color: #666666;
           margin-left: 10px;
+          .status {
+            font-weight: 600;
+            font-size: 12px;
+            line-height: 18px;
+
+            &.ongoing {
+              color: #42c28c;
+            }
+
+            &.completed {
+              color: #e9a923;
+            }
+
+            &::after {
+              content: "";
+              width: 1px;
+              height: 10px;
+              background: #000000;
+              opacity: 0.1;
+              display: inline-block;
+              margin: 0 5px;
+            }
+          }
         }
 
         .sort {
@@ -928,24 +1010,59 @@
         }
       }
 
+      .latest-tip-box {
+        display: flex;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.02);
+        border-radius: 4px;
+        padding: 9px 10px;
+        margin-top: 20px;
+
+        .latest-title {
+          padding: 2px 5px;
+          font-weight: 400;
+          font-size: 12px;
+          color: #ffffff;
+          line-height: 18px;
+          background: #fa6400;
+          border-radius: 4px;
+        }
+
+        .latest-comic {
+          font-weight: 400;
+          font-size: 12px;
+          color: #666666;
+          line-height: 18px;
+          margin-left: 10px;
+        }
+
+        .time {
+          font-weight: 400;
+          font-size: 12px;
+          color: #666666;
+          line-height: 18px;
+          margin-left: auto;
+        }
+      }
+
       .sub-directory-container {
-        margin-top: 25px;
+        margin-top: 15px;
         display: flex;
         align-items: center;
         flex-wrap: wrap;
-        gap: 0 40px;
+        gap: 0 25px;
 
         .sub {
           display: flex;
           align-items: center;
           justify-content: space-between;
           width: 280px;
-          padding: 14px 0 15px 0;
+          padding: 15px 0;
           font-weight: 400;
           font-size: 14px;
           color: #222222;
           line-height: 20px;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+          padding-left: 10px;
 
           &.disabled {
             opacity: 0.4;
@@ -957,12 +1074,27 @@
           }
 
           .sub-title {
+            display: block;
             text-overflow: ellipsis;
-            overflow: hidden;
             white-space: nowrap;
+            overflow: hidden;
             cursor: pointer;
-          }
+            line-height: 20px;
 
+            &.is-latest {
+              &::before {
+                content: "";
+                display: inline-block;
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: #fa6400;
+                margin-right: 7px;
+                position: relative;
+                top: -1px;
+              }
+            }
+          }
           .freeze-lock,
           .auth-lock,
           .sub-lock {

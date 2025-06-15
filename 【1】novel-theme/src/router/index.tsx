@@ -17,6 +17,7 @@ interface Global {
   selfConfig: any;
   theme: Theme;
   locationHistory: string[];
+  nodeInfo: any;
 }
 
 /** 当前登录用户数据 */
@@ -48,13 +49,15 @@ export const globalContext = React.createContext<Global>({
   userData: null,
   selfConfig: {},
   theme: { gradientColor: "", deriveColor: "" },
-  locationHistory: []
+  locationHistory: [],
+  nodeInfo: {}
 });
 
 const RouterView = () => {
   const [inMobile, setInMobile] = useState<boolean | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [selfConfig, setSelfConfig] = useState<any>({});
+  const [nodeInfo, setNodeInfo] = useState<any>({});
   const [theme, setTheme] = useState<Theme>({ gradientColor: "", deriveColor: "" });
   const [locationHistory] = useState<string[]>([]);
 
@@ -62,11 +65,13 @@ const RouterView = () => {
   const initGlobalData = async () => {
     const userData: any = freelogApp.getCurrentUser();
     const selfConfig = await freelogApp.getSelfProperty();
+    const nodeInfo = await freelogApp.nodeInfo;
     const theme = themeList[selfConfig.options_theme || selfConfig.theme];
     setUserData(userData ? Object.assign(userData, { isLogin: true }) : { isLogin: false });
     setSelfConfig(selfConfig);
     setInMobile(judgeDevice());
     setTheme(theme);
+    setNodeInfo(nodeInfo);
 
     const root = document.getElementById("root");
     root?.setAttribute(
@@ -80,7 +85,9 @@ const RouterView = () => {
   }, []);
 
   return (
-    <globalContext.Provider value={{ inMobile, userData, selfConfig, theme, locationHistory }}>
+    <globalContext.Provider
+      value={{ inMobile, userData, selfConfig, theme, locationHistory, nodeInfo }}
+    >
       <Router history={history}>
         <Switch>
           <Route path="/" exact render={() => <Redirect to="/home" />} />

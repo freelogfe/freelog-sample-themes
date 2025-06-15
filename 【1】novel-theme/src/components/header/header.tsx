@@ -1,10 +1,10 @@
 import { freelogApp } from "freelog-runtime";
 import "./header.scss";
-import MyLogo from "../../assets/images/logo.png";
+// import MyLogo from "../../assets/images/logo.png";
 import MyMenu from "../../assets/images/menu.png";
 import DefaultAvatar from "../../assets/images/default-avatar.png";
 import BackArrow from "../../assets/images/arrow.png";
-import { useState, useEffect, useCallback, useContext } from "react";
+import { useState, useEffect, useCallback, useContext, useMemo } from "react";
 import { useMyHistory, useMyLocationHistory, useSearchHistory } from "../../utils/hooks";
 import { callLogin, callLoginOut } from "../../api/freelog";
 import { globalContext } from "../../router";
@@ -19,7 +19,7 @@ export const Header = (props: {
 }) => {
   const history = useMyHistory();
   const { locationHistory } = useMyLocationHistory();
-  const { inMobile, userData, selfConfig } = useContext(globalContext);
+  const { inMobile, userData, nodeInfo } = useContext(globalContext);
   const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
   const [searchKey, setSearchKey] = useState("");
   const [search, setSearch] = useState(0);
@@ -88,6 +88,11 @@ export const Header = (props: {
     }
   };
 
+  const hasLogo = useMemo(() => {
+    const config = nodeInfo;
+    return !!config?.nodeLogo;
+  }, [nodeInfo]);
+
   useEffect(() => {
     if (search === 0) return;
     searchWord(searchKey);
@@ -126,7 +131,7 @@ export const Header = (props: {
             // logo
             <img
               className="logo"
-              src={selfConfig.options_logoImage || selfConfig.logoImage || MyLogo}
+              src={nodeInfo?.nodeLogo}
               alt="logo"
               referrerPolicy="no-referrer"
               onClick={() => history.switchPage("/home")}
@@ -320,17 +325,19 @@ export const Header = (props: {
     return (
       <div className="header-wrapper">
         <div className="header-box">
-          <div className="header-left">
+          <div className={`header-left ${!hasLogo && "no-logo"}`}>
             {/* logo */}
-            <img
-              className="logo"
-              src={selfConfig.options_logoImage || selfConfig.logoImage || MyLogo}
-              alt="logo"
-              onClick={() => history.switchPage("/home")}
-            />
+            {hasLogo && (
+              <img
+                className="logo"
+                src={nodeInfo?.nodeLogo}
+                alt="logo"
+                onClick={() => history.switchPage("/home")}
+              />
+            )}
 
             {/* 搜索框 */}
-            <div className="small-search-box">
+            <div className={`small-search-box ${!hasLogo && "no-logo"}`}>
               <input
                 id="searchInput"
                 className={`search-input input-none ${searchKey && "in-focus"}`}
@@ -451,10 +458,10 @@ export const Header = (props: {
                   className="btn header-register-btn"
                   onClick={() => {
                     const url = freelogApp.getCurrentUrl();
-                    const mainUrl = url.split("?")[0]
-                    const reg = /\.([^.]*)\.com/
-                    const domain = reg.exec(mainUrl)
-                    const domainName = domain ? domain[1] : "freelog"
+                    const mainUrl = url.split("?")[0];
+                    const reg = /\.([^.]*)\.com/;
+                    const domain = reg.exec(mainUrl);
+                    const domainName = domain ? domain[1] : "freelog";
                     window.open(`https://user.${domainName}.com/logon`);
                   }}
                 >

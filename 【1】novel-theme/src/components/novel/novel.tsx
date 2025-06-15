@@ -4,7 +4,7 @@ import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
 import Freeze from "../../assets/images/freeze.png";
 import { ExhibitItem } from "../../api/interface";
 import { useMyHistory } from "../../utils/hooks";
-import { Tags } from "../tags/tags";
+import { NewTags } from "../tags/new-tags";
 import { useContext, useRef } from "react";
 import { globalContext } from "../../router";
 import { showToast } from "../toast/toast";
@@ -130,9 +130,9 @@ export const Novel = (props: {
             {data.articleInfo.articleOwnerName}
           </div>
 
-          {!(mode === 3 && inMobile) && (
+          {!(mode === 3 && inMobile) && data.tags.length > 0 && (
             <div className={`tags ${isDisabled() && "opacity-40p"}`}>
-              <Tags data={data.tags} />
+              <NewTags data={data.tags} hoverColor="#5D9191" />
             </div>
           )}
 
@@ -141,6 +141,36 @@ export const Novel = (props: {
               className={`auth-tag ${data?.defaulterIdentityType! < 4 ? "is-auth" : "not-auth"}`}
             >
               {data.defaulterIdentityType! < 4 ? "已授权" : "未授权"}
+            </div>
+          )}
+
+          {!inMobile && (
+            <div className="update-date">
+              {data.articleInfo?.articleType === 1 ? (
+                <div>单集</div>
+              ) : (data.articleInfo as any)?.serializeStatus === 0 ? (
+                <div>
+                  <span className="on-going">连载中</span>
+                  <span className="update-count">
+                    更新至{(data?.collectionList as any)?.totalItem}话
+                  </span>
+                  最近更新：
+                  <span className="latest-comic">
+                    {(data?.collectionList as any)?.dataList?.[0]?.itemTitle}
+                  </span>
+                </div>
+              ) : (data.articleInfo as any)?.serializeStatus === 1 ? (
+                <div>
+                  <span className="completed">已完结</span>
+                  <span className="update-count">
+                    共 {(data?.collectionList as any)?.totalItem} 话
+                  </span>
+                  最近更新：
+                  <span className="latest-comic">
+                    {(data?.collectionList as any)?.dataList?.[0]?.itemTitle}
+                  </span>
+                </div>
+              ) : null}
             </div>
           )}
         </div>

@@ -239,8 +239,16 @@
 
   // PC
   .home-body {
-    width: 1160px;
+    width: 100%;
+    max-width: 1160px;
+    // padding: 0 20px;
+    box-sizing: border-box;
     padding-bottom: 148px;
+
+    // 在更大屏幕上增加最大宽度以支持三列布局
+    @media (min-width: 1601px) {
+      max-width: 1400px;
+    }
 
     .book-list {
       margin-top: 55px;
@@ -333,16 +341,36 @@
         flex-wrap: wrap;
 
         .book-box {
-          width: calc((100% - 50px) / 3);
-          margin-right: 25px;
           margin-top: 20px;
+        }
 
-          &:nth-child(3n) {
-            margin-right: 0;
+        // 当页面宽度 ≤ 1600px 时，显示两列Add commentMore actions
+        @media (max-width: 1600px) {
+          .book-box {
+            width: calc((100% - 25px) / 2);
+            margin-right: 25px;
+
+            &:nth-child(2n) {
+              margin-right: 0;
+            }
+          }
+        }
+
+        // 当页面宽度 > 1600px 时，显示三列
+        @media (min-width: 1601px) {
+          .book-box {
+            width: calc((100% - 50px) / 3);
+            margin-right: 25px;
+
+            &:nth-child(3n) {
+              margin-right: 0;
+              &:nth-child(3n) {
+                margin-right: 0;
+              }
+            }
           }
         }
       }
-
       .tip {
         width: 100%;
         text-align: center;

@@ -45,13 +45,13 @@ export const CatalogueModal = (props: {
 
   useEffect(() => {
     updateSort && updateSort(sortOrder);
-  }, [sortOrder]);
+  }, [sortOrder, updateSort]);
 
   useEffect(() => {
     if (scrollTop + clientHeight === scrollHeight) {
       getCollectionList();
     }
-  }, [scrollTop, clientHeight, scrollHeight]);
+  }, [scrollTop, clientHeight, scrollHeight, getCollectionList]);
 
   return (
     <React.Fragment>
@@ -107,7 +107,7 @@ export const CatalogueModal = (props: {
                   ) : collectionItem.defaulterIdentityType === 4 ? (
                     <img className="sub-lock" src={Lock} alt="未授权" />
                   ) : (
-                    inMobile && <img src={RightArrow} />
+                    inMobile && <img src={RightArrow} alt="右箭头" />
                   )}
                 </div>
               );

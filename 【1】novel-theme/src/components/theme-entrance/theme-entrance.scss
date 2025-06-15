@@ -1,28 +1,30 @@
 .theme-entrance-wrapper {
   position: fixed;
-  top: calc((100% - 80px) / 5 * 2);
-  right: 0;
-  width: 100px;
-  height: 80px;
-  padding: 15px 10px;
+  bottom: 30px;
+  right: 30px;
+  width: 250px;
+  height: 84px;
+  padding: 20px 30px;
   box-sizing: border-box;
-  border-radius: 20px 0px 0px 20px;
-  background: var(--gradientColor);
+  background: rgba(93, 145, 145, 0.1);
+  border-radius: 10px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  color: #fff;
+  gap: 6px;
+  color: rgba(93, 145, 145, 0.1);
   cursor: pointer;
-  transition: all 0.2s linear;
+  transition: all 0.3s ease;
   display: none !important;
 
   &:hover {
-    opacity: 0.8;
+    transform: translateY(-2px);
+    background: rgba(93, 145, 145, 0.2);
   }
 
   &:active {
-    opacity: 0.6;
+    transform: translateY(0);
   }
 
   &.show {
@@ -30,15 +32,31 @@
   }
 
   .freelog {
-    width: 20px;
-    height: 20px;
+    width: 33px;
+    height: 33px;
+    font-size: 33px !important;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
+    color: rgba(93, 145, 145, 1);
   }
 
-  .text {
-    font-size: 14px;
-    line-height: 20px;
+  .text-wrapper {
+    .text {
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 600;
+      white-space: nowrap;
+      color: rgba(93, 145, 145, 1);
+    }
+
+    .text2 {
+      font-weight: 400;
+      font-size: 12px;
+      color: rgba(93, 145, 145, 1);
+      line-height: 18px;
+      margin-top: 6px;
+    }
   }
 }

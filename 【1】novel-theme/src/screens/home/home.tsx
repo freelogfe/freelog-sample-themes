@@ -51,14 +51,25 @@ export const HomeScreen = (props: any) => {
         const ids = dataList.map(item => item.exhibitId).join();
         const statusInfo = await freelogApp.getExhibitAuthStatus(ids);
         if (statusInfo.data.data) {
-          (dataList as ExhibitItem[]).forEach(item => {
+          for (const item of dataList as ExhibitItem[]) {
             const index = statusInfo.data.data.findIndex(
               (resultItem: { exhibitId: string }) => resultItem.exhibitId === item.exhibitId
             );
             if (index !== -1) {
               item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
             }
-          });
+
+            if (item.articleInfo.articleType === 2) {
+              const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
+                sortType: -1,
+                skip: 0,
+                limit: 50,
+                isShowDetailInfo: 1
+              });
+
+              item.collectionList = res.data.data as any;
+            }
+          }
         }
       }
       setNovelList(pre =>

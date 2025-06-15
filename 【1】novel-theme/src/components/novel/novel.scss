@@ -196,9 +196,58 @@
       }
 
       .tags {
-        height: 24px;
+        height: 18px;
         overflow: hidden;
         margin-top: 12px;
+      }
+
+      .update-date {
+        font-size: 12px;
+        line-height: 18px;
+        height: 18px;
+        color: #999999;
+        margin-top: 10px;
+
+        .on-going {
+          font-weight: 600;
+          font-size: 12px;
+          color: #42c28c;
+          line-height: 18px;
+          // margin-right: 10px;
+        }
+
+        .completed {
+          font-weight: 600;
+          font-size: 12px;
+          color: #e9a923;
+          line-height: 18px;
+          // margin-right: 10px;
+        }
+
+        .completed::after,
+        .on-going::after {
+          content: "";
+          width: 1px;
+          height: 10px;
+          background: #000000;
+          opacity: 0.1;
+          display: inline-block;
+          margin: 0 5px;
+        }
+
+        .update-count::after {
+          content: "";
+          width: 1px;
+          height: 10px;
+          background: #000000;
+          opacity: 0.1;
+          display: inline-block;
+          margin: 0 5px;
+        }
+
+        .latest-comic {
+          margin-right: 10px;
+        }
       }
     }
   }
@@ -271,11 +320,11 @@
   &.in-pc {
     border-radius: 6px;
     padding: 10px;
-    background: linear-gradient(90deg, rgba(0, 0, 0, 0.04) 0%, rgba(255, 255, 255, 0.1) 100%);
+    background: rgba(0, 0, 0, 0.02);
     cursor: pointer;
 
     &:hover {
-      background: linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0%, rgba(255, 255, 255, 0.1) 100%);
+      background: rgba(0, 0, 0, 0.06);
     }
 
     .book-cover-box {
