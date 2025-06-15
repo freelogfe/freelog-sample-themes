@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState, useEffect, useCallback } from "react";
+import React, { useContext, useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { freelogApp } from "freelog-runtime";
 import CSSTransition from "react-transition-group/CSSTransition";
@@ -374,6 +374,9 @@ const ReaderBody = () => {
 
   const [content, setContent] = useState<string>("");
   const [defaulterIdentityType, setDefaulterIdentityType] = useState<number | null>(null);
+  const [collectionDataDesc, setCollectionDataDesc] = useState<any>(null);
+  const [latestNovelData, setLatestNovelData] = useState<any[]>([]);
+  const [historyNovelData, setHistoryNovelData] = useState<any[]>([]);
 
   const preSubId =
     (collection &&
@@ -396,6 +399,10 @@ const ReaderBody = () => {
       authErrType = statusInfo.data.data[0].defaulterIdentityType;
     }
     setDefaulterIdentityType(authErrType!);
+
+    if (collection) {
+      await getCollectionListBySortTypeDesc();
+    }
 
     if (authErrType === 0) {
       // 已签约并且授权链无异常
@@ -426,6 +433,83 @@ const ReaderBody = () => {
   /** 跳转详情 */
   const toDetailFromRecommend = (exhibitId: string) => {
     history.switchPage(`/detail?id=${exhibitId}`);
+  };
+
+  /** 获取合集的倒序内容 */
+  const getCollectionListBySortTypeDesc = async () => {
+    const res = await (freelogApp as any).getCollectionSubList(id, {
+      sortType: -1,
+      skip: 0,
+      limit: 50,
+      isShowDetailInfo: 1
+    });
+
+    setCollectionDataDesc(res.data.data);
+
+    const latestViewedResponse = await freelogApp.getUserData("novelLatestViewedHistory");
+    setLatestNovelData(latestViewedResponse?.data?.data);
+
+    const novelViewedResponse = await freelogApp.getUserData("novelViewedHistory");
+    setHistoryNovelData(novelViewedResponse?.data?.data || []);
+  };
+
+  // 最近更新的一话
+  const latestNovelItem = useMemo(() => {
+    return collectionDataDesc?.dataList?.[0];
+  }, [collectionDataDesc]);
+
+  // 记录用户点击最近更新一话
+  const handleLatestNovel = async (item: any) => {
+    if (latestNovelItem?.itemId === item.itemId) {
+      const newLatestNovelData = [...(latestNovelData || [])];
+      const existingIndex = newLatestNovelData.findIndex((i: any) => i.id === id);
+
+      if (existingIndex !== -1) {
+        newLatestNovelData[existingIndex] = { id, info: item };
+      } else {
+        newLatestNovelData.push({ id, info: item });
+      }
+
+      setLatestNovelData(newLatestNovelData);
+      await freelogApp.setUserData("novelLatestViewedHistory", newLatestNovelData);
+    }
+  };
+
+  // 记录用户阅读历史
+  const handleReaderHistory = async (item: any) => {
+    const newHistoryNovelData = [...(historyNovelData || [])];
+    const existingIndex = newHistoryNovelData.findIndex((i: any) => i.id === id);
+
+    if (existingIndex !== -1) {
+      const existingNovel = newHistoryNovelData[existingIndex];
+
+      // 确保info是一个数组
+      if (!Array.isArray(existingNovel.info)) {
+        existingNovel.info = existingNovel.info ? [existingNovel.info] : [];
+      }
+
+      // 检查当前章节是否已存在于记录中
+      const chapterIndex = existingNovel.info.findIndex((chapter: any) => {
+        return chapter.itemId === item.itemId;
+      });
+
+      if (chapterIndex === -1) {
+        // 如果章节不存在，添加到数组中
+        existingNovel.info.push(item);
+      }
+
+      // 更新历史记录
+      newHistoryNovelData[existingIndex] = existingNovel;
+    } else {
+      // 如果漫画ID不存在，创建新记录，将info设为数组
+      newHistoryNovelData.push({
+        id,
+        info: [item]
+      });
+    }
+
+    setHistoryNovelData(newHistoryNovelData);
+    await freelogApp.setUserData("novelViewedHistory", newHistoryNovelData);
   };
 
   useEffect(() => {
@@ -681,7 +765,13 @@ const ReaderBody = () => {
               >
                 <div
                   className={`pre ${currentSortId === 1 && "disabled"}`}
-                  onClick={() => {
+                  onClick={async () => {
+                    const subIdInfo = collectionList?.find((i: any) => i.itemId === preSubId);
+                    if (subIdInfo) {
+                      await handleReaderHistory(subIdInfo);
+                      await handleLatestNovel(subIdInfo);
+                    }
+
                     scrollToTop();
                     history.switchPage(
                       `/reader?collection=${true}&id=${book.exhibitId}&subId=${preSubId}`
@@ -698,7 +788,13 @@ const ReaderBody = () => {
                 </div>
                 <div
                   className={`next ${currentSortId === total && "disabled"}`}
-                  onClick={() => {
+                  onClick={async () => {
+                    const subIdInfo = collectionList?.find((i: any) => i.itemId === nextSubId);
+                    if (subIdInfo) {
+                      await handleReaderHistory(subIdInfo);
+                      await handleLatestNovel(subIdInfo);
+                    }
+
                     scrollToTop();
                     history.switchPage(
                       `/reader?collection=${true}&id=${book.exhibitId}&subId=${nextSubId}`

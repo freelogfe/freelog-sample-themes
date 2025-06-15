@@ -30,8 +30,8 @@ export const DetailScreen = (props: any) => {
   const skip = useRef(0);
   const [sortOrder, setSortOrder] = useState("asc");
   const [collectionDataDesc, setCollectionDataDesc] = useState<any>(null);
-  const [latestComicData, setLatestComicData] = useState<any[]>([]);
-  const [historyComicData, setHistoryComicData] = useState<any[]>([]);
+  const [latestNovelData, setLatestNovelData] = useState<any[]>([]);
+  const [historyNovelData, setHistoryNovelData] = useState<any[]>([]);
 
   // 获取合集下的单品列表
   const getCollectionList = useCallback(
@@ -89,7 +89,7 @@ export const DetailScreen = (props: any) => {
   };
 
   // 最近更新的一话
-  const latestComicItem = useMemo(() => {
+  const latestNovelItem = useMemo(() => {
     if (novel?.articleInfo?.articleType === 2) {
       return collectionDataDesc?.dataList?.[0];
     }
@@ -97,75 +97,75 @@ export const DetailScreen = (props: any) => {
   }, [novel?.articleInfo?.articleType, collectionDataDesc]);
 
   // 用户是否已点击最近更新一话
-  const isClickedLatestComic = useMemo(() => {
-    if (!latestComicData) return null;
-    const existingIndex = latestComicData.findIndex((i: any) => i.id === id);
+  const isClickedLatestNovel = useMemo(() => {
+    if (!latestNovelData) return null;
+    const existingIndex = latestNovelData.findIndex((i: any) => i.id === id);
 
     if (existingIndex !== -1) {
-      return latestComicData[existingIndex];
+      return latestNovelData[existingIndex];
     }
 
     return null;
-  }, [latestComicData, id]);
+  }, [latestNovelData, id]);
 
   // 当前漫画的阅读历史
-  const currentHistoryComic = useMemo(() => {
-    const res = historyComicData?.find((i: any) => i.id === id);
+  const currentHistoryNovel = useMemo(() => {
+    const res = historyNovelData?.find((i: any) => i.id === id);
     return res?.info || [];
-  }, [historyComicData, id]);
+  }, [historyNovelData, id]);
 
   // 记录用户点击最近更新一话
-  const handleLatestComic = async (item: any) => {
-    if (latestComicItem?.itemId === item.itemId) {
-      const newLatestComicData = [...(latestComicData || [])];
-      const existingIndex = newLatestComicData.findIndex((i: any) => i.id === id);
+  const handleLatestNovel = async (item: any) => {
+    if (latestNovelItem?.itemId === item.itemId) {
+      const newLatestNovelData = [...(latestNovelData || [])];
+      const existingIndex = newLatestNovelData.findIndex((i: any) => i.id === id);
 
       if (existingIndex !== -1) {
-        newLatestComicData[existingIndex] = { id, info: item };
+        newLatestNovelData[existingIndex] = { id, info: item };
       } else {
-        newLatestComicData.push({ id, info: item });
+        newLatestNovelData.push({ id, info: item });
       }
 
-      setLatestComicData(newLatestComicData);
-      await freelogApp.setUserData("comicLatestViewedHistory", newLatestComicData);
+      setLatestNovelData(newLatestNovelData);
+      await freelogApp.setUserData("novelLatestViewedHistory", newLatestNovelData);
     }
   };
 
   // 记录用户阅读历史
   const handleReaderHistory = async (item: any) => {
-    const newHistoryComicData = [...(historyComicData || [])];
-    const existingIndex = newHistoryComicData.findIndex((i: any) => i.id === id);
+    const newHistoryNovelData = [...(historyNovelData || [])];
+    const existingIndex = newHistoryNovelData.findIndex((i: any) => i.id === id);
 
     if (existingIndex !== -1) {
-      const existingComic = newHistoryComicData[existingIndex];
+      const existingNovel = newHistoryNovelData[existingIndex];
 
       // 确保info是一个数组
-      if (!Array.isArray(existingComic.info)) {
-        existingComic.info = existingComic.info ? [existingComic.info] : [];
+      if (!Array.isArray(existingNovel.info)) {
+        existingNovel.info = existingNovel.info ? [existingNovel.info] : [];
       }
 
       // 检查当前章节是否已存在于记录中
-      const chapterIndex = existingComic.info.findIndex((chapter: any) => {
+      const chapterIndex = existingNovel.info.findIndex((chapter: any) => {
         return chapter.itemId === item.itemId;
       });
 
       if (chapterIndex === -1) {
         // 如果章节不存在，添加到数组中
-        existingComic.info.push(item);
+        existingNovel.info.push(item);
       }
 
       // 更新历史记录
-      newHistoryComicData[existingIndex] = existingComic;
+      newHistoryNovelData[existingIndex] = existingNovel;
     } else {
       // 如果漫画ID不存在，创建新记录，将info设为数组
-      newHistoryComicData.push({
+      newHistoryNovelData.push({
         id,
         info: [item]
       });
     }
 
-    setHistoryComicData(newHistoryComicData);
-    await freelogApp.setUserData("comicViewedHistory", newHistoryComicData);
+    setHistoryNovelData(newHistoryNovelData);
+    await freelogApp.setUserData("novelViewedHistory", newHistoryNovelData);
   };
 
   /** 获取小说信息 */
@@ -176,6 +176,12 @@ export const DetailScreen = (props: any) => {
         freelogApp.getExhibitSignCount(id),
         freelogApp.getExhibitAuthStatus(id)
       ]);
+
+      const latestViewedResponse = await freelogApp.getUserData("novelLatestViewedHistory");
+      setLatestNovelData(latestViewedResponse?.data?.data);
+
+      const novelViewedResponse = await freelogApp.getUserData("novelViewedHistory");
+      setHistoryNovelData(novelViewedResponse?.data?.data || []);
 
       const articleType = exhibitInfo.data.data.articleInfo.articleType;
       if (articleType === 2) {
@@ -232,10 +238,10 @@ export const DetailScreen = (props: any) => {
         setNovel,
         sortOrder,
         setSortOrder,
-        latestComicItem,
-        isClickedLatestComic,
-        currentHistoryComic,
-        handleLatestComic,
+        latestNovelItem,
+        isClickedLatestNovel,
+        currentHistoryNovel,
+        handleLatestNovel,
         handleReaderHistory
       }}
     >
@@ -259,10 +265,10 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
     setNovel,
     sortOrder,
     setSortOrder,
-    latestComicItem,
-    isClickedLatestComic,
-    currentHistoryComic,
-    handleLatestComic,
+    latestNovelItem,
+    isClickedLatestNovel,
+    currentHistoryNovel,
+    handleLatestNovel,
     handleReaderHistory
   } = useContext(detailContext);
   const collectionList = novel?.collectionList;
@@ -610,16 +616,16 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                       <span className="on-going">连载中</span>
                       <span className="update-count">更新至{total}话</span>
                       最近更新：
-                      <span className="latest-comic">{collectionList?.[0]?.itemTitle}</span>
-                      {formatDate(collectionList?.[0]?.articleInfo?.firstVersionReleaseDate)}
+                      <span className="latest-novel">{latestNovelItem?.itemTitle}</span>
+                      {formatDate(latestNovelItem?.articleInfo?.firstVersionReleaseDate)}
                     </div>
                   ) : novel?.articleInfo?.serializeStatus === 1 ? (
                     <div>
                       <span className="completed">已完结</span>
                       <span className="update-count">共 {collectionList?.length} 话</span>
                       最近更新：
-                      <span className="latest-comic">{collectionList?.[0]?.itemTitle}</span>
-                      {formatDate(collectionList?.[0]?.articleInfo?.firstVersionReleaseDate)}
+                      <span className="latest-novel">{latestNovelItem?.itemTitle}</span>
+                      {formatDate(latestNovelItem?.articleInfo?.firstVersionReleaseDate)}
                     </div>
                   ) : null}
                 </div>
@@ -640,6 +646,13 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                             (i: { id: string }) => i.id === novel.exhibitId
                           );
                           const subId = lastViewed[index]?.subId;
+                          const subIdInfo = collectionList.listData.find((i: any) => {
+                            if (subId) {
+                              return i.itemId === subId;
+                            }
+                            return i.itemId === collectionList[0].itemId;
+                          });
+                          handleReaderHistory(subIdInfo);
 
                           history.switchPage(
                             `/reader?collection=${true}&id=${novel.exhibitId}&subId=${
@@ -741,12 +754,12 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                   </div>
                 </div>
 
-                {isClickedLatestComic?.info?.itemId !== latestComicItem?.itemId && (
+                {isClickedLatestNovel?.info?.itemId !== latestNovelItem?.itemId && (
                   <div className="latest-tip-box">
                     <div className="latest-title">最近更新</div>
-                    <div className="latest-comic">{collectionList?.[0]?.itemTitle}</div>
+                    <div className="latest-novel">{latestNovelItem?.itemTitle}</div>
                     <span className="time">
-                      {formatDate(collectionList?.[0]?.articleInfo?.firstVersionReleaseDate)}
+                      {formatDate(latestNovelItem?.articleInfo?.firstVersionReleaseDate)}
                     </span>
                   </div>
                 )}
@@ -761,17 +774,19 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                           "disabled"
                         }`}
                         key={collectionItem.itemId}
-                        onClick={() =>
+                        onClick={async () => {
+                          await handleLatestNovel(collectionItem);
+                          await handleReaderHistory(collectionItem);
                           history.switchPage(
                             `/reader?collection=${true}&id=${novel.exhibitId}&subId=${
                               collectionItem.itemId
                             }`
-                          )
-                        }
+                          );
+                        }}
                       >
                         <span
                           className={`sub-title ${
-                            !currentHistoryComic?.find(
+                            !currentHistoryNovel?.find(
                               (i: any) => i.itemId === collectionItem.itemId
                             ) && "is-latest"
                           }`}
