@@ -158,8 +158,9 @@ img {
 }
 
 .header-login-btn {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.3);
+  color: #e7949f;
+  background: rgba(0, 0, 0, 0.05);
+
   cursor: pointer;
   transition: all 0.2s linear;
 
@@ -182,8 +183,8 @@ img {
 }
 
 .header-register-btn {
-  color: var(--deriveColor);
-  background: #fff;
+  color: #ffffff;
+  background: #e7949f;
   cursor: pointer;
   transition: all 0.2s linear;
 

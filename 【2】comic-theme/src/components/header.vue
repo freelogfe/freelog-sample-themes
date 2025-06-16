@@ -230,7 +230,7 @@
       </div>
 
       <div class="header-right">
-        <div class="nav-btn" @click="switchPage('/')">首页</div>
+        <div class="nav-btn" @click="switchPage('/')" v-if="userData?.isLogin">首页</div>
         <div class="nav-btn" @click="switchPage('/shelf')" v-if="userData?.isLogin">我的收藏</div>
 
         <div
