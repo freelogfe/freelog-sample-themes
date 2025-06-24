@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { freelogApp } from "freelog-runtime";
-import { ref, onBeforeMount, defineAsyncComponent } from "vue";
+import { ref, onBeforeMount, defineAsyncComponent, onMounted, nextTick } from "vue";
+import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 import { useMyRouter } from "@/utils/hooks";
 import { formatDate } from "@/utils/common";
@@ -8,6 +9,7 @@ const myArticleV2 = defineAsyncComponent(() => import("@/components/article-v2.v
 const tags = defineAsyncComponent(() => import("@/components/tags.vue"));
 
 const route = useRoute();
+const store = useStore();
 const { switchPage } = useMyRouter();
 const exhibitId = route.query.id as string;
 const exhibitInfo = ref<any>(null);
@@ -35,6 +37,10 @@ const getExhibitInfo = async () => {
       : "asc";
 
   getColumnList();
+
+  nextTick(() => {
+    mountShareWidget();
+  });
 };
 
 // 获取合集列表
@@ -118,6 +124,48 @@ const getRecommendList = async () => {
   }
 };
 
+/** 加载分享插件 */
+const mountShareWidget = async () => {
+  if (store.state.inMobile) return;
+
+  const container = document.getElementById("share");
+  debugger;
+  if (!container) return;
+
+  if (exhibitInfo.value?.shareWidget) await exhibitInfo.value.shareWidget.unmount();
+
+  const subDeps = await freelogApp.getSelfDependencyTree();
+
+  const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-展品分享");
+  if (!widgetData) return;
+
+  const { articleId, parentNid, nid } = widgetData;
+  const topExhibitId = freelogApp.getTopExhibitId();
+
+  const params = {
+    articleId,
+    parentNid,
+    nid,
+    topExhibitId,
+    container,
+    renderWidgetOptions: {
+      data: {
+        exhibit: exhibitInfo.value,
+        type: "博客",
+        routerType: "columnDetail"
+      }
+    }
+    // widget_entry: "https://localhost:8201"
+  };
+
+  exhibitInfo.value.shareWidget = await freelogApp.mountArticleWidget(params);
+};
+
+/** 控制分享弹窗显示 */
+const setShareWidgetShow = (value: boolean) => {
+  exhibitInfo.value.shareWidget?.setData({ show: value });
+};
+
 onBeforeMount(() => {
   getExhibitInfo();
   getRecommendList();
@@ -135,7 +183,15 @@ onBeforeMount(() => {
       <div class="column-info">
         <div class="top">
           <span class="title">{{ exhibitInfo?.exhibitTitle }}</span>
-          <div>TODO 分享</div>
+          <div
+            class="share-btn"
+            @mouseenter.stop="setShareWidgetShow(true)"
+            @mouseleave.stop="setShareWidgetShow(false)"
+          >
+            <span class="share-btn-text"> <i class="freelog fl-icon-fenxiang"></i>分享 </span>
+
+            <div id="share" class="share-wrapper" />
+          </div>
         </div>
         <div class="bottom">
           <div class="author-avatar">
@@ -226,6 +282,45 @@ onBeforeMount(() => {
         font-size: 36px;
         color: #222222;
         line-height: 46px;
+      }
+
+      .share-btn {
+        flex-shrink: 0;
+        position: relative;
+        display: flex;
+        align-items: center;
+        margin-left: 30px;
+        cursor: pointer;
+
+        .share-btn-text {
+          padding: 9px 15px;
+          border: 1px solid #666666;
+          border-radius: 4px;
+          font-size: 14px;
+          line-height: 20px;
+          color: #222;
+          transition: all 0.2s linear;
+
+          &:hover,
+          &.active {
+            opacity: 0.8;
+          }
+
+          &:active {
+            opacity: 0.6;
+          }
+
+          .fl-icon-fenxiang {
+            margin-right: 6px;
+          }
+        }
+
+        .share-wrapper {
+          position: absolute;
+          right: 0;
+          top: 100%;
+          z-index: 1;
+        }
       }
     }
 

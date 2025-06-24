@@ -18,58 +18,60 @@
         </div>
       </div>
 
-      <!-- 所属专栏 -->
-      <div class="column-label-title" v-if="articleData?.articleInfo?.articleType === 2">
-        <span class="column-label">所属专栏</span>
-        <span
-          class="column-title"
-          @click="switchPage('/column-detail', { id: articleData?.exhibitId })"
-          >{{ articleData?.exhibitTitle }}</span
-        >
-      </div>
+      <template v-if="!inMobile">
+        <!-- 所属专栏 -->
+        <div class="column-label-title" v-if="articleData?.articleInfo?.articleType === 2">
+          <span class="column-label">所属专栏</span>
+          <span
+            class="column-title"
+            @click="switchPage('/column-detail', { id: articleData?.exhibitId })"
+            >{{ articleData?.exhibitTitle }}</span
+          >
+        </div>
 
-      <!-- 上一篇 | 下一篇 -->
-      <div class="prev-next-box" v-if="articleData?.articleInfo?.articleType === 2">
-        <!-- 上一篇 -->
-        <div
-          class="prev-card"
-          :class="{ disabled: !prevArticle }"
-          @click="prevArticle && switchToArticle(prevArticle.itemId)"
-        >
-          <div class="card-header">
-            <span class="card-icon left">
-              <i class="freelog fl-icon-fangxiang"></i>
-            </span>
-            <span class="card-label left">上一篇</span>
+        <!-- 上一篇 | 下一篇 -->
+        <div class="prev-next-box" v-if="articleData?.articleInfo?.articleType === 2">
+          <!-- 上一篇 -->
+          <div
+            class="prev-card"
+            :class="{ disabled: !prevArticle }"
+            @click="prevArticle && switchToArticle(prevArticle.itemId)"
+          >
+            <div class="card-header">
+              <span class="card-icon left">
+                <i class="freelog fl-icon-fangxiang"></i>
+              </span>
+              <span class="card-label left">上一篇</span>
+            </div>
+            <div class="card-title left">{{ prevArticle?.itemTitle || "当前为第一篇" }}</div>
           </div>
-          <div class="card-title left">{{ prevArticle?.itemTitle || "没有上一篇了" }}</div>
-        </div>
-        <!-- 下一篇 -->
-        <div
-          class="next-card"
-          :class="{ disabled: !nextArticle }"
-          @click="nextArticle && switchToArticle(nextArticle.itemId)"
-        >
-          <div class="card-header">
-            <span class="card-label">下一篇</span>
-            <span class="card-icon">
-              <i class="freelog fl-icon-fangxiang"></i>
-            </span>
+          <!-- 下一篇 -->
+          <div
+            class="next-card"
+            :class="{ disabled: !nextArticle }"
+            @click="nextArticle && switchToArticle(nextArticle.itemId)"
+          >
+            <div class="card-header">
+              <span class="card-label">下一篇</span>
+              <span class="card-icon">
+                <i class="freelog fl-icon-fangxiang"></i>
+              </span>
+            </div>
+            <div class="card-title">{{ nextArticle?.itemTitle || "当前为最后一篇" }}</div>
           </div>
-          <div class="card-title">{{ nextArticle?.itemTitle || "没有下一篇了" }}</div>
         </div>
-      </div>
 
-      <!-- <div class="recommend" v-if="recommendList.length">
-        <div class="recommend-header">
-          <div class="recommend-title">相关推荐</div>
-          <div class="text-btn" @click="switchPage('/')">更多>></div>
+        <div class="recommend" v-if="recommendList.length">
+          <div class="recommend-header">
+            <div class="recommend-title">相关推荐</div>
+            <div class="text-btn" @click="switchPage('/')">更多>></div>
+          </div>
+          <div class="divider"></div>
+          <div class="article-list">
+            <my-article-v2 :data="item" v-for="item in recommendList" :key="item.exhibitId" />
+          </div>
         </div>
-        <div class="divider"></div>
-        <div class="article-list">
-          <my-article-v2 :data="item" v-for="item in recommendList" :key="item.exhibitId" />
-        </div>
-      </div> -->
+      </template>
     </div>
     <div v-else>
       <!-- mobile -->
@@ -267,7 +269,7 @@
                 </span>
                 <span class="card-label left">上一篇</span>
               </div>
-              <div class="card-title left">{{ prevArticle?.itemTitle || "没有上一篇了" }}</div>
+              <div class="card-title left">{{ prevArticle?.itemTitle || "当前为第一篇" }}</div>
             </div>
             <!-- 下一篇 -->
             <div
@@ -281,7 +283,7 @@
                   <i class="freelog fl-icon-fangxiang"></i>
                 </span>
               </div>
-              <div class="card-title">{{ nextArticle?.itemTitle || "没有下一篇了" }}</div>
+              <div class="card-title">{{ nextArticle?.itemTitle || "当前为最后一篇" }}</div>
             </div>
           </div>
         </div>
@@ -363,37 +365,24 @@ export default {
       return store.state.userData;
     });
 
-    // TODO 这里需要看一下
     const errorMsg = computed(() => {
-      if (data.articleData?.articleInfo?.articleType === 2) {
-        if (data.articleData?.collectionInfo?.articleInfo?.status === 2) {
-          return "此作品因违规无法访问";
-        }
-        if (data.articleData?.onlineStatus === 0) {
-          return "作品已下架，无法访问";
-        }
-        if (authLinkAbnormal.value) {
-          return "作品异常，无法访问";
-        }
-        if (data.formatError) {
-          return "此作品格式暂不支持访问";
-        }
-        return "无法访问";
-      } else {
-        if (data.articleData?.articleInfo?.status === 2) {
-          return "此作品因违规无法访问";
-        }
-        if (data.articleData?.onlineStatus === 0) {
-          return "作品已下架，无法访问";
-        }
-        if (authLinkAbnormal.value) {
-          return "作品异常，无法访问";
-        }
-        if (data.formatError) {
-          return "此作品格式暂不支持访问";
-        }
-        return "无法访问";
+      if (
+        data.articleData?.articleInfo?.articleType === 2
+          ? data.articleData?.collectionInfo?.articleInfo?.status === 2
+          : data.articleData?.articleInfo?.status === 2
+      ) {
+        return "此作品因违规无法访问";
       }
+      if (data.articleData?.onlineStatus === 0) {
+        return "作品已下架，无法访问";
+      }
+      if (authLinkAbnormal.value) {
+        return "作品异常，无法访问";
+      }
+      if (data.formatError) {
+        return "此作品格式暂不支持访问";
+      }
+      return "无法访问";
     });
 
     const methods = {
@@ -453,6 +442,8 @@ export default {
 
       /** 切换到指定文章 */
       switchToArticle(itemId: string) {
+        data.formatError = false;
+
         const { id } = query.value;
         switchPage("/reader", { id, itemId });
       }
@@ -503,7 +494,6 @@ export default {
         )?.includes("text/")
       ) {
         data.formatError = true;
-        return;
       }
 
       data.href = freelogApp.getCurrentUrl();
@@ -513,7 +503,6 @@ export default {
 
       if (defaulterIdentityType === 0) {
         // 已签约并且授权链无异常
-
         const info: any = itemId
           ? await (freelogApp as any).getCollectionSubFileStream(id, { itemId })
           : await freelogApp.getExhibitFileStream(id);
@@ -588,10 +577,15 @@ export default {
         topExhibitId,
         container,
         renderWidgetOptions: {
-          data: { exhibit: data.articleData, type: "博客", routerType: "content" }
+          data: {
+            exhibit: { ...data.articleData, itemId: query.value.itemId },
+            type: "博客",
+            routerType: "content"
+          }
         }
-        // widget_entry: "https://localhost:8201",
+        // widget_entry: "https://localhost:8201"
       };
+
       data.shareWidget = await freelogApp.mountArticleWidget(params);
     };
 
@@ -619,8 +613,8 @@ export default {
             content: data.contentInfo?.content,
             fontSize: 16
           }
-        },
-        widget_entry: "https://localhost:8202"
+        }
+        // widget_entry: "https://localhost:8202"
       };
       data.markdownWidget = await freelogApp.mountArticleWidget(params);
       document.getElementById("app")!.addEventListener("scroll", methods.handleScroll);
@@ -1390,29 +1384,30 @@ export default {
   }
 }
 
-// .recommend {
-//   width: 100%;
-//   padding: 30px 20px;
-//   box-sizing: border-box;
-//   background-color: #fff;
+.recommend {
+  width: 100%;
+  padding: 30px 20px;
+  box-sizing: border-box;
+  background-color: #fff;
 
-//   .recommend-title {
-//     font-size: 16px;
-//     font-weight: 600;
-//     color: #222222;
-//     line-height: 22px;
-//     margin-bottom: 30px;
-//   }
+  .recommend-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #222222;
+    line-height: 22px;
+    margin-bottom: 30px;
+  }
 
-//   .article-list {
-//     margin-top: 5px;
-//     .article-wrapper-v2 {
-//       margin-bottom: 30px;
-//     }
-//     .article-wrapper-v2:last-child {
-//       border-bottom: none;
-//       margin-bottom: 0px;
-//     }
-//   }
-// }
+  .article-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    margin-top: 40px;
+    margin-bottom: 40px;
+
+    .article-wrapper:first-child {
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+  }
+}
 </style>
