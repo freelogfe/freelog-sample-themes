@@ -78,10 +78,10 @@
         <div class="article-list">
           <my-article-v2 :data="item" v-for="item in availableListData" :key="item.exhibitId" />
         </div>
-        <div className="tip" v-show="total === 0 || availableListData.length === 0">
+        <div className="tip" v-show="total === 0 || availableListData?.length === 0">
           当前节点暂无任何数据，请稍后查看
         </div>
-        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">
+        <div className="tip no-more" v-show="listData?.length !== 0 && listData?.length === total">
           — 已加载全部 —
         </div>
       </template>
@@ -92,7 +92,7 @@
       <template
         v-if="
           $route.path === '/home' &&
-          (banner || nodeTitle || nodeShortDescription || tagsList.length)
+          (banner || nodeTitle || nodeShortDescription || tagsList?.length)
         "
       >
         <!-- 博客信息 -->
@@ -124,7 +124,7 @@
         </div>
       </template>
 
-      <div class="header" v-if="!searchData.keywords && listData.length">
+      <div class="header" v-if="!searchData.keywords && listData?.length">
         <div
           class="sort"
           :class="{ disabled: myLoading }"
@@ -151,10 +151,10 @@
         <div class="article-list">
           <my-article-v2 :data="item" v-for="item in availableListData" :key="item.exhibitId" />
         </div>
-        <div className="tip" v-show="total === 0 || availableListData.length === 0">
+        <div className="tip" v-show="total === 0 || availableListData?.length === 0">
           当前节点暂无任何数据，请稍后查看
         </div>
-        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">
+        <div className="tip no-more" v-show="listData?.length !== 0 && listData?.length === total">
           — 已加载全部 —
         </div>
       </template>
@@ -214,7 +214,7 @@ export default {
     });
 
     const availableListData = computed(() => {
-      console.log(datasOfGetList.listData.value);
+      console.log("availableListData", datasOfGetList.listData.value);
       
       return datasOfGetList.listData.value.filter((ele: any) => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType!)) 
     })
@@ -286,7 +286,7 @@ export default {
         scrollTo(Number(homeScrollTop), "auto");
 
         const { authIds } = store.state;
-        if (authIds.length === 0) return;
+        if (authIds?.length === 0) return;
 
         authIds.forEach((id: string) => {
           const index = datasOfGetList.listData.value.findIndex(item => item.exhibitId === id);
