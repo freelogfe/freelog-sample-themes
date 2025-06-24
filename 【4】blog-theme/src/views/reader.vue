@@ -2,13 +2,74 @@
 
 <template>
   <div class="reader-wrapper" :class="{ 'in-mobile': inMobile }" v-if="articleData">
-    <div class="reader-weigui" v-if="articleData?.articleInfo?.status === 2 || articleData.onlineStatus === 0 || authLinkAbnormal || formatError">
+    <div
+      class="reader-weigui"
+      v-if="
+        articleData?.articleInfo?.status === 2 ||
+        articleData.onlineStatus === 0 ||
+        authLinkAbnormal ||
+        formatError
+      "
+    >
       <div class="detail-weigui-container">
         <div class="content">
           <span class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan weigui-icon"></span>
           <span class="txt">{{ errorMsg }}</span>
         </div>
       </div>
+
+      <!-- 所属专栏 -->
+      <div class="column-label-title" v-if="articleData?.articleInfo?.articleType === 2">
+        <span class="column-label">所属专栏</span>
+        <span
+          class="column-title"
+          @click="switchPage('/column-detail', { id: articleData?.exhibitId })"
+          >{{ articleData?.exhibitTitle }}</span
+        >
+      </div>
+
+      <!-- 上一篇 | 下一篇 -->
+      <div class="prev-next-box" v-if="articleData?.articleInfo?.articleType === 2">
+        <!-- 上一篇 -->
+        <div
+          class="prev-card"
+          :class="{ disabled: !prevArticle }"
+          @click="prevArticle && switchToArticle(prevArticle.itemId)"
+        >
+          <div class="card-header">
+            <span class="card-icon left">
+              <i class="freelog fl-icon-fangxiang"></i>
+            </span>
+            <span class="card-label left">上一篇</span>
+          </div>
+          <div class="card-title left">{{ prevArticle?.itemTitle || "没有上一篇了" }}</div>
+        </div>
+        <!-- 下一篇 -->
+        <div
+          class="next-card"
+          :class="{ disabled: !nextArticle }"
+          @click="nextArticle && switchToArticle(nextArticle.itemId)"
+        >
+          <div class="card-header">
+            <span class="card-label">下一篇</span>
+            <span class="card-icon">
+              <i class="freelog fl-icon-fangxiang"></i>
+            </span>
+          </div>
+          <div class="card-title">{{ nextArticle?.itemTitle || "没有下一篇了" }}</div>
+        </div>
+      </div>
+
+      <!-- <div class="recommend" v-if="recommendList.length">
+        <div class="recommend-header">
+          <div class="recommend-title">相关推荐</div>
+          <div class="text-btn" @click="switchPage('/')">更多>></div>
+        </div>
+        <div class="divider"></div>
+        <div class="article-list">
+          <my-article-v2 :data="item" v-for="item in recommendList" :key="item.exhibitId" />
+        </div>
+      </div> -->
     </div>
     <div v-else>
       <!-- mobile -->
@@ -16,12 +77,14 @@
         <div class="article-info">
           <div class="article-info-header">
             <div class="article-cover">
-              <img :src="articleData?.coverImages[0]" alt="">
+              <img :src="articleData?.coverImages?.[0]" alt="" />
             </div>
             <div class="article-title">{{ articleData?.exhibitTitle }}</div>
             <div class="other-info">
               <div class="info-left">
-                <div class="info">{{ formatDate(articleData?.articleInfo?.versions?.[0]?.createDate) }}</div>
+                <div class="info">
+                  {{ formatDate(articleData?.articleInfo?.versions?.[0]?.createDate) }}
+                </div>
               </div>
               <div class="share-btn" @click="share()">
                 <span class="share-btn-text"><i class="freelog fl-icon-fenxiang"></i>分享</span>
@@ -35,7 +98,7 @@
           <div class="article-info-body">
             <div class="article-content">
               <my-loader v-if="contentLoading" />
-  
+
               <template v-else>
                 <div id="markdown" v-if="articleData?.defaulterIdentityType === 0"></div>
                 <template v-else-if="articleData?.defaulterIdentityType">
@@ -44,8 +107,13 @@
                     <div class="auth-link-tip">授权链异常，无法查看</div>
                     <div class="home-btn" @click="switchPage('/home')">进入首页</div>
                   </div>
-  
-                  <div class="lock-box" v-else-if="articleData?.defaulterIdentityType === 4 || userData.isLogin === false">
+
+                  <div
+                    class="lock-box"
+                    v-else-if="
+                      articleData?.defaulterIdentityType === 4 || userData.isLogin === false
+                    "
+                  >
                     <img class="lock" src="../assets/images/lock.png" />
                     <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
                     <div class="get-btn" @click="getAuth()">获取授权</div>
@@ -60,10 +128,27 @@
           <div></div>
         </div>
 
-        <div class="recommend"  v-if="recommendList.length">
+        <div class="recommend" v-if="recommendList.length">
           <div class="recommend-title">推荐</div>
           <div class="article-list">
             <my-article-v2 :data="item" v-for="item in recommendList" :key="item.exhibitId" />
+          </div>
+        </div>
+
+        <div class="prev-next-row">
+          <div class="prev-card">
+            <div class="card-header">
+              <span class="card-icon"></span>
+              <span class="card-label">上一篇</span>
+            </div>
+            <div class="card-title">勤劳总会有收获…虽然很少…</div>
+          </div>
+          <div class="next-card">
+            <div class="card-header">
+              <span class="card-label">下一篇</span>
+              <span class="card-icon"></span>
+            </div>
+            <div class="card-title">种地是个技术活</div>
           </div>
         </div>
       </div>
@@ -71,11 +156,17 @@
       <!-- PC -->
       <div class="reader-body" v-if="!inMobile">
         <div class="article-cover">
-          <img :src="articleData?.coverImages[0]" alt="">
+          <img :src="articleData?.coverImages?.[0]" alt="" />
         </div>
         <div class="article-card">
           <div class="title-share">
-            <div class="article-title">{{ articleData?.exhibitTitle }}</div>
+            <div class="article-title">
+              {{
+                articleData?.articleInfo?.articleType === 2
+                  ? articleData?.collectionInfo?.itemTitle
+                  : articleData?.exhibitTitle
+              }}
+            </div>
             <div
               class="share-btn"
               @mouseenter.stop="setShareWidgetShow(true)"
@@ -89,7 +180,9 @@
             </div>
           </div>
           <div class="other-info">
-            <div class="info">{{ formatDate(articleData?.articleInfo?.versions?.[0]?.createDate) }}</div>
+            <div class="info">
+              {{ formatDate(articleData?.articleInfo?.versions?.[0]?.createDate) }}
+            </div>
           </div>
           <div class="tags" v-if="articleData?.tags?.length">
             <tags :tags="articleData?.tags" />
@@ -99,7 +192,10 @@
 
             <template v-else>
               <div class="markdown-area" v-if="articleData?.defaulterIdentityType === 0">
-                <div class="markdown-wrapper" :class="{ 'withoutCategory': directoryList.length === 0 }">
+                <div
+                  class="markdown-wrapper"
+                  :class="{ withoutCategory: directoryList.length === 0 }"
+                >
                   <div class="divider"></div>
                   <div id="markdown"></div>
                 </div>
@@ -114,7 +210,7 @@
                           :class="{
                             active: currentTitle === item.innerText && index === currentIndex,
                             second: item.nodeName === 'H2',
-                            third: item.nodeName === 'H3',
+                            third: item.nodeName === 'H3'
                           }"
                           :title="item.innerText"
                           v-for="(item, index) in directoryList"
@@ -135,13 +231,58 @@
                   <div class="home-btn" @click="switchPage('/home')">进入首页</div>
                 </div>
 
-                <div class="lock-box" v-else-if="articleData?.defaulterIdentityType === 4 || userData.isLogin === false">
+                <div
+                  class="lock-box"
+                  v-else-if="articleData?.defaulterIdentityType === 4 || userData.isLogin === false"
+                >
                   <img class="lock" src="../assets/images/lock.png" />
                   <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
                   <div class="get-btn" @click="getAuth()">获取授权</div>
                 </div>
               </template>
             </template>
+          </div>
+
+          <!-- 所属专栏 -->
+          <div class="column-label-title" v-if="articleData?.articleInfo?.articleType === 2">
+            <span class="column-label">所属专栏</span>
+            <span
+              class="column-title"
+              @click="switchPage('/column-detail', { id: articleData?.exhibitId })"
+              >{{ articleData?.exhibitTitle }}</span
+            >
+          </div>
+
+          <!-- 上一篇 | 下一篇 -->
+          <div class="prev-next-box" v-if="articleData?.articleInfo?.articleType === 2">
+            <!-- 上一篇 -->
+            <div
+              class="prev-card"
+              :class="{ disabled: !prevArticle }"
+              @click="prevArticle && switchToArticle(prevArticle.itemId)"
+            >
+              <div class="card-header">
+                <span class="card-icon left">
+                  <i class="freelog fl-icon-fangxiang"></i>
+                </span>
+                <span class="card-label left">上一篇</span>
+              </div>
+              <div class="card-title left">{{ prevArticle?.itemTitle || "没有上一篇了" }}</div>
+            </div>
+            <!-- 下一篇 -->
+            <div
+              class="next-card"
+              :class="{ disabled: !nextArticle }"
+              @click="nextArticle && switchToArticle(nextArticle.itemId)"
+            >
+              <div class="card-header">
+                <span class="card-label">下一篇</span>
+                <span class="card-icon">
+                  <i class="freelog fl-icon-fangxiang"></i>
+                </span>
+              </div>
+              <div class="card-title">{{ nextArticle?.itemTitle || "没有下一篇了" }}</div>
+            </div>
           </div>
         </div>
 
@@ -161,10 +302,18 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, nextTick, onBeforeUnmount, reactive, toRefs, watch, computed } from "vue";
+import {
+  defineAsyncComponent,
+  nextTick,
+  onBeforeUnmount,
+  reactive,
+  toRefs,
+  watch,
+  computed
+} from "vue";
 import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
 import { ExhibitItem } from "@/api/interface";
-import { formatDate, relativeTime, signCount } from "@/utils/common";
+import { formatDate, relativeTime } from "@/utils/common";
 import { useStore } from "vuex";
 import { showToast } from "@/utils/common";
 import { WidgetController, freelogApp } from "freelog-runtime";
@@ -184,12 +333,13 @@ export default {
     const datasOfGetList = useGetList();
     const { scrollTo } = useMyScroll();
     console.log("query", query.value);
-    
+
     const data = reactive({
       contentLoading: false,
       articleData: null as ExhibitItem | null,
       contentInfo: null as { content: string; exhibitInfo: ExhibitItem } | null,
       recommendList: [] as ExhibitItem[],
+      collectionList: [] as any, // 合集列表
       shareShow: false,
       href: "",
       shareWidget: null as WidgetController | null,
@@ -202,32 +352,49 @@ export default {
     });
 
     const authLinkAbnormal = computed(() => {
-      return ![0, 4].includes(data.articleData?.defaulterIdentityType as any)
-    })
+      return ![0, 4].includes(data.articleData?.defaulterIdentityType as any);
+    });
 
     const inMobile = computed(() => {
-      return store.state.inMobile
-    })
+      return store.state.inMobile;
+    });
 
     const userData = computed(() => {
-      return store.state.userData
-    })
+      return store.state.userData;
+    });
 
+    // TODO 这里需要看一下
     const errorMsg = computed(() => {
-      if (data.articleData?.articleInfo?.status === 2) {
-        return "此作品因违规无法访问"
+      if (data.articleData?.articleInfo?.articleType === 2) {
+        if (data.articleData?.collectionInfo?.articleInfo?.status === 2) {
+          return "此作品因违规无法访问";
+        }
+        if (data.articleData?.onlineStatus === 0) {
+          return "作品已下架，无法访问";
+        }
+        if (authLinkAbnormal.value) {
+          return "作品异常，无法访问";
+        }
+        if (data.formatError) {
+          return "此作品格式暂不支持访问";
+        }
+        return "无法访问";
+      } else {
+        if (data.articleData?.articleInfo?.status === 2) {
+          return "此作品因违规无法访问";
+        }
+        if (data.articleData?.onlineStatus === 0) {
+          return "作品已下架，无法访问";
+        }
+        if (authLinkAbnormal.value) {
+          return "作品异常，无法访问";
+        }
+        if (data.formatError) {
+          return "此作品格式暂不支持访问";
+        }
+        return "无法访问";
       }
-      if (data.articleData?.onlineStatus === 0) {
-        return "作品已下架，无法访问"
-      }
-      if (authLinkAbnormal.value) {
-        return "作品异常，无法访问"
-      }
-      if (data.formatError) {
-        return "此作品格式暂不支持访问"
-      }
-      return "无法访问"
-    })
+    });
 
     const methods = {
       /** 移动端分享 */
@@ -257,32 +424,50 @@ export default {
 
       /** 跳到标题位置 */
       jumpToTitle(title: string, index: number) {
-        document.getElementById("app")!.removeEventListener('scroll', methods.handleScroll)
-        data.currentTitle = title
-        data.currentIndex = index   
-        const el: any = data.directoryList[index]
+        document.getElementById("app")!.removeEventListener("scroll", methods.handleScroll);
+        data.currentTitle = title;
+        data.currentIndex = index;
+        const el: any = data.directoryList[index];
         if (!el) return;
 
-        scrollTo(el.offsetTop + 85)
+        scrollTo(el.offsetTop + 85);
         setTimeout(() => {
-          document.getElementById("app")!.addEventListener('scroll', methods.handleScroll)
-        }, 1000)
+          document.getElementById("app")!.addEventListener("scroll", methods.handleScroll);
+        }, 1000);
       },
 
       /** 处理滚动 */
       handleScroll(e: any) {
-        let target = null
+        let target = null;
         for (let index = 0; index < data.directoryList.length; index++) {
           const element = data.directoryList[index];
           if (e.target.scrollTop + e.target.clientHeight >= element.offsetTop) {
-            data.currentIndex = index
-            target = element
+            data.currentIndex = index;
+            target = element;
           }
         }
         if (target) {
-          data.currentTitle = target.innerText
+          data.currentTitle = target.innerText;
         }
+      },
+
+      /** 切换到指定文章 */
+      switchToArticle(itemId: string) {
+        const { id } = query.value;
+        switchPage("/reader", { id, itemId });
       }
+    };
+
+    // 获取单品详细信息
+    const getCollectionInfo = async () => {
+      const { id, itemId } = query.value;
+
+      const res = await (freelogApp as any).getCollectionSubInfo(id, { itemId });
+
+      data.articleData = {
+        ...data.articleData,
+        collectionInfo: res.data.data
+      } as any;
     };
 
     /** 获取文章信息与内容 */
@@ -290,27 +475,37 @@ export default {
       scrollTo(0, "auto");
 
       data.contentLoading = true;
-      const { id } = query.value;
+      const { id, itemId } = query.value;
 
-      const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
-        freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
-        freelogApp.getExhibitSignCount(id),
-        freelogApp.getExhibitAuthStatus(id),
+      const [exhibitInfo] = await Promise.all([
+        freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 })
       ]);
+
+      const statusInfo = itemId
+        ? await (freelogApp as any).getCollectionSubAuth(id, { itemIds: itemId })
+        : await freelogApp.getExhibitAuthStatus(id);
 
       const { defaulterIdentityType } = statusInfo.data.data[0];
       data.articleData = {
         ...exhibitInfo.data.data,
-        signCount: signCountData.data.data[0].count,
-        defaulterIdentityType,
+        defaulterIdentityType
       } as any;
 
-      // 如果不是阅读类
-      if (!(exhibitInfo?.data?.data?.versionInfo?.exhibitProperty?.mime as string)?.includes("text/")) {
-        data.formatError = true
-        return
+      if (itemId) {
+        await getCollectionInfo();
       }
-      
+
+      // 如果不是阅读类
+      if (
+        !(
+          (exhibitInfo?.data?.data?.versionInfo?.exhibitProperty?.mime as string) ||
+          (data.articleData?.collectionInfo?.articleInfo?.articleProperty?.mime as string)
+        )?.includes("text/")
+      ) {
+        data.formatError = true;
+        return;
+      }
+
       data.href = freelogApp.getCurrentUrl();
       nextTick(() => {
         mountShareWidget();
@@ -318,8 +513,10 @@ export default {
 
       if (defaulterIdentityType === 0) {
         // 已签约并且授权链无异常
-        
-        const info = await freelogApp.getExhibitFileStream(id);
+
+        const info: any = itemId
+          ? await (freelogApp as any).getCollectionSubFileStream(id, { itemId })
+          : await freelogApp.getExhibitFileStream(id);
 
         if (!info) {
           data.contentLoading = false;
@@ -328,7 +525,7 @@ export default {
 
         data.contentInfo = {
           content: info.data,
-          exhibitInfo: exhibitInfo.data.data as any,
+          exhibitInfo: itemId ? (data?.articleData as any) : (exhibitInfo.data.data as any)
         };
       } else if (defaulterIdentityType === 4) {
         // 标的物未签约，自动弹出授权弹窗
@@ -340,10 +537,21 @@ export default {
         mountMarkdownWidget();
       });
       await datasOfGetList.getList({ limit: 30 }, true);
-      
+
+      // 合集列表
+      if (data.articleData?.articleInfo?.articleType === 2) {
+        const collectionList = datasOfGetList.listData.value.filter(
+          (item: any) => item.exhibitId === id
+        );
+
+        data.collectionList = collectionList[0].collectionList;
+      }
+
       const recommendList = datasOfGetList.listData.value
         .filter((item: any) => item.exhibitId !== id)
-        .filter((ele: any) => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType!));
+        .filter(
+          (ele: any) => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType!)
+        );
 
       data.recommendList = recommendList.slice(0, 6);
     };
@@ -357,7 +565,6 @@ export default {
 
     /** 加载分享插件 */
     const mountShareWidget = async () => {
-      
       if (store.state.inMobile) return;
 
       const container = document.getElementById("share");
@@ -367,8 +574,8 @@ export default {
 
       const subDeps = await freelogApp.getSelfDependencyTree();
       console.log("subDeps", subDeps);
-      
-      const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-展品分享");
+
+      const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-展品分享");
       if (!widgetData) return;
 
       const { articleId, parentNid, nid } = widgetData;
@@ -381,8 +588,8 @@ export default {
         topExhibitId,
         container,
         renderWidgetOptions: {
-          data: { exhibit: data.articleData, type: "博客", routerType: "content" },
-        },
+          data: { exhibit: data.articleData, type: "博客", routerType: "content" }
+        }
         // widget_entry: "https://localhost:8201",
       };
       data.shareWidget = await freelogApp.mountArticleWidget(params);
@@ -394,7 +601,7 @@ export default {
       if (!container) return;
 
       const subDeps = await freelogApp.getSelfDependencyTree();
-      const widgetData = subDeps.find((item) => item.articleName === "ZhuC/Freelog插件-markdown解析");
+      const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-markdown解析");
       if (!widgetData) return;
 
       const { articleId, parentNid, nid } = widgetData;
@@ -407,22 +614,61 @@ export default {
         topExhibitId,
         container,
         renderWidgetOptions: {
-          data: { exhibitInfo: data.contentInfo?.exhibitInfo, content: data.contentInfo?.content, fontSize: 16 },
+          data: {
+            exhibitInfo: data.contentInfo?.exhibitInfo,
+            content: data.contentInfo?.content,
+            fontSize: 16
+          }
         },
-        // widget_entry: "https://localhost:8202",
+        widget_entry: "https://localhost:8202"
       };
-      data.markdownWidget = await freelogApp.mountArticleWidget(params); 
-      document.getElementById("app")!.addEventListener('scroll', methods.handleScroll)     
+      data.markdownWidget = await freelogApp.mountArticleWidget(params);
+      document.getElementById("app")!.addEventListener("scroll", methods.handleScroll);
       data.timeId = setInterval(() => {
-        const articleDoms = document.querySelector('#markdown-widget-app')?.children[0] && 
-          document.querySelector('#markdown-widget-app')?.children[0]?.children
+        const articleDoms =
+          document.querySelector("#markdown-widget-app")?.children[0] &&
+          document.querySelector("#markdown-widget-app")?.children[0]?.children;
         if (articleDoms) {
-          clearInterval(data.timeId)
-          const doms = Array.from(articleDoms)
-          data.directoryList = doms.filter((item: any) => ["H1", "H2", "H3"].includes(item.nodeName));
+          clearInterval(data.timeId);
+          const doms = Array.from(articleDoms);
+          data.directoryList = doms.filter((item: any) =>
+            ["H1", "H2", "H3"].includes(item.nodeName)
+          );
         }
-      }, 1500)
+      }, 1500);
     };
+
+    const prevArticle = computed(() => {
+      const { itemId } = query.value;
+      if (!data.collectionList?.dataList?.length) return null;
+
+      // 找到当前文章
+      const currentArticle = data.collectionList.dataList.find(
+        (item: any) => item.itemId === itemId
+      );
+      if (!currentArticle) return null;
+
+      // 根据sortId找上一篇
+      return data.collectionList.dataList.find(
+        (item: any) => item.sortId === currentArticle.sortId - 1
+      );
+    });
+
+    const nextArticle = computed(() => {
+      const { itemId } = query.value;
+      if (!data.collectionList?.dataList?.length) return null;
+
+      // 找到当前文章
+      const currentArticle = data.collectionList.dataList.find(
+        (item: any) => item.itemId === itemId
+      );
+      if (!currentArticle) return null;
+
+      // 根据sortId找下一篇
+      return data.collectionList.dataList.find(
+        (item: any) => item.sortId === currentArticle.sortId + 1
+      );
+    });
 
     watch(
       () => query.value,
@@ -440,7 +686,7 @@ export default {
     onBeforeUnmount(async () => {
       await data.shareWidget?.unmount();
       await data.markdownWidget?.unmount();
-      document.getElementById("app")!.removeEventListener('scroll', methods.handleScroll)
+      document.getElementById("app")!.removeEventListener("scroll", methods.handleScroll);
     });
 
     getData();
@@ -451,14 +697,15 @@ export default {
       ...datasOfGetList,
       ...toRefs(data),
       ...methods,
-      signCount,
       relativeTime,
       authLinkAbnormal,
       inMobile,
       userData,
-      errorMsg
+      errorMsg,
+      prevArticle,
+      nextArticle
     };
-  },
+  }
 };
 </script>
 
@@ -712,7 +959,7 @@ export default {
       width: 100%;
       box-sizing: border-box;
       padding-top: 50px;
-      margin-bottom: 50px;
+      margin-bottom: 100px;
 
       .title-share {
         display: flex;
@@ -761,7 +1008,7 @@ export default {
             position: absolute;
             right: 0;
             top: 100%;
-            z-index: 1
+            z-index: 1;
           }
         }
       }
@@ -786,7 +1033,6 @@ export default {
           background: rgba(0, 0, 0, 0.15);
           margin: 0 10px;
         }
-
       }
 
       .tags {
@@ -804,7 +1050,7 @@ export default {
           .divider {
             margin: 30px 0px;
             height: 1px;
-            background-color: rgba(0,0,0,0.1);
+            background-color: rgba(0, 0, 0, 0.1);
           }
 
           .markdown-wrapper {
@@ -957,10 +1203,9 @@ export default {
     }
 
     .recommend {
-
       .divider {
         height: 1px;
-        background: rgba(0,0,0,0.1);
+        background: rgba(0, 0, 0, 0.1);
         margin-top: 15px;
       }
 
@@ -997,18 +1242,20 @@ export default {
   }
 
   .reader-weigui {
+    width: 965px;
+
     .detail-weigui-container {
       height: calc(100vh - 148px);
       display: flex;
       justify-content: center;
       align-items: center;
-  
+
       .content {
         display: flex;
         flex-direction: column;
         align-items: center;
         height: 348px;
-  
+
         .weigui-icon {
           font-size: 220px;
           opacity: 0.4;
@@ -1024,9 +1271,148 @@ export default {
           text-align: center;
           opacity: 0.4;
         }
-
       }
     }
   }
 }
+
+.column-label-title {
+  margin-top: 30px;
+
+  .column-label {
+    font-weight: 400;
+    font-size: 12px;
+    color: #666666;
+    line-height: 18px;
+    margin-right: 5px;
+  }
+
+  .column-title {
+    font-weight: 400;
+    font-size: 12px;
+    color: #666666;
+    line-height: 18px;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}
+
+.prev-next-box {
+  display: flex;
+  gap: 9px;
+  margin-top: 20px;
+
+  .prev-card,
+  .next-card {
+    flex: 1;
+    background: #fafbfc;
+    border-radius: 4px;
+    padding: 15px 20px;
+    position: relative;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &:hover:not(.disabled) {
+      border: 1px solid #222222;
+
+      .card-icon {
+        color: #222222 !important;
+      }
+    }
+
+    .card-header {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #b0b8c7;
+      font-size: 14px;
+      margin-bottom: 10px;
+
+      .card-label {
+        font-weight: 600;
+        font-size: 12px;
+        color: #999999;
+        line-height: 18px;
+
+        &.left {
+          margin-left: auto;
+        }
+      }
+
+      .card-icon {
+        width: 16px;
+        height: 16px;
+        position: absolute;
+        top: 50%;
+        right: 0;
+        transform: translateY(50%) rotate(270deg);
+        border-radius: 3px;
+        display: inline-block;
+        color: #999999;
+        transition: all 0.3s ease;
+
+        &.left {
+          position: absolute;
+          top: 50%;
+          left: 0;
+          transform: translateY(50%) rotate(90deg);
+        }
+      }
+    }
+
+    .card-title {
+      width: 70%;
+      font-size: 14px;
+      color: #222;
+      font-weight: 600;
+      line-height: 20px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      &.left {
+        margin-left: auto;
+        text-align: right;
+      }
+    }
+  }
+}
+
+// .recommend {
+//   width: 100%;
+//   padding: 30px 20px;
+//   box-sizing: border-box;
+//   background-color: #fff;
+
+//   .recommend-title {
+//     font-size: 16px;
+//     font-weight: 600;
+//     color: #222222;
+//     line-height: 22px;
+//     margin-bottom: 30px;
+//   }
+
+//   .article-list {
+//     margin-top: 5px;
+//     .article-wrapper-v2 {
+//       margin-bottom: 30px;
+//     }
+//     .article-wrapper-v2:last-child {
+//       border-bottom: none;
+//       margin-bottom: 0px;
+//     }
+//   }
+// }
 </style>

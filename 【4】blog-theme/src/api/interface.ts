@@ -2,6 +2,8 @@ import { ExhibitInfo } from "freelog-runtime";
 
 /** 展品 */
 export interface ExhibitItem extends ExhibitInfo {
+  [x: string]: any;
+  collectionList: any[];
   signCount?: number;
   latestSignDate?: string;
   defaulterIdentityType?: number;
