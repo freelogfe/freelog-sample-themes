@@ -98,7 +98,7 @@
       <template
         v-if="
           $route.path === '/home' &&
-          (banner || nodeTitle || nodeShortDescription || tagsList.length)
+          (banner || nodeTitle || nodeShortDescription || tagsList?.length)
         "
       >
         <!-- 博客信息 -->
@@ -139,7 +139,7 @@
         </div>
       </template>
 
-      <div class="header" v-if="!searchData.keywords && listData.length">
+      <div class="header" v-if="!searchData.keywords && listData?.length">
         <div
           class="sort"
           :class="{ disabled: myLoading }"
@@ -358,7 +358,7 @@ export default {
         scrollTo(Number(homeScrollTop), "auto");
 
         const { authIds } = store.state;
-        if (authIds.length === 0) return;
+        if (authIds?.length === 0) return;
 
         authIds.forEach((id: string) => {
           const index = datasOfGetList.listData.value.findIndex(item => item.exhibitId === id);
