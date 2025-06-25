@@ -209,6 +209,11 @@ onBeforeMount(() => {
         font-size: 14px;
         cursor: pointer;
 
+        &:hover:not(.active) {
+          color: #222222;
+          font-weight: 600;
+        }
+
         &.active {
           background: rgba(0, 0, 0, 0.05);
         }
@@ -222,6 +227,11 @@ onBeforeMount(() => {
         color: #222222;
         font-size: 14px;
         cursor: pointer;
+
+        &:hover:not(.active) {
+          color: #222222;
+          font-weight: 600;
+        }
 
         &.active {
           background: rgba(0, 0, 0, 0.05);
