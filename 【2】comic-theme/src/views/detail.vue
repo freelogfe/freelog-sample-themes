@@ -276,25 +276,31 @@
               </div>
 
               <div class="update-date">
-                <div v-if="comicInfo.articleInfo?.articleType === 1">
+                <div class="detail-latest-box" v-if="comicInfo.articleInfo?.articleType === 1">
                   最近更新：{{ formatDate(comicInfo?.articleInfo?.versions[0]?.createDate) }}
                 </div>
 
-                <div v-else-if="comicInfo.articleInfo?.serializeStatus === 0">
-                  <span class="on-going"> 连载中 </span>
+                <div
+                  class="detail-latest-box"
+                  v-else-if="comicInfo.articleInfo?.serializeStatus === 0"
+                >
+                  <div class="on-going">连载中</div>
 
-                  <span class="update-count">更新至{{ total }}话</span>
+                  <div class="update-count">更新至{{ total }}话</div>
                   最近更新：
-                  <span class="latest-comic">{{ latestComicItem?.itemTitle }}</span>
+                  <div class="latest-comic">{{ latestComicItem?.itemTitle }}</div>
                   {{ formatDate(latestComicItem?.articleInfo?.firstVersionReleaseDate) }}
                 </div>
 
-                <div v-else-if="comicInfo.articleInfo?.serializeStatus === 1">
-                  <span class="completed"> 已完结 </span>
+                <div
+                  class="detail-latest-box"
+                  v-else-if="comicInfo.articleInfo?.serializeStatus === 1"
+                >
+                  <div class="completed">已完结</div>
 
-                  <span class="update-count">共 {{ listData.length }} 话</span>
+                  <div class="update-count">共 {{ listData.length }} 话</div>
                   最近更新：
-                  <span class="latest-comic">{{ latestComicItem?.itemTitle }}</span>
+                  <div class="latest-comic">{{ latestComicItem?.itemTitle }}</div>
                   {{ formatDate(latestComicItem?.articleInfo?.firstVersionReleaseDate) }}
                 </div>
               </div>

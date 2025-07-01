@@ -578,45 +578,53 @@
             color: #999999;
             margin-top: 4px;
 
-            .on-going {
-              font-weight: 600;
-              font-size: 12px;
-              color: #42c28c;
-              line-height: 18px;
-              // margin-right: 10px;
-            }
+            .detail-latest-box {
+              display: flex;
+              align-items: center;
+              .on-going {
+                font-weight: 600;
+                font-size: 12px;
+                color: #42c28c;
+                line-height: 18px;
+                // margin-right: 10px;
+              }
 
-            .completed {
-              font-weight: 600;
-              font-size: 12px;
-              color: #e9a923;
-              line-height: 18px;
-              // margin-right: 10px;
-            }
+              .completed {
+                font-weight: 600;
+                font-size: 12px;
+                color: #e9a923;
+                line-height: 18px;
+                // margin-right: 10px;
+              }
 
-            .completed::after,
-            .on-going::after {
-              content: "";
-              width: 1px;
-              height: 10px;
-              background: #000000;
-              opacity: 0.1;
-              display: inline-block;
-              margin: 0 5px;
-            }
+              .completed::after,
+              .on-going::after {
+                content: "";
+                width: 1px;
+                height: 10px;
+                background: #000000;
+                opacity: 0.1;
+                display: inline-block;
+                margin: 0 5px;
+              }
 
-            .update-count::after {
-              content: "";
-              width: 1px;
-              height: 10px;
-              background: #000000;
-              opacity: 0.1;
-              display: inline-block;
-              margin: 0 5px;
-            }
+              .update-count::after {
+                content: "";
+                width: 1px;
+                height: 10px;
+                background: #000000;
+                opacity: 0.1;
+                display: inline-block;
+                margin: 0 5px;
+              }
 
-            .latest-comic {
-              margin-right: 10px;
+              .latest-comic {
+                margin-right: 10px;
+                width: 50%;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+              }
             }
           }
 
@@ -867,6 +875,10 @@
           color: #666666;
           line-height: 18px;
           margin-left: 10px;
+          width: 50%;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          overflow: hidden;
         }
 
         .time {
@@ -908,22 +920,28 @@
           }
 
           .sub-title {
-            display: flex;
-            align-items: center;
             text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
             cursor: pointer;
+            flex: 1;
+            min-width: 0;
+            display: block; // 明确设置为块级元素
 
             &.is-latest {
+              padding-left: 13px; // 为圆点留出空间
+              position: relative;
+
               &::before {
                 content: "";
-                display: inline-block;
+                position: absolute;
+                left: 0;
+                top: 50%;
+                transform: translateY(-50%);
                 width: 6px;
                 height: 6px;
                 border-radius: 50%;
                 background: #fa6400;
-                margin-right: 7px;
               }
             }
           }

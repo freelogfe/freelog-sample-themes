@@ -114,22 +114,22 @@
         </div>
 
         <div class="update-date" v-if="!inMobile">
-          <div v-if="data.articleInfo?.articleType === 1">单集</div>
+          <div class="detail-latest-box" v-if="data.articleInfo?.articleType === 1">单集</div>
 
-          <div v-else-if="data.articleInfo?.serializeStatus === 0">
-            <span class="on-going"> 连载中 </span>
+          <div class="detail-latest-box" v-else-if="data.articleInfo?.serializeStatus === 0">
+            <div class="on-going">连载中</div>
 
-            <span class="update-count">更新至{{ data?.collectionList?.totalItem }}话</span>
+            <div class="update-count">更新至{{ data?.collectionList?.totalItem }}话</div>
             最近更新：
-            <span class="latest-comic">{{ data?.collectionList?.dataList?.[0]?.itemTitle }}</span>
+            <div class="latest-comic">{{ data?.collectionList?.dataList?.[0]?.itemTitle }}</div>
           </div>
 
-          <div v-else-if="data.articleInfo?.serializeStatus === 1">
-            <span class="completed"> 已完结 </span>
+          <div class="detail-latest-box" v-else-if="data.articleInfo?.serializeStatus === 1">
+            <div class="completed">已完结</div>
 
-            <span class="update-count">共 {{ data?.collectionList?.totalItem }} 话</span>
+            <div class="update-count">共 {{ data?.collectionList?.totalItem }} 话</div>
             最近更新：
-            <span class="latest-comic">{{ data?.collectionList?.dataList?.[0]?.itemTitle }}</span>
+            <div class="latest-comic">{{ data?.collectionList?.dataList?.[0]?.itemTitle }}</div>
           </div>
         </div>
 
@@ -475,45 +475,54 @@ export default {
         color: #999999;
         margin-top: 10px;
 
-        .on-going {
-          font-weight: 600;
-          font-size: 12px;
-          color: #42c28c;
-          line-height: 18px;
-          // margin-right: 10px;
-        }
+        .detail-latest-box {
+          display: flex;
+          align-items: center;
 
-        .completed {
-          font-weight: 600;
-          font-size: 12px;
-          color: #e9a923;
-          line-height: 18px;
-          // margin-right: 10px;
-        }
+          .on-going {
+            font-weight: 600;
+            font-size: 12px;
+            color: #42c28c;
+            line-height: 18px;
+            // margin-right: 10px;
+          }
 
-        .completed::after,
-        .on-going::after {
-          content: "";
-          width: 1px;
-          height: 10px;
-          background: #000000;
-          opacity: 0.1;
-          display: inline-block;
-          margin: 0 5px;
-        }
+          .completed {
+            font-weight: 600;
+            font-size: 12px;
+            color: #e9a923;
+            line-height: 18px;
+            // margin-right: 10px;
+          }
 
-        .update-count::after {
-          content: "";
-          width: 1px;
-          height: 10px;
-          background: #000000;
-          opacity: 0.1;
-          display: inline-block;
-          margin: 0 5px;
-        }
+          .completed::after,
+          .on-going::after {
+            content: "";
+            width: 1px;
+            height: 10px;
+            background: #000000;
+            opacity: 0.1;
+            display: inline-block;
+            margin: 0 5px;
+          }
 
-        .latest-comic {
-          margin-right: 10px;
+          .update-count::after {
+            content: "";
+            width: 1px;
+            height: 10px;
+            background: #000000;
+            opacity: 0.1;
+            display: inline-block;
+            margin: 0 5px;
+          }
+
+          .latest-comic {
+            margin-right: 10px;
+            width: 50%;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+          }
         }
       }
     }
