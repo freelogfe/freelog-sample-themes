@@ -517,8 +517,8 @@ export default {
           }
 
           .latest-comic {
-            margin-right: 10px;
-            width: 50%;
+            // margin-right: 10px;
+            width: 35%;
             text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
