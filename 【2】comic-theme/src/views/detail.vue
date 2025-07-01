@@ -298,7 +298,7 @@
                 >
                   <div class="completed">已完结</div>
 
-                  <div class="update-count">共 {{ listData.length }} 话</div>
+                  <div class="update-count">共 {{ total }} 话</div>
                   最近更新：
                   <div class="latest-comic">{{ latestComicItem?.itemTitle }}</div>
                   {{ formatDate(latestComicItem?.articleInfo?.firstVersionReleaseDate) }}
