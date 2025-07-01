@@ -165,9 +165,11 @@ onBeforeMount(() => {
 
 <style scoped lang="scss">
 .blog-wrapper {
-  max-width: 1600px;
   padding-top: 20px;
   margin: 0 auto;
+  width: 90%;
+  min-width: 965px;
+  max-width: 1600px;
 
   .blog-header {
     .blog-header-title {

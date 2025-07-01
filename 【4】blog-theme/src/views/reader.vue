@@ -909,8 +909,8 @@ export default {
 
     .recommend {
       width: 100%;
-      padding: 30px 20px;
-      box-sizing: border-box;
+      // padding: 30px 20px;
+      // box-sizing: border-box;
       background-color: #fff;
 
       .recommend-title {
@@ -1386,8 +1386,8 @@ export default {
 
 .recommend {
   width: 100%;
-  padding: 30px 20px;
-  box-sizing: border-box;
+  // padding: 30px 20px;
+  // box-sizing: border-box;
   background-color: #fff;
 
   .recommend-title {

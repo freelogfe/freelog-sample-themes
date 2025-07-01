@@ -293,6 +293,7 @@ export default {
       height: 20px;
       border-radius: 50%;
       overflow: hidden;
+      border: 1px solid #e5e7eb;
       img {
         width: 100%;
         height: 100%;
