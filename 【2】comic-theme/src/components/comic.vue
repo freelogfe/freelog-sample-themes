@@ -606,17 +606,26 @@ export default {
     }
 
     .btn {
-      height: 38px;
       padding: 0 20px;
+      width: 120px;
+      height: 46px;
       border-radius: 4px;
       font-size: 14px;
       font-weight: bold;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-sizing: border-box;
 
       &.last-btn {
-        margin-left: 15px;
+        margin-left: 20px;
+        background: rgba(0, 0, 0, 0.05);
+        color: rgba(0, 0, 0, 0.06);
+
+        &:hover {
+          background: rgba(0, 0, 0, 0.1);
+          opacity: 1;
+        }
       }
 
       &.assist-btn {

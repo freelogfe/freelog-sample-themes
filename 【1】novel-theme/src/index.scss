@@ -232,8 +232,13 @@ a {
 }
 
 .cancel-collect-btn {
-  background: rgba(0, 0, 0, 0.08);
-  color: #999999;
+  background: rgba(0, 0, 0, 0.05);
+  color: rgba(0, 0, 0, 0.06);
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.1);
+    opacity: 1;
+  }
 }
 
 .collect-btn {

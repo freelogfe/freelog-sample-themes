@@ -484,7 +484,7 @@
       .logo {
         width: 125px;
         height: 50px;
-        object-fit: cover;
+        object-fit: contain;
         cursor: pointer;
 
         .freelog {

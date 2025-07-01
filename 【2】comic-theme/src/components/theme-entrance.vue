@@ -68,6 +68,8 @@ export default {
   cursor: pointer;
   transition: all 0.3s ease;
   display: none !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 
   &:hover {
     transform: translateY(-2px);
