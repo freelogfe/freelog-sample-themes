@@ -57,11 +57,14 @@ export default {
 
 <style lang="scss" scoped>
 .tags-wrapper {
-  display: flex;
-  flex-wrap: wrap;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 
   .tag {
-    max-width: 100%;
+    display: inline;
     font-size: 12px;
     color: #666666;
     line-height: 18px;

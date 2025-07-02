@@ -490,6 +490,9 @@ export default {
         margin-top: 12px;
         height: 18px;
         overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        width: 100%;
       }
 
       .update-date {
