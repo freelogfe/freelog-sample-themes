@@ -120,16 +120,39 @@
             <div class="on-going">连载中</div>
 
             <div class="update-count">更新至{{ data?.collectionList?.totalItem }}话</div>
-            最近更新：
-            <div class="latest-comic">{{ data?.collectionList?.dataList?.[0]?.itemTitle }}</div>
+
+            <div
+              class="latest-comic"
+              :title="data?.collectionList?.dataList?.[0]?.itemTitle"
+              @click.stop="
+                switchPage('/reader', {
+                  id: data?.exhibitId,
+                  collection: true,
+                  subId: data?.collectionList?.dataList?.[0]?.itemId
+                })
+              "
+            >
+              最近更新：{{ data?.collectionList?.dataList?.[0]?.itemTitle }}
+            </div>
           </div>
 
           <div class="detail-latest-box" v-else-if="data.articleInfo?.serializeStatus === 1">
             <div class="completed">已完结</div>
 
             <div class="update-count">共 {{ data?.collectionList?.totalItem }} 话</div>
-            最近更新：
-            <div class="latest-comic">{{ data?.collectionList?.dataList?.[0]?.itemTitle }}</div>
+            <div
+              class="latest-comic"
+              :title="data?.collectionList?.dataList?.[0]?.itemTitle"
+              @click.stop="
+                switchPage('/reader', {
+                  id: data?.exhibitId,
+                  collection: true,
+                  subId: data?.collectionList?.dataList?.[0]?.itemId
+                })
+              "
+            >
+              最近更新：{{ data?.collectionList?.dataList?.[0]?.itemTitle }}
+            </div>
           </div>
         </div>
 
@@ -245,7 +268,8 @@ export default {
     return {
       ...toRefs(store.state),
       ...methods,
-      formatDate
+      formatDate,
+      switchPage
     };
   }
 };
@@ -518,10 +542,15 @@ export default {
 
           .latest-comic {
             // margin-right: 10px;
-            width: 35%;
+            // width: 35%;
+            flex: 1;
             text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
+
+            &:hover {
+              color: #e7949f;
+            }
           }
         }
       }
