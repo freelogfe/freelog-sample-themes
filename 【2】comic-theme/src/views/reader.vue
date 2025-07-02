@@ -1711,8 +1711,9 @@ export default {
         const authResult = await freelogApp.addAuth(id, { immediate: true });
         const { status } = authResult;
         if (status === 0) {
-          getContent();
+          // getContent();
           refreshAuth();
+          getComicInfo();
         }
       },
 
@@ -2554,6 +2555,7 @@ export default {
 
     onBeforeMount(() => {
       getComicInfo();
+      console.log("我想试一下");
     });
 
     onBeforeUnmount(async () => {
