@@ -208,45 +208,54 @@
         color: #999999;
         margin-top: 10px;
 
-        .on-going {
-          font-weight: 600;
-          font-size: 12px;
-          color: #42c28c;
-          line-height: 18px;
-          // margin-right: 10px;
-        }
+        .detail-latest-box {
+          display: flex;
+          align-items: center;
 
-        .completed {
-          font-weight: 600;
-          font-size: 12px;
-          color: #e9a923;
-          line-height: 18px;
-          // margin-right: 10px;
-        }
+          .on-going {
+            font-weight: 600;
+            font-size: 12px;
+            color: #42c28c;
+            line-height: 18px;
+            // margin-right: 10px;
+          }
 
-        .completed::after,
-        .on-going::after {
-          content: "";
-          width: 1px;
-          height: 10px;
-          background: #000000;
-          opacity: 0.1;
-          display: inline-block;
-          margin: 0 5px;
-        }
+          .completed {
+            font-weight: 600;
+            font-size: 12px;
+            color: #e9a923;
+            line-height: 18px;
+            // margin-right: 10px;
+          }
 
-        .update-count::after {
-          content: "";
-          width: 1px;
-          height: 10px;
-          background: #000000;
-          opacity: 0.1;
-          display: inline-block;
-          margin: 0 5px;
-        }
+          .completed::after,
+          .on-going::after {
+            content: "";
+            width: 1px;
+            height: 10px;
+            background: #000000;
+            opacity: 0.1;
+            display: inline-block;
+            margin: 0 5px;
+          }
 
-        .latest-comic {
-          margin-right: 10px;
+          .update-count::after {
+            content: "";
+            width: 1px;
+            height: 10px;
+            background: #000000;
+            opacity: 0.1;
+            display: inline-block;
+            margin: 0 5px;
+          }
+
+          .latest-comic {
+            // margin-right: 10px;
+            flex: 1;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+          }
         }
       }
     }

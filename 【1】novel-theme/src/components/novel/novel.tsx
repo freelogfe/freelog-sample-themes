@@ -147,28 +147,28 @@ export const Novel = (props: {
           {!inMobile && (
             <div className="update-date">
               {data.articleInfo?.articleType === 1 ? (
-                <div>单集</div>
+                <div className="detail-latest-box">单集</div>
               ) : (data.articleInfo as any)?.serializeStatus === 0 ? (
-                <div>
-                  <span className="on-going">连载中</span>
-                  <span className="update-count">
+                <div className="detail-latest-box">
+                  <div className="on-going">连载中</div>
+                  <div className="update-count">
                     更新至{(data?.collectionList as any)?.totalItem}话
-                  </span>
+                  </div>
                   最近更新：
-                  <span className="latest-comic">
+                  <div className="latest-comic">
                     {(data?.collectionList as any)?.dataList?.[0]?.itemTitle}
-                  </span>
+                  </div>
                 </div>
               ) : (data.articleInfo as any)?.serializeStatus === 1 ? (
-                <div>
-                  <span className="completed">已完结</span>
-                  <span className="update-count">
+                <div className="detail-latest-box">
+                  <div className="completed">已完结</div>
+                  <div className="update-count">
                     共 {(data?.collectionList as any)?.totalItem} 话
-                  </span>
+                  </div>
                   最近更新：
-                  <span className="latest-comic">
+                  <div className="latest-comic">
                     {(data?.collectionList as any)?.dataList?.[0]?.itemTitle}
-                  </span>
+                  </div>
                 </div>
               ) : null}
             </div>
