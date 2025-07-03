@@ -614,17 +614,26 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                   ) : novel?.articleInfo?.serializeStatus === 0 ? (
                     <div>
                       <span className="on-going">连载中</span>
-                      <span className="update-count">更新至{total}话</span>
-                      最近更新：
-                      <span className="latest-novel">{latestNovelItem?.itemTitle}</span>
+                      {/* <span className="update-count">更新至{total}话</span> */}
+                      <span className="word-count">
+                        {(novel?.versionInfo?.exhibitProperty?.collection_word_count ||
+                          novel?.versionInfo?.exhibitProperty?.wordCount) &&
+                          formatWordCount(
+                            collectionList?.length && !!collectionList.length
+                              ? novel?.versionInfo?.exhibitProperty?.collection_word_count
+                              : novel?.versionInfo?.exhibitProperty?.wordCount
+                          )}
+                        字
+                      </span>
+                      <span className="latest-novel">最近更新：{latestNovelItem?.itemTitle}</span>
                       {formatDate(latestNovelItem?.articleInfo?.firstVersionReleaseDate)}
                     </div>
                   ) : novel?.articleInfo?.serializeStatus === 1 ? (
                     <div>
                       <span className="completed">已完结</span>
                       <span className="update-count">共 {collectionList?.length} 话</span>
-                      最近更新：
-                      <span className="latest-novel">{latestNovelItem?.itemTitle}</span>
+
+                      <span className="latest-novel">最近更新：{latestNovelItem?.itemTitle}</span>
                       {formatDate(latestNovelItem?.articleInfo?.firstVersionReleaseDate)}
                     </div>
                   ) : null}
@@ -677,7 +686,7 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                   </div>
 
                   <div className="other-btns">
-                    {(novel?.versionInfo?.exhibitProperty?.collection_word_count ||
+                    {/* {(novel?.versionInfo?.exhibitProperty?.collection_word_count ||
                       novel?.versionInfo?.exhibitProperty?.wordCount) && (
                       <div className="word-count">
                         {formatWordCount(
@@ -687,7 +696,7 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                         )}
                         字
                       </div>
-                    )}
+                    )} */}
 
                     <div className="sign-count">{novel.signCount}人签约</div>
                     <div
@@ -745,7 +754,7 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                     >
                       {novel?.articleInfo?.serializeStatus === 1 ? "已完结" : "连载中"}
                     </span>
-                    更新至{total}章
+                    {/* 更新至{total}章 */}
                   </span>
 
                   <div className="sort" onClick={handleSort}>

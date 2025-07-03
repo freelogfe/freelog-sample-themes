@@ -699,7 +699,8 @@
             }
 
             .completed::after,
-            .on-going::after {
+            .on-going::after,
+            .word-count::after {
               content: "";
               width: 1px;
               height: 10px;
@@ -965,15 +966,15 @@
               color: #e9a923;
             }
 
-            &::after {
-              content: "";
-              width: 1px;
-              height: 10px;
-              background: #000000;
-              opacity: 0.1;
-              display: inline-block;
-              margin: 0 5px;
-            }
+            // &::after {
+            //   content: "";
+            //   width: 1px;
+            //   height: 10px;
+            //   background: #000000;
+            //   opacity: 0.1;
+            //   display: inline-block;
+            //   margin: 0 5px;
+            // }
           }
         }
 
