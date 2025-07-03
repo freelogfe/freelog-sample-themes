@@ -85,7 +85,7 @@ export const Novel = (props: {
       </div>
 
       <div className={`book-author ${isDisabled() && "opacity-40p"}`}>
-        {data.articleInfo.articleOwnerName}
+        {data?.versionInfo?.exhibitProperty?.author || data.articleInfo.articleOwnerName}
       </div>
     </div>
   ) : (
@@ -128,7 +128,7 @@ export const Novel = (props: {
           </div>
 
           <div className={`book-author ${isDisabled() && "opacity-40p"}`}>
-            {data.articleInfo.articleOwnerName}
+            {data?.versionInfo?.exhibitProperty?.author || data.articleInfo.articleOwnerName}
           </div>
 
           {!(mode === 3 && inMobile) && data.tags.length > 0 && (
