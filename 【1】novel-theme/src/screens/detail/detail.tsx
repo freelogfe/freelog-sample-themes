@@ -612,10 +612,10 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                   {novel?.articleInfo?.articleType === 1 ? (
                     <div>最近更新：{formatDate(novel?.articleInfo?.versions?.[0]?.createDate)}</div>
                   ) : novel?.articleInfo?.serializeStatus === 0 ? (
-                    <div>
-                      <span className="on-going">连载中</span>
-                      {/* <span className="update-count">更新至{total}话</span> */}
-                      <span className="word-count">
+                    <div className="detail-latest-box">
+                      <div className="on-going">连载中</div>
+                      {/* <div className="update-count">更新至{total}话</div> */}
+                      <div className="word-count">
                         {(novel?.versionInfo?.exhibitProperty?.collection_word_count ||
                           novel?.versionInfo?.exhibitProperty?.wordCount) &&
                           formatWordCount(
@@ -624,16 +624,16 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                               : novel?.versionInfo?.exhibitProperty?.wordCount
                           )}
                         字
-                      </span>
-                      <span className="latest-novel">最近更新：{latestNovelItem?.itemTitle}</span>
+                      </div>
+                      <div className="latest-novel">最近更新：{latestNovelItem?.itemTitle}</div>
                       {formatDate(latestNovelItem?.articleInfo?.firstVersionReleaseDate)}
                     </div>
                   ) : novel?.articleInfo?.serializeStatus === 1 ? (
-                    <div>
-                      <span className="completed">已完结</span>
-                      <span className="update-count">共 {collectionList?.length} 话</span>
+                    <div className="detail-latest-box">
+                      <div className="completed">已完结</div>
+                      <div className="update-count">共 {collectionList?.length} 话</div>
 
-                      <span className="latest-novel">最近更新：{latestNovelItem?.itemTitle}</span>
+                      <div className="latest-novel">最近更新：{latestNovelItem?.itemTitle}</div>
                       {formatDate(latestNovelItem?.articleInfo?.firstVersionReleaseDate)}
                     </div>
                   ) : null}

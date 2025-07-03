@@ -634,6 +634,7 @@
 
         .novel-content {
           flex: 1;
+          width: 0;
 
           .auth-link-abnormal-box {
             display: flex;
@@ -682,46 +683,55 @@
             color: #999999;
             margin-top: 15px;
 
-            .on-going {
-              font-weight: 600;
-              font-size: 12px;
-              color: #42c28c;
-              line-height: 18px;
-              // margin-right: 10px;
-            }
+            .detail-latest-box {
+              display: flex;
+              align-items: center;
 
-            .completed {
-              font-weight: 600;
-              font-size: 12px;
-              color: #e9a923;
-              line-height: 18px;
-              // margin-right: 10px;
-            }
+              .on-going {
+                font-weight: 600;
+                font-size: 12px;
+                color: #42c28c;
+                line-height: 18px;
+                // margin-right: 10px;
+              }
 
-            .completed::after,
-            .on-going::after,
-            .word-count::after {
-              content: "";
-              width: 1px;
-              height: 10px;
-              background: #000000;
-              opacity: 0.1;
-              display: inline-block;
-              margin: 0 5px;
-            }
+              .completed {
+                font-weight: 600;
+                font-size: 12px;
+                color: #e9a923;
+                line-height: 18px;
+                // margin-right: 10px;
+              }
 
-            .update-count::after {
-              content: "";
-              width: 1px;
-              height: 10px;
-              background: #000000;
-              opacity: 0.1;
-              display: inline-block;
-              margin: 0 5px;
-            }
+              .completed::after,
+              .on-going::after,
+              .word-count::after {
+                content: "";
+                width: 1px;
+                height: 10px;
+                background: #000000;
+                opacity: 0.1;
+                display: inline-block;
+                margin: 0 5px;
+              }
 
-            .latest-novel {
-              margin-right: 10px;
+              .update-count::after {
+                content: "";
+                width: 1px;
+                height: 10px;
+                background: #000000;
+                opacity: 0.1;
+                display: inline-block;
+                margin: 0 5px;
+              }
+
+              .latest-novel {
+                margin-right: 10px;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+                flex: 1;
+              }
             }
           }
 
@@ -1037,6 +1047,10 @@
           color: #666666;
           line-height: 18px;
           margin-left: 10px;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+          flex: 1;
         }
 
         .time {
