@@ -33,7 +33,7 @@
     </div>
 
     <div class="comic-author" :class="{ 'opacity-40p': isDisabled() }">
-      {{ data.articleInfo.articleOwnerName }}
+      {{ data?.versionInfo?.exhibitProperty?.comicCreator || data.articleInfo.articleOwnerName }}
     </div>
   </div>
 
@@ -102,7 +102,9 @@
         </div>
 
         <div class="comic-author" :class="{ 'opacity-40p': isDisabled() }">
-          {{ data.articleInfo.articleOwnerName }}
+          {{
+            data?.versionInfo?.exhibitProperty?.comicCreator || data.articleInfo.articleOwnerName
+          }}
         </div>
 
         <div

@@ -63,7 +63,10 @@
                 <div class="comic-name">{{ comicInfo?.exhibitTitle }}</div>
 
                 <div class="comic-author">
-                  {{ comicInfo?.articleInfo?.articleOwnerName }}
+                  {{
+                    comicInfo?.versionInfo?.exhibitProperty?.comicCreator ||
+                    comicInfo?.articleInfo?.articleOwnerName
+                  }}
                 </div>
 
                 <div class="tags">
@@ -268,7 +271,10 @@
               </div>
 
               <div class="comic-author">
-                {{ comicInfo?.articleInfo?.articleOwnerName }}
+                {{
+                  comicInfo?.versionInfo?.exhibitProperty?.comicCreator ||
+                  comicInfo?.articleInfo?.articleOwnerName
+                }}
               </div>
 
               <div class="tags">

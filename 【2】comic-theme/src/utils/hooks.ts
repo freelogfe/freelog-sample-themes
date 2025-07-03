@@ -234,6 +234,7 @@ export const useGetList = () => {
       skip: data.skip,
       articleResourceTypes: "漫画,连载漫画",
       limit: params.limit || 30,
+      isLoadVersionProperty: 1,
       ...params
     };
     const list = await freelogApp.getExhibitListByPaging(queryParams);
