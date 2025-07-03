@@ -8,6 +8,7 @@ import { NewTags } from "../tags/new-tags";
 import { useContext, useRef } from "react";
 import { globalContext } from "../../router";
 import { showToast } from "../toast/toast";
+import { formatWordCount } from "../../utils/common";
 
 /** 小说组件 */
 export const Novel = (props: {
@@ -147,7 +148,14 @@ export const Novel = (props: {
           {!inMobile && (
             <div className="update-date">
               {data.articleInfo?.articleType === 1 ? (
-                <div className="detail-latest-box">单集</div>
+                <div className="detail-latest-box">
+                  <div className="single">单集</div>
+                  {formatWordCount(
+                    (data?.versionInfo as any)?.exhibitProperty?.wordCount &&
+                      data?.versionInfo?.exhibitProperty?.wordCount
+                  )}
+                  字
+                </div>
               ) : (data.articleInfo as any)?.serializeStatus === 0 ? (
                 <div className="detail-latest-box">
                   <div className="on-going">连载中</div>

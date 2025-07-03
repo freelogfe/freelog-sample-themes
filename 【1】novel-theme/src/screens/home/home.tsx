@@ -40,7 +40,8 @@ export const HomeScreen = (props: any) => {
       const queryParams: any = {
         articleResourceTypes: "文章,连载小说",
         skip: skip.current,
-        limit: 30
+        limit: 30,
+        isLoadVersionProperty: 1
       };
       if (tags) queryParams.tags = tags;
       if (keywords) queryParams.keywords = keywords;
