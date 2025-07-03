@@ -154,8 +154,18 @@ export const Novel = (props: {
                   <div className="update-count">
                     更新至{(data?.collectionList as any)?.totalItem}话
                   </div>
-                  最近更新：
-                  <div className="latest-comic">
+                  <div
+                    className="latest-comic"
+                    onClick={e => {
+                      e.stopPropagation();
+                      history.switchPage(
+                        `/reader?collection=${true}&id=${data.exhibitId}&subId=${
+                          (data?.collectionList as any)?.dataList?.[0]?.itemId
+                        }`
+                      );
+                    }}
+                  >
+                    最近更新：
                     {(data?.collectionList as any)?.dataList?.[0]?.itemTitle}
                   </div>
                 </div>
@@ -165,8 +175,18 @@ export const Novel = (props: {
                   <div className="update-count">
                     共 {(data?.collectionList as any)?.totalItem} 话
                   </div>
-                  最近更新：
-                  <div className="latest-comic">
+                  <div
+                    className="latest-comic"
+                    onClick={e => {
+                      e.stopPropagation();
+                      history.switchPage(
+                        `/reader?collection=${true}&id=${data.exhibitId}&subId=${
+                          (data?.collectionList as any)?.dataList?.[0]?.itemId
+                        }`
+                      );
+                    }}
+                  >
+                    最近更新：
                     {(data?.collectionList as any)?.dataList?.[0]?.itemTitle}
                   </div>
                 </div>

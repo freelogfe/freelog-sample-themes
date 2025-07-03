@@ -255,6 +255,10 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
+
+            &:hover {
+              color: #5d9191;
+            }
           }
         }
       }
