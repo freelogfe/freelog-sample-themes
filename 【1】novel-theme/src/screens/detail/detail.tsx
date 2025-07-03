@@ -531,7 +531,12 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                           )
                         }
                       >
-                        <span className="sub-title">{collectionItem.itemTitle}</span>
+                        <span className="sub-title">
+                          {novel?.versionInfo?.exhibitProperty?.catalogueProperty
+                            ?.collection_item_title === "collection_item_title_rtitle"
+                            ? (collectionItem?.articleInfo as any)?.articleTitle
+                            : collectionItem.itemTitle}
+                        </span>
                         {collectionItem.articleInfo.status === 2 ? (
                           <img className="freeze-lock" src={Freeze} alt="封禁" />
                         ) : novel.onlineStatus === 0 ? (
@@ -800,7 +805,10 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                             ) && "is-latest"
                           }`}
                         >
-                          {collectionItem.itemTitle}
+                          {novel?.versionInfo?.exhibitProperty?.catalogueProperty
+                            ?.collection_item_title === "collection_item_title_rtitle"
+                            ? (collectionItem?.articleInfo as any)?.articleTitle
+                            : collectionItem.itemTitle}
                         </span>
                         {collectionItem.articleInfo.status === 2 ? (
                           <img className="freeze-lock" src={Freeze} alt="封禁" />
