@@ -663,10 +663,12 @@
           }
 
           .tags {
-            max-width: 500px;
+            margin-top: 12px;
             height: 18px;
             overflow: hidden;
-            margin-top: 12px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            width: 100%;
           }
 
           .create-date {
