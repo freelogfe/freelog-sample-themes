@@ -29,7 +29,7 @@ export const useMyShelf = (id?: string) => {
 
     const exhibitIds = ids.join();
     const [list, statusList] = await Promise.all([
-      freelogApp.getExhibitListById({ exhibitIds }),
+      freelogApp.getExhibitListById({ exhibitIds, isLoadVersionProperty: 1 }),
       freelogApp.getExhibitAuthStatus(exhibitIds)
     ]);
 

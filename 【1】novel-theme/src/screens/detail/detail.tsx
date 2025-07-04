@@ -620,24 +620,35 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                     <div className="detail-latest-box">
                       <div className="on-going">连载中</div>
                       {/* <div className="update-count">更新至{total}话</div> */}
-                      <div className="word-count">
-                        {(novel?.versionInfo?.exhibitProperty?.collection_word_count ||
-                          novel?.versionInfo?.exhibitProperty?.wordCount) &&
-                          formatWordCount(
+                      {(novel?.versionInfo?.exhibitProperty?.collection_word_count ||
+                        novel?.versionInfo?.exhibitProperty?.wordCount) && (
+                        <div className="word-count">
+                          {formatWordCount(
                             collectionList?.length && !!collectionList.length
                               ? novel?.versionInfo?.exhibitProperty?.collection_word_count
                               : novel?.versionInfo?.exhibitProperty?.wordCount
                           )}
-                        字
-                      </div>
+                          字
+                        </div>
+                      )}
                       <div className="latest-novel">最近更新：{latestNovelItem?.itemTitle}</div>
                       {formatDate(latestNovelItem?.articleInfo?.firstVersionReleaseDate)}
                     </div>
                   ) : novel?.articleInfo?.serializeStatus === 1 ? (
                     <div className="detail-latest-box">
                       <div className="completed">已完结</div>
-                      <div className="update-count">共 {collectionList?.length} 话</div>
-
+                      {/* <div className="update-count">共 {collectionList?.length} 话</div> */}
+                      {(novel?.versionInfo?.exhibitProperty?.collection_word_count ||
+                        novel?.versionInfo?.exhibitProperty?.wordCount) && (
+                        <div className="word-count">
+                          {formatWordCount(
+                            collectionList?.length && !!collectionList.length
+                              ? novel?.versionInfo?.exhibitProperty?.collection_word_count
+                              : novel?.versionInfo?.exhibitProperty?.wordCount
+                          )}
+                          字
+                        </div>
+                      )}
                       <div className="latest-novel">最近更新：{latestNovelItem?.itemTitle}</div>
                       {formatDate(latestNovelItem?.articleInfo?.firstVersionReleaseDate)}
                     </div>

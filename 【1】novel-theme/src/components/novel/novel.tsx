@@ -150,18 +150,25 @@ export const Novel = (props: {
               {data.articleInfo?.articleType === 1 ? (
                 <div className="detail-latest-box">
                   <div className="single">单集</div>
-                  {formatWordCount(
-                    (data?.versionInfo as any)?.exhibitProperty?.wordCount &&
-                      data?.versionInfo?.exhibitProperty?.wordCount
+                  {data?.versionInfo?.exhibitProperty?.wordCount && (
+                    <div className="word-count">
+                      {formatWordCount((data?.versionInfo as any)?.exhibitProperty?.wordCount) +
+                        "字"}
+                    </div>
                   )}
-                  字
                 </div>
               ) : (data.articleInfo as any)?.serializeStatus === 0 ? (
                 <div className="detail-latest-box">
                   <div className="on-going">连载中</div>
-                  <div className="update-count">
-                    更新至{(data?.collectionList as any)?.totalItem}话
-                  </div>
+                  {(data?.versionInfo?.exhibitProperty?.collection_word_count ||
+                    data?.versionInfo?.exhibitProperty?.wordCount) && (
+                    <div className="word-count">
+                      {formatWordCount(
+                        (data?.versionInfo as any)?.exhibitProperty?.collection_word_count ||
+                          (data?.versionInfo as any)?.exhibitProperty?.wordCount
+                      ) + "字"}
+                    </div>
+                  )}
                   <div
                     className="latest-comic"
                     onClick={e => {
@@ -180,9 +187,15 @@ export const Novel = (props: {
               ) : (data.articleInfo as any)?.serializeStatus === 1 ? (
                 <div className="detail-latest-box">
                   <div className="completed">已完结</div>
-                  <div className="update-count">
-                    共 {(data?.collectionList as any)?.totalItem} 话
-                  </div>
+                  {(data?.versionInfo?.exhibitProperty?.collection_word_count ||
+                    data?.versionInfo?.exhibitProperty?.wordCount) && (
+                    <div className="word-count">
+                      {formatWordCount(
+                        (data?.versionInfo as any)?.exhibitProperty?.collection_word_count ||
+                          (data?.versionInfo as any)?.exhibitProperty?.wordCount
+                      ) + "字"}
+                    </div>
+                  )}
                   <div
                     className="latest-comic"
                     onClick={e => {

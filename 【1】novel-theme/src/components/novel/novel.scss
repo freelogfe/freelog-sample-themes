@@ -230,7 +230,8 @@
 
           .single::after,
           .completed::after,
-          .on-going::after {
+          .on-going::after,
+          .word-count::after {
             content: "";
             width: 1px;
             height: 10px;
