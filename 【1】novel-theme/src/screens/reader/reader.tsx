@@ -50,6 +50,7 @@ export const ReaderScreen = (props: any) => {
   const location = useLocation();
   const skip = useRef(0);
   const widgetList = useRef<any>({});
+  const collectionListRef = useRef<CollectionList[]>([]);
 
   /** 获取小说信息 */
   const getNovelInfo = useCallback(async () => {
@@ -61,8 +62,11 @@ export const ReaderScreen = (props: any) => {
 
     const { articleType } = exhibitInfo.data.data.articleInfo;
     if (articleType === 2) {
-      getCollectionList(true);
-      getCollectionInfo();
+      // 重置 ref 数据
+      collectionListRef.current = [];
+      setCollectionList([]);
+      await getCollectionList(true);
+      await getCollectionInfo();
     }
     getRecommendList();
     setBook((pre: any) => {
@@ -78,7 +82,7 @@ export const ReaderScreen = (props: any) => {
   const getCollectionList = useCallback(
     async (init = false, skipChapter = 0) => {
       try {
-        if (!init && collectionList.length >= total) {
+        if (!init && collectionListRef.current.length >= total) {
           return;
         }
 
@@ -106,13 +110,16 @@ export const ReaderScreen = (props: any) => {
           }
           // return dataList;
 
-          setCollectionList(pre => [...pre, ...dataList]);
+          // 同时更新 ref 和 state
+          const newList = [...collectionListRef.current, ...dataList];
+          collectionListRef.current = newList;
+          setCollectionList(newList);
         }
       } catch (error) {
         console.error("Failed to get collection list", error);
       }
     },
-    [id, collectionList]
+    [id, total]
   );
 
   /** 获取推荐列表 */
@@ -138,7 +145,7 @@ export const ReaderScreen = (props: any) => {
         articleInfo: res.data.data.articleInfo
       };
     });
-    getCollectionList(false, sortId - 15 < 0 ? 0 : sortId - 15);
+    await getCollectionList(false, sortId - 15 < 0 ? 0 : sortId - 15);
     setCurrentSortId(sortId);
   };
 
@@ -314,7 +321,8 @@ export const ReaderScreen = (props: any) => {
     total,
     collectionList,
     recommendList,
-    widgetList
+    widgetList,
+    getNovelInfo
   };
 
   return (
@@ -372,7 +380,8 @@ const ReaderBody = () => {
     total,
     collectionList,
     recommendList,
-    widgetList
+    widgetList,
+    getNovelInfo
   } = useContext(readerContext);
 
   const [content, setContent] = useState<string>("");
@@ -431,7 +440,10 @@ const ReaderBody = () => {
   const getAuth = async () => {
     const authResult = await freelogApp.addAuth(id, { immediate: true });
     const { status } = authResult;
-    if (status === 0) getContent();
+    if (status === 0) {
+      await getNovelInfo();
+      getContent();
+    }
   };
 
   /** 跳转详情 */
