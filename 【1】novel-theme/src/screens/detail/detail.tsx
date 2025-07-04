@@ -410,7 +410,10 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                   <div className="content-top">
                     <div className="novel-name">{novel.exhibitTitle}</div>
 
-                    <div className="novel-author">{novel.articleInfo.articleOwnerName}</div>
+                    <div className="novel-author">
+                      {novel?.versionInfo?.exhibitProperty?.author ||
+                        novel.articleInfo.articleOwnerName}
+                    </div>
 
                     <div className="tags">
                       <NewTags data={novel.tags || []} />
@@ -609,7 +612,10 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
 
                   <div className="novel-name">{novel.exhibitTitle}</div>
                 </div>
-                <div className="novel-author">{novel.articleInfo.articleOwnerName}</div>
+                <div className="novel-author">
+                  {novel?.versionInfo?.exhibitProperty?.author ||
+                    novel.articleInfo.articleOwnerName}
+                </div>
                 <div className="tags">
                   <NewTags data={novel.tags || []} />
                 </div>
@@ -742,16 +748,10 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
               <div className="intro-title">内容简介</div>
 
               {novel.exhibitIntro ? (
-                <div className={`intro ${introState === 1 ? "fold" : "unfold"}`}>
+                <div className="intro">
                   <div className="intro-content" ref={introContent}>
                     {novel.exhibitIntro}
                   </div>
-
-                  {introState === 1 && (
-                    <div className="view-all-btn" onClick={() => setIntroState(3)}>
-                      ...查看全部
-                    </div>
-                  )}
                 </div>
               ) : (
                 <div className="no-intro-tip">暂无简介</div>
