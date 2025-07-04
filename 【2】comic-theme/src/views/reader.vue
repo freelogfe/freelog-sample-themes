@@ -2555,7 +2555,6 @@ export default {
 
     onBeforeMount(() => {
       getComicInfo();
-      console.log("我想试一下");
     });
 
     onBeforeUnmount(async () => {
