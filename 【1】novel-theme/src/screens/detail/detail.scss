@@ -420,8 +420,8 @@
 
       .title-container {
         display: flex;
-        align-items: ce;
-        justify-content: space-between;
+        align-items: center;
+
         .title {
           font-weight: 600;
           font-size: 16px;
@@ -957,7 +957,9 @@
           font-weight: 600;
           font-size: 20px;
           color: #222222;
-          line-height: 26px;
+          line-height: 1;
+          display: flex;
+          align-items: center;
         }
 
         .count {
@@ -968,7 +970,10 @@
           .status {
             font-weight: 600;
             font-size: 12px;
-            line-height: 18px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            height: 20px;
 
             &.ongoing {
               color: #42c28c;
