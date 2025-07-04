@@ -677,7 +677,7 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                             (i: { id: string }) => i.id === novel.exhibitId
                           );
                           const subId = lastViewed[index]?.subId;
-                          const subIdInfo = collectionList.listData.find((i: any) => {
+                          const subIdInfo = collectionList.find((i: any) => {
                             if (subId) {
                               return i.itemId === subId;
                             }
