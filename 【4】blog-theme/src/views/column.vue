@@ -64,13 +64,13 @@ const getData = () => {
 };
 
 const columnLength = computed(() => {
-  return datasOfGetList.listData.value.filter(ele => ele.articleInfo.articleType === 2).length;
+  return datasOfGetList.listData.value.filter(ele => ele.articleInfo.articleType === 3).length;
 });
 
 const availableListData = computed(() => {
   // 基础过滤条件：只显示博客类型且状态正常且身份类型为0或4的文章
   const baseFilter = (ele: any) =>
-    ele.articleInfo.articleType === 2 &&
+    ele.articleInfo.articleType === 3 &&
     ele.articleInfo.status === 1 &&
     [0, 4].includes(ele.defaulterIdentityType!);
 

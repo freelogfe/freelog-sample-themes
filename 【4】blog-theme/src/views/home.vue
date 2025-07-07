@@ -269,7 +269,7 @@ export default {
     const collectionsData = computed(() => {
       return datasOfGetList.listData.value.filter(
         (ele: any) =>
-          ele.articleInfo.articleType === 2 &&
+          ele.articleInfo.articleType === 3 &&
           ele.articleInfo.status === 1 &&
           [0, 4].includes(ele.defaulterIdentityType!)
       );

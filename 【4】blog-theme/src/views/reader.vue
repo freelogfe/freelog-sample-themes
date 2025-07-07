@@ -20,7 +20,7 @@
 
       <template v-if="!inMobile">
         <!-- 所属专栏 -->
-        <div class="column-label-title" v-if="articleData?.articleInfo?.articleType === 2">
+        <div class="column-label-title" v-if="articleData?.articleInfo?.articleType === 3">
           <span class="column-label">所属专栏</span>
           <span
             class="column-title"
@@ -30,7 +30,7 @@
         </div>
 
         <!-- 上一篇 | 下一篇 -->
-        <div class="prev-next-box" v-if="articleData?.articleInfo?.articleType === 2">
+        <div class="prev-next-box" v-if="articleData?.articleInfo?.articleType === 3">
           <!-- 上一篇 -->
           <div
             class="prev-card"
@@ -164,7 +164,7 @@
           <div class="title-share">
             <div class="article-title">
               {{
-                articleData?.articleInfo?.articleType === 2
+                articleData?.articleInfo?.articleType === 3
                   ? articleData?.collectionInfo?.itemTitle
                   : articleData?.exhibitTitle
               }}
@@ -246,7 +246,7 @@
           </div>
 
           <!-- 所属专栏 -->
-          <div class="column-label-title" v-if="articleData?.articleInfo?.articleType === 2">
+          <div class="column-label-title" v-if="articleData?.articleInfo?.articleType === 3">
             <span class="column-label">所属专栏</span>
             <span
               class="column-title"
@@ -256,7 +256,7 @@
           </div>
 
           <!-- 上一篇 | 下一篇 -->
-          <div class="prev-next-box" v-if="articleData?.articleInfo?.articleType === 2">
+          <div class="prev-next-box" v-if="articleData?.articleInfo?.articleType === 3">
             <!-- 上一篇 -->
             <div
               class="prev-card"
@@ -367,7 +367,7 @@ export default {
 
     const errorMsg = computed(() => {
       if (
-        data.articleData?.articleInfo?.articleType === 2
+        data.articleData?.articleInfo?.articleType === 3
           ? data.articleData?.collectionInfo?.articleInfo?.status === 2
           : data.articleData?.articleInfo?.status === 2
       ) {
@@ -528,7 +528,7 @@ export default {
       await datasOfGetList.getList({ limit: 30 }, true);
 
       // 合集列表
-      if (data.articleData?.articleInfo?.articleType === 2) {
+      if (data.articleData?.articleInfo?.articleType === 3) {
         const collectionList = datasOfGetList.listData.value.filter(
           (item: any) => item.exhibitId === id
         );

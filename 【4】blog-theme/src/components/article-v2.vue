@@ -12,7 +12,7 @@
       <div class="offline" v-if="data.onlineStatus === 0 && inSignedList">已下架</div>
 
       <!-- 专栏状态 -->
-      <div class="column-status-wrapper" v-if="data.articleInfo?.articleType === 2">
+      <div class="column-status-wrapper" v-if="data.articleInfo?.articleType === 3">
         <span>专栏</span>
         <span class="divider"></span>
         <span
@@ -131,7 +131,7 @@ export default {
     const clickArticle = () => {
       const { exhibitId, itemId } = props.data;
 
-      const isColumn = props.data.articleInfo?.articleType === 2;
+      const isColumn = props.data.articleInfo?.articleType === 3;
 
       if (isColumn) {
         switchPage("/column-detail", { id: exhibitId });

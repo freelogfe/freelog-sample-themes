@@ -121,7 +121,7 @@ export const useGetList = () => {
     data.skip = init ? 0 : data.skip + 30;
     const queryParams = {
       skip: data.skip,
-      articleResourceTypes: "文章",
+      articleResourceTypes: "阅读",
       limit: params.limit || 30,
       isLoadVersionProperty: 1,
       ...params
@@ -147,7 +147,7 @@ export const useGetList = () => {
         if (index !== -1)
           item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
 
-        if (item.articleInfo.articleType === 2) {
+        if (item.articleInfo.articleType === 3) {
           const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
             sortType: -1,
             skip: 0,
