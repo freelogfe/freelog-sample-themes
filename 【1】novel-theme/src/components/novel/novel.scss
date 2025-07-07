@@ -241,6 +241,10 @@
             margin: 0 5px;
           }
 
+          .single + .word-count::after {
+            display: none;
+          }
+
           .update-count::after {
             content: "";
             width: 1px;
