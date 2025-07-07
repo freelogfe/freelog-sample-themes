@@ -226,7 +226,7 @@ export const DetailScreen = (props: any) => {
   }, []);
 
   useEffect(() => {
-    if (novel?.collectionList?.length && scrollTop + clientHeight === scrollHeight) {
+    if (novel?.collectionList?.length && scrollTop + clientHeight + 1 >= scrollHeight) {
       getCollectionList(false);
     }
   }, [scrollTop, clientHeight, scrollHeight]);

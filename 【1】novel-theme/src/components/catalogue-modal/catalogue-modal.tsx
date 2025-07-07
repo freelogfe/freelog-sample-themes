@@ -125,7 +125,7 @@ export const CatalogueModal = (props: {
   };
 
   useEffect(() => {
-    if (scrollTop + clientHeight === scrollHeight) {
+    if (scrollTop + clientHeight + 1 >= scrollHeight) {
       getCollectionList();
       getCollectionListBySortTypeDesc();
     }

@@ -92,7 +92,7 @@ export const HomeScreen = (props: any) => {
   }, [tags, keywords]);
 
   useEffect(() => {
-    if (scrollTop + clientHeight === scrollHeight) getNovelList();
+    if (scrollTop + clientHeight + 1 >= scrollHeight) getNovelList();
     // eslint-disable-next-line
   }, [scrollTop, clientHeight, scrollHeight]);
 
