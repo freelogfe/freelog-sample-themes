@@ -637,8 +637,12 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                           字
                         </div>
                       )}
-                      <div className="latest-novel">最近更新：{latestNovelItem?.itemTitle}</div>
-                      {formatDate(latestNovelItem?.articleInfo?.firstVersionReleaseDate)}
+                      <div className="latest-novel-container">
+                        <div className="latest-novel">最近更新：{latestNovelItem?.itemTitle}</div>
+                        <div className="latest-novel-time">
+                          {formatDate(latestNovelItem?.articleInfo?.firstVersionReleaseDate)}
+                        </div>
+                      </div>
                     </div>
                   ) : novel?.articleInfo?.serializeStatus === 1 ? (
                     <div className="detail-latest-box">
@@ -655,8 +659,12 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                           字
                         </div>
                       )}
-                      <div className="latest-novel">最近更新：{latestNovelItem?.itemTitle}</div>
-                      {formatDate(latestNovelItem?.articleInfo?.firstVersionReleaseDate)}
+                      <div className="latest-novel-container">
+                        <div className="latest-novel">最近更新：{latestNovelItem?.itemTitle}</div>
+                        <div className="latest-novel-time">
+                          {formatDate(latestNovelItem?.articleInfo?.firstVersionReleaseDate)}
+                        </div>
+                      </div>
                     </div>
                   ) : null}
                 </div>

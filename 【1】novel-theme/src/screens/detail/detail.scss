@@ -730,12 +730,24 @@
                 margin: 0 5px;
               }
 
+              .latest-novel-container {
+                display: flex;
+                align-items: center;
+                flex: 1;
+                min-width: 0;
+              }
+
               .latest-novel {
                 margin-right: 10px;
                 text-overflow: ellipsis;
                 overflow: hidden;
                 white-space: nowrap;
-                flex: 1;
+                flex-shrink: 1;
+                min-width: 0;
+              }
+
+              .latest-novel-time {
+                flex-shrink: 0;
               }
             }
           }
