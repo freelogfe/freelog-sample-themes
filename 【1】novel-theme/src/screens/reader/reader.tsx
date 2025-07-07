@@ -142,7 +142,8 @@ export const ReaderScreen = (props: any) => {
     setBook((pre: any) => {
       return {
         ...pre,
-        articleInfo: res.data.data.articleInfo
+        articleInfo: res.data.data.articleInfo,
+        collectionInfo: res.data.data
       };
     });
     await getCollectionList(false, sortId - 15 < 0 ? 0 : sortId - 15);
