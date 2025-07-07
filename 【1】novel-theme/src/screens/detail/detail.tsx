@@ -20,6 +20,36 @@ import "./detail.scss";
 
 const detailContext = React.createContext<any>({});
 
+/**
+ * 获取集合项目标题的公共函数
+ * @param novel 小说对象
+ * @param collectionItem 集合项目对象
+ * @returns 返回应该显示的标题
+ */
+const getCollectionItemTitle = (novel: any, collectionItem: any) => {
+  const itemTitle = novel?.versionInfo?.exhibitProperty?.catalogueProperty?.collection_item_title;
+  // 作品标题
+  if (itemTitle === "collection_item_title_rtitle") {
+    return (collectionItem?.articleInfo as any)?.articleTitle || "";
+  }
+  // 连载编号
+  if (itemTitle === "collection_item_title_sn") {
+    return (
+      collectionItem?.articleInfo?.articleProperty?.number ||
+      (collectionItem?.articleInfo as any)?.articleTitle ||
+      ""
+    );
+  }
+  // 自定义
+  if (itemTitle === "collection_item_title_custom") {
+    return collectionItem.itemTitle || (collectionItem?.articleInfo as any)?.articleTitle || "";
+  }
+  // 不显示
+  if (itemTitle === "collection_item_title_empty") {
+    return (collectionItem?.articleInfo as any)?.articleTitle || "";
+  }
+};
+
 /** 详情页 */
 export const DetailScreen = (props: any) => {
   const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
@@ -45,7 +75,8 @@ export const DetailScreen = (props: any) => {
 
         const subList = await (freelogApp as any).getCollectionSubList(id, {
           skip: skip.current,
-          limit: 50
+          limit: 50,
+          isShowDetailInfo: 1
         });
         const { dataList, totalItem } = subList.data.data;
         setTotal(totalItem);
@@ -535,10 +566,7 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                         }
                       >
                         <span className="sub-title">
-                          {novel?.versionInfo?.exhibitProperty?.catalogueProperty
-                            ?.collection_item_title === "collection_item_title_rtitle"
-                            ? (collectionItem?.articleInfo as any)?.articleTitle
-                            : collectionItem.itemTitle}
+                          {getCollectionItemTitle(novel, collectionItem)}
                         </span>
                         {collectionItem.articleInfo.status === 2 ? (
                           <img className="freeze-lock" src={Freeze} alt="封禁" />
@@ -824,10 +852,7 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                             ) && "is-latest"
                           }`}
                         >
-                          {novel?.versionInfo?.exhibitProperty?.catalogueProperty
-                            ?.collection_item_title === "collection_item_title_rtitle"
-                            ? (collectionItem?.articleInfo as any)?.articleTitle
-                            : collectionItem.itemTitle}
+                          {getCollectionItemTitle(novel, collectionItem)}
                         </span>
                         {collectionItem.articleInfo.status === 2 ? (
                           <img className="freeze-lock" src={Freeze} alt="封禁" />
