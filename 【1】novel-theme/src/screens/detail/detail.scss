@@ -652,6 +652,9 @@
               color: #222222;
               line-height: 30px;
               font-weight: 600;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
             }
           }
 
