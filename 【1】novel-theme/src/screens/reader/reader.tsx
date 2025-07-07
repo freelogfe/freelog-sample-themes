@@ -587,7 +587,8 @@ const ReaderBody = () => {
                   <span className="exceptional-text"> 作品已下架，无法访问 </span>
                 </div>
               </div>
-            ) : ![0, 4].includes(book?.defaulterIdentityType) ? (
+            ) : book?.defaulterIdentityType != null &&
+              ![0, 4].includes(book?.defaulterIdentityType) ? (
               <div className="exceptional-box">
                 <div className="icon">
                   <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
@@ -730,7 +731,8 @@ const ReaderBody = () => {
                     <span className="exceptional-text"> 作品已下架，无法访问 </span>
                   </div>
                 </div>
-              ) : ![0, 4].includes(book?.defaulterIdentityType) ? (
+              ) : book?.defaulterIdentityType != null &&
+                ![0, 4].includes(book?.defaulterIdentityType) ? (
                 <div className="exceptional-box">
                   <div className="icon">
                     <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
