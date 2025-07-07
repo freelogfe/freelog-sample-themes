@@ -145,7 +145,7 @@ export const DetailScreen = (props: any) => {
     return res?.info || [];
   }, [historyNovelData, id]);
 
-  // 记录用户点击最近更新一话
+  // 记录用户点击目录
   const handleLatestNovel = async (item: any) => {
     if (latestNovelItem?.itemId === item.itemId) {
       const newLatestNovelData = [...(latestNovelData || [])];

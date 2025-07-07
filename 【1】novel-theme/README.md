@@ -10,3 +10,7 @@
 ## 支持资源类型
 
 阅读/文章
+
+## 有关  freelogApp.setUserData
+- "novelViewedHistory": 记录用户阅读历史
+- "novelLatestViewedHistory": 记录用户点击目录
