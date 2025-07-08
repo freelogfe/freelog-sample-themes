@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useMemo } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { freelogApp } from "freelog-runtime";
 import { useLocation } from "react-router-dom";
 import { globalContext } from "../../router";

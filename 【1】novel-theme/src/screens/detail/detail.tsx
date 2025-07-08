@@ -60,7 +60,6 @@ export const DetailScreen = (props: any) => {
   const skip = useRef(0);
   const [sortOrder, setSortOrder] = useState("asc");
   const [collectionDataDesc, setCollectionDataDesc] = useState<any>(null);
-  const [latestNovelData, setLatestNovelData] = useState<any[]>([]);
   const [historyNovelData, setHistoryNovelData] = useState<any[]>([]);
 
   // 获取合集下的单品列表
