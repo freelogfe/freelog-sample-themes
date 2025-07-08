@@ -127,40 +127,11 @@ export const DetailScreen = (props: any) => {
     return null;
   }, [novel?.articleInfo?.articleType, collectionDataDesc]);
 
-  // 用户是否已点击最近更新一话
-  const isClickedLatestNovel = useMemo(() => {
-    if (!latestNovelData) return null;
-    const existingIndex = latestNovelData.findIndex((i: any) => i.id === id);
-
-    if (existingIndex !== -1) {
-      return latestNovelData[existingIndex];
-    }
-
-    return null;
-  }, [latestNovelData, id]);
-
-  // 当前漫画的阅读历史
+  // 当前小说的阅读历史
   const currentHistoryNovel = useMemo(() => {
     const res = historyNovelData?.find((i: any) => i.id === id);
     return res?.info || [];
   }, [historyNovelData, id]);
-
-  // 记录用户点击目录
-  const handleLatestNovel = async (item: any) => {
-    if (latestNovelItem?.itemId === item.itemId) {
-      const newLatestNovelData = [...(latestNovelData || [])];
-      const existingIndex = newLatestNovelData.findIndex((i: any) => i.id === id);
-
-      if (existingIndex !== -1) {
-        newLatestNovelData[existingIndex] = { id, info: item };
-      } else {
-        newLatestNovelData.push({ id, info: item });
-      }
-
-      setLatestNovelData(newLatestNovelData);
-      await freelogApp.setUserData("novelLatestViewedHistory", newLatestNovelData);
-    }
-  };
 
   // 记录用户阅读历史
   const handleReaderHistory = async (item: any) => {
@@ -175,15 +146,24 @@ export const DetailScreen = (props: any) => {
         existingNovel.info = existingNovel.info ? [existingNovel.info] : [];
       }
 
-      // 检查当前章节是否已存在于记录中
-      const chapterIndex = existingNovel.info.findIndex((chapter: any) => {
+      // 检查当前章节是否已存在于记录中（只比较itemId）
+      const existingChapters = existingNovel.info.filter((chapter: any) => {
         return chapter.itemId === item.itemId;
       });
 
-      if (chapterIndex === -1) {
-        // 如果章节不存在，添加到数组中
-        existingNovel.info.push(item);
+      console.log("找到的重复章节数量", existingChapters.length);
+
+      if (existingChapters.length > 0) {
+        // 如果章节已存在，删除所有相同itemId的旧数据
+        existingNovel.info = existingNovel.info.filter((chapter: any) => {
+          return chapter.itemId !== item.itemId;
+        });
+        console.log("删除所有旧数据后", existingNovel.info);
       }
+
+      // 添加新数据
+      existingNovel.info.push(item);
+      console.log("添加新数据后", existingNovel.info);
 
       // 更新历史记录
       newHistoryNovelData[existingIndex] = existingNovel;
@@ -208,10 +188,8 @@ export const DetailScreen = (props: any) => {
         freelogApp.getExhibitAuthStatus(id)
       ]);
 
-      const latestViewedResponse = await freelogApp.getUserData("novelLatestViewedHistory");
-      setLatestNovelData(latestViewedResponse?.data?.data);
-
       const novelViewedResponse = await freelogApp.getUserData("novelViewedHistory");
+      console.log("返回结果22", novelViewedResponse?.data?.data);
       setHistoryNovelData(novelViewedResponse?.data?.data || []);
 
       const articleType = exhibitInfo.data.data.articleInfo.articleType;
@@ -270,9 +248,7 @@ export const DetailScreen = (props: any) => {
         sortOrder,
         setSortOrder,
         latestNovelItem,
-        isClickedLatestNovel,
         currentHistoryNovel,
-        handleLatestNovel,
         handleReaderHistory
       }}
     >
@@ -297,9 +273,7 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
     sortOrder,
     setSortOrder,
     latestNovelItem,
-    isClickedLatestNovel,
     currentHistoryNovel,
-    handleLatestNovel,
     handleReaderHistory
   } = useContext(detailContext);
   const collectionList = novel?.collectionList;
@@ -348,6 +322,32 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
     };
     shareWidget.current = await freelogApp.mountArticleWidget(params);
   };
+
+  // 判断用户是不是看过最近更新一话
+  const isLatestNovelViewed = useMemo(() => {
+    if (!latestNovelItem?.itemId) return false;
+
+    const historyItem = currentHistoryNovel.find(
+      (item: any) => item.itemId === latestNovelItem.itemId
+    );
+
+    console.log("所以时间一样吗", historyItem?.createDate === latestNovelItem.createDate);
+    return historyItem?.createDate === latestNovelItem.createDate;
+  }, [currentHistoryNovel, latestNovelItem]);
+
+  // 判断某个章节是否已阅读过
+  const isChapterViewed = useCallback(
+    (chapterItem: any) => {
+      if (!chapterItem?.itemId) return false;
+
+      const historyItem = currentHistoryNovel.find(
+        (item: any) => item.itemId === chapterItem.itemId
+      );
+
+      return historyItem?.createDate === chapterItem.createDate;
+    },
+    [currentHistoryNovel]
+  );
 
   /** 控制分享弹窗显示 */
   const setShareWidgetShow = (value: boolean) => {
@@ -815,7 +815,7 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                   </div>
                 </div>
 
-                {isClickedLatestNovel?.info?.itemId !== latestNovelItem?.itemId && (
+                {!isLatestNovelViewed && (
                   <div className="latest-tip-box">
                     <div className="latest-title">最近更新</div>
                     <div className="latest-novel">{latestNovelItem?.itemTitle}</div>
@@ -836,7 +836,6 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                         }`}
                         key={collectionItem.itemId}
                         onClick={async () => {
-                          await handleLatestNovel(collectionItem);
                           await handleReaderHistory(collectionItem);
                           history.switchPage(
                             `/reader?collection=${true}&id=${novel.exhibitId}&subId=${
@@ -846,11 +845,7 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                         }}
                       >
                         <span
-                          className={`sub-title ${
-                            !currentHistoryNovel?.find(
-                              (i: any) => i.itemId === collectionItem.itemId
-                            ) && "is-latest"
-                          }`}
+                          className={`sub-title ${!isChapterViewed(collectionItem) && "is-latest"}`}
                         >
                           {getCollectionItemTitle(novel, collectionItem)}
                         </span>

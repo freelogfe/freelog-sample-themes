@@ -12,5 +12,5 @@
 阅读/文章
 
 ## 有关  freelogApp.setUserData
-- "novelViewedHistory": 记录用户阅读历史
-- "novelLatestViewedHistory": 记录用户点击目录
+- "novelViewedHistory": 记录用户点击目录历史
+- "novelLastViewedHistory": 记录用户最后看到哪一章

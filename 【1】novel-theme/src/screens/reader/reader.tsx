@@ -387,8 +387,6 @@ const ReaderBody = () => {
 
   const [content, setContent] = useState<string>("");
   const [defaulterIdentityType, setDefaulterIdentityType] = useState<number | null>(null);
-  const [collectionDataDesc, setCollectionDataDesc] = useState<any>(null);
-  const [latestNovelData, setLatestNovelData] = useState<any[]>([]);
   const [historyNovelData, setHistoryNovelData] = useState<any[]>([]);
 
   const preSubId =
@@ -454,47 +452,14 @@ const ReaderBody = () => {
 
   /** 获取合集的倒序内容 */
   const getCollectionListBySortTypeDesc = async () => {
-    const res = await (freelogApp as any).getCollectionSubList(id, {
-      sortType: -1,
-      skip: 0,
-      limit: 50,
-      isShowDetailInfo: 1
-    });
-
-    setCollectionDataDesc(res.data.data);
-
-    const latestViewedResponse = await freelogApp.getUserData("novelLatestViewedHistory");
-    setLatestNovelData(latestViewedResponse?.data?.data);
-
     const novelViewedResponse = await freelogApp.getUserData("novelViewedHistory");
     setHistoryNovelData(novelViewedResponse?.data?.data || []);
-  };
-
-  // 最近更新的一话
-  const latestNovelItem = useMemo(() => {
-    return collectionDataDesc?.dataList?.[0];
-  }, [collectionDataDesc]);
-
-  // 记录用户点击最近更新一话
-  const handleLatestNovel = async (item: any) => {
-    if (latestNovelItem?.itemId === item.itemId) {
-      const newLatestNovelData = [...(latestNovelData || [])];
-      const existingIndex = newLatestNovelData.findIndex((i: any) => i.id === id);
-
-      if (existingIndex !== -1) {
-        newLatestNovelData[existingIndex] = { id, info: item };
-      } else {
-        newLatestNovelData.push({ id, info: item });
-      }
-
-      setLatestNovelData(newLatestNovelData);
-      await freelogApp.setUserData("novelLatestViewedHistory", newLatestNovelData);
-    }
   };
 
   // 记录用户阅读历史
   const handleReaderHistory = async (item: any) => {
     const newHistoryNovelData = [...(historyNovelData || [])];
+    console.log("newHistoryNovelData", newHistoryNovelData);
     const existingIndex = newHistoryNovelData.findIndex((i: any) => i.id === id);
 
     if (existingIndex !== -1) {
@@ -505,15 +470,20 @@ const ReaderBody = () => {
         existingNovel.info = existingNovel.info ? [existingNovel.info] : [];
       }
 
-      // 检查当前章节是否已存在于记录中
-      const chapterIndex = existingNovel.info.findIndex((chapter: any) => {
+      // 检查当前章节是否已存在于记录中（只比较itemId）
+      const existingChapters = existingNovel.info.filter((chapter: any) => {
         return chapter.itemId === item.itemId;
       });
 
-      if (chapterIndex === -1) {
-        // 如果章节不存在，添加到数组中
-        existingNovel.info.push(item);
+      if (existingChapters.length > 0) {
+        // 如果章节已存在，删除所有相同itemId的旧数据
+        existingNovel.info = existingNovel.info.filter((chapter: any) => {
+          return chapter.itemId !== item.itemId;
+        });
       }
+
+      // 添加新数据
+      existingNovel.info.push(item);
 
       // 更新历史记录
       newHistoryNovelData[existingIndex] = existingNovel;
@@ -795,7 +765,6 @@ const ReaderBody = () => {
                     const subIdInfo = collectionList?.find((i: any) => i.itemId === preSubId);
                     if (subIdInfo) {
                       await handleReaderHistory(subIdInfo);
-                      await handleLatestNovel(subIdInfo);
                     }
 
                     scrollToTop();
@@ -818,7 +787,6 @@ const ReaderBody = () => {
                     const subIdInfo = collectionList?.find((i: any) => i.itemId === nextSubId);
                     if (subIdInfo) {
                       await handleReaderHistory(subIdInfo);
-                      await handleLatestNovel(subIdInfo);
                     }
 
                     scrollToTop();
