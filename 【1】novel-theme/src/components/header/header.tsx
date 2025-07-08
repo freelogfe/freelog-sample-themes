@@ -328,10 +328,9 @@ export const Header = (props: {
           <div className={`header-left ${!hasLogo && "no-logo"}`}>
             {/* logo */}
             {hasLogo && (
-              <img
+              <div
                 className="logo"
-                src={nodeInfo?.nodeLogo}
-                alt="logo"
+                style={{ backgroundImage: `url(${nodeInfo?.nodeLogo})` }}
                 onClick={() => history.switchPage("/home")}
               />
             )}
