@@ -796,8 +796,9 @@ export default {
     watch(
       () => scrollTop.value,
       cur => {
-        if (cur + clientHeight.value !== scrollHeight.value) return;
-        getCollectionList();
+        if (cur + clientHeight.value + 1 >= scrollHeight.value) {
+          getCollectionList();
+        }
       }
     );
 
