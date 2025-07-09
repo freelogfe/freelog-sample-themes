@@ -24,66 +24,83 @@ export const HomeScreen = (props: any) => {
   const [loading, setLoading] = useState(false);
   const [myloading, setMyloading] = useState(false);
   let skip = useRef(0);
+  const loadingRef = useRef(false);
 
   /** 获取小说列表 */
   const getNovelList = useCallback(
     async (init = false) => {
-      if (myloading) return;
+      if (loadingRef.current) return;
+
+      // 添加更精确的条件判断
+      if (!init && total !== null && total === novelList.length) {
+        console.log("已加载全部数据，无需继续请求");
+        return;
+      }
 
       setSearching(!!keywords);
 
-      if (total === novelList.length && !init) return;
-
       if (init) setLoading(true);
       setMyloading(true);
-      skip.current = init ? 0 : skip.current + 30;
-      const queryParams: any = {
-        articleResourceTypes: "文章,连载小说",
-        skip: skip.current,
-        limit: 30,
-        isLoadVersionProperty: 1
-      };
-      if (tags) queryParams.tags = tags;
-      if (keywords) queryParams.keywords = keywords;
+      loadingRef.current = true;
 
-      const list = await freelogApp.getExhibitListByPaging(queryParams);
-      const { dataList, totalItem } = list.data.data;
-      if (dataList.length !== 0) {
-        const ids = dataList.map(item => item.exhibitId).join();
-        const statusInfo = await freelogApp.getExhibitAuthStatus(ids);
-        if (statusInfo.data.data) {
-          for (const item of dataList as ExhibitItem[]) {
-            const index = statusInfo.data.data.findIndex(
-              (resultItem: { exhibitId: string }) => resultItem.exhibitId === item.exhibitId
-            );
-            if (index !== -1) {
-              item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
-            }
+      try {
+        skip.current = init ? 0 : skip.current + 30;
+        const queryParams: any = {
+          articleResourceTypes: "文章,连载小说",
+          skip: skip.current,
+          limit: 30,
+          isLoadVersionProperty: 1
+        };
+        if (tags) queryParams.tags = tags;
+        if (keywords) queryParams.keywords = keywords;
 
-            if (item.articleInfo.articleType === 2) {
-              const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
-                sortType: -1,
-                skip: 0,
-                limit: 50,
-                isShowDetailInfo: 1
-              });
+        const list = await freelogApp.getExhibitListByPaging(queryParams);
+        const { dataList, totalItem } = list.data.data;
+        console.log("dataList", dataList);
 
-              item.collectionList = res.data.data as any;
+        if (dataList.length !== 0) {
+          const ids = dataList.map(item => item.exhibitId).join();
+          const statusInfo = await freelogApp.getExhibitAuthStatus(ids);
+          if (statusInfo.data.data) {
+            for (const item of dataList as ExhibitItem[]) {
+              const index = statusInfo.data.data.findIndex(
+                (resultItem: { exhibitId: string }) => resultItem.exhibitId === item.exhibitId
+              );
+              if (index !== -1) {
+                item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+              }
+
+              if (item.articleInfo.articleType === 2) {
+                const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
+                  sortType: -1,
+                  skip: 0,
+                  limit: 50,
+                  isShowDetailInfo: 1
+                });
+
+                item.collectionList = res.data.data as any;
+              }
             }
           }
         }
+
+        setNovelList(pre =>
+          init
+            ? dataList.filter((i: any) => i.articleInfo?.status !== 2)
+            : [...pre, ...dataList].filter((i: any) => i.articleInfo?.status !== 2)
+        );
+        setTotal(totalItem);
+      } catch (error) {
+        console.error("获取小说列表失败:", error);
+      } finally {
+        // 确保无论成功或失败都会重置loading状态
+        if (init) setLoading(false);
+        setMyloading(false);
+        loadingRef.current = false;
       }
-      setNovelList(pre =>
-        init
-          ? dataList.filter((i: any) => i.articleInfo?.status !== 2)
-          : [...pre, ...dataList].filter((i: any) => i.articleInfo?.status !== 2)
-      );
-      setTotal(totalItem);
-      if (init) setLoading(false);
-      setMyloading(false);
     },
-    // eslint-disable-next-line
-    [novelList.length, total, tags, keywords]
+    // 优化依赖数组，避免不必要的重新创建
+    [total, novelList.length, tags, keywords]
   );
 
   useEffect(() => {
