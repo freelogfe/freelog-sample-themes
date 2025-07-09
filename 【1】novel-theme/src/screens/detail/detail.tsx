@@ -48,6 +48,8 @@ const getCollectionItemTitle = (novel: any, collectionItem: any) => {
   if (itemTitle === "collection_item_title_empty") {
     return (collectionItem?.articleInfo as any)?.articleTitle || "";
   }
+
+  return (collectionItem?.articleInfo as any)?.articleTitle || "";
 };
 
 /** 详情页 */

@@ -170,7 +170,7 @@
                   })
                 "
               >
-                <span class="sub-title">{{ item.itemTitle }}</span>
+                <span class="sub-title">{{ getCollectionItemTitle(comicInfo, item) }}</span>
 
                 <img
                   v-if="item.articleInfo?.status === 2"
@@ -431,7 +431,7 @@
                       !currentHistoryComic?.find(i => i.itemId === item.itemId) && 'is-latest'
                     "
                   >
-                    {{ item.itemTitle }}
+                    {{ getCollectionItemTitle(comicInfo, item) }}
                   </span>
                   <img
                     v-if="item.articleInfo?.status === 2"
@@ -783,6 +783,39 @@ export default {
       return null;
     });
 
+    /**
+     * 获取集合项目标题的公共函数
+     * @param comic 漫画对象
+     * @param collectionItem 集合项目对象
+     * @returns 返回应该显示的标题
+     */
+    const getCollectionItemTitle = (comic: any, collectionItem: any) => {
+      const itemTitle =
+        comic?.versionInfo?.exhibitProperty?.catalogueProperty?.collection_item_title;
+      // 作品标题
+      if (itemTitle === "collection_item_title_rtitle") {
+        return (collectionItem?.articleInfo as any)?.articleTitle || "";
+      }
+      // 连载编号
+      if (itemTitle === "collection_item_title_sn") {
+        return (
+          collectionItem?.articleInfo?.articleProperty?.number ||
+          (collectionItem?.articleInfo as any)?.articleTitle ||
+          ""
+        );
+      }
+      // 自定义
+      if (itemTitle === "collection_item_title_custom") {
+        return collectionItem.itemTitle || (collectionItem?.articleInfo as any)?.articleTitle || "";
+      }
+      // 不显示
+      if (itemTitle === "collection_item_title_empty") {
+        return (collectionItem?.articleInfo as any)?.articleTitle || "";
+      }
+
+      return (collectionItem?.articleInfo as any)?.articleTitle || "";
+    };
+
     // 当前漫画的阅读历史
     const currentHistoryComic = computed(() => {
       const res = historyComicData.value?.find((i: any) => i.id === id);
@@ -831,7 +864,8 @@ export default {
       latestComicItem,
       handleLatestComic,
       handleReaderHistory,
-      isClickedLatestComic
+      isClickedLatestComic,
+      getCollectionItemTitle
     };
   }
 };
