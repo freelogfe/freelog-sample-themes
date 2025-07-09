@@ -20,7 +20,12 @@ const datasOfGetList = useGetList();
 const data = reactive({
   sortPopupShow: false,
   createDateSortType: "-1",
-  searchData: { sort: "createDate:-1" } as { keywords?: string; tags?: string; sort?: string },
+  searchData: { sort: "createDate:-1", articleResourceTypes: "专栏" } as {
+    keywords?: string;
+    tags?: string;
+    sort?: string;
+    articleResourceTypes: string;
+  },
   blogInfoPopupShow: false,
   isInitial: true
 });
@@ -54,13 +59,14 @@ const setSort = (option: string) => {
 
   data.createDateSortType = option;
   data.searchData.sort = `createDate:${option}`;
+  data.searchData.articleResourceTypes = "专栏";
   datasOfGetList.getList(data.searchData, true);
 };
 
 // 获取博客列表
 const getData = () => {
   datasOfGetList.clearData();
-  datasOfGetList.getList({}, true);
+  datasOfGetList.getList({ articleResourceTypes: "专栏", sort: "createDate:-1" }, true);
 };
 
 const columnLength = computed(() => {
@@ -86,8 +92,8 @@ const availableListData = computed(() => {
 watch(
   () => scrollTop.value,
   cur => {
-    if (cur + clientHeight.value === scrollHeight.value && route.path === "/blog") {
-      datasOfGetList.getList();
+    if (cur + clientHeight.value + 1 >= scrollHeight.value && route.path === "/column") {
+      datasOfGetList.getList({ articleResourceTypes: "专栏" });
     }
   }
 );

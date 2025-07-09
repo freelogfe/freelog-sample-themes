@@ -211,7 +211,8 @@ import {
   computed,
   ref,
   onMounted,
-  onUnmounted
+  onUnmounted,
+  watchEffect
 } from "vue";
 import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
 import { useStore } from "vuex";
@@ -325,11 +326,17 @@ export default {
     watch(
       () => scrollTop.value,
       cur => {
-        if (cur + clientHeight.value === scrollHeight.value && route.path === "/home") {
+        if (cur + clientHeight.value + 1 >= scrollHeight.value && route.path === "/home") {
           datasOfGetList.getList();
         }
       }
     );
+
+    watchEffect(() => {
+      if (datasOfGetList.listData.value.length < datasOfGetList.total.value) {
+        datasOfGetList.getList();
+      }
+    });
 
     watch(
       () => query.value,
