@@ -392,10 +392,7 @@
                 </div>
               </div>
 
-              <div
-                class="latest-tip-box"
-                v-if="isClickedLatestComic?.info?.itemId !== latestComicItem.itemId"
-              >
+              <div class="latest-tip-box" v-if="!isLatestComicViewed">
                 <div class="latest-title">最近更新</div>
                 <div class="latest-comic">{{ latestComicItem?.itemTitle }}</div>
                 <span class="time">
@@ -415,7 +412,6 @@
                   :key="item.itemId"
                   @click="
                     async () => {
-                      await handleLatestComic(item);
                       await handleReaderHistory(item);
                       switchPage('/reader', {
                         id: comicInfo?.exhibitId,
@@ -425,12 +421,7 @@
                     }
                   "
                 >
-                  <span
-                    class="sub-title"
-                    :class="
-                      !currentHistoryComic?.find(i => i.itemId === item.itemId) && 'is-latest'
-                    "
-                  >
+                  <span class="sub-title" :class="!isChapterViewed(item) && 'is-latest'">
                     {{ getCollectionItemTitle(comicInfo, item) }}
                   </span>
                   <img
@@ -596,9 +587,6 @@ export default {
         freelogApp.getExhibitAuthStatus(id)
       ]);
 
-      const latestViewedResponse = await freelogApp.getUserData("comicLatestViewedHistory");
-      latestComicData.value = latestViewedResponse?.data?.data;
-
       const comicViewedResponse = await freelogApp.getUserData("comicViewedHistory");
       historyComicData.value = comicViewedResponse?.data?.data || [];
 
@@ -697,69 +685,50 @@ export default {
       collectionDataDesc.value = res.data.data as any;
     };
 
-    // 记录用户点击最近更新一话
-    const handleLatestComic = async (item: any) => {
-      if (latestComicItem?.value?.itemId === item.itemId) {
-        if (!latestComicData.value) {
-          latestComicData.value = [];
-        }
-
-        const existingIndex = latestComicData.value.findIndex((i: any) => i.id === id);
-
-        if (existingIndex !== -1) {
-          latestComicData.value[existingIndex] = { id, info: item };
-        } else {
-          latestComicData.value.push({ id, info: item });
-        }
-
-        await freelogApp.setUserData("comicLatestViewedHistory", latestComicData.value);
-      }
-    };
-
     // 记录用户阅读历史
     const handleReaderHistory = async (item: any) => {
-      if (!historyComicData.value) {
-        historyComicData.value = [];
-      }
-
-      // 查找当前漫画ID是否已存在于历史记录中
-      const existingIndex = historyComicData.value.findIndex((i: any) => i.id === id);
+      const newHistoryComicData = [...(historyComicData.value || [])];
+      const existingIndex = newHistoryComicData.findIndex((i: any) => i.id === id);
 
       if (existingIndex !== -1) {
-        // 如果漫画ID已存在，检查该章节是否已记录
-        const existingComic = historyComicData.value[existingIndex];
+        const existingComic = newHistoryComicData[existingIndex];
 
         // 确保info是一个数组
         if (!Array.isArray(existingComic.info)) {
           existingComic.info = existingComic.info ? [existingComic.info] : [];
         }
 
-        // 检查当前章节是否已存在于记录中
-        const chapterIndex = existingComic.info.findIndex((chapter: any) => {
+        // 检查当前章节是否已存在于记录中（只比较itemId）
+        const existingChapters = existingComic.info.filter((chapter: any) => {
           return chapter.itemId === item.itemId;
         });
 
-        if (chapterIndex !== -1) {
-          // 如果章节已存在，更新它
-          // existingComic.info[chapterIndex] = item;
-        } else {
-          // 如果章节不存在，添加到数组中
-          existingComic.info.push(item);
+        console.log("找到的重复章节数量", existingChapters.length);
+
+        if (existingChapters.length > 0) {
+          // 如果章节已存在，删除所有相同itemId的旧数据
+          existingComic.info = existingComic.info.filter((chapter: any) => {
+            return chapter.itemId !== item.itemId;
+          });
+          console.log("删除所有旧数据后", existingComic.info);
         }
 
+        // 添加新数据
+        existingComic.info.push(item);
+        console.log("添加新数据后", existingComic.info);
+
         // 更新历史记录
-        historyComicData.value[existingIndex] = existingComic;
+        newHistoryComicData[existingIndex] = existingComic;
       } else {
         // 如果漫画ID不存在，创建新记录，将info设为数组
-        historyComicData.value.push({
+        newHistoryComicData.push({
           id,
           info: [item]
         });
       }
 
-      // 保存到用户数据
-      await freelogApp.setUserData("comicViewedHistory", historyComicData.value);
-      // freelogApp.setUserData("comicViewedHistory", []);
+      historyComicData.value = newHistoryComicData;
+      await freelogApp.setUserData("comicViewedHistory", newHistoryComicData);
     };
 
     // 最近更新的一话
@@ -771,17 +740,33 @@ export default {
       return null;
     });
 
-    // 用户是否已点击最近更新一话
-    const isClickedLatestComic = computed(() => {
-      if (!latestComicData.value) return null;
-      const existingIndex = latestComicData.value.findIndex((i: any) => i.id === id);
+    // 当前漫画的阅读历史
+    const currentHistoryComic = computed(() => {
+      const res = historyComicData.value?.find((i: any) => i.id === id);
 
-      if (existingIndex !== -1) {
-        return latestComicData.value[existingIndex];
-      }
-
-      return null;
+      return res?.info || [];
     });
+
+    // 判断用户是不是看过最近更新一话
+    const isLatestComicViewed = computed(() => {
+      const historyItem = currentHistoryComic.value.find(
+        (item: any) => item.itemId === latestComicItem.value.itemId
+      );
+
+      console.log("所以时间一样吗", historyItem?.createDate === latestComicItem.value.createDate);
+      return historyItem?.createDate === latestComicItem.value.createDate;
+    });
+
+    // 判断某个章节是否已阅读过
+    const isChapterViewed = (chapterItem: any) => {
+      if (!chapterItem?.itemId) return false;
+
+      const historyItem = currentHistoryComic.value.find(
+        (item: any) => item.itemId === chapterItem.itemId
+      );
+
+      return historyItem?.createDate === chapterItem.createDate;
+    };
 
     /**
      * 获取集合项目标题的公共函数
@@ -815,13 +800,6 @@ export default {
 
       return (collectionItem?.articleInfo as any)?.articleTitle || "";
     };
-
-    // 当前漫画的阅读历史
-    const currentHistoryComic = computed(() => {
-      const res = historyComicData.value?.find((i: any) => i.id === id);
-
-      return res?.info || [];
-    });
 
     watch(
       () => introContent.value,
@@ -862,10 +840,10 @@ export default {
       historyComicData,
       currentHistoryComic,
       latestComicItem,
-      handleLatestComic,
       handleReaderHistory,
-      isClickedLatestComic,
-      getCollectionItemTitle
+      getCollectionItemTitle,
+      isLatestComicViewed,
+      isChapterViewed
     };
   }
 };

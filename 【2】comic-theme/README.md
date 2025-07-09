@@ -10,3 +10,8 @@
 ## 支持资源类型
 
 阅读/漫画
+
+
+## 有关  freelogApp.setUserData
+- "comicViewedHistory": 记录用户点击目录历史
+- "comicLastViewedHistory": 记录用户最后看到哪一章
