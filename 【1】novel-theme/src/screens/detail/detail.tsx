@@ -20,6 +20,58 @@ import "./detail.scss";
 
 const detailContext = React.createContext<any>({});
 
+// 防抖hook
+const useDebounce = <T,>(value: T, delay: number): T => {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    // 设置定时器，在delay毫秒后更新防抖值
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    // 清理函数：如果value在delay时间内再次变化，清除之前的定时器
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
+// 无限滚动hook
+const useInfiniteScroll = (
+  loadMore: () => void,
+  hasMore: boolean,
+  isLoading: boolean,
+  threshold: number = 50
+) => {
+  const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
+  const debouncedScrollTop = useDebounce(scrollTop, 100);
+
+  const isReachedBottom = useMemo(() => {
+    return scrollTop + clientHeight + threshold >= scrollHeight;
+  }, [scrollTop, clientHeight, scrollHeight, threshold]);
+
+  useEffect(() => {
+    if (!hasMore || isLoading) {
+      return;
+    }
+
+    if (isReachedBottom) {
+      loadMore();
+    }
+  }, [
+    debouncedScrollTop,
+    clientHeight,
+    scrollHeight,
+    hasMore,
+    isLoading,
+    isReachedBottom,
+    loadMore
+  ]);
+};
+
 /**
  * 获取集合项目标题的公共函数
  * @param novel 小说对象
@@ -54,7 +106,6 @@ const getCollectionItemTitle = (novel: any, collectionItem: any) => {
 
 /** 详情页 */
 export const DetailScreen = (props: any) => {
-  const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
   const { id } = getUrlParams(props.location.search);
   const [novel, setNovel] = useState<ExhibitItem | null>(null);
   const [total, setTotal] = useState<number>(0);
@@ -63,13 +114,20 @@ export const DetailScreen = (props: any) => {
   const [sortOrder, setSortOrder] = useState("asc");
   const [collectionDataDesc, setCollectionDataDesc] = useState<any>(null);
   const [historyNovelData, setHistoryNovelData] = useState<any[]>([]);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // 获取合集下的单品列表
   const getCollectionList = useCallback(
     async (init = false) => {
       try {
-        if (!init && (novel?.collectionList?.length ?? 0) >= total) {
+        // 如果正在加载更多数据，则直接返回，防止并发请求
+        if (!init && isLoadingMore) {
           return;
+        }
+
+        // 设置加载状态
+        if (!init) {
+          setIsLoadingMore(true);
         }
 
         skip.current = init ? 0 : skip.current + 50;
@@ -103,9 +161,14 @@ export const DetailScreen = (props: any) => {
         }
       } catch (error) {
         console.error("Failed to get collection list", error);
+      } finally {
+        // 无论成功还是失败，都重置加载状态
+        if (!init) {
+          setIsLoadingMore(false);
+        }
       }
     },
-    [id, novel]
+    [id, isLoadingMore]
   );
 
   /** 获取合集的倒序内容 */
@@ -190,7 +253,6 @@ export const DetailScreen = (props: any) => {
       ]);
 
       const novelViewedResponse = await freelogApp.getUserData("novelViewedHistory");
-      console.log("返回结果22", novelViewedResponse?.data?.data);
       setHistoryNovelData(novelViewedResponse?.data?.data || []);
 
       const articleType = exhibitInfo.data.data.articleInfo.articleType;
@@ -235,11 +297,12 @@ export const DetailScreen = (props: any) => {
     getNovelInfo();
   }, []);
 
-  useEffect(() => {
-    if (novel?.collectionList?.length && scrollTop + clientHeight + 1 >= scrollHeight) {
-      getCollectionList(false);
-    }
-  }, [scrollTop, clientHeight, scrollHeight]);
+  // 计算是否还有更多数据
+  const hasMore = useMemo(() => {
+    return novel?.collectionList?.length ? novel.collectionList.length < total : false;
+  }, [novel?.collectionList?.length, total]);
+
+  useInfiniteScroll(() => getCollectionList(false), hasMore, isLoadingMore, 50);
 
   return (
     <detailContext.Provider

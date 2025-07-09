@@ -202,8 +202,8 @@ export const useSearchHistory = () => {
 };
 
 /** 页面滚动 hook */
-export const useMyScroll = () => {
-  const app = document.getElementById("root");
+export const useMyScroll = (domClass = "root") => {
+  const app = document.getElementById(domClass);
   const [scrollTop, setScrollTop] = useState(0);
   const [clientHeight, setClientHeight] = useState(0);
   const [scrollHeight, setScrollHeight] = useState(0);

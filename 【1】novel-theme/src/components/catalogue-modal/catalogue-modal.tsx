@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback, useRef } from "react";
 import { freelogApp } from "freelog-runtime";
 import { useLocation } from "react-router-dom";
 import { globalContext } from "../../router";
@@ -25,7 +25,7 @@ export const CatalogueModal = (props: {
   const { inMobile } = useContext(globalContext);
   const id = book?.exhibitId;
 
-  const { scrollTop, clientHeight, scrollHeight, scrollToTop } = useMyScroll();
+  const { scrollTop, clientHeight, scrollHeight, scrollToTop } = useMyScroll("catalogue-box-body");
   const history = useMyHistory();
   const location = useLocation();
   const { subId } = getUrlParams(location.search);
@@ -36,6 +36,8 @@ export const CatalogueModal = (props: {
       : "asc"
   );
   const [historyNovelData, setHistoryNovelData] = useState<any[]>([]);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   /**
    * 切换正序，倒序
@@ -50,6 +52,27 @@ export const CatalogueModal = (props: {
     const novelViewedResponse = await freelogApp.getUserData("novelViewedHistory");
     setHistoryNovelData(novelViewedResponse?.data?.data || []);
   };
+
+  // 防抖处理滚动加载
+  const handleScrollLoad = useCallback(() => {
+    if (isLoadingMore || collectionList.length >= total) {
+      return;
+    }
+
+    setIsLoadingMore(true);
+    getCollectionList();
+
+    // 清理之前的定时器
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    // 设置一个延迟来重置加载状态，防止过快的连续请求
+    timeoutRef.current = setTimeout(() => {
+      setIsLoadingMore(false);
+      timeoutRef.current = null;
+    }, 500);
+  }, [isLoadingMore, collectionList.length, total, getCollectionList]);
 
   // 记录用户阅读历史
   const handleReaderHistory = async (item: any) => {
@@ -95,16 +118,30 @@ export const CatalogueModal = (props: {
 
   useEffect(() => {
     if (scrollTop + clientHeight + 1 >= scrollHeight) {
-      getCollectionList();
-      getCollectionListBySortTypeDesc();
+      handleScrollLoad();
     }
-  }, [scrollTop, clientHeight, scrollHeight, getCollectionList]);
+  }, [scrollTop, clientHeight, scrollHeight, handleScrollLoad]);
+
+  // 在组件初始化时获取历史数据
+  useEffect(() => {
+    getCollectionListBySortTypeDesc();
+  }, []);
+
+  // 清理定时器
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <React.Fragment>
       <div className="catalogue-modal" onClick={closeCatalogueModal}></div>
 
       <div
+        id="catalogue-box-body"
         className={`catalogue-box-body ${!inMobile && "pc"}`}
         onClick={e => {
           e.stopPropagation();
