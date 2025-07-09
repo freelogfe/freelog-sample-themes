@@ -457,7 +457,12 @@
             </div>
           </template>
 
-          <template v-else-if="![0, 4].includes(comicInfo?.defaulterIdentityType)">
+          <template
+            v-else-if="
+              comicInfo?.defaulterIdentityType != null &&
+              ![0, 4].includes(comicInfo?.defaulterIdentityType)
+            "
+          >
             <div
               class="exceptional-box"
               :class="{ light: theme === 'light', dark: theme === 'dark' }"
