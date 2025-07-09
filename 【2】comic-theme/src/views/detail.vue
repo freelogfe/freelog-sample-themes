@@ -293,9 +293,12 @@
                   <div class="on-going">连载中</div>
 
                   <div class="update-count">更新至{{ total }}话</div>
-                  最近更新：
-                  <div class="latest-comic">{{ latestComicItem?.itemTitle }}</div>
-                  {{ formatDate(latestComicItem?.articleInfo?.firstVersionReleaseDate) }}
+                  <div class="latest-comic-container">
+                    <div class="latest-comic">最近更新：{{ latestComicItem?.itemTitle }}</div>
+                    <div class="latest-comic-time">
+                      {{ formatDate(latestComicItem?.articleInfo?.firstVersionReleaseDate) }}
+                    </div>
+                  </div>
                 </div>
 
                 <div
@@ -305,9 +308,12 @@
                   <div class="completed">已完结</div>
 
                   <div class="update-count">共 {{ total }} 话</div>
-                  最近更新：
-                  <div class="latest-comic">{{ latestComicItem?.itemTitle }}</div>
-                  {{ formatDate(latestComicItem?.articleInfo?.firstVersionReleaseDate) }}
+                  <div class="latest-comic-container">
+                    <div class="latest-comic">最近更新：{{ latestComicItem?.itemTitle }}</div>
+                    <div class="latest-comic-time">
+                      {{ formatDate(latestComicItem?.articleInfo?.firstVersionReleaseDate) }}
+                    </div>
+                  </div>
                 </div>
               </div>
 
