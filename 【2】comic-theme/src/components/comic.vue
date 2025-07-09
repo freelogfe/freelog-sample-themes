@@ -661,9 +661,9 @@ export default {
       box-sizing: border-box;
 
       &.last-btn {
-        margin-left: 20px;
+        margin: 0 10px;
         background: rgba(0, 0, 0, 0.05);
-        color: rgba(0, 0, 0, 0.06);
+        color: rgba(0, 0, 0, 0.6);
 
         &:hover {
           background: rgba(0, 0, 0, 0.1);

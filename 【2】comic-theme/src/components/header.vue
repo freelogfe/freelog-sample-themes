@@ -175,7 +175,14 @@
     <div class="header-box">
       <div class="header-left" :class="{ 'no-logo': !hasLogo }">
         <!-- logo -->
-        <img class="logo" :src="nodeInfo?.nodeLogo" @click="switchPage('/home')" v-if="hasLogo" />
+        <!-- <img class="logo" :src="nodeInfo?.nodeLogo" @click="switchPage('/home')" v-if="hasLogo" /> -->
+
+        <div
+          class="logo"
+          v-if="hasLogo"
+          :style="{ backgroundImage: `url(${nodeInfo?.nodeLogo})` }"
+          @click="switchPage('/home')"
+        ></div>
 
         <!-- 搜索框 -->
         <div class="search-box" :class="{ 'no-logo': !hasLogo }">

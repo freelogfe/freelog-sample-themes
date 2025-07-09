@@ -484,8 +484,12 @@
       .logo {
         width: 125px;
         height: 50px;
-        object-fit: contain;
         cursor: pointer;
+        display: flex;
+        align-items: center;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: left center;
 
         .freelog {
           height: 24px;
