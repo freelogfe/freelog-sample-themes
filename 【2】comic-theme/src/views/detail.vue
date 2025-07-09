@@ -478,6 +478,18 @@ import { formatDate, showToast } from "@/utils/common";
 import { ExhibitItem, CollectionList } from "@/api/interface";
 import { State } from "@/store/index";
 
+// 添加防抖函数
+const debounce = <T extends (...args: any[]) => any>(
+  func: T,
+  delay: number
+): ((...args: Parameters<T>) => void) => {
+  let timeoutId: number;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(null, args), delay);
+  };
+};
+
 export default {
   name: "detail",
 
@@ -504,7 +516,10 @@ export default {
       shareShow: false,
       introState: 0,
       href: "",
-      shareWidget: null as WidgetController | null
+      shareWidget: null as WidgetController | null,
+      // 添加请求状态管理
+      loading: false,
+      requestId: 0
     });
     const historyComicData = ref<{ id: number; info: CollectionList[] }[]>([]);
 
@@ -646,30 +661,54 @@ export default {
       let { total, listData, skip } = collectionData;
 
       if (!init && listData.length >= total) return;
-      skip = init ? 0 : collectionData.skip + 50;
+      if (data.loading) return; // 如果正在加载，直接返回
 
-      const subList = await (freelogApp as any).getCollectionSubList(id, {
-        skip,
-        limit: 50
-      });
-      const { dataList, totalItem } = subList.data.data;
-      collectionData.total = totalItem;
+      data.loading = true;
+      const currentRequestId = ++data.requestId;
 
-      if (dataList.length !== 0) {
-        const ids = dataList.map((item: any) => item.itemId).join();
-        const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
-        if (statusInfo.data.data) {
-          (dataList as CollectionList[]).forEach(item => {
-            const index = statusInfo?.data?.data?.findIndex(
-              (resultItem: { itemId: string }) => resultItem.itemId === item.itemId
-            );
-            if (index !== -1) {
-              item.defaulterIdentityType = statusInfo?.data?.data[index].defaulterIdentityType;
-            }
-          });
+      try {
+        skip = init ? 0 : collectionData.skip + 50;
+
+        const subList = await (freelogApp as any).getCollectionSubList(id, {
+          skip,
+          limit: 50
+        });
+
+        // 检查是否是最新的请求
+        if (currentRequestId !== data.requestId) {
+          return; // 不是最新请求，放弃结果
         }
+
+        const { dataList, totalItem } = subList.data.data;
+        collectionData.total = totalItem;
+
+        if (dataList.length !== 0) {
+          const ids = dataList.map((item: any) => item.itemId).join();
+          const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
+
+          // 再次检查是否是最新的请求
+          if (currentRequestId !== data.requestId) {
+            return;
+          }
+
+          if (statusInfo.data.data) {
+            (dataList as CollectionList[]).forEach(item => {
+              const index = statusInfo?.data?.data?.findIndex(
+                (resultItem: { itemId: string }) => resultItem.itemId === item.itemId
+              );
+              if (index !== -1) {
+                item.defaulterIdentityType = statusInfo?.data?.data[index].defaulterIdentityType;
+              }
+            });
+          }
+        }
+        collectionData.listData = init ? dataList : [...listData, ...dataList];
+        collectionData.skip = skip; // 更新 skip 值
+      } catch (error) {
+        console.error("Error loading collection list:", error);
+      } finally {
+        data.loading = false;
       }
-      collectionData.listData = init ? dataList : [...listData, ...dataList];
     };
 
     /** 获取合集的倒序内容 */
@@ -809,11 +848,14 @@ export default {
       }
     );
 
+    // 创建防抖版本的 getCollectionList
+    const debouncedGetCollectionList = debounce(getCollectionList, 300);
+
     watch(
       () => scrollTop.value,
       cur => {
         if (cur + clientHeight.value + 1 >= scrollHeight.value) {
-          getCollectionList();
+          debouncedGetCollectionList();
         }
       }
     );
