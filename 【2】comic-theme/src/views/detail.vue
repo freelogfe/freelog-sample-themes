@@ -506,7 +506,6 @@ export default {
       href: "",
       shareWidget: null as WidgetController | null
     });
-    const latestComicData = ref<{ id: number; info: CollectionList[] }[]>([]);
     const historyComicData = ref<{ id: number; info: CollectionList[] }[]>([]);
 
     const collectionData = reactive({

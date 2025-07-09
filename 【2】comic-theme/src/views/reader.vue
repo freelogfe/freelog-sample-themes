@@ -2426,19 +2426,6 @@ export default {
       return `${width}px`;
     });
 
-    // 最近更新的一话
-    const latestComicItem = computed(() => {
-      if (data.comicInfo?.collectionList) {
-        const items = Array.from(data.comicInfo.collectionList).sort(
-          (a: any, b: any) => a.sortId - b.sortId
-        );
-
-        return items[items.length - 1];
-      }
-
-      return null;
-    });
-
     // 记录上一次阅读记录
     const handleLastViewedHistory = async (data: { id: string; subId: string }) => {
       const lastViewedResponse = await freelogApp.getUserData("comicLastViewedHistory");
