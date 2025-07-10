@@ -85,7 +85,8 @@ const getColumnList = async () => {
   subTempData.push(...dataList);
   exhibitInfo.value = {
     ...exhibitInfo.value,
-    collectionList: dataList
+    collectionList: dataList,
+    collectionListTotal: totalItem
   };
 
   if (subTempData.length < subTotal) {
@@ -196,28 +197,31 @@ onBeforeMount(() => {
         <div class="bottom">
           <div class="author-avatar">
             <img
-              :src="`https://image.freelog.com/avatar/${exhibitInfo?.articleInfo?.articleOwnerId}`"
+              :src="`https://image.freelog.com/avatar/${
+                exhibitInfo?.articleInfo?.articleOwnerId || exhibitInfo?.userId
+              }`"
               alt="头像"
             />
           </div>
-          <div class="author-name">{{ exhibitInfo?.articleInfo?.articleOwnerName }}</div>
+          <!-- <div class="author-name">{{ exhibitInfo?.articleInfo?.articleOwnerName }}</div> -->
           <div class="divider"></div>
           <div class="date">
             {{
               formatDate(exhibitInfo?.articleInfo?.versions?.[0]?.createDate) ||
-              formatDate(exhibitInfo?.articleInfo?.firstVersionReleaseDate)
+              formatDate(exhibitInfo?.articleInfo?.firstVersionReleaseDate) ||
+              formatDate(exhibitInfo?.createDate)
             }}
           </div>
           <div class="divider"></div>
           <span class="type">专栏</span>
           <div class="divider"></div>
-          <span
+          <!-- <span
             class="status"
             :class="exhibitInfo?.articleInfo?.serializeStatus === 1 ? 'completed' : 'ongoing'"
           >
             {{ exhibitInfo?.articleInfo?.serializeStatus === 1 ? "完结" : "更新中" }}
-          </span>
-          <span class="count">{{ exhibitInfo?.collectionList?.totalItem }}</span>
+          </span> -->
+          <span class="count">{{ exhibitInfo?.collectionListTotal }}</span>
         </div>
 
         <div class="tags" v-if="exhibitInfo?.tags?.length">

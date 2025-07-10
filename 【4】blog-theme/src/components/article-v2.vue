@@ -205,6 +205,7 @@ export default {
     overflow: hidden;
     border-radius: 5px;
     position: relative;
+    border: 1px solid #e5e7eb; /* 将border移到这里 */
 
     .article-cover {
       img {
@@ -212,8 +213,6 @@ export default {
         height: 100%;
         object-fit: cover;
         transition: transform 0.3s ease;
-        border: 1px solid #e5e7eb;
-        box-sizing: border-box;
         border-radius: 5px;
       }
     }
