@@ -79,7 +79,7 @@
         </div>
       </div>
     </div>
-    <div class="article-intro-container" v-if="data.exhibitIntro">
+    <div class="article-intro-container" v-if="data.exhibitIntro || data.articleInfo?.intro">
       <div
         class="article-intro"
         ref="introRef"
@@ -87,10 +87,10 @@
         @mouseenter="handleIntroHover"
         @mouseleave="showIntroTooltip = false"
       >
-        {{ data.exhibitIntro || "" }}
+        {{ data.exhibitIntro || data.articleInfo?.intro || "" }}
       </div>
       <div class="intro-tooltip" v-show="showIntroTooltip">
-        {{ data.exhibitIntro }}
+        {{ data.exhibitIntro || data.articleInfo?.intro }}
       </div>
     </div>
     <div class="tags" v-if="data?.tags?.length">

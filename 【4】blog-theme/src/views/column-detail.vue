@@ -199,19 +199,21 @@ const setShareWidgetShow = (value: boolean) => {
 
 watchEffect(() => {
   if (route.query.id !== exhibitId) {
+    const { scrollTo } = useMyScroll();
+    scrollTo(0, "auto");
+
     // 更新 exhibitId 值
     exhibitId = route.query.id as string;
 
-    const { scrollTo } = useMyScroll();
-
-    scrollTo(0, "auto");
-    console.log(888888);
     getExhibitInfo();
     getRecommendList();
   }
 });
 
 onBeforeMount(() => {
+  const { scrollTo } = useMyScroll();
+  scrollTo(0, "auto");
+
   getExhibitInfo();
   getRecommendList();
 });

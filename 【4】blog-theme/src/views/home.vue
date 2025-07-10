@@ -361,9 +361,6 @@ export default {
 
     onActivated(() => {
       if (router.options.history.state.replaced && !data.isInitial) {
-        const homeScrollTop = sessionStorage.getItem("homeScroll");
-        scrollTo(Number(homeScrollTop), "auto");
-
         const { authIds } = store.state;
         if (authIds?.length === 0) return;
 
@@ -377,10 +374,6 @@ export default {
       }
 
       data.isInitial = false;
-    });
-
-    onDeactivated(() => {
-      sessionStorage.setItem("homeScroll", String(scrollTop.value));
     });
 
     getData();
