@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import { freelogApp } from "freelog-runtime";
-import { ref, onBeforeMount, defineAsyncComponent, onMounted, nextTick } from "vue";
+import { ref, onBeforeMount, defineAsyncComponent, onMounted, nextTick, watchEffect } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
-import { useMyRouter } from "@/utils/hooks";
+import { useMyRouter, useMyScroll } from "@/utils/hooks";
 import { formatDate } from "@/utils/common";
+import { ExhibitItem } from "@/api/interface";
 const myArticleV2 = defineAsyncComponent(() => import("@/components/article-v2.vue"));
 const tags = defineAsyncComponent(() => import("@/components/tags.vue"));
 
 const route = useRoute();
 const store = useStore();
 const { switchPage } = useMyRouter();
-const exhibitId = route.query.id as string;
+let exhibitId = route.query.id as string;
 const exhibitInfo = ref<any>(null);
 const sortOrder = ref<string>("asc"); // 默认排序为正序
 const recommendList = ref<any[]>([]);
@@ -121,6 +122,35 @@ const getRecommendList = async () => {
   const { data: recommendData } = res.data;
 
   if (recommendData.length !== 0) {
+    const ids = recommendData.map((item: any) => item.exhibitId).join();
+    const [signCountData, statusInfo] = await Promise.all([
+      freelogApp.getExhibitSignCount(ids),
+      freelogApp.getExhibitAuthStatus(ids)
+    ]);
+
+    for (const item of recommendData as ExhibitItem[]) {
+      let index;
+      index = signCountData.data.data.findIndex(
+        (resultItem: { subjectId: string }) => resultItem.subjectId === item.exhibitId
+      );
+      if (index !== -1) item.signCount = signCountData.data.data[index].count;
+      index = statusInfo.data.data.findIndex(
+        (resultItem: { exhibitId: string }) => resultItem.exhibitId === item.exhibitId
+      );
+      if (index !== -1)
+        item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+
+      if (item.articleInfo.articleType === 3) {
+        const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
+          sortType: -1,
+          skip: 0,
+          limit: 1_000,
+          isShowDetailInfo: 1
+        });
+
+        item.collectionList = res.data.data as any;
+      }
+    }
     recommendList.value = recommendData;
   }
 };
@@ -166,6 +196,20 @@ const mountShareWidget = async () => {
 const setShareWidgetShow = (value: boolean) => {
   exhibitInfo.value.shareWidget?.setData({ show: value });
 };
+
+watchEffect(() => {
+  if (route.query.id !== exhibitId) {
+    // 更新 exhibitId 值
+    exhibitId = route.query.id as string;
+
+    const { scrollTo } = useMyScroll();
+
+    scrollTo(0, "auto");
+    console.log(888888);
+    getExhibitInfo();
+    getRecommendList();
+  }
+});
 
 onBeforeMount(() => {
   getExhibitInfo();
@@ -245,7 +289,7 @@ onBeforeMount(() => {
     <div class="recommend-column" v-if="recommendList.length">
       <div class="recommend-header">
         <div class="recommend-column-title">其他专栏</div>
-        <span class="more" @click="switchPage('/')">更多 >></span>
+        <span class="more" @click="switchPage('/column')">更多 >></span>
       </div>
 
       <!-- 推荐内容 -->
@@ -451,6 +495,7 @@ onBeforeMount(() => {
     .more {
       font-weight: 400;
       color: #0f2027;
+      cursor: pointer;
     }
   }
 }
