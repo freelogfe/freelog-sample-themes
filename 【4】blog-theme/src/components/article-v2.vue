@@ -27,7 +27,9 @@
     <div class="article-info">
       <div class="author-avatar">
         <img
-          :src="`https://image.freelog.com/avatar/${data.articleInfo.articleOwnerId}`"
+          :src="`https://image.freelog.com/avatar/${
+            data.articleInfo.articleOwnerId || data.userId
+          }`"
           alt="头像"
         />
       </div>
