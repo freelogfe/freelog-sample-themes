@@ -15,12 +15,12 @@
       <div class="column-status-wrapper" v-if="data.articleInfo?.articleType === 3">
         <span>专栏</span>
         <span class="divider"></span>
-        <span
+        <!-- <span
           class="status"
           :class="data.articleInfo?.serializeStatus === 1 ? 'completed' : 'ongoing'"
         >
           {{ data.articleInfo?.serializeStatus === 1 ? "完结" : "更新中" }}
-        </span>
+        </span> -->
         <span>{{ data?.collectionList?.totalItem }}</span>
       </div>
     </div>
