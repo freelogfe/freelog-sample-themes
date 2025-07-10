@@ -212,6 +212,9 @@ export default {
         height: 100%;
         object-fit: cover;
         transition: transform 0.3s ease;
+        border: 1px solid #e5e7eb;
+        box-sizing: border-box;
+        border-radius: 5px;
       }
     }
 
