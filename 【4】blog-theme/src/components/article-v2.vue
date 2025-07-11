@@ -39,7 +39,8 @@
       <span class="date">
         {{
           formatDate(data?.articleInfo?.versions?.[0]?.createDate) ||
-          formatDate(data?.articleInfo?.firstVersionReleaseDate)
+          formatDate(data?.articleInfo?.firstVersionReleaseDate) ||
+          formatDate(data?.createDate)
         }}
       </span>
     </div>

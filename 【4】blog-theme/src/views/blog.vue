@@ -61,7 +61,7 @@ const setSort = (option: string) => {
 // 获取博客列表
 const getData = () => {
   datasOfGetList.clearData();
-  datasOfGetList.getList({}, true);
+  datasOfGetList.getList(data.searchData, true);
 };
 
 const blogLength = computed(() => {
@@ -88,7 +88,7 @@ watch(
   () => scrollTop.value,
   cur => {
     if (cur + clientHeight.value + 1 >= scrollHeight.value && route.path === "/blog") {
-      datasOfGetList.getList();
+      datasOfGetList.getList(data.searchData);
     }
   }
 );

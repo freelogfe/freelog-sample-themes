@@ -214,7 +214,7 @@ import {
   onUnmounted,
   watchEffect
 } from "vue";
-import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
+import { useGetList, useMyRouter } from "../utils/hooks";
 import { useStore } from "vuex";
 import { freelogApp } from "freelog-runtime";
 
@@ -235,7 +235,6 @@ export default {
       ?.map((tag: string) => tag.trim()) // 去掉每个字符串的前后空格
       ?.filter((ele: string) => ele);
     const { query, route, router, switchPage } = useMyRouter();
-    const { scrollTop, clientHeight, scrollHeight, scrollTo } = useMyScroll();
     const datasOfGetList = useGetList();
 
     const data = reactive({
@@ -248,6 +247,26 @@ export default {
 
     const maxShowCount = ref(window.innerWidth >= 1300 ? 8 : 6);
 
+    // 防抖定时器
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    // 防抖函数
+    const debounce = (func: any, delay: number) => {
+      return (...args: any[]) => {
+        if (debounceTimer) {
+          clearTimeout(debounceTimer);
+        }
+        debounceTimer = setTimeout(() => {
+          func.apply(this, args);
+        }, delay);
+      };
+    };
+
+    // 防抖的获取数据函数
+    const debouncedGetList = debounce((searchData: any) => {
+      datasOfGetList.getList(searchData);
+    }, 300); // 300ms 防抖延迟
+
     const banner = computed(() => {
       return store.state.selfConfig.options_banner;
     });
@@ -257,8 +276,6 @@ export default {
     });
 
     const availableListData = computed(() => {
-      console.log(datasOfGetList.listData.value);
-
       return datasOfGetList.listData.value.filter(
         (ele: any) =>
           ele.articleInfo.articleType === 1 &&
@@ -289,14 +306,6 @@ export default {
       maxShowCount.value = window.innerWidth >= 1300 ? 8 : 6;
     };
 
-    onMounted(() => {
-      window.addEventListener("resize", updateMaxShowCount);
-    });
-
-    onUnmounted(() => {
-      window.removeEventListener("resize", updateMaxShowCount);
-    });
-
     const methods = {
       /** 排序 */
       sort(sortType: string) {
@@ -323,18 +332,10 @@ export default {
       }
     };
 
-    watch(
-      () => scrollTop.value,
-      cur => {
-        if (cur + clientHeight.value + 1 >= scrollHeight.value && route.path === "/home") {
-          datasOfGetList.getList();
-        }
-      }
-    );
-
     watchEffect(() => {
       if (datasOfGetList.listData.value.length < datasOfGetList.total.value) {
-        datasOfGetList.getList();
+        // 使用防抖函数来避免频繁请求
+        debouncedGetList(data.searchData);
       }
     });
 
@@ -358,6 +359,19 @@ export default {
       datasOfGetList.clearData();
       datasOfGetList.getList(data.searchData, true);
     };
+
+    onMounted(() => {
+      window.addEventListener("resize", updateMaxShowCount);
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener("resize", updateMaxShowCount);
+      // 清理防抖定时器
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+        debounceTimer = null;
+      }
+    });
 
     onActivated(() => {
       if (router.options.history.state.replaced && !data.isInitial) {
