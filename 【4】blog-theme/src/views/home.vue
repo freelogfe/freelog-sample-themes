@@ -160,7 +160,7 @@
         </div>
 
         <div class="blog-count">
-          <span>博客总数{{ availableListData?.length }}</span>
+          <span>博客总数{{ isAllLoaded ? availableListData?.length : "" }}</span>
           <span @click="switchPage('/blog')">查看全部</span>
         </div>
       </div>
@@ -203,8 +203,6 @@
 <script lang="ts">
 import {
   defineAsyncComponent,
-  onActivated,
-  onDeactivated,
   reactive,
   toRefs,
   watch,
@@ -244,6 +242,7 @@ export default {
       blogInfoPopupShow: false,
       isInitial: true
     });
+    const isAllLoaded = ref(false);
 
     const maxShowCount = ref(window.innerWidth >= 1300 ? 8 : 6);
 
@@ -276,12 +275,7 @@ export default {
     });
 
     const availableListData = computed(() => {
-      return datasOfGetList.listData.value.filter(
-        (ele: any) =>
-          ele.articleInfo.articleType === 1 &&
-          ele.articleInfo.status === 1 &&
-          [0, 4].includes(ele.defaulterIdentityType!)
-      );
+      return datasOfGetList.listData.value.filter((ele: any) => ele.articleInfo.articleType === 1);
     });
 
     const collectionsData = computed(() => {
@@ -333,6 +327,13 @@ export default {
     };
 
     watchEffect(() => {
+      if (
+        datasOfGetList.listData.value.length &&
+        datasOfGetList.listData.value.length === datasOfGetList.total.value
+      ) {
+        isAllLoaded.value = true;
+      }
+
       if (datasOfGetList.listData.value.length < datasOfGetList.total.value) {
         // 使用防抖函数来避免频繁请求
         debouncedGetList(data.searchData);
@@ -373,23 +374,6 @@ export default {
       }
     });
 
-    onActivated(() => {
-      if (router.options.history.state.replaced && !data.isInitial) {
-        const { authIds } = store.state;
-        if (authIds?.length === 0) return;
-
-        authIds.forEach((id: string) => {
-          const index = datasOfGetList.listData.value.findIndex(item => item.exhibitId === id);
-          if (index !== -1) datasOfGetList.listData.value[index].defaulterIdentityType = 0;
-        });
-        store.commit("setData", { key: "authIds", value: [] });
-      } else {
-        getData();
-      }
-
-      data.isInitial = false;
-    });
-
     getData();
 
     return {
@@ -405,7 +389,8 @@ export default {
       switchPage,
       displayListData,
       displayListCollectionData,
-      collectionsData
+      collectionsData,
+      isAllLoaded
     };
   }
 };

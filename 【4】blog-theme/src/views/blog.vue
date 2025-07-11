@@ -21,7 +21,11 @@ const datasOfGetList = useGetList();
 const data = reactive({
   sortPopupShow: false,
   createDateSortType: "-1",
-  searchData: { sort: "createDate:-1" } as { keywords?: string; tags?: string; sort?: string },
+  searchData: { sort: "createDate:-1", articleResourceTypes: "文章" } as {
+    keywords?: string;
+    tags?: string;
+    sort?: string;
+  },
   blogInfoPopupShow: false,
   isInitial: true
 });
@@ -63,10 +67,6 @@ const getData = () => {
   datasOfGetList.clearData();
   datasOfGetList.getList(data.searchData, true);
 };
-
-const blogLength = computed(() => {
-  return datasOfGetList.listData.value.filter(ele => ele.articleInfo.articleType === 1).length;
-});
 
 const availableListData = computed(() => {
   // 基础过滤条件：只显示博客类型且状态正常且身份类型为0或4的文章
@@ -121,7 +121,7 @@ onBeforeMount(() => {
     <!-- 头部 -->
     <div class="blog-header">
       <div class="blog-header-title">博客</div>
-      <div class="blog-header-count">总数{{ blogLength }}</div>
+      <div class="blog-header-count">总数{{ datasOfGetList.total }}</div>
     </div>
     <!-- 排序筛选 -->
     <div class="blog-filter">
