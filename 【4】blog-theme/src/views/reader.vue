@@ -136,23 +136,6 @@
             <my-article-v2 :data="item" v-for="item in recommendList" :key="item.exhibitId" />
           </div>
         </div>
-
-        <div class="prev-next-row">
-          <div class="prev-card">
-            <div class="card-header">
-              <span class="card-icon"></span>
-              <span class="card-label">上一篇</span>
-            </div>
-            <div class="card-title">勤劳总会有收获…虽然很少…</div>
-          </div>
-          <div class="next-card">
-            <div class="card-header">
-              <span class="card-label">下一篇</span>
-              <span class="card-icon"></span>
-            </div>
-            <div class="card-title">种地是个技术活</div>
-          </div>
-        </div>
       </div>
 
       <!-- PC -->
@@ -453,12 +436,20 @@ export default {
     const getCollectionInfo = async () => {
       const { id, itemId } = query.value;
 
-      const res = await (freelogApp as any).getCollectionSubInfo(id, { itemId });
+      const [subInfo, subList] = await Promise.all([
+        (freelogApp as any).getCollectionSubInfo(id, { itemId }),
+        (freelogApp as any).getCollectionSubList(id, {
+          skip: 0,
+          limit: 1000
+        })
+      ]);
 
       data.articleData = {
         ...data.articleData,
-        collectionInfo: res.data.data
+        collectionInfo: subInfo.data.data
       } as any;
+
+      data.collectionList = subList.data.data;
     };
 
     /** 获取文章信息与内容 */
@@ -525,24 +516,8 @@ export default {
       nextTick(() => {
         mountMarkdownWidget();
       });
-      await datasOfGetList.getList({ limit: 30 }, true);
 
-      // 合集列表
-      if (data.articleData?.articleInfo?.articleType === 3) {
-        const collectionList = datasOfGetList.listData.value.filter(
-          (item: any) => item.exhibitId === id
-        );
-
-        data.collectionList = collectionList[0].collectionList;
-      }
-
-      const recommendList = datasOfGetList.listData.value
-        .filter((item: any) => item.exhibitId !== id)
-        .filter(
-          (ele: any) => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType!)
-        );
-
-      data.recommendList = recommendList.slice(0, 6);
+      getRecommendList();
     };
 
     /** 刷新授权状态 */
@@ -630,6 +605,50 @@ export default {
           );
         }
       }, 1500);
+    };
+
+    // 获取推荐列表
+    const getRecommendList = async () => {
+      const { id } = query.value;
+
+      const res = await (freelogApp as any).getExhibitRecommend(id, {
+        recommendNorm: "sameAuthorAndType,sameTagAndType,sameType,latestCreate",
+        size: 10
+      });
+      const { data: recommendData } = res.data;
+
+      if (recommendData.length !== 0) {
+        const ids = recommendData.map((item: any) => item.exhibitId).join();
+        const [signCountData, statusInfo] = await Promise.all([
+          freelogApp.getExhibitSignCount(ids),
+          freelogApp.getExhibitAuthStatus(ids)
+        ]);
+
+        for (const item of recommendData as ExhibitItem[]) {
+          let index;
+          index = signCountData.data.data.findIndex(
+            (resultItem: { subjectId: string }) => resultItem.subjectId === item.exhibitId
+          );
+          if (index !== -1) item.signCount = signCountData.data.data[index].count;
+          index = statusInfo.data.data.findIndex(
+            (resultItem: { exhibitId: string }) => resultItem.exhibitId === item.exhibitId
+          );
+          if (index !== -1)
+            item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+
+          if (item.articleInfo.articleType === 3) {
+            const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
+              sortType: -1,
+              skip: 0,
+              limit: 1_000,
+              isShowDetailInfo: 1
+            });
+
+            item.collectionList = res.data.data as any;
+          }
+        }
+        data.recommendList = recommendData.slice(0, 6);
+      }
     };
 
     const prevArticle = computed(() => {
@@ -1395,7 +1414,7 @@ export default {
     font-weight: 600;
     color: #222222;
     line-height: 22px;
-    margin-bottom: 30px;
+    // margin-bottom: 30px;
   }
 
   .article-list {
