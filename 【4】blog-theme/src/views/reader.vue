@@ -165,8 +165,39 @@
             </div>
           </div>
           <div class="other-info">
-            <div class="info">
-              {{ formatDate(articleData?.articleInfo?.versions?.[0]?.createDate) }}
+            <div class="author-avatar">
+              <img
+                :src="`https://image.freelog.com/avatar/${
+                  articleData.articleInfo.articleOwnerId || articleData.userId
+                }`"
+                alt="头像"
+              />
+            </div>
+            <div class="divider"></div>
+
+            <span class="author-name">
+              {{ articleData.articleInfo.articleOwnerName }}
+            </span>
+
+            <div class="divider" v-if="articleData.articleInfo.articleOwnerName"></div>
+
+            <span class="date">
+              {{
+                formatDate(articleData?.articleInfo?.versions?.[0]?.createDate) ||
+                formatDate(articleData?.articleInfo?.firstVersionReleaseDate) ||
+                formatDate(articleData?.createDate)
+              }}
+            </span>
+
+            <!-- 所属专栏 -->
+            <div class="divider" v-if="articleData?.articleInfo?.articleType === 3"></div>
+            <div class="column-label-title" v-if="articleData?.articleInfo?.articleType === 3">
+              <span class="column-label">所属专栏</span>
+              <span
+                class="column-title"
+                @click="switchPage('/column-detail', { id: articleData?.exhibitId })"
+                >{{ articleData?.exhibitTitle }}</span
+              >
             </div>
           </div>
           <div class="tags" v-if="articleData?.tags?.length">
@@ -1032,6 +1063,33 @@ export default {
         display: flex;
         align-items: center;
 
+        .author-avatar {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          overflow: hidden;
+          border: 1px solid #e5e7eb;
+          img {
+            width: 100%;
+            height: 100%;
+          }
+        }
+
+        .author-name {
+          font-weight: 400;
+          font-size: 12px;
+          color: #666666;
+          line-height: 18px;
+        }
+
+        .date {
+          font-weight: 400;
+          font-size: 12px;
+          color: #666666;
+          line-height: 18px;
+          // margin-left: auto;
+        }
+
         .info {
           flex-shrink: 0;
           font-size: 12px;
@@ -1045,6 +1103,27 @@ export default {
           height: 14px;
           background: rgba(0, 0, 0, 0.15);
           margin: 0 10px;
+        }
+
+        .column-label-title {
+          margin-top: 0px !important;
+
+          .column-label {
+            font-weight: 400;
+            font-size: 12px;
+            color: #666666;
+            line-height: 18px;
+            margin-right: 5px;
+          }
+
+          .column-title {
+            font-weight: 400;
+            font-size: 12px;
+            color: #666666;
+            line-height: 18px;
+            text-decoration: underline;
+            cursor: pointer;
+          }
         }
       }
 

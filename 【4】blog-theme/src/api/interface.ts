@@ -14,6 +14,7 @@ export interface ExhibitItem extends ExhibitInfo {
     articleType: number;
     articleOwnerId: number;
     articleOwnerName: string;
+    firstVersionReleaseDate: string;
     resourceType: string[];
     versions: {
       version: string;
