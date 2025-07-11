@@ -94,8 +94,11 @@
         {{ data.exhibitIntro || data.articleInfo?.intro }}
       </div>
     </div>
-    <div class="tags" v-if="data?.tags?.length">
-      <tags :tags="data?.tags" :maxWidthObj="{ isVaild: false, maxWidth: 80 }" />
+    <div class="tags" v-if="data?.tags?.length || data?.articleInfo?.articleTags?.length">
+      <tags
+        :tags="data?.tags || data?.articleInfo?.articleTags"
+        :maxWidthObj="{ isVaild: false, maxWidth: 80 }"
+      />
     </div>
   </div>
 </template>
