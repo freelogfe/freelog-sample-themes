@@ -224,16 +224,17 @@
                         <div
                           class="directory-item"
                           :class="{
-                            active: currentTitle === item.innerText && index === currentIndex,
+                            active:
+                              currentTitle === item.innerText.trim() && index === currentIndex,
                             second: item.nodeName === 'H2',
                             third: item.nodeName === 'H3'
                           }"
-                          :title="item.innerText"
+                          :title="item.innerText.trim()"
                           v-for="(item, index) in directoryList"
                           :key="item.id"
                           @click="jumpToTitle(item.innerText, index)"
                         >
-                          <span>{{ item.innerText }}</span>
+                          <span>{{ item.innerText.trim() }}</span>
                         </div>
                       </div>
                     </div>
