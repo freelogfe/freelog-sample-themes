@@ -304,7 +304,7 @@ onBeforeMount(() => {
 
 <style scoped lang="scss">
 .column-detail-wrapper {
-  max-width: 1600px;
+  max-width: 965px;
   padding-top: 20px;
   margin: 0 auto;
 
@@ -502,9 +502,9 @@ onBeforeMount(() => {
   }
 }
 
-@media screen and (min-width: 1300px) {
-  .article-list {
-    grid-template-columns: repeat(4, 1fr) !important;
-  }
-}
+// @media screen and (min-width: 1300px) {
+//   .article-list {
+//     grid-template-columns: repeat(4, 1fr) !important;
+//   }
+// }
 </style>
