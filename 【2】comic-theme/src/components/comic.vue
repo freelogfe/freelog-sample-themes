@@ -180,8 +180,7 @@
           disabled:
             data.articleInfo?.status === 2 ||
             data.onlineStatus === 0 ||
-            ![0, 4].includes(data.defaulterIdentityType) ||
-            !['阅读'].includes(data.articleInfo?.resourceType[0])
+            ![0, 4].includes(data.defaulterIdentityType)
         }"
         @click.stop="toPath('/detail')"
         v-if="[2, 3].includes(mode)"
