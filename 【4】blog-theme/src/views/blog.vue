@@ -144,6 +144,7 @@ onBeforeMount(() => {
           :key="option"
           class="tag-btn"
           :class="{ active: activeFilter === option }"
+          :title="option"
           @click="setFilter(option)"
         >
           {{ option }}
@@ -186,7 +187,8 @@ onBeforeMount(() => {
 
     .filter-row {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
+      flex-wrap: wrap;
       margin-bottom: 8px;
 
       span {
@@ -194,6 +196,7 @@ onBeforeMount(() => {
         color: #222222;
         margin-right: 10px;
         flex-shrink: 0;
+        line-height: 26px;
       }
 
       .filter-btn {
@@ -217,12 +220,18 @@ onBeforeMount(() => {
 
       .tag-btn {
         margin-right: 20px;
+        margin-bottom: 15px;
         padding: 3px 10px;
         border: none;
         border-radius: 13px;
         color: #222222;
         font-size: 14px;
         cursor: pointer;
+        max-width: 250px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
 
         &:hover:not(.active) {
           color: #222222;
@@ -237,7 +246,7 @@ onBeforeMount(() => {
   }
 
   .article-list {
-    margin-top: 40px;
+    margin-top: 25px;
   }
 }
 
