@@ -297,6 +297,7 @@ export default {
         { value: "/home", label: "首页" },
         { value: "/voice-list", label: "音乐" },
         { value: "/album-list", label: "专辑" },
+        { value: "/play-list", label: "歌单" },
         { value: "/collection-list", label: "收藏" }
       ],
       store,

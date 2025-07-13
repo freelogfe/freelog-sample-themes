@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Album: typeof import('./src/components/album.vue')['default']
+    copy: typeof import('./src/components/album copy.vue')['default']
     ElPopover: typeof import('element-plus/es')['ElPopover']
     ElProgress: typeof import('element-plus/es')['ElProgress']
     ElSkeleton: typeof import('element-plus/es')['ElSkeleton']
@@ -20,6 +21,7 @@ declare module 'vue' {
     List: typeof import('./src/components/list.vue')['default']
     MobileAlbum: typeof import('./src/components/mobile-album.vue')['default']
     Player: typeof import('./src/components/player.vue')['default']
+    PlayList: typeof import('./src/components/play-list.vue')['default']
     PlayStatus: typeof import('./src/components/play-status.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

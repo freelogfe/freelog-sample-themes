@@ -1,3 +1,4 @@
+import { ref } from "vue";
 import { freelogApp } from "freelog-runtime";
 import { storeToRefs } from "pinia";
 import { useGlobalStore } from "@/store/global";
@@ -67,6 +68,68 @@ export const useCommon = {
 
     return await fetchCollectionList();
   }
+};
+
+export const useGetList = params => {
+  const playListData = ref({
+    total: 0,
+    listData: []
+  });
+
+  /** 获取歌单列表 */
+  const getPlayList = async () => {
+    const queryParams = {
+      articleResourceTypes: "歌单",
+      isLoadVersionProperty: 1,
+      limit: 100
+    };
+
+    if (
+      playListData.value.listData.length !== 0 &&
+      playListData.value.listData.length === playListData.value.total
+    ) {
+      return;
+    }
+
+    const list = await freelogApp.getExhibitListByPaging(queryParams);
+    const { dataList, totalItem } = list.data.data;
+
+    if (dataList.length !== 0) {
+      const ids = dataList.map(item => item.exhibitId).join();
+
+      const statusInfo = await freelogApp.getExhibitAuthStatus(ids);
+
+      // 使用for...of确保顺序执行
+      for (const item of dataList) {
+        const index = statusInfo.data.data.findIndex(
+          resultItem => resultItem.exhibitId === item.exhibitId
+        );
+        if (index !== -1) {
+          item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+        }
+
+        if (item.articleInfo.articleType === 3) {
+          const res = await freelogApp.getCollectionSubList(item.exhibitId, {
+            sortType: -1,
+            skip: 0,
+            limit: 1_000,
+            isShowDetailInfo: 1
+          });
+
+          item.collectionList = res.data.data;
+        }
+      }
+
+      // 将数据添加移到循环外面，只添加一次
+      playListData.value.listData = dataList;
+      playListData.value.total = totalItem;
+    }
+  };
+
+  return {
+    getPlayList,
+    playListData: playListData.value
+  };
 };
 /** 授权 hook */
 export const useMyAuth = {
@@ -298,7 +361,7 @@ export const useMyPlay = {
           freelogApp.getExhibitAuthStatus(item.exhibitId)
         ]);
 
-        if (list.data.data[0].articleInfo.articleType === 2) {
+        if (list.data.data[0].articleInfo?.articleType === 2) {
           const params = {
             collectionID: list.data.data[0].exhibitId,
             exhibitName: list.data.data[0].exhibitName,

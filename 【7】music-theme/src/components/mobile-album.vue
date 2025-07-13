@@ -24,7 +24,7 @@ const router = useRouter();
 const store = useGlobalStore();
 const collectionData = ref<Exhibit[]>([]);
 const albumData = ref<Exhibit[]>(
-  props.data.sort((a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime())
+  props.data?.sort((a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime())
 );
 const dropVisible = ref<boolean>(false);
 const selectedValue = ref<number>(1); // 1-最新发布 2-最早发布

@@ -6,13 +6,15 @@ import { useGlobalStore } from "@/store/global";
 import HomeBanner from "./home-banner.vue";
 import HomePopular from "./home-popular.vue";
 import HomeAlbum from "@/components/album.vue";
-
+import HomePlayList from "@/components/play-list.vue";
+import { useGetList } from "@/utils/hooks";
 import type { Exhibit } from "@/interface";
 
 const store = useGlobalStore();
 const listData = ref<Exhibit[]>([]);
 const albumData = ref<Exhibit[]>([]);
 const loading = ref<boolean>(false);
+const datasOfGetList = useGetList();
 
 watch(
   () => store.authIdList,
@@ -32,6 +34,11 @@ const popularData = computed(() => {
     .slice(0, 12);
 
   return data;
+});
+
+// 歌单列表
+const playListData = computed(() => {
+  return datasOfGetList.playListData;
 });
 
 /** 获取展品列表 */
@@ -148,6 +155,7 @@ const getCollectionList = async (
 
 onBeforeMount(() => {
   getList();
+  datasOfGetList.getPlayList();
 });
 </script>
 
@@ -160,6 +168,7 @@ onBeforeMount(() => {
   >
     <HomePopular hasHeader :data="popularData" />
     <HomeAlbum hasHeader :data="albumData.slice(0, 5)" />
+    <HomePlayList hasHeader :data="playListData?.listData?.slice(0, 5)" />
   </div>
 </template>
 

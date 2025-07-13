@@ -119,7 +119,7 @@
           </div>
         </div>
 
-        <div class="bottom-area" v-if="voiceInfo?.articleInfo.articleType === 2">
+        <div class="bottom-area" v-if="voiceInfo?.articleInfo.articleType === 3">
           <div class="tab-box">
             <div class="tab" :class="tab === 1 && 'active'" @click="changeTab(1)">音乐</div>
             <div class="tab" :class="tab === 2 && 'active'" @click="changeTab(2)">专辑介绍</div>
@@ -358,51 +358,6 @@
         </div>
       </div>
 
-      <!-- <div class="freeze-exhibit" v-else>
-        <div class="freeze-info">
-          <div ref="cover" class="cover-area">
-            <img class="cover" :src="voiceInfo?.coverImages[0]" />
-            <div class="btn-modal" v-if="ifSupportMime">
-              <div class="btn" @click.stop="playOrPause">
-                <i
-                  class="freelog"
-                  :class="playing ? 'fl-icon-zanting' : 'fl-icon-bofang-sanjiaoxing'"
-                ></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="title-area">
-            <img class="auth-link-abnormal" :src="AuthLinkAbnormalIcon" v-if="authLinkAbnormal" />
-            <i
-              class="freelog fl-icon-suoding lock"
-              @click.stop="getAuth()"
-              v-if="voiceInfo?.defaulterIdentityType >= 4"
-            ></i>
-
-      
-            <span class="title" @click.stop="getAuth()">{{ voiceInfo?.exhibitTitle }}</span>
-          </div>
-        </div>
-        <div class="desc">
-          <div class="time-box">
-            <div class="icon">
-              <img :src="TimeIcon" alt="更新时间" />
-            </div>
-            <span class="time">{{ absoluteTime(voiceInfo.updateDate) }}</span>
-          </div>
-
-          <div class="album-box" v-if="voiceInfo.articleInfo.articleType === 2">
-            收录于
-            <span class="album-name">{{ voiceInfo.articleInfo.exhibitName }}</span>
-          </div>
-        </div>
-
-        <div class="icon">
-          <i class="freelog fl-icon-ziyuanweiguitishi_yinle freeze"></i>
-        </div>
-      </div> -->
-
       <div v-else class="freeze-exhibit">
         <div class="icon">
           <i class="freelog fl-icon-yichang_yinleziyuan freeze"> </i>
@@ -413,6 +368,7 @@
 
     <!-- PC -->
     <div class="pc-detail-wrapper" v-if="!store.inMobile">
+      {{ voiceInfo }}
       <template v-if="!['音频'].includes(voiceInfo?.articleInfo.resourceType[0])">
         <div className="exceptional-box">
           <div className="icon">
@@ -479,7 +435,7 @@
                 class="item-album"
                 @click="
                   $router.push({
-                    path: '/detail',
+                    path: '/play-detail',
                     query: { id: voiceInfo?.exhibitId }
                   })
                 "
@@ -645,7 +601,7 @@
             </template>
           </div>
 
-          <div class="album-content" v-if="voiceInfo?.articleInfo.articleType === 2">
+          <div class="album-content" v-if="voiceInfo?.articleInfo.articleType === 3">
             <div class="title">包含音乐（{{ collectionData.length }}）</div>
             <div class="content-item-wrap">
               <div
@@ -664,7 +620,7 @@
                   class="music"
                   @click="
                     $router.myPush({
-                      path: '/detail',
+                      path: '/play-detail',
                       query: { id: item.exhibitId, subID: item.itemId, albumName: item.albumName }
                     })
                   "
@@ -856,7 +812,7 @@ export default {
 
     /** 是否为支持格式 */
     ifSupportMime() {
-      if (this.voiceInfo?.articleInfo?.articleType === 2) {
+      if (this.voiceInfo?.articleInfo?.articleType === 3) {
         return true;
       }
       const supportMimeList = [
@@ -876,7 +832,7 @@ export default {
       const playingId = `${playingInfo?.exhibitId}${playingInfo?.itemId ?? ""}`;
       const exhibit = `${this.voiceInfo.exhibitId}${this.voiceInfo.itemId ?? ""}`;
       // 判断是否是合集
-      const isCollection = this.voiceInfo.articleInfo.articleType === 2;
+      const isCollection = this.voiceInfo.articleInfo.articleType === 3;
 
       if (isCollection) {
         return playing && playingInfo?.exhibitId === this.voiceInfo.exhibitId;
@@ -999,7 +955,7 @@ export default {
     toMusicDetail(item) {
       this.moreMenuShow = false;
       this.$router.myPush({
-        path: "/detail",
+        path: "/play-detail",
         query: { id: item.exhibitId, subID: item.itemId, albumName: item.albumName }
       });
     },
@@ -1157,7 +1113,7 @@ export default {
     /** 播放/暂停 */
     playOrPause(item) {
       // 判断是否是合集
-      const isCollection = this.voiceInfo.articleInfo.articleType === 2;
+      const isCollection = this.voiceInfo.articleInfo.articleType === 3;
 
       if (isCollection) {
         if (item.itemId) {
@@ -1241,27 +1197,26 @@ export default {
           url,
           onlineStatus: exhibitInfo.data.data.onlineStatus
         };
-
-        console.log("voiceInfo", this.voiceInfo, exhibitInfo.data.data);
       } else {
         // 普通展品
-        const [exhibitInfo, signCountData, statusInfo, url] = await Promise.all([
+        const [exhibitInfo, statusInfo, url] = await Promise.all([
           freelogApp.getExhibitInfo(this.id, { isLoadVersionProperty: 1 }),
-          freelogApp.getExhibitSignCount(this.id),
           freelogApp.getExhibitAuthStatus(this.id),
           freelogApp.getExhibitFileStream(this.id, { returnUrl: true })
         ]);
+
         this.voiceInfo = {
           ...exhibitInfo.data.data,
-          signCount: signCountData.data.data[0].count,
           defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
           url
         };
 
+        console.log("voiceInfo", this.voiceInfo);
+
         // 合集
         const { articleInfo, exhibitName, coverImages, onlineStatus, versionInfo } =
           exhibitInfo.data.data;
-        if (articleInfo.articleType === 2) {
+        if (articleInfo.articleType === 3) {
           this.collectionData = [];
           this.getCollectionList(this.id, exhibitName, coverImages, onlineStatus, versionInfo);
         }

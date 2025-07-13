@@ -27,9 +27,11 @@ const props = defineProps<{
 const route = useRoute();
 const router = useRouter();
 const store = useGlobalStore();
-const albumData = ref<Exhibit[]>(
-  props.data?.sort((a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime())
+const playListData = ref<Exhibit[]>(
+  props.data?.sort((a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime()) ||
+    []
 );
+console.log("产过来的", playListData.value);
 const collectionData = ref<Exhibit[]>([]);
 const dropVisible = ref<boolean>(false);
 const selectedValue = ref<number>(1); // 1-最新发布 2-最早发布
@@ -61,7 +63,7 @@ const getAuth = data => {
   useMyAuth.getAuth(data);
 };
 
-/** 播放▶专辑 */
+/** 播放▶歌单 */
 const playOrPause = async item => {
   const { playingInfo } = store;
 
@@ -184,18 +186,18 @@ onBeforeUnmount(() => {
 
 <template>
   <!-- PC -->
-  <div class="pc-album-wrap" v-if="!store.inMobile">
-    <!-- 专辑头部 -->
+  <div class="pc-play-list-wrap" v-if="!store.inMobile">
+    <!-- 歌单头部 -->
     <div class="album-header-box" v-if="props.hasHeader">
-      <span class="title">专辑</span>
-      <div class="more" @click="router.myPush({ path: '/album-list' })">
-        所有专辑
+      <span class="title">歌单</span>
+      <div class="more" @click="router.myPush({ path: '/play-list' })">
+        所有歌单
         <div class="more-icon">
           <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
         </div>
       </div>
     </div>
-    <div v-if="route.name === 'album-list'">
+    <div v-if="route.name === 'play-list'">
       <!-- 最新发布 | 最早发布 -->
       <div class="album-drop-wrapper" ref="dropWrapper">
         <div class="selected-box" @click="handleShowDrop">
@@ -213,7 +215,7 @@ onBeforeUnmount(() => {
                 selectedValue = 1;
                 handleShowDrop();
                 // 降序排列
-                albumData = albumData.sort(
+                playListData = playListData.sort(
                   (a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime()
                 );
               }
@@ -229,7 +231,7 @@ onBeforeUnmount(() => {
                 selectedValue = 2;
                 handleShowDrop();
                 // 升序排列
-                albumData = albumData.sort(
+                playListData = playListData.sort(
                   (a, b) => new Date(a.updateDate).getTime() - new Date(b.updateDate).getTime()
                 );
               }
@@ -240,13 +242,13 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </div>
-    <!-- 专辑内容 -->
-    <div class="album-content-box" v-if="albumData.length">
+    <!-- 歌单内容 -->
+    <div class="album-content-box" v-if="playListData.length">
       <div
         class="content-item"
-        v-for="(item, index) in albumData"
+        v-for="(item, index) in playListData"
         :key="index"
-        @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
+        @click="router.myPush({ path: '/play-detail', query: { id: item.exhibitId } })"
       >
         <div class="info-box">
           <div class="cover-image">
@@ -263,7 +265,7 @@ onBeforeUnmount(() => {
               </div>
             </div>
 
-            <!-- 播放中标识-适用于专辑 -->
+            <!-- 播放中标识-适用于歌单 -->
             <play-status
               class="cover-album-status"
               :playing="store.playing"
@@ -296,7 +298,7 @@ onBeforeUnmount(() => {
               ></i>
               <span
                 class="title"
-                @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
+                @click="router.myPush({ path: '/play-detail', query: { id: item.exhibitId } })"
                 >{{ item.exhibitTitle }}</span
               >
             </div>
@@ -313,9 +315,9 @@ onBeforeUnmount(() => {
 
               <div class="album-box">
                 <div class="icon">
-                  <img :src="currentTheme === 'light' ? DarkAlbumIcon : AlbumIcon" alt="专辑" />
+                  <img :src="currentTheme === 'light' ? DarkAlbumIcon : AlbumIcon" alt="歌单" />
                 </div>
-                <span class="album">{{ item.signCount }}</span>
+                <span class="album">{{ item.collectionList.totalItem }}</span>
               </div>
             </div>
           </div>
@@ -323,32 +325,31 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <div class="no-data" v-else>暂无任何专辑</div>
+    <div class="no-data" v-else>暂无任何歌单</div>
   </div>
   <!-- mobile -->
   <div class="mobile-album-wrap" v-else>
-    <!-- 专辑头部 -->
+    <!-- 歌单头部 -->
     <div class="album-header-box" v-if="props.hasHeader">
-      <span class="title">专辑</span>
-      <div class="more" @click="router.myPush({ path: '/album-list' })">
-        所有专辑
+      <span class="title">歌单</span>
+      <div class="more" @click="router.myPush({ path: '/play-list' })">
+        所有歌单
         <div class="more-icon">
           <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
         </div>
       </div>
     </div>
 
-    <!-- 专辑内容 -->
-    <div class="album-content-box" v-if="albumData.length">
-      <div class="content-item" v-for="(item, index) in albumData" :key="index">
+    <!-- 歌单内容 -->
+    <div class="album-content-box" v-if="playListData.length">
+      <div class="content-item" v-for="(item, index) in playListData" :key="index">
         <div class="info-box">
           <div
             class="cover-image"
-            @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
+            @click="router.myPush({ path: '/play-detail', query: { id: item.exhibitId } })"
           >
             <img :src="item.coverImages[0]" alt="歌曲封面" />
             <div class="btn" @click.stop="playOrPause(item)">
-              <!-- <i class="freelog" :class="'fl-icon-bofang-sanjiaoxing'"></i> -->
               <i
                 class="freelog"
                 :class="playing(item.exhibitId) ? 'fl-icon-zanting' : 'fl-icon-bofang-sanjiaoxing'"
@@ -379,7 +380,7 @@ onBeforeUnmount(() => {
               ></i>
               <span
                 class="title"
-                @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
+                @click="router.myPush({ path: '/play-detail', query: { id: item.exhibitId } })"
                 >{{ item.exhibitTitle }}</span
               >
             </div>
@@ -396,24 +397,24 @@ onBeforeUnmount(() => {
 
               <div class="album-box">
                 <div class="icon">
-                  <img :src="currentTheme === 'light' ? DarkAlbumIcon : AlbumIcon" alt="专辑" />
+                  <img :src="currentTheme === 'light' ? DarkAlbumIcon : AlbumIcon" alt="歌单" />
                 </div>
-                <span class="album">{{ item.signCount }}</span>
+                <span class="album">{{ item.collectionList.totalItem }}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="no-data" v-else>暂无任何专辑</div>
+    <div class="no-data" v-else>暂无任何歌单</div>
   </div>
 </template>
 
 <style lang="less" scoped>
 // PC
-.pc-album-wrap {
+.pc-play-list-wrap {
   width: 100%;
-  padding-bottom: 60px;
+  padding-bottom: 100px;
   box-sizing: border-box;
 
   .album-header-box {
