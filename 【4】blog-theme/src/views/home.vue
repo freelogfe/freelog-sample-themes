@@ -210,9 +210,10 @@ import {
   ref,
   onMounted,
   onUnmounted,
-  watchEffect
+  watchEffect,
+  onBeforeMount
 } from "vue";
-import { useGetList, useMyRouter } from "../utils/hooks";
+import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
 import { useStore } from "vuex";
 import { freelogApp } from "freelog-runtime";
 
@@ -228,6 +229,7 @@ export default {
     const nodeInfo = freelogApp.nodeInfo;
 
     const store = useStore();
+    const { scrollTo } = useMyScroll();
     const tagsList: string[] = store.state.selfConfig.options_tags
       ?.split(",")
       ?.map((tag: string) => tag.trim()) // 去掉每个字符串的前后空格
@@ -374,7 +376,10 @@ export default {
       }
     });
 
-    getData();
+    onBeforeMount(() => {
+      scrollTo(0, "auto");
+      getData();
+    });
 
     return {
       ...nodeInfo,
