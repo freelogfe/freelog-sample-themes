@@ -195,6 +195,7 @@
               <span class="column-label">所属专栏</span>
               <span
                 class="column-title"
+                :title="articleData?.exhibitTitle"
                 @click="switchPage('/column-detail', { id: articleData?.exhibitId })"
                 >{{ articleData?.exhibitTitle }}</span
               >
@@ -1108,6 +1109,8 @@ export default {
 
         .column-label-title {
           margin-top: 0px !important;
+          display: flex;
+          align-items: center;
 
           .column-label {
             font-weight: 400;
@@ -1124,6 +1127,11 @@ export default {
             line-height: 18px;
             text-decoration: underline;
             cursor: pointer;
+            text-overflow: ellipsis;
+            display: inline-block;
+            width: 500px;
+            white-space: nowrap;
+            overflow: hidden;
           }
         }
       }
