@@ -70,8 +70,14 @@ export const useCommon = {
   }
 };
 
-export const useGetList = params => {
+export const useGetList = () => {
   const playListData = ref({
+    total: 0,
+    listData: [],
+    loading: false
+  });
+
+  const listData = ref({
     total: 0,
     listData: [],
     loading: false
@@ -131,9 +137,66 @@ export const useGetList = params => {
     }
   };
 
+  /** 获取列表 */
+  const getList = async params => {
+    listData.value.loading = true;
+
+    const queryParams = {
+      articleResourceTypes: "音频",
+      isLoadVersionProperty: 1,
+      limit: 100,
+      ...params
+    };
+
+    if (
+      listData.value.listData.length !== 0 &&
+      listData.value.listData.length === listData.value.total
+    ) {
+      listData.value.loading = false;
+      return;
+    }
+
+    const list = await freelogApp.getExhibitListByPaging(queryParams);
+    const { dataList, totalItem } = list.data.data;
+
+    if (dataList.length !== 0) {
+      const ids = dataList.map(item => item.exhibitId).join();
+
+      const statusInfo = await freelogApp.getExhibitAuthStatus(ids);
+
+      // 使用for...of确保顺序执行
+      for (const item of dataList) {
+        const index = statusInfo.data.data.findIndex(
+          resultItem => resultItem.exhibitId === item.exhibitId
+        );
+        if (index !== -1) {
+          item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+        }
+
+        if ([2, 3].includes(item.articleInfo.articleType)) {
+          const res = await freelogApp.getCollectionSubList(item.exhibitId, {
+            sortType: -1,
+            skip: 0,
+            limit: 1_000,
+            isShowDetailInfo: 1
+          });
+
+          item.collectionList = res.data.data;
+        }
+      }
+
+      // 将数据添加移到循环外面，只添加一次
+      listData.value.listData = dataList;
+      listData.value.total = totalItem;
+      listData.value.loading = false;
+    }
+  };
+
   return {
     getPlayList,
-    playListData: playListData.value
+    playListData: playListData,
+    getList,
+    listData: listData
   };
 };
 /** 授权 hook */

@@ -2,9 +2,9 @@
 <template>
   <div class="album-list-wrapper">
     <list
-      :list="listData"
-      :loading="loading"
-      :total="total"
+      :list="datasOfGetList.listData.listData"
+      :loading="datasOfGetList.listData.loading"
+      :total="datasOfGetList.listData.total"
       :musicAlbumTab="false"
       activeTab="Album"
       title="所有专辑"
@@ -18,6 +18,7 @@
 import { freelogApp } from "freelog-runtime";
 import { useGlobalStore } from "@/store/global";
 import list from "@/components/list.vue";
+import { useGetList } from "@/utils/hooks";
 
 export default {
   name: "album-list",
@@ -28,13 +29,11 @@ export default {
 
   data() {
     const store = useGlobalStore();
+    const datasOfGetList = useGetList();
 
     return {
-      listData: [],
-      loading: false,
-      myLoading: false,
-      total: null,
-      store
+      store,
+      datasOfGetList
     };
   },
 
@@ -42,7 +41,7 @@ export default {
     "store.authIdList": {
       handler(cur) {
         cur.forEach(id => {
-          const item = this.listData.find(data => data.exhibitId === id);
+          const item = this.datasOfGetList.listData.listData.find(data => data.exhibitId === id);
           if (item) {
             item.defaulterIdentityType = 0;
           }
@@ -53,69 +52,28 @@ export default {
   },
 
   created() {
-    this.getList(true);
-  },
-
-  activated() {
+    /** 回到顶部 */
     const app = document.getElementById("app");
     app.addEventListener("scroll", this.scroll);
 
-    /** 回到顶部 */
     const scrollToTop = () => {
       app?.scroll({ top: 0 });
     };
     scrollToTop();
+
+    // 获取专辑列表
+    this.datasOfGetList.getList({
+      articleResourceTypes: "音乐专辑",
+      sort: `createDate:-1`
+    });
   },
 
-  deactivated() {
+  unmounted() {
     const app = document.getElementById("app");
     app.removeEventListener("scroll", this.scroll);
   },
 
   methods: {
-    /** 获取声音列表 */
-    async getList(init = false) {
-      if (this.myLoading) return;
-      if (this.total === this.listData.length && !init) return;
-
-      if (init) this.loading = true;
-      this.myLoading = true;
-      this.skip = init ? 0 : this.skip + 20;
-      const queryParams = {
-        skip: this.skip,
-        articleResourceTypes: "音频",
-        isLoadVersionProperty: 1,
-        limit: 100
-      };
-      const list = await freelogApp.getExhibitListByPaging(queryParams);
-      const { dataList, totalItem } = list.data.data;
-
-      if (dataList.length !== 0) {
-        const ids = dataList.map(item => item.exhibitId).join();
-        const [signCountData, statusInfo] = await Promise.all([
-          freelogApp.getExhibitSignCount(ids),
-          freelogApp.getExhibitAuthStatus(ids)
-        ]);
-        dataList.forEach(item => {
-          let index;
-          index = signCountData.data.data.findIndex(
-            resultItem => resultItem.subjectId === item.exhibitId
-          );
-          if (index !== -1) item.signCount = signCountData.data.data[index].count;
-          index = statusInfo.data.data.findIndex(
-            resultItem => resultItem.exhibitId === item.exhibitId
-          );
-          if (index !== -1)
-            item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
-        });
-      }
-
-      this.listData = init ? dataList : [...this.listData, ...dataList];
-      this.total = totalItem;
-      if (init) this.loading = false;
-      this.myLoading = false;
-    },
-
     /** 页面滚动 */
     scroll() {
       const app = document.getElementById("app");
@@ -124,7 +82,10 @@ export default {
       const scrollHeight = app.scrollHeight || 0;
       if (scrollTop + clientHeight < scrollHeight - 200) return;
 
-      this.getList();
+      this.datasOfGetList.getList({
+        articleResourceTypes: "音乐专辑",
+        sort: `createDate:-1`
+      });
     }
   }
 };

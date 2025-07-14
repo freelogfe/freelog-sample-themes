@@ -28,8 +28,8 @@ const routes = [
   {
     path: "/album-list",
     name: "album-list",
-    component: () => import("../views/album-list/index.vue"),
-    meta: { keepAlive: true }
+    component: () => import("../views/album-list/index.vue")
+    // meta: { keepAlive: true }
   },
   {
     path: "/play-list",

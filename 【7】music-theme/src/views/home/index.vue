@@ -12,7 +12,6 @@ import type { Exhibit } from "@/interface";
 
 const store = useGlobalStore();
 const listData = ref<Exhibit[]>([]);
-const albumData = ref<Exhibit[]>([]);
 const loading = ref<boolean>(false);
 const datasOfGetList = useGetList();
 
@@ -29,7 +28,7 @@ watch(
 
 const popularData = computed(() => {
   const data = listData.value
-    .filter(i => i.articleInfo.status !== 2)
+    .filter(i => i.articleInfo.status !== 2 && i.articleInfo.articleType !== 3)
     .sort((a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime())
     .slice(0, 12);
 
@@ -38,7 +37,12 @@ const popularData = computed(() => {
 
 // 歌单列表
 const playListData = computed(() => {
-  return datasOfGetList.playListData;
+  return datasOfGetList.playListData?.listData?.slice(0, 5);
+});
+
+// 音乐专辑列表
+const musicAlbumData = computed(() => {
+  return datasOfGetList.listData?.listData.slice(0, 5);
 });
 
 /** 获取展品列表 */
@@ -57,28 +61,19 @@ const getList = async () => {
   if (dataList.length !== 0) {
     const ids = dataList.map(item => item.exhibitId).join();
 
-    const [signCountData, statusInfo] = await Promise.all([
-      freelogApp.getExhibitSignCount(ids),
-      freelogApp.getExhibitAuthStatus(ids)
-    ]);
+    const statusInfo = await freelogApp.getExhibitAuthStatus(ids);
 
     // 使用for...of确保顺序执行
     for (const item of dataList) {
-      let index;
-      index = signCountData.data.data.findIndex(
-        resultItem => resultItem.subjectId === item.exhibitId
+      const index = statusInfo.data.data.findIndex(
+        resultItem => resultItem.exhibitId === item.exhibitId
       );
-      if (index !== -1) {
-        item.signCount = signCountData.data.data[index].count;
-      }
-      index = statusInfo.data.data.findIndex(resultItem => resultItem.exhibitId === item.exhibitId);
       if (index !== -1) {
         item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
       }
 
       // 获取合集里的单品列表
       if (item.articleInfo.articleType === 2) {
-        albumData.value.push(item);
         await getCollectionList(
           item.exhibitId,
           item.exhibitTitle,
@@ -136,6 +131,7 @@ const getCollectionList = async (
         item.albumName = exhibitTitle;
         item.exhibitId = collectionID;
         item.onlineStatus = onlineStatus;
+        item.total = totalItem;
       });
     }
   }
@@ -155,6 +151,9 @@ const getCollectionList = async (
 
 onBeforeMount(() => {
   getList();
+  // 获取音乐专辑
+  datasOfGetList.getList({ articleResourceTypes: "音乐专辑", sort: `createDate:-1` });
+  // 获取歌单
   datasOfGetList.getPlayList();
 });
 </script>
@@ -167,8 +166,8 @@ onBeforeMount(() => {
     :class="{ pc: !store.inMobile, mobile: store.inMobile }"
   >
     <HomePopular hasHeader :data="popularData" />
-    <HomeAlbum hasHeader :data="albumData.slice(0, 5)" />
-    <HomePlayList hasHeader :data="playListData?.listData?.slice(0, 5)" />
+    <HomeAlbum hasHeader :data="musicAlbumData" />
+    <HomePlayList hasHeader :data="playListData" />
   </div>
 </template>
 
