@@ -73,11 +73,14 @@ export const useCommon = {
 export const useGetList = params => {
   const playListData = ref({
     total: 0,
-    listData: []
+    listData: [],
+    loading: false
   });
 
   /** 获取歌单列表 */
   const getPlayList = async () => {
+    playListData.value.loading = true;
+
     const queryParams = {
       articleResourceTypes: "歌单",
       isLoadVersionProperty: 1,
@@ -88,6 +91,7 @@ export const useGetList = params => {
       playListData.value.listData.length !== 0 &&
       playListData.value.listData.length === playListData.value.total
     ) {
+      playListData.value.loading = false;
       return;
     }
 
@@ -123,6 +127,7 @@ export const useGetList = params => {
       // 将数据添加移到循环外面，只添加一次
       playListData.value.listData = dataList;
       playListData.value.total = totalItem;
+      playListData.value.loading = false;
     }
   };
 
@@ -360,8 +365,7 @@ export const useMyPlay = {
           }),
           freelogApp.getExhibitAuthStatus(item.exhibitId)
         ]);
-
-        if (list.data.data[0].articleInfo?.articleType === 2) {
+        if ([2, 3].includes(list.data.data[0].articleInfo?.articleType)) {
           const params = {
             collectionID: list.data.data[0].exhibitId,
             exhibitName: list.data.data[0].exhibitName,

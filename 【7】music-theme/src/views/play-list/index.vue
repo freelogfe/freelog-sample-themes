@@ -3,8 +3,8 @@
   <div class="play-list-wrapper">
     <list
       :list="playListData"
-      :loading="loading"
-      :total="total"
+      :loading="datasOfGetList.playListData.loading"
+      :total="datasOfGetList.playListData.total"
       :musicAlbumTab="false"
       activeTab="PlayList"
       title="所有歌单"
@@ -32,10 +32,6 @@ export default {
     const datasOfGetList = useGetList(); // 在这里创建一个实例
 
     return {
-      listData: [],
-      loading: false,
-      myLoading: false,
-      total: null,
       store,
       datasOfGetList // 添加到 data 中
     };
@@ -45,7 +41,9 @@ export default {
     "store.authIdList": {
       handler(cur) {
         cur.forEach(id => {
-          const item = this.listData.find(data => data.exhibitId === id);
+          const item = this.datasOfGetList.playListData.listData.find(
+            data => data.exhibitId === id
+          );
           if (item) {
             item.defaulterIdentityType = 0;
           }

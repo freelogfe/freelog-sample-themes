@@ -31,7 +31,6 @@ const playListData = ref<Exhibit[]>(
   props.data?.sort((a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime()) ||
     []
 );
-console.log("产过来的", playListData.value);
 const collectionData = ref<Exhibit[]>([]);
 const dropVisible = ref<boolean>(false);
 const selectedValue = ref<number>(1); // 1-最新发布 2-最早发布
