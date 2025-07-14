@@ -857,6 +857,10 @@ export default {
             cursor: pointer;
             transition: all 0.2s linear;
             z-index: 1;
+            max-width: 250px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
 
             &:hover {
               opacity: 0.7;
