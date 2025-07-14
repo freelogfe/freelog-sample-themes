@@ -2050,11 +2050,11 @@ export default {
           return;
         }
 
-        data.collectionCurrent = init ? 0 : data.collectionCurrent + 1000;
+        data.collectionCurrent = init ? 0 : data.collectionCurrent + 100;
 
         const subList = await (freelogApp as any).getCollectionSubList(id, {
           skip: data.collectionCurrent,
-          limit: 1000
+          limit: 100
         });
         const { dataList, totalItem } = subList.data.data;
         data.collectionTotal = totalItem;
