@@ -183,9 +183,11 @@
 
             <span class="date">
               {{
-                formatDate(articleData?.articleInfo?.versions?.[0]?.createDate) ||
-                formatDate(articleData?.articleInfo?.firstVersionReleaseDate) ||
-                formatDate(articleData?.createDate)
+                articleData?.articleInfo?.articleType === 3
+                  ? formatDate(articleData?.collectionInfo?.articleInfo?.firstVersionReleaseDate)
+                  : formatDate(articleData?.articleInfo?.versions?.[0]?.createDate) ||
+                    formatDate(articleData?.articleInfo?.firstVersionReleaseDate) ||
+                    formatDate(articleData?.createDate)
               }}
             </span>
 
