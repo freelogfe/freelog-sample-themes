@@ -1,7 +1,7 @@
 #appPodcast {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-  "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
-  "Noto Color Emoji";
+    "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: left;
@@ -103,13 +103,13 @@ img {
 }
 
 .normal-btn {
-  color: var(--text-sixth-color);
+  color: var(--text-eighth-color);
   background: var(--text-first-color);
   cursor: pointer;
   transition: all 0.2s linear;
 
   &.second-level {
-    color: #FFFFFF;
+    color: #ffffff;
   }
 
   &:hover {
@@ -182,7 +182,7 @@ img {
 
 .play-btn {
   color: var(--text-reverse-color);
-  background: var(--text-eighth-color);
+  background: var(--text-other-color);
   cursor: pointer;
   transition: all 0.2s linear;
 
@@ -316,7 +316,7 @@ img {
   flex-direction: column;
   align-items: center;
   background: var(--bg-skin) !important;
-  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.20) !important;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2) !important;
   border-radius: 4px;
   backdrop-filter: blur(25px);
 
@@ -344,8 +344,8 @@ img {
     font-size: 14px;
     padding-left: 20px;
     box-sizing: border-box;
-    color:var( --text-sixth-color);
-    border-top: 1px solid var( --text-first-color);
+    color: var(--text-sixth-color);
+    border-top: 1px solid var(--text-first-color);
 
     &:last-child {
       border-radius: 0 0 4px 4px;
@@ -396,11 +396,11 @@ img {
     &.selected {
       outline: 2px solid #44d7b6;
     }
-  
+
     &:hover {
       outline: 2px solid rgba(0, 0, 0, 0.1);
     }
-  
+
     &:active {
       outline: 2px solid #42c28c;
     }

@@ -6,7 +6,9 @@
       weigui:
         voiceInfo &&
         (voiceInfo.articleInfo.status === 2 ||
-          (voiceInfo.child && voiceInfo.child.articleInfo && voiceInfo.child.articleInfo.status === 2) ||
+          (voiceInfo.child &&
+            voiceInfo.child.articleInfo &&
+            voiceInfo.child.articleInfo.status === 2) ||
           (voiceInfo.child && voiceInfo.child.authCode === 403))
     }"
   >
@@ -17,7 +19,9 @@
           v-if="
             voiceInfo &&
             (voiceInfo.articleInfo.status === 2 ||
-              (voiceInfo.child && voiceInfo.child.articleInfo && voiceInfo.child.articleInfo.status === 2) ||
+              (voiceInfo.child &&
+                voiceInfo.child.articleInfo &&
+                voiceInfo.child.articleInfo.status === 2) ||
               (voiceInfo.child && voiceInfo.child.authCode === 403))
           "
           class="detail-weigui"
@@ -536,6 +540,12 @@ export default {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+        opacity: 0.8;
+        color: var(--text-color);
+
+        &:hover {
+          opacity: 1;
+        }
       }
     }
 
@@ -800,19 +810,25 @@ export default {
         .title {
           flex: 1;
           width: 0;
-          color: var(--text-sixth-color);
+          color: var(--text-color);
+          opacity: 0.8;
           font-size: 36px;
           font-weight: 600;
           line-height: 56px;
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
+
+          &:hover {
+            opacity: 1;
+          }
         }
       }
 
       .intro {
         font-size: 14px;
-        color: var(--text-fourth-color);
+        color: var(--text-color);
+        opacity: 0.6;
         line-height: 20px;
         word-break: break-all;
         margin-top: 20px;
@@ -825,7 +841,6 @@ export default {
         .info-item {
           display: flex;
           align-items: center;
-          color: var(--text-fourth-color);
 
           & + .info-item {
             margin-left: 20px;
@@ -839,12 +854,14 @@ export default {
             font-size: 12px;
             line-height: 18px;
             margin-left: 5px;
+            color: var(--text-color);
+            opacity: 0.6;
           }
         }
         .to-pool {
           cursor: pointer;
           &:hover {
-            color: var(--text-sixth-color);
+            // color: var(--text-sixth-color);
           }
         }
       }

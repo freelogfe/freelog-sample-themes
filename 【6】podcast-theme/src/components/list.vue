@@ -124,7 +124,8 @@ export default {
 
     .title {
       font-size: 34px;
-      color: var(--text-other-color);
+      color: var(--text-color);
+      opacity: 0.8;
       line-height: 40px;
       margin-bottom: 30px;
     }
@@ -159,9 +160,9 @@ export default {
     .search-title {
       font-size: 36px;
       font-weight: 600;
-      color: var(--text-other-color);
+      color: var(--text-color);
       line-height: 56px;
-      opacity: 0.6;
+      opacity: 0.8;
       margin-bottom: 50px;
       word-break: break-all;
     }
@@ -193,7 +194,7 @@ export default {
       width: 100%;
       text-align: center;
       font-size: 14px;
-      color: rgba(255, 255, 255, 0.2);
+      color: var(--text-fourth-color);
       line-height: 20px;
     }
   }
@@ -227,7 +228,7 @@ export default {
         flex-direction: column;
         margin-left: 20px;
         margin-right: auto;
-        
+
         .voice-title {
           height: 22px;
           width: 400px;

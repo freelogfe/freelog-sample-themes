@@ -44,14 +44,14 @@ export default {
   right: 5px;
   width: 100px;
   height: 80px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--text-first-color);
   box-shadow: 0px 2px 10px 0px rgba(0, 0, 0, 0.15);
   border-radius: 20px 0px 0px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--text-other-color);
   cursor: pointer;
   transition: all 0.2s linear;
   display: none !important;
@@ -72,11 +72,11 @@ export default {
   }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--text-second-color);
   }
 
   &:active {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--text-first-color);
   }
 
   &.show {

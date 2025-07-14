@@ -96,22 +96,22 @@ export default {
   methods: {
     /** 初始化分享组件 */
     initShare() {
-      let identity
-      let params = {}
-      const exhibitId = this.shareInfo.exhibit.exhibitId
-      const itemId = this.shareInfo.exhibit?.child?.itemId
+      let identity;
+      let params = {};
+      const exhibitId = this.shareInfo.exhibit.exhibitId;
+      const itemId = this.shareInfo.exhibit?.child?.itemId;
       if (this.shareInfo.exhibit?.child?.itemId) {
         // 去detail-sub
-        identity = "detail-sub"
-        params = { exhibitId, itemId }
+        identity = "detail-sub";
+        params = { exhibitId, itemId };
       } else {
         // 去detail
-        identity = "detail"
-        params = { exhibitId }
+        identity = "detail";
+        params = { exhibitId };
       }
       // console.log(`initShare; identity=${identity}; exhibitId=${exhibitId}; itemId=${itemId};`);
       const url = freelogApp.getShareUrl(params, identity);
-      this.href = url; 
+      this.href = url;
       this.shareText = `我在freelog发现一个不错的声音：\n《${this.shareInfo.exhibit.exhibitTitle}》\n${url}`;
       if (!this.shareInfo.show) this.qrcodeShow = false;
     },
@@ -193,7 +193,7 @@ export default {
     width: 650px;
     padding: 17px 30px 20px;
     box-sizing: border-box;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--light-first-text);
     border-radius: 6px;
     backdrop-filter: blur(25px);
 
@@ -205,7 +205,8 @@ export default {
       .title {
         font-size: 14px;
         font-weight: 600;
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--text-color);
+        opacity: 0.8;
         line-height: 20px;
       }
 
@@ -225,13 +226,14 @@ export default {
     .textarea {
       width: 100%;
       height: 125px;
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: var(--light-point-fifth-text);
       border-radius: 4px;
       padding: 10px;
       border: none;
       box-sizing: border-box;
       font-size: 14px;
-      color: rgba(255, 255, 255, 0.8);
+      opacity: 0.8;
+      color: var(--text-color);
       line-height: 20px;
       margin-top: 17px;
       outline: none;

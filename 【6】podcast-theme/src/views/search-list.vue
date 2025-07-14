@@ -11,7 +11,7 @@
           <div class="plw-condition">
             <div class="left" v-clickOutside="dropDownShow">
               <div class="wrapper" @click="dropDownShow.value = !dropDownShow.value">
-                <span class="txt">{{ currentSelect === 'update' ? "最近更新" : "最热门" }}</span>
+                <span class="txt">{{ currentSelect === "update" ? "最近更新" : "最热门" }}</span>
                 <div class="drop-trigger">
                   <div class="triangle"></div>
                 </div>
@@ -33,7 +33,6 @@
                 </div>
               </div>
             </div>
-           
           </div>
           <div class="plw-content">
             <div class="hot-container">
@@ -49,16 +48,20 @@
         </div>
         <div v-else class="plw-empty">暂无任何节目</div>
       </div>
-  
+
       <div class="program-list-wrapper-pc" v-else>
         <div class="plw-header">
-          {{ `“${keywords}”的搜索结果${this.listData.length ? '（' + this.listData.length + '）' : ''}` }}
+          {{
+            `“${keywords}”的搜索结果${
+              this.listData.length ? "（" + this.listData.length + "）" : ""
+            }`
+          }}
         </div>
         <div v-if="listData.length" class="plw-body">
           <div class="plw-condition">
             <div class="left" v-clickOutside="dropDownShow">
               <div class="wrapper" @click="dropDownShow.value = !dropDownShow.value">
-                <span class="txt">{{ currentSelect === 'update' ? "最近更新" : "最热门" }}</span>
+                <span class="txt">{{ currentSelect === "update" ? "最近更新" : "最热门" }}</span>
                 <div class="drop-trigger">
                   <div class="triangle"></div>
                 </div>
@@ -120,7 +123,7 @@
                 <el-skeleton-item class="program-cover" variant="image" />
                 <div class="center">
                   <div class="program-title">
-                    <el-skeleton-item  variant="text" />
+                    <el-skeleton-item variant="text" />
                   </div>
                   <div>
                     <el-skeleton-item class="program-update" variant="text" />
@@ -177,7 +180,7 @@
             </div>
           </template>
         </el-skeleton>
-      </div>    
+      </div>
     </div>
   </div>
 </template>
@@ -227,8 +230,8 @@ export default {
     "$store.state.searchKey": {
       handler(cur) {
         if (!cur) {
-          this.keywords = sessionStorage.getItem("searchKey")
-          return
+          this.keywords = sessionStorage.getItem("searchKey");
+          return;
         }
         if (cur === this.keywords) return;
 
@@ -238,7 +241,7 @@ export default {
       immediate: true
     },
     currentSelect(newValue) {
-      this.sortList(newValue, this.listData)
+      this.sortList(newValue, this.listData);
     }
   },
 
@@ -259,7 +262,7 @@ export default {
       app.scroll({ top: scrollTop });
     }
     app.addEventListener("scroll", this.scroll);
-    this.$store.dispatch("updateLastestAuthList")
+    this.$store.dispatch("updateLastestAuthList");
   },
 
   deactivated() {
@@ -276,7 +279,7 @@ export default {
       if (init) {
         this.total = 0;
         this.loading = true;
-        await sleep(800)
+        await sleep(800);
       }
       this.myLoading = true;
       this.skip = init ? 0 : this.skip + this.limit;
@@ -308,8 +311,10 @@ export default {
             item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
         });
       }
-      const temp = init ? dataList : [...this.listData, ...dataList]
-      this.listData = temp.filter(ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType));
+      const temp = init ? dataList : [...this.listData, ...dataList];
+      this.listData = temp.filter(
+        ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType)
+      );
       this.total = totalItem;
       if (init) this.loading = false;
       this.myLoading = false;
@@ -330,26 +335,26 @@ export default {
     /** 条件排序 */
     sortList(newValue, dataList) {
       const result = dataList.sort((a, b) => {
-        let aTimeStamp, bTimeStamp
+        let aTimeStamp, bTimeStamp;
         if (a.child) {
-          aTimeStamp = new Date(a.child.createDate).getTime()
+          aTimeStamp = new Date(a.child.createDate).getTime();
         } else {
-          aTimeStamp = new Date(a.updateDate).getTime()
+          aTimeStamp = new Date(a.updateDate).getTime();
         }
 
         if (b.child) {
-          bTimeStamp = new Date(b.child.createDate).getTime()
+          bTimeStamp = new Date(b.child.createDate).getTime();
         } else {
-          bTimeStamp = new Date(b.updateDate).getTime()
+          bTimeStamp = new Date(b.updateDate).getTime();
         }
-        if (newValue === 'update') {
-          return bTimeStamp - aTimeStamp
+        if (newValue === "update") {
+          return bTimeStamp - aTimeStamp;
         } else {
-          return b.signCount - a.signCount
+          return b.signCount - a.signCount;
         }
-      })
-      this.listData = result
-    },
+      });
+      this.listData = result;
+    }
   }
 };
 </script>
@@ -362,11 +367,11 @@ export default {
       height: 40px;
       font-weight: 400;
       font-size: 34px;
-      color: var(--text-other-color);
+      color: var(--text-color);
       line-height: 40px;
-      opacity: 0.6;
+      opacity: 0.8;
     }
-  
+
     .plw-body {
       padding: 0px 15px 40px;
       .plw-condition {
@@ -407,7 +412,7 @@ export default {
             position: absolute;
             top: 25px;
             width: 240px;
-            background:var(--bg-skin);
+            background: var(--bg-skin);
             color: var(--text-eighth-color);
             box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
             border-radius: 4px;
@@ -446,7 +451,7 @@ export default {
         opacity: 0.2;
       }
     }
-  
+
     .plw-empty {
       width: 100%;
       text-align: center;
@@ -461,11 +466,11 @@ export default {
       height: 56px;
       font-weight: 600;
       font-size: 36px;
-      color: var(--text-other-color);
+      color: var(--text-color);
       line-height: 56px;
-      opacity: 0.6;
+      opacity: 0.8;
     }
-  
+
     .plw-body {
       padding-bottom: 40px;
       .plw-condition {
@@ -506,7 +511,7 @@ export default {
             position: absolute;
             top: 25px;
             width: 240px;
-            background:var(--bg-skin);
+            background: var(--bg-skin);
             color: var(--text-eighth-color);
             box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
             border-radius: 4px;
@@ -554,7 +559,7 @@ export default {
         }
       }
     }
-  
+
     .plw-empty {
       width: 100%;
       text-align: center;
@@ -599,7 +604,8 @@ export default {
             }
             div {
               height: 18px;
-              .program-update, .program-yonghu {
+              .program-update,
+              .program-yonghu {
                 width: 40px;
                 height: 18px;
                 border-radius: 4px;
@@ -615,7 +621,7 @@ export default {
             border-radius: 4px;
           }
         }
-      } 
+      }
       ::v-deep .el-skeleton.is-animated .el-skeleton__item {
         background: linear-gradient(
             90deg,

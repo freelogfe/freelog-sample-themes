@@ -14,7 +14,7 @@
           v-for="(item, index) in list"
           :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
           :mode="item.articleInfo.articleType === 1 ? 'voice' : item.child ? 'voice' : 'program'"
-          />
+        />
         <div class="no-more-tip" v-if="list.length === total && noMoreTip">{{ noMoreTip }}</div>
       </div>
       <div class="no-data-tip" v-if="total === 0 || (total === null && !list.length)">
@@ -123,7 +123,7 @@ export default {
 
     .title {
       font-size: 34px;
-      color: var(--text-other-color);
+      color: var(--text-color);
       line-height: 40px;
       margin-bottom: 30px;
     }
@@ -158,9 +158,9 @@ export default {
     .search-title {
       font-size: 36px;
       font-weight: 600;
-      color: var(--text-other-color);
+      color: var(--text-color);
       line-height: 56px;
-      opacity: 0.6;
+      opacity: 0.8;
       margin-bottom: 50px;
       word-break: break-all;
     }

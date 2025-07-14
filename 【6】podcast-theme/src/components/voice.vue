@@ -435,7 +435,7 @@ export default {
         if (playingInfo?.articleInfo?.articleType === 1) {
           duration = playingInfo.versionInfo.exhibitProperty.duration;
         } else {
-          duration = playingInfo.child.articleInfo.articleProperty.duration;
+          duration = playingInfo.child?.articleInfo?.articleProperty?.duration;
         }
         if (duration) {
           const progress = ((this.$store.state.progress * 1000) / duration) * 100;
@@ -585,7 +585,7 @@ export default {
       const supportMimeList = supportAudio;
       const isIOS = this.$store.state.isIOS;
 
-      if (this.data.articleInfo.articleType === 1) {
+      if (this.data?.articleInfo?.articleType === 1) {
         const mime = this.data.versionInfo.exhibitProperty.mime;
         if (isIOS) {
           return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime);
@@ -599,7 +599,7 @@ export default {
           }
           return supportMimeList.includes(mime);
         } else {
-          return this.data.articleInfo.resourceType[0] === "音频";
+          return this.data?.articleInfo?.resourceType[0] === "音频";
         }
       }
     },
@@ -608,7 +608,7 @@ export default {
     playing() {
       const { playing: _play, playingInfo } = this.$store.state;
       if (!playingInfo) return _play;
-      if (playingInfo.articleInfo.articleType === 1) {
+      if (playingInfo?.articleInfo?.articleType === 1) {
         return _play && playingInfo.exhibitId === this.data.exhibitId;
       } else {
         if (this.data.child) {
@@ -633,7 +633,7 @@ export default {
       return [
         {
           icon:
-            this.offErrorComputed || this.authLinkAbnormal || this.data.articleInfo.status === 2
+            this.offErrorComputed || this.authLinkAbnormal || this.data?.articleInfo?.status === 2
               ? "fl-icon-wufabofang"
               : this.playing
               ? "fl-icon-zanting-daibiankuang"
@@ -643,7 +643,7 @@ export default {
           disabled: !(
             !this.offErrorComputed &&
             !this.authLinkAbnormal &&
-            this.data.articleInfo.status === 1
+            this.data?.articleInfo?.status === 1
           )
         },
         {
@@ -655,7 +655,7 @@ export default {
             !this.ifSupportMime ||
             this.offErrorComputed ||
             this.authLinkAbnormal ||
-            this.data.articleInfo.status === 2
+            this.data?.articleInfo?.status === 2
         },
         {
           icon: isCollected ? "fl-icon-shoucangxiaoshuoyishoucang" : "fl-icon-shoucangxiaoshuo",
@@ -696,7 +696,7 @@ export default {
   methods: {
     /** 跳转到声音详情 */
     async skipToDetailPage() {
-      if (this.data.articleInfo.articleType === 1) {
+      if (this.data?.articleInfo?.articleType === 1) {
         this.$router.myPush({ path: "/detail", query: { id: this.data.exhibitId } });
       } else {
         if (this.mode === "voice") {
@@ -728,7 +728,7 @@ export default {
         showToast("此作品格式暂不支持访问");
         return;
       }
-      if (this.data.articleInfo.articleType === 1) {
+      if (this.data?.articleInfo?.articleType === 1) {
         useMyPlay.playOrPause(this.data);
       } else {
         if (this.mode === "voice") {
@@ -753,7 +753,7 @@ export default {
         }, 700);
       };
       const { articleInfo, exhibitId, child } = this.data;
-      if (articleInfo.articleType === 2 && this.mode === "program") {
+      if (articleInfo?.articleType === 2 && this.mode === "program") {
         const res = await useMyPlay.getListInCollection(exhibitId);
         if (!res) {
           showToast("合集里没有可添加的作品！");
@@ -778,7 +778,7 @@ export default {
           true
         );
       } else {
-        if (articleInfo.articleType === 2) {
+        if (articleInfo?.articleType === 2) {
           useMyPlay.addToPlayList({
             id: exhibitId,
             itemId: child.itemId,

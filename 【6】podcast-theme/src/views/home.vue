@@ -48,7 +48,12 @@
             <div class="top-title">最近更新</div>
           </div>
           <div class="voice-list">
-            <voice :data="item" v-for="item in lastestList" :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`" mode="voice" />
+            <voice
+              :data="item"
+              v-for="item in lastestList"
+              :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
+              mode="voice"
+            />
           </div>
         </div>
         <div class="no-data-tip" v-else>
@@ -113,7 +118,12 @@
             <div class="top-title">最近更新</div>
           </div>
           <div class="voice-list">
-            <voice :data="item" v-for="item in lastestList" :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`" mode="voice" />
+            <voice
+              :data="item"
+              v-for="item in lastestList"
+              :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
+              mode="voice"
+            />
           </div>
         </div>
 
@@ -155,7 +165,6 @@
           </template>
         </el-skeleton>
       </template>
-
     </div>
   </div>
 </template>
@@ -194,7 +203,7 @@ export default {
         if (item) item.defaulterIdentityType = ele.defaulterIdentityType;
 
         // 更新最新更新
-        const items = this.lastestList.filter(data => data.exhibitId === ele.exhibitId)
+        const items = this.lastestList.filter(data => data.exhibitId === ele.exhibitId);
         if (items.length) {
           for (const item of items) {
             item.defaulterIdentityType = ele.defaulterIdentityType;
@@ -220,10 +229,10 @@ export default {
 
   created() {
     this.nodeInfo = freelogApp.nodeInfo;
-    this.getList().then((res) => {
-      if (!res.length) return
+    this.getList().then(res => {
+      if (!res.length) return;
       this.getUpdatedList(res);
-    })
+    });
   },
 
   activated() {
@@ -239,7 +248,7 @@ export default {
       app.scroll({ top: scrollTop });
     }
     app.addEventListener("scroll", this.scroll);
-    this.$store.dispatch("updateLastestAuthList")
+    this.$store.dispatch("updateLastestAuthList");
   },
 
   deactivated() {
@@ -250,107 +259,127 @@ export default {
   methods: {
     /** 获取展品列表 */
     async getUpdatedList(list) {
-      const top = 10
-      const allexhibitIds = list.map(ele => ele.exhibitId).join(',')
-      const exhibitIds = list.filter(ele => ele.articleInfo.articleType === 2).map(ele => ele.exhibitId).join(',')
+      const top = 10;
+      const allexhibitIds = list.map(ele => ele.exhibitId).join(",");
+      const exhibitIds = list
+        .filter(ele => ele.articleInfo.articleType === 2)
+        .map(ele => ele.exhibitId)
+        .join(",");
       const [exhibitDetailList, authStatusList, exhibitSubList] = await Promise.all([
         freelogApp.getExhibitListById({ exhibitIds: allexhibitIds, isLoadVersionProperty: 1 }),
         freelogApp.getExhibitAuthStatus(allexhibitIds),
         freelogApp.getCollectionsSubList(exhibitIds, {
-          sortType: -1, 
+          sortType: -1,
           skip: 0,
           limit: 10,
-          isShowDetailInfo: 1, 
+          isShowDetailInfo: 1
         })
-      ])
+      ]);
 
       if (exhibitDetailList.data.errCode !== 0) {
-        console.warn(exhibitDetailList.data)
+        console.warn(exhibitDetailList.data);
       }
       if (authStatusList.data.errCode !== 0) {
-        console.warn(authStatusList.data)
+        console.warn(authStatusList.data);
       }
       if (exhibitSubList.data.errCode !== 0) {
-        console.warn(exhibitSubList.data)
+        console.warn(exhibitSubList.data);
       }
-      
+
       // 合集内的子作品: 扁平化处理
-      const flatSubList = []
+      const flatSubList = [];
       exhibitSubList.data.data.forEach(ele => {
-        const exhibitDetail = exhibitDetailList.data.data.find(exhibit => exhibit.exhibitId === ele.exhibitId)
-        const authItem = authStatusList.data.data.find(exhibit => exhibit.exhibitId === ele.exhibitId)
+        const exhibitDetail = exhibitDetailList.data.data.find(
+          exhibit => exhibit.exhibitId === ele.exhibitId
+        );
+        const authItem = authStatusList.data.data.find(
+          exhibit => exhibit.exhibitId === ele.exhibitId
+        );
         if (ele.itemList && ele.itemList.length) {
           ele.itemList.forEach(innerEle => {
-            const data = JSON.parse(JSON.stringify({
-              ...exhibitDetail,
-              child: innerEle,
-              defaulterIdentityType: authItem.defaulterIdentityType
-            }))
-            flatSubList.push(data)
-          })
+            const data = JSON.parse(
+              JSON.stringify({
+                ...exhibitDetail,
+                child: innerEle,
+                defaulterIdentityType: authItem.defaulterIdentityType
+              })
+            );
+            flatSubList.push(data);
+          });
         }
 
         // 热门节目的子作品数量
         this.listData.forEach((innerEle, index) => {
           if (innerEle.exhibitId === ele.exhibitId) {
-            Vue.set(this.listData[index], "totalItem", ele.totalItem)
+            Vue.set(this.listData[index], "totalItem", ele.totalItem);
           }
-        })
-      })
+        });
+      });
 
       // 非合集数据
-      const notExhibitList = []
-      const notExhibitIds = list.filter(ele => ele.articleInfo.articleType === 1).map(ele => ele.exhibitId)
+      const notExhibitList = [];
+      const notExhibitIds = list
+        .filter(ele => ele.articleInfo.articleType === 1)
+        .map(ele => ele.exhibitId);
       notExhibitIds.forEach(ele => {
-        const exhibitDetail = exhibitDetailList.data.data.find(exhibit => exhibit.exhibitId === ele)
-        const authItem = authStatusList.data.data.find(exhibit => exhibit.exhibitId === ele)
+        const exhibitDetail = exhibitDetailList.data.data.find(
+          exhibit => exhibit.exhibitId === ele
+        );
+        const authItem = authStatusList.data.data.find(exhibit => exhibit.exhibitId === ele);
         const data = {
           ...exhibitDetail,
-          defaulterIdentityType: authItem.defaulterIdentityType,
-        }
-        notExhibitList.push(data)
-      })
+          defaulterIdentityType: authItem.defaulterIdentityType
+        };
+        notExhibitList.push(data);
+      });
 
       // 合集内的子作品: 排序后取前top
-      const sortedflatSubListTop = flatSubList.sort((a, b) => {
-        const aTimeStamp = new Date(a.child.createDate).getTime()
-        const bTimeStamp = new Date(b.child.createDate).getTime()
-        return bTimeStamp - aTimeStamp
-      }).slice(0, top)
+      const sortedflatSubListTop = flatSubList
+        .sort((a, b) => {
+          const aTimeStamp = new Date(a.child.createDate).getTime();
+          const bTimeStamp = new Date(b.child.createDate).getTime();
+          return bTimeStamp - aTimeStamp;
+        })
+        .slice(0, top);
 
       // 非合集数据: 排序后取前top
-      const sortedNotExhibitListTop = notExhibitList.sort((a, b) => {
-        const aTimeStamp = new Date(a.updateDate).getTime()
-        const bTimeStamp = new Date(b.updateDate).getTime()
-        return bTimeStamp - aTimeStamp
-      }).slice(0, top)
-      
+      const sortedNotExhibitListTop = notExhibitList
+        .sort((a, b) => {
+          const aTimeStamp = new Date(a.updateDate).getTime();
+          const bTimeStamp = new Date(b.updateDate).getTime();
+          return bTimeStamp - aTimeStamp;
+        })
+        .slice(0, top);
 
-      const result = [].concat(sortedflatSubListTop, sortedNotExhibitListTop).sort((a, b) => {
-        let aTimeStamp, bTimeStamp
-        if (a.child) {
-          aTimeStamp = new Date(a.child.createDate).getTime()
-        } else {
-          aTimeStamp = new Date(a.updateDate).getTime()
-        }
+      const result = []
+        .concat(sortedflatSubListTop, sortedNotExhibitListTop)
+        .sort((a, b) => {
+          let aTimeStamp, bTimeStamp;
+          if (a.child) {
+            aTimeStamp = new Date(a.child.createDate).getTime();
+          } else {
+            aTimeStamp = new Date(a.updateDate).getTime();
+          }
 
-        if (b.child) {
-          bTimeStamp = new Date(b.child.createDate).getTime()
-        } else {
-          bTimeStamp = new Date(b.updateDate).getTime()
-        }
-        return bTimeStamp - aTimeStamp
-      }).slice(0, top)
-      
-      this.lastestList = result
-        .filter(ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType))
+          if (b.child) {
+            bTimeStamp = new Date(b.child.createDate).getTime();
+          } else {
+            bTimeStamp = new Date(b.updateDate).getTime();
+          }
+          return bTimeStamp - aTimeStamp;
+        })
+        .slice(0, top);
+
+      this.lastestList = result.filter(
+        ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType)
+      );
     },
     /** 获取展品列表 */
     async getList() {
       if (this.loading) return;
 
       this.loading = true;
-      await sleep(800)
+      await sleep(800);
       const queryParams = {
         articleResourceTypes: "音频",
         isLoadVersionProperty: 1,
@@ -380,7 +409,7 @@ export default {
       this.listData = dataList;
       this.total = totalItem;
       this.loading = false;
-      return dataList
+      return dataList;
     },
     /** 页面滚动 */
     scroll() {
@@ -435,7 +464,7 @@ export default {
           word-break: break-all;
           font-size: 40px;
           font-weight: 600;
-          color: var(--text-other-color);
+          color: var(--text-color);
           line-height: 60px;
           display: -webkit-box;
           -webkit-box-orient: vertical;
@@ -445,7 +474,8 @@ export default {
 
         .node-intro {
           font-size: 14px;
-          color: rgba(255, 255, 255, 0.8);
+          color: var(--text-color);
+          opacity: 0.6;
           line-height: 20px;
           margin-top: 10px;
           word-break: break-all;
@@ -499,9 +529,9 @@ export default {
         .top-title {
           font-size: 20px;
           font-weight: 600;
-          color: var(--text-other-color);
+          color: var(--text-color);
           line-height: 28px;
-          opacity: 0.6;
+          opacity: 0.8;
         }
 
         .view-all-btn {
@@ -617,10 +647,10 @@ export default {
         .hot-title {
           font-weight: 600;
           font-size: 20px;
-          color: var(--text-other-color);
+          color: var(--text-color);
           line-height: 28px;
           margin-right: auto;
-          opacity: 0.6;
+          opacity: 0.8;
         }
         .hot-more {
           align-self: flex-end;
@@ -651,7 +681,7 @@ export default {
         padding: 0px 15px;
         overflow: auto;
         scrollbar-width: none;
-        &::-webkit-scrollbar { 
+        &::-webkit-scrollbar {
           display: none;
         }
 
@@ -661,7 +691,7 @@ export default {
           height: 210px;
           background: #222222;
           border-radius: 10px;
-          border: 1px solid rgba(255,255,255,0.1);
+          border: 1px solid rgba(255, 255, 255, 0.1);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -681,7 +711,6 @@ export default {
               cursor: pointer;
               &:active {
                 background: rgba(255, 255, 255, 0.03);
-
               }
               span {
                 color: var(--text-other-color);
@@ -694,7 +723,7 @@ export default {
                 }
               }
             }
-            
+
             .desc {
               margin-top: auto;
               font-weight: 600;
@@ -719,13 +748,13 @@ export default {
       padding: 20px 0 50px;
       display: flex;
       align-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid var(--text-first-color);
 
       .node-avatar {
         width: 240px;
         height: 240px;
         border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
         background-color: #252525;
         display: flex;
         align-items: center;
@@ -750,7 +779,7 @@ export default {
           word-break: break-all;
           font-size: 40px;
           font-weight: 600;
-          color: var(--text-other-color);
+          color: var(--text-color);
           line-height: 60px;
           opacity: 0.8;
           display: -webkit-box;
@@ -762,7 +791,7 @@ export default {
         .node-intro {
           opacity: 0.6;
           font-size: 14px;
-          color: var(--text-other-color);
+          color: var(--text-color);
           line-height: 20px;
           margin-top: 25px;
           word-break: break-all;
@@ -805,9 +834,9 @@ export default {
         .top-title {
           font-size: 20px;
           font-weight: 600;
-          color: var(--text-other-color);
+          color: var(--text-color);
           line-height: 28px;
-          opacity: 0.6;
+          opacity: 0.8;
         }
 
         // .view-all-btn {
@@ -940,7 +969,6 @@ export default {
           border-radius: 4px;
         }
       }
-
     }
     ::v-deep .el-skeleton.is-animated .el-skeleton__item {
       background: linear-gradient(
@@ -976,10 +1004,10 @@ export default {
         .hot-title {
           font-weight: 600;
           font-size: 20px;
-          color: var(--text-other-color);
+          color: var(--text-color);
           line-height: 28px;
           margin-right: auto;
-          opacity: 0.6;
+          opacity: 0.8;
         }
         .hot-more {
           align-self: flex-end;
