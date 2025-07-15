@@ -116,7 +116,7 @@
         </div>
 
         <div class="update-date" v-if="!inMobile">
-          <div class="detail-latest-box" v-if="data.articleInfo?.articleType === 1">单集</div>
+          <div class="detail-latest-box" v-if="data.articleInfo?.articleType === 1">单本</div>
 
           <div class="detail-latest-box" v-else-if="data.articleInfo?.serializeStatus === 0">
             <div class="on-going">连载中</div>
