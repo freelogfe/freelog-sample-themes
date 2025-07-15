@@ -241,7 +241,7 @@ onBeforeUnmount(() => {
       </div>
     </div>
     <!-- 专辑内容 -->
-    <div class="album-content-box" v-if="albumData.length">
+    <div class="album-content-box" v-if="albumData?.length">
       <div
         class="content-item"
         v-for="(item, index) in albumData"
@@ -307,7 +307,11 @@ onBeforeUnmount(() => {
                   <img :src="currentTheme === 'light' ? DarkTimeIcon : TimeIcon" alt="更新时间" />
                 </div>
                 <span class="time">{{
-                  absoluteTime(item?.versionInfo?.exhibitProperty?.release_date || item.createDate)
+                  absoluteTime(
+                    item?.versionInfo?.exhibitProperty?.release_date ||
+                      item?.articleInfo?.versions?.[0]?.createDate ||
+                      item.createDate
+                  )
                 }}</span>
               </div>
 

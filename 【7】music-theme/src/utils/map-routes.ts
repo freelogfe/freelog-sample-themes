@@ -8,5 +8,12 @@ export default {
     }
 
     return `/detail?id=${exhibitId}&subID=${itemId}&albumName=${query.albumName}`;
+  },
+  playDetail: (exhibitId: string, itemId: string, query: Record<string, string>) => {
+    if (!itemId) {
+      return `/play-detail?id=${exhibitId}`;
+    }
+
+    return `/play-detail?id=${exhibitId}&subID=${itemId}&albumName=${query.albumName}`;
   }
 };

@@ -194,9 +194,9 @@ export const useGetList = () => {
 
   return {
     getPlayList,
-    playListData: playListData,
+    playListData: playListData.value,
     getList,
-    listData: listData
+    listData: listData.value
   };
 };
 /** 授权 hook */

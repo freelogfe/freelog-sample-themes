@@ -100,6 +100,7 @@ export default {
   methods: {
     /** 初始化分享组件 */
     initShare() {
+      const route = this.$route;
       let params = {};
 
       const { exhibitId, itemId, albumName } = this.shareInfo.exhibit;
@@ -110,7 +111,10 @@ export default {
         params = { exhibitId };
       }
 
-      const url = freelogApp.getShareUrl(params, "detail");
+      const url = freelogApp.getShareUrl(
+        params,
+        route.name === "play-detail" ? "playDetail" : "detail"
+      );
       this.href = url;
       this.shareText = `我在freelog发现一个不错的声音：\n《${this.shareInfo.exhibit.exhibitTitle}》\n${url}`;
       if (!this.shareInfo.show) this.qrcodeShow = false;

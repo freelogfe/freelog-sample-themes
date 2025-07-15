@@ -42,7 +42,7 @@ const playListData = computed(() => {
 
 // 音乐专辑列表
 const musicAlbumData = computed(() => {
-  return datasOfGetList.listData?.listData.slice(0, 5);
+  return datasOfGetList.listData?.listData?.slice(0, 5);
 });
 
 /** 获取展品列表 */
@@ -154,6 +154,7 @@ onBeforeMount(() => {
   // 获取音乐专辑
   datasOfGetList.getList({ articleResourceTypes: "音乐专辑", sort: `createDate:-1` });
   // 获取歌单
+  console.log("会来这里");
   datasOfGetList.getPlayList();
 });
 </script>

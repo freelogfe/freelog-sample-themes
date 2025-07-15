@@ -368,7 +368,6 @@
 
     <!-- PC -->
     <div class="pc-detail-wrapper" v-if="!store.inMobile">
-      {{ voiceInfo }}
       <template v-if="!['音频'].includes(voiceInfo?.articleInfo.resourceType[0])">
         <div className="exceptional-box">
           <div className="icon">
@@ -430,7 +429,7 @@
 
           <div class="info-area" v-if="albumName">
             <div class="info-item" v-if="albumName">
-              <div class="item-value">收录于专辑</div>
+              <div class="item-value">收录于歌单</div>
               <div
                 class="item-album"
                 @click="
@@ -444,7 +443,6 @@
               </div>
             </div>
           </div>
-
           <div class="info-detail" v-if="!subID && hasInfoDetail">
             <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.display_artist">
               <span class="name">艺人:</span>
@@ -473,14 +471,16 @@
               class="detail-item"
               v-if="
                 voiceInfo?.versionInfo?.exhibitProperty.release_date ||
-                voiceInfo?.articleInfo?.versions?.[0]?.createDate
+                voiceInfo?.articleInfo?.versions?.[0]?.createDate ||
+                voiceInfo?.createDate
               "
             >
               <span class="name">发行时间:</span>
               <span class="value">{{
                 absoluteTime(
                   voiceInfo?.versionInfo?.exhibitProperty.release_date ||
-                    voiceInfo?.articleInfo?.versions?.[0]?.createDate
+                    voiceInfo?.articleInfo?.versions?.[0]?.createDate ||
+                    voiceInfo?.createDate
                 )
               }}</span>
             </div>
@@ -924,7 +924,8 @@ export default {
         song_arranger ||
         music_genre ||
         collection_duration ||
-        this.voiceInfo.articleInfo?.versions?.[0]?.createDate
+        this.voiceInfo.articleInfo?.versions?.[0]?.createDate ||
+        this.voiceInfo?.createDate
       );
     },
 
