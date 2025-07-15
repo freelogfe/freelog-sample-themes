@@ -109,7 +109,7 @@ onBeforeMount(() => {
     <!-- 头部 -->
     <div class="blog-header">
       <div class="blog-header-title">专栏</div>
-      <div class="blog-header-count">总数{{ columnLength }}</div>
+      <!-- <div class="blog-header-count">总数{{ columnLength }}</div> -->
     </div>
     <!-- 排序筛选 -->
     <div class="blog-filter">

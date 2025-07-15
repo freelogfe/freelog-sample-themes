@@ -6,9 +6,7 @@ import {
   onBeforeMount,
   watch,
   onActivated,
-  onDeactivated,
-  reactive,
-  watchEffect
+  reactive
 } from "vue";
 import { useStore } from "vuex";
 import { useGetList, useMyRouter, useMyScroll } from "@/utils/hooks";
@@ -121,7 +119,7 @@ onBeforeMount(() => {
     <!-- 头部 -->
     <div class="blog-header">
       <div class="blog-header-title">博客</div>
-      <div class="blog-header-count">总数{{ datasOfGetList.total }}</div>
+      <!-- <div class="blog-header-count">总数{{ availableListData.length }}</div> -->
     </div>
     <!-- 排序筛选 -->
     <div class="blog-filter">

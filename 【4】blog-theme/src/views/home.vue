@@ -160,7 +160,7 @@
         </div>
 
         <div class="blog-count">
-          <span>博客总数{{ isAllLoaded ? availableListData?.length : "" }}</span>
+          <!-- <span>博客总数{{ isAllLoaded ? availableListData?.length : "" }}</span> -->
           <span @click="switchPage('/blog')">查看全部</span>
         </div>
       </div>
@@ -182,7 +182,7 @@
       <div class="header-collection" v-if="displayListCollectionData?.length">
         <span class="collection-title">专栏</span>
         <div class="collection-count">
-          <span>专栏总数{{ collectionsData?.length }}</span>
+          <!-- <span>专栏总数{{ collectionsData?.length }}</span> -->
           <span @click="switchPage('/column')">查看全部</span>
         </div>
       </div>
@@ -940,8 +940,8 @@ export default {
         color: rgba(0, 0, 0, 0.4);
         margin-top: 10px;
 
-        span:nth-child(2) {
-          margin-left: 10px;
+        span:nth-child(1) {
+          // margin-left: 10px;
           cursor: pointer;
 
           &:hover {
@@ -989,8 +989,8 @@ export default {
         line-height: 18px;
         margin-top: 10px;
 
-        span:nth-child(2) {
-          margin-left: 10px;
+        span:nth-child(1) {
+          // margin-left: 10px;
           cursor: pointer;
 
           &:hover {
