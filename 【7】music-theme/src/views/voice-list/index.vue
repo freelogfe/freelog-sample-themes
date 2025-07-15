@@ -98,6 +98,8 @@ export default {
       const list = await freelogApp.getExhibitListByPaging(queryParams);
       const { dataList, totalItem } = list.data.data;
 
+      this.total = totalItem;
+
       if (dataList.length !== 0) {
         const ids = dataList.map(item => item.exhibitId).join();
 
@@ -124,6 +126,8 @@ export default {
 
           // 获取合集里的单品列表
           if (item.articleInfo.articleType === 2) {
+            // 专辑类型，总数减一
+            this.total = this.total - 1;
             await this.getCollectionList(item.exhibitId, item.exhibitTitle, item.coverImages);
           } else {
             this.listData.push(item);
@@ -131,8 +135,6 @@ export default {
         }
       }
 
-      // this.listData = init ? dataList : [...this.listData, ...dataList];
-      this.total = totalItem;
       if (init) this.loading = false;
       this.myLoading = false;
     },
@@ -146,6 +148,8 @@ export default {
       });
       const { dataList, totalItem } = subList.data.data;
       this.subTotal = totalItem;
+      // 合集单品数量累加
+      this.total = this.total + totalItem;
 
       if (dataList.length !== 0) {
         const ids = dataList.map(item => item.itemId).join();
