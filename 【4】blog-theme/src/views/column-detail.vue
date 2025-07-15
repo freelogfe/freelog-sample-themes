@@ -277,14 +277,17 @@ onBeforeMount(() => {
     </div>
 
     <!-- 排序 -->
-    <div class="sort" @click="handleSort">
+    <div class="sort" @click="handleSort" v-if="exhibitInfo?.collectionList?.length">
       <span>{{ sortOrder === "asc" ? "正序" : "倒序" }}</span>
       <span class="triangle" :class="sortOrder === 'asc' ? 'asc' : 'desc'"></span>
     </div>
 
     <!-- 内容 -->
-    <div class="article-list">
+    <div class="article-list" v-if="exhibitInfo?.collectionList?.length">
       <my-article-v2 :data="item" v-for="item in exhibitInfo?.collectionList" :key="item.itemId" />
+    </div>
+    <div v-else class="no-data">
+      <div class="no-data-text">暂无内容</div>
     </div>
 
     <!-- 其他专栏 -->
@@ -476,6 +479,15 @@ onBeforeMount(() => {
   grid-template-columns: repeat(3, 1fr);
   gap: 40px;
   margin-bottom: 100px;
+}
+
+.no-data {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 250px;
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 30px;
 }
 
 .recommend-list {
