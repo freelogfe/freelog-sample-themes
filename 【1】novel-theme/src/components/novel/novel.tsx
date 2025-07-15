@@ -149,7 +149,7 @@ export const Novel = (props: {
             <div className="update-date">
               {data.articleInfo?.articleType === 1 ? (
                 <div className="detail-latest-box">
-                  <div className="single">单集</div>
+                  <div className="single">单本</div>
                   {data?.versionInfo?.exhibitProperty?.wordCount && (
                     <div className="word-count">
                       {formatWordCount((data?.versionInfo as any)?.exhibitProperty?.wordCount) +
