@@ -207,7 +207,10 @@
               () => {
                 playDialogShow = false;
                 playingInfo.albumName &&
-                  $router.myPush({ path: '/detail', query: { id: playingInfo.exhibitId } });
+                  $router.myPush({
+                    path: playingInfo.parentArticleType === 3 ? '/play-detail' : '/detail',
+                    query: { id: playingInfo.exhibitId }
+                  });
               }
             "
           >
@@ -280,7 +283,10 @@
                           @click="
                             playingInfo?.itemTitle
                               ? $router.myPush({
-                                  path: '/detail',
+                                  path:
+                                    playingInfo.parentArticleType === 3
+                                      ? '/play-detail'
+                                      : '/detail',
                                   query: {
                                     id: playingInfo.exhibitId,
                                     subID: playingInfo.itemId,
@@ -288,7 +294,10 @@
                                   }
                                 })
                               : $router.myPush({
-                                  path: '/detail',
+                                  path:
+                                    playingInfo.parentArticleType === 3
+                                      ? '/play-detail'
+                                      : '/detail',
                                   query: { id: playingInfo.exhibitId }
                                 })
                           "
@@ -303,7 +312,8 @@
                           class="title album-title"
                           @click="
                             $router.myPush({
-                              path: '/detail',
+                              path:
+                                playingInfo.parentArticleType === 3 ? '/play-detail' : '/detail',
                               query: { id: playingInfo.exhibitId }
                             })
                           "
@@ -906,7 +916,9 @@ export default {
     /** 分享 */
     share() {
       if (this.store.inMobile) {
-        const copiedShareHref = `${window.location.origin}/detail?id=${this.playingInfo.exhibitId}`;
+        const copiedShareHref = `${window.location.origin}/${
+          this.playingInfo.parentArticleType === 3 ? "play-detail" : "detail"
+        }?id=${this.playingInfo.exhibitId}`;
         navigator.clipboard
           .writeText(copiedShareHref)
           .then(() => {
