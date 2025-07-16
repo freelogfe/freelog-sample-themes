@@ -1098,6 +1098,27 @@ export default {
       if (this.playing) {
         this.store.setData({ key: "playing", value: false });
       } else {
+        if (this.voiceInfo.defaulterIdentityType === 4) {
+          const authResult = await freelogApp.addAuth(this.id, { immediate: true });
+          const { status } = authResult;
+          if (status === 0) {
+            await this.getVoiceInfo();
+
+            // 默认播放第一首符合条件的歌曲，其余的全部加入播放列表
+            const playableTracks = this.collectionData.filter(i => i.defaulterIdentityType === 0);
+            await useMyPlay.playOrPause(playableTracks[0], "normal");
+
+            setTimeout(async () => {
+              await useMyPlay.addToPlayList({
+                exhibitId: this.voiceInfo.exhibitId,
+                type: "PLAY_ALBUM_ADD_TO_PLAYLIST"
+              });
+            }, 0);
+          }
+
+          return;
+        }
+
         // 默认播放第一首符合条件的歌曲，其余的全部加入播放列表
         const playableTracks = this.collectionData.filter(i => i.defaulterIdentityType === 0);
         await useMyPlay.playOrPause(playableTracks[0], "normal");
@@ -1219,7 +1240,13 @@ export default {
           exhibitInfo.data.data;
         if (articleInfo.articleType === 3) {
           this.collectionData = [];
-          this.getCollectionList(this.id, exhibitName, coverImages, onlineStatus, versionInfo);
+          await this.getCollectionList(
+            this.id,
+            exhibitName,
+            coverImages,
+            onlineStatus,
+            versionInfo
+          );
         }
       }
 
@@ -1277,7 +1304,13 @@ export default {
 
       if (this.subTempData.length < this.subTotal) {
         this.subSkip = this.subSkip + 1_000;
-        this.getCollectionList(collectionID, exhibitName, coverImages, onlineStatus, versionInfo);
+        await this.getCollectionList(
+          collectionID,
+          exhibitName,
+          coverImages,
+          onlineStatus,
+          versionInfo
+        );
       } else {
         this.subTotal = 0;
         this.subSkip = 0;

@@ -67,7 +67,27 @@ const playOrPause = async item => {
   const { playingInfo } = store;
 
   if (item.defaulterIdentityType === 4) {
-    useMyAuth.getAuth(item);
+    const authResult = await freelogApp.addAuth(item.exhibitId, { immediate: true });
+    const { status } = authResult;
+    if (status === 0) {
+      await getCollectionList({
+        exhibitId: item.exhibitId,
+        exhibitName: item.exhibitName,
+        coverImages: item.coverImages
+      });
+
+      // 默认播放第一首符合条件的歌曲，其余的全部加入播放列表
+      const playableTracks = collectionData.value.filter(i => i.defaulterIdentityType === 0);
+      await useMyPlay.playOrPause(playableTracks[0], "normal");
+
+      setTimeout(async () => {
+        await useMyPlay.addToPlayList({
+          exhibitId: item.exhibitId,
+          type: "PLAY_ALBUM_ADD_TO_PLAYLIST"
+        });
+      }, 0);
+    }
+
     return;
   }
 
