@@ -34,7 +34,7 @@
         />
       </div>
       <span class="author-name">
-        {{ data.articleInfo.articleOwnerName }}
+        {{ data.articleInfo.articleOwnerName || nodeInfo?.ownerUserName }}
       </span>
       <span class="date">
         {{
@@ -109,6 +109,7 @@ import { defineAsyncComponent, onMounted, ref, computed } from "vue";
 import { useMyRouter } from "@/utils/hooks";
 import { ExhibitItem } from "../api/interface";
 import { useStore } from "vuex";
+import { freelogApp } from "freelog-runtime";
 
 export default {
   name: "my-article-v2",
@@ -191,7 +192,8 @@ export default {
       handleTitleHover,
       showIntroTooltip,
       introRef,
-      handleIntroHover
+      handleIntroHover,
+      nodeInfo: freelogApp.nodeInfo
     };
   }
 };

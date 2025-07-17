@@ -16,6 +16,7 @@ let exhibitId = route.query.id as string;
 const exhibitInfo = ref<any>(null);
 const sortOrder = ref<string>("asc"); // 默认排序为正序
 const recommendList = ref<any[]>([]);
+const nodeInfo = freelogApp.nodeInfo;
 
 // 获取展品信息
 const getExhibitInfo = async () => {
@@ -249,7 +250,9 @@ onBeforeMount(() => {
               alt="头像"
             />
           </div>
-          <!-- <div class="author-name">{{ exhibitInfo?.articleInfo?.articleOwnerName }}</div> -->
+          <div class="author-name">
+            {{ exhibitInfo?.articleInfo?.articleOwnerName || nodeInfo?.ownerUserName }}
+          </div>
           <div class="divider"></div>
           <div class="date">
             {{
