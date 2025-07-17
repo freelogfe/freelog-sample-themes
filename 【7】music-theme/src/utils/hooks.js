@@ -268,10 +268,13 @@ export const useMyAuth = {
 
     authIdList.push(exhibitId);
 
-    store.setData({ key: "collectionList", value: collectionList });
-    store.setData({ key: "signedList", value: signedList });
-    store.setData({ key: "playList", value: playList });
-    store.setData({ key: "authIdList", value: authIdList });
+    // 等待所有状态更新完成
+    await Promise.all([
+      store.setData({ key: "collectionList", value: collectionList }),
+      store.setData({ key: "signedList", value: signedList }),
+      store.setData({ key: "playList", value: playList }),
+      store.setData({ key: "authIdList", value: authIdList })
+    ]);
 
     if (play) {
       useMyPlay.addToPlayList({ exhibitId, itemId });
@@ -303,7 +306,7 @@ export const useMyCollection = {
     const result = [];
     const idList = store.collectionIdList;
     if (!idList.length) {
-      store.setData({ key: "collectionList", value: [] });
+      await store.setData({ key: "collectionList", value: [] });
       return;
     }
 
@@ -316,10 +319,12 @@ export const useMyCollection = {
         ]);
         result.push({
           ...subInfo.data.data,
-          onlineStatus: list.data?.data?.[0]?.status,
+          onlineStatus: list.data?.data?.[0]?.onlineStatus,
           coverImages: list.data?.data?.[0]?.coverImages,
           versionInfo: { exhibitProperty: subInfo.data.data.articleInfo?.articleProperty },
-          defaulterIdentityType: subStatusList.data.data[0].defaulterIdentityType
+          defaulterIdentityType: subStatusList.data.data[0].defaulterIdentityType,
+          albumName: list.data.data[0].exhibitTitle,
+          parentArticleType: list.data.data[0].articleInfo?.articleType
         });
       } else {
         const [list, statusList] = await Promise.all([
@@ -330,14 +335,29 @@ export const useMyCollection = {
           freelogApp.getExhibitAuthStatus(item.exhibitId)
         ]);
 
-        result.push({
-          ...list.data.data[0],
-          defaulterIdentityType: statusList.data.data[0].defaulterIdentityType
-        });
+        if ([2, 3].includes(list.data.data[0].articleInfo?.articleType)) {
+          const subList = await freelogApp.getCollectionSubList(item.exhibitId, {
+            sortType: -1,
+            skip: 0,
+            limit: 1_000,
+            isShowDetailInfo: 1
+          });
+
+          result.push({
+            ...list.data.data[0],
+            defaulterIdentityType: statusList.data.data[0].defaulterIdentityType,
+            totalItem: subList.data.data?.totalItem
+          });
+        } else {
+          result.push({
+            ...list.data.data[0],
+            defaulterIdentityType: statusList.data.data[0].defaulterIdentityType
+          });
+        }
       }
     }
 
-    store.setData({ key: "collectionList", value: result });
+    await store.setData({ key: "collectionList", value: result });
   },
 
   /** 判断当前展品是否已被收藏 */
@@ -363,7 +383,7 @@ export const useMyCollection = {
     const combineCollectionIdList = store.collectionIdList.map(
       i => `${i.exhibitId}${i.itemId ?? ""}`
     );
-    const collectionList = [...store.collectionList];
+    const collectionList = [...(store.collectionList || [])];
 
     const isCollected = combineCollectionIdList.includes(`${exhibitId}${itemId ?? ""}`);
     if (isCollected) {
@@ -371,20 +391,37 @@ export const useMyCollection = {
       const idIndex = combineCollectionIdList.findIndex(
         item => item === `${exhibitId}${itemId ?? ""}`
       );
-      collectionIdList.splice(idIndex, 1);
+      if (idIndex !== -1) {
+        collectionIdList.splice(idIndex, 1);
+      }
       const index = collectionList.findIndex(
         item => `${item.exhibitId}${item.itemId ?? ""}` === `${exhibitId}${itemId ?? ""}`
       );
-      collectionList.splice(index, 1);
+      if (index !== -1) {
+        collectionList.splice(index, 1);
+      }
     } else {
       // 收藏
+      // 确认parentArticleType
+      const parentArticleType = await freelogApp.getExhibitInfo(exhibitId, {
+        isLoadVersionProperty: 1
+      });
+
       collectionIdList.unshift({ exhibitId, itemId });
-      collectionList.unshift(data);
+      collectionList.unshift({
+        ...data,
+        parentArticleType: parentArticleType.data.data.articleInfo.articleType
+      });
     }
+
     const res = await freelogApp.setUserData("collectionIdList", collectionIdList);
     if (res.data.msg === "success") {
-      store.setData({ key: "collectionIdList", value: collectionIdList });
-      store.setData({ key: "collectionList", value: collectionList });
+      // 等待 store 更新完成
+      await store.setData({ key: "collectionIdList", value: collectionIdList });
+      await store.setData({ key: "collectionList", value: collectionList });
+
+      // 显示操作结果提示
+      showToast(isCollected ? "取消收藏成功" : "收藏成功");
     } else {
       showToast("操作失败");
     }

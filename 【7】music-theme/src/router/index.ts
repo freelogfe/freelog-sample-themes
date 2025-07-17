@@ -50,8 +50,8 @@ const routes = [
   {
     path: "/collection-list",
     name: "collection-list",
-    component: () => import("../views/collection/index.vue"),
-    meta: { keepAlive: true }
+    component: () => import("../views/collection/index.vue")
+    // meta: { keepAlive: true }
   },
   {
     path: "/signed-list",

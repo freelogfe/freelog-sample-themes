@@ -1,4 +1,4 @@
-<!-- 专辑列表页 -->
+<!-- 歌单列表页 -->
 <template>
   <div class="play-list-wrapper">
     <list

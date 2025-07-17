@@ -1166,7 +1166,9 @@ export default {
 
     /** 收藏/取消收藏 */
     operateCollect(item) {
-      useMyCollection.operateCollect(item.itemId ? item : this.voiceInfo);
+      useMyCollection.operateCollect(
+        item.itemId ? item : { ...this.voiceInfo, totalItem: this.collectionData.length }
+      );
     },
 
     /** 分享 */

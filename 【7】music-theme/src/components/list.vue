@@ -13,6 +13,9 @@
         <div class="tab" :class="tab === 2 && 'active'" @click="changeTab(2)">
           专辑{{ albumLength ? `（${albumLength}）` : "" }}
         </div>
+        <div class="tab" :class="tab === 3 && 'active'" @click="changeTab(3)">
+          歌单{{ playListLength ? `（${playListLength}）` : "" }}
+        </div>
       </div>
     </div>
 
@@ -132,7 +135,7 @@
       <div v-else-if="tab === 2 && albumLength && total !== 0">
         <PCAlbum
           v-if="!store.inMobile"
-          :hasHeder="false"
+          :hasHeader="false"
           :data="list.filter(i => i.articleInfo?.articleType === 2)"
         />
         <MobileAlbum v-else :data="list.filter(i => i.articleInfo?.articleType === 2)" />
@@ -140,8 +143,12 @@
 
       <!-- 歌单 -->
       <div v-else-if="tab === 3 && list.length && total !== 0">
-        <PCPlayList v-if="!store.inMobile" :hasHeder="false" :data="list" />
-        <MobileAlbum v-else :data="list" />
+        <PCPlayList
+          v-if="!store.inMobile"
+          :hasHeader="false"
+          :data="list?.filter(i => i.articleInfo?.articleType === 3)"
+        />
+        <MobileAlbum v-else :data="list?.filter(i => i.articleInfo?.articleType === 3)" />
       </div>
       <!-- 无数据 -->
       <div class="no-data-tip" v-if="noDataMessage">{{ noDataMessage }}</div>
@@ -285,7 +292,7 @@ export default {
     },
 
     playListLength() {
-      const data = this.list || [];
+      const data = this.list?.filter(i => i.articleInfo?.articleType === 3) || [];
       return data.length;
     },
 
@@ -299,6 +306,9 @@ export default {
         }
         if (this.tab === 2 && !this.albumLength) {
           return "没有收藏任何专辑";
+        }
+        if (this.tab === 3 && !this.playListLength) {
+          return "没有收藏任何歌单";
         }
       } else if (isSearchList) {
         if (this.tab === 1 && !this.musicLength) {
