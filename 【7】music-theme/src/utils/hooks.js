@@ -47,6 +47,7 @@ export const useCommon = {
             item.exhibitIntro = item.articleInfo.intro;
             item.albumName = obj.exhibitName;
             item.exhibitId = obj.collectionID;
+            item.parentArticleType = obj.articleType;
 
             itemsToAdd.push({ exhibitId: item.exhibitId, itemId: item.itemId });
           });
@@ -475,7 +476,8 @@ export const useMyPlay = {
             options: {
               limit: 1_000,
               isShowDetailInfo: 1
-            }
+            },
+            parentArticleType: list.data.data[0].articleInfo?.articleType
           };
 
           const { data, itemsToAdd } = await useCommon.getCollectionSubList(params);

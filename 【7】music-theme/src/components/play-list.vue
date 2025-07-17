@@ -70,6 +70,7 @@ const playOrPause = async item => {
     const authResult = await freelogApp.addAuth(item.exhibitId, { immediate: true });
     const { status } = authResult;
     if (status === 0) {
+      collectionData.value = [];
       item.defaulterIdentityType = 0;
       await getCollectionList({
         exhibitId: item.exhibitId,
