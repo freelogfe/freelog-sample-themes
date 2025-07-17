@@ -8,14 +8,16 @@ const store = useGlobalStore();
 const signedData = ref<any[]>([]);
 
 const getList = async () => {
-  for (const item of store?.signedList) {
-    if (item.articleInfo.articleType === 2) {
+  const signedList = store?.signedList || [];
+  for (const item of signedList) {
+    if ([2, 3].includes(item.articleInfo.articleType)) {
       signedData.value?.push(item);
       await getCollectionList(
         item.exhibitId,
         item.exhibitName,
         item.coverImages,
-        item?.onlineStatus
+        item?.onlineStatus,
+        item.articleInfo.articleType
       );
     } else {
       signedData.value?.push(item);
@@ -32,7 +34,8 @@ const getCollectionList = async (
   collectionID: string,
   exhibitName: string,
   images: string[],
-  onlineStatus: number
+  onlineStatus: number,
+  parentArticleType: number
 ) => {
   const subList = await freelogApp.getCollectionSubList(collectionID, {
     skip: subSkip,
@@ -65,6 +68,7 @@ const getCollectionList = async (
         item.albumName = exhibitName;
         item.exhibitId = collectionID;
         item.onlineStatus = onlineStatus;
+        item.parentArticleType = parentArticleType;
       });
     }
   }

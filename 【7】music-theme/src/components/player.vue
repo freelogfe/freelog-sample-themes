@@ -554,7 +554,7 @@ export default {
           this.touchMoveX = -this.infoAreaWidth * index;
         }
       },
-      // immediate: true,
+      immediate: true,
       deep: true
     },
 

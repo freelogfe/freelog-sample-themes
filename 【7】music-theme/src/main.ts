@@ -23,10 +23,11 @@ window.mount = async () => {
   const app = createApp(App);
   app.use(pinia);
   app.use(router);
-  app.mount("#app");
 
   const store = useGlobalStore();
   await store.initStoreData();
+
+  app.mount("#app");
 
   // 初始化主题
   initTheme();

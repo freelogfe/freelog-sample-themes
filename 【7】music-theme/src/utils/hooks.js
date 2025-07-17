@@ -207,13 +207,14 @@ export const useMyAuth = {
     const { userData } = storeToRefs(store);
 
     // 用户未登录
-    if (!userData.value.isLogin) return;
+    if (!userData.value.isLogin) {
+      return;
+    }
 
     const result = [];
     const signedList = await freelogApp.getSignStatistics();
     const idList = signedList.data.data.map(item => item.subjectId);
     if (!idList.length) {
-      store.setData({ key: "signedList", value: [] });
       return;
     }
 
@@ -234,7 +235,7 @@ export const useMyAuth = {
         defaulterIdentityType: statusItem.defaulterIdentityType
       });
     });
-    store.setData({ key: "signedList", value: result });
+    await store.setData({ key: "signedList", value: result });
   },
 
   /**
