@@ -179,7 +179,12 @@ const getCollectionList = async (obj: {
           <!-- 封面 -->
           <div
             class="cover-image"
-            @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
+            @click="
+              router.myPush({
+                path: item.articleInfo.articleType === 3 ? '/play-detail' : '/detail',
+                query: { id: item.exhibitId }
+              })
+            "
           >
             <img :src="item.coverImages[0]" alt="歌曲封面" />
             <div class="btn" @click.stop="playOrPause(item)">
@@ -216,7 +221,12 @@ const getCollectionList = async (obj: {
               ></i>
               <span
                 class="title"
-                @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
+                @click="
+                  router.myPush({
+                    path: item.articleInfo.articleType === 3 ? '/play-detail' : '/detail',
+                    query: { id: item.exhibitId }
+                  })
+                "
                 >{{ item.exhibitTitle }}</span
               >
             </div>
@@ -235,13 +245,18 @@ const getCollectionList = async (obj: {
                 <div class="icon">
                   <img :src="currentTheme === 'light' ? DarkAlbumIcon : AlbumIcon" alt="专辑" />
                 </div>
-                <span class="album">{{ item.signCount }}</span>
+                <span class="album">{{ item?.collectionList.totalItem || item.totalItem }}</span>
               </div>
             </div>
           </div>
           <div
             class="more-icon"
-            @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
+            @click="
+              router.myPush({
+                path: item.articleInfo.articleType === 3 ? '/play-detail' : '/detail',
+                query: { id: item.exhibitId }
+              })
+            "
           >
             <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
           </div>

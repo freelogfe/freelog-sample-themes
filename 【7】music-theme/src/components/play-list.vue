@@ -419,7 +419,7 @@ onBeforeUnmount(() => {
                 <div class="icon">
                   <img :src="currentTheme === 'light' ? DarkAlbumIcon : AlbumIcon" alt="歌单" />
                 </div>
-                <span class="album">{{ item.collectionList.totalItem }}</span>
+                <span class="album">{{ item?.collectionList.totalItem || item.totalItem }}</span>
               </div>
             </div>
           </div>

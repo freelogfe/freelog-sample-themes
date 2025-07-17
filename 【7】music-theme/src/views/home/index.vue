@@ -154,7 +154,6 @@ onBeforeMount(() => {
   // 获取音乐专辑
   datasOfGetList.getList({ articleResourceTypes: "音乐专辑", sort: `createDate:-1` });
   // 获取歌单
-  console.log("会来这里");
   datasOfGetList.getPlayList();
 });
 </script>
