@@ -84,6 +84,10 @@ export const useGetList = () => {
     loading: false
   });
 
+  // 防抖定时器
+  let playListDebounceTimer = null;
+  let listDebounceTimer = null;
+
   /** 获取歌单列表 */
   const getPlayList = async () => {
     playListData.value.loading = true;
@@ -91,7 +95,8 @@ export const useGetList = () => {
     const queryParams = {
       articleResourceTypes: "歌单",
       isLoadVersionProperty: 1,
-      limit: 100
+      limit: 100,
+      skip: playListData.value.listData.length // 使用当前已加载数据的长度作为skip
     };
 
     if (
@@ -131,11 +136,24 @@ export const useGetList = () => {
         }
       }
 
-      // 将数据添加移到循环外面，只添加一次
-      playListData.value.listData = dataList;
+      // 追加新数据而不是替换
+      playListData.value.listData.push(...dataList);
       playListData.value.total = totalItem;
       playListData.value.loading = false;
+    } else {
+      playListData.value.loading = false;
     }
+  };
+
+  /** 带防抖的获取歌单列表 */
+  const getPlayListWithDebounce = (delay = 200) => {
+    if (playListDebounceTimer) {
+      clearTimeout(playListDebounceTimer);
+    }
+
+    playListDebounceTimer = setTimeout(() => {
+      getPlayList();
+    }, delay);
   };
 
   /** 获取列表 */
@@ -146,6 +164,7 @@ export const useGetList = () => {
       articleResourceTypes: "音频",
       isLoadVersionProperty: 1,
       limit: 100,
+      skip: listData.value.listData.length, // 使用当前已加载数据的长度作为skip
       ...params
     };
 
@@ -186,18 +205,46 @@ export const useGetList = () => {
         }
       }
 
-      // 将数据添加移到循环外面，只添加一次
-      listData.value.listData = dataList;
+      // 追加新数据而不是替换
+      listData.value.listData.push(...dataList);
       listData.value.total = totalItem;
       listData.value.loading = false;
+    } else {
+      listData.value.loading = false;
+    }
+  };
+
+  /** 带防抖的获取列表 */
+  const getListWithDebounce = (params, delay = 200) => {
+    if (listDebounceTimer) {
+      clearTimeout(listDebounceTimer);
+    }
+
+    listDebounceTimer = setTimeout(() => {
+      getList(params);
+    }, delay);
+  };
+
+  // 清理定时器的方法
+  const cleanup = () => {
+    if (playListDebounceTimer) {
+      clearTimeout(playListDebounceTimer);
+      playListDebounceTimer = null;
+    }
+    if (listDebounceTimer) {
+      clearTimeout(listDebounceTimer);
+      listDebounceTimer = null;
     }
   };
 
   return {
     getPlayList,
+    getPlayListWithDebounce,
     playListData: playListData.value,
     getList,
-    listData: listData.value
+    getListWithDebounce,
+    listData: listData.value,
+    cleanup
   };
 };
 /** 授权 hook */
