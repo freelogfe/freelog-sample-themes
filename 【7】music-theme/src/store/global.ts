@@ -31,6 +31,7 @@ export interface State {
   collectionList: any[] | null;
   playIdList: string[];
   playList: any[] | null;
+  playListLoading: boolean;
   playingInfo: any | null;
   playing: boolean;
   initUrl: string;
@@ -58,6 +59,7 @@ export const useGlobalStore = defineStore("global", {
       collectionList: null, // 收藏列表
       playIdList: [], // 播放列表(id)
       playList: null, // 播放列表
+      playListLoading: false, // 播放列表加载状态
       playingInfo: null, // 播放中的声音信息
       playing: false, // 是否在播放中
       initUrl: "", // 播放器初始化 url（用于解决 IOS 无法异步播放声音问题）

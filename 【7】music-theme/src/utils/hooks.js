@@ -482,10 +482,12 @@ export const useMyPlay = {
   async getPlayList() {
     const store = useGlobalStore();
     const playIdList = store.playIdList;
+    store.setData({ key: "playListLoading", value: true });
 
     const result = [];
     if (!playIdList.length) {
       store.setData({ key: "playList", value: [] });
+      store.setData({ key: "playListLoading", value: false });
       return;
     }
 
@@ -553,6 +555,7 @@ export const useMyPlay = {
     }
 
     store.setData({ key: "playList", value: result });
+    store.setData({ key: "playListLoading", value: false });
   },
 
   /** 判断当前展品是否已存在播放列表中 */

@@ -97,12 +97,12 @@
           <div
             class="clear-btn"
             @click="confirmDialogShow = true"
-            v-if="playList && playList?.length"
+            v-if="playList && playList?.length && !store.playListLoading"
           >
             清空列表
           </div>
         </div>
-        <div class="voice-list" v-if="playList">
+        <div class="voice-list" v-if="!store.playListLoading && playList">
           <template v-if="playList.length">
             <div
               class="voice-item"
@@ -113,7 +113,7 @@
                   item?.articleInfo?.status === 2
               }"
               v-for="item in playList"
-              :key="item.exhibitId"
+              :key="`${item.exhibitId}-${item.itemId || ''}`"
               @click="playOrPauseList(item)"
             >
               <div class="left-area">
@@ -166,7 +166,12 @@
           </template>
           <div class="no-data-tip" v-else>暂无任何声音</div>
         </div>
-        <el-skeleton class="skeleton" :rows="8" animated v-if="!playList" />
+        <el-skeleton
+          class="skeleton"
+          :rows="8"
+          animated
+          v-if="store.playListLoading || !playList"
+        />
         <div class="close-btn" @click="closePlayList()">关闭</div>
       </div>
 
@@ -379,7 +384,11 @@
           <div class="top-area">
             <div class="popup-title">播放列表</div>
             <div class="top-right">
-              <div class="text-btn clear-btn" @click="clearPlayList()" v-if="playList?.length">
+              <div
+                class="text-btn clear-btn"
+                @click="clearPlayList()"
+                v-if="playList?.length && !store.playListLoading"
+              >
                 清空列表
               </div>
               <i
@@ -388,7 +397,7 @@
               ></i>
             </div>
           </div>
-          <div class="voice-list" v-if="playList">
+          <div class="voice-list" v-if="!store.playListLoading && playList">
             <template v-if="playList.length">
               <div
                 class="voice-item"
@@ -399,7 +408,7 @@
                     item?.articleInfo?.status === 2
                 }"
                 v-for="item in playList"
-                :key="item.exhibitId"
+                :key="`${item.exhibitId}-${item.itemId || ''}`"
                 @click="playOrPauseList(item)"
               >
                 <div class="left-area">
@@ -468,7 +477,12 @@
             </template>
             <div class="no-data-tip" v-else>暂无任何声音</div>
           </div>
-          <el-skeleton class="skeleton" :rows="8" animated v-if="!playList" />
+          <el-skeleton
+            class="skeleton"
+            :rows="8"
+            animated
+            v-if="store.playListLoading || !playList"
+          />
         </div>
       </transition>
     </template>
@@ -535,7 +549,9 @@ export default {
     },
     "store.playList": {
       handler(cur, pre) {
-        this.playList = cur;
+        // 确保数据同步
+        this.playList = cur ? [...cur] : null;
+
         if (this.currentPlayMode === "RANDOM" && this.playList?.length) {
           this.shuffledList = this.playList.slice();
           this.shuffleArray(this.shuffledList);
