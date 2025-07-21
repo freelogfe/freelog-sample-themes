@@ -682,6 +682,10 @@ onBeforeUnmount(() => {
             line-height: 20px;
             opacity: 0.8;
             cursor: pointer;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 200px;
 
             &:hover {
               color: #44d7b6;
@@ -879,6 +883,10 @@ onBeforeUnmount(() => {
             line-height: 20px;
             opacity: 0.8;
             cursor: pointer;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 180px;
 
             &:hover {
               color: #44d7b6;

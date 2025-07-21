@@ -427,6 +427,7 @@ const getCollectionList = async (obj: {
           border-radius: 10px;
           margin-right: 10px;
           overflow: hidden;
+          flex-shrink: 0;
 
           img {
             width: 100%;
@@ -549,6 +550,7 @@ const getCollectionList = async (obj: {
           margin-left: 5px;
           transform: rotate(180deg);
           margin-left: auto;
+          flex-shrink: 0;
           img {
             width: 100%;
             height: 100%;
