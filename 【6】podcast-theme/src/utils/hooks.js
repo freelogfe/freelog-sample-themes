@@ -33,7 +33,7 @@ export const useMyAuth = {
       if (!signedItem || signedItem?.articleInfo.resourceType.includes("主题")) return;
       const countItem = countList.data.data.find(item => item.subjectId === id);
       const statusItem = statusList.data.data.find(item => item.exhibitId === id);
-      const totalItem = totalList.data.data.find(item => item.exhibitId === id);
+      const totalItem = totalList.data.data.find(item => item?.exhibitId === id);
 
       result.push({
         ...signedItem,
@@ -93,7 +93,7 @@ export const useMyAuth = {
     store.dispatch("updateLastestAuthList");
 
     if (play) {
-      if (articleInfo.articleType === 2) {
+      if ([2, 3].includes(articleInfo.articleType)) {
         /*
          * 合集（1. 添加所的单品到播放列表；2. 播放第一个单品）
          * 合集的子作品
@@ -200,7 +200,7 @@ export const useMyCollection = {
     ]);
 
     const allPoolIds = list.data.data
-      .filter(ele => ele.articleInfo.articleType === 2)
+      .filter(ele => [2, 3].includes(ele.articleInfo.articleType))
       .map(ele => ele.exhibitId);
     const allPoolUnique = [...new Set(allPoolIds)];
     const allPoolIdsStr = allPoolUnique.join(",");
@@ -701,7 +701,7 @@ export const useMyPlay = {
 
         const cond1 = articleInfo.articleType === 1 && exhibitId === playingInfo?.exhibitId;
         const cond2 =
-          articleInfo.articleType === 2 &&
+          [2, 3].includes(articleInfo.articleType) &&
           exhibitId === playingInfo?.exhibitId &&
           child.itemId === playingInfo.child.itemId;
         if (!cond1 && !cond2) return;
@@ -854,7 +854,7 @@ export const useMyPlay = {
       if (!bol && ["preVoice", "nextVoice"].includes(type)) {
         if (exhibit.articleInfo.articleType === 1) {
           useMyPlay[type](exhibit);
-        } else if (exhibit.articleInfo.articleType === 2) {
+        } else if ([2, 3].includes(exhibit.articleInfo.articleType)) {
           useMyPlay[type](exhibit, true);
         }
       }
@@ -863,7 +863,11 @@ export const useMyPlay = {
       // 已授权未获取 url
       const url = await freelogApp.getExhibitFileStream(exhibitId, { returnUrl: true });
       Vue.set(exhibit, "url", url);
-    } else if (exhibit.articleInfo.articleType === 2 && exhibit.child && !exhibit.child.url) {
+    } else if (
+      [2, 3].includes(exhibit.articleInfo.articleType) &&
+      exhibit.child &&
+      !exhibit.child.url
+    ) {
       // 已授权未获取 url
       const detail = await freelogApp.getCollectionSubInfo(exhibitId, {
         itemId: exhibit.child.itemId
@@ -897,7 +901,7 @@ export const useMyPlay = {
     }
 
     /* part3: 调用场景罗列 */
-    if (exhibit.articleInfo.articleType === 2 && !exhibit.child) {
+    if ([2, 3].includes(exhibit.articleInfo.articleType) && !exhibit.child) {
       // 场景一：点击播放合集
       // 1. 将合集的所有子作品加入播放列表(子作品有数量限制，暂不支持全量)
       // 2. 播放合集的第一个子作品
@@ -945,7 +949,7 @@ export const useMyPlay = {
       );
       store.commit("setData", { key: "playing", value: true });
       freelogApp.setUserData("playingId", `${exhibitId}=${playingId}`);
-    } else if (exhibit.articleInfo.articleType === 2 && exhibit.child) {
+    } else if ([2, 3].includes(exhibit.articleInfo.articleType) && exhibit.child) {
       // 场景二：进去合集里点击某一首歌曲
       useMyPlay.addToPlayList({
         id: exhibitId,

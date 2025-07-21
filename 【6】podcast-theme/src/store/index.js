@@ -41,15 +41,15 @@ export default new Vuex.Store({
     },
     /** 更新播放记录器 */
     setplayingSuccessRecorder(state, payload) {
-      if (payload === 'init') {
-        state.playingSuccessRecorder = []
-        return
+      if (payload === "init") {
+        state.playingSuccessRecorder = [];
+        return;
       }
       if (state.playingSuccessRecorder.length < 30) {
-        state.playingSuccessRecorder.push(payload)
+        state.playingSuccessRecorder.push(payload);
       } else {
-        state.playingSuccessRecorder.shift()
-        state.playingSuccessRecorder.push(payload)
+        state.playingSuccessRecorder.shift();
+        state.playingSuccessRecorder.push(payload);
       }
     }
   },
@@ -64,15 +64,16 @@ export default new Vuex.Store({
       ]);
 
       // 兼容历史数据
-      const collectionIdList = collectionIdListResponse?.data?.data?.map(ele => {
-        if (ele.hasOwnProperty("exhibitId")) {
-          return {
-            id: ele.exhibitId,
-            isExhibit: true
+      const collectionIdList =
+        collectionIdListResponse?.data?.data?.map(ele => {
+          if (ele.hasOwnProperty("exhibitId")) {
+            return {
+              id: ele.exhibitId,
+              isExhibit: true
+            };
           }
-        }
-        return ele
-      }) || [];
+          return ele;
+        }) || [];
       const playingId = playingIdResponse?.data?.data;
 
       // 是否移动端设备
@@ -105,8 +106,13 @@ export default new Vuex.Store({
       if (context.state.userData.isLogin) {
         // 登录时播放列表取用户数据
         const playIdListResponse = await freelogApp.getUserData("playIdList");
-        playIdList = playIdListResponse?.data?.data?.filter(ele => 
-          ele && Object.prototype.toString.call(ele) === "[object Object]" && ele.hasOwnProperty('id')) || [];
+        playIdList =
+          playIdListResponse?.data?.data?.filter(
+            ele =>
+              ele &&
+              Object.prototype.toString.call(ele) === "[object Object]" &&
+              ele.hasOwnProperty("id")
+          ) || [];
 
         // 如果此时本地有播放列表，那需要自动添加至用户数据
         const list = localStorage.getItem("playIdList") || "[]";
@@ -138,13 +144,13 @@ export default new Vuex.Store({
       if (promises.length) Promise.all(promises);
 
       // 如果有之前播放的声音，且声音依然存在于播放列表中，则获取声音信息
-      let exhibitIdFromPlayingId,  itemIdFromPlayingId
-      if (playingId && playingId.indexOf("=") !== -1) {
-        const _arr = playingId.split("=")
-        exhibitIdFromPlayingId = _arr[0]
-        itemIdFromPlayingId = _arr[1]
+      let exhibitIdFromPlayingId, itemIdFromPlayingId;
+      if (playingId && typeof playingId === "string" && playingId.indexOf("=") !== -1) {
+        const _arr = playingId.split("=");
+        exhibitIdFromPlayingId = _arr[0];
+        itemIdFromPlayingId = _arr[1];
       } else {
-        exhibitIdFromPlayingId = playingId
+        exhibitIdFromPlayingId = playingId;
       }
       if (playingId && playIdList.map(ele => ele.id).includes(exhibitIdFromPlayingId)) {
         useMyPlay.getPlayingInfo(exhibitIdFromPlayingId, itemIdFromPlayingId);
@@ -153,67 +159,67 @@ export default new Vuex.Store({
 
     /* 更新lastestAuthList */
     async updateLastestAuthList(context) {
-      const dataList = await queryList()
+      const dataList = await queryList();
       if (dataList.length !== 0) {
         const ids = dataList.map(item => item.exhibitId).join();
         const [statusInfo] = await Promise.all([freelogApp.getExhibitAuthStatus(ids)]);
 
-        const signedList = JSON.parse(JSON.stringify(context.state.signedList))
-        const collectionList = JSON.parse(JSON.stringify(context.state.collectionList))
-        const playList = JSON.parse(JSON.stringify(context.state.playList))
-        statusInfo.data.data.forEach(ele => {     
+        const signedList = JSON.parse(JSON.stringify(context.state.signedList));
+        const collectionList = JSON.parse(JSON.stringify(context.state.collectionList));
+        const playList = JSON.parse(JSON.stringify(context.state.playList));
+        statusInfo.data.data.forEach(ele => {
           if (signedList) {
             signedList.forEach(data => {
               if (data.exhibitId === ele.exhibitId) {
                 data.defaulterIdentityType = ele.defaulterIdentityType;
               }
-            })
+            });
           }
-       
+
           if (collectionList) {
             collectionList.forEach(data => {
               if (data.exhibitId === ele.exhibitId) {
                 data.defaulterIdentityType = ele.defaulterIdentityType;
               }
-            })
+            });
           }
-      
+
           if (playList) {
             playList.forEach(data => {
               if (data.exhibitId === ele.exhibitId) {
                 data.defaulterIdentityType = ele.defaulterIdentityType;
               }
-            })
+            });
           }
         });
         // 更新lastestAuthList
-        context.commit("setData", { key: "lastestAuthList", value: statusInfo.data.data })
+        context.commit("setData", { key: "lastestAuthList", value: statusInfo.data.data });
         // 更新签约列表授权状态
-        context.commit("setData", { key: "signedList", value: signedList })
+        context.commit("setData", { key: "signedList", value: signedList });
         // 更新播放列表
-        context.commit("setData", { key: "playList", value: playList })
+        context.commit("setData", { key: "playList", value: playList });
         // 更新收藏列表
-        context.commit("setData", { key: "collectionList", value: collectionList })
+        context.commit("setData", { key: "collectionList", value: collectionList });
       } else {
-        context.commit("setData", { key: "lastestAuthList", value: [] })
+        context.commit("setData", { key: "lastestAuthList", value: [] });
       }
 
       /** 获取展品列表 */
       async function queryList(options = { skip: 0, limit: 100 }) {
-        let { skip, limit } = options
-        const result = []
+        let { skip, limit } = options;
+        const result = [];
         const list = await freelogApp.getExhibitListByPaging({
           ...options,
           articleResourceTypes: "音频",
-          isLoadVersionProperty: 1,
+          isLoadVersionProperty: 1
         });
         const { dataList, totalItem } = list.data.data;
-        result.push(...dataList)
+        result.push(...dataList);
         if (totalItem > (skip + 1) * limit) {
-          skip = (skip + 1) * limit
-          result.push(...await this.queryList({ skip })) 
+          skip = (skip + 1) * limit;
+          result.push(...(await this.queryList({ skip })));
         }
-        return result
+        return result;
       }
     }
   },
