@@ -200,7 +200,7 @@
         </div>
         <div
           class="info-area"
-          :class="!data.versionInfo.exhibitProperty.display_artist && 'flex-justify-center'"
+          :class="!data.versionInfo?.exhibitProperty?.display_artist && 'flex-justify-center'"
         >
           <div class="title-area">
             <img
@@ -241,7 +241,7 @@
             </myTooltip>
           </div>
           <div class="intro" :class="{ 'opacity-40': authLinkAbnormal }">
-            {{ data.versionInfo.exhibitProperty.display_artist }}
+            {{ data?.versionInfo?.exhibitProperty?.display_artist }}
           </div>
         </div>
         <div class="btns-area" :class="{ opacity: authLinkAbnormal }">
