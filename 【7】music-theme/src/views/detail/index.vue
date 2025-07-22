@@ -1330,7 +1330,7 @@ export default {
             }
 
             item.exhibitTitle =
-              versionInfo.exhibitProperty.catalogueProperty.collection_item_title ===
+              versionInfo?.exhibitProperty?.catalogueProperty?.collection_item_title ===
               "collection_item_title_rtitle"
                 ? item.articleInfo.articleTitle
                 : item.itemTitle;

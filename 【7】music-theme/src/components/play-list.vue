@@ -338,7 +338,9 @@ onBeforeUnmount(() => {
                 <div class="icon">
                   <img :src="currentTheme === 'light' ? DarkAlbumIcon : AlbumIcon" alt="歌单" />
                 </div>
-                <span class="album">{{ item.collectionList?.totalItem || item.totalItem }}</span>
+                <span class="album">{{
+                  item.collectionList?.totalItem || item.totalItem || 0
+                }}</span>
               </div>
             </div>
           </div>
@@ -420,7 +422,9 @@ onBeforeUnmount(() => {
                 <div class="icon">
                   <img :src="currentTheme === 'light' ? DarkAlbumIcon : AlbumIcon" alt="歌单" />
                 </div>
-                <span class="album">{{ item?.collectionList.totalItem || item.totalItem }}</span>
+                <span class="album">{{
+                  item?.collectionList.totalItem || item.totalItem || 0
+                }}</span>
               </div>
             </div>
           </div>
