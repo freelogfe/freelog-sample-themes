@@ -9,6 +9,8 @@
       @ended="store.initUrl === null && endVoice()"
       @error="store.initUrl === null && playError($event)"
       @durationchange="handleDurationChange"
+      @pause="handlePause"
+      @play="handlePlay"
     />
 
     <!-- mobile -->
@@ -1137,6 +1139,16 @@ export default {
         clearTimeout(this.closeTimer);
         this.closeTimer = null;
       }
+    },
+
+    /** 处理播放事件 */
+    handlePlay() {
+      this.store.setData({ key: "playing", value: true });
+    },
+
+    /** 处理暂停事件 */
+    handlePause() {
+      this.store.setData({ key: "playing", value: false });
     }
   }
 };
