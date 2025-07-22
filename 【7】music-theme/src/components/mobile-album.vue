@@ -460,15 +460,19 @@ const getCollectionList = async (obj: {
 
         .info {
           margin-top: 10px;
+          flex: 1;
+          min-width: 0;
 
           .top-area {
             display: flex;
+            align-items: center;
 
             .freeze-lock,
             .auth-link-abnormal {
               width: 16px;
               height: 16px;
               margin-right: 5px;
+              flex-shrink: 0;
             }
 
             .offline {
@@ -479,6 +483,7 @@ const getCollectionList = async (obj: {
               align-items: center;
               justify-content: center;
               margin-right: 5px;
+              flex-shrink: 0;
 
               span {
                 font-size: 10px;
@@ -492,6 +497,7 @@ const getCollectionList = async (obj: {
             .lock {
               margin-right: 5px;
               cursor: pointer;
+              flex-shrink: 0;
             }
 
             .title {
@@ -501,6 +507,11 @@ const getCollectionList = async (obj: {
               line-height: 20px;
               opacity: 0.8;
               cursor: pointer;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              flex: 1;
+              min-width: 0;
 
               &:hover {
                 color: #44d7b6;
