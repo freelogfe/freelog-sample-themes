@@ -601,7 +601,10 @@
             </template>
           </div>
 
-          <div class="album-content" v-if="voiceInfo?.articleInfo.articleType === 3">
+          <div
+            class="album-content"
+            v-if="voiceInfo?.articleInfo.articleType === 3 && collectionData.length"
+          >
             <div class="title">包含音乐（{{ collectionData.length }}）</div>
             <div class="content-item-wrap">
               <div
