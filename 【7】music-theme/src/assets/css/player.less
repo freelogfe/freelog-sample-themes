@@ -604,8 +604,8 @@
     background: var(--text-point-second-color);
     -webkit-backdrop-filter: blur(25px);
     backdrop-filter: blur(25px);
-    transform: translateZ(0); // 强制硬件加速
-    will-change: transform; // 提示浏览器优化
+    // transform: translateZ(0); // 强制硬件加速
+    // will-change: transform; // 提示浏览器优化
     display: flex;
     align-items: center;
     justify-content: center;
@@ -820,7 +820,8 @@
 
   .pc-show-btn {
     position: fixed;
-    right: 100px;
+    right: calc((100% - 1130px) / 2);
+
     bottom: 0;
     height: 30px;
     background: rgba(0, 0, 0, 0.2);
@@ -874,9 +875,10 @@
     background: rgba(0, 0, 0, 0.2);
     box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
+    -webkit-backdrop-filter: blur(25px);
     backdrop-filter: blur(25px);
-    // transform: translateZ(0); // 强制硬件加速
-    // will-change: transform; // 提示浏览器优化
+    transform: translateZ(0); // 强制硬件加速
+    will-change: transform; // 提示浏览器优化
     display: flex;
     align-items: center;
     justify-content: center;
