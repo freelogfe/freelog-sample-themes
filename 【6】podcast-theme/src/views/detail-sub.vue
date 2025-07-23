@@ -78,6 +78,8 @@
                 v-if="
                   playingInfo &&
                   voiceInfo.articleInfo.articleType === 2 &&
+                  playingInfo.child &&
+                  voiceInfo.child &&
                   playingInfo.child.itemId === voiceInfo.child.itemId
                 "
                 class="duration"
@@ -169,6 +171,8 @@
                       class="playing-mark"
                       v-if="
                         playingInfo.exhibitId === voiceInfo.exhibitId &&
+                        playingInfo.child &&
+                        voiceInfo.child &&
                         playingInfo.child.itemId === voiceInfo.child.itemId
                       "
                     >
@@ -227,6 +231,7 @@ import { secondsToHMS, showToast } from "@/utils/common";
 import voice from "@/components/voice";
 import { freelogApp } from "freelog-runtime";
 import { supportAudio, unSupportAudioIOS } from "@/api/data";
+import { updateWxConfig } from "@/utils/update-wx-share"
 
 export default {
   name: "detail-sub",
@@ -454,6 +459,15 @@ export default {
         info.data.data.child.url = url;
         info.data.data.child.authCode = subStatusInfo.data.data[0].authCode;
         result = info.data.data;
+
+        // 更新微信分享
+        const { itemTitle, articleInfo: { intro, coverImages } } = detail.data.data
+        const config = {
+          exhibitIntro: intro,
+          coverImages, 
+          exhibitTitle: itemTitle
+        }
+        updateWxConfig(config)  
       }
       this.voiceInfo = result;
     },

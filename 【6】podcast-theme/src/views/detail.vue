@@ -290,6 +290,7 @@ import { showToast } from "@/utils/common";
 import { freelogApp } from "freelog-runtime";
 import voice from "@/components/voice";
 import { supportAudio, unSupportAudioIOS } from "@/api/data";
+import { updateWxConfig } from "@/utils/update-wx-share"
 
 export default {
   name: "detail",
@@ -584,6 +585,10 @@ export default {
       if (exhibitInfo.data.data.articleInfo.articleType === 2) {
         this.queryList();
       }
+
+
+      // 更新微信分享
+      updateWxConfig(exhibitInfo.data.data)
     },
 
     /** 授权 */

@@ -144,6 +144,7 @@ export default {
         );
       } else if (["qq", "wechat"].includes(item.id)) {
         // qq、微信
+        const url = freelogApp.getWechatShareURL()
         this.qrcodeInfo = { name: item.name, url };
         this.qrcodeShow = true;
       } else if (item.id === "copy") {
