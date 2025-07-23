@@ -984,7 +984,7 @@ export default {
       if (data.shareWidget) await data.shareWidget.unmount();
 
       const subDeps = await freelogApp.getSelfDependencyTree();
-      const widgetData = subDeps.find(item => item.articleName === "luojiutian/share-test");
+      const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-展品分享");
       if (!widgetData) return;
 
       const { articleId, parentNid, nid } = widgetData;

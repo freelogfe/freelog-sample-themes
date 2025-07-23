@@ -387,6 +387,7 @@ import { useGetList, useMyRouter, useMyWaterfall } from "../utils/hooks";
 import { useStore } from "vuex";
 import { showToast } from "@/utils/common";
 import { WidgetController, freelogApp } from "freelog-runtime";
+import { updateWxConfig } from "@/utils/update-wx-share";
 
 export default {
   name: "detail",
@@ -511,6 +512,10 @@ export default {
 
       data.href = freelogApp.getCurrentUrl();
       mountShareWidget();
+
+      // 更新微信分享
+      const exhibitData = exhibitInfo.data.data as any
+      updateWxConfig(exhibitData)
 
       if (![0, 4].includes(defaulterIdentityType)) {
         // 授权链异常
