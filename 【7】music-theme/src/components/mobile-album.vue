@@ -179,7 +179,12 @@ const getCollectionList = async (obj: {
           <!-- 封面 -->
           <div
             class="cover-image"
-            @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
+            @click="
+              router.myPush({
+                path: item.articleInfo.articleType === 3 ? '/play-detail' : '/detail',
+                query: { id: item.exhibitId }
+              })
+            "
           >
             <img :src="item.coverImages[0]" alt="歌曲封面" />
             <div class="btn" @click.stop="playOrPause(item)">
@@ -216,7 +221,12 @@ const getCollectionList = async (obj: {
               ></i>
               <span
                 class="title"
-                @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
+                @click="
+                  router.myPush({
+                    path: item.articleInfo.articleType === 3 ? '/play-detail' : '/detail',
+                    query: { id: item.exhibitId }
+                  })
+                "
                 >{{ item.exhibitTitle }}</span
               >
             </div>
@@ -235,13 +245,20 @@ const getCollectionList = async (obj: {
                 <div class="icon">
                   <img :src="currentTheme === 'light' ? DarkAlbumIcon : AlbumIcon" alt="专辑" />
                 </div>
-                <span class="album">{{ item.signCount }}</span>
+                <span class="album">{{
+                  item?.collectionList.totalItem || item.totalItem || 0
+                }}</span>
               </div>
             </div>
           </div>
           <div
             class="more-icon"
-            @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
+            @click="
+              router.myPush({
+                path: item.articleInfo.articleType === 3 ? '/play-detail' : '/detail',
+                query: { id: item.exhibitId }
+              })
+            "
           >
             <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
           </div>
@@ -412,6 +429,7 @@ const getCollectionList = async (obj: {
           border-radius: 10px;
           margin-right: 10px;
           overflow: hidden;
+          flex-shrink: 0;
 
           img {
             width: 100%;
@@ -442,15 +460,19 @@ const getCollectionList = async (obj: {
 
         .info {
           margin-top: 10px;
+          flex: 1;
+          min-width: 0;
 
           .top-area {
             display: flex;
+            align-items: center;
 
             .freeze-lock,
             .auth-link-abnormal {
               width: 16px;
               height: 16px;
               margin-right: 5px;
+              flex-shrink: 0;
             }
 
             .offline {
@@ -461,6 +483,7 @@ const getCollectionList = async (obj: {
               align-items: center;
               justify-content: center;
               margin-right: 5px;
+              flex-shrink: 0;
 
               span {
                 font-size: 10px;
@@ -474,6 +497,7 @@ const getCollectionList = async (obj: {
             .lock {
               margin-right: 5px;
               cursor: pointer;
+              flex-shrink: 0;
             }
 
             .title {
@@ -483,6 +507,11 @@ const getCollectionList = async (obj: {
               line-height: 20px;
               opacity: 0.8;
               cursor: pointer;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              flex: 1;
+              min-width: 0;
 
               &:hover {
                 color: #44d7b6;
@@ -534,6 +563,7 @@ const getCollectionList = async (obj: {
           margin-left: 5px;
           transform: rotate(180deg);
           margin-left: auto;
+          flex-shrink: 0;
           img {
             width: 100%;
             height: 100%;

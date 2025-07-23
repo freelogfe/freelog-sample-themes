@@ -53,7 +53,7 @@ const getList = async () => {
   const queryParams = {
     articleResourceTypes: "音频",
     isLoadVersionProperty: 1,
-    limit: 100
+    limit: 12
   };
   const list = await freelogApp.getExhibitListByPaging(queryParams);
   const { dataList } = list.data.data;
@@ -154,7 +154,6 @@ onBeforeMount(() => {
   // 获取音乐专辑
   datasOfGetList.getList({ articleResourceTypes: "音乐专辑", sort: `createDate:-1` });
   // 获取歌单
-  console.log("会来这里");
   datasOfGetList.getPlayList();
 });
 </script>
@@ -167,8 +166,8 @@ onBeforeMount(() => {
     :class="{ pc: !store.inMobile, mobile: store.inMobile }"
   >
     <HomePopular hasHeader :data="popularData" />
-    <HomeAlbum hasHeader :data="musicAlbumData" />
-    <HomePlayList hasHeader :data="playListData" />
+    <HomeAlbum hasHeader :data="musicAlbumData" v-if="!datasOfGetList.listData.loading" />
+    <HomePlayList hasHeader :data="playListData" v-if="!datasOfGetList.playListData.loading" />
   </div>
 </template>
 

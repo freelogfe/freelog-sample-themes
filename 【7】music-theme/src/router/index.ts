@@ -34,8 +34,8 @@ const routes = [
   {
     path: "/play-list",
     name: "play-list",
-    component: () => import("../views/play-list/index.vue"),
-    meta: { keepAlive: true }
+    component: () => import("../views/play-list/index.vue")
+    // meta: { keepAlive: true }
   },
   {
     path: "/detail",
@@ -50,8 +50,8 @@ const routes = [
   {
     path: "/collection-list",
     name: "collection-list",
-    component: () => import("../views/collection/index.vue"),
-    meta: { keepAlive: true }
+    component: () => import("../views/collection/index.vue")
+    // meta: { keepAlive: true }
   },
   {
     path: "/signed-list",

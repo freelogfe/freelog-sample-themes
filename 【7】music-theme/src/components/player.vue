@@ -9,6 +9,8 @@
       @ended="store.initUrl === null && endVoice()"
       @error="store.initUrl === null && playError($event)"
       @durationchange="handleDurationChange"
+      @pause="handlePause"
+      @play="handlePlay"
     />
 
     <!-- mobile -->
@@ -97,12 +99,12 @@
           <div
             class="clear-btn"
             @click="confirmDialogShow = true"
-            v-if="playList && playList?.length"
+            v-if="playList && playList?.length && !store.playListLoading"
           >
             清空列表
           </div>
         </div>
-        <div class="voice-list" v-if="playList">
+        <div class="voice-list" v-if="!store.playListLoading && playList">
           <template v-if="playList.length">
             <div
               class="voice-item"
@@ -113,7 +115,7 @@
                   item?.articleInfo?.status === 2
               }"
               v-for="item in playList"
-              :key="item.exhibitId"
+              :key="`${item.exhibitId}-${item.itemId || ''}`"
               @click="playOrPauseList(item)"
             >
               <div class="left-area">
@@ -166,7 +168,12 @@
           </template>
           <div class="no-data-tip" v-else>暂无任何声音</div>
         </div>
-        <el-skeleton class="skeleton" :rows="8" animated v-if="!playList" />
+        <el-skeleton
+          class="skeleton"
+          :rows="8"
+          animated
+          v-if="store.playListLoading || !playList"
+        />
         <div class="close-btn" @click="closePlayList()">关闭</div>
       </div>
 
@@ -207,7 +214,10 @@
               () => {
                 playDialogShow = false;
                 playingInfo.albumName &&
-                  $router.myPush({ path: '/detail', query: { id: playingInfo.exhibitId } });
+                  $router.myPush({
+                    path: playingInfo.parentArticleType === 3 ? '/play-detail' : '/detail',
+                    query: { id: playingInfo.exhibitId }
+                  });
               }
             "
           >
@@ -280,7 +290,10 @@
                           @click="
                             playingInfo?.itemTitle
                               ? $router.myPush({
-                                  path: '/detail',
+                                  path:
+                                    playingInfo.parentArticleType === 3
+                                      ? '/play-detail'
+                                      : '/detail',
                                   query: {
                                     id: playingInfo.exhibitId,
                                     subID: playingInfo.itemId,
@@ -288,7 +301,10 @@
                                   }
                                 })
                               : $router.myPush({
-                                  path: '/detail',
+                                  path:
+                                    playingInfo.parentArticleType === 3
+                                      ? '/play-detail'
+                                      : '/detail',
                                   query: { id: playingInfo.exhibitId }
                                 })
                           "
@@ -303,7 +319,8 @@
                           class="title album-title"
                           @click="
                             $router.myPush({
-                              path: '/detail',
+                              path:
+                                playingInfo.parentArticleType === 3 ? '/play-detail' : '/detail',
                               query: { id: playingInfo.exhibitId }
                             })
                           "
@@ -369,7 +386,11 @@
           <div class="top-area">
             <div class="popup-title">播放列表</div>
             <div class="top-right">
-              <div class="text-btn clear-btn" @click="clearPlayList()" v-if="playList?.length">
+              <div
+                class="text-btn clear-btn"
+                @click="clearPlayList()"
+                v-if="playList?.length && !store.playListLoading"
+              >
                 清空列表
               </div>
               <i
@@ -378,7 +399,7 @@
               ></i>
             </div>
           </div>
-          <div class="voice-list" v-if="playList">
+          <div class="voice-list" v-if="!store.playListLoading && playList">
             <template v-if="playList.length">
               <div
                 class="voice-item"
@@ -389,7 +410,7 @@
                     item?.articleInfo?.status === 2
                 }"
                 v-for="item in playList"
-                :key="item.exhibitId"
+                :key="`${item.exhibitId}-${item.itemId || ''}`"
                 @click="playOrPauseList(item)"
               >
                 <div class="left-area">
@@ -458,7 +479,12 @@
             </template>
             <div class="no-data-tip" v-else>暂无任何声音</div>
           </div>
-          <el-skeleton class="skeleton" :rows="8" animated v-if="!playList" />
+          <el-skeleton
+            class="skeleton"
+            :rows="8"
+            animated
+            v-if="store.playListLoading || !playList"
+          />
         </div>
       </transition>
     </template>
@@ -525,7 +551,9 @@ export default {
     },
     "store.playList": {
       handler(cur, pre) {
-        this.playList = cur;
+        // 确保数据同步
+        this.playList = cur ? [...cur] : null;
+
         if (this.currentPlayMode === "RANDOM" && this.playList?.length) {
           this.shuffledList = this.playList.slice();
           this.shuffleArray(this.shuffledList);
@@ -544,7 +572,7 @@ export default {
           this.touchMoveX = -this.infoAreaWidth * index;
         }
       },
-      // immediate: true,
+      immediate: true,
       deep: true
     },
 
@@ -906,7 +934,9 @@ export default {
     /** 分享 */
     share() {
       if (this.store.inMobile) {
-        const copiedShareHref = `${window.location.origin}/detail?id=${this.playingInfo.exhibitId}`;
+        const copiedShareHref = `${window.location.origin}/${
+          this.playingInfo.parentArticleType === 3 ? "play-detail" : "detail"
+        }?id=${this.playingInfo.exhibitId}`;
         navigator.clipboard
           .writeText(copiedShareHref)
           .then(() => {
@@ -1095,10 +1125,10 @@ export default {
 
     /** 播放或加入播放列表时，播放器动画 */
     animation() {
-      // if (!this.show) this.show = true;
+      if (!this.show) this.show = true;
       if (this.closeTimer) this.clearCloseTimer();
       this.closeTimer = setTimeout(() => {
-        // if (!this.playListPopupShow && !this.volumePopupShow) this.show = false;
+        if (!this.playListPopupShow && !this.volumePopupShow) this.show = false;
         this.closeTimer = null;
       }, 3000);
     },
@@ -1109,6 +1139,16 @@ export default {
         clearTimeout(this.closeTimer);
         this.closeTimer = null;
       }
+    },
+
+    /** 处理播放事件 */
+    handlePlay() {
+      this.store.setData({ key: "playing", value: true });
+    },
+
+    /** 处理暂停事件 */
+    handlePause() {
+      this.store.setData({ key: "playing", value: false });
     }
   }
 };

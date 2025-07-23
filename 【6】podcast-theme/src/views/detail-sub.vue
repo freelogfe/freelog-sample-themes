@@ -162,7 +162,7 @@
               </div>
 
               <div class="btns-area">
-                <template v-if="playingInfo && voiceInfo.articleInfo.articleType === 2">
+                <template v-if="playingInfo && [2, 3].includes(voiceInfo.articleInfo.articleType)">
                   <div class="duration" v-if="playingInfo.exhibitId !== voiceInfo.exhibitId">
                     时长{{ computedDuration }}
                   </div>
@@ -338,14 +338,13 @@ export default {
       const isCollected = useMyCollection.ifExist(this.voiceInfo);
       return [
         {
-          icon:
-            this.voiceInfo.articleInfo.articleType === 2
-              ? !this.ifSupportMime || this.offOrAuthErrorComputed
-                ? "fl-icon-wufabofang"
-                : this.playing
-                ? "fl-icon-zanting-daibiankuang"
-                : "fl-icon-bofang-daibiankuang"
-              : "fl-icon-bofang-daibiankuang",
+          icon: [2, 3].includes(this.voiceInfo.articleInfo.articleType)
+            ? !this.ifSupportMime || this.offOrAuthErrorComputed
+              ? "fl-icon-wufabofang"
+              : this.playing
+              ? "fl-icon-zanting-daibiankuang"
+              : "fl-icon-bofang-daibiankuang"
+            : "fl-icon-bofang-daibiankuang",
           title:
             !this.ifSupportMime || this.offOrAuthErrorComputed
               ? "无法播放"
@@ -354,7 +353,7 @@ export default {
               : "播放",
           operate: this.playOrPause,
           disabled: !(
-            (this.voiceInfo.articleInfo.articleType === 2 &&
+            ([2, 3].includes(this.voiceInfo.articleInfo.articleType) &&
               this.ifSupportMime &&
               !this.offOrAuthErrorComputed) ||
             (this.voiceInfo.articleInfo.articleType === 1 &&
@@ -367,7 +366,7 @@ export default {
           title: "加入播放列表",
           operate: this.addToPlayList,
           disabled: !(
-            this.voiceInfo.articleInfo.articleType === 2 &&
+            [2, 3].includes(this.voiceInfo.articleInfo.articleType) &&
             !isInPlayList &&
             this.ifSupportMime &&
             !this.offOrAuthErrorComputed
@@ -391,7 +390,7 @@ export default {
     /** 加入播放列表 */
     async addToPlayList() {
       const { exhibitId, articleInfo, child } = this.voiceInfo;
-      if (articleInfo.articleType === 2) {
+      if ([2, 3].includes(articleInfo.articleType)) {
         useMyPlay.addToPlayList({
           id: exhibitId,
           itemId: child.itemId,

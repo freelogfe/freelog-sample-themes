@@ -37,7 +37,9 @@ export default {
       store,
       subTotal: 0,
       subSkip: 0,
-      subTempData: []
+      subTempData: [],
+      realTotal: 0,
+      realListData: []
     };
   },
 
@@ -84,7 +86,7 @@ export default {
     /** 获取音乐列表 */
     async getList(init = false) {
       if (this.myLoading) return;
-      if (this.total === this.listData.length && !init) return;
+      if (this.realTotal === this.realListData.length && !init) return;
 
       if (init) this.loading = true;
       this.myLoading = true;
@@ -99,6 +101,8 @@ export default {
       const { dataList, totalItem } = list.data.data;
 
       this.total = totalItem;
+      this.realTotal = totalItem;
+      this.realListData = [...this.realListData, ...dataList];
 
       if (dataList.length !== 0) {
         const ids = dataList.map(item => item.exhibitId).join();

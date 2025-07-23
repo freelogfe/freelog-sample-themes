@@ -39,6 +39,7 @@
               v-for="item in hotList"
               :key="item.exhibitId"
               mode="program"
+              v-if="item && item.articleInfo"
             ></voice>
           </div>
           <div class="plw-empty" v-else>暂无任何节目</div>
@@ -110,7 +111,12 @@
         <div class="plw-content" v-if="!loading">
           <div class="hot-container" v-if="hotList.length">
             <template v-if="currentMode === 'card'">
-              <program :data="item" v-for="item in hotList" :key="item.exhibitId"></program>
+              <program
+                :data="item"
+                v-for="item in hotList"
+                :key="item.exhibitId"
+                v-if="item && item.articleInfo"
+              ></program>
             </template>
             <template v-else>
               <voice
@@ -118,6 +124,7 @@
                 v-for="item in hotList"
                 :key="item.exhibitId"
                 mode="program"
+                v-if="item && item.articleInfo"
               ></voice>
             </template>
           </div>
@@ -206,7 +213,10 @@ export default {
           this.listData
             .slice()
             .filter(
-              ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType)
+              ele =>
+                ele.articleInfo &&
+                ele.articleInfo.status === 1 &&
+                [0, 4].includes(ele.defaulterIdentityType)
             )
         )
       );
@@ -299,7 +309,7 @@ export default {
     async querySubNum(dataList) {
       if (dataList.length === 0) return;
       const allPoolIds = dataList
-        .filter(ele => ele.articleInfo.articleType === 2)
+        .filter(ele => ele.articleInfo && [2, 3].includes(ele.articleInfo.articleType))
         .map(ele => ele.exhibitId);
       const allPoolIdsStr = allPoolIds.join(",");
       const res = await freelogApp.getCollectionsSubList(allPoolIdsStr, {
@@ -512,6 +522,7 @@ export default {
             display: flex;
             align-items: center;
             position: relative;
+            opacity: 0.8;
             .txt {
               height: 20px;
               font-weight: 600;
@@ -566,18 +577,22 @@ export default {
         .right {
           display: flex;
           margin-left: auto;
-          color: rgba(255, 255, 255, 0.4);
+          // color: rgba(255, 255, 255, 0.4);
+          color: var(--text-other-color);
           div {
             cursor: pointer;
+            opacity: 0.4;
             &:hover {
-              color: rgba(255, 255, 255, 0.6);
+              // color: rgba(255, 255, 255, 0.6);
+              opacity: 1;
             }
           }
           div:first-child {
             margin-right: 30px;
           }
           div.selected {
-            color: rgba(255, 255, 255, 0.8);
+            // color: rgba(255, 255, 255, 0.8);
+            opacity: 0.8;
           }
         }
       }

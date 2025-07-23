@@ -1,4 +1,4 @@
-<!-- 专辑列表页 -->
+<!-- 歌单列表页 -->
 <template>
   <div class="play-list-wrapper">
     <list
@@ -18,6 +18,7 @@
 import { freelogApp } from "freelog-runtime";
 import { useGlobalStore } from "@/store/global";
 import { useGetList } from "@/utils/hooks";
+import { scrollManager } from "@/utils/scroll-manager";
 import list from "@/components/list.vue";
 
 export default {
@@ -37,22 +38,6 @@ export default {
     };
   },
 
-  watch: {
-    "store.authIdList": {
-      handler(cur) {
-        cur.forEach(id => {
-          const item = this.datasOfGetList.playListData.listData.find(
-            data => data.exhibitId === id
-          );
-          if (item) {
-            item.defaulterIdentityType = 0;
-          }
-        });
-      },
-      deep: true // 深度监听
-    }
-  },
-
   created() {
     this.datasOfGetList.getPlayList(); // 使用实例
   },
@@ -63,32 +48,39 @@ export default {
     }
   },
 
-  activated() {
-    const app = document.getElementById("app");
-    app.addEventListener("scroll", this.scroll);
+  mounted() {
+    // 使用全局滚动管理器，避免多组件冲突
+    scrollManager.addListener("play-list", this.scroll);
 
-    /** 回到顶部 */
-    const scrollToTop = () => {
-      app?.scroll({ top: 0 });
-    };
-    scrollToTop();
+    // 回到顶部
+    const app = document.getElementById("app");
+    app?.scroll({ top: 0 });
   },
 
-  deactivated() {
-    const app = document.getElementById("app");
-    app.removeEventListener("scroll", this.scroll);
+  beforeUnmount() {
+    // 移除滚动监听器
+    scrollManager.removeListener("play-list");
+
+    // 清理hooks中的防抖定时器
+    this.datasOfGetList.cleanup();
   },
 
   methods: {
     /** 页面滚动 */
     scroll() {
+      // 如果正在加载中，直接返回，避免重复请求
+      if (this.datasOfGetList.playListData.loading) {
+        return;
+      }
+
       const app = document.getElementById("app");
       const scrollTop = app.scrollTop || 0;
       const clientHeight = app.clientHeight || 0;
       const scrollHeight = app.scrollHeight || 0;
       if (scrollTop + clientHeight < scrollHeight - 200) return;
 
-      this.datasOfGetList.getPlayList();
+      // 使用hooks中的防抖方法
+      this.datasOfGetList.getPlayListWithDebounce();
     }
   }
 };

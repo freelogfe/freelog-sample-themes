@@ -169,7 +169,12 @@
             'opacity-40':
               authLinkAbnormal || data.onlineStatus === 0 || data.articleInfo.status === 2
           }"
-          @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
+          @click="
+            $router.myPush({
+              path: data.parentArticleType === 3 ? '/play-detail' : '/detail',
+              query: { id: data.exhibitId }
+            })
+          "
         >
           <img class="cover" :src="data.coverImages[0]" />
 
@@ -195,7 +200,7 @@
         </div>
         <div
           class="info-area"
-          :class="!data.versionInfo.exhibitProperty.display_artist && 'flex-justify-center'"
+          :class="!data.versionInfo?.exhibitProperty?.display_artist && 'flex-justify-center'"
         >
           <div class="title-area">
             <img
@@ -226,7 +231,7 @@
                 :class="{ 'opacity-40': authLinkAbnormal }"
                 @click="
                   $router.myPush({
-                    path: '/detail',
+                    path: data.parentArticleType === 3 ? '/play-detail' : '/detail',
                     query: { id: data.exhibitId, subID: data.itemId, albumName: data.albumName }
                   })
                 "
@@ -236,7 +241,7 @@
             </myTooltip>
           </div>
           <div class="intro" :class="{ 'opacity-40': authLinkAbnormal }">
-            {{ data.versionInfo.exhibitProperty.display_artist }}
+            {{ data?.versionInfo?.exhibitProperty?.display_artist }}
           </div>
         </div>
         <div class="btns-area" :class="{ opacity: authLinkAbnormal }">
@@ -253,7 +258,11 @@
         class="middle-box"
         :class="data.albumName && 'album'"
         @click="
-          data.albumName && $router.myPush({ path: '/detail', query: { id: data.exhibitId } })
+          data.albumName &&
+            $router.myPush({
+              path: data.parentArticleType === 3 ? '/play-detail' : '/detail',
+              query: { id: data.exhibitId }
+            })
         "
       >
         {{ data.albumName || "-" }}
@@ -489,17 +498,23 @@ export default {
 
       if (itemId) {
         this.$router.myPush({
-          path: "/detail",
+          path: this.data.parentArticleType === 3 ? "/play-detail" : "/detail",
           query: { id: exhibitId, subID: itemId, albumName }
         });
       } else {
-        this.$router.myPush({ path: "/detail", query: { id: exhibitId } });
+        this.$router.myPush({
+          path: this.data.parentArticleType === 3 ? "/play-detail" : "/detail",
+          query: { id: exhibitId }
+        });
       }
     },
 
     /** 查看专辑详情 */
     toAlbumDetail() {
-      this.$router.myPush({ path: "/detail", query: { id: this.data.exhibitId } });
+      this.$router.myPush({
+        path: this.data.parentArticleType === 3 ? "/play-detail" : "/detail",
+        query: { id: this.data.exhibitId }
+      });
     },
 
     /** 播放/暂停 */

@@ -220,8 +220,8 @@ export default {
     },
     hotList() {
       const data = this.listData
-        .filter(ele => ele.articleInfo.articleType === 2)
-        .concat(this.listData.filter(ele => ele.articleInfo.articleType !== 2))
+        .filter(ele => [2, 3].includes(ele.articleInfo.articleType))
+        .concat(this.listData.filter(ele => ![2, 3].includes(ele.articleInfo.articleType)))
         .filter(ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType));
       return JSON.parse(JSON.stringify(data.slice(0, 5)));
     }

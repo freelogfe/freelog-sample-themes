@@ -34,12 +34,12 @@
               :style="{ '--infoAreaWidth': infoAreaWidth + 'px' }"
               v-for="item in playList"
               :key="`${item.exhibitId}-${item.child ? item.child.itemId : ''}`"
-              :class="{ 'opacity-40': item.articleInfo.status === 2 || (item.child && item.child.authCode === 403) }"
+              :class="{
+                'opacity-40':
+                  item.articleInfo.status === 2 || (item.child && item.child.authCode === 403)
+              }"
             >
-              <div
-                class="title voice-title"
-                @click="skipToDetailPage"
-              >
+              <div class="title voice-title" @click="skipToDetailPage">
                 {{ computedExhibitTitle(item) }}
               </div>
             </div>
@@ -54,8 +54,8 @@
               :class="playing ? 'fl-icon-zanting-daibiankuang' : 'fl-icon-bofang-daibiankuang'"
             ></i> -->
             <div class="play-img">
-              <img src="../assets/images/current-play.png" alt="" v-if="playing">
-              <img src="../assets/images/current-stop.png" alt="" v-else>
+              <img src="../assets/images/current-play.png" alt="" v-if="playing" />
+              <img src="../assets/images/current-stop.png" alt="" v-else />
             </div>
             <el-progress
               v-if="percentage > 0.2"
@@ -112,7 +112,10 @@
                   <div class="offline-icon" v-if="item.onlineStatus === 0">
                     <span>已下架</span>
                   </div>
-                  <span class="freelog fl-icon-jinzhi weigui-icon" v-if="item.articleInfo.status === 2"></span>
+                  <span
+                    class="freelog fl-icon-jinzhi weigui-icon"
+                    v-if="item.articleInfo.status === 2"
+                  ></span>
                   <img
                     class="icon"
                     src="../assets/images/auth-link-abnormal.png"
@@ -123,10 +126,24 @@
                     @click.stop="getAuth(item)"
                     v-if="item.defaulterIdentityType >= 4"
                   ></i>
-                  <div class="voice-title" :class="{ 'opacity-40': item.articleInfo.status === 2 || (item.child && item.child.authCode === 403) }">{{ computedExhibitTitle(item) }}</div>
+                  <div
+                    class="voice-title"
+                    :class="{
+                      'opacity-40':
+                        item.articleInfo.status === 2 || (item.child && item.child.authCode === 403)
+                    }"
+                  >
+                    {{ computedExhibitTitle(item) }}
+                  </div>
                 </div>
 
-                <div class="duration-area" :class="{ 'opacity-40': item.articleInfo.status === 2 || (item.child && item.child.authCode === 403) }">
+                <div
+                  class="duration-area"
+                  :class="{
+                    'opacity-40':
+                      item.articleInfo.status === 2 || (item.child && item.child.authCode === 403)
+                  }"
+                >
                   <play-status
                     :playing="playing"
                     :desc="computedDuration"
@@ -191,10 +208,11 @@
                 <div class="top-area">
                   <template v-if="playingInfo">
                     <div class="title-area">
-                      <my-tooltip class="title voice-title" :content="computedExhibitTitle(playingInfo)">
-                        <span
-                          @click="skipToDetailPage"
-                        >
+                      <my-tooltip
+                        class="title voice-title"
+                        :content="computedExhibitTitle(playingInfo)"
+                      >
+                        <span @click="skipToDetailPage">
                           {{ computedExhibitTitle(playingInfo) }}
                         </span>
                       </my-tooltip>
@@ -275,7 +293,10 @@
                   <div class="offline-icon" v-if="item.onlineStatus === 0">
                     <span>已下架</span>
                   </div>
-                  <span class="freelog fl-icon-jinzhi weigui-icon" v-if="item.articleInfo.status === 2"></span>
+                  <span
+                    class="freelog fl-icon-jinzhi weigui-icon"
+                    v-if="item.articleInfo.status === 2"
+                  ></span>
                   <img
                     class="icon"
                     src="../assets/images/auth-link-abnormal.png"
@@ -286,14 +307,30 @@
                     @click.stop="getAuth(item)"
                     v-if="item.defaulterIdentityType >= 4"
                   ></i>
-                  <div class="title-area" :class="{ 'opacity-40': item.articleInfo.status === 2 || (item.child && item.child.authCode === 403) || item.onlineStatus === 0 }">
+                  <div
+                    class="title-area"
+                    :class="{
+                      'opacity-40':
+                        item.articleInfo.status === 2 ||
+                        (item.child && item.child.authCode === 403) ||
+                        item.onlineStatus === 0
+                    }"
+                  >
                     <my-tooltip class="title voice-title" :content="computedExhibitTitle(item)">
                       <span>{{ computedExhibitTitle(item) }}</span>
                     </my-tooltip>
                   </div>
                 </div>
 
-                <div class="right-area" :class="{ 'opacity-40': item.articleInfo.status === 2 || (item.child && item.child.authCode === 403) || item.onlineStatus === 0 }">
+                <div
+                  class="right-area"
+                  :class="{
+                    'opacity-40':
+                      item.articleInfo.status === 2 ||
+                      (item.child && item.child.authCode === 403) ||
+                      item.onlineStatus === 0
+                  }"
+                >
                   <play-status
                     :playing="playing"
                     :desc="computedDuration"
@@ -302,10 +339,7 @@
                   <div class="duration" v-else>
                     {{ computedFixDuration(item) }}
                   </div>
-                  <i
-                    class="text-btn freelog fl-icon-guanbi"
-                    @click.stop="deleteVoice(item)"
-                  ></i>
+                  <i class="text-btn freelog fl-icon-guanbi" @click.stop="deleteVoice(item)"></i>
                 </div>
               </div>
             </template>
@@ -367,9 +401,12 @@ export default {
         if (this.playingInfo) {
           const index = cur.findIndex(item => {
             if (this.playingInfo.articleInfo.articleType === 1) {
-              return item.exhibitId === this.playingInfo.exhibitId
+              return item.exhibitId === this.playingInfo.exhibitId;
             } else {
-              return item.exhibitId === this.playingInfo.exhibitId && item.child.itemId === this.playingInfo.child.itemId
+              return (
+                item.exhibitId === this.playingInfo.exhibitId &&
+                item.child.itemId === this.playingInfo.child.itemId
+              );
             }
           });
           this.touchMoveX = -this.infoAreaWidth * index;
@@ -388,15 +425,16 @@ export default {
         }
 
         if (this.playList && this.$store.state.inMobile) {
-          const index = this.playList.findIndex(
-            item => {
-              if (this.playingInfo?.articleInfo?.articleType === 1) {
-                return item.exhibitId === this.playingInfo.exhibitId
-              } else {
-                return item.exhibitId === this.playingInfo.exhibitId && item.child.itemId === this.playingInfo.child.itemId
-              }
+          const index = this.playList.findIndex(item => {
+            if (this.playingInfo?.articleInfo?.articleType === 1) {
+              return item.exhibitId === this.playingInfo.exhibitId;
+            } else {
+              return (
+                item.exhibitId === this.playingInfo.exhibitId &&
+                item.child.itemId === this.playingInfo.child.itemId
+              );
             }
-          );
+          });
           this.touchMoveX = -this.infoAreaWidth * index;
         }
       },
@@ -406,7 +444,7 @@ export default {
     "$store.state.playing"(cur) {
       if (!this.$store.state.playingInfo) return;
       if (cur) {
-        this.playVoice();                
+        this.playVoice();
       } else {
         this.$refs.player.pause();
       }
@@ -432,27 +470,29 @@ export default {
   },
 
   computed: {
-     /** 封面 */
-     computedCover() {
+    /** 封面 */
+    computedCover() {
       if (this.playingInfo.articleInfo.articleType === 1) {
         return this.playingInfo.coverImages[0];
       } else {
         if (this.playingInfo?.child?.articleInfo?.coverImages[0]) {
           return this.playingInfo?.child?.articleInfo?.coverImages[0];
         }
-        return '';
+        return "";
       }
     },
     /** 固定播放时长 */
     computedSlider() {
       if (this.playingInfo?.articleInfo?.articleType === 1) {
-        return this.playingInfo && this.playingInfo.versionInfo.exhibitProperty.duration / 1000
+        return this.playingInfo && this.playingInfo.versionInfo.exhibitProperty.duration / 1000;
       } else {
-        return this.playingInfo && 
-          this.playingInfo.child && 
-          this.playingInfo.child.articleInfo && 
-          this.playingInfo.child.articleInfo.articleProperty && 
+        return (
+          this.playingInfo &&
+          this.playingInfo.child &&
+          this.playingInfo.child.articleInfo &&
+          this.playingInfo.child.articleInfo.articleProperty &&
           this.playingInfo.child.articleInfo.articleProperty.duration / 1000
+        );
       }
     },
     /** 固定播放时长 */
@@ -485,7 +525,7 @@ export default {
     },
     /** 动态播放时长 */
     computedDuration() {
-      const { playingInfo } = this.$store.state
+      const { playingInfo } = this.$store.state;
       if (playingInfo && playingInfo.articleInfo && playingInfo.articleInfo.articleType === 1) {
         return `${secondsToHMS(this.$store.state.progress * 1000)} / ${secondsToHMS(
           playingInfo.versionInfo.exhibitProperty.duration
@@ -521,7 +561,9 @@ export default {
     /** 是否收藏 */
     isCollected() {
       const { collectionIdList, playingInfo } = this.$store.state;
-      return playingInfo ? collectionIdList.map(ele => ele.id).includes(playingInfo.exhibitId) : false;
+      return playingInfo
+        ? collectionIdList.map(ele => ele.id).includes(playingInfo.exhibitId)
+        : false;
     },
 
     /** 是否播放中 */
@@ -532,11 +574,11 @@ export default {
     /** 播放进度 */
     percentage() {
       if (this.playingInfo) {
-        let duration 
+        let duration;
         if (this.playingInfo.articleInfo.articleType === 1) {
           duration = this.playingInfo.versionInfo.exhibitProperty.duration;
         } else {
-          duration = this.playingInfo.child.articleInfo.articleProperty.duration
+          duration = this.playingInfo.child.articleInfo.articleProperty.duration;
         }
         if (duration) {
           const progress = ((this.$store.state.progress * 1000) / duration) * 100;
@@ -613,21 +655,21 @@ export default {
     /** 跳转到声音详情 */
     async skipToDetailPage() {
       if (this.playingInfo.articleInfo.articleType === 1) {
-        this.$router.myPush({ path: '/detail', query: { id: this.playingInfo.exhibitId } })
+        this.$router.myPush({ path: "/detail", query: { id: this.playingInfo.exhibitId } });
       } else {
-        this.$router.myPush({ 
-          path: '/detail-sub', 
-          query: { 
-            id: this.playingInfo.exhibitId, 
+        this.$router.myPush({
+          path: "/detail-sub",
+          query: {
+            id: this.playingInfo.exhibitId,
             itemId: this.playingInfo.child.itemId
-          } 
-        })
+          }
+        });
       }
     },
 
     /** 鼠标移出 */
     handleMouseout() {
-      this.animation('kill')
+      this.animation("kill");
     },
 
     /** 关闭播放器 */
@@ -672,9 +714,9 @@ export default {
       }
     },
     /** 播放失败 */
-    async playError(event) {      
-      const mediaError = this.$refs.player.error
-      if (!mediaError) return 
+    async playError(event) {
+      const mediaError = this.$refs.player.error;
+      if (!mediaError) return;
       switch (mediaError.code) {
         case 1:
           // 用户终止了媒体的加载
@@ -692,71 +734,78 @@ export default {
           // 其他错误
           break;
       }
-      console.warn(mediaError.code, mediaError.message)
+      console.warn(mediaError.code, mediaError.message);
 
-      if (await this.requestTry()) return
-      
+      if (await this.requestTry()) return;
+
       if (!this.playing) return;
     },
 
     /** 因为暂时性缺少数据，播放暂停 */
     async handleWaiting(event) {
-      await this.requestTry()
+      await this.requestTry();
     },
 
     /** 播放总时长变化 */
     async handleDurationchange(event) {
       if (this.playingInfo?.articleInfo?.articleType === 1) {
-        this.playingInfo.versionInfo.exhibitProperty.duration = this.$refs.player.duration * 1000
+        this.playingInfo.versionInfo.exhibitProperty.duration = this.$refs.player.duration * 1000;
       } else {
         this.playingInfo &&
-        this.playingInfo.child && 
-        this.playingInfo.child.articleInfo && 
-        (this.playingInfo.child.articleInfo.articleProperty.duration = this.$refs.player.duration * 1000)
+          this.playingInfo.child &&
+          this.playingInfo.child.articleInfo &&
+          (this.playingInfo.child.articleInfo.articleProperty.duration =
+            this.$refs.player.duration * 1000);
       }
     },
 
     /** 主动进行一次请求 */
     async requestTry() {
-      let url
-      const playingInfo = this.$store.state.playingInfo
+      let url;
+      const playingInfo = this.$store.state.playingInfo;
       if (playingInfo) {
         if (playingInfo.articleInfo.articleType === 1) {
-          url = playingInfo.url
+          url = playingInfo.url;
         } else {
-          url = playingInfo.child.url
+          url = playingInfo.child.url;
         }
       }
 
       // 请求一次url, 看是否是授权导致的播放失败
-      const res = await fetch(url,  { credentials: "include" })
-      
+      const res = await fetch(url, { credentials: "include" });
+
       if (res.status === 401) {
         // 暂停播放
-        this.$store.commit("setData", { key: "playing", value: false })
+        this.$store.commit("setData", { key: "playing", value: false });
 
         // 初始化url: 解决audio的src地址前后都是同一个造成不发起请求的问题
         if (this.playingInfo.articleInfo.articleType === 1) {
-          this.playingInfo.url = "" 
+          this.playingInfo.url = "";
         } else {
-          this.playingInfo.child.url = ""
+          this.playingInfo.child.url = "";
         }
 
         // 更新lastestAuthList的授权状态, 会自动更新其他列表的授权状态
-        await this.$store.dispatch("updateLastestAuthList")
+        await this.$store.dispatch("updateLastestAuthList");
 
-        const target = this.$store.state.lastestAuthList.find(ele => ele.exhibitId === this.playingInfo.exhibitId)
-        if (!target) return
-        const resJson = await res.json()
+        const target = this.$store.state.lastestAuthList.find(
+          ele => ele.exhibitId === this.playingInfo.exhibitId
+        );
+        if (!target) return;
+        const resJson = await res.json();
         // 若是展品无授权, 则调出授权; 若是单品, 合集展品授权正常, 但是此单品被封禁, 则进行toast提示;
         if (target.defaulterIdentityType === 4) {
-          await useMyAuth.getAuth(this.playingInfo, true)
-        } else if (this.playingInfo.child && target.defaulterIdentityType === 0 && resJson.data.authCode === 403) {
-          showToast(`资源《${this.playingInfo.child.itemTitle}》被封禁, 暂无法播放!`)
+          await useMyAuth.getAuth(this.playingInfo, true);
+        } else if (
+          this.playingInfo.child &&
+          target.defaulterIdentityType === 0 &&
+          resJson.data.authCode === 403
+        ) {
+          showToast(`资源《${this.playingInfo.child.itemTitle}》被封禁, 暂无法播放!`);
         }
 
-        return true
-      } 
+        return true;
+      }
     },
 
     /** 播放/暂停 */
@@ -784,10 +833,10 @@ export default {
       await useMyPlay.clearPlayList();
       this.confirmDialogShow = false;
       this.$refs.player.currentTime = 0;
-      this.slientFresh = false
+      this.slientFresh = false;
       this.$nextTick(() => {
-        this.slientFresh = true
-      })
+        this.slientFresh = true;
+      });
     },
 
     /** 授权 */
@@ -834,8 +883,8 @@ export default {
 
     /** 播放声音 */
     playVoice() {
-      if (!this.playing) return;  
-      this.$refs.player.play();        
+      if (!this.playing) return;
+      this.$refs.player.play();
       // 播放音频，显示播放器动画
       this.animation();
       // const { isIOS } = this.$store.state;
@@ -853,7 +902,7 @@ export default {
       if (this.slidingProgress || !this.$store.state.playing) return;
 
       const progress = this.$refs.player.currentTime;
-      
+
       this.$store.commit("setData", { key: "progress", value: progress });
     },
 
@@ -874,15 +923,16 @@ export default {
     /** 划动声音 */
     touchMove(e) {
       if (this.playList && this.playList.length > 1) {
-        const index = this.playList.findIndex(
-          item => {
-            if (this.playingInfo.articleInfo.articleType === 1) {
-              return item.exhibitId === this.playingInfo.exhibitId
-            } else {
-              return item.exhibitId === this.playingInfo.exhibitId && item.child.itemId === this.playingInfo.child.itemId
-            }
+        const index = this.playList.findIndex(item => {
+          if (this.playingInfo.articleInfo.articleType === 1) {
+            return item.exhibitId === this.playingInfo.exhibitId;
+          } else {
+            return (
+              item.exhibitId === this.playingInfo.exhibitId &&
+              item.child.itemId === this.playingInfo.child.itemId
+            );
           }
-        );
+        });
         const basicX = -this.infoAreaWidth * index;
         const offset = e.changedTouches[0].clientX - this.startTouchX;
         this.touchMoveX = basicX + offset * 1.5;
@@ -892,15 +942,16 @@ export default {
     /** 结束划动声音 */
     touchEnd() {
       if (this.playList && this.playList.length > 1) {
-        const index = this.playList.findIndex(
-          item => {
-            if (this.playingInfo.articleInfo.articleType === 1) {
-              return item.exhibitId === this.playingInfo.exhibitId
-            } else {
-              return item.exhibitId === this.playingInfo.exhibitId && item.child.itemId === this.playingInfo.child.itemId
-            }
+        const index = this.playList.findIndex(item => {
+          if (this.playingInfo.articleInfo.articleType === 1) {
+            return item.exhibitId === this.playingInfo.exhibitId;
+          } else {
+            return (
+              item.exhibitId === this.playingInfo.exhibitId &&
+              item.child.itemId === this.playingInfo.child.itemId
+            );
           }
-        );
+        });
         const basicX = -this.infoAreaWidth * index;
         const areaWidth = this.$refs.infoArea.clientWidth;
         const offset = basicX - this.touchMoveX;
@@ -923,7 +974,7 @@ export default {
     /** 播放或加入播放列表时，播放器动画 */
     animation(type) {
       if (!this.show && !type) this.show = true;
-      if (this.closeTimer) this.clearCloseTimer()
+      if (this.closeTimer) this.clearCloseTimer();
       if (this.show) {
         this.closeTimer = setTimeout(() => {
           if (!this.playListPopupShow && !this.volumePopupShow) this.show = false;

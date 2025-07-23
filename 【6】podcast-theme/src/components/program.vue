@@ -45,12 +45,24 @@
           :class="{ 'opacity-40': authLinkAbnormal }"
         ></div>
 
-        <div v-else class="multiple" :class="{ 'opacity-40': authLinkAbnormal }">
+        <div
+          v-else-if="data.articleInfo.articleType === 2"
+          class="multiple"
+          :class="{ 'opacity-40': authLinkAbnormal }"
+        >
           <span
             class="ing freelog fl-icon-bokebiaoqian_lianzaizhong"
             v-if="data.articleInfo.serializeStatus === 0"
           ></span>
           <span class="end freelog fl-icon-bokebiaoqian_yiwanjie" v-else></span>
+        </div>
+
+        <div
+          v-else-if="data.articleInfo.articleType === 3"
+          class="multiple bodan"
+          :class="{ 'opacity-40': authLinkAbnormal }"
+        >
+          <span class="ing freelog fl-icon-bokebiaoqian_bodan"></span>
         </div>
         <div
           class="title-txt"
@@ -66,7 +78,10 @@
           <i class="freelog fl-icon-gengxinshijian"></i>
           <div class="item-value">{{ data.updateDate | relativeTime }}</div>
         </div>
-        <div class="info-item" v-if="data.articleInfo && data.articleInfo.articleType === 2">
+        <div
+          class="info-item"
+          v-if="data.articleInfo && [2, 3].includes(data.articleInfo.articleType)"
+        >
           <i class="freelog fl-icon-danji"></i>
           <div class="item-value">{{ data.totalItem || 0 }}</div>
         </div>
@@ -111,7 +126,7 @@ export default {
       const supportMimeList = supportAudio;
       const isIOS = this.$store.state.isIOS;
 
-      if (this.data.articleInfo.articleType === 2) {
+      if ([2, 3].includes(this.data.articleInfo.articleType)) {
         return this.data.articleInfo.resourceType[0] === "音频";
       } else {
         const mime = this.data.versionInfo.exhibitProperty.mime;
@@ -134,7 +149,7 @@ export default {
   watch: {
     data: {
       handler(newData) {
-        if (newData.articleInfo.articleType === 2) {
+        if ([2, 3].includes(newData.articleInfo.articleType)) {
           this.getListInCollection(newData.exhibitId);
         }
       },

@@ -67,7 +67,29 @@ const playOrPause = async item => {
   const { playingInfo } = store;
 
   if (item.defaulterIdentityType === 4) {
-    useMyAuth.getAuth(item);
+    const authResult = await freelogApp.addAuth(item.exhibitId, { immediate: true });
+    const { status } = authResult;
+    if (status === 0) {
+      collectionData.value = [];
+      item.defaulterIdentityType = 0;
+      await getCollectionList({
+        exhibitId: item.exhibitId,
+        exhibitName: item.exhibitName,
+        coverImages: item.coverImages
+      });
+
+      // 默认播放第一首符合条件的歌曲，其余的全部加入播放列表
+      const playableTracks = collectionData.value.filter(i => i.defaulterIdentityType === 0);
+      await useMyPlay.playOrPause(playableTracks[0], "normal");
+
+      setTimeout(async () => {
+        await useMyPlay.addToPlayList({
+          exhibitId: item.exhibitId,
+          type: "PLAY_ALBUM_ADD_TO_PLAYLIST"
+        });
+      }, 0);
+    }
+
     return;
   }
 
@@ -316,7 +338,9 @@ onBeforeUnmount(() => {
                 <div class="icon">
                   <img :src="currentTheme === 'light' ? DarkAlbumIcon : AlbumIcon" alt="歌单" />
                 </div>
-                <span class="album">{{ item.collectionList.totalItem }}</span>
+                <span class="album">{{
+                  item.collectionList?.totalItem || item.totalItem || 0
+                }}</span>
               </div>
             </div>
           </div>
@@ -398,7 +422,9 @@ onBeforeUnmount(() => {
                 <div class="icon">
                   <img :src="currentTheme === 'light' ? DarkAlbumIcon : AlbumIcon" alt="歌单" />
                 </div>
-                <span class="album">{{ item.collectionList.totalItem }}</span>
+                <span class="album">{{
+                  item?.collectionList.totalItem || item.totalItem || 0
+                }}</span>
               </div>
             </div>
           </div>
@@ -656,6 +682,10 @@ onBeforeUnmount(() => {
             line-height: 20px;
             opacity: 0.8;
             cursor: pointer;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 200px;
 
             &:hover {
               color: #44d7b6;
@@ -853,6 +883,10 @@ onBeforeUnmount(() => {
             line-height: 20px;
             opacity: 0.8;
             cursor: pointer;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 180px;
 
             &:hover {
               color: #44d7b6;

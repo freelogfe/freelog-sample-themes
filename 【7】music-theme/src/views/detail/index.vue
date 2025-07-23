@@ -213,7 +213,105 @@
             </div>
 
             <div class="single-content-intro" v-else>
-              <div class="detail"></div>
+              <!-- <div class="detail"></div> -->
+
+              <div class="info-detail" v-if="!subID && hasInfoDetail">
+                <div
+                  class="detail-item"
+                  v-if="voiceInfo?.versionInfo?.exhibitProperty.display_artist"
+                >
+                  <span class="name">艺人:</span>
+                  <span class="value">{{
+                    voiceInfo?.versionInfo?.exhibitProperty.display_artist
+                  }}</span>
+                </div>
+                <div class="detail-item" v-if="albumName">
+                  <span class="name">专辑:</span>
+                  <span class="value">{{ albumName }}</span>
+                </div>
+
+                <div
+                  class="detail-item"
+                  v-if="voiceInfo?.versionInfo?.exhibitProperty.lyric_language"
+                >
+                  <span class="name">语种:</span>
+                  <span class="value">{{
+                    voiceInfo?.versionInfo?.exhibitProperty.lyric_language
+                  }}</span>
+                </div>
+
+                <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.label_name">
+                  <span class="name">厂牌:</span>
+                  <span class="value">{{
+                    voiceInfo?.versionInfo?.exhibitProperty.label_name
+                  }}</span>
+                </div>
+
+                <div
+                  class="detail-item"
+                  v-if="
+                    voiceInfo?.versionInfo?.exhibitProperty.release_date ||
+                    voiceInfo?.articleInfo?.versions?.[0]?.createDate ||
+                    voiceInfo?.createDate
+                  "
+                >
+                  <span class="name">发行时间:</span>
+                  <span class="value">{{
+                    absoluteTime(
+                      voiceInfo?.versionInfo?.exhibitProperty.release_date ||
+                        voiceInfo?.articleInfo?.versions?.[0]?.createDate ||
+                        voiceInfo?.createDate
+                    )
+                  }}</span>
+                </div>
+
+                <div
+                  class="detail-item"
+                  v-if="voiceInfo?.versionInfo?.exhibitProperty.song_lyricist"
+                >
+                  <span class="name">作词:</span>
+                  <span class="value">{{
+                    voiceInfo?.versionInfo?.exhibitProperty.song_lyricist
+                  }}</span>
+                </div>
+
+                <div
+                  class="detail-item"
+                  v-if="voiceInfo?.versionInfo?.exhibitProperty.song_composer"
+                >
+                  <span class="name">作曲:</span>
+                  <span class="value">{{
+                    voiceInfo?.versionInfo?.exhibitProperty.song_composer
+                  }}</span>
+                </div>
+
+                <div
+                  class="detail-item"
+                  v-if="voiceInfo?.versionInfo?.exhibitProperty.song_arranger"
+                >
+                  <span class="name">编曲:</span>
+                  <span class="value">{{
+                    voiceInfo?.versionInfo?.exhibitProperty.song_arranger
+                  }}</span>
+                </div>
+
+                <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.music_genre">
+                  <span class="name">风格:</span>
+                  <span class="value">{{
+                    voiceInfo?.versionInfo?.exhibitProperty.music_genre
+                  }}</span>
+                </div>
+
+                <div
+                  class="detail-item"
+                  v-if="voiceInfo?.versionInfo?.exhibitProperty.collection_duration"
+                >
+                  <span class="name">总时长:</span>
+                  <span class="value">{{
+                    secondsToHMS(voiceInfo?.versionInfo?.exhibitProperty.collection_duration)
+                  }}</span>
+                </div>
+              </div>
 
               <div class="intro">{{ voiceInfo?.exhibitIntro }}</div>
             </div>
@@ -645,7 +743,10 @@
             </template>
           </div>
 
-          <div class="album-content" v-if="voiceInfo?.articleInfo.articleType === 2">
+          <div
+            class="album-content"
+            v-if="voiceInfo?.articleInfo.articleType === 2 && collectionData.length"
+          >
             <div class="title">包含音乐（{{ collectionData.length }}）</div>
             <div class="content-item-wrap">
               <div
@@ -1141,6 +1242,28 @@ export default {
       if (this.playing) {
         this.store.setData({ key: "playing", value: false });
       } else {
+        if (this.voiceInfo.defaulterIdentityType === 4) {
+          // await useMyAuth.getAuth(this.voiceInfo);
+          const authResult = await freelogApp.addAuth(this.id, { immediate: true });
+          const { status } = authResult;
+          if (status === 0) {
+            await this.getVoiceInfo();
+
+            // 默认播放第一首符合条件的歌曲，其余的全部加入播放列表
+            const playableTracks = this.collectionData.filter(i => i.defaulterIdentityType === 0);
+            await useMyPlay.playOrPause(playableTracks[0], "normal");
+
+            setTimeout(async () => {
+              await useMyPlay.addToPlayList({
+                exhibitId: this.voiceInfo.exhibitId,
+                type: "PLAY_ALBUM_ADD_TO_PLAYLIST"
+              });
+            }, 0);
+          }
+
+          return;
+        }
+
         // 默认播放第一首符合条件的歌曲，其余的全部加入播放列表
         const playableTracks = this.collectionData.filter(i => i.defaulterIdentityType === 0);
         await useMyPlay.playOrPause(playableTracks[0], "normal");
@@ -1263,7 +1386,13 @@ export default {
           exhibitInfo.data.data;
         if (articleInfo.articleType === 2) {
           this.collectionData = [];
-          this.getCollectionList(this.id, exhibitName, coverImages, onlineStatus, versionInfo);
+          await this.getCollectionList(
+            this.id,
+            exhibitName,
+            coverImages,
+            onlineStatus,
+            versionInfo
+          );
         }
       }
 
@@ -1302,7 +1431,7 @@ export default {
             }
 
             item.exhibitTitle =
-              versionInfo.exhibitProperty.catalogueProperty.collection_item_title ===
+              versionInfo?.exhibitProperty?.catalogueProperty?.collection_item_title ===
               "collection_item_title_rtitle"
                 ? item.articleInfo.articleTitle
                 : item.itemTitle;
@@ -1321,7 +1450,13 @@ export default {
 
       if (this.subTempData.length < this.subTotal) {
         this.subSkip = this.subSkip + 1_000;
-        this.getCollectionList(collectionID, exhibitName, coverImages, onlineStatus, versionInfo);
+        await this.getCollectionList(
+          collectionID,
+          exhibitName,
+          coverImages,
+          onlineStatus,
+          versionInfo
+        );
       } else {
         this.subTotal = 0;
         this.subSkip = 0;

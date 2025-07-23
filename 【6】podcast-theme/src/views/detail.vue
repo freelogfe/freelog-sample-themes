@@ -12,7 +12,7 @@
           <!-- mobile -->
           <div
             class="mobile-detail-wrapper"
-            :class="{ pool: voiceInfo.articleInfo.articleType === 2 }"
+            :class="{ pool: [2, 3].includes(voiceInfo.articleInfo.articleType) }"
             v-if="$store.state.inMobile"
           >
             <div ref="cover" class="cover-area">
@@ -91,7 +91,7 @@
           <!-- mobile：合集的单品列表 -->
           <div
             class="mobile-detail-list"
-            v-if="$store.state.inMobile && voiceInfo.articleInfo.articleType === 2"
+            v-if="$store.state.inMobile && [2, 3].includes(voiceInfo.articleInfo.articleType)"
           >
             <div class="shortCut">
               <label>包含声音</label>
@@ -114,7 +114,7 @@
           </div>
           <div
             class="load-ready"
-            v-if="$store.state.inMobile && voiceInfo.articleInfo.articleType === 2"
+            v-if="$store.state.inMobile && [2, 3].includes(voiceInfo.articleInfo.articleType)"
           >
             <span v-if="list.length === 0">暂无任何声音</span>
             <span v-if="list.length !== 0 && this.list.length === this.total">已加载全部</span>
@@ -145,7 +145,7 @@
                   :class="{ 'opacity-40': authLinkAbnormal || offOrAuthErrorComputed }"
                 ></div>
                 <div
-                  v-else
+                  v-else-if="voiceInfo.articleInfo.articleType === 2"
                   class="multiple"
                   :class="{ 'opacity-40': authLinkAbnormal || offOrAuthErrorComputed }"
                 >
@@ -154,6 +154,13 @@
                     v-if="voiceInfo.articleInfo.serializeStatus === 0"
                   ></span>
                   <span class="end freelog fl-icon-bokebiaoqian_yiwanjie" v-else></span>
+                </div>
+                <div
+                  v-else-if="voiceInfo.articleInfo.articleType === 3"
+                  class="multiple bodan"
+                  :class="{ 'opacity-40': authLinkAbnormal || offOrAuthErrorComputed }"
+                >
+                  <span class="ing freelog fl-icon-bokebiaoqian_bodan"></span>
                 </div>
 
                 <my-tooltip class="title" :content="voiceInfo.exhibitTitle">
@@ -230,7 +237,7 @@
           <!-- pc：合集的单品列表 -->
           <div
             class="pc-detail-list"
-            v-if="!$store.state.inMobile && voiceInfo.articleInfo.articleType === 2"
+            v-if="!$store.state.inMobile && [2, 3].includes(voiceInfo.articleInfo.articleType)"
           >
             <div class="shortCut">
               <label>包含声音</label>
@@ -257,7 +264,11 @@
           <!-- pc: 分页 -->
           <div
             class="pc-detail-pagination"
-            v-if="list.length && !$store.state.inMobile && voiceInfo.articleInfo.articleType === 2"
+            v-if="
+              list.length &&
+              !$store.state.inMobile &&
+              [2, 3].includes(voiceInfo.articleInfo.articleType)
+            "
           >
             <el-pagination
               :current-page="currentPage"
@@ -426,7 +437,8 @@ export default {
             : "播放全部",
           operate: this.playOrPause,
           disabled: !(
-            (this.voiceInfo.articleInfo.articleType === 2 && !this.offOrAuthErrorComputed) ||
+            ([2, 3].includes(this.voiceInfo.articleInfo.articleType) &&
+              !this.offOrAuthErrorComputed) ||
             (this.voiceInfo.articleInfo.articleType === 1 && !this.offOrAuthErrorComputed)
           )
         },
@@ -435,7 +447,8 @@ export default {
           title: `加入播放列表`,
           operate: this.addToPlayList,
           disabled: !(
-            (this.voiceInfo.articleInfo.articleType === 2 && !this.offOrAuthErrorComputed) ||
+            ([2, 3].includes(this.voiceInfo.articleInfo.articleType) &&
+              !this.offOrAuthErrorComputed) ||
             (this.voiceInfo.articleInfo.articleType === 1 &&
               !isInPlayList &&
               this.ifSupportMime &&
@@ -482,7 +495,7 @@ export default {
         return;
       }
 
-      if (this.voiceInfo.articleInfo.articleType === 2) {
+      if ([2, 3].includes(this.voiceInfo.articleInfo.articleType)) {
         await useMyPlay.removePlayListBatch(this.voiceInfo.exhibitId);
         useMyPlay.playOrPause(this.voiceInfo, "pool", this.dropDownShow.value ? -1 : 1);
       } else {
@@ -493,7 +506,7 @@ export default {
     /** 加入播放列表 */
     async addToPlayList() {
       const { exhibitId, articleInfo } = this.voiceInfo;
-      if (articleInfo.articleType === 2) {
+      if ([2, 3].includes(articleInfo.articleType)) {
         const res = await useMyPlay.getListInCollection(exhibitId);
         if (!res) {
           showToast("合集里没有可添加的作品！");
@@ -582,7 +595,7 @@ export default {
 
       this.href = freelogApp.getCurrentUrl();
 
-      if (exhibitInfo.data.data.articleInfo.articleType === 2) {
+      if ([2, 3].includes(exhibitInfo.data.data.articleInfo.articleType)) {
         this.queryList();
       }
 
