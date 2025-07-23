@@ -62,7 +62,7 @@
           class="multiple bodan"
           :class="{ 'opacity-40': authLinkAbnormal }"
         >
-          <span class="ing freelog fl-icon-bokebiaoqian_danji yaogaide"></span>
+          <span class="ing freelog fl-icon-bokebiaoqian_bodan"></span>
         </div>
         <div
           class="title-txt"

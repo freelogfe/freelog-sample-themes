@@ -62,7 +62,7 @@
               class="multiple bodan"
               :class="{ 'opacity-40': authLinkAbnormal }"
             >
-              <span class="ing freelog fl-icon-bokebiaoqian_danji yaogaide"></span>
+              <span class="ing freelog fl-icon-bokebiaoqian_bodan"></span>
             </div>
           </template>
           <template v-if="authShow">
@@ -270,7 +270,7 @@
                 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2
               }"
             >
-              <span class="ing freelog fl-icon-bokebiaoqian_danji yaogaide"></span>
+              <span class="ing freelog fl-icon-bokebiaoqian_bodan"></span>
             </div>
           </template>
           <template v-if="authShow">
