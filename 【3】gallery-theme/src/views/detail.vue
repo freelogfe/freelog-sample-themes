@@ -514,8 +514,8 @@ export default {
       mountShareWidget();
 
       // 更新微信分享
-      const exhibitData = exhibitInfo.data.data as any
-      updateWxConfig(exhibitData)
+      const exhibitData = exhibitInfo.data.data as any;
+      updateWxConfig(exhibitData);
 
       if (![0, 4].includes(defaulterIdentityType)) {
         // 授权链异常
@@ -579,7 +579,7 @@ export default {
 
     /** 根据资源宽高比决定显示模式 */
     const judgeContentMode = (ratio: number) => {
-      if (!store.state.inMobile) {
+      if (!store.state.inMobile && contentArea.value) {
         const { clientWidth, clientHeight } = contentArea.value;
         const areaRatio = clientWidth / clientHeight;
         data.contentMode = ratio > areaRatio ? 1 : 2;
@@ -644,8 +644,9 @@ export default {
         container,
         renderWidgetOptions: {
           data: { exhibit: data.exhibitInfo, type, routerType: "detail" }
-        }
-        // widget_entry: "https://localhost:8201",
+        },
+        seq: Date.now()
+        // widget_entry: "https://localhost:8201"
       };
       data.shareWidget = await freelogApp.mountArticleWidget(params);
     };
