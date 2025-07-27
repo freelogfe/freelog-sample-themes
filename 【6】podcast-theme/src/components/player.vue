@@ -706,7 +706,15 @@ export default {
     },
 
     /** 播放完成 */
-    endVoice() {
+    async endVoice() {
+      if (this.$store.state.playList.length === 1) {
+        await this.$store.commit("setData", { key: "playing", value: false });
+        await this.$store.commit("setData", { key: "progress", value: 0 });
+        await this.$store.commit("setData", { key: "playingInfo", value: null });
+
+        return;
+      }
+
       this.$store.commit("setData", { key: "playing", value: false });
       this.$store.commit("setData", { key: "progress", value: 0 });
       if (this.$store.state.playList.length > 1) {
