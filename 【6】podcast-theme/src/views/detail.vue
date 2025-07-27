@@ -40,7 +40,7 @@
                 <i class="freelog fl-icon-gengxinshijian"></i>
                 <div class="item-value">{{ voiceInfo.updateDate | relativeTime }}</div>
               </div>
-              <div class="info-item">
+              <div class="info-item" v-if="voiceInfo.articleInfo.articleType !== 1">
                 <i class="freelog fl-icon-danji"></i>
                 <div class="item-value">{{ total }}</div>
               </div>
@@ -173,7 +173,7 @@
                   <i class="freelog fl-icon-gengxinshijian"></i>
                   <div class="item-value">{{ voiceInfo.updateDate | relativeTime }}</div>
                 </div>
-                <div class="info-item">
+                <div class="info-item" v-if="voiceInfo.articleInfo.articleType !== 1">
                   <i class="freelog fl-icon-danji"></i>
                   <div class="item-value">{{ total }}</div>
                 </div>
@@ -301,7 +301,7 @@ import { showToast } from "@/utils/common";
 import { freelogApp } from "freelog-runtime";
 import voice from "@/components/voice";
 import { supportAudio, unSupportAudioIOS } from "@/api/data";
-import { updateWxConfig } from "@/utils/update-wx-share"
+import { updateWxConfig } from "@/utils/update-wx-share";
 
 export default {
   name: "detail",
@@ -599,9 +599,8 @@ export default {
         this.queryList();
       }
 
-
       // 更新微信分享
-      updateWxConfig(exhibitInfo.data.data)
+      updateWxConfig(exhibitInfo.data.data);
     },
 
     /** 授权 */
