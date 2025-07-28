@@ -804,7 +804,7 @@ export default {
       const { articleInfo, exhibitId, child } = this.data;
       if ([2, 3].includes(articleInfo?.articleType) && this.mode === "program") {
         const res = await useMyPlay.getListInCollection(exhibitId);
-        if (!res) {
+        if (!res.length) {
           showToast("合集里没有可添加的作品！");
           return;
         }

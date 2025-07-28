@@ -649,9 +649,15 @@
       width: 100%;
       text-align: center;
       font-size: 30px;
-      color: rgba(255, 255, 255, 0.2);
-      line-height: 20px;
-      margin-top: 197px;
+      font-weight: 400;
+      line-height: 36px;
+      height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      // margin-top: 197px;
+      background: var(--text-point-second-color);
+      color: var(--text-fourth-color);
     }
   }
   .pc-detail-pagination {

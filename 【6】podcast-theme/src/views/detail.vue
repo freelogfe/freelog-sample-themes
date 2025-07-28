@@ -259,7 +259,7 @@
                 ></voice>
               </div>
             </div>
-            <div class="no-data-tip" v-else>暂无任何声音, 请稍后查看</div>
+            <div class="no-data-tip" v-else>暂无任何声音</div>
           </div>
           <!-- pc: 分页 -->
           <div
@@ -508,7 +508,7 @@ export default {
       const { exhibitId, articleInfo } = this.voiceInfo;
       if ([2, 3].includes(articleInfo.articleType)) {
         const res = await useMyPlay.getListInCollection(exhibitId);
-        if (!res) {
+        if (!res.length) {
           showToast("合集里没有可添加的作品！");
           return;
         }
