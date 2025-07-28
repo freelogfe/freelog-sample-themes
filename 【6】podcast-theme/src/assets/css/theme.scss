@@ -3,6 +3,7 @@
 :root {
   // 默认使用亮色主题变量
   --bg-color: var(--light-bg);
+  --bg-other-color: var(--light-other-bg);
   --bg-second-color: var(--light-second-bg);
   --bg-fourth-color: var(--light-fourth-bg);
   --bg-fifth-color: var(--light-fifth-bg);
@@ -36,6 +37,7 @@
 // 暗色主题
 [data-theme="dark"] {
   --bg-color: var(--dark-bg);
+  --bg-other-color: var(--dark-other-bg);
   --bg-second-color: var(--dark-second-bg);
   --bg-fourth-color: var(--dark-fourth-bg);
   --bg-fifth-color: var(--dark-fifth-bg);

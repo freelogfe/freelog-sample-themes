@@ -217,7 +217,7 @@ export default {
       position: relative;
       width: 210px;
       height: 210px;
-      background: #222;
+      // background: #222;
       border: 1px solid var(--border-color);
       box-sizing: border-box;
       border-radius: 10px;

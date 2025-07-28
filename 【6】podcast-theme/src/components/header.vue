@@ -218,7 +218,7 @@
         >
           <div
             class="light-mode"
-            :class="currentTheme === 'light' && 'selected'"
+            :class="currentTheme.value === 'light' && 'selected'"
             v-show="!systemMode"
             @click="toggleTheme('light')"
           >
@@ -227,7 +227,7 @@
 
           <div
             class="dark-mode"
-            :class="currentTheme === 'dark' && 'selected'"
+            :class="currentTheme.value === 'dark' && 'selected'"
             v-show="!systemMode"
             @click="toggleTheme('dark')"
           >
@@ -278,7 +278,7 @@ export default {
       ],
       currentTheme,
       toggleTheme,
-      systemMode: JSON.parse(localStorage.getItem("podcast-systemMode") || "false"),
+      systemMode: JSON.parse(localStorage.getItem("podcast-systemMode") || "false")
     };
   },
 
@@ -449,11 +449,11 @@ export default {
     /** 注册 */
     register() {
       const url = freelogApp.getCurrentUrl();
-        const mainUrl = url.split("?")[0]
-        const reg = /\.([^.]*)\.com/
-        const domain = reg.exec(mainUrl)
-        const domainName = domain ? domain[1] : "freelog"
-        window.open(`https://user.${domainName}.com/logon`);
+      const mainUrl = url.split("?")[0];
+      const reg = /\.([^.]*)\.com/;
+      const domain = reg.exec(mainUrl);
+      const domainName = domain ? domain[1] : "freelog";
+      window.open(`https://user.${domainName}.com/logon`);
     },
 
     /** 搜索 */

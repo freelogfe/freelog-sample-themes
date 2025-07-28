@@ -755,14 +755,16 @@ export default {
         height: 240px;
         border-radius: 10px;
         border: 1px solid var(--border-color);
-        background-color: #252525;
+        background-color: var(--bg-other-color);
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
 
         .avatar-img {
+          width: 100%;
           height: 100%;
+          object-fit: contain;
         }
 
         .default-avatar {

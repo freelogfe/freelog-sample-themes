@@ -14,7 +14,7 @@
       position: relative;
       width: 140px;
       height: 140px;
-      background: #222;
+      // background: #222;
       border: 1px solid var(--border-color);
       box-sizing: border-box;
       border-radius: 10px;
@@ -227,7 +227,7 @@
       position: fixed;
       width: 140px;
       height: 140px;
-      background: #222;
+      // background: #222;
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-sizing: border-box;
       border-radius: 10px;
@@ -342,7 +342,7 @@
       position: relative;
       width: 210px;
       height: 210px;
-      background: #222;
+      // background: #222;
       border: 1px solid var(--border-color);
       box-sizing: border-box;
       border-radius: 10px;
@@ -543,7 +543,7 @@
       position: fixed;
       width: 210px;
       height: 210px;
-      background: #222;
+      // background: #222;
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-sizing: border-box;
       border-radius: 10px;
@@ -636,7 +636,7 @@
       width: 870px;
       padding: 20px;
       border-radius: 15px;
-      background-color: rgba(255, 255, 255, 0.02);
+      background-color: var(--text-point-second-color);
       overflow: hidden;
       .list-item {
         margin-bottom: 25px;

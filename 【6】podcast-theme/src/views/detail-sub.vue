@@ -231,7 +231,7 @@ import { secondsToHMS, showToast } from "@/utils/common";
 import voice from "@/components/voice";
 import { freelogApp } from "freelog-runtime";
 import { supportAudio, unSupportAudioIOS } from "@/api/data";
-import { updateWxConfig } from "@/utils/update-wx-share"
+import { updateWxConfig } from "@/utils/update-wx-share";
 
 export default {
   name: "detail-sub",
@@ -460,13 +460,16 @@ export default {
         result = info.data.data;
 
         // 更新微信分享
-        const { itemTitle, articleInfo: { intro, coverImages } } = detail.data.data
+        const {
+          itemTitle,
+          articleInfo: { intro, coverImages }
+        } = detail.data.data;
         const config = {
           exhibitIntro: intro,
-          coverImages, 
+          coverImages,
           exhibitTitle: itemTitle
-        }
-        updateWxConfig(config)  
+        };
+        updateWxConfig(config);
       }
       this.voiceInfo = result;
     },
@@ -493,7 +496,7 @@ export default {
       position: relative;
       width: 140px;
       height: 140px;
-      background: #222;
+      // background: #222;
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-sizing: border-box;
       border-radius: 10px;
@@ -719,7 +722,7 @@ export default {
       position: fixed;
       width: 140px;
       height: 140px;
-      background: #222;
+      // background: #222;
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-sizing: border-box;
       border-radius: 10px;
@@ -765,7 +768,7 @@ export default {
       position: relative;
       width: 210px;
       height: 210px;
-      background: #222;
+      // background: #222;
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-sizing: border-box;
       border-radius: 10px;
@@ -942,7 +945,7 @@ export default {
       position: fixed;
       width: 210px;
       height: 210px;
-      background: #222;
+      // background: #222;
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-sizing: border-box;
       border-radius: 10px;
