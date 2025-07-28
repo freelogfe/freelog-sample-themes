@@ -580,6 +580,8 @@ export default {
     computedTitle() {
       if (this.data?.articleInfo?.articleType === 1) {
         return this.data.exhibitTitle;
+      } else if (this.data?.articleInfo?.articleType === 3) {
+        return this.data?.child?.itemTitle || this.data?.child?.articleInfo?.articleTitle || "";
       } else {
         if (this.mode === "voice") {
           const collection_item_title =
