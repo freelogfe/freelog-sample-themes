@@ -193,7 +193,6 @@ import {
 import { useStore } from "vuex";
 import { useGetList, useMyRouter, useMyScroll, useMyShelf } from "@/utils/hooks";
 import { State } from "@/store/index";
-import { freelogApp } from "freelog-runtime";
 export default {
   name: "home",
 
@@ -275,32 +274,7 @@ export default {
         getData();
       }
     );
-    setTimeout(() => {
-      freelogApp
-        .updateWechatShare(
-          {
-            title: freelogApp.nodeInfo.nodeName + "分享标题", // 分享标题
-            desc: "分享描述", // 分享描述
-            imgUrl: "https://image.freelog.com/avatar/50050", // data.coverImages[0], // 分享图标
-            success: () => {
-              console.log("分享成功");
-            }
-          },
-          {
-            title: freelogApp.nodeInfo.nodeName + "分享标题", // 分享标题
-            imgUrl: "https://image.freelog.com/avatar/50050", // data.coverImages[0], // 分享图标
-            success: () => {
-              console.log("分享成功");
-            }
-          }
-        )
-        .then(() => {
-          console.log("调用成功");
-        })
-        .catch(() => {
-          console.log("分享调用失败");
-        });
-    }, 3000);
+
     onActivated(() => {
       if (router.options.history.state.replaced) {
         const homeScrollTop = sessionStorage.getItem("homeScroll");

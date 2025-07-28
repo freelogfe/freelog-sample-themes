@@ -474,6 +474,8 @@ import { useStore } from "vuex";
 import { defineAsyncComponent, reactive, ref, toRefs, watch } from "@vue/runtime-core";
 import { WidgetController, freelogApp } from "freelog-runtime";
 import { useMyRouter, useMyShelf, useMyScroll } from "@/utils/hooks";
+import { updateWxConfig } from "@/utils/update-wx-share";
+
 import { formatDate, showToast } from "@/utils/common";
 import { ExhibitItem, CollectionList } from "@/api/interface";
 import { State } from "@/store/index";
@@ -625,6 +627,8 @@ export default {
         defaulterIdentityType
       };
       data.href = freelogApp.getCurrentUrl();
+
+      updateWxConfig(exhibitInfo.data.data as any);
 
       mountShareWidget();
     };

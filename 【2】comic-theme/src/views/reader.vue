@@ -1586,6 +1586,7 @@ import { Swipe, SwipeItem } from "vant";
 import { toRefs } from "@vue/reactivity";
 import { WidgetController, freelogApp } from "freelog-runtime";
 import { useMyRouter, useMyScroll, useMyShelf } from "@/utils/hooks";
+import { updateWxConfig } from "@/utils/update-wx-share";
 import { CollectionList, ContentImage, ExhibitItem } from "@/api/interface";
 import { State } from "@/store/index";
 import "vant/lib/index.css";
@@ -2005,6 +2006,10 @@ export default {
         comicMode = 2;
       }
 
+      if (articleType === 1) {
+        // 更新微信分享
+        updateWxConfig(exhibitInfo.data.data as any);
+      }
       // 合集逻辑
       if (articleType === 2) {
         const comicViewedResponse = await freelogApp.getUserData("comicViewedHistory");
@@ -2299,6 +2304,18 @@ export default {
     const getCollectionInfo = async (subId?: string) => {
       const res = await (freelogApp as any).getCollectionSubInfo(id, { itemId: subId });
       data.comicInfo = { ...data.comicInfo, articleInfo: res.data.data.articleInfo };
+
+      // 更新微信分享
+      const {
+        itemTitle,
+        articleInfo: { intro, coverImages }
+      } = res.data.data;
+      const config = {
+        exhibitIntro: intro,
+        coverImages,
+        exhibitTitle: itemTitle
+      };
+      updateWxConfig(config);
     };
 
     watch(
