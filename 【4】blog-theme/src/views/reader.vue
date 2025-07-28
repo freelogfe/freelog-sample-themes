@@ -334,6 +334,7 @@ import {
 import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
 import { ExhibitItem } from "@/api/interface";
 import { formatDate, relativeTime } from "@/utils/common";
+import { updateWxConfig } from "@/utils/update-wx-share";
 import { useStore } from "vuex";
 import { showToast } from "@/utils/common";
 import { WidgetController, freelogApp } from "freelog-runtime";
@@ -485,6 +486,18 @@ export default {
       } as any;
 
       data.collectionList = subList.data.data;
+
+      // 更新微信分享
+      const {
+        itemTitle,
+        articleInfo: { intro, coverImages }
+      } = subInfo.data.data;
+      const config = {
+        exhibitIntro: intro,
+        coverImages,
+        exhibitTitle: itemTitle
+      };
+      updateWxConfig(config);
     };
 
     /** 获取文章信息与内容 */
@@ -497,6 +510,12 @@ export default {
       const [exhibitInfo] = await Promise.all([
         freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 })
       ]);
+
+      const { articleType } = exhibitInfo.data.data.articleInfo;
+      if (articleType === 1) {
+        // 更新微信分享
+        updateWxConfig(exhibitInfo.data.data as any);
+      }
 
       const statusInfo = itemId
         ? await (freelogApp as any).getCollectionSubAuth(id, { itemIds: itemId })

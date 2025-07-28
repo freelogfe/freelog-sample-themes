@@ -5,6 +5,8 @@ import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 import { useMyRouter, useMyScroll } from "@/utils/hooks";
 import { formatDate } from "@/utils/common";
+import { updateWxConfig } from "@/utils/update-wx-share";
+
 import { ExhibitItem } from "@/api/interface";
 const myArticleV2 = defineAsyncComponent(() => import("@/components/article-v2.vue"));
 const tags = defineAsyncComponent(() => import("@/components/tags.vue"));
@@ -24,6 +26,8 @@ const getExhibitInfo = async () => {
     freelogApp.getExhibitInfo(exhibitId, { isLoadVersionProperty: 1 }),
     freelogApp.getExhibitAuthStatus(exhibitId)
   ]);
+
+  updateWxConfig(exhibitInfoResult.data.data as any);
 
   const { defaulterIdentityType = -1 } = statusInfoResult.data.data[0];
 
