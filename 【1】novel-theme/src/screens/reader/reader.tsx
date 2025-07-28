@@ -17,6 +17,7 @@ import AllLoadedDark from "../../assets/images/all-loaded-dark.png";
 import AllLoadedLight from "../../assets/images/all-loaded-light.png";
 
 import "./reader.scss";
+import { updateWxConfig } from "../../utils/update-wx-share";
 
 export const readerContext = React.createContext<any>({});
 
@@ -61,6 +62,10 @@ export const ReaderScreen = (props: any) => {
     ]);
 
     const { articleType } = exhibitInfo.data.data.articleInfo;
+    if (articleType === 1) {
+      // 更新微信分享
+      updateWxConfig(exhibitInfo.data.data as any);
+    }
     if (articleType === 2) {
       // 重置 ref 数据
       collectionListRef.current = [];
@@ -148,6 +153,18 @@ export const ReaderScreen = (props: any) => {
     });
     await getCollectionList(false, sortId - 15 < 0 ? 0 : sortId - 15);
     setCurrentSortId(sortId);
+
+    // 更新微信分享
+    const {
+      itemTitle,
+      articleInfo: { intro, coverImages }
+    } = res.data.data;
+    const config = {
+      exhibitIntro: intro,
+      coverImages,
+      exhibitTitle: itemTitle
+    };
+    updateWxConfig(config);
   };
 
   /** 加载分享插件 */
@@ -176,6 +193,7 @@ export const ReaderScreen = (props: any) => {
           routerType: "reader"
         }
       }
+      // widget_entry: "https://localhost:8201"
     };
     widgetList.current.share = await freelogApp.mountArticleWidget(params);
   };

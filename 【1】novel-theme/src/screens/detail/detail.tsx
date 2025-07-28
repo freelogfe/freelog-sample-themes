@@ -11,6 +11,7 @@ import { showToast } from "../../components/toast/toast";
 import { CollectionList, ExhibitItem } from "../../api/interface";
 import { formatDate, getUrlParams, formatWordCount } from "../../utils/common";
 import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
+import { updateWxConfig } from "../../utils/update-wx-share";
 import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
 import Freeze from "../../assets/images/freeze.png";
 import Lock from "../../assets/images/mini-lock.png";
@@ -273,6 +274,8 @@ export const DetailScreen = (props: any) => {
         signCount: signCountData.data.data[0]?.count ?? 0,
         defaulterIdentityType: statusInfo.data.data[0]?.defaulterIdentityType ?? null
       };
+
+      updateWxConfig(exhibitInfo.data.data as any);
 
       setNovel(bookInfo);
     } catch (error) {
