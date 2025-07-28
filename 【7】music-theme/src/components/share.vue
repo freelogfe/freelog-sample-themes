@@ -148,6 +148,7 @@ export default {
         );
       } else if (["qq", "wechat"].includes(item.id)) {
         // qq、微信
+        const url = freelogApp.getWechatShareURL();
         this.qrcodeInfo = { name: item.name, url };
         this.qrcodeShow = true;
       } else if (item.id === "copy") {
@@ -198,6 +199,7 @@ export default {
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 6px;
     backdrop-filter: blur(25px);
+    z-index: 9999;
 
     .title-area {
       display: flex;
@@ -346,6 +348,7 @@ export default {
     align-items: center;
     justify-content: center;
     background-color: rgba(0, 0, 0, 0.3);
+    z-index: 10000;
 
     .qrcode-popup {
       position: relative;

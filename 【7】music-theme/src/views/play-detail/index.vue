@@ -802,6 +802,7 @@ import playStatus from "@/components/play-status.vue";
 import myTooltip from "@/components/tooltip.vue";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { showToast, absoluteTime, secondsToHMS } from "@/utils/common";
+import { updateWxConfig } from "@/utils/update-wx-share";
 import { useGlobalStore } from "@/store/global";
 
 // 图片
@@ -1304,6 +1305,19 @@ export default {
             returnUrl: true
           })
         ]);
+
+        // 更新微信分享
+        const {
+          itemTitle,
+          articleInfo: { intro, coverImages }
+        } = subInfo.data.data;
+        const config = {
+          exhibitIntro: intro,
+          coverImages,
+          exhibitTitle: itemTitle
+        };
+        updateWxConfig(config);
+
         this.voiceInfo = {
           ...subInfo.data.data,
           coverImages: exhibitInfo.data.data.coverImages,
@@ -1328,6 +1342,9 @@ export default {
           freelogApp.getExhibitAuthStatus(this.id),
           freelogApp.getExhibitFileStream(this.id, { returnUrl: true })
         ]);
+
+        // 更新微信分享
+        updateWxConfig(exhibitInfo.data.data);
 
         this.voiceInfo = {
           ...exhibitInfo.data.data,
