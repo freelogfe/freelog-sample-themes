@@ -643,7 +643,12 @@ export default {
         topExhibitId,
         container,
         renderWidgetOptions: {
-          data: { exhibit: data.exhibitInfo, type, routerType: "detail" }
+          data: {
+            exhibit: data.exhibitInfo,
+            type,
+            routerType: "detail",
+            shareUrlGenerationException: "图库主题"
+          }
         },
         seq: Date.now()
         // widget_entry: "https://localhost:8201"
