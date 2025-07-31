@@ -164,16 +164,15 @@ export default {
             this.shareInfo.exhibit.child.itemId
           );
 
-          const url = freelogApp.getWechatShareURL(
+          const changeUrl = freelogApp.getCurrentUrl(
             "/detail-sub?id=" +
               this.shareInfo.exhibit.exhibitId +
               "&itemId=" +
               this.shareInfo.exhibit.child.itemId
           );
+          const realUrl = freelogApp.getWechatShareURL(changeUrl);
 
-          console.log("添加参数的微信分享url", url);
-
-          this.qrcodeInfo = { name: item.name, url };
+          this.qrcodeInfo = { name: item.name, url: realUrl };
           this.qrcodeShow = true;
         } else {
           // qq、微信
