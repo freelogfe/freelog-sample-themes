@@ -327,7 +327,7 @@ export default {
         path: "/home"
       },
       {
-        label: "博客",
+        label: "所有文章",
         path: "/blog"
       },
       {

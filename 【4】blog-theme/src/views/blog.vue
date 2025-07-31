@@ -118,7 +118,7 @@ onBeforeMount(() => {
   <div class="blog-wrapper">
     <!-- 头部 -->
     <div class="blog-header">
-      <div class="blog-header-title">博客</div>
+      <div class="blog-header-title">所有文章</div>
       <!-- <div class="blog-header-count">总数{{ availableListData.length }}</div> -->
     </div>
     <!-- 排序筛选 -->
