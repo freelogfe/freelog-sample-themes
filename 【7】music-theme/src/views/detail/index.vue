@@ -1327,7 +1327,9 @@ export default {
           key: "shareInfo",
           value: {
             show: true,
-            exhibit: item.itemId ? item : { ...this.voiceInfo, albumName: this.albumName }
+            exhibit: item.itemId
+              ? { ...item, shareUrlGenerationException: "音乐主题", parentArticleType: 2 }
+              : { ...this.voiceInfo, albumName: this.albumName }
           }
         });
       }

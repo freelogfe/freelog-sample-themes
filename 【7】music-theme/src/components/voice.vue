@@ -546,7 +546,14 @@ export default {
     share() {
       this.store.setData({
         key: "shareInfo",
-        value: { show: true, exhibit: this.data }
+        value: {
+          show: true,
+          exhibit: {
+            ...this.data,
+            shareUrlGenerationException: "音乐主题",
+            parentArticleType: this.data.itemId ? 2 : 1
+          }
+        }
       });
     },
 

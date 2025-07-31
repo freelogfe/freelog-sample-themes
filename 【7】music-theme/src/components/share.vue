@@ -147,10 +147,43 @@ export default {
           `https://www.douban.com/share/service?url=${url}&title=${title}&image=${image}`
         );
       } else if (["qq", "wechat"].includes(item.id)) {
-        // qq、微信
-        const url = freelogApp.getWechatShareURL();
-        this.qrcodeInfo = { name: item.name, url };
-        this.qrcodeShow = true;
+        const shareUrlGenerationException = this.shareInfo?.exhibit?.shareUrlGenerationException;
+        if (shareUrlGenerationException === "音乐主题") {
+          const parentArticleType = this.shareInfo?.exhibit?.parentArticleType;
+          let tempUrl = "";
+          if (parentArticleType === 1) {
+            tempUrl = "/detail?id=" + this.shareInfo.exhibit.exhibitId;
+          } else if (parentArticleType === 2) {
+            tempUrl =
+              "/detail?id=" +
+              this.shareInfo.exhibit.exhibitId +
+              "&subID=" +
+              this.shareInfo.exhibit.itemId +
+              "&albumName=" +
+              this.shareInfo.exhibit.albumName;
+          } else if (parentArticleType === 3) {
+            tempUrl =
+              "/play-detail?id=" +
+              this.shareInfo.exhibit.exhibitId +
+              "&subID=" +
+              this.shareInfo.exhibit.itemId +
+              "&albumName=" +
+              this.shareInfo.exhibit.albumName;
+          }
+
+          const changeUrl = freelogApp.getCurrentUrl(tempUrl);
+          const realUrl = freelogApp.getWechatShareURL(changeUrl);
+
+          console.log("realUrl", realUrl);
+
+          this.qrcodeInfo = { name: item.name, url: realUrl };
+          this.qrcodeShow = true;
+        } else {
+          // qq、微信
+          const url = freelogApp.getWechatShareURL();
+          this.qrcodeInfo = { name: item.name, url };
+          this.qrcodeShow = true;
+        }
       } else if (item.id === "copy") {
         // 复制链接
         if (this.copySuccess) return;
