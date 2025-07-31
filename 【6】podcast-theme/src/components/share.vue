@@ -143,10 +143,45 @@ export default {
           `https://www.douban.com/share/service?url=${url}&title=${title}&image=${image}`
         );
       } else if (["qq", "wechat"].includes(item.id)) {
-        // qq、微信
-        const url = freelogApp.getWechatShareURL()
-        this.qrcodeInfo = { name: item.name, url };
-        this.qrcodeShow = true;
+        const shareUrlGenerationException = this.shareInfo?.shareUrlGenerationException;
+
+        if (shareUrlGenerationException === "播客主题") {
+          // let url = freelogApp.getWechatShareURL();
+
+          // let changeUrl = url.replace("detail", "detail-sub");
+          // changeUrl =
+          //   changeUrl.split("&nodename")[0] +
+          //   "%25M1itemId%25M2" +
+          //   this.shareInfo.exhibit.child.itemId +
+          //   "&nodename" +
+          //   changeUrl.split("&nodename")[1];
+
+          // url = changeUrl;
+
+          console.log(
+            "查看是否正确",
+            this.shareInfo.exhibit.exhibitId,
+            this.shareInfo.exhibit.child.itemId
+          );
+
+          const url = freelogApp.getWechatShareURL(
+            "/detail-sub?id=" +
+              this.shareInfo.exhibit.exhibitId +
+              "&itemId=" +
+              this.shareInfo.exhibit.child.itemId
+          );
+
+          console.log("添加参数的微信分享url", url);
+
+          this.qrcodeInfo = { name: item.name, url };
+          this.qrcodeShow = true;
+        } else {
+          // qq、微信
+          const url = freelogApp.getWechatShareURL(shareUrlGenerationException);
+          console.log("微信分享URL", url);
+          this.qrcodeInfo = { name: item.name, url };
+          this.qrcodeShow = true;
+        }
       } else if (item.id === "copy") {
         // 复制链接
         if (this.copySuccess) return;

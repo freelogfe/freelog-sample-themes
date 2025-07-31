@@ -580,10 +580,12 @@ export default {
     computedTitle() {
       if (this.data?.articleInfo?.articleType === 1) {
         return this.data.exhibitTitle;
-      } else if (this.data?.articleInfo?.articleType === 3) {
-        return this.data?.child?.itemTitle || this.data?.child?.articleInfo?.articleTitle || "";
       } else {
         if (this.mode === "voice") {
+          if (this.data?.articleInfo?.articleType === 3) {
+            return this.data?.child?.itemTitle || this.data?.child?.articleInfo?.articleTitle || "";
+          }
+
           const collection_item_title =
             this.data?.versionInfo?.exhibitProperty?.catalogueProperty?.collection_item_title;
           if (collection_item_title === collection_item_title_sn) {
@@ -855,7 +857,7 @@ export default {
     share() {
       this.$store.commit("setData", {
         key: "shareInfo",
-        value: { show: true, exhibit: this.data }
+        value: { show: true, exhibit: this.data, shareUrlGenerationException: "播客主题" }
       });
     },
 
