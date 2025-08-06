@@ -5,14 +5,18 @@
         <img
           class="cover"
           :class="{ 'opacity-40p': ![0, 4].includes(data.defaulterIdentityType) }"
-          :src="data?.coverImages?.[0] || data?.articleInfo?.coverImages?.[0]"
+          :src="
+            data?.coverImages?.[0] ||
+            data?.articleInfo?.coverImages?.[0] ||
+            '//static.testfreelog.com/static/default_cover.png'
+          "
           :alt="data.exhibitTitle || data.itemTitle"
         />
       </div>
       <div class="offline" v-if="data.onlineStatus === 0 && inSignedList">已下架</div>
 
       <!-- 专栏状态 -->
-      <div class="column-status-wrapper" v-if="data.articleInfo?.articleType === 3">
+      <div class="column-status-wrapper" v-if="[2, 3].includes(data.articleInfo?.articleType)">
         <span>专栏</span>
         <span class="divider"></span>
         <!-- <span
@@ -34,7 +38,11 @@
         />
       </div>
       <span class="author-name">
-        {{ data.articleInfo.articleOwnerName || nodeInfo?.ownerUserName }}
+        {{
+          data.articleInfo?.articleType === 3
+            ? data.articleInfo.articleOwnerName || nodeInfo?.ownerUserName
+            : data.articleInfo.articleOwnerName
+        }}
       </span>
       <span class="date">
         {{
@@ -134,11 +142,13 @@ export default {
       return store.state.inMobile;
     });
 
+    const nodeInfo = freelogApp.nodeInfo;
+
     /** 点击文章组件 */
     const clickArticle = () => {
       const { exhibitId, itemId } = props.data;
 
-      const isColumn = props.data.articleInfo?.articleType === 3;
+      const isColumn = [2, 3].includes(props.data.articleInfo?.articleType);
 
       if (isColumn) {
         switchPage("/column-detail", { id: exhibitId });
@@ -193,7 +203,7 @@ export default {
       showIntroTooltip,
       introRef,
       handleIntroHover,
-      nodeInfo: freelogApp.nodeInfo
+      nodeInfo
     };
   }
 };

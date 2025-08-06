@@ -147,7 +147,7 @@ export const useGetList = () => {
         if (index !== -1)
           item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
 
-        if (item.articleInfo.articleType === 3) {
+        if ([2, 3].includes(item.articleInfo.articleType)) {
           const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
             sortType: -1,
             skip: 0,

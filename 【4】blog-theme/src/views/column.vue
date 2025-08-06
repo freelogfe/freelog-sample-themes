@@ -76,7 +76,7 @@ const columnLength = computed(() => {
 const availableListData = computed(() => {
   // 基础过滤条件：只显示博客类型且状态正常且身份类型为0或4的文章
   const baseFilter = (ele: any) =>
-    ele.articleInfo.articleType === 3 &&
+    [2, 3].includes(ele.articleInfo.articleType) &&
     ele.articleInfo.status === 1 &&
     [0, 4].includes(ele.defaulterIdentityType!);
 
