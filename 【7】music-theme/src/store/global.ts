@@ -93,6 +93,7 @@ export const useGlobalStore = defineStore("global", {
           freelogApp.getUserData("playMode")
         ]);
       const collectionIdList = collectionIdListResponse?.data?.data || [];
+      console.log("collectionIdList", collectionIdList);
       const playingId = playingIdResponse?.data?.data;
 
       // 节点信息

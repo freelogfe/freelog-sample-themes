@@ -15,7 +15,7 @@ export const useCommon = {
     const itemsToAdd = []; // 用于存储需要添加的项
 
     const fetchCollectionList = async () => {
-      const subList = await freelogApp.getCollectionSubList(obj.collectionID, {
+      const subList = await freelogApp.getCollectionSubListByPage(obj.collectionID, {
         skip: subSkip,
         limit,
         isShowDetailInfo,
@@ -27,7 +27,7 @@ export const useCommon = {
 
       if (dataList?.length !== 0) {
         const ids = dataList.map(item => item.itemId).join();
-        const statusInfo = await freelogApp.getCollectionSubAuth(obj.collectionID, {
+        const statusInfo = await freelogApp.getCollectionSubAuthStatus(obj.collectionID, {
           itemIds: ids
         });
 
@@ -107,7 +107,7 @@ export const useGetList = () => {
       return;
     }
 
-    const list = await freelogApp.getExhibitListByPaging(queryParams);
+    const list = await freelogApp.getExhibitListByPage(queryParams);
     const { dataList, totalItem } = list.data.data;
 
     if (dataList.length !== 0) {
@@ -125,7 +125,7 @@ export const useGetList = () => {
         }
 
         if (item.articleInfo.articleType === 3) {
-          const res = await freelogApp.getCollectionSubList(item.exhibitId, {
+          const res = await freelogApp.getCollectionSubListByPage(item.exhibitId, {
             sortType: -1,
             skip: 0,
             limit: 1_000,
@@ -176,7 +176,7 @@ export const useGetList = () => {
       return;
     }
 
-    const list = await freelogApp.getExhibitListByPaging(queryParams);
+    const list = await freelogApp.getExhibitListByPage(queryParams);
     const { dataList, totalItem } = list.data.data;
 
     if (dataList.length !== 0) {
@@ -194,7 +194,7 @@ export const useGetList = () => {
         }
 
         if ([2, 3].includes(item.articleInfo.articleType)) {
-          const res = await freelogApp.getCollectionSubList(item.exhibitId, {
+          const res = await freelogApp.getCollectionSubListByPage(item.exhibitId, {
             sortType: -1,
             skip: 0,
             limit: 1_000,
@@ -354,6 +354,7 @@ export const useMyCollection = {
 
     const result = [];
     const idList = store.collectionIdList;
+    console.log("idList", idList);
     if (!idList.length) {
       await store.setData({ key: "collectionList", value: [] });
       return;
@@ -363,8 +364,8 @@ export const useMyCollection = {
       if (item.itemId) {
         const [list, subInfo, subStatusList] = await Promise.all([
           freelogApp.getExhibitListById({ exhibitIds: item.exhibitId, isLoadVersionProperty: 1 }),
-          freelogApp.getCollectionSubInfo(item.exhibitId, { itemId: item.itemId }),
-          freelogApp.getCollectionSubAuth(item.exhibitId, { itemIds: item.itemId })
+          freelogApp.getCollectionSubById(item.exhibitId, { itemId: item.itemId }),
+          freelogApp.getCollectionSubAuthStatus(item.exhibitId, { itemIds: item.itemId })
         ]);
         result.push({
           ...subInfo.data.data,
@@ -376,16 +377,18 @@ export const useMyCollection = {
           parentArticleType: list.data.data[0].articleInfo?.articleType
         });
       } else {
+        console.log("item", item);
         const [list, statusList] = await Promise.all([
           freelogApp.getExhibitListById({
-            exhibitIds: item.exhibitId || item,
+            exhibitIds: item.exhibitId || item.id,
             isLoadVersionProperty: 1
           }),
           freelogApp.getExhibitAuthStatus(item.exhibitId)
         ]);
 
+        console.log("listData", list);
         if ([2, 3].includes(list.data.data[0].articleInfo?.articleType)) {
-          const subList = await freelogApp.getCollectionSubList(item.exhibitId, {
+          const subList = await freelogApp.getCollectionSubListByPage(item.exhibitId, {
             sortType: -1,
             skip: 0,
             limit: 1_000,
@@ -452,7 +455,7 @@ export const useMyCollection = {
     } else {
       // 收藏
       // 确认parentArticleType
-      const parentArticleType = await freelogApp.getExhibitInfo(exhibitId, {
+      const parentArticleType = await freelogApp.getExhibitById(exhibitId, {
         isLoadVersionProperty: 1
       });
 
@@ -498,8 +501,8 @@ export const useMyPlay = {
       if (item.itemId) {
         const [list, subInfo, subStatusList] = await Promise.all([
           freelogApp.getExhibitListById({ exhibitIds: item.exhibitId, isLoadVersionProperty: 1 }),
-          freelogApp.getCollectionSubInfo(item.exhibitId, { itemId: item.itemId }),
-          freelogApp.getCollectionSubAuth(item.exhibitId, { itemIds: item.itemId })
+          freelogApp.getCollectionSubById(item.exhibitId, { itemId: item.itemId }),
+          freelogApp.getCollectionSubAuthStatus(item.exhibitId, { itemIds: item.itemId })
         ]);
         result.push({
           ...subInfo.data.data,
@@ -870,7 +873,7 @@ export const useMyPlay = {
   async getPlayingInfo(id) {
     const store = useGlobalStore();
     const [info, statusInfo, url] = await Promise.all([
-      freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+      freelogApp.getExhibitById(id, { isLoadVersionProperty: 1 }),
       freelogApp.getExhibitAuthStatus(id),
       freelogApp.getExhibitFileStream(id, { returnUrl: true })
     ]);
