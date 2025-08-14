@@ -4,7 +4,8 @@ import store from "../store"; // 修改为相对路径或确认正确的路径
 
 // 创建响应式状态对象
 const state = Vue.observable({
-  currentTheme: "light"
+  currentTheme: "light",
+  currentSystemMode: false
 });
 
 // 当前主题 - 提供getter
@@ -14,6 +15,16 @@ export const currentTheme = {
   },
   set value(theme) {
     state.currentTheme = theme;
+  }
+};
+
+// 当前系统模式 - 提供getter
+export const currentSystemMode = {
+  get value() {
+    return state.currentSystemMode;
+  },
+  set value(status) {
+    state.currentSystemMode = status;
   }
 };
 
@@ -27,35 +38,46 @@ export function toggleTheme(theme) {
 export function applyTheme(theme) {
   currentTheme.value = theme;
   document.documentElement.setAttribute("data-theme", theme);
-  console.log(11111, currentTheme.value);
+}
+
+// 获取系统模式状态
+export function getSystemModeStatus() {
+  return JSON.parse(localStorage.getItem("podcast-systemMode") || "false");
+}
+
+// 设置系统模式状态
+export function setSystemModeStatus(status) {
+  currentSystemMode.value = status;
+  localStorage.setItem("podcast-systemMode", JSON.stringify(status));
 }
 
 // 初始化主题
 export function initTheme() {
-  // // 检查系统偏好
-  // if(Boolean(localStorage.getItem('podcast-systemMode'))){
-  //   const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  //   const mode = isDarkMode ? "dark" : "light";
-  //   toggleTheme(mode);
-  // }
+  const hasStoredTheme = localStorage.getItem("podcast-theme");
 
-  // if (!localStorage.getItem("theme")) {
-  //   const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  //   currentTheme.value = prefersDark ? "dark" : "light";
-  //   localStorage.setItem("theme", currentTheme.value);
-  // }
+  if (hasStoredTheme) {
+    // 使用存储的主题
+    const systemModeFromStorage = getSystemModeStatus();
+    currentSystemMode.value = systemModeFromStorage;
 
-  try {
-    const theme =
-      localStorage.getItem("podcast-theme") ||
-      (store && store.selfConfig && store.selfConfig.options_system_mode) ||
-      "light";
-    currentTheme.value = theme;
+    const theme = localStorage.getItem("podcast-theme") || "light";
+    applyTheme(theme);
+  } else {
+    // 根据配置决定主题
+    const configMode = store?.state?.selfConfig?.options_system_mode;
+    console.log(1111111, configMode);
 
-    applyTheme(currentTheme.value);
-  } catch (error) {
-    console.error("初始化主题失败:", error);
-    // 使用默认主题作为后备
-    applyTheme("light");
+    if (configMode === "system") {
+      // 跟随系统设置
+      const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const theme = isDarkMode ? "dark" : "light";
+
+      currentSystemMode.value = true;
+      applyTheme(theme);
+    } else {
+      // 使用配置的主题
+      const theme = configMode || "light";
+      applyTheme(theme);
+    }
   }
 }

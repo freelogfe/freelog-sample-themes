@@ -377,7 +377,7 @@ export const useMyCollection = {
           parentArticleType: list.data.data[0].articleInfo?.articleType
         });
       } else {
-        console.log("item", item);
+        // console.log("item", item);
         const [list, statusList] = await Promise.all([
           freelogApp.getExhibitListById({
             exhibitIds: item.exhibitId || item.id,
@@ -386,7 +386,7 @@ export const useMyCollection = {
           freelogApp.getExhibitAuthStatus(item.exhibitId)
         ]);
 
-        console.log("listData", list);
+        // console.log("listData", list);
         if ([2, 3].includes(list.data.data[0].articleInfo?.articleType)) {
           const subList = await freelogApp.getCollectionSubListByPage(item.exhibitId, {
             sortType: -1,

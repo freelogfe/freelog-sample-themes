@@ -233,7 +233,7 @@
             <div
               class="light-mode"
               :class="currentTheme === 'light' && 'selected'"
-              v-show="!systemMode"
+              v-show="!currentSystemMode"
               @click="toggleTheme('light')"
             >
               浅色模式
@@ -242,7 +242,7 @@
             <div
               class="dark-mode"
               :class="currentTheme === 'dark' && 'selected'"
-              v-show="!systemMode"
+              v-show="!currentSystemMode"
               @click="toggleTheme('dark')"
             >
               深色模式
@@ -251,7 +251,7 @@
             <div class="switch">
               <span class="system-mode">跟随系统</span>
               <el-switch
-                v-model="systemMode"
+                v-model="currentSystemMode"
                 style="
                   --el-switch-on-color: rgba(66, 194, 140, 1);
                   --el-switch-off-color: rgba(229, 231, 235, 1);
@@ -277,7 +277,12 @@
 import { useGlobalStore } from "@/store/global";
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { getAssetsFile } from "@/utils/common.js";
-import { currentTheme, toggleTheme } from "@/utils/theme-manager";
+import {
+  currentTheme,
+  toggleTheme,
+  currentSystemMode,
+  setSystemModeStatus
+} from "@/utils/theme-manager";
 import { freelogApp } from "freelog-runtime";
 
 export default {
@@ -291,7 +296,6 @@ export default {
       searchHistory: [] as string[],
       userBoxShow: false,
       searchHistoryShow: false,
-      systemMode: JSON.parse(localStorage.getItem("systemMode") || "false"),
       searchWordCatch: null as number | null,
       tabList: [
         { value: "/home", label: "首页" },
@@ -303,7 +307,8 @@ export default {
       store,
       getAssetsFile,
       currentTheme,
-      toggleTheme
+      toggleTheme,
+      currentSystemMode
     };
   },
 
@@ -536,10 +541,9 @@ export default {
         const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
         const mode = isDarkMode ? "dark" : "light";
         toggleTheme(mode);
-
-        localStorage.setItem("systemMode", JSON.stringify(true));
+        setSystemModeStatus(true);
       } else {
-        localStorage.setItem("systemMode", JSON.stringify(false));
+        setSystemModeStatus(false);
       }
     }
   }
