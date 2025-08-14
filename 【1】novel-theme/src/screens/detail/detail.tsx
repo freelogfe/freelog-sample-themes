@@ -716,7 +716,18 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                 </div>
                 <div className="update-date">
                   {novel?.articleInfo?.articleType === 1 ? (
-                    <div>最近更新：{formatDate(novel?.articleInfo?.versions?.[0]?.createDate)}</div>
+                    <div className="detail-latest-box">
+                      {(novel?.versionInfo as any)?.exhibitProperty?.wordCount && (
+                        <div className="word-count">
+                          {formatWordCount(
+                            (novel?.versionInfo as any)?.exhibitProperty?.wordCount
+                          ) + "字"}
+                        </div>
+                      )}
+                      <div className="latest-novel">
+                        最近更新：{formatDate(novel?.articleInfo?.versions?.[0]?.createDate)}
+                      </div>
+                    </div>
                   ) : novel?.articleInfo?.serializeStatus === 0 ? (
                     <div className="detail-latest-box">
                       <div className="on-going">连载中</div>
