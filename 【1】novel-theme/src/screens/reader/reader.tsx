@@ -682,6 +682,13 @@ const ReaderBody = () => {
           <div className="breadcrumbs-item">
             <div className="second-text-btn" onClick={() => history.switchPage(`/detail?id=${id}`)}>
               {book?.exhibitTitle}
+              {/* 合集单章节 */}
+              {collection && (
+                <>
+                  <span> {">"}</span>
+                  <span className="collection-item-text">{book?.collectionInfo?.itemTitle}</span>
+                </>
+              )}
             </div>
           </div>
         </div>
