@@ -421,7 +421,10 @@
                     }
                   "
                 >
-                  <span class="sub-title" :class="!isChapterViewed(item) && 'is-latest'">
+                  <span
+                    class="sub-title"
+                    :class="!isChapterViewed(item) && 'is-latest-temporary-not-viewed'"
+                  >
                     {{ getCollectionItemTitle(comicInfo, item) }}
                   </span>
                   <img

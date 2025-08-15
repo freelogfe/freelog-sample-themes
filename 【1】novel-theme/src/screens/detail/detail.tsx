@@ -923,7 +923,9 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                         }}
                       >
                         <span
-                          className={`sub-title ${!isChapterViewed(collectionItem) && "is-latest"}`}
+                          className={`sub-title ${
+                            !isChapterViewed(collectionItem) && "is-latest-temporary-not-viewed"
+                          }`}
                         >
                           {getCollectionItemTitle(novel, collectionItem)}
                         </span>
