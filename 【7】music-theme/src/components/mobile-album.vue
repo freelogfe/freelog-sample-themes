@@ -104,7 +104,7 @@ const getCollectionList = async (obj: {
   exhibitName: string;
   coverImages: string[];
 }) => {
-  const subList = await freelogApp.getCollectionSubList(obj.exhibitId, {
+  const subList = await freelogApp.getCollectionSubListByPage(obj.exhibitId, {
     skip: subSkip,
     limit: 1_000,
     isShowDetailInfo: 1
@@ -114,7 +114,7 @@ const getCollectionList = async (obj: {
 
   if (dataList.length !== 0) {
     const ids = dataList.map((item: any) => item.itemId).join();
-    const statusInfo = await (freelogApp as any).getCollectionSubAuth(obj.exhibitId, {
+    const statusInfo = await (freelogApp as any).getCollectionSubAuthStatus(obj.exhibitId, {
       itemIds: ids
     });
 

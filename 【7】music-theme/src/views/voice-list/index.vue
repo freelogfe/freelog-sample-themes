@@ -97,7 +97,7 @@ export default {
         isLoadVersionProperty: 1,
         limit: 20
       };
-      const list = await freelogApp.getExhibitListByPaging(queryParams);
+      const list = await freelogApp.getExhibitListByPage(queryParams);
       const { dataList, totalItem } = list.data.data;
 
       this.total = totalItem;
@@ -145,7 +145,7 @@ export default {
 
     /** 获取合集里的单品列表 */
     async getCollectionList(collectionID, exhibitTitle, images) {
-      const subList = await freelogApp.getCollectionSubList(collectionID, {
+      const subList = await freelogApp.getCollectionSubListByPage(collectionID, {
         skip: this.subSkip,
         limit: 1_000,
         isShowDetailInfo: 1
@@ -157,7 +157,7 @@ export default {
 
       if (dataList.length !== 0) {
         const ids = dataList.map(item => item.itemId).join();
-        const statusInfo = await freelogApp.getCollectionSubAuth(collectionID, {
+        const statusInfo = await freelogApp.getCollectionSubAuthStatus(collectionID, {
           itemIds: ids
         });
 

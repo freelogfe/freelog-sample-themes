@@ -87,12 +87,13 @@ export const useGlobalStore = defineStore("global", {
       const userData = freelogApp.getCurrentUser();
       const [selfConfig, collectionIdListResponse, playingIdResponse, playModeResponse] =
         await Promise.all([
-          freelogApp.getSelfProperty(),
+          freelogApp.getSelfPropertyForTheme(),
           freelogApp.getUserData("collectionIdList"),
           freelogApp.getUserData("playingId"),
           freelogApp.getUserData("playMode")
         ]);
       const collectionIdList = collectionIdListResponse?.data?.data || [];
+      console.log("collectionIdList", collectionIdList);
       const playingId = playingIdResponse?.data?.data;
 
       // 节点信息

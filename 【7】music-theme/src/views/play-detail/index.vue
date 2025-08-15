@@ -1299,9 +1299,9 @@ export default {
       // 合集中的一个单品
       if (this.subID) {
         const [exhibitInfo, subInfo, subStatusInfo, url] = await Promise.all([
-          freelogApp.getExhibitInfo(this.id, { isLoadVersionProperty: 1 }),
-          freelogApp.getCollectionSubInfo(this.id, { itemId: this.subID }),
-          freelogApp.getCollectionSubAuth(this.id, { itemIds: this.subID }),
+          freelogApp.getExhibitById(this.id, { isLoadVersionProperty: 1 }),
+          freelogApp.getCollectionSubById(this.id, { itemId: this.subID }),
+          freelogApp.getCollectionSubAuthStatus(this.id, { itemIds: this.subID }),
           freelogApp.getCollectionSubFileStream(this.id, {
             itemId: this.subID,
             returnUrl: true
@@ -1340,7 +1340,7 @@ export default {
       } else {
         // 普通展品
         const [exhibitInfo, statusInfo, url] = await Promise.all([
-          freelogApp.getExhibitInfo(this.id, { isLoadVersionProperty: 1 }),
+          freelogApp.getExhibitById(this.id, { isLoadVersionProperty: 1 }),
           freelogApp.getExhibitAuthStatus(this.id),
           freelogApp.getExhibitFileStream(this.id, { returnUrl: true })
         ]);
@@ -1382,7 +1382,7 @@ export default {
 
     /** 获取合集里的单品列表 */
     async getCollectionList(collectionID, exhibitName, coverImages, onlineStatus, versionInfo) {
-      const subList = await freelogApp.getCollectionSubList(collectionID, {
+      const subList = await freelogApp.getCollectionSubListByPage(collectionID, {
         skip: this.subSkip,
         limit: 1_000,
         isShowDetailInfo: 1
@@ -1392,7 +1392,7 @@ export default {
 
       if (dataList?.length !== 0) {
         const ids = dataList.map(item => item.itemId).join();
-        const statusInfo = await freelogApp.getCollectionSubAuth(collectionID, {
+        const statusInfo = await freelogApp.getCollectionSubAuthStatus(collectionID, {
           itemIds: ids
         });
 

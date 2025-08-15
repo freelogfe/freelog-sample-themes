@@ -37,7 +37,7 @@ const getCollectionList = async (
   onlineStatus: number,
   parentArticleType: number
 ) => {
-  const subList = await freelogApp.getCollectionSubList(collectionID, {
+  const subList = await freelogApp.getCollectionSubListByPage(collectionID, {
     skip: subSkip,
     limit: 1_000,
     isShowDetailInfo: 1
@@ -47,7 +47,7 @@ const getCollectionList = async (
 
   if (dataList.length !== 0) {
     const ids = dataList.map((item: any) => item.itemId).join();
-    const statusInfo = await (freelogApp as any).getCollectionSubAuth(collectionID, {
+    const statusInfo = await (freelogApp as any).getCollectionSubAuthStatus(collectionID, {
       itemIds: ids
     });
 
