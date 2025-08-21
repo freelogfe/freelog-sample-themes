@@ -280,6 +280,10 @@ onBeforeMount(() => {
         <div class="tags" v-if="exhibitInfo?.tags?.length">
           <tags :tags="exhibitInfo?.tags" :maxWidthObj="{ isVaild: false, maxWidth: 80 }" />
         </div>
+
+        <div class="intro" v-if="exhibitInfo?.exhibitIntro">
+          {{ exhibitInfo?.exhibitIntro }}
+        </div>
       </div>
     </div>
 
@@ -438,6 +442,14 @@ onBeforeMount(() => {
           color: #42c28c;
         }
       }
+    }
+
+    .intro {
+      font-weight: 400;
+      font-size: 12px;
+      color: #666666;
+      line-height: 18px;
+      margin-top: 15px;
     }
   }
 }
