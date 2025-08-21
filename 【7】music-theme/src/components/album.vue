@@ -324,10 +324,13 @@ onBeforeUnmount(() => {
             </div>
 
             <div class="desc">
+              <div class="author-name">
+                <span>{{ item.articleInfo?.articleOwnerName }}</span>
+              </div>
               <div class="time-box">
-                <div class="icon">
+                <!-- <div class="icon">
                   <img :src="currentTheme === 'light' ? DarkTimeIcon : TimeIcon" alt="更新时间" />
-                </div>
+                </div> -->
                 <span class="time">{{
                   absoluteTime(
                     item?.versionInfo?.exhibitProperty?.release_date ||
@@ -337,14 +340,14 @@ onBeforeUnmount(() => {
                 }}</span>
               </div>
 
-              <div class="album-box">
+              <!-- <div class="album-box">
                 <div class="icon">
                   <img :src="currentTheme === 'light' ? DarkAlbumIcon : AlbumIcon" alt="专辑" />
                 </div>
                 <span class="album">{{
                   item?.collectionList?.totalItem || item?.totalItem || 0
                 }}</span>
-              </div>
+              </div> -->
             </div>
           </div>
         </div>
@@ -699,9 +702,19 @@ onBeforeUnmount(() => {
         }
 
         .desc {
-          margin-top: 10px;
+          margin-top: 5px;
           display: flex;
+          flex-direction: column;
           // opacity: 0.4;
+
+          .author-name {
+            font-weight: 400;
+            font-size: 12px;
+            color: var(--text-color);
+            line-height: 18px;
+            opacity: 0.4;
+            margin-bottom: 5px;
+          }
 
           .time-box,
           .album-box {

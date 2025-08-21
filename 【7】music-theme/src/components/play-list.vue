@@ -35,6 +35,7 @@ const collectionData = ref<Exhibit[]>([]);
 const dropVisible = ref<boolean>(false);
 const selectedValue = ref<number>(1); // 1-最新发布 2-最早发布
 const dropWrapper = ref<HTMLElement | null>(null);
+const nodeInfo = freelogApp.nodeInfo;
 
 const authLinkAbnormal = (defaulterIdentityType: number) => {
   return ![0, 4].includes(defaulterIdentityType);
@@ -325,7 +326,7 @@ onBeforeUnmount(() => {
             </div>
 
             <div class="desc">
-              <div class="time-box">
+              <!-- <div class="time-box">
                 <div class="icon">
                   <img :src="currentTheme === 'light' ? DarkTimeIcon : TimeIcon" alt="更新时间" />
                 </div>
@@ -341,6 +342,10 @@ onBeforeUnmount(() => {
                 <span class="album">{{
                   item.collectionList?.totalItem || item.totalItem || 0
                 }}</span>
+              </div> -->
+
+              <div class="author-name">
+                <span>{{ nodeInfo?.ownerUserName }}</span>
               </div>
             </div>
           </div>
@@ -698,6 +703,14 @@ onBeforeUnmount(() => {
           margin-top: 10px;
           display: flex;
           // opacity: 0.4;
+
+          .author-name {
+            font-weight: 400;
+            font-size: 12px;
+            color: var(--text-color);
+            line-height: 18px;
+            opacity: 0.4;
+          }
 
           .time-box,
           .album-box {
