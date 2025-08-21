@@ -140,12 +140,7 @@
       </template>
 
       <div class="header" v-if="!searchData.keywords && listData?.length">
-        <div
-          class="sort"
-          :class="{ disabled: myLoading }"
-          @mouseover="sortPopupShow = true"
-          @mouseleave="sortPopupShow = false"
-        >
+        <div class="sort" :class="{ disabled: myLoading }" @click.stop="sortPopupShow = true">
           {{ createDateSortType === "-1" ? "最近发布" : "最早发布" }}
           <i class="freelog fl-icon-zhankaigengduo"></i>
 
