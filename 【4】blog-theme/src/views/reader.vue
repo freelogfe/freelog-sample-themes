@@ -77,7 +77,7 @@
       <!-- mobile -->
       <div class="mobile-reader-body" v-if="inMobile">
         <div class="article-info">
-          <div class="article-info-header">
+          <div class="article-info-header" v-if="!contentLoading">
             <div class="article-cover">
               <img :src="articleData?.coverImages?.[0]" alt="" />
             </div>
@@ -306,7 +306,7 @@
           </div>
         </div>
 
-        <div class="recommend" v-if="recommendList.length">
+        <div class="recommend pc-recommend" v-if="recommendList.length">
           <div class="recommend-header">
             <div class="recommend-title">相关推荐</div>
             <div class="text-btn" @click="switchPage('/')">更多>></div>
@@ -982,8 +982,8 @@ export default {
 
     .recommend {
       width: 100%;
-      // padding: 30px 20px;
-      // box-sizing: border-box;
+      padding: 30px 20px;
+      box-sizing: border-box;
       background-color: #fff;
 
       .recommend-title {
@@ -1512,7 +1512,7 @@ export default {
   }
 }
 
-.recommend {
+.recommend.pc-recommend {
   width: 100%;
   // padding: 30px 20px;
   // box-sizing: border-box;

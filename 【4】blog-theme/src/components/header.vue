@@ -91,6 +91,30 @@
               </div>
               <div
                 class="btn"
+                :class="{ active: route.path === '/blog' }"
+                @click="
+                  switchPage('/blog');
+                  userBoxShow = false;
+                "
+                v-if="userData.isLogin"
+              >
+                <i class="freelog fl-icon-tuwen"></i>
+                <div class="btn-label">所有文章</div>
+              </div>
+              <div
+                class="btn"
+                :class="{ active: route.path === '/column' }"
+                @click="
+                  switchPage('/column');
+                  userBoxShow = false;
+                "
+                v-if="userData.isLogin"
+              >
+                <i class="freelog fl-icon-bokezhuanlan"></i>
+                <div class="btn-label">专栏</div>
+              </div>
+              <div
+                class="btn"
                 :class="{ active: route.path === '/signedList' }"
                 @click="
                   switchPage('/signedList');

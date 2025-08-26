@@ -1,14 +1,5 @@
 <script setup lang="ts">
-import {
-  ref,
-  computed,
-  defineAsyncComponent,
-  onBeforeMount,
-  watch,
-  onActivated,
-  onDeactivated,
-  reactive
-} from "vue";
+import { ref, computed, defineAsyncComponent, onBeforeMount, watch, reactive } from "vue";
 import { useStore } from "vuex";
 import { useGetList, useMyRouter, useMyScroll } from "@/utils/hooks";
 const myArticleV2 = defineAsyncComponent(() => import("@/components/article-v2.vue"));
@@ -27,7 +18,10 @@ const data = reactive({
     articleResourceTypes: string;
   },
   blogInfoPopupShow: false,
-  isInitial: true
+  isInitial: true,
+  filterBoxShow: false,
+  isClickedConfirmBtn: false,
+  tempActiveFilter: "全部" // 临时存储弹窗中的筛选选择
 });
 
 const sortOptions = ["最近发布", "最早发布"];
@@ -42,7 +36,12 @@ const tagsList: string[] = [
 const activeFilter = ref(tagsList[0]);
 
 const setFilter = (option: string) => {
-  activeFilter.value = option;
+  // 在弹窗中只更新临时变量，不直接更新 activeFilter
+  if (data.filterBoxShow) {
+    data.tempActiveFilter = option;
+  } else {
+    activeFilter.value = option;
+  }
 };
 
 // 切换排序
@@ -60,7 +59,7 @@ const setSort = (option: string) => {
   data.createDateSortType = option;
   data.searchData.sort = `createDate:${option}`;
   data.searchData.articleResourceTypes = "专栏";
-  datasOfGetList.getList(data.searchData, true);
+  !store.state.inMobile && datasOfGetList.getList(data.searchData, true);
 };
 
 // 获取博客列表
@@ -89,6 +88,20 @@ const availableListData = computed(() => {
     : baseFilteredData.filter((item: any) => item.tags.includes(activeFilter.value));
 });
 
+// 移动端“确定”按钮，应用筛选条件
+const confirmFilter = () => {
+  // 将临时选择应用到实际的过滤条件
+  activeFilter.value = data.tempActiveFilter;
+  data.filterBoxShow = false;
+  data.isClickedConfirmBtn = true;
+  datasOfGetList.getList(data.searchData, true);
+};
+
+// 关闭筛选弹窗，恢复之前的过滤状态
+const closeFilterBox = () => {
+  data.filterBoxShow = false;
+};
+
 watch(
   () => scrollTop.value,
   cur => {
@@ -105,42 +118,117 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <div class="blog-wrapper">
-    <!-- 头部 -->
-    <div class="blog-header">
-      <div class="blog-header-title">专栏</div>
-      <!-- <div class="blog-header-count">总数{{ columnLength }}</div> -->
-    </div>
-    <!-- 排序筛选 -->
-    <div class="blog-filter">
-      <div class="filter-row">
-        <span>排序：</span>
-        <div
-          v-for="option in sortOptions"
-          :key="option"
-          class="filter-btn"
-          :class="{ active: activeSort === option }"
-          @click="setSort(option)"
-        >
-          {{ option }}
+  <div class="blog-wrapper" :class="{ 'pc-wrapper': !store.state.inMobile }">
+    <div class="is-pc" v-if="!store.state.inMobile">
+      <!-- 头部 -->
+      <div class="blog-header">
+        <div class="blog-header-title">专栏</div>
+        <!-- <div class="blog-header-count">总数{{ columnLength }}</div> -->
+      </div>
+      <!-- 排序筛选 -->
+      <div class="blog-filter">
+        <div class="filter-row">
+          <span>排序：</span>
+          <div
+            v-for="option in sortOptions"
+            :key="option"
+            class="filter-btn"
+            :class="{ active: activeSort === option }"
+            @click="setSort(option)"
+          >
+            {{ option }}
+          </div>
+        </div>
+        <div class="filter-row" style="margin-top: 12px">
+          <span>筛选：</span>
+          <div
+            v-for="option in tagsList"
+            :key="option"
+            class="tag-btn"
+            :class="{ active: activeFilter === option }"
+            :title="option"
+            @click="setFilter(option)"
+          >
+            {{ option }}
+          </div>
         </div>
       </div>
-      <div class="filter-row" style="margin-top: 12px">
-        <span>筛选：</span>
+    </div>
+
+    <div class="is-mobile" v-else>
+      <div class="header">
+        <div class="title">专栏</div>
         <div
-          v-for="option in tagsList"
-          :key="option"
-          class="tag-btn"
-          :class="{ active: activeFilter === option }"
-          :title="option"
-          @click="setFilter(option)"
+          class="text-btn mobile filter"
+          @click="
+            () => {
+              data.filterBoxShow = true;
+            }
+          "
         >
-          {{ option }}
+          <i className="freelog fl-icon-shaixuan"></i>
+          <div class="filter-label">筛选</div>
         </div>
       </div>
+
+      <!-- 移动端筛选弹窗 -->
+      <transition name="fade">
+        <div id="modal" class="modal" v-if="data.filterBoxShow" @click="closeFilterBox"></div>
+      </transition>
+      <transition name="slide-right">
+        <div class="filter-box-body" v-if="data.filterBoxShow">
+          <div class="filter-box-header">
+            <div class="header-title">筛选</div>
+            <div class="close-btn" @click="closeFilterBox">
+              <i class="freelog fl-icon-guanbi"></i>
+            </div>
+          </div>
+          <div class="tags-box">
+            <!-- 排序 -->
+            <div class="top-bar">
+              排序：
+              <div class="category-btn-box">
+                <div
+                  v-for="option in sortOptions"
+                  :key="option"
+                  class="tag"
+                  :class="{ active: activeSort === option }"
+                  @click="setSort(option)"
+                >
+                  {{ option }}
+                </div>
+              </div>
+            </div>
+
+            <!-- 标签 -->
+            <div class="bottom-bar">
+              标签：
+
+              <div class="category-btn-box">
+                <div
+                  class="tag"
+                  :class="{ active: data.tempActiveFilter === item }"
+                  v-for="item in tagsList"
+                  :key="item"
+                  @click="setFilter(item)"
+                >
+                  {{ item }}
+                </div>
+              </div>
+            </div>
+
+            <!-- 点击确定后执行筛选 -->
+            <div class="confirm-btn" @click="confirmFilter">确定</div>
+          </div>
+        </div>
+      </transition>
     </div>
+
     <!-- 内容 -->
-    <div class="article-list">
+    <div
+      class="article-list"
+      :class="{ 'mobile-list': store.state.inMobile, 'pc-list': !store.state.inMobile }"
+    >
       <my-article-v2 :data="item" v-for="item in availableListData" :key="item.exhibitId" />
     </div>
   </div>
@@ -148,105 +236,282 @@ onBeforeMount(() => {
 
 <style scoped lang="scss">
 .blog-wrapper {
-  padding-top: 20px;
-  margin: 0 auto;
-  width: 90%;
-  min-width: 965px;
-  max-width: 1600px;
+  padding: 30px 20px;
 
-  .blog-header {
-    .blog-header-title {
-      font-weight: 600;
-      font-size: 28px;
-      color: #222222;
-      line-height: 34px;
+  &.pc-wrapper {
+    padding-top: 20px;
+    margin: 0 auto;
+    width: 90%;
+    min-width: 965px;
+    max-width: 1600px;
+  }
+
+  .is-pc {
+    .blog-header {
+      .blog-header-title {
+        font-weight: 600;
+        font-size: 28px;
+        color: #222222;
+        line-height: 34px;
+      }
+      .blog-header-count {
+        font-weight: 400;
+        font-size: 12px;
+        color: rgba(34, 34, 34, 0.4);
+        line-height: 18px;
+        margin-top: 10px;
+      }
     }
-    .blog-header-count {
-      font-weight: 400;
-      font-size: 12px;
-      color: rgba(34, 34, 34, 0.4);
-      line-height: 18px;
-      margin-top: 10px;
+
+    .blog-filter {
+      margin: 24px 0 20px 0;
+
+      .filter-row {
+        display: flex;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+
+        span {
+          font-size: 14px;
+          color: #222222;
+          margin-right: 10px;
+          flex-shrink: 0;
+          line-height: 26px;
+        }
+
+        .filter-btn {
+          margin-right: 20px;
+          padding: 3px 10px;
+          border: none;
+          border-radius: 13px;
+          color: #222222;
+          font-size: 14px;
+          cursor: pointer;
+
+          &:hover:not(.active) {
+            color: #222222;
+            font-weight: 600;
+          }
+
+          &.active {
+            background: rgba(0, 0, 0, 0.05);
+          }
+        }
+
+        .tag-btn {
+          margin-right: 20px;
+          margin-bottom: 15px;
+          padding: 3px 10px;
+          border: none;
+          border-radius: 13px;
+          color: #222222;
+          font-size: 14px;
+          cursor: pointer;
+          max-width: 250px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          display: inline-block;
+
+          &:hover:not(.active) {
+            color: #222222;
+            font-weight: 600;
+          }
+
+          &.active {
+            background: rgba(0, 0, 0, 0.05);
+          }
+        }
+      }
     }
   }
 
-  .blog-filter {
-    margin: 24px 0 20px 0;
-
-    .filter-row {
+  .is-mobile {
+    .header {
       display: flex;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      margin-bottom: 8px;
+      justify-content: space-between;
+      align-items: flex-end;
 
-      span {
-        font-size: 14px;
+      .title {
+        font-weight: 600;
+        font-size: 30px;
         color: #222222;
-        margin-right: 10px;
-        flex-shrink: 0;
-        line-height: 26px;
+        line-height: 36px;
       }
 
-      .filter-btn {
-        margin-right: 20px;
-        padding: 3px 10px;
-        border: none;
-        border-radius: 13px;
-        color: #222222;
-        font-size: 14px;
-        cursor: pointer;
+      .text-btn {
+        display: flex;
+        align-items: center;
 
-        &:hover:not(.active) {
-          color: #222222;
-          font-weight: 600;
+        .freelog {
+          font-size: 18px;
         }
 
-        &.active {
-          background: rgba(0, 0, 0, 0.05);
+        .filter-label {
+          font-size: 16px;
+          line-height: 22px;
+          margin-left: 5px;
         }
       }
 
-      .tag-btn {
-        margin-right: 20px;
-        margin-bottom: 15px;
-        padding: 3px 10px;
-        border: none;
-        border-radius: 13px;
-        color: #222222;
-        font-size: 14px;
-        cursor: pointer;
-        max-width: 250px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        display: inline-block;
+      .filter {
+        display: flex;
+        justify-content: end;
 
-        &:hover:not(.active) {
-          color: #222222;
-          font-weight: 600;
+        .freelog {
+          font-size: 18px;
         }
 
-        &.active {
-          background: rgba(0, 0, 0, 0.05);
+        .filter-label {
+          font-size: 16px;
+          line-height: 22px;
+          margin-left: 5px;
         }
       }
     }
-  }
 
-  .article-list {
-    margin-top: 25px;
+    .modal {
+      position: fixed;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.4);
+      z-index: 101;
+    }
+
+    .filter-box-body {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 340px;
+      background: #ffffff;
+      border-radius: 0px 10px 10px 0px;
+      padding: 0 20px;
+      padding-bottom: 30px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      z-index: 101;
+
+      .filter-box-header {
+        position: relative;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 26px;
+
+        .header-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #222222;
+          line-height: 22px;
+        }
+
+        .close-btn {
+          width: 22px;
+          height: 22px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 6px;
+
+          .freelog {
+            font-size: 12px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+      }
+
+      .tags-box {
+        width: 100%;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin-top: 30px;
+        box-sizing: border-box;
+
+        .top-bar,
+        .bottom-bar {
+          display: flex;
+          flex-direction: column;
+          color: #666666;
+
+          .category-btn-box {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 15px;
+          }
+        }
+
+        .tag {
+          width: fit-content;
+          height: 38px;
+          border-radius: 38px;
+          padding: 9px 15px;
+          box-sizing: border-box;
+          background: #ebecf0;
+          font-size: 14px;
+          color: #575e6a;
+          line-height: 20px;
+          margin: 0 10px 15px 0;
+          cursor: pointer;
+          max-width: 100%;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+
+          &.active {
+            background: var(--deriveColor);
+            color: #fff;
+          }
+        }
+
+        .confirm-btn {
+          width: 100%;
+          height: 48px;
+          background: #222222;
+          border-radius: 4px;
+          font-weight: 600;
+          font-size: 16px;
+          color: #ffffff;
+          line-height: 48px;
+          text-align: center;
+          margin-top: auto;
+        }
+      }
+    }
   }
 }
 
-.article-list {
+.article-list.pc-list {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 40px;
   margin-bottom: 80px;
+  margin-top: 25px;
+}
+
+.article-list.mobile-list {
+  margin-top: 30px;
+  .article-wrapper-v2 {
+    margin-bottom: 30px;
+  }
+  .article-wrapper-v2:last-child {
+    border-bottom: none;
+    margin-bottom: 0px;
+  }
 }
 
 @media screen and (min-width: 1300px) {
-  .article-list {
+  .article-list.pc-list {
     grid-template-columns: repeat(4, 1fr) !important;
   }
 }

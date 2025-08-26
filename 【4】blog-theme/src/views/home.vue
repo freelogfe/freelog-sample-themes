@@ -41,14 +41,12 @@
     </div>
 
     <div class="mobile-home-body" v-if="inMobile">
-      <div class="header">
-        <div
-          class="sort"
-          :class="{ disabled: myLoading }"
-          v-if="!searchData.keywords"
-          @click.stop="sortPopupShow = true"
-        >
-          {{ createDateSortType === "-1" ? "最近发布" : "最早发布" }}
+      <!-- 移动端所有文章 -->
+      <template v-if="displayListData?.length">
+        <div class="header">
+          <div class="sort">
+            最近发布
+            <!-- {{ createDateSortType === "-1" ? "最近发布" : "最早发布" }}
           <i class="freelog fl-icon-zhankaigengduo"></i>
 
           <transition name="slide-down-scale">
@@ -74,22 +72,53 @@
                 </div>
               </div>
             </div>
-          </transition>
+          </transition> -->
+          </div>
+
+          <div class="router-btn">
+            <span @click="switchPage('/blog')">所有文章</span>
+            <img class="arrow" src="../assets/images/home-arrow.png" />
+          </div>
         </div>
-      </div>
 
-      <my-loader v-if="loading" />
+        <my-loader v-if="loading" />
 
-      <template v-if="!loading">
+        <template v-if="!loading">
+          <div class="article-list">
+            <my-article-v2
+              :data="item"
+              v-for="item in displayListData.slice(0, 5)"
+              :key="item.exhibitId"
+            />
+          </div>
+          <div className="tip" v-show="total === 0 || availableListData?.length === 0">
+            当前节点暂无任何数据，请稍后查看
+          </div>
+        </template>
+
+        <div class="view-all-btn" @click="switchPage('/blog')">查看所有文章</div>
+      </template>
+
+      <!-- 移动端专栏 -->
+      <template v-if="displayListCollectionData?.length">
+        <div class="header column-border">
+          <div class="sort">专栏</div>
+
+          <div class="router-btn">
+            <span @click="switchPage('/column')">所有专栏</span>
+            <img class="arrow" src="../assets/images/home-arrow.png" />
+          </div>
+        </div>
+
         <div class="article-list">
-          <my-article-v2 :data="item" v-for="item in availableListData" :key="item.exhibitId" />
+          <my-article-v2
+            :data="item"
+            v-for="item in displayListCollectionData.slice(0, 5)"
+            :key="item.exhibitId"
+          />
         </div>
-        <div className="tip" v-show="total === 0 || availableListData?.length === 0">
-          当前节点暂无任何数据，请稍后查看
-        </div>
-        <div className="tip no-more" v-show="listData?.length !== 0 && listData?.length === total">
-          — 已加载全部 —
-        </div>
+
+        <div class="view-all-btn" @click="switchPage('/column')">查看所有专栏</div>
       </template>
     </div>
 
@@ -140,8 +169,8 @@
       </template>
 
       <div class="header" v-if="!searchData.keywords && listData?.length">
-        <div class="sort" :class="{ disabled: myLoading }" @click.stop="sortPopupShow = true">
-          {{ createDateSortType === "-1" ? "最近发布" : "最早发布" }}
+        <div class="sort" :class="{ disabled: myLoading }">
+          <!-- {{ createDateSortType === "-1" ? "最近发布" : "最早发布" }}
           <i class="freelog fl-icon-zhankaigengduo"></i>
 
           <transition name="slide-down-scale">
@@ -151,7 +180,8 @@
                 <div class="user-box-btn" @click="sort('1')">最早发布</div>
               </div>
             </div>
-          </transition>
+          </transition> -->
+          最近发布
         </div>
 
         <div class="blog-count">
@@ -425,6 +455,7 @@ export default {
     .header-blog-info {
       background-color: #f7f7f7;
       padding: 20px;
+      padding-bottom: 30px;
 
       .blog-title {
         font-size: 30px;
@@ -525,10 +556,15 @@ export default {
       justify-content: space-between;
       padding: 30px 0;
 
+      &.column-border {
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+      }
+
       .sort {
         position: relative;
-        font-size: 16px;
-        line-height: 22px;
+        font-size: 20px;
+        font-weight: 600;
+        line-height: 26px;
         display: flex;
         align-items: center;
 
@@ -569,6 +605,22 @@ export default {
         }
       }
 
+      .router-btn {
+        display: flex;
+        align-items: center;
+        line-height: 22px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #222222;
+        line-height: 20px;
+
+        .arrow {
+          width: 7px;
+          height: 13px;
+          margin-left: 5px;
+        }
+      }
+
       .box-title {
         font-size: 16px;
         color: #999999;
@@ -589,6 +641,17 @@ export default {
           margin-left: 5px;
         }
       }
+    }
+
+    .view-all-btn {
+      font-weight: 600;
+      font-size: 14px;
+      color: #222222;
+      line-height: 20px;
+      margin: 30px 0 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .tip {
@@ -888,7 +951,7 @@ export default {
         font-weight: 600;
         color: #222222;
         line-height: 34px;
-        cursor: pointer;
+        // cursor: pointer;
 
         .freelog {
           font-size: 12px;
