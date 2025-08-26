@@ -184,6 +184,11 @@
           @click="switchPage('/home')"
         ></div>
 
+        <!-- 当节点未设置logo时，显示节点名称 -->
+        <div class="logo-text" v-else :title="nodeInfo?.nodeTitle" @click="switchPage('/home')">
+          {{ nodeInfo?.nodeTitle }}
+        </div>
+
         <!-- 搜索框 -->
         <div class="search-box" :class="{ 'no-logo': !hasLogo }">
           <input

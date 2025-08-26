@@ -501,6 +501,19 @@
           margin-right: 5px;
         }
       }
+
+      .logo-text {
+        width: 200px;
+        height: 24px;
+        font-weight: 600;
+        font-size: 18px;
+        color: #222222;
+        line-height: 24px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        cursor: pointer;
+      }
     }
 
     .search-box {

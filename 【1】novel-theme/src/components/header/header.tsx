@@ -327,12 +327,20 @@ export const Header = (props: {
         <div className="header-box">
           <div className={`header-left ${!hasLogo && "no-logo"}`}>
             {/* logo */}
-            {hasLogo && (
+            {hasLogo ? (
               <div
                 className="logo"
                 style={{ backgroundImage: `url(${nodeInfo?.nodeLogo})` }}
                 onClick={() => history.switchPage("/home")}
               />
+            ) : (
+              <div
+                className="logo-text"
+                title={nodeInfo?.nodeTitle}
+                onClick={() => history.switchPage("/home")}
+              >
+                {nodeInfo?.nodeTitle}
+              </div>
             )}
 
             {/* 搜索框 */}
