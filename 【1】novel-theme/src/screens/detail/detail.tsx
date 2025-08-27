@@ -16,6 +16,7 @@ import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
 import Freeze from "../../assets/images/freeze.png";
 import Lock from "../../assets/images/mini-lock.png";
 import RightArrow from "../../assets/images/right-arrow.png";
+import LoadingSvg from "../../assets/images/loading.svg";
 
 import "./detail.scss";
 
@@ -321,7 +322,11 @@ export const DetailScreen = (props: any) => {
     >
       <div className="detail-wrapper">
         <Header />
-        <DetailBody total={total} collectionRecentDate={collectionRecentDate} />
+        <DetailBody
+          total={total}
+          collectionRecentDate={collectionRecentDate}
+          isLoadingMore={isLoadingMore}
+        />
         <Footer />
         <LoginBtn />
         <ThemeEntrance />
@@ -331,8 +336,12 @@ export const DetailScreen = (props: any) => {
 };
 
 /** 详情页主体内容 */
-const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
-  const { total, collectionRecentDate } = props;
+const DetailBody = (props: {
+  total: number;
+  collectionRecentDate: string;
+  isLoadingMore: boolean;
+}) => {
+  const { total, collectionRecentDate, isLoadingMore } = props;
   const { inMobile, userData } = useContext(globalContext);
   const {
     novel,
@@ -650,6 +659,11 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                     );
                   })}
                 </div>
+                {isLoadingMore && (
+                  <div className="loading-container">
+                    <img src={LoadingSvg} alt="加载中" className="loading-icon" />
+                  </div>
+                )}
                 {collectionList.length === total && (
                   <div className="tip no-more">— 已加载全部章节 —</div>
                 )}
@@ -944,6 +958,11 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                     );
                   })}
                 </div>
+                {isLoadingMore && (
+                  <div className="loading-container">
+                    <img src={LoadingSvg} alt="加载中" className="loading-icon" />
+                  </div>
+                )}
                 {collectionList.length === total && (
                   <div className="tip no-more">— 已加载全部章节 —</div>
                 )}

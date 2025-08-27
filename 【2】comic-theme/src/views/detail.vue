@@ -195,7 +195,15 @@
               </div>
             </div>
 
-            <div className="tip no-more" v-if="listData.length === total">— 已加载全部章节 —</div>
+            <!-- Loading 状态 -->
+            <div v-if="loading && listData.length > 0" class="loading-container">
+              <img src="../assets/images/loading.svg" alt="加载中" class="loading-icon" />
+            </div>
+
+            <!-- 已加载全部提示 -->
+            <div className="tip no-more" v-if="listData.length === total && !loading">
+              — 已加载全部章节 —
+            </div>
           </div>
 
           <div v-else class="comic-catalogue">
@@ -451,7 +459,15 @@
                 </div>
               </div>
 
-              <div className="tip no-more" v-if="listData.length === total">— 已加载全部章节 —</div>
+              <!-- Loading 状态 -->
+              <div v-if="loading && listData.length > 0" class="loading-container">
+                <img src="../assets/images/loading.svg" alt="加载中" class="loading-icon" />
+              </div>
+
+              <!-- 已加载全部提示 -->
+              <div className="tip no-more" v-if="listData.length === total && !loading">
+                — 已加载全部章节 —
+              </div>
             </div>
 
             <div v-else class="comic-catalogue">

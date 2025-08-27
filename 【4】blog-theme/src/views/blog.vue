@@ -259,6 +259,13 @@ onBeforeMount(() => {
     >
       <my-article-v2 :data="item" v-for="item in availableListData" :key="item.exhibitId" />
     </div>
+    <!-- Loading 状态 -->
+    <div
+      v-if="datasOfGetList.myLoading.value && availableListData.length > 0"
+      class="loading-container"
+    >
+      <img src="@/assets/images/loading.svg" alt="加载中" class="loading-icon" />
+    </div>
   </div>
 </template>
 
@@ -535,6 +542,46 @@ onBeforeMount(() => {
   .article-wrapper-v2:last-child {
     border-bottom: none;
     margin-bottom: 0px;
+  }
+}
+
+// Loading 样式
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+  margin: 20px 0;
+
+  .loading-icon {
+    width: 32px;
+    height: 32px;
+    animation: rotate 1s linear infinite;
+    margin-bottom: 8px;
+  }
+
+  .loading-text {
+    font-size: 14px;
+    color: #999999;
+    line-height: 20px;
+  }
+}
+
+.tip.no-more {
+  text-align: center;
+  font-size: 14px;
+  color: #999999;
+  line-height: 20px;
+  margin: 20px 0;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 
