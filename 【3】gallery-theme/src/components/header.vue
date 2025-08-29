@@ -195,7 +195,9 @@
           "
           @click="switchPage('/')"
         />
+      </div>
 
+      <div class="header-top-middle">
         <!-- 搜索框 -->
         <div class="search-box">
           <input
@@ -290,19 +292,13 @@
     <template v-if="homeHeader">
       <!-- 节点信息 -->
       <div class="header-node-info">
-        <div class="node-avatar">
-          <img
-            :src="nodeLogo || require('../assets/images/default-avatar.png')"
-            alt="节点头像"
-            class="avatar-img"
-          />
+        <div class="node-theme" v-if="selfConfig.options_theme !== '不显示'">
+          <img v-if="selfConfig.options_theme === '光晕'" src="../assets/images/光晕.jpg" />
+          <img v-if="selfConfig.options_theme === '梦幻'" src="../assets/images/梦幻.jpg" />
+          <img v-if="selfConfig.options_theme === '科技'" src="../assets/images/科技.jpg" />
         </div>
-
-        <div class="info-content">
-          <div class="title-signcount">
-            <div class="node-title" :title="nodeTitle">{{ nodeTitle }}</div>
-            <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
-          </div>
+        <div class="node-content">
+          <div class="node-title" :title="nodeTitle">{{ nodeTitle }}</div>
           <div class="node-desc" :title="nodeShortDescription">{{ nodeShortDescription }}</div>
         </div>
       </div>
@@ -441,10 +437,10 @@ export default {
       /** 注册 */
       register() {
         const url = freelogApp.getCurrentUrl();
-        const mainUrl = url.split("?")[0]
-        const reg = /\.([^.]*)\.com/
-        const domain = reg.exec(mainUrl)
-        const domainName = domain ? domain[1] : "freelog"
+        const mainUrl = url.split("?")[0];
+        const reg = /\.([^.]*)\.com/;
+        const domain = reg.exec(mainUrl);
+        const domainName = domain ? domain[1] : "freelog";
         window.open(`https://user.${domainName}.com/logon`);
       }
     };

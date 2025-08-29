@@ -51,7 +51,7 @@ export default createStore({
       const selfConfig = await freelogApp.getSelfProperty();
       const inMobile = judgeDevice();
       const isIOS = judgeIOSDevice();
-      const theme = themeList[selfConfig.options_theme || selfConfig.theme];
+      const theme = themeList["炫丽"];
       context.commit("setData", {
         key: "userData",
         value: userData ? { ...userData, isLogin: true } : { isLogin: false }

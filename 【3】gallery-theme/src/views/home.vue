@@ -842,11 +842,14 @@ export default {
     }
 
     .filter-bar-box {
-      margin-top: 40px;
-      margin-bottom: 40px;
+      padding: 20px;
+      margin-top: 20px;
+      margin-bottom: 20px;
       display: flex;
       flex-direction: column;
       color: #666666;
+      background-color: rgba(0, 0, 0, 0.02);
+      border-radius: 10px;
 
       .top-bar {
         display: flex;
