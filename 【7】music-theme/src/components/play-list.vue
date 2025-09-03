@@ -22,6 +22,7 @@ import { useGlobalStore } from "@/store/global";
 
 const props = defineProps<{
   hasHeader: boolean;
+  isRecommend?: boolean;
   data: Exhibit[];
 }>();
 const route = useRoute();
@@ -211,13 +212,25 @@ onBeforeUnmount(() => {
   <div class="pc-play-list-wrap" v-if="!store.inMobile">
     <!-- 歌单头部 -->
     <div class="album-header-box" v-if="props.hasHeader">
-      <span class="title">歌单</span>
-      <div class="more" @click="router.myPush({ path: '/play-list' })">
-        所有歌单
-        <div class="more-icon">
-          <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
+      <template v-if="!props.isRecommend">
+        <span class="title">歌单</span>
+        <div class="more" @click="router.myPush({ path: '/play-list' })">
+          所有歌单
+          <div class="more-icon">
+            <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
+          </div>
         </div>
-      </div>
+      </template>
+      <!-- 歌单详情中的推荐内容 -->
+      <template v-else>
+        <span class="title recommend">更多歌单</span>
+        <div class="more recommend" @click="router.myPush({ path: '/play-list' })">
+          所有歌单
+          <div class="more-icon">
+            <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
+          </div>
+        </div>
+      </template>
     </div>
     <div v-if="route.name === 'play-list'">
       <!-- 最新发布 | 最早发布 -->
@@ -359,13 +372,26 @@ onBeforeUnmount(() => {
   <div class="mobile-album-wrap" v-else>
     <!-- 歌单头部 -->
     <div class="album-header-box" v-if="props.hasHeader">
-      <span class="title">歌单</span>
-      <div class="more" @click="router.myPush({ path: '/play-list' })">
-        所有歌单
-        <div class="more-icon">
-          <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
+      <template v-if="!props.isRecommend">
+        <span class="title">歌单</span>
+        <div class="more" @click="router.myPush({ path: '/play-list' })">
+          所有歌单
+          <div class="more-icon">
+            <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
+          </div>
         </div>
-      </div>
+      </template>
+
+      <!-- 歌单详情中的推荐内容 -->
+      <template v-else>
+        <span class="title recommend">更多歌单</span>
+        <div class="more recommend" @click="router.myPush({ path: '/play-list' })">
+          所有歌单
+          <div class="more-icon">
+            <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
+          </div>
+        </div>
+      </template>
     </div>
 
     <!-- 歌单内容 -->
@@ -423,14 +449,14 @@ onBeforeUnmount(() => {
                 }}</span>
               </div>
 
-              <div class="album-box">
+              <!-- <div class="album-box">
                 <div class="icon">
                   <img :src="currentTheme === 'light' ? DarkAlbumIcon : AlbumIcon" alt="歌单" />
                 </div>
                 <span class="album">{{
-                  item?.collectionList.totalItem || item.totalItem || 0
+                  item?.collectionList?.totalItem || item?.totalItem || 0
                 }}</span>
-              </div>
+              </div> -->
             </div>
           </div>
         </div>
@@ -458,6 +484,10 @@ onBeforeUnmount(() => {
       color: var(--text-color);
       line-height: 28px;
       opacity: 0.8;
+
+      &.recommend {
+        opacity: 0.6;
+      }
     }
 
     .more {
@@ -469,6 +499,10 @@ onBeforeUnmount(() => {
       opacity: 0.8;
       line-height: 20px;
       cursor: pointer;
+
+      &.recommend {
+        opacity: 0.6;
+      }
 
       &:hover {
         opacity: 1;

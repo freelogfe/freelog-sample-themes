@@ -213,113 +213,73 @@
             </div>
 
             <div class="single-content-intro" v-else>
-              <!-- <div class="detail"></div> -->
-              <div class="info-detail" v-if="!subID && hasInfoDetail">
-                <div
-                  class="detail-item"
-                  v-if="voiceInfo?.versionInfo?.exhibitProperty.display_artist"
-                >
-                  <span class="name">艺人:</span>
-                  <span class="value">{{
-                    voiceInfo?.versionInfo?.exhibitProperty.display_artist
-                  }}</span>
+              <!-- 歌单介绍 -->
+              <div class="info-detail" v-if="!subID">
+                <div class="detail-item">
+                  <span class="name">资源类型:</span>
+                  <span class="value">{{ voiceInfo?.articleInfo?.resourceType?.[1] }}</span>
                 </div>
-                <div class="detail-item" v-if="albumName">
-                  <span class="name">专辑:</span>
-                  <span class="value">{{ albumName }}</span>
+                <div class="detail-item">
+                  <span class="name">创建人:</span>
+                  <span class="value">{{ nodeInfo?.ownerUserName }}</span>
                 </div>
-
-                <div
-                  class="detail-item"
-                  v-if="voiceInfo?.versionInfo?.exhibitProperty.lyric_language"
-                >
-                  <span class="name">语种:</span>
-                  <span class="value">{{
-                    voiceInfo?.versionInfo?.exhibitProperty.lyric_language
-                  }}</span>
+                <div class="detail-item">
+                  <span class="name">歌曲数量:</span>
+                  <span class="value">{{ collectionData.length }}</span>
                 </div>
-
-                <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.label_name">
-                  <span class="name">厂牌:</span>
-                  <span class="value">{{
-                    voiceInfo?.versionInfo?.exhibitProperty.label_name
-                  }}</span>
-                </div>
-
-                <div
-                  class="detail-item"
-                  v-if="
-                    voiceInfo?.versionInfo?.exhibitProperty.release_date ||
-                    voiceInfo?.articleInfo?.versions?.[0]?.createDate ||
-                    voiceInfo?.createDate
-                  "
-                >
-                  <span class="name">发行时间:</span>
-                  <span class="value">{{
-                    absoluteTime(
-                      voiceInfo?.versionInfo?.exhibitProperty.release_date ||
-                        voiceInfo?.articleInfo?.versions?.[0]?.createDate ||
-                        voiceInfo?.createDate
-                    )
-                  }}</span>
-                </div>
-
-                <div
-                  class="detail-item"
-                  v-if="voiceInfo?.versionInfo?.exhibitProperty.song_lyricist"
-                >
-                  <span class="name">作词:</span>
-                  <span class="value">{{
-                    voiceInfo?.versionInfo?.exhibitProperty.song_lyricist
-                  }}</span>
-                </div>
-
-                <div
-                  class="detail-item"
-                  v-if="voiceInfo?.versionInfo?.exhibitProperty.song_composer"
-                >
-                  <span class="name">作曲:</span>
-                  <span class="value">{{
-                    voiceInfo?.versionInfo?.exhibitProperty.song_composer
-                  }}</span>
-                </div>
-
-                <div
-                  class="detail-item"
-                  v-if="voiceInfo?.versionInfo?.exhibitProperty.song_arranger"
-                >
-                  <span class="name">编曲:</span>
-                  <span class="value">{{
-                    voiceInfo?.versionInfo?.exhibitProperty.song_arranger
-                  }}</span>
-                </div>
-
-                <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.music_genre">
-                  <span class="name">风格:</span>
-                  <span class="value">{{
-                    voiceInfo?.versionInfo?.exhibitProperty.music_genre
-                  }}</span>
-                </div>
-
                 <div
                   class="detail-item"
                   v-if="voiceInfo?.versionInfo?.exhibitProperty.collection_duration"
                 >
                   <span class="name">总时长:</span>
-                  <span class="value">{{
-                    secondsToHMS(voiceInfo?.versionInfo?.exhibitProperty.collection_duration)
-                  }}</span>
+                  <span class="value">
+                    {{ secondsToHMS(voiceInfo?.versionInfo?.exhibitProperty.collection_duration) }}
+                  </span>
                 </div>
               </div>
 
               <div class="intro">{{ voiceInfo?.exhibitIntro }}</div>
             </div>
           </div>
+
+          <div
+            class="recommend-list"
+            v-if="tab === 1 && voiceInfo?.articleInfo?.articleType === 3 && recommendData.length"
+          >
+            <home-play-list hasHeader isRecommend :data="recommendData" />
+          </div>
         </div>
 
+        <!-- 歌单单曲详情 -->
         <div v-else>
           <div class="single-content-intro">
-            <div class="info-detail" v-if="!subID && hasInfoDetail">
+            <!-- <div class="info-detail" v-if="!subID && hasInfoDetail">
+              <div class="detail-item">
+                <span class="name">资源类型:</span>
+                <span class="value">音乐</span>
+              </div>
+              <div
+                class="detail-item"
+                v-if="voiceInfo?.versionInfo?.exhibitProperty.display_artist"
+              >
+                <span class="name">艺人:</span>
+                <span class="value">{{
+                  voiceInfo?.versionInfo?.exhibitProperty.display_artist
+                }}</span>
+              </div>
+              <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.duration">
+                <span class="name">时长:</span>
+                <span class="value">{{
+                  secondsToHMS(voiceInfo?.versionInfo?.exhibitProperty.duration)
+                }}</span>
+              </div>
+              <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.release_date">
+                <span class="name">发行时间:</span>
+                <span class="value">{{
+                  absoluteTime(voiceInfo?.versionInfo?.exhibitProperty.release_date)
+                }}</span>
+              </div>
+
               <div
                 class="detail-item"
                 v-if="voiceInfo?.versionInfo?.exhibitProperty.display_artist"
@@ -400,9 +360,14 @@
                   secondsToHMS(voiceInfo?.versionInfo?.exhibitProperty.collection_duration)
                 }}</span>
               </div>
-            </div>
+            </div> -->
 
-            <div class="info-detail" v-if="subID && hasSubInfoDetail">
+            <div class="info-detail" v-if="subID">
+              <!-- 优先展示 -->
+              <div class="detail-item">
+                <span class="name">资源类型:</span>
+                <span class="value">{{ voiceInfo?.articleInfo?.resourceType?.[1] }}</span>
+              </div>
               <div
                 class="detail-item"
                 v-if="voiceInfo?.versionInfo?.exhibitProperty.display_artist"
@@ -413,9 +378,11 @@
                 }}</span>
               </div>
 
-              <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.label_name">
-                <span class="name">厂牌:</span>
-                <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.label_name }}</span>
+              <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.duration">
+                <span class="name">时长:</span>
+                <span class="value">{{
+                  secondsToHMS(voiceInfo?.versionInfo?.exhibitProperty.duration)
+                }}</span>
               </div>
 
               <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.release_date">
@@ -424,7 +391,11 @@
                   absoluteTime(voiceInfo?.versionInfo?.exhibitProperty.release_date)
                 }}</span>
               </div>
-
+              <!-- 后置展示 -->
+              <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.label_name">
+                <span class="name">厂牌:</span>
+                <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.label_name }}</span>
+              </div>
               <div
                 class="detail-item"
                 v-if="voiceInfo?.versionInfo?.exhibitProperty.lyric_language"
@@ -434,14 +405,6 @@
                   voiceInfo?.versionInfo?.exhibitProperty.lyric_language
                 }}</span>
               </div>
-
-              <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.release_type">
-                <span class="name">类型:</span>
-                <span class="value">{{
-                  voiceInfo?.versionInfo?.exhibitProperty.release_type
-                }}</span>
-              </div>
-
               <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.music_genre">
                 <span class="name">风格:</span>
                 <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.music_genre }}</span>
@@ -523,9 +486,9 @@
               <span class="title">{{ voiceInfo?.exhibitTitle }}</span>
             </my-tooltip>
           </div>
-
+          <!-- 出处 -->
           <div class="info-area" v-if="albumName">
-            <div class="info-item" v-if="albumName">
+            <div class="info-item">
               <div class="item-value">收录于歌单</div>
               <div
                 class="item-album"
@@ -540,80 +503,45 @@
               </div>
             </div>
           </div>
-          <div class="info-detail" v-if="!subID && hasInfoDetail">
-            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.display_artist">
-              <span class="name">艺人:</span>
-              <span class="value">{{
-                voiceInfo?.versionInfo?.exhibitProperty.display_artist
-              }}</span>
+          <!-- 标签 -->
+          <div class="tags-wrapper" v-if="voiceInfo?.tags">
+            <div class="tag in-pc" v-for="value in voiceInfo?.tags" :key="value">
+              {{ value }}
             </div>
-            <div class="detail-item" v-if="albumName">
-              <span class="name">专辑:</span>
-              <span class="value">{{ albumName }}</span>
-            </div>
+          </div>
 
-            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.lyric_language">
-              <span class="name">语种:</span>
-              <span class="value">{{
-                voiceInfo?.versionInfo?.exhibitProperty.lyric_language
-              }}</span>
+          <!-- 歌单详情 -->
+          <div class="info-detail" v-if="!subID">
+            <div class="detail-item">
+              <span class="name">资源类型:</span>
+              <span class="value">{{ voiceInfo?.articleInfo?.resourceType?.[1] }}</span>
             </div>
-
-            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.label_name">
-              <span class="name">厂牌:</span>
-              <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.label_name }}</span>
+            <div class="detail-item">
+              <span class="name">创建人:</span>
+              <span class="value">{{ nodeInfo?.ownerUserName }}</span>
             </div>
-
-            <div
-              class="detail-item"
-              v-if="
-                voiceInfo?.versionInfo?.exhibitProperty.release_date ||
-                voiceInfo?.articleInfo?.versions?.[0]?.createDate ||
-                voiceInfo?.createDate
-              "
-            >
-              <span class="name">发行时间:</span>
-              <span class="value">{{
-                absoluteTime(
-                  voiceInfo?.versionInfo?.exhibitProperty.release_date ||
-                    voiceInfo?.articleInfo?.versions?.[0]?.createDate ||
-                    voiceInfo?.createDate
-                )
-              }}</span>
+            <div class="detail-item">
+              <span class="name">歌曲数量:</span>
+              <span class="value">{{ collectionData.length }}</span>
             </div>
-
-            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.song_lyricist">
-              <span class="name">作词:</span>
-              <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.song_lyricist }}</span>
-            </div>
-
-            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.song_composer">
-              <span class="name">作曲:</span>
-              <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.song_composer }}</span>
-            </div>
-
-            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.song_arranger">
-              <span class="name">编曲:</span>
-              <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.song_arranger }}</span>
-            </div>
-
-            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.music_genre">
-              <span class="name">风格:</span>
-              <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.music_genre }}</span>
-            </div>
-
             <div
               class="detail-item"
               v-if="voiceInfo?.versionInfo?.exhibitProperty.collection_duration"
             >
               <span class="name">总时长:</span>
-              <span class="value">{{
-                secondsToHMS(voiceInfo?.versionInfo?.exhibitProperty.collection_duration)
-              }}</span>
+              <span class="value">
+                {{ secondsToHMS(voiceInfo?.versionInfo?.exhibitProperty.collection_duration) }}
+              </span>
             </div>
           </div>
 
-          <div class="info-detail" v-if="subID && hasSubInfoDetail">
+          <!-- 歌单单曲详情 -->
+          <div class="info-detail" v-if="subID">
+            <!-- 优先展示 -->
+            <div class="detail-item">
+              <span class="name">资源类型:</span>
+              <span class="value">{{ voiceInfo?.articleInfo?.resourceType?.[1] }}</span>
+            </div>
             <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.display_artist">
               <span class="name">艺人:</span>
               <span class="value">{{
@@ -621,9 +549,11 @@
               }}</span>
             </div>
 
-            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.label_name">
-              <span class="name">厂牌:</span>
-              <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.label_name }}</span>
+            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.duration">
+              <span class="name">时长:</span>
+              <span class="value">{{
+                secondsToHMS(voiceInfo?.versionInfo?.exhibitProperty.duration)
+              }}</span>
             </div>
 
             <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.release_date">
@@ -632,19 +562,17 @@
                 absoluteTime(voiceInfo?.versionInfo?.exhibitProperty.release_date)
               }}</span>
             </div>
-
+            <!-- 后置展示 -->
+            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.label_name">
+              <span class="name">厂牌:</span>
+              <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.label_name }}</span>
+            </div>
             <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.lyric_language">
               <span class="name">语种:</span>
               <span class="value">{{
                 voiceInfo?.versionInfo?.exhibitProperty.lyric_language
               }}</span>
             </div>
-
-            <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.release_type">
-              <span class="name">类型:</span>
-              <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.release_type }}</span>
-            </div>
-
             <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.music_genre">
               <span class="name">风格:</span>
               <span class="value">{{ voiceInfo?.versionInfo?.exhibitProperty.music_genre }}</span>
@@ -655,7 +583,7 @@
           </div>
 
           <div class="btns-area">
-            <div
+            <!-- <div
               class="duration"
               v-if="
                 voiceInfo?.articleInfo?.articleType === 1 &&
@@ -679,7 +607,7 @@
                   <span>{{ secondsToHMS(voiceInfo?.versionInfo.exhibitProperty.duration) }}</span>
                 </div>
               </div>
-            </transition>
+            </transition> -->
             <template v-for="(item, index) in btnList">
               <div
                 class="btn"
@@ -783,6 +711,13 @@
               </div>
             </div>
           </div>
+
+          <div
+            class="recommend-list"
+            v-if="voiceInfo?.articleInfo?.articleType === 3 && recommendData.length"
+          >
+            <home-play-list hasHeader isRecommend :data="recommendData" />
+          </div>
         </div>
       </div>
 
@@ -800,6 +735,7 @@
 import { freelogApp } from "freelog-runtime";
 import playStatus from "@/components/play-status.vue";
 import myTooltip from "@/components/tooltip.vue";
+import HomePlayList from "@/components/play-list.vue";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { showToast, absoluteTime, secondsToHMS } from "@/utils/common";
 import { updateWxConfig } from "@/utils/update-wx-share";
@@ -818,10 +754,11 @@ import TimeIcon from "@/assets/images/time.png";
 export default {
   name: "detail",
 
-  components: { playStatus, myTooltip },
+  components: { playStatus, myTooltip, HomePlayList },
 
   data() {
     const store = useGlobalStore();
+    const nodeInfo = freelogApp.nodeInfo;
 
     return {
       OnGoing,
@@ -852,7 +789,9 @@ export default {
       tab: 1,
       selectedData: {},
       moreMenuShow: false,
-      loading: false
+      loading: false,
+      nodeInfo,
+      recommendData: []
     };
   },
 
@@ -865,6 +804,7 @@ export default {
         this.subID = cur.subID;
         this.albumName = cur.albumName;
         this.getVoiceInfo();
+        this.getRecommendList();
       },
       immediate: true
     },
@@ -1439,6 +1379,16 @@ export default {
       }
     },
 
+    /** 获取推荐列表 */
+    async getRecommendList() {
+      const res = await freelogApp.getExhibitRecommend(this.id, {
+        recommendNorm: "sameAuthorAndType,sameTagAndType,sameType,latestCreate",
+        size: 5
+      });
+
+      this.recommendData = res.data.data;
+    },
+
     changeIndex(index) {
       if (index > 0 && index < 10) {
         return index.toString().padStart(2, "0");
@@ -1451,4 +1401,52 @@ export default {
 
 <style lang="less" scoped>
 @import "@/assets/css/detail.less";
+
+.tags-wrapper {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-top: 20px;
+
+  .tag {
+    display: inline;
+    font-size: 12px;
+    color: var(--text-sixth-color);
+    line-height: 18px;
+
+    // mobile
+    &.in-mobile {
+      & + .tag {
+        margin-left: 8px;
+      }
+    }
+
+    // PC
+    &.in-pc {
+      cursor: pointer;
+      transition: all 0.2s linear;
+
+      & + .tag {
+        &::before {
+          content: "";
+          width: 1px;
+          height: 10px;
+          background: var(--text-sixth-color);
+          display: inline-block;
+          margin: 0 5px;
+        }
+      }
+
+      &:hover {
+        color: var(--text-color);
+      }
+    }
+  }
+}
+
+.recommend-list {
+  margin-top: 100px;
+}
 </style>
