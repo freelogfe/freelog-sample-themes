@@ -344,7 +344,7 @@ export const Header = (props: {
             )}
 
             {/* 搜索框 */}
-            <div className={`small-search-box ${!hasLogo && "no-logo"}`}>
+            <div className={`small-search-box`}>
               <input
                 id="searchInput"
                 className={`search-input input-none ${searchKey && "in-focus"}`}

@@ -551,13 +551,22 @@ const ReaderBody = () => {
         }
       >
         <div className="info-area">
-          <span>最近更新：{formatDate(book?.updateDate)}</span>
+          <span>
+            最近更新：
+            {formatDate(
+              collection
+                ? book?.collectionInfo?.articleInfo?.latestVersionReleaseDate
+                : book?.updateDate
+            )}
+          </span>
           {(book?.articleInfo?.articleProperty?.wordCount ||
-            book?.versionInfo?.exhibitProperty?.wordCount) && (
+            book?.versionInfo?.exhibitProperty?.wordCount ||
+            book?.collectionInfo?.articleInfo?.articleProperty?.wordCount) && (
             <span>
               {formatWordCount(
                 book?.articleInfo?.articleProperty?.wordCount ||
-                  book?.versionInfo?.exhibitProperty?.wordCount
+                  book?.versionInfo?.exhibitProperty?.wordCount ||
+                  book?.collectionInfo?.articleInfo?.articleProperty?.wordCount
               )}
               字
             </span>
@@ -702,13 +711,22 @@ const ReaderBody = () => {
           }
         >
           <div className="info-area">
-            <span>最近更新：{formatDate(book?.updateDate)}</span>
+            <span>
+              最近更新：
+              {formatDate(
+                collection
+                  ? book?.collectionInfo?.articleInfo?.latestVersionReleaseDate
+                  : book?.updateDate
+              )}
+            </span>
             {(book?.articleInfo?.articleProperty?.wordCount ||
-              book?.versionInfo?.exhibitProperty?.wordCount) && (
+              book?.versionInfo?.exhibitProperty?.wordCount ||
+              book?.collectionInfo?.articleInfo?.articleProperty?.wordCount) && (
               <span>
                 {formatWordCount(
                   book?.articleInfo?.articleProperty?.wordCount ||
-                    book?.versionInfo?.exhibitProperty?.wordCount
+                    book?.versionInfo?.exhibitProperty?.wordCount ||
+                    book?.collectionInfo?.articleInfo?.articleProperty?.wordCount
                 )}
                 字
               </span>
