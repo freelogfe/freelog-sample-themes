@@ -292,10 +292,10 @@
     <template v-if="homeHeader">
       <!-- 节点信息 -->
       <div class="header-node-info">
-        <div class="node-theme" v-if="selfConfig.options_theme !== '不显示'">
-          <img v-if="selfConfig.options_theme === '光晕'" src="../assets/images/光晕.jpg" />
-          <img v-if="selfConfig.options_theme === '梦幻'" src="../assets/images/梦幻.jpg" />
-          <img v-if="selfConfig.options_theme === '科技'" src="../assets/images/科技.jpg" />
+        <div class="node-theme">
+          <img v-if="selfConfig.options_theme === '光晕'" src="../assets/images/guangyun.jpg" />
+          <img v-if="selfConfig.options_theme === '梦幻'" src="../assets/images/menghuan.jpg" />
+          <img v-if="selfConfig.options_theme === '科技'" src="../assets/images/keji.jpg" />
         </div>
         <div class="node-content">
           <div class="node-title" :title="nodeTitle">{{ nodeTitle }}</div>
