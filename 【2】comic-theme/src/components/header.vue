@@ -190,7 +190,7 @@
         </div>
 
         <!-- 搜索框 -->
-        <div class="search-box" :class="{ 'no-logo': !hasLogo }">
+        <div class="search-box">
           <input
             ref="searchInput"
             class="search-input input-none"
