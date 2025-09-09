@@ -308,7 +308,8 @@ export default {
     const collectionsData = computed(() => {
       return datasOfGetList.listData.value.filter(
         (ele: any) =>
-          ele.articleInfo.articleType === 3 &&
+          [2, 3].includes(ele.articleInfo.articleType) &&
+          ele.articleInfo.resourceType.includes("专栏") &&
           ele.articleInfo.status === 1 &&
           [0, 4].includes(ele.defaulterIdentityType!)
       );

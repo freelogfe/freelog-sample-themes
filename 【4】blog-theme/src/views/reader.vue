@@ -1,7 +1,11 @@
 <!-- 阅读页 -->
 
 <template>
-  <div class="reader-wrapper" :class="{ 'in-mobile': inMobile }" v-if="articleData">
+  <div
+    class="reader-wrapper"
+    :class="{ 'in-mobile': inMobile, 'pc-wrapper': !inMobile }"
+    v-if="articleData"
+  >
     <div
       class="reader-weigui"
       v-if="
@@ -778,12 +782,13 @@ export default {
 
 <style lang="scss" scoped>
 .reader-wrapper {
-  position: relative;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-sizing: border-box;
+  &.pc-wrapper {
+    padding-top: 20px;
+    margin: 0 auto;
+    width: 90%;
+    min-width: 965px;
+    max-width: 1600px;
+  }
 
   &.in-mobile {
   }
@@ -1010,6 +1015,7 @@ export default {
   // PC
   .reader-body {
     width: 965px;
+    margin: 0 auto;
 
     .article-cover {
       width: 965px;

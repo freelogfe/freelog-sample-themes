@@ -4,7 +4,7 @@ import { ref, onBeforeMount, defineAsyncComponent, onMounted, nextTick, watchEff
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 import { useMyRouter, useMyScroll } from "@/utils/hooks";
-import { formatDate } from "@/utils/common";
+import { formatDate, showToast } from "@/utils/common";
 import { updateWxConfig } from "@/utils/update-wx-share";
 
 import { ExhibitItem } from "@/api/interface";
@@ -19,6 +19,7 @@ const exhibitInfo = ref<any>(null);
 const sortOrder = ref<string>("asc"); // 默认排序为正序
 const recommendList = ref<any[]>([]);
 const nodeInfo = freelogApp.nodeInfo;
+const href = freelogApp.getCurrentUrl();
 
 // 获取展品信息
 const getExhibitInfo = async () => {
@@ -202,6 +203,14 @@ const setShareWidgetShow = (value: boolean) => {
   exhibitInfo.value.shareWidget?.setData({ show: value });
 };
 
+/** 移动端分享 */
+const share = () => {
+  const input: any = document.getElementById("href");
+  input.select();
+  document.execCommand("Copy");
+  showToast("链接复制成功～");
+};
+
 watchEffect(() => {
   if (route.query.id !== exhibitId) {
     const { scrollTo } = useMyScroll();
@@ -225,10 +234,13 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <div class="column-detail-wrapper">
+  <div class="column-detail-wrapper" :class="{ 'pc-wrapper': !store.state.inMobile }">
     <div class="column-detail-header">
       <!-- 合集封面 -->
-      <div class="column-cover">
+      <div
+        class="column-cover"
+        :class="{ pc: !store.state.inMobile, mobile: store.state.inMobile }"
+      >
         <img :src="exhibitInfo?.coverImages?.[0]" alt="column-cover" />
       </div>
 
@@ -239,11 +251,13 @@ onBeforeMount(() => {
             class="share-btn"
             @mouseenter.stop="setShareWidgetShow(true)"
             @mouseleave.stop="setShareWidgetShow(false)"
+            @click="store.state.inMobile && share()"
           >
             <span class="share-btn-text"> <i class="freelog fl-icon-fenxiang"></i>分享 </span>
 
             <div id="share" class="share-wrapper" />
           </div>
+          <input id="href" class="hidden-input" :value="href" readOnly />
         </div>
         <div class="bottom">
           <div class="author-avatar">
@@ -294,7 +308,11 @@ onBeforeMount(() => {
     </div>
 
     <!-- 内容 -->
-    <div class="article-list" v-if="exhibitInfo?.collectionList?.length">
+    <div
+      class="article-list"
+      :class="{ 'mobile-list': store.state.inMobile, 'pc-list': !store.state.inMobile }"
+      v-if="exhibitInfo?.collectionList?.length"
+    >
       <my-article-v2 :data="item" v-for="item in exhibitInfo?.collectionList" :key="item.itemId" />
     </div>
     <div v-else class="no-data">
@@ -309,7 +327,10 @@ onBeforeMount(() => {
       </div>
 
       <!-- 推荐内容 -->
-      <div class="article-list recommend-list">
+      <div
+        class="article-list recommend-list"
+        :class="{ 'mobile-list': store.state.inMobile, 'pc-list': !store.state.inMobile }"
+      >
         <my-article-v2 :data="item" v-for="item in recommendList" :key="item.exhibitId" />
       </div>
     </div>
@@ -318,13 +339,27 @@ onBeforeMount(() => {
 
 <style scoped lang="scss">
 .column-detail-wrapper {
-  max-width: 965px;
-  padding-top: 20px;
-  margin: 0 auto;
+  padding: 30px 20px;
+
+  &.pc-wrapper {
+    padding-top: 20px;
+    margin: 0 auto;
+    width: 90%;
+    min-width: 965px;
+    max-width: 1600px;
+  }
 
   .column-cover {
     width: 100%;
-    height: 654px;
+
+    &.pc {
+      height: 654px;
+    }
+
+    &.mobile {
+      height: 300px;
+    }
+
     img {
       width: 100%;
       height: 100%;
@@ -385,6 +420,12 @@ onBeforeMount(() => {
           top: 100%;
           z-index: 1;
         }
+      }
+
+      .hidden-input {
+        position: absolute;
+        z-index: -1;
+        left: -9999px;
       }
     }
 
@@ -493,11 +534,23 @@ onBeforeMount(() => {
   }
 }
 
-.article-list {
+.article-list.pc-list {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 40px;
   margin-bottom: 100px;
+}
+
+.article-list.mobile-list {
+  margin-top: 30px;
+  margin-bottom: 50px;
+  .article-wrapper-v2 {
+    margin-bottom: 30px;
+  }
+  .article-wrapper-v2:last-child {
+    border-bottom: none;
+    margin-bottom: 0px;
+  }
 }
 
 .no-data {
