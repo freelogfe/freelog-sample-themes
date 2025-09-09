@@ -186,7 +186,7 @@
     <div class="header-top">
       <div class="header-top-left">
         <!-- logo -->
-        <img
+        <!-- <img
           class="logo"
           :src="
             selfConfig.options_logoImage ||
@@ -194,7 +194,19 @@
             require('../assets/images/logo.png')
           "
           @click="switchPage('/')"
-        />
+        /> -->
+
+        <div
+          class="logo"
+          v-if="hasLogo"
+          :style="{ backgroundImage: `url(${nodeLogo})` }"
+          @click="switchPage('/')"
+        ></div>
+
+        <!-- 当节点未设置logo时，显示节点名称 -->
+        <div class="logo-text" v-else :title="nodeTitle" @click="switchPage('/home')">
+          {{ nodeTitle }}
+        </div>
       </div>
 
       <div class="header-top-middle">
@@ -341,6 +353,10 @@ export default {
     const mySearchHistory = computed(() =>
       searchHistory.value.filter(item => item.includes(data.searchKey))
     );
+
+    const hasLogo = computed(() => {
+      return !!nodeInfo?.nodeLogo;
+    });
 
     const data = reactive({
       signCount: 0,
@@ -501,7 +517,8 @@ export default {
       deleteWord,
       clearHistory,
       ...toRefs(data),
-      ...methods
+      ...methods,
+      hasLogo
     };
   }
 };
