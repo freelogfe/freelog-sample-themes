@@ -468,10 +468,13 @@
             </div>
           </div>
           <!-- 标签 -->
-          <div class="tags-wrapper" v-if="voiceInfo?.tags">
+          <div
+            class="tags-wrapper"
+            v-if="subID ? voiceInfo?.articleInfo?.articleTags : voiceInfo?.tags"
+          >
             <div
               class="tag in-pc"
-              v-for="value in voiceInfo?.tags"
+              v-for="value in subID ? voiceInfo?.articleInfo?.articleTags : voiceInfo?.tags"
               :key="value"
               @click="
                 () => {
