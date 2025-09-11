@@ -62,8 +62,8 @@ const routes = [
   {
     path: "/search-list",
     name: "search-list",
-    component: () => import("../views/search-list/index.vue"),
-    meta: { keepAlive: true }
+    component: () => import("../views/search-list/index.vue")
+    // meta: { keepAlive: true }
   },
   {
     path: "/:pathMatch(.*)",

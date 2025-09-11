@@ -35,6 +35,7 @@ export default {
 
     return {
       keywords: "",
+      tags: "",
       listData: [],
       loading: false,
       myLoading: false,
@@ -68,6 +69,15 @@ export default {
         this.getList(true);
       },
       immediate: true
+    },
+
+    "$route.query": {
+      async handler(cur) {
+        this.keywords = cur.tags;
+        this.tags = cur.tags;
+        this.getList(true, { tags: cur.tags });
+      },
+      immediate: true
     }
   },
 
@@ -83,7 +93,7 @@ export default {
 
   methods: {
     /** 获取列表 */
-    async getList(init = false) {
+    async getList(init = false, params = {}) {
       if (this.total === this.listData.length && !init) return;
 
       if (init) {
@@ -95,7 +105,9 @@ export default {
         skip: this.skip,
         articleResourceTypes: "音频",
         isLoadVersionProperty: 1,
-        limit: 100
+        limit: 100,
+        ...params
+
         // keywords: this.keywords
       };
       const list = await freelogApp.getExhibitListByPage(queryParams);
@@ -194,7 +206,7 @@ export default {
       const scrollHeight = app.scrollHeight || 0;
       if (scrollTop + clientHeight < scrollHeight - 200) return;
 
-      this.getList();
+      this.getList(false, { tags: this.tags });
     }
   }
 };

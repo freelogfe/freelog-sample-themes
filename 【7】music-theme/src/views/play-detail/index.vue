@@ -528,7 +528,21 @@
           </div>
           <!-- 标签 -->
           <div class="tags-wrapper" v-if="voiceInfo?.tags">
-            <div class="tag in-pc" v-for="value in voiceInfo?.tags" :key="value">
+            <div
+              class="tag in-pc"
+              v-for="value in voiceInfo?.tags"
+              :key="value"
+              @click="
+                () => {
+                  const query = {};
+                  query.tags = value;
+                  $router.push({
+                    path: '/search-list',
+                    query
+                  });
+                }
+              "
+            >
               {{ value }}
             </div>
           </div>

@@ -280,7 +280,11 @@ onBeforeUnmount(() => {
         class="content-item"
         v-for="(item, index) in albumData"
         :key="index"
-        @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
+        @click="
+          () => {
+            router.myPush({ path: '/detail', query: { id: item.exhibitId } });
+          }
+        "
       >
         <div class="info-box">
           <div class="cover-image">
