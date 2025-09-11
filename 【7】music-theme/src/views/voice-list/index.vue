@@ -177,6 +177,7 @@ export default {
             item.exhibitIntro = item.articleInfo.intro;
             item.albumName = exhibitTitle;
             item.exhibitId = collectionID;
+            item.parentArticleType = 2;
           });
         }
       }

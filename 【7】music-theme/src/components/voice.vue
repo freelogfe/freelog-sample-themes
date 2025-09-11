@@ -270,6 +270,7 @@
       <div class="right-box">
         <play-status
           class="duration"
+          :class="{ 'recommend-duration': isVoiceRecommend }"
           style="opacity: 1"
           :playing="store.playing"
           :desc="`${secondsToHMS(store.progress * 1000)} / ${secondsToHMS(
@@ -281,7 +282,7 @@
               `${data?.exhibitId}${data?.itemId ?? ''}`
           "
         />
-        <div class="duration" v-else>
+        <div class="duration" :class="{ 'recommend-duration': isVoiceRecommend }" v-else>
           {{ secondsToHMS(data.versionInfo?.exhibitProperty?.duration) }}
         </div>
       </div>
@@ -322,6 +323,11 @@ export default {
     },
     /** 是否显示授权状态 */
     authShow: {
+      type: Boolean,
+      default: false
+    },
+    /**是否音乐推荐 */
+    isVoiceRecommend: {
       type: Boolean,
       default: false
     }
@@ -473,7 +479,7 @@ export default {
           disabled: this.isInPlayList || !this.ifSupportMime
         },
         { icon: "fl-icon-danji", label: "查看音乐详情", operate: this.toVoiceDetail },
-        this.data?.itemId
+        this.data?.itemId && this.data.parentArticleType === 2
           ? {
               icon: "fl-icon-zhuanji",
               label: "查看专辑",

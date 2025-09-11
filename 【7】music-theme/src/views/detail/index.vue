@@ -255,6 +255,14 @@
               <div class="intro">{{ voiceInfo?.exhibitIntro }}</div>
             </div>
           </div>
+
+          <!-- 推荐列表模块 -->
+          <div v-if="recommendData.length">
+            <!-- 专辑推荐 -->
+            <div class="recommend-list mobile" v-if="tab === 1">
+              <album hasHeader isRecommend :data="recommendData" />
+            </div>
+          </div>
         </div>
 
         <div v-else>
@@ -349,6 +357,27 @@
             <div class="intro" v-if="voiceInfo?.exhibitIntro || voiceInfo?.articleInfo?.intro">
               {{ voiceInfo?.articleInfo?.intro || voiceInfo?.exhibitIntro }}
             </div>
+          </div>
+          <!-- 推荐列表模块 -->
+          <!-- 单曲推荐 -->
+          <div class="recommend-list voice-recommend mobile-single-recommend">
+            <div class="voice-recommend-header">
+              <span class="title recommend">更多音乐</span>
+              <div class="more recommend" @click="$router.myPush({ path: '/voice-list' })">
+                所有音乐
+                <div class="more-icon">
+                  <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
+                </div>
+              </div>
+            </div>
+            <voice
+              :data="item"
+              :statusShow="false"
+              :authShow="false"
+              :isVoiceRecommend="true"
+              v-for="item in recommendData"
+              :key="`${item.exhibitId}${item?.itemId}`"
+            />
           </div>
         </div>
       </div>
@@ -641,6 +670,34 @@
         </div>
         <span class="exceptional-text"> 此作品因违规无法访问 </span>
       </div>
+
+      <!-- 推荐列表模块 -->
+      <!-- 专辑推荐 -->
+      <div v-if="recommendData.length">
+        <div class="recommend-list" v-if="voiceInfo?.articleInfo?.articleType === 2">
+          <album hasHeader isRecommend :data="recommendData" />
+        </div>
+        <!-- 单曲推荐 -->
+        <div class="recommend-list voice-recommend" v-else>
+          <div class="voice-recommend-header">
+            <span class="title recommend">更多音乐</span>
+            <div class="more recommend" @click="$router.myPush({ path: '/voice-list' })">
+              所有音乐
+              <div class="more-icon">
+                <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
+              </div>
+            </div>
+          </div>
+          <voice
+            :data="item"
+            :statusShow="false"
+            :authShow="false"
+            :isVoiceRecommend="true"
+            v-for="item in recommendData"
+            :key="`${item.exhibitId}${item?.itemId}`"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -649,6 +706,8 @@
 import { freelogApp } from "freelog-runtime";
 import playStatus from "@/components/play-status.vue";
 import myTooltip from "@/components/tooltip.vue";
+import Album from "@/components/album.vue";
+import Voice from "@/components/voice.vue";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { showToast, absoluteTime, secondsToHMS } from "@/utils/common";
 import { updateWxConfig } from "@/utils/update-wx-share";
@@ -663,11 +722,13 @@ import OnGoing from "@/assets/images/status/on-going.png";
 import Completed from "@/assets/images/status/completed.png";
 import SingleEpisode from "@/assets/images/status/single-episode.png";
 import TimeIcon from "@/assets/images/time.png";
+import MoreIcon from "@/assets/images/arrow.png";
+import DarkMoreIcon from "@/assets/images/dark-arrow.png";
 
 export default {
   name: "detail",
 
-  components: { playStatus, myTooltip },
+  components: { playStatus, myTooltip, Album, Voice },
 
   data() {
     const store = useGlobalStore();
@@ -681,6 +742,8 @@ export default {
       AuthLinkAbnormal,
       Freeze,
       TimeIcon,
+      MoreIcon,
+      DarkMoreIcon,
       id: "",
       subID: "",
       albumName: "",
@@ -701,19 +764,21 @@ export default {
       tab: 1,
       selectedData: {},
       moreMenuShow: false,
-      loading: false
+      loading: false,
+      recommendData: []
     };
   },
 
   watch: {
     "$route.query": {
-      handler(cur) {
+      async handler(cur) {
         const app = document.getElementById("app");
         app.scroll({ top: 0 });
         this.id = cur.id;
         this.subID = cur.subID;
         this.albumName = cur.albumName;
-        this.getVoiceInfo();
+        await this.getVoiceInfo();
+        this.getRecommendList();
       },
       immediate: true
     },
@@ -1288,6 +1353,83 @@ export default {
       }
     },
 
+    /** 获取推荐列表 */
+    async getRecommendList() {
+      this.recommendData = [];
+
+      const res = await freelogApp.getExhibitRecommend(this.id, {
+        recommendNorm: "sameAuthorAndType,sameTagAndType,sameType,latestCreate",
+        isLoadVersionProperty: 1,
+        size: 5
+      });
+
+      const { data: recommendData } = res.data;
+
+      if (recommendData.length) {
+        const ids = recommendData.map(item => item.exhibitId).join();
+        const statusInfo = await freelogApp.getExhibitAuthStatus(ids);
+
+        for (const item of recommendData) {
+          const index = statusInfo.data.data.findIndex(
+            resultItem => resultItem.exhibitId === item.exhibitId
+          );
+
+          if (index !== -1)
+            item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+        }
+      }
+
+      // 当合集下的单曲详情页推荐接口中含有合集的时候，要一个一个展开
+      const isCollection =
+        this.voiceInfo?.articleInfo?.articleType === 1 &&
+        recommendData.some(item => item.articleInfo.articleType === 2);
+      if (isCollection) {
+        const tempRecommendData = [];
+
+        for (const item of recommendData) {
+          const subList = await freelogApp.getCollectionSubListByPage(item.exhibitId, {
+            skip: 0,
+            limit: 1_000,
+            isShowDetailInfo: 1
+          });
+
+          const { dataList } = subList.data.data;
+
+          if (dataList.length !== 0) {
+            const ids = dataList.map(item => item.itemId).join();
+            const statusInfo = await freelogApp.getCollectionSubAuthStatus(item.exhibitId, {
+              itemIds: ids
+            });
+
+            if (statusInfo.data.data) {
+              dataList.forEach(subItem => {
+                const index = statusInfo.data.data.findIndex(
+                  resultItem => resultItem.itemId === subItem.itemId
+                );
+                if (index !== -1) {
+                  subItem.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+                }
+
+                subItem.updateDate = subItem.articleInfo.latestVersionReleaseDate;
+                subItem.coverImages = item.coverImages;
+                subItem.versionInfo = { exhibitProperty: subItem.articleInfo?.articleProperty };
+                subItem.exhibitTitle = subItem.itemTitle;
+                subItem.albumName = item.exhibitTitle;
+                subItem.exhibitId = item.exhibitId;
+                subItem.parentArticleType = item.articleInfo?.articleType;
+              });
+            }
+          }
+
+          tempRecommendData.push(...dataList);
+        }
+
+        this.recommendData = tempRecommendData.slice(0, 5);
+      } else {
+        this.recommendData = recommendData;
+      }
+    },
+
     changeIndex(index) {
       if (index > 0 && index < 10) {
         return index.toString().padStart(2, "0");
@@ -1339,6 +1481,75 @@ export default {
 
       &:hover {
         color: var(--text-color);
+      }
+    }
+  }
+}
+
+.recommend-list {
+  margin-top: 100px;
+  margin-bottom: 100px;
+
+  &.mobile {
+    margin-top: 40px;
+  }
+
+  &.mobile-single-recommend {
+    padding: 0 15px;
+    margin-top: 40px;
+  }
+
+  &.voice-recommend {
+    .voice-wrapper + .voice-wrapper {
+      margin-top: 15px;
+    }
+
+    .voice-recommend-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 40px;
+
+      .title {
+        font-weight: 600;
+        font-size: 20px;
+        color: var(--text-color);
+        line-height: 28px;
+        opacity: 0.8;
+
+        &.recommend {
+          opacity: 0.6;
+        }
+      }
+
+      .more {
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+        font-size: 14px;
+        color: var(--text-color);
+        opacity: 0.8;
+        line-height: 20px;
+        cursor: pointer;
+
+        &.recommend {
+          opacity: 0.6;
+        }
+
+        &:hover {
+          opacity: 1;
+        }
+
+        .more-icon {
+          width: 7px;
+          height: 13px;
+          margin-left: 5px;
+          transform: rotate(180deg);
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
       }
     }
   }

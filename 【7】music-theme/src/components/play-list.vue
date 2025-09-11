@@ -842,7 +842,7 @@ onBeforeUnmount(() => {
 
   .album-content-box {
     display: flex;
-    gap: 30px;
+    // gap: 30px;
     overflow-x: scroll;
     /* 隐藏滚动条 */
     scrollbar-width: none; /* firefox */
