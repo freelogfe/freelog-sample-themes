@@ -157,7 +157,7 @@ const getRecommendList = async () => {
         item.collectionList = res.data.data as any;
       }
     }
-    recommendList.value = recommendData;
+    recommendList.value = recommendData.slice(0, 6);
   }
 };
 
