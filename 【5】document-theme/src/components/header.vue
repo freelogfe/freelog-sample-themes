@@ -23,13 +23,7 @@
     </div>
 
     <!-- logo -->
-    <img
-      class="logo"
-      :src="
-        selfConfig.options_logoImage || selfConfig.logoImage || require('../assets/images/logo.png')
-      "
-      referrerpolicy="no-referrer"
-    />
+    <img class="logo" :src="require('../assets/images/logo.png')" referrerpolicy="no-referrer" />
 
     <div class="header-right">
       <img
@@ -90,13 +84,7 @@
   <!-- PC -->
   <div class="header-wrapper" v-if="!inMobile">
     <!-- logo -->
-    <img
-      class="logo"
-      :src="
-        selfConfig.options_logoImage || selfConfig.logoImage || require('../assets/images/logo.png')
-      "
-      @click="switchPage('/reader')"
-    />
+    <img class="logo" :src="require('../assets/images/logo.png')" @click="switchPage('/reader')" />
 
     <!-- 已登录区域 -->
     <div
@@ -152,10 +140,10 @@ export default {
       /** 注册 */
       register() {
         const url = freelogApp.getCurrentUrl();
-        const mainUrl = url.split("?")[0]
-        const reg = /\.([^.]*)\.com/
-        const domain = reg.exec(mainUrl)
-        const domainName = domain ? domain[1] : "freelog"
+        const mainUrl = url.split("?")[0];
+        const reg = /\.([^.]*)\.com/;
+        const domain = reg.exec(mainUrl);
+        const domainName = domain ? domain[1] : "freelog";
         window.open(`https://user.${domainName}.com/logon`);
       },
 
