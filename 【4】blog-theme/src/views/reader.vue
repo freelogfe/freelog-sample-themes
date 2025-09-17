@@ -8,6 +8,7 @@
   >
     <div
       class="reader-weigui"
+      :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }"
       v-if="
         articleData?.articleInfo?.status === 2 ||
         articleData.onlineStatus === 0 ||
@@ -65,7 +66,7 @@
           </div>
         </div>
 
-        <div class="recommend" v-if="recommendList.length">
+        <div class="recommend" :class="{ 'pc-recommend': !inMobile }" v-if="recommendList.length">
           <div class="recommend-header">
             <div class="recommend-title">相关推荐</div>
             <div class="text-btn" @click="switchPage('/')">更多>></div>
@@ -1399,8 +1400,10 @@ export default {
   }
 
   .reader-weigui {
-    width: 965px;
-    margin: 0 auto;
+    &.in-pc {
+      width: 965px;
+      margin: 0 auto;
+    }
 
     .detail-weigui-container {
       height: calc(100vh - 148px);
