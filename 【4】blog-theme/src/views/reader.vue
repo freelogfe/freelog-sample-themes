@@ -1400,6 +1400,7 @@ export default {
 
   .reader-weigui {
     width: 965px;
+    margin: 0 auto;
 
     .detail-weigui-container {
       height: calc(100vh - 148px);
