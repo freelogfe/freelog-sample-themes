@@ -457,7 +457,7 @@
               <div
                 class="item-album"
                 @click="
-                  $router.push({
+                  $router.myPush({
                     path: '/detail',
                     query: { id: voiceInfo?.exhibitId }
                   })
@@ -480,7 +480,7 @@
                 () => {
                   const query = {};
                   query.tags = value;
-                  $router.push({
+                  $router.myPush({
                     path: '/search-list',
                     query
                   });
