@@ -675,36 +675,65 @@ export default {
       });
       const { data: recommendData } = res.data;
 
-      if (recommendData.length !== 0) {
+      if (recommendData.length) {
         const ids = recommendData.map((item: any) => item.exhibitId).join();
-        const [signCountData, statusInfo] = await Promise.all([
-          freelogApp.getExhibitSignCount(ids),
-          freelogApp.getExhibitAuthStatus(ids)
-        ]);
+        const statusInfo = await freelogApp.getExhibitAuthStatus(ids);
 
         for (const item of recommendData as ExhibitItem[]) {
-          let index;
-          index = signCountData.data.data.findIndex(
-            (resultItem: { subjectId: string }) => resultItem.subjectId === item.exhibitId
-          );
-          if (index !== -1) item.signCount = signCountData.data.data[index].count;
-          index = statusInfo.data.data.findIndex(
+          const index = statusInfo.data.data.findIndex(
             (resultItem: { exhibitId: string }) => resultItem.exhibitId === item.exhibitId
           );
-          if (index !== -1)
+
+          if (index !== -1) {
             item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
-
-          if (item.articleInfo.articleType === 3) {
-            const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
-              sortType: -1,
-              skip: 0,
-              limit: 1_000,
-              isShowDetailInfo: 1
-            });
-
-            item.collectionList = res.data.data as any;
           }
         }
+      }
+
+      // 当合集下的单曲详情页推荐接口中含有合集的时候，要一个一个展开
+      const isCollection = recommendData.some((item: any) =>
+        [2, 3].includes(item.articleInfo.articleType)
+      );
+      if (isCollection) {
+        const tempRecommendData: any[] = [];
+
+        for (const item of recommendData) {
+          const subList = await freelogApp.getCollectionSubList(item.exhibitId, {
+            sortType: -1,
+            skip: 0,
+            limit: 1_000,
+            isShowDetailInfo: 1
+          });
+
+          const { dataList } = subList.data.data as any;
+
+          if (dataList.length !== 0) {
+            const ids = dataList.map((item: any) => item.itemId).join();
+            const statusInfo = await freelogApp.getCollectionSubAuth(item.exhibitId, {
+              itemIds: ids
+            });
+
+            if (statusInfo.data.data) {
+              dataList.forEach((subItem: any) => {
+                const index = statusInfo.data.data.findIndex(
+                  resultItem => resultItem.itemId === subItem.itemId
+                );
+                if (index !== -1) {
+                  subItem.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+                }
+
+                subItem.coverImages = item.coverImages;
+                subItem.exhibitTitle = subItem.itemTitle;
+                subItem.exhibitId = item.exhibitId;
+              });
+            }
+          }
+
+          tempRecommendData.push(...dataList);
+        }
+
+        data.recommendList = tempRecommendData.slice(0, 6);
+      } else {
         data.recommendList = recommendData.slice(0, 6);
       }
     };
