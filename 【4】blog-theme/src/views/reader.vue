@@ -733,9 +733,13 @@ export default {
           tempRecommendData.push(...dataList);
         }
 
-        data.recommendList = tempRecommendData.slice(0, 6);
+        data.recommendList = tempRecommendData
+          .filter(i => [0, 4].includes(i.defaulterIdentityType))
+          .slice(0, 6);
       } else {
-        data.recommendList = recommendData.slice(0, 6);
+        data.recommendList = recommendData
+          .filter((i: any) => [0, 4].includes(i.defaulterIdentityType))
+          .slice(0, 6);
       }
     };
 
