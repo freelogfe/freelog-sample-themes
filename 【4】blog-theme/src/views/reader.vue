@@ -23,60 +23,70 @@
         </div>
       </div>
 
-      <template v-if="!inMobile">
-        <!-- 所属专栏 -->
-        <div class="column-label-title" v-if="articleData?.articleInfo?.articleType === 3">
-          <span class="column-label">所属专栏</span>
-          <span
-            class="column-title"
-            @click="switchPage('/column-detail', { id: articleData?.exhibitId })"
-            >{{ articleData?.exhibitTitle }}</span
-          >
-        </div>
+      <div class="pre-next-recommend" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
+        <template v-if="!inMobile">
+          <!-- 所属专栏 -->
+          <div class="column-label-title" v-if="articleData?.articleInfo?.articleType === 3">
+            <span class="column-label">所属专栏</span>
+            <span
+              class="column-title"
+              @click="switchPage('/column-detail', { id: articleData?.exhibitId })"
+              >{{ articleData?.exhibitTitle }}</span
+            >
+          </div>
 
-        <!-- 上一篇 | 下一篇 -->
-        <div class="prev-next-box" v-if="articleData?.articleInfo?.articleType === 3">
-          <!-- 上一篇 -->
-          <div
-            class="prev-card"
-            :class="{ disabled: !prevArticle }"
-            @click="prevArticle && switchToArticle(prevArticle.itemId)"
-          >
-            <div class="card-header">
-              <span class="card-icon left">
-                <i class="freelog fl-icon-fangxiang"></i>
-              </span>
-              <span class="card-label left">上一篇</span>
+          <!-- 上一篇 | 下一篇 -->
+          <div class="prev-next-box" v-if="articleData?.articleInfo?.articleType === 3">
+            <!-- 上一篇 -->
+            <div
+              class="prev-card"
+              :class="{ disabled: !prevArticle }"
+              @click="prevArticle && switchToArticle(prevArticle.itemId)"
+            >
+              <div class="card-header">
+                <span class="card-icon left">
+                  <i class="freelog fl-icon-fangxiang"></i>
+                </span>
+                <span class="card-label left">上一篇</span>
+              </div>
+              <div class="card-title left">{{ prevArticle?.itemTitle || "当前为第一篇" }}</div>
             </div>
-            <div class="card-title left">{{ prevArticle?.itemTitle || "当前为第一篇" }}</div>
-          </div>
-          <!-- 下一篇 -->
-          <div
-            class="next-card"
-            :class="{ disabled: !nextArticle }"
-            @click="nextArticle && switchToArticle(nextArticle.itemId)"
-          >
-            <div class="card-header">
-              <span class="card-label">下一篇</span>
-              <span class="card-icon">
-                <i class="freelog fl-icon-fangxiang"></i>
-              </span>
+            <!-- 下一篇 -->
+            <div
+              class="next-card"
+              :class="{ disabled: !nextArticle }"
+              @click="nextArticle && switchToArticle(nextArticle.itemId)"
+            >
+              <div class="card-header">
+                <span class="card-label">下一篇</span>
+                <span class="card-icon">
+                  <i class="freelog fl-icon-fangxiang"></i>
+                </span>
+              </div>
+              <div class="card-title">{{ nextArticle?.itemTitle || "当前为最后一篇" }}</div>
             </div>
-            <div class="card-title">{{ nextArticle?.itemTitle || "当前为最后一篇" }}</div>
           </div>
-        </div>
 
-        <div class="recommend" :class="{ 'pc-recommend': !inMobile }" v-if="recommendList.length">
-          <div class="recommend-header">
-            <div class="recommend-title">相关推荐</div>
-            <div class="text-btn" @click="switchPage('/')">更多>></div>
+          <div class="recommend" :class="{ 'pc-recommend': !inMobile }" v-if="recommendList.length">
+            <div class="recommend-header">
+              <div class="recommend-title">相关推荐</div>
+              <div class="text-btn" @click="switchPage('/')">更多>></div>
+            </div>
+            <div class="divider"></div>
+            <div class="article-list" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
+              <my-article-v2 :data="item" v-for="item in recommendList" :key="item.exhibitId" />
+            </div>
           </div>
-          <div class="divider"></div>
-          <div class="article-list">
-            <my-article-v2 :data="item" v-for="item in recommendList" :key="item.exhibitId" />
-          </div>
-        </div>
-      </template>
+        </template>
+
+        <template v-else>
+          <div class="mobile-recommend" v-if="recommendList.length">
+            <div class="recommend-title">推荐</div>
+            <div class="article-list">
+              <my-article-v2 :data="item" v-for="item in recommendList" :key="item.exhibitId" />
+            </div></div
+        ></template>
+      </div>
     </div>
     <div v-else>
       <!-- mobile -->
@@ -1435,6 +1445,81 @@ export default {
           line-height: 33px;
           text-align: center;
           opacity: 0.4;
+        }
+      }
+    }
+
+    .pre-next-recommend {
+      &.in-mobile {
+        padding: 30px 20px;
+      }
+
+      .recommend {
+        width: 100%;
+        padding: 30px 0;
+        box-sizing: border-box;
+        background-color: #fff;
+
+        .recommend-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+
+          .recommend-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #222222;
+            line-height: 22px;
+          }
+
+          .text-btn {
+            font-size: 14px;
+            line-height: 20px;
+          }
+        }
+
+        .divider {
+          height: 1px;
+          background: rgba(0, 0, 0, 0.1);
+          margin-top: 15px;
+        }
+
+        .article-list {
+          &.in-mobile {
+            margin-top: 30px;
+          }
+          .article-wrapper-v2 {
+            margin-bottom: 30px;
+          }
+          .article-wrapper-v2:last-child {
+            border-bottom: none;
+            margin-bottom: 0px;
+          }
+        }
+      }
+
+      .mobile-recommend {
+        width: 100%;
+        box-sizing: border-box;
+        background-color: #fff;
+
+        .recommend-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #222222;
+          line-height: 22px;
+          margin-bottom: 30px;
+        }
+
+        .article-list {
+          margin-top: 5px;
+          .article-wrapper-v2 {
+            margin-bottom: 30px;
+          }
+          .article-wrapper-v2:last-child {
+            border-bottom: none;
+            margin-bottom: 0px;
+          }
         }
       }
     }
