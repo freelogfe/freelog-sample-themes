@@ -1,4 +1,5 @@
 import { ref } from "vue";
+import { freelogApp } from "freelog-runtime";
 import { useGlobalStore } from "@/store/global";
 
 // 主题类型
@@ -13,6 +14,7 @@ export const currentSystemMode = ref<boolean>(false);
 export function toggleTheme(theme: ThemeType) {
   applyTheme(theme);
   localStorage.setItem("theme", theme);
+  freelogApp.setUserData("theme", theme);
 }
 
 // 应用主题
@@ -32,17 +34,25 @@ export function setSystemModeStatus(status: boolean) {
   localStorage.setItem("systemMode", JSON.stringify(status));
 }
 
+// 获取freelog存储的数据
+export async function getThemeFromFreelog() {
+  const hasStoredThemeFromFreelog = await freelogApp.getUserData("theme");
+  return hasStoredThemeFromFreelog?.data?.data;
+}
+
 // 初始化主题
-export function initTheme() {
+export async function initTheme() {
   const store = useGlobalStore();
   const hasStoredTheme = localStorage.getItem("theme");
+  const hasStoredThemeFromFreelog = await getThemeFromFreelog();
 
-  if (hasStoredTheme) {
+  if (hasStoredTheme || hasStoredThemeFromFreelog) {
     // 使用存储的主题
     const systemModeFromStorage = getSystemModeStatus();
     currentSystemMode.value = systemModeFromStorage;
 
-    const theme = (localStorage.getItem("theme") as ThemeType) || "light";
+    const theme =
+      hasStoredThemeFromFreelog || (localStorage.getItem("theme") as ThemeType) || "light";
     applyTheme(theme);
   } else {
     // 根据配置决定主题
