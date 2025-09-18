@@ -96,7 +96,6 @@
                   switchPage('/blog');
                   userBoxShow = false;
                 "
-                v-if="userData.isLogin"
               >
                 <i class="freelog fl-icon-tuwen"></i>
                 <div class="btn-label">所有文章</div>
@@ -108,7 +107,6 @@
                   switchPage('/column');
                   userBoxShow = false;
                 "
-                v-if="userData.isLogin"
               >
                 <i class="freelog fl-icon-bokezhuanlan"></i>
                 <div class="btn-label">专栏</div>
