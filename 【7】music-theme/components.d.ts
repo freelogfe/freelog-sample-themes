@@ -29,4 +29,7 @@ declare module 'vue' {
     Tooltip: typeof import('./src/components/tooltip.vue')['default']
     Voice: typeof import('./src/components/voice.vue')['default']
   }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
+  }
 }

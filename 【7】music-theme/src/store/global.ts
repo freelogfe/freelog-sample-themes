@@ -42,6 +42,7 @@ export interface State {
   playMode: string | null;
   playerShowStatus: false;
   theme: ThemeType;
+  maskLoading: boolean;
 }
 
 export const useGlobalStore = defineStore("global", {
@@ -69,7 +70,8 @@ export const useGlobalStore = defineStore("global", {
       nodeInfo: {},
       playMode: null, // 播放模式，顺序播放、随机播放,
       playerShowStatus: false, // 播放器收起展开状态 false：收起；true:展开
-      theme: currentTheme.value as ThemeType
+      theme: currentTheme.value as ThemeType,
+      maskLoading: false
     };
   },
   getters: {},
