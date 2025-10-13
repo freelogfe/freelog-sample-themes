@@ -3,9 +3,7 @@
     <my-header />
     <div class="app-wrapper" :class="{ inMobile: inMobile }">
       <router-view v-slot="{ Component }">
-        <keep-alive include="home">
-          <component :is="Component" />
-        </keep-alive>
+        <component :is="Component" />
       </router-view>
     </div>
     <my-footer />
@@ -20,30 +18,30 @@
 
 <script lang="ts">
 import { computed, defineAsyncComponent } from "vue";
-import { widgetApi } from 'freelog-runtime';
-import { useStore } from "vuex"
+import { widgetApi } from "freelog-runtime";
+import { useStore } from "vuex";
 
 export default {
   components: {
     "my-header": defineAsyncComponent(() => import("./components/header.vue")),
     "theme-entrance": defineAsyncComponent(() => import("./components/theme-entrance.vue")),
     "login-btn": defineAsyncComponent(() => import("./components/login-btn.vue")),
-    "my-footer": defineAsyncComponent(() => import("./components/footer.vue")),
+    "my-footer": defineAsyncComponent(() => import("./components/footer.vue"))
   },
   setup() {
-    const store = useStore()
+    const store = useStore();
 
     const maskLoading = computed(() => {
-      return store.state.maskLoading
-    })
+      return store.state.maskLoading;
+    });
 
     const inMobile = computed(() => {
-      return store.state.inMobile
-    })
+      return store.state.inMobile;
+    });
 
     const isIOS = computed(() => {
-      return store.state.isIOS
-    })
+      return store.state.isIOS;
+    });
 
     const themeInfo = widgetApi.getData()?.themeInfo;
     console.log("当前应用版本为:", themeInfo?.version, "+++");
@@ -52,7 +50,7 @@ export default {
       maskLoading,
       inMobile,
       isIOS
-    }
+    };
   }
 };
 </script>
@@ -77,10 +75,15 @@ export default {
 .maskLoading {
   width: 100vw;
   height: 100vh;
-  display: flex; 
-  justify-content: center; 
+  display: flex;
+  justify-content: center;
   align-items: center;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.8) 30%, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
+  background-image: linear-gradient(
+    rgba(0, 0, 0, 0.8) 30%,
+    rgba(0, 0, 0, 0.6),
+    rgba(0, 0, 0, 0.4),
+    rgba(0, 0, 0, 0.2)
+  );
   span {
     color: rgba(255, 255, 255, 0.6);
     animation: loading 1s linear infinite;

@@ -96,22 +96,22 @@ export default {
   methods: {
     /** 初始化分享组件 */
     initShare() {
-      let identity
-      let params = {}
-      const exhibitId = this.shareInfo.exhibit.exhibitId
-      const itemId = this.shareInfo.exhibit?.child?.itemId
+      let identity;
+      let params = {};
+      const exhibitId = this.shareInfo.exhibit.exhibitId;
+      const itemId = this.shareInfo.exhibit?.child?.itemId;
       if (this.shareInfo.exhibit?.child?.itemId) {
         // 去detail-sub
-        identity = "detail-sub"
-        params = { exhibitId, itemId }
+        identity = "detail-sub";
+        params = { exhibitId, itemId };
       } else {
         // 去detail
-        identity = "detail"
-        params = { exhibitId }
+        identity = "detail";
+        params = { exhibitId };
       }
       // console.log(`initShare; identity=${identity}; exhibitId=${exhibitId}; itemId=${itemId};`);
       const url = freelogApp.getShareUrl(params, identity);
-      this.href = url; 
+      this.href = url;
       this.shareText = `我在freelog发现一个不错的声音：\n《${this.shareInfo.exhibit.exhibitTitle}》\n${url}`;
       if (!this.shareInfo.show) this.qrcodeShow = false;
     },
@@ -143,9 +143,44 @@ export default {
           `https://www.douban.com/share/service?url=${url}&title=${title}&image=${image}`
         );
       } else if (["qq", "wechat"].includes(item.id)) {
-        // qq、微信
-        this.qrcodeInfo = { name: item.name, url };
-        this.qrcodeShow = true;
+        const shareUrlGenerationException = this.shareInfo?.shareUrlGenerationException;
+
+        if (shareUrlGenerationException === "播客主题") {
+          // let url = freelogApp.getWechatShareURL();
+
+          // let changeUrl = url.replace("detail", "detail-sub");
+          // changeUrl =
+          //   changeUrl.split("&nodename")[0] +
+          //   "%25M1itemId%25M2" +
+          //   this.shareInfo.exhibit.child.itemId +
+          //   "&nodename" +
+          //   changeUrl.split("&nodename")[1];
+
+          // url = changeUrl;
+
+          console.log(
+            "查看是否正确",
+            this.shareInfo.exhibit.exhibitId,
+            this.shareInfo.exhibit.child.itemId
+          );
+
+          const changeUrl = freelogApp.getCurrentUrl(
+            "/detail-sub?id=" +
+              this.shareInfo.exhibit.exhibitId +
+              "&itemId=" +
+              this.shareInfo.exhibit.child.itemId
+          );
+          const realUrl = freelogApp.getWechatShareURL(changeUrl);
+
+          this.qrcodeInfo = { name: item.name, url: realUrl };
+          this.qrcodeShow = true;
+        } else {
+          // qq、微信
+          const url = freelogApp.getWechatShareURL(shareUrlGenerationException);
+          console.log("微信分享URL", url);
+          this.qrcodeInfo = { name: item.name, url };
+          this.qrcodeShow = true;
+        }
       } else if (item.id === "copy") {
         // 复制链接
         if (this.copySuccess) return;
@@ -193,7 +228,7 @@ export default {
     width: 650px;
     padding: 17px 30px 20px;
     box-sizing: border-box;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--light-first-text);
     border-radius: 6px;
     backdrop-filter: blur(25px);
 
@@ -205,7 +240,8 @@ export default {
       .title {
         font-size: 14px;
         font-weight: 600;
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--text-color);
+        opacity: 0.8;
         line-height: 20px;
       }
 
@@ -225,13 +261,14 @@ export default {
     .textarea {
       width: 100%;
       height: 125px;
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: var(--light-point-fifth-text);
       border-radius: 4px;
       padding: 10px;
       border: none;
       box-sizing: border-box;
       font-size: 14px;
-      color: rgba(255, 255, 255, 0.8);
+      opacity: 0.8;
+      color: var(--text-color);
       line-height: 20px;
       margin-top: 17px;
       outline: none;

@@ -11,6 +11,15 @@
   overflow-x: hidden;
   overscroll-behavior: none; /* 禁用弹性滚动效果 */
   touch-action: manipulation;
+
+  // 使用脱离文档流来解决，页面布局问题
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background: transparent;
 }
 
 body {

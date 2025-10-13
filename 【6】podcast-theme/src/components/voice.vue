@@ -42,16 +42,27 @@
           ></i>
           <template v-if="!data.child">
             <div
-              v-if="data.articleInfo.articleType === 1"
+              v-if="data.articleInfo && data.articleInfo.articleType === 1"
               class="single freelog fl-icon-bokebiaoqian_danji"
               :class="{ 'opacity-40': authLinkAbnormal }"
             ></div>
-            <div v-else class="multiple" :class="{ 'opacity-40': authLinkAbnormal }">
+            <div
+              v-else-if="data.articleInfo.articleType === 2"
+              class="multiple"
+              :class="{ 'opacity-40': authLinkAbnormal }"
+            >
               <span
                 class="ing freelog fl-icon-bokebiaoqian_lianzaizhong"
                 v-if="data.articleInfo.serializeStatus === 0"
               ></span>
               <span class="end freelog fl-icon-bokebiaoqian_yiwanjie" v-else></span>
+            </div>
+            <div
+              v-else-if="data.articleInfo.articleType === 3"
+              class="multiple bodan"
+              :class="{ 'opacity-40': authLinkAbnormal }"
+            >
+              <span class="ing freelog fl-icon-bokebiaoqian_bodan"></span>
             </div>
           </template>
           <template v-if="authShow">
@@ -93,7 +104,14 @@
             <i class="freelog fl-icon-gengxinshijian"></i>
             <div class="item-value">{{ data.updateDate | relativeTime }}</div>
           </div>
-          <div class="info-item" v-if="mode === 'program' && data.articleInfo.articleType === 2">
+          <div
+            class="info-item"
+            v-if="
+              mode === 'program' &&
+              data.articleInfo &&
+              [2, 3].includes(data.articleInfo.articleType)
+            "
+          >
             <i class="freelog fl-icon-danji"></i>
             <div class="item-value">{{ data.totalItem || 0 }}</div>
           </div>
@@ -104,7 +122,10 @@
           <div
             class="info-item exhibit-title"
             v-if="
-              data.articleInfo.articleType === 2 && mode === 'voice' && subMode !== 'inDetailPage'
+              data.articleInfo &&
+              [2, 3].includes(data.articleInfo.articleType) &&
+              mode === 'voice' &&
+              subMode !== 'inDetailPage'
             "
             @click.stop="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
           >
@@ -213,21 +234,24 @@
               'opacity-40':
                 authLinkAbnormal ||
                 offErrorComputed ||
-                data.articleInfo.status === 2 ||
-                data.child.articleInfo.status === 2,
+                (data.articleInfo && data.articleInfo.status === 2) ||
+                (data.child && data.child.articleInfo && data.child.articleInfo.status === 2),
               'pointer-none': authLinkAbnormal
             }"
           ></i>
           <template v-if="!data.child">
             <div
-              v-if="data.articleInfo.articleType === 1"
+              v-if="data.articleInfo && data.articleInfo.articleType === 1"
               class="single freelog fl-icon-bokebiaoqian_danji"
               :class="{
-                'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2
+                'opacity-40':
+                  authLinkAbnormal ||
+                  offErrorComputed ||
+                  (data.articleInfo && data.articleInfo.status === 2)
               }"
             ></div>
             <div
-              v-else
+              v-else-if="data.articleInfo.articleType === 2"
               class="multiple"
               :class="{
                 'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2
@@ -239,6 +263,15 @@
               ></span>
               <span class="end freelog fl-icon-bokebiaoqian_yiwanjie" v-else></span>
             </div>
+            <div
+              v-else-if="data.articleInfo.articleType === 3"
+              class="multiple bodan"
+              :class="{
+                'opacity-40': authLinkAbnormal || offErrorComputed || data.articleInfo.status === 2
+              }"
+            >
+              <span class="ing freelog fl-icon-bokebiaoqian_bodan"></span>
+            </div>
           </template>
           <template v-if="authShow">
             <div
@@ -247,8 +280,8 @@
                 'opacity-40':
                   authLinkAbnormal ||
                   offErrorComputed ||
-                  data.articleInfo.status === 2 ||
-                  data.child.articleInfo.status === 2
+                  (data.articleInfo && data.articleInfo.status === 2) ||
+                  (data.child && data.child.articleInfo && data.child.articleInfo.status === 2)
               }"
               v-if="data.defaulterIdentityType < 4"
             >
@@ -260,8 +293,8 @@
                 'opacity-40':
                   authLinkAbnormal ||
                   offErrorComputed ||
-                  data.articleInfo.status === 2 ||
-                  data.child.articleInfo.status === 2
+                  (data.articleInfo && data.articleInfo.status === 2) ||
+                  (data.child && data.child.articleInfo && data.child.articleInfo.status === 2)
               }"
               v-else
             >
@@ -292,7 +325,14 @@
             <i class="freelog fl-icon-gengxinshijian"></i>
             <div class="item-value">{{ computedUpdate }}</div>
           </div>
-          <div class="info-item" v-if="mode === 'program' && data.articleInfo.articleType === 2">
+          <div
+            class="info-item"
+            v-if="
+              mode === 'program' &&
+              data.articleInfo &&
+              [2, 3].includes(data.articleInfo.articleType)
+            "
+          >
             <i class="freelog fl-icon-danji"></i>
             <div class="item-value">{{ data.totalItem || 0 }}</div>
           </div>
@@ -304,7 +344,10 @@
             class="info-item to-pool"
             :class="{ vaild: subMode !== 'inDetailPage' }"
             v-if="
-              data.articleInfo.articleType === 2 && mode === 'voice' && subMode !== 'inDetailPage'
+              data.articleInfo &&
+              [2, 3].includes(data.articleInfo.articleType) &&
+              mode === 'voice' &&
+              subMode !== 'inDetailPage'
             "
             @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
           >
@@ -349,7 +392,12 @@
         </my-tooltip>
       </div>
       <div class="right-area">
-        <div v-if="data.articleInfo.articleType === 2 && mode === 'program'" class="total">
+        <div
+          v-if="
+            data.articleInfo && [2, 3].includes(data.articleInfo.articleType) && mode === 'program'
+          "
+          class="total"
+        >
           共{{ data.totalItem || 0 }}集
         </div>
         <div v-else class="duration">
@@ -435,7 +483,7 @@ export default {
         if (playingInfo?.articleInfo?.articleType === 1) {
           duration = playingInfo.versionInfo.exhibitProperty.duration;
         } else {
-          duration = playingInfo.child.articleInfo.articleProperty.duration;
+          duration = playingInfo.child?.articleInfo?.articleProperty?.duration;
         }
         if (duration) {
           const progress = ((this.$store.state.progress * 1000) / duration) * 100;
@@ -534,6 +582,10 @@ export default {
         return this.data.exhibitTitle;
       } else {
         if (this.mode === "voice") {
+          if (this.data?.articleInfo?.articleType === 3) {
+            return this.data?.child?.itemTitle || this.data?.child?.articleInfo?.articleTitle || "";
+          }
+
           const collection_item_title =
             this.data?.versionInfo?.exhibitProperty?.catalogueProperty?.collection_item_title;
           if (collection_item_title === collection_item_title_sn) {
@@ -585,7 +637,7 @@ export default {
       const supportMimeList = supportAudio;
       const isIOS = this.$store.state.isIOS;
 
-      if (this.data.articleInfo.articleType === 1) {
+      if (this.data?.articleInfo?.articleType === 1) {
         const mime = this.data.versionInfo.exhibitProperty.mime;
         if (isIOS) {
           return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime);
@@ -599,7 +651,7 @@ export default {
           }
           return supportMimeList.includes(mime);
         } else {
-          return this.data.articleInfo.resourceType[0] === "音频";
+          return this.data?.articleInfo?.resourceType[0] === "音频";
         }
       }
     },
@@ -608,7 +660,7 @@ export default {
     playing() {
       const { playing: _play, playingInfo } = this.$store.state;
       if (!playingInfo) return _play;
-      if (playingInfo.articleInfo.articleType === 1) {
+      if (playingInfo?.articleInfo?.articleType === 1) {
         return _play && playingInfo.exhibitId === this.data.exhibitId;
       } else {
         if (this.data.child) {
@@ -633,7 +685,7 @@ export default {
       return [
         {
           icon:
-            this.offErrorComputed || this.authLinkAbnormal || this.data.articleInfo.status === 2
+            this.offErrorComputed || this.authLinkAbnormal || this.data?.articleInfo?.status === 2
               ? "fl-icon-wufabofang"
               : this.playing
               ? "fl-icon-zanting-daibiankuang"
@@ -643,7 +695,7 @@ export default {
           disabled: !(
             !this.offErrorComputed &&
             !this.authLinkAbnormal &&
-            this.data.articleInfo.status === 1
+            this.data?.articleInfo?.status === 1
           )
         },
         {
@@ -655,7 +707,7 @@ export default {
             !this.ifSupportMime ||
             this.offErrorComputed ||
             this.authLinkAbnormal ||
-            this.data.articleInfo.status === 2
+            this.data?.articleInfo?.status === 2
         },
         {
           icon: isCollected ? "fl-icon-shoucangxiaoshuoyishoucang" : "fl-icon-shoucangxiaoshuo",
@@ -696,7 +748,7 @@ export default {
   methods: {
     /** 跳转到声音详情 */
     async skipToDetailPage() {
-      if (this.data.articleInfo.articleType === 1) {
+      if (this.data?.articleInfo?.articleType === 1) {
         this.$router.myPush({ path: "/detail", query: { id: this.data.exhibitId } });
       } else {
         if (this.mode === "voice") {
@@ -728,9 +780,10 @@ export default {
         showToast("此作品格式暂不支持访问");
         return;
       }
-      if (this.data.articleInfo.articleType === 1) {
+      if (this.data?.articleInfo?.articleType === 1) {
         useMyPlay.playOrPause(this.data);
       } else {
+        console.log("模式是什么", this.mode);
         if (this.mode === "voice") {
           useMyPlay.playOrPause(this.data);
         } else {
@@ -753,9 +806,9 @@ export default {
         }, 700);
       };
       const { articleInfo, exhibitId, child } = this.data;
-      if (articleInfo.articleType === 2 && this.mode === "program") {
+      if ([2, 3].includes(articleInfo?.articleType) && this.mode === "program") {
         const res = await useMyPlay.getListInCollection(exhibitId);
-        if (!res) {
+        if (!res.length) {
           showToast("合集里没有可添加的作品！");
           return;
         }
@@ -778,7 +831,7 @@ export default {
           true
         );
       } else {
-        if (articleInfo.articleType === 2) {
+        if ([2, 3].includes(articleInfo?.articleType)) {
           useMyPlay.addToPlayList({
             id: exhibitId,
             itemId: child.itemId,
@@ -804,7 +857,7 @@ export default {
     share() {
       this.$store.commit("setData", {
         key: "shareInfo",
-        value: { show: true, exhibit: this.data }
+        value: { show: true, exhibit: this.data, shareUrlGenerationException: "播客主题" }
       });
     },
 

@@ -13,85 +13,89 @@
     >
       <my-loader v-if="loading" />
       <transition-group name="content-fade">
-        <template v-if="exhibitInfo?.articleInfo?.status === 1">
-          <template v-if="!loading">
-            <div v-if="exhibitInfo.onlineStatus === 0">
-              <div class="exceptional-box">
-                <div class="icon">
-                  <i class="freelog fl-icon-a-yichang_tupianshipinmanhuaziyuan freeze"> </i>
+        <template v-if="!loading">
+          <template v-if="exhibitInfo?.articleInfo?.status === 1">
+            <template v-if="!loading">
+              <div v-if="exhibitInfo.onlineStatus === 0">
+                <div class="exceptional-box">
+                  <div class="icon">
+                    <i class="freelog fl-icon-a-yichang_tupianshipinmanhuaziyuan freeze"> </i>
+                  </div>
+
+                  <span class="exceptional-text"> 作品已下架，无法访问 </span>
                 </div>
-
-                <span class="exceptional-text"> 作品已下架，无法访问 </span>
               </div>
-            </div>
 
-            <div v-else-if="![0, 4].includes(exhibitInfo?.defaulterIdentityType)">
-              <div class="exceptional-box">
-                <div class="icon">
-                  <i class="freelog fl-icon-a-yichang_tupianshipinmanhuaziyuan freeze"> </i>
+              <div v-else-if="![0, 4].includes(exhibitInfo?.defaulterIdentityType)">
+                <div class="exceptional-box">
+                  <div class="icon">
+                    <i class="freelog fl-icon-a-yichang_tupianshipinmanhuaziyuan freeze"> </i>
+                  </div>
+
+                  <span class="exceptional-text"> 作品异常，无法访问 </span>
                 </div>
-
-                <span class="exceptional-text"> 作品异常，无法访问 </span>
               </div>
-            </div>
 
-            <!-- 静默签约 -->
-            <template
-              v-else-if="exhibitInfo?.defaulterIdentityType === 0 && userData.isLogin === false"
-            >
-              <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')" />
-              <video
-                :src="content"
-                controls
-                muted
-                autoplay
-                webkit-playsinline
-                playsinline
-                v-else-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
-              ></video>
-            </template>
+              <!-- 静默签约 -->
+              <template
+                v-else-if="exhibitInfo?.defaulterIdentityType === 0 && userData.isLogin === false"
+              >
+                <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')" />
+                <video
+                  :src="content"
+                  :poster="exhibitInfo?.coverImages[0]"
+                  controls
+                  muted
+                  autoplay
+                  webkit-playsinline
+                  playsinline
+                  v-else-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
+                ></video>
+              </template>
 
-            <div
-              class="lock-box"
-              v-else-if="exhibitInfo?.defaulterIdentityType === 4 || userData.isLogin === false"
-            >
-              <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
-              <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-              <div class="get-btn" @click="getAuth()">获取授权</div>
-            </div>
+              <div
+                class="lock-box"
+                v-else-if="exhibitInfo?.defaulterIdentityType === 4 || userData.isLogin === false"
+              >
+                <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
+                <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+                <div class="get-btn" @click="getAuth()">获取授权</div>
+              </div>
 
-            <div v-else-if="!['图片', '视频'].includes(exhibitInfo?.articleInfo.resourceType[0])">
-              <div class="exceptional-box">
-                <div class="icon">
-                  <i class="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
+              <div v-else-if="!['图片', '视频'].includes(exhibitInfo?.articleInfo.resourceType[0])">
+                <div class="exceptional-box">
+                  <div class="icon">
+                    <i class="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
+                  </div>
+
+                  <span class="exceptional-text">此作品格式暂不支持访问 </span>
                 </div>
-
-                <span class="exceptional-text">此作品格式暂不支持访问 </span>
               </div>
-            </div>
 
-            <template v-else-if="exhibitInfo?.defaulterIdentityType === 0">
-              <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')" />
-              <video
-                :src="content"
-                controls
-                muted
-                autoplay
-                webkit-playsinline
-                playsinline
-                v-else-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
-              ></video>
+              <template v-else-if="exhibitInfo?.defaulterIdentityType === 0">
+                <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')" />
+                <video
+                  :src="content"
+                  :poster="exhibitInfo?.coverImages[0]"
+                  controls
+                  muted
+                  autoplay
+                  webkit-playsinline
+                  playsinline
+                  v-else-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
+                ></video>
+              </template>
             </template>
           </template>
-        </template>
 
-        <template v-else>
-          <div class="freeze-exhibit">
-            <div class="icon">
-              <i class="freelog fl-icon-a-yichang_tupianshipinmanhuaziyuan freeze"> </i>
+          <template v-else>
+            <div class="freeze-exhibit">
+              <div class="icon">
+                <i class="freelog fl-icon-a-yichang_tupianshipinmanhuaziyuan freeze"> </i>
+              </div>
+              <span class="exceptional-text"> 此作品因违规无法访问 </span>
             </div>
-            <span class="exceptional-text"> 此作品因违规无法访问 </span>
-          </div>
+          </template>
         </template>
       </transition-group>
 
@@ -272,6 +276,7 @@
                         'height-full': contentMode === 2
                       }"
                       :src="content"
+                      :poster="exhibitInfo?.coverImages[0]"
                       controls
                       controlslist="nodownload"
                       oncontextmenu="return false"
@@ -318,6 +323,7 @@
                         'height-full': contentMode === 2
                       }"
                       :src="content"
+                      :poster="exhibitInfo?.coverImages[0]"
                       controls
                       controlslist="nodownload"
                       oncontextmenu="return false"
@@ -387,6 +393,7 @@ import { useGetList, useMyRouter, useMyWaterfall } from "../utils/hooks";
 import { useStore } from "vuex";
 import { showToast } from "@/utils/common";
 import { WidgetController, freelogApp } from "freelog-runtime";
+import { updateWxConfig } from "@/utils/update-wx-share";
 
 export default {
   name: "detail",
@@ -412,6 +419,9 @@ export default {
     const scrollArea = ref<any>(null);
     const contentArea = ref<any>(null);
     const showMoreTagBtn = ref<boolean>();
+
+    // iOS 检测
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
     const data = reactive({
       loading: false,
@@ -512,6 +522,10 @@ export default {
       data.href = freelogApp.getCurrentUrl();
       mountShareWidget();
 
+      // 更新微信分享
+      const exhibitData = exhibitInfo.data.data as any;
+      updateWxConfig(exhibitData);
+
       if (![0, 4].includes(defaulterIdentityType)) {
         // 授权链异常
         data.loading = false;
@@ -541,7 +555,29 @@ export default {
           };
         } else if (resourceType.includes("视频")) {
           const video: HTMLVideoElement = document.createElement("video");
+
+          // 检测是否在微信环境
+          const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
+
+          if (isIOS) {
+            video.autoplay = true;
+            video.muted = true; // 静音才能自动播放
+            video.preload = "metadata";
+          }
+
+          // 微信环境下设置必要的属性
+          if (isWeChat) {
+            video.preload = "auto";
+            video.playsInline = true;
+            // 设置微信X5内核相关属性
+            (video as any).webkitPlaysinline = true;
+            (video as any).x5Playsinline = true;
+            (video as any).x5VideoPlayerType = "h5";
+            (video as any).x5VideoPlayerFullscreen = false;
+          }
+
           video.src = info;
+
           const ready = () => {
             const { videoWidth, videoHeight } = video;
             const ratio = videoWidth / videoHeight;
@@ -550,14 +586,66 @@ export default {
             data.content = info;
             data.loading = false;
           };
+
           // 正常视频加载完成
           video.onloadeddata = ready;
           // onloadeddata 在 ios 不触发，onprogress 为了解决 ios 无法播放视频问题
           video.onprogress = ready;
+
+          // 添加更多事件监听
+          // video.oncanplay = ready;
+          // video.oncanplaythrough = ready;
+
           video.onerror = event => {
+            console.log("视频加载错误:", event);
             console.log(event);
             data.loading = false;
           };
+
+          // iOS 特殊处理
+          if (isIOS) {
+            console.log("iOS设备，开始处理");
+            video.load(); // 强制加载
+
+            // iOS 上尝试自动播放
+            video.play().catch(error => {
+              console.log("iOS autoplay failed:", error);
+              data.loading = false;
+            });
+          }
+
+          // 微信环境特殊处理
+          if (isWeChat) {
+            console.log("微信环境，开始处理");
+
+            // 监听微信JS-SDK准备完成
+            if (typeof (window as any).WeixinJSBridge !== "undefined") {
+              console.log("WeixinJSBridge已存在");
+              (window as any).WeixinJSBridge.invoke("getNetworkType", {}, () => {
+                console.log("微信网络检测完成，开始播放");
+                video.load();
+                video.play().catch(error => {
+                  console.log("微信环境播放失败:", error);
+                  data.loading = false;
+                });
+              });
+            } else {
+              console.log("等待WeixinJSBridge准备");
+              // 如果WeixinJSBridge还没准备好，等待它
+              document.addEventListener(
+                "WeixinJSBridgeReady",
+                () => {
+                  console.log("WeixinJSBridge准备完成，开始播放");
+                  video.load();
+                  video.play().catch(error => {
+                    console.log("微信环境播放失败:", error);
+                    data.loading = false;
+                  });
+                },
+                false
+              );
+            }
+          }
         } else {
           data.loading = false;
         }
@@ -574,7 +662,7 @@ export default {
 
     /** 根据资源宽高比决定显示模式 */
     const judgeContentMode = (ratio: number) => {
-      if (!store.state.inMobile) {
+      if (!store.state.inMobile && contentArea.value) {
         const { clientWidth, clientHeight } = contentArea.value;
         const areaRatio = clientWidth / clientHeight;
         data.contentMode = ratio > areaRatio ? 1 : 2;
@@ -638,9 +726,15 @@ export default {
         topExhibitId,
         container,
         renderWidgetOptions: {
-          data: { exhibit: data.exhibitInfo, type, routerType: "detail" }
-        }
-        // widget_entry: "https://localhost:8201",
+          data: {
+            exhibit: data.exhibitInfo,
+            type,
+            routerType: "detail",
+            shareUrlGenerationException: "图库主题"
+          }
+        },
+        seq: Date.now()
+        // widget_entry: "https://localhost:8201"
       };
       data.shareWidget = await freelogApp.mountArticleWidget(params);
     };

@@ -119,11 +119,7 @@
         <!-- logo -->
         <img
           class="logo"
-          :src="
-            selfConfig.options_logoImage ||
-            selfConfig.logoImage ||
-            require('../assets/images/logo.png')
-          "
+          :src="require('../assets/images/logo.png')"
           @click="switchPage('/home')"
         />
 

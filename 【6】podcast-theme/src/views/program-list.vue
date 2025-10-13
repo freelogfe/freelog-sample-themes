@@ -9,7 +9,7 @@
         <div class="plw-condition" v-if="loading || (!loading && hotList.length)">
           <div class="left" v-clickOutside="dropDownShow">
             <div class="wrapper" @click="dropDownShow.value = !dropDownShow.value">
-              <span class="txt">{{ currentSelect === 'update' ? "最近更新" : "最热门" }}</span>
+              <span class="txt">{{ currentSelect === "update" ? "最近更新" : "最热门" }}</span>
               <div class="drop-trigger" :class="{ rotate: dropDownShow.value }">
                 <div class="triangle"></div>
               </div>
@@ -31,7 +31,6 @@
               </div>
             </div>
           </div>
-         
         </div>
         <div class="plw-content" v-if="!loading">
           <div class="hot-container" v-if="hotList.length">
@@ -40,6 +39,7 @@
               v-for="item in hotList"
               :key="item.exhibitId"
               mode="program"
+              v-if="item && item.articleInfo"
             ></voice>
           </div>
           <div class="plw-empty" v-else>暂无任何节目</div>
@@ -53,7 +53,7 @@
                   <el-skeleton-item class="program-cover" variant="image" />
                   <div class="center">
                     <div class="program-title">
-                      <el-skeleton-item  variant="text" />
+                      <el-skeleton-item variant="text" />
                     </div>
                     <div>
                       <el-skeleton-item class="program-update" variant="text" />
@@ -77,7 +77,7 @@
         <div class="plw-condition" v-if="loading || (!loading && hotList.length)">
           <div class="left" v-clickOutside="dropDownShow">
             <div class="wrapper" @click="dropDownShow.value = !dropDownShow.value">
-              <span class="txt">{{ currentSelect === 'update' ? "最近更新" : "最热门" }}</span>
+              <span class="txt">{{ currentSelect === "update" ? "最近更新" : "最热门" }}</span>
               <div class="drop-trigger" :class="{ rotate: dropDownShow.value }">
                 <div class="triangle"></div>
               </div>
@@ -111,7 +111,12 @@
         <div class="plw-content" v-if="!loading">
           <div class="hot-container" v-if="hotList.length">
             <template v-if="currentMode === 'card'">
-              <program :data="item" v-for="item in hotList" :key="item.exhibitId"></program>
+              <program
+                :data="item"
+                v-for="item in hotList"
+                :key="item.exhibitId"
+                v-if="item && item.articleInfo"
+              ></program>
             </template>
             <template v-else>
               <voice
@@ -119,6 +124,7 @@
                 v-for="item in hotList"
                 :key="item.exhibitId"
                 mode="program"
+                v-if="item && item.articleInfo"
               ></voice>
             </template>
           </div>
@@ -192,7 +198,7 @@ export default {
     this.getList();
   },
   activated() {
-    this.$store.dispatch("updateLastestAuthList")
+    this.$store.dispatch("updateLastestAuthList");
     const app = document.getElementById("appPodcast");
     const { routerMode } = this.$store.state;
     if (routerMode === 1) {
@@ -206,14 +212,19 @@ export default {
         JSON.stringify(
           this.listData
             .slice()
-            .filter(ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType))
+            .filter(
+              ele =>
+                ele.articleInfo &&
+                ele.articleInfo.status === 1 &&
+                [0, 4].includes(ele.defaulterIdentityType)
+            )
         )
       );
     }
   },
   watch: {
     currentSelect(newValue) {
-      this.sortList(newValue, this.listData)
+      this.sortList(newValue, this.listData);
     },
 
     "$store.state.lastestAuthList"(cur) {
@@ -228,9 +239,9 @@ export default {
     async getList() {
       if (this.loading) return;
       this.loading = true;
-      await sleep(800)
-      const dataList = await this.queryList()
-      await this.querySubNum(dataList)
+      await sleep(800);
+      const dataList = await this.queryList();
+      await this.querySubNum(dataList);
       if (dataList.length !== 0) {
         const ids = dataList.map(item => item.exhibitId).join();
         const [signCountData, statusInfo] = await Promise.all([
@@ -250,71 +261,73 @@ export default {
             item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
         });
       }
-      this.sortList('update', dataList)
+      this.sortList("update", dataList);
       this.total = dataList.length;
       this.loading = false;
     },
     /** 获取展品列表 */
     async queryList(options = { skip: 0, limit: 100 }) {
-      let { skip, limit } = options
-      const result = []
+      let { skip, limit } = options;
+      const result = [];
       const list = await freelogApp.getExhibitListByPaging({
         ...options,
         articleResourceTypes: "音频",
-        isLoadVersionProperty: 1,
+        isLoadVersionProperty: 1
       });
       const { dataList, totalItem } = list.data.data;
-      result.push(...dataList)
+      result.push(...dataList);
       if (totalItem > (skip + 1) * limit) {
-        skip = (skip + 1) * limit
-        result.push(...await this.queryList({ skip })) 
+        skip = (skip + 1) * limit;
+        result.push(...(await this.queryList({ skip })));
       }
-      return result
+      return result;
     },
     /** sort展品列表 */
     sortList(newValue, dataList) {
       const result = dataList.sort((a, b) => {
-        let aTimeStamp, bTimeStamp
+        let aTimeStamp, bTimeStamp;
         if (a.child) {
-          aTimeStamp = new Date(a.child.createDate).getTime()
+          aTimeStamp = new Date(a.child.createDate).getTime();
         } else {
-          aTimeStamp = new Date(a.updateDate).getTime()
+          aTimeStamp = new Date(a.updateDate).getTime();
         }
 
         if (b.child) {
-          bTimeStamp = new Date(b.child.createDate).getTime()
+          bTimeStamp = new Date(b.child.createDate).getTime();
         } else {
-          bTimeStamp = new Date(b.updateDate).getTime()
+          bTimeStamp = new Date(b.updateDate).getTime();
         }
-        if (newValue === 'update') {
-          return bTimeStamp - aTimeStamp
+        if (newValue === "update") {
+          return bTimeStamp - aTimeStamp;
         } else {
-          return b.signCount - a.signCount
+          return b.signCount - a.signCount;
         }
-      })
-      this.listData = result
+      });
+      this.listData = result;
     },
     /** 获取合集的子作品数量 */
     async querySubNum(dataList) {
-      if (dataList.length === 0) return
-      const allPoolIds = dataList.filter(ele => ele.articleInfo.articleType === 2).map(ele => ele.exhibitId)
-      const allPoolIdsStr = allPoolIds.join(',')
+      if (dataList.length === 0) return;
+      const allPoolIds = dataList
+        .filter(ele => ele.articleInfo && [2, 3].includes(ele.articleInfo.articleType))
+        .map(ele => ele.exhibitId);
+      const allPoolIdsStr = allPoolIds.join(",");
       const res = await freelogApp.getCollectionsSubList(allPoolIdsStr, {
-        sortType: 1, 
+        sortType: 1,
         skip: 0,
         limit: allPoolIds.length,
-        isShowDetailInfo: 1, 
+        isShowDetailInfo: 1
       });
       if (res.data.errCode === 0) {
         res.data.data.forEach(ele => {
           dataList.forEach(inner => {
             if (inner.exhibitId === ele.exhibitId) {
-              inner.totalItem = ele.totalItem
+              inner.totalItem = ele.totalItem;
             }
-          })
-        })
+          });
+        });
       } else {
-        console.warn(res.data)
+        console.warn(res.data);
       }
     }
   }
@@ -329,14 +342,14 @@ export default {
       height: 40px;
       font-weight: 400;
       font-size: 34px;
-      color: var(--text-other-color);
+      color: var(--text-color);
       line-height: 40px;
-      opacity: 0.6;
+      opacity: 0.8;
       span {
         margin-left: 12px;
       }
     }
-  
+
     .plw-body {
       padding: 0px 15px 40px;
       .plw-condition {
@@ -381,7 +394,7 @@ export default {
             position: absolute;
             top: 25px;
             width: 240px;
-            background:var(--bg-skin);
+            background: var(--bg-skin);
             color: var(--text-eighth-color);
             box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
             border-radius: 4px;
@@ -452,7 +465,8 @@ export default {
             }
             div {
               height: 18px;
-              .program-update, .program-yonghu {
+              .program-update,
+              .program-yonghu {
                 width: 40px;
                 height: 18px;
                 border-radius: 4px;
@@ -479,21 +493,20 @@ export default {
         }
       }
     }
-  
   }
   .program-list-wrapper-pc {
     .plw-header {
       height: 56px;
       font-weight: 600;
       font-size: 36px;
-      color: var(--text-other-color);
+      color: var(--text-color);
       line-height: 56px;
-      opacity: 0.6;
+      opacity: 0.8;
       span {
         margin-left: 12px;
       }
     }
-  
+
     .plw-body {
       padding-bottom: 40px;
       .plw-condition {
@@ -509,6 +522,7 @@ export default {
             display: flex;
             align-items: center;
             position: relative;
+            opacity: 0.8;
             .txt {
               height: 20px;
               font-weight: 600;
@@ -538,7 +552,7 @@ export default {
             position: absolute;
             top: 25px;
             width: 240px;
-            background:var(--bg-skin);
+            background: var(--bg-skin);
             color: var(--text-eighth-color);
             box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
             border-radius: 4px;
@@ -563,18 +577,22 @@ export default {
         .right {
           display: flex;
           margin-left: auto;
-          color: rgba(255, 255, 255, 0.4);
+          // color: rgba(255, 255, 255, 0.4);
+          color: var(--text-other-color);
           div {
             cursor: pointer;
+            opacity: 0.4;
             &:hover {
-              color: rgba(255, 255, 255, 0.6);
+              // color: rgba(255, 255, 255, 0.6);
+              opacity: 1;
             }
           }
           div:first-child {
             margin-right: 30px;
           }
           div.selected {
-            color: rgba(255, 255, 255, 0.8);
+            // color: rgba(255, 255, 255, 0.8);
+            opacity: 0.8;
           }
         }
       }

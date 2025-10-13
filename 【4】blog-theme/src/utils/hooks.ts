@@ -39,7 +39,7 @@ export const useMyLocationHistory = () => {
 
   watch(
     () => router,
-    (cur) => {
+    cur => {
       const { current, replaced } = cur.options.history.state;
       const { locationHistory } = store.state;
       if (!locationHistory.length) {
@@ -47,7 +47,7 @@ export const useMyLocationHistory = () => {
         store.commit("setData", { key: "locationHistory", value: locationHistory });
         return;
       }
-      
+
       if (!replaced) {
         locationHistory.push(current);
       } else {
@@ -62,7 +62,7 @@ export const useMyLocationHistory = () => {
 /** 搜索 hook */
 export const useSearchHistory = () => {
   const data = reactive({
-    searchHistory: [] as string[],
+    searchHistory: [] as string[]
   });
 
   /** 获取搜索历史 */
@@ -75,7 +75,7 @@ export const useSearchHistory = () => {
   const searchWord = (keywords = "") => {
     keywords = keywords.trim();
     if (!keywords) return;
-    const index = data.searchHistory.findIndex((item) => item === keywords);
+    const index = data.searchHistory.findIndex(item => item === keywords);
     if (index !== -1) data.searchHistory.splice(index, 1);
     if (data.searchHistory.length === 10) data.searchHistory.pop();
     data.searchHistory.unshift(keywords);
@@ -84,7 +84,7 @@ export const useSearchHistory = () => {
 
   /** 删除搜索词 */
   const deleteWord = (keywords: string) => {
-    const index = data.searchHistory.findIndex((item) => item === keywords);
+    const index = data.searchHistory.findIndex(item => item === keywords);
     if (index === -1) return;
     data.searchHistory.splice(index, 1);
     localStorage.setItem("searchHistory", JSON.stringify(data.searchHistory));
@@ -108,7 +108,7 @@ export const useGetList = () => {
     loading: false,
     myLoading: false,
     total: 0,
-    skip: 0,
+    skip: 0
   });
 
   /** 获取展品列表 */
@@ -121,21 +121,21 @@ export const useGetList = () => {
     data.skip = init ? 0 : data.skip + 30;
     const queryParams = {
       skip: data.skip,
-      articleResourceTypes: "文章",
+      articleResourceTypes: "阅读",
       limit: params.limit || 30,
       isLoadVersionProperty: 1,
-      ...params,
+      ...params
     };
     const list = await freelogApp.getExhibitListByPaging(queryParams);
-    
+
     const { dataList, totalItem } = list.data.data;
     if (dataList.length !== 0) {
-      const ids = dataList.map((item) => item.exhibitId).join();
+      const ids = dataList.map(item => item.exhibitId).join();
       const [signCountData, statusInfo] = await Promise.all([
         freelogApp.getExhibitSignCount(ids),
-        freelogApp.getExhibitAuthStatus(ids),
+        freelogApp.getExhibitAuthStatus(ids)
       ]);
-      (dataList as ExhibitItem[]).forEach((item) => {
+      for (const item of dataList as ExhibitItem[]) {
         let index;
         index = signCountData.data.data.findIndex(
           (resultItem: { subjectId: string }) => resultItem.subjectId === item.exhibitId
@@ -144,10 +144,22 @@ export const useGetList = () => {
         index = statusInfo.data.data.findIndex(
           (resultItem: { exhibitId: string }) => resultItem.exhibitId === item.exhibitId
         );
-        if (index !== -1) item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
-      });
+        if (index !== -1)
+          item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+
+        if ([2, 3].includes(item.articleInfo.articleType)) {
+          const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
+            sortType: -1,
+            skip: 0,
+            limit: 1_000,
+            isShowDetailInfo: 1
+          });
+
+          item.collectionList = res.data.data as any;
+        }
+      }
     }
-    data.listData = init ? dataList : [...data.listData, ...dataList] as any
+    data.listData = init ? dataList : ([...data.listData, ...dataList] as any);
     data.total = totalItem;
     if (init) data.loading = false;
     data.myLoading = false;
@@ -162,7 +174,7 @@ export const useGetList = () => {
   return {
     ...toRefs(data),
     getList,
-    clearData,
+    clearData
   };
 };
 
@@ -175,7 +187,7 @@ export const useMySignedList = () => {
   const store = useStore();
   const data = reactive({
     mySignedList: <ExhibitItem[] | null>null,
-    loading: false,
+    loading: false
   });
 
   /** 获取签约列表 */
@@ -185,7 +197,7 @@ export const useMySignedList = () => {
 
     const signedList = await freelogApp.getSignStatistics({ keywords });
     const ids = signedList.data.data.map((item: SignedItem) => item.subjectId).join();
-    
+
     if (!ids) {
       data.mySignedList = [];
       return;
@@ -194,29 +206,33 @@ export const useMySignedList = () => {
     const [list, signCountData, statusData] = await Promise.all([
       freelogApp.getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
       freelogApp.getExhibitSignCount(ids),
-      freelogApp.getExhibitAuthStatus(ids),
+      freelogApp.getExhibitAuthStatus(ids)
     ]);
-    (list.data.data as ExhibitItem[]).forEach((item) => {
-      const signCountItem = signCountData.data.data.find((signCount) => signCount.subjectId === item.exhibitId);
+    (list.data.data as ExhibitItem[]).forEach(item => {
+      const signCountItem = signCountData.data.data.find(
+        signCount => signCount.subjectId === item.exhibitId
+      );
       item.signCount = signCountItem?.count;
-      const statusItem = statusData.data.data.find((status) => status.exhibitId === item.exhibitId);
+      const statusItem = statusData.data.data.find(status => status.exhibitId === item.exhibitId);
       item.defaulterIdentityType = statusItem?.defaulterIdentityType;
-      const signDate = signedList.data.data.find(signItem => signItem.subjectId === item.exhibitId)
-      item.latestSignDate = signDate?.latestSignDate
+      const signDate = signedList.data.data.find(signItem => signItem.subjectId === item.exhibitId);
+      item.latestSignDate = signDate?.latestSignDate;
     });
-    const _temp_list = list.data.data.filter((item) => !item.articleInfo.resourceType.includes("主题"));
-    
+    const _temp_list = list.data.data.filter(
+      item => !item.articleInfo.resourceType.includes("主题")
+    );
+
     // 查所有的展品的签约信息, 一个展品有多个约时则取时间最近的作为展品的签约时间
 
     data.mySignedList = _temp_list.sort((a: any, b: any) => {
-      const aTimeStamp = new Date(a.latestSignDate).getTime()
-      const bTimeStamp = new Date(b.latestSignDate).getTime()
-      if (sorted === 'desc') {
-        return bTimeStamp - aTimeStamp
+      const aTimeStamp = new Date(a.latestSignDate).getTime();
+      const bTimeStamp = new Date(b.latestSignDate).getTime();
+      if (sorted === "desc") {
+        return bTimeStamp - aTimeStamp;
       } else {
-        return aTimeStamp - bTimeStamp
+        return aTimeStamp - bTimeStamp;
       }
-    }) as any
+    }) as any;
     console.log("data.mySignedList", data.mySignedList);
   };
 
@@ -224,7 +240,7 @@ export const useMySignedList = () => {
 
   return {
     ...toRefs(data),
-    getMySignedList,
+    getMySignedList
   };
 };
 
@@ -234,7 +250,7 @@ export const useMyScroll = () => {
   const data = reactive({
     scrollTop: 0,
     clientHeight: 0,
-    scrollHeight: 0,
+    scrollHeight: 0
   });
 
   /** 页面滚动 */
@@ -256,6 +272,6 @@ export const useMyScroll = () => {
 
   return {
     ...toRefs(data),
-    scrollTo,
+    scrollTo
   };
 };

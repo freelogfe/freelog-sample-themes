@@ -104,12 +104,23 @@ export const useMyShelf = (id?: string) => {
       freelogApp.getExhibitListById({ exhibitIds }),
       freelogApp.getExhibitAuthStatus(exhibitIds)
     ]);
-    (list.data.data as ExhibitItem[]).forEach(item => {
+    for (const item of list.data.data as ExhibitItem[]) {
       const statusItem = statusList.data.data.find(
         (status: { exhibitId: string }) => status.exhibitId === item.exhibitId
       );
       item.defaulterIdentityType = statusItem?.defaulterIdentityType;
-    });
+
+      if (item.articleInfo.articleType === 2) {
+        const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
+          sortType: -1,
+          skip: 0,
+          limit: 50,
+          isShowDetailInfo: 1
+        });
+
+        item.collectionList = res.data.data as any;
+      }
+    }
     store.commit("setData", { key: "myShelf", value: list.data.data });
   };
 
@@ -223,6 +234,7 @@ export const useGetList = () => {
       skip: data.skip,
       articleResourceTypes: "漫画,连载漫画",
       limit: params.limit || 30,
+      isLoadVersionProperty: 1,
       ...params
     };
     const list = await freelogApp.getExhibitListByPaging(queryParams);
@@ -233,7 +245,7 @@ export const useGetList = () => {
         freelogApp.getExhibitSignCount(ids),
         freelogApp.getExhibitAuthStatus(ids)
       ]);
-      (dataList as ExhibitItem[]).forEach(item => {
+      for (const item of dataList as ExhibitItem[]) {
         let index;
         index = signCountData.data.data.findIndex(
           (resultItem: { subjectId: string }) => resultItem.subjectId === item.exhibitId
@@ -244,7 +256,18 @@ export const useGetList = () => {
         );
         if (index !== -1)
           item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
-      });
+
+        if (item.articleInfo.articleType === 2) {
+          const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
+            sortType: -1,
+            skip: 0,
+            limit: 50,
+            isShowDetailInfo: 1
+          });
+
+          item.collectionList = res.data.data as any;
+        }
+      }
     }
     data.listData = init
       ? dataList.filter((i: any) => i.articleInfo?.status !== 2)
@@ -292,12 +315,23 @@ export const useMySignedList = () => {
       freelogApp.getExhibitListById({ exhibitIds: ids }),
       freelogApp.getExhibitAuthStatus(ids)
     ]);
-    (list.data.data as ExhibitItem[]).forEach(item => {
+    for (const item of list.data.data as ExhibitItem[]) {
       const statusItem = statusList.data.data.find(
         (status: { exhibitId: string }) => status.exhibitId === item.exhibitId
       );
       item.defaulterIdentityType = statusItem?.defaulterIdentityType;
-    });
+
+      if (item.articleInfo.articleType === 2) {
+        const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
+          sortType: -1,
+          skip: 0,
+          limit: 50,
+          isShowDetailInfo: 1
+        });
+
+        item.collectionList = res.data.data as any;
+      }
+    }
     data.mySignedList = list.data.data.filter(
       item => !item.articleInfo.resourceType.includes("主题")
     );

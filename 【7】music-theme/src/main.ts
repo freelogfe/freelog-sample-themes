@@ -3,6 +3,7 @@ import { createPinia } from "pinia";
 import { useGlobalStore } from "@/store/global";
 import { freelogApp, initFreelogApp } from "freelog-runtime";
 import mapRoutes from "@/utils/map-routes";
+import { scrollIntoView, sleep } from "@/utils/common";
 // 导入主题初始化函数
 import { initTheme } from "@/utils/theme-manager";
 // 导入主题样式
@@ -23,10 +24,34 @@ window.mount = async () => {
   const app = createApp(App);
   app.use(pinia);
   app.use(router);
-  app.mount("#app");
 
   const store = useGlobalStore();
   await store.initStoreData();
+
+  /* 修复ios的safari浏览器, 软键盘将页面顶到安全区域外的问题
+   * 方式一: scrollIntoView
+   * 方式二: v-if重渲染全部页面
+   */
+  // 登录成功后, 使用方式二
+  // 关闭登录框, 使用方式一
+  (freelogApp as any).onLogin(
+    async () => {
+      if (store.$state.isIOS) {
+        store.setData({ key: "maskLoading", value: true });
+        await sleep(350);
+        store.setData({ key: "maskLoading", value: false });
+      }
+      const url = freelogApp.getCurrentUrl();
+      location.href = url;
+    },
+    () => {
+      if (store.$state.isIOS) {
+        scrollIntoView();
+      }
+    }
+  );
+
+  app.mount("#app");
 
   // 初始化主题
   initTheme();

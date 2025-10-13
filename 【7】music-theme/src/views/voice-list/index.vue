@@ -37,7 +37,9 @@ export default {
       store,
       subTotal: 0,
       subSkip: 0,
-      subTempData: []
+      subTempData: [],
+      realTotal: 0,
+      realListData: []
     };
   },
 
@@ -84,7 +86,7 @@ export default {
     /** 获取音乐列表 */
     async getList(init = false) {
       if (this.myLoading) return;
-      if (this.total === this.listData.length && !init) return;
+      if (this.realTotal === this.realListData.length && !init) return;
 
       if (init) this.loading = true;
       this.myLoading = true;
@@ -95,8 +97,12 @@ export default {
         isLoadVersionProperty: 1,
         limit: 20
       };
-      const list = await freelogApp.getExhibitListByPaging(queryParams);
+      const list = await freelogApp.getExhibitListByPage(queryParams);
       const { dataList, totalItem } = list.data.data;
+
+      this.total = totalItem;
+      this.realTotal = totalItem;
+      this.realListData = [...this.realListData, ...dataList];
 
       if (dataList.length !== 0) {
         const ids = dataList.map(item => item.exhibitId).join();
@@ -124,6 +130,8 @@ export default {
 
           // 获取合集里的单品列表
           if (item.articleInfo.articleType === 2) {
+            // 专辑类型，总数减一
+            this.total = this.total - 1;
             await this.getCollectionList(item.exhibitId, item.exhibitTitle, item.coverImages);
           } else {
             this.listData.push(item);
@@ -131,25 +139,25 @@ export default {
         }
       }
 
-      // this.listData = init ? dataList : [...this.listData, ...dataList];
-      this.total = totalItem;
       if (init) this.loading = false;
       this.myLoading = false;
     },
 
     /** 获取合集里的单品列表 */
     async getCollectionList(collectionID, exhibitTitle, images) {
-      const subList = await freelogApp.getCollectionSubList(collectionID, {
+      const subList = await freelogApp.getCollectionSubListByPage(collectionID, {
         skip: this.subSkip,
         limit: 1_000,
         isShowDetailInfo: 1
       });
       const { dataList, totalItem } = subList.data.data;
       this.subTotal = totalItem;
+      // 合集单品数量累加
+      this.total = this.total + totalItem;
 
       if (dataList.length !== 0) {
         const ids = dataList.map(item => item.itemId).join();
-        const statusInfo = await freelogApp.getCollectionSubAuth(collectionID, {
+        const statusInfo = await freelogApp.getCollectionSubAuthStatus(collectionID, {
           itemIds: ids
         });
 
@@ -169,6 +177,7 @@ export default {
             item.exhibitIntro = item.articleInfo.intro;
             item.albumName = exhibitTitle;
             item.exhibitId = collectionID;
+            item.parentArticleType = 2;
           });
         }
       }

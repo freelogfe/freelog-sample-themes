@@ -13,27 +13,10 @@
         <div class="tab" :class="tab === 2 && 'active'" @click="changeTab(2)">
           专辑{{ albumLength ? `（${albumLength}）` : "" }}
         </div>
+        <div class="tab" :class="tab === 3 && 'active'" @click="changeTab(3)">
+          歌单{{ playListLength ? `（${playListLength}）` : "" }}
+        </div>
       </div>
-
-      <!-- <div class="tab-box">
-        <div class="tab" :class="tab === 1 && 'active'" @click="changeTab(1)">音乐</div>
-        <div class="tab" :class="tab === 2 && 'active'" @click="changeTab(2)">专辑</div>
-      </div> -->
-
-      <!-- <div
-        class="total"
-        v-if="
-          !store.inMobile &&
-          list?.length &&
-          ((tab === 1 && musicLength) || (tab === 2 && albumLength))
-        "
-      >
-        {{
-          tab === 1
-            ? musicLength && `共${musicLength}首音乐`
-            : albumLength && `共${albumLength}张专辑`
-        }}
-      </div> -->
     </div>
 
     <template v-if="!loading">
@@ -75,6 +58,7 @@
           </div>
         </div>
       </div>
+      <!-- 音乐 -->
       <div class="voice-list" v-if="tab === 1 && list.length && total !== 0">
         <div class="voice-bar" v-if="!store.inMobile">
           <span>歌曲</span>
@@ -148,13 +132,23 @@
         <div class="no-more-tip" v-if="list.length === total && noMoreTip">{{ noMoreTip }}</div>
       </div>
       <!-- 专辑 -->
-      <div v-else-if="tab === 2 && list.length && total !== 0">
+      <div v-else-if="tab === 2 && albumLength && total !== 0">
         <PCAlbum
           v-if="!store.inMobile"
-          :hasHeder="false"
+          :hasHeader="false"
           :data="list.filter(i => i.articleInfo?.articleType === 2)"
         />
         <MobileAlbum v-else :data="list.filter(i => i.articleInfo?.articleType === 2)" />
+      </div>
+
+      <!-- 歌单 -->
+      <div v-else-if="tab === 3 && list.length && total !== 0">
+        <PCPlayList
+          v-if="!store.inMobile"
+          :hasHeader="false"
+          :data="list?.filter(i => i.articleInfo?.articleType === 3)"
+        />
+        <MobileAlbum v-else :data="list?.filter(i => i.articleInfo?.articleType === 3)" />
       </div>
       <!-- 无数据 -->
       <div class="no-data-tip" v-if="noDataMessage">{{ noDataMessage }}</div>
@@ -196,10 +190,12 @@ import { useGlobalStore } from "@/store/global";
 import voice from "@/components/voice.vue";
 import PCAlbum from "@/components/album.vue";
 import MobileAlbum from "@/components/mobile-album.vue";
+import PCPlayList from "@/components/play-list.vue";
 
 const TabEnum = {
   Music: 1,
-  Album: 2
+  Album: 2,
+  PlayList: 3
 };
 
 export default {
@@ -208,7 +204,8 @@ export default {
   components: {
     voice,
     PCAlbum,
-    MobileAlbum
+    MobileAlbum,
+    PCPlayList
   },
 
   props: {
@@ -294,6 +291,11 @@ export default {
       return data.length;
     },
 
+    playListLength() {
+      const data = this.list?.filter(i => i.articleInfo?.articleType === 3) || [];
+      return data.length;
+    },
+
     noDataMessage() {
       const isCollectionList = this.$route.name === "collection-list";
       const isSearchList = this.$route.name === "search-list";
@@ -304,6 +306,9 @@ export default {
         }
         if (this.tab === 2 && !this.albumLength) {
           return "没有收藏任何专辑";
+        }
+        if (this.tab === 3 && !this.playListLength) {
+          return "没有收藏任何歌单";
         }
       } else if (isSearchList) {
         if (this.tab === 1 && !this.musicLength) {

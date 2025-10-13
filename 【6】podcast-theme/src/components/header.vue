@@ -218,8 +218,8 @@
         >
           <div
             class="light-mode"
-            :class="currentTheme === 'light' && 'selected'"
-            v-show="!systemMode"
+            :class="currentTheme.value === 'light' && 'selected'"
+            v-show="!currentSystemMode.value"
             @click="toggleTheme('light')"
           >
             浅色模式
@@ -227,8 +227,8 @@
 
           <div
             class="dark-mode"
-            :class="currentTheme === 'dark' && 'selected'"
-            v-show="!systemMode"
+            :class="currentTheme.value === 'dark' && 'selected'"
+            v-show="!currentSystemMode.value"
             @click="toggleTheme('dark')"
           >
             深色模式
@@ -237,7 +237,7 @@
           <div class="switch">
             <span class="system-mode">跟随系统</span>
             <el-switch
-              v-model="systemMode"
+              v-model="currentSystemMode.value"
               style="
                 --el-switch-on-color: rgba(66, 194, 140, 1);
                 --el-switch-off-color: rgba(229, 231, 235, 1);
@@ -259,7 +259,12 @@
 <script>
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { freelogApp } from "freelog-runtime";
-import { currentTheme, toggleTheme } from "@/utils/theme-manager";
+import {
+  currentTheme,
+  toggleTheme,
+  currentSystemMode,
+  setSystemModeStatus
+} from "@/utils/theme-manager";
 
 export default {
   name: "my-header",
@@ -278,7 +283,7 @@ export default {
       ],
       currentTheme,
       toggleTheme,
-      systemMode: JSON.parse(localStorage.getItem("podcast-systemMode") || "false"),
+      currentSystemMode
     };
   },
 
@@ -449,11 +454,11 @@ export default {
     /** 注册 */
     register() {
       const url = freelogApp.getCurrentUrl();
-        const mainUrl = url.split("?")[0]
-        const reg = /\.([^.]*)\.com/
-        const domain = reg.exec(mainUrl)
-        const domainName = domain ? domain[1] : "freelog"
-        window.open(`https://user.${domainName}.com/logon`);
+      const mainUrl = url.split("?")[0];
+      const reg = /\.([^.]*)\.com/;
+      const domain = reg.exec(mainUrl);
+      const domainName = domain ? domain[1] : "freelog";
+      window.open(`https://user.${domainName}.com/logon`);
     },
 
     /** 搜索 */
@@ -500,9 +505,9 @@ export default {
         const mode = isDarkMode ? "dark" : "light";
         toggleTheme(mode);
 
-        localStorage.setItem("podcast-systemMode", JSON.stringify(true));
+        setSystemModeStatus(true);
       } else {
-        localStorage.setItem("podcast-systemMode", JSON.stringify(false));
+        setSystemModeStatus(false);
       }
     }
   }

@@ -28,8 +28,14 @@ const routes = [
   {
     path: "/album-list",
     name: "album-list",
-    component: () => import("../views/album-list/index.vue"),
-    meta: { keepAlive: true }
+    component: () => import("../views/album-list/index.vue")
+    // meta: { keepAlive: true }
+  },
+  {
+    path: "/play-list",
+    name: "play-list",
+    component: () => import("../views/play-list/index.vue")
+    // meta: { keepAlive: true }
   },
   {
     path: "/detail",
@@ -37,10 +43,15 @@ const routes = [
     component: () => import("../views/detail/index.vue")
   },
   {
+    path: "/play-detail",
+    name: "play-detail",
+    component: () => import("../views/play-detail/index.vue")
+  },
+  {
     path: "/collection-list",
     name: "collection-list",
-    component: () => import("../views/collection/index.vue"),
-    meta: { keepAlive: true }
+    component: () => import("../views/collection/index.vue")
+    // meta: { keepAlive: true }
   },
   {
     path: "/signed-list",
@@ -51,8 +62,8 @@ const routes = [
   {
     path: "/search-list",
     name: "search-list",
-    component: () => import("../views/search-list/index.vue"),
-    meta: { keepAlive: true }
+    component: () => import("../views/search-list/index.vue")
+    // meta: { keepAlive: true }
   },
   {
     path: "/:pathMatch(.*)",

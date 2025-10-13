@@ -26,7 +26,7 @@ export const collection_item_title_empty = "collection_item_title_empty";
 
     collection_item_title_sn: 显示为连载编号
 
-    collection_item_title: 自定义
+    collection_item_title_custom: 自定义
 
     collection_item_title_empty: 不显示
 

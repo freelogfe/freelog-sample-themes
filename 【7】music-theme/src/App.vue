@@ -14,7 +14,7 @@ interface SafariTouchEvent extends TouchEvent {
 }
 
 const store = useGlobalStore();
-const { inMobile } = storeToRefs(store);
+const { inMobile, maskLoading } = storeToRefs(store);
 
 window.addEventListener(
   "touchmove",
@@ -28,7 +28,7 @@ window.addEventListener(
 </script>
 
 <template>
-  <div id="music-theme" :class="{ pc: inMobile === false, mobile: inMobile }">
+  <div id="music-theme" :class="{ pc: inMobile === false, mobile: inMobile }" v-if="!maskLoading">
     <div class="page-wrapper">
       <FreelogHeader />
       <router-view v-slot="{ Component }">
@@ -54,6 +54,7 @@ window.addEventListener(
     <FreelogThemeEntrance />
     <FreelogShare />
   </div>
+  <div style="width: 100vw; height: 100vh" v-loading="maskLoading" v-else></div>
 </template>
 
 <style lang="less">

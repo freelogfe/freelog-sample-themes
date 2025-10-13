@@ -22,13 +22,14 @@ import { useGlobalStore } from "@/store/global";
 
 const props = defineProps<{
   hasHeader: boolean;
+  isRecommend?: boolean;
   data: Exhibit[];
 }>();
 const route = useRoute();
 const router = useRouter();
 const store = useGlobalStore();
 const albumData = ref<Exhibit[]>(
-  props.data.sort((a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime())
+  props.data?.sort((a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime())
 );
 const collectionData = ref<Exhibit[]>([]);
 const dropVisible = ref<boolean>(false);
@@ -66,7 +67,29 @@ const playOrPause = async item => {
   const { playingInfo } = store;
 
   if (item.defaulterIdentityType === 4) {
-    useMyAuth.getAuth(item);
+    const authResult = await freelogApp.addAuth(item.exhibitId, { immediate: true });
+    const { status } = authResult;
+    if (status === 0) {
+      collectionData.value = [];
+      item.defaulterIdentityType = 0;
+      await getCollectionList({
+        exhibitId: item.exhibitId,
+        exhibitName: item.exhibitName,
+        coverImages: item.coverImages
+      });
+
+      // 默认播放第一首符合条件的歌曲，其余的全部加入播放列表
+      const playableTracks = collectionData.value.filter(i => i.defaulterIdentityType === 0);
+      await useMyPlay.playOrPause(playableTracks[0], "normal");
+
+      setTimeout(async () => {
+        await useMyPlay.addToPlayList({
+          exhibitId: item.exhibitId,
+          type: "PLAY_ALBUM_ADD_TO_PLAYLIST"
+        });
+      }, 0);
+    }
+
     return;
   }
 
@@ -111,7 +134,7 @@ const getCollectionList = async (obj: {
   exhibitName: string;
   coverImages: string[];
 }) => {
-  const subList = await freelogApp.getCollectionSubList(obj.exhibitId, {
+  const subList = await freelogApp.getCollectionSubListByPage(obj.exhibitId, {
     skip: subSkip,
     limit: 1_000,
     isShowDetailInfo: 1
@@ -121,7 +144,7 @@ const getCollectionList = async (obj: {
 
   if (dataList.length !== 0) {
     const ids = dataList.map((item: any) => item.itemId).join();
-    const statusInfo = await (freelogApp as any).getCollectionSubAuth(obj.exhibitId, {
+    const statusInfo = await (freelogApp as any).getCollectionSubAuthStatus(obj.exhibitId, {
       itemIds: ids
     });
 
@@ -187,13 +210,24 @@ onBeforeUnmount(() => {
   <div class="pc-album-wrap" v-if="!store.inMobile">
     <!-- 专辑头部 -->
     <div class="album-header-box" v-if="props.hasHeader">
-      <span class="title">专辑</span>
-      <div class="more" @click="router.myPush({ path: '/album-list' })">
-        所有专辑
-        <div class="more-icon">
-          <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
+      <template v-if="!props.isRecommend">
+        <span class="title">专辑</span>
+        <div class="more" @click="router.myPush({ path: '/album-list' })">
+          所有专辑
+          <div class="more-icon">
+            <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
+          </div>
         </div>
-      </div>
+      </template>
+      <template v-else>
+        <span class="title recommend">更多专辑</span>
+        <div class="more recommend" @click="router.myPush({ path: '/album-list' })">
+          所有专辑
+          <div class="more-icon">
+            <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
+          </div>
+        </div>
+      </template>
     </div>
     <div v-if="route.name === 'album-list'">
       <!-- 最新发布 | 最早发布 -->
@@ -241,12 +275,16 @@ onBeforeUnmount(() => {
       </div>
     </div>
     <!-- 专辑内容 -->
-    <div class="album-content-box" v-if="albumData.length">
+    <div class="album-content-box" v-if="albumData?.length">
       <div
         class="content-item"
         v-for="(item, index) in albumData"
         :key="index"
-        @click="router.myPush({ path: '/detail', query: { id: item.exhibitId } })"
+        @click="
+          () => {
+            router.myPush({ path: '/detail', query: { id: item.exhibitId } });
+          }
+        "
       >
         <div class="info-box">
           <div class="cover-image">
@@ -302,21 +340,30 @@ onBeforeUnmount(() => {
             </div>
 
             <div class="desc">
+              <div class="author-name">
+                <span>{{ item.articleInfo?.articleOwnerName }}</span>
+              </div>
               <div class="time-box">
-                <div class="icon">
+                <!-- <div class="icon">
                   <img :src="currentTheme === 'light' ? DarkTimeIcon : TimeIcon" alt="更新时间" />
-                </div>
+                </div> -->
                 <span class="time">{{
-                  absoluteTime(item?.versionInfo?.exhibitProperty?.release_date || item.createDate)
+                  absoluteTime(
+                    item?.versionInfo?.exhibitProperty?.release_date ||
+                      item?.articleInfo?.versions?.[0]?.createDate ||
+                      item.createDate
+                  )
                 }}</span>
               </div>
 
-              <div class="album-box">
+              <!-- <div class="album-box">
                 <div class="icon">
                   <img :src="currentTheme === 'light' ? DarkAlbumIcon : AlbumIcon" alt="专辑" />
                 </div>
-                <span class="album">{{ item.signCount }}</span>
-              </div>
+                <span class="album">{{
+                  item?.collectionList?.totalItem || item?.totalItem || 0
+                }}</span>
+              </div> -->
             </div>
           </div>
         </div>
@@ -329,13 +376,24 @@ onBeforeUnmount(() => {
   <div class="mobile-album-wrap" v-else>
     <!-- 专辑头部 -->
     <div class="album-header-box" v-if="props.hasHeader">
-      <span class="title">专辑</span>
-      <div class="more" @click="router.myPush({ path: '/album-list' })">
-        所有专辑
-        <div class="more-icon">
-          <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
+      <template v-if="!props.isRecommend">
+        <span class="title">专辑</span>
+        <div class="more" @click="router.myPush({ path: '/album-list' })">
+          所有专辑
+          <div class="more-icon">
+            <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
+          </div>
         </div>
-      </div>
+      </template>
+      <template v-else>
+        <span class="title">更多专辑</span>
+        <div class="more" @click="router.myPush({ path: '/album-list' })">
+          所有专辑
+          <div class="more-icon">
+            <img :src="currentTheme === 'light' ? DarkMoreIcon : MoreIcon" alt="更多" />
+          </div>
+        </div>
+      </template>
     </div>
 
     <!-- 专辑内容 -->
@@ -394,12 +452,14 @@ onBeforeUnmount(() => {
                 }}</span>
               </div>
 
-              <div class="album-box">
+              <!-- <div class="album-box">
                 <div class="icon">
                   <img :src="currentTheme === 'light' ? DarkAlbumIcon : AlbumIcon" alt="专辑" />
                 </div>
-                <span class="album">{{ item.signCount }}</span>
-              </div>
+                <span class="album">{{
+                  item?.collectionList?.totalItem || item?.totalItem || 0
+                }}</span>
+              </div> -->
             </div>
           </div>
         </div>
@@ -413,7 +473,7 @@ onBeforeUnmount(() => {
 // PC
 .pc-album-wrap {
   width: 100%;
-  padding-bottom: 100px;
+  padding-bottom: 60px;
   box-sizing: border-box;
 
   .album-header-box {
@@ -427,6 +487,10 @@ onBeforeUnmount(() => {
       color: var(--text-color);
       line-height: 28px;
       opacity: 0.8;
+
+      &.recommend {
+        opacity: 0.6;
+      }
     }
 
     .more {
@@ -438,6 +502,10 @@ onBeforeUnmount(() => {
       opacity: 0.8;
       line-height: 20px;
       cursor: pointer;
+
+      &.recommend {
+        opacity: 0.6;
+      }
 
       &:hover {
         opacity: 1;
@@ -656,6 +724,10 @@ onBeforeUnmount(() => {
             line-height: 20px;
             opacity: 0.8;
             cursor: pointer;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 200px;
 
             &:hover {
               color: #44d7b6;
@@ -665,9 +737,19 @@ onBeforeUnmount(() => {
         }
 
         .desc {
-          margin-top: 10px;
+          margin-top: 5px;
           display: flex;
+          flex-direction: column;
           // opacity: 0.4;
+
+          .author-name {
+            font-weight: 400;
+            font-size: 12px;
+            color: var(--text-color);
+            line-height: 18px;
+            opacity: 0.4;
+            margin-bottom: 5px;
+          }
 
           .time-box,
           .album-box {
@@ -765,7 +847,7 @@ onBeforeUnmount(() => {
 
   .album-content-box {
     display: flex;
-    gap: 30px;
+    // gap: 30px;
     overflow-x: scroll;
     /* 隐藏滚动条 */
     scrollbar-width: none; /* firefox */
@@ -853,6 +935,10 @@ onBeforeUnmount(() => {
             line-height: 20px;
             opacity: 0.8;
             cursor: pointer;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 180px;
 
             &:hover {
               color: #44d7b6;

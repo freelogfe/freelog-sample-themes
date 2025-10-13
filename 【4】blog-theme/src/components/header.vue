@@ -81,10 +81,35 @@
               <div
                 class="btn"
                 :class="{ active: route.path === '/home' }"
-                @click="route.path !== '/home' && switchPage('/home');userBoxShow = false;"
+                @click="
+                  route.path !== '/home' && switchPage('/home');
+                  userBoxShow = false;
+                "
               >
                 <i class="freelog fl-icon-shouye"></i>
                 <div class="btn-label">首页</div>
+              </div>
+              <div
+                class="btn"
+                :class="{ active: route.path === '/blog' }"
+                @click="
+                  switchPage('/blog');
+                  userBoxShow = false;
+                "
+              >
+                <i class="freelog fl-icon-tuwen"></i>
+                <div class="btn-label">所有文章</div>
+              </div>
+              <div
+                class="btn"
+                :class="{ active: route.path === '/column' }"
+                @click="
+                  switchPage('/column');
+                  userBoxShow = false;
+                "
+              >
+                <i class="freelog fl-icon-bokezhuanlan"></i>
+                <div class="btn-label">专栏</div>
               </div>
               <div
                 class="btn"
@@ -183,8 +208,17 @@
           @click="switchPage('/')"
           v-else
         />
-        
-        <!-- <div class="nav-btn" @click="switchPage('/')">首页</div> -->
+
+        <div class="nav-btn-wrapper">
+          <div
+            v-for="item in menuBtnList"
+            :key="item.label"
+            :class="`nav-btn ${$route.path === item.path && 'active'}`"
+            @click="switchPage(item.path)"
+          >
+            {{ item.label }}
+          </div>
+        </div>
 
         <!-- 搜索框 -->
         <div class="search-box">
@@ -309,6 +343,21 @@ export default {
       searchWordCatch: null as number | null
     });
 
+    const menuBtnList = [
+      {
+        label: "首页",
+        path: "/home"
+      },
+      {
+        label: "所有文章",
+        path: "/blog"
+      },
+      {
+        label: "专栏",
+        path: "/column"
+      }
+    ];
+
     const inMobile = computed(() => {
       return store.state.inMobile;
     });
@@ -411,10 +460,10 @@ export default {
       /** 注册 */
       register() {
         const url = freelogApp.getCurrentUrl();
-        const mainUrl = url.split("?")[0]
-        const reg = /\.([^.]*)\.com/
-        const domain = reg.exec(mainUrl)
-        const domainName = domain ? domain[1] : "freelog"
+        const mainUrl = url.split("?")[0];
+        const reg = /\.([^.]*)\.com/;
+        const domain = reg.exec(mainUrl);
+        const domainName = domain ? domain[1] : "freelog";
         window.open(`https://user.${domainName}.com/logon`);
       }
     };
@@ -478,7 +527,8 @@ export default {
       clearHistory,
       ...toRefs(data),
       ...methods,
-      locationHistory
+      locationHistory,
+      menuBtnList
     };
   }
 };

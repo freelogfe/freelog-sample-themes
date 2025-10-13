@@ -20,6 +20,7 @@ declare module 'vue' {
     List: typeof import('./src/components/list.vue')['default']
     MobileAlbum: typeof import('./src/components/mobile-album.vue')['default']
     Player: typeof import('./src/components/player.vue')['default']
+    PlayList: typeof import('./src/components/play-list.vue')['default']
     PlayStatus: typeof import('./src/components/play-status.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
@@ -27,5 +28,8 @@ declare module 'vue' {
     ThemeEntrance: typeof import('./src/components/theme-entrance.vue')['default']
     Tooltip: typeof import('./src/components/tooltip.vue')['default']
     Voice: typeof import('./src/components/voice.vue')['default']
+  }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
   }
 }

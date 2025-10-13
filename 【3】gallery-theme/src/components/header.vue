@@ -11,11 +11,7 @@
     <div class="header-top" :class="{ logon: userData.isLogin }">
       <img
         class="logo"
-        :src="
-          selfConfig.options_logoImage ||
-          selfConfig.logoImage ||
-          require('../assets/images/logo.png')
-        "
+        :src="require('../assets/images/logo.png')"
         referrerpolicy="no-referrer"
         @click="switchPage('/')"
         v-if="homeHeader"
@@ -185,17 +181,20 @@
   <div class="header-wrapper" v-if="!inMobile">
     <div class="header-top">
       <div class="header-top-left">
-        <!-- logo -->
-        <img
+        <div
           class="logo"
-          :src="
-            selfConfig.options_logoImage ||
-            selfConfig.logoImage ||
-            require('../assets/images/logo.png')
-          "
+          v-if="hasLogo"
+          :style="{ backgroundImage: `url(${nodeLogo})` }"
           @click="switchPage('/')"
-        />
+        ></div>
 
+        <!-- 当节点未设置logo时，显示节点名称 -->
+        <div class="logo-text" v-else :title="nodeTitle" @click="switchPage('/home')">
+          {{ nodeTitle }}
+        </div>
+      </div>
+
+      <div class="header-top-middle">
         <!-- 搜索框 -->
         <div class="search-box">
           <input
@@ -290,19 +289,13 @@
     <template v-if="homeHeader">
       <!-- 节点信息 -->
       <div class="header-node-info">
-        <div class="node-avatar">
-          <img
-            :src="nodeLogo || require('../assets/images/default-avatar.png')"
-            alt="节点头像"
-            class="avatar-img"
-          />
+        <div class="node-theme">
+          <img v-if="selfConfig.options_theme === '光晕'" src="../assets/images/guangyun.jpg" />
+          <img v-if="selfConfig.options_theme === '梦幻'" src="../assets/images/menghuan.jpg" />
+          <img v-if="selfConfig.options_theme === '科技'" src="../assets/images/keji.jpg" />
         </div>
-
-        <div class="info-content">
-          <div class="title-signcount">
-            <div class="node-title" :title="nodeTitle">{{ nodeTitle }}</div>
-            <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
-          </div>
+        <div class="node-content">
+          <div class="node-title" :title="nodeTitle">{{ nodeTitle }}</div>
           <div class="node-desc" :title="nodeShortDescription">{{ nodeShortDescription }}</div>
         </div>
       </div>
@@ -345,6 +338,10 @@ export default {
     const mySearchHistory = computed(() =>
       searchHistory.value.filter(item => item.includes(data.searchKey))
     );
+
+    const hasLogo = computed(() => {
+      return !!nodeInfo?.nodeLogo;
+    });
 
     const data = reactive({
       signCount: 0,
@@ -441,10 +438,10 @@ export default {
       /** 注册 */
       register() {
         const url = freelogApp.getCurrentUrl();
-        const mainUrl = url.split("?")[0]
-        const reg = /\.([^.]*)\.com/
-        const domain = reg.exec(mainUrl)
-        const domainName = domain ? domain[1] : "freelog"
+        const mainUrl = url.split("?")[0];
+        const reg = /\.([^.]*)\.com/;
+        const domain = reg.exec(mainUrl);
+        const domainName = domain ? domain[1] : "freelog";
         window.open(`https://user.${domainName}.com/logon`);
       }
     };
@@ -505,7 +502,8 @@ export default {
       deleteWord,
       clearHistory,
       ...toRefs(data),
-      ...methods
+      ...methods,
+      hasLogo
     };
   }
 };

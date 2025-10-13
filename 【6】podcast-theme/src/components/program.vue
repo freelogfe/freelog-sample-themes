@@ -44,15 +44,31 @@
           class="single freelog fl-icon-bokebiaoqian_danji"
           :class="{ 'opacity-40': authLinkAbnormal }"
         ></div>
-        
-        <div v-else class="multiple" :class="{ 'opacity-40': authLinkAbnormal }">
+
+        <div
+          v-else-if="data.articleInfo.articleType === 2"
+          class="multiple"
+          :class="{ 'opacity-40': authLinkAbnormal }"
+        >
           <span
             class="ing freelog fl-icon-bokebiaoqian_lianzaizhong"
             v-if="data.articleInfo.serializeStatus === 0"
           ></span>
           <span class="end freelog fl-icon-bokebiaoqian_yiwanjie" v-else></span>
         </div>
-        <div class="title-txt" :class="{ 'opacity-40': authLinkAbnormal }" @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })">
+
+        <div
+          v-else-if="data.articleInfo.articleType === 3"
+          class="multiple bodan"
+          :class="{ 'opacity-40': authLinkAbnormal }"
+        >
+          <span class="ing freelog fl-icon-bokebiaoqian_bodan"></span>
+        </div>
+        <div
+          class="title-txt"
+          :class="{ 'opacity-40': authLinkAbnormal }"
+          @click="$router.myPush({ path: '/detail', query: { id: data.exhibitId } })"
+        >
           {{ data.exhibitTitle }}
         </div>
       </div>
@@ -62,7 +78,10 @@
           <i class="freelog fl-icon-gengxinshijian"></i>
           <div class="item-value">{{ data.updateDate | relativeTime }}</div>
         </div>
-        <div class="info-item" v-if="data.articleInfo && data.articleInfo.articleType === 2">
+        <div
+          class="info-item"
+          v-if="data.articleInfo && [2, 3].includes(data.articleInfo.articleType)"
+        >
           <i class="freelog fl-icon-danji"></i>
           <div class="item-value">{{ data.totalItem || 0 }}</div>
         </div>
@@ -80,7 +99,7 @@
 import { freelogApp } from "freelog-runtime";
 import { useMyPlay, useMyAuth } from "@/utils/hooks";
 import playStatus from "@/components/play-status";
-import { supportAudio, unSupportAudioIOS } from "@/api/data"
+import { supportAudio, unSupportAudioIOS } from "@/api/data";
 import { showToast } from "../utils/common";
 
 export default {
@@ -105,14 +124,14 @@ export default {
   computed: {
     ifSupportMime() {
       const supportMimeList = supportAudio;
-      const isIOS = this.$store.state.isIOS
+      const isIOS = this.$store.state.isIOS;
 
-      if (this.data.articleInfo.articleType === 2) {
-        return this.data.articleInfo.resourceType[0] === '音频'
+      if ([2, 3].includes(this.data.articleInfo.articleType)) {
+        return this.data.articleInfo.resourceType[0] === "音频";
       } else {
-        const mime = this.data.versionInfo.exhibitProperty.mime
+        const mime = this.data.versionInfo.exhibitProperty.mime;
         if (isIOS) {
-          return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime)
+          return supportMimeList.includes(mime) && !unSupportAudioIOS.includes(mime);
         }
         return supportMimeList.includes(mime);
       }
@@ -130,7 +149,7 @@ export default {
   watch: {
     data: {
       handler(newData) {
-        if (newData.articleInfo.articleType === 2) {
+        if ([2, 3].includes(newData.articleInfo.articleType)) {
           this.getListInCollection(newData.exhibitId);
         }
       },
@@ -145,8 +164,8 @@ export default {
     async playOrPause() {
       // 检查是否是可播放的格式
       if (!this.ifSupportMime) {
-        showToast("此作品格式暂不支持访问")
-        return
+        showToast("此作品格式暂不支持访问");
+        return;
       }
 
       if (this.data.articleInfo.articleType === 1) {
@@ -182,7 +201,6 @@ export default {
 }
 .program-wrapper {
   .inner-program-wrapper {
-
     &.in-mobile {
       .cover-area {
         opacity: 1;
@@ -199,8 +217,8 @@ export default {
       position: relative;
       width: 210px;
       height: 210px;
-      background: #222;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      // background: #222;
+      border: 1px solid var(--border-color);
       box-sizing: border-box;
       border-radius: 10px;
       display: flex;
@@ -264,7 +282,7 @@ export default {
           width: 50px;
           height: 50px;
           border-radius: 50%;
-          background:var(--text-fourth-color);
+          background: var(--text-fourth-color);
           backdrop-filter: blur(1px);
           display: flex;
           align-items: center;
@@ -277,7 +295,7 @@ export default {
           }
 
           &:active {
-            background:var(--text-fourth-color);
+            background: var(--text-fourth-color);
           }
 
           .freelog {
@@ -339,7 +357,7 @@ export default {
         height: 20px;
         font-weight: 600;
         font-size: 14px;
-        color: var(--text-other-color);
+        color: var(--text-color);
         line-height: 20px;
         text-align: left;
         cursor: pointer;
@@ -357,7 +375,7 @@ export default {
       }
       .lock {
         font-size: 16px;
-        color:var(--text-eighth-color);
+        color: var(--text-eighth-color);
         margin-right: 5px;
         cursor: pointer;
       }
@@ -369,7 +387,7 @@ export default {
       .info-item {
         display: flex;
         align-items: center;
-        color:var(--text-fourth-color);
+        color: var(--text-color);
 
         & + .info-item {
           margin-left: 20px;
@@ -383,6 +401,7 @@ export default {
           font-size: 12px;
           line-height: 18px;
           margin-left: 5px;
+          opacity: 0.6;
         }
 
         .progress {

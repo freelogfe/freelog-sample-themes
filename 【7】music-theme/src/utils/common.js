@@ -171,3 +171,18 @@ export const showToast = msg => {
 export const getAssetsFile = url => {
   return new URL(`../assets/images/${url}`, import.meta.url).href;
 };
+
+export const sleep = duration => {
+  return new Promise((resolve, reject) => {
+    setTimeout(resolve, duration);
+  });
+};
+
+// 修复ios的safari浏览器, 软键盘将页面顶到安全区域外的问题(方式一)
+export const scrollIntoView = () => {
+  const headerWrapper = document.getElementById("headerWrapper");
+  headerWrapper.scrollIntoView({
+    block: "end",
+    behavior: "smooth"
+  });
+};

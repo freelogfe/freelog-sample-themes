@@ -33,7 +33,7 @@
     </div>
 
     <div class="comic-author" :class="{ 'opacity-40p': isDisabled() }">
-      {{ data.articleInfo.articleOwnerName }}
+      {{ data?.versionInfo?.exhibitProperty?.comicCreator || data.articleInfo.articleOwnerName }}
     </div>
   </div>
 
@@ -77,7 +77,7 @@
             alt="未授权"
             v-if="mode !== 3 && data.defaulterIdentityType >= 4"
           />
-          <div
+          <!-- <div
             class="comic-status"
             :class="
               data.articleInfo?.articleType === 1
@@ -86,7 +86,7 @@
                 ? 'on-going'
                 : 'completed'
             "
-          />
+          /> -->
           <div class="comic-name" :class="{ 'opacity-40p': isDisabled() }">
             {{ data.exhibitTitle }}
           </div>
@@ -102,11 +102,60 @@
         </div>
 
         <div class="comic-author" :class="{ 'opacity-40p': isDisabled() }">
-          {{ data.articleInfo.articleOwnerName }}
+          {{
+            data?.versionInfo?.exhibitProperty?.comicCreator || data.articleInfo.articleOwnerName
+          }}
         </div>
 
-        <div class="tags" :class="{ 'opacity-40p': isDisabled() }" v-if="!(mode === 3 && inMobile)">
-          <tags :tags="data.tags" />
+        <div
+          class="tags"
+          :class="{ 'opacity-40p': isDisabled() }"
+          v-if="!(mode === 3 && inMobile) && data.tags.length > 0"
+        >
+          <new-tags :tags="data.tags" hover-color="#5D9191" />
+        </div>
+
+        <div class="update-date" v-if="!inMobile">
+          <div class="detail-latest-box" v-if="data.articleInfo?.articleType === 1">单本</div>
+
+          <div class="detail-latest-box" v-else-if="data.articleInfo?.serializeStatus === 0">
+            <div class="on-going">连载中</div>
+
+            <div class="update-count">更新至{{ data?.collectionList?.totalItem }}话</div>
+
+            <div
+              class="latest-comic"
+              :title="data?.collectionList?.dataList?.[0]?.itemTitle"
+              @click.stop="
+                switchPage('/reader', {
+                  id: data?.exhibitId,
+                  collection: true,
+                  subId: data?.collectionList?.dataList?.[0]?.itemId
+                })
+              "
+            >
+              最近更新：{{ data?.collectionList?.dataList?.[0]?.itemTitle }}
+            </div>
+          </div>
+
+          <div class="detail-latest-box" v-else-if="data.articleInfo?.serializeStatus === 1">
+            <div class="completed">已完结</div>
+
+            <div class="update-count">共 {{ data?.collectionList?.totalItem }} 话</div>
+            <div
+              class="latest-comic"
+              :title="data?.collectionList?.dataList?.[0]?.itemTitle"
+              @click.stop="
+                switchPage('/reader', {
+                  id: data?.exhibitId,
+                  collection: true,
+                  subId: data?.collectionList?.dataList?.[0]?.itemId
+                })
+              "
+            >
+              最近更新：{{ data?.collectionList?.dataList?.[0]?.itemTitle }}
+            </div>
+          </div>
         </div>
 
         <div
@@ -131,8 +180,7 @@
           disabled:
             data.articleInfo?.status === 2 ||
             data.onlineStatus === 0 ||
-            ![0, 4].includes(data.defaulterIdentityType) ||
-            !['阅读'].includes(data.articleInfo?.resourceType[0])
+            ![0, 4].includes(data.defaulterIdentityType)
         }"
         @click.stop="toPath('/detail')"
         v-if="[2, 3].includes(mode)"
@@ -159,7 +207,8 @@ export default {
   name: "comic",
 
   components: {
-    tags: defineAsyncComponent(() => import("../components/tags.vue"))
+    // tags: defineAsyncComponent(() => import("../components/tags.vue")),
+    "new-tags": defineAsyncComponent(() => import("../components/new-tags.vue"))
   },
 
   // mode: 1-默认首页 2-收藏 3-签约记录 4-移动端首页收藏
@@ -220,7 +269,8 @@ export default {
     return {
       ...toRefs(store.state),
       ...methods,
-      formatDate
+      formatDate,
+      switchPage
     };
   }
 };
@@ -439,8 +489,74 @@ export default {
 
       .tags {
         margin-top: 12px;
-        height: 24px;
+        height: 18px;
         overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        width: 100%;
+      }
+
+      .update-date {
+        font-size: 12px;
+        line-height: 18px;
+        height: 18px;
+        color: #999999;
+        margin-top: 10px;
+
+        .detail-latest-box {
+          display: flex;
+          align-items: center;
+
+          .on-going {
+            font-weight: 600;
+            font-size: 12px;
+            color: #42c28c;
+            line-height: 18px;
+            // margin-right: 10px;
+          }
+
+          .completed {
+            font-weight: 600;
+            font-size: 12px;
+            color: #e9a923;
+            line-height: 18px;
+            // margin-right: 10px;
+          }
+
+          .completed::after,
+          .on-going::after {
+            content: "";
+            width: 1px;
+            height: 10px;
+            background: #000000;
+            opacity: 0.1;
+            display: inline-block;
+            margin: 0 5px;
+          }
+
+          .update-count::after {
+            content: "";
+            width: 1px;
+            height: 10px;
+            background: #000000;
+            opacity: 0.1;
+            display: inline-block;
+            margin: 0 5px;
+          }
+
+          .latest-comic {
+            // margin-right: 10px;
+            // width: 35%;
+            flex: 1;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+
+            &:hover {
+              color: #e7949f;
+            }
+          }
+        }
       }
     }
   }
@@ -514,11 +630,11 @@ export default {
   &.in-pc {
     border-radius: 6px;
     padding: 10px;
-    background: linear-gradient(90deg, rgba(0, 0, 0, 0.04) 0%, rgba(255, 255, 255, 0.1) 100%);
+    background: rgba(0, 0, 0, 0.02);
     cursor: pointer;
 
     &:hover {
-      background: linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0%, rgba(255, 255, 255, 0.1) 100%);
+      background: rgba(0, 0, 0, 0.06);
     }
 
     .comic-cover-box {
@@ -532,17 +648,26 @@ export default {
     }
 
     .btn {
-      height: 38px;
       padding: 0 20px;
+      width: 120px;
+      height: 46px;
       border-radius: 4px;
       font-size: 14px;
       font-weight: bold;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-sizing: border-box;
 
       &.last-btn {
-        margin-left: 15px;
+        margin: 0 10px;
+        background: rgba(0, 0, 0, 0.05);
+        color: rgba(0, 0, 0, 0.6);
+
+        &:hover {
+          background: rgba(0, 0, 0, 0.1);
+          opacity: 1;
+        }
       }
 
       &.assist-btn {

@@ -1,4 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback, useRef } from "react";
+import { freelogApp } from "freelog-runtime";
 import { useLocation } from "react-router-dom";
 import { globalContext } from "../../router";
 import { getUrlParams } from "../../utils/common";
@@ -24,7 +25,7 @@ export const CatalogueModal = (props: {
   const { inMobile } = useContext(globalContext);
   const id = book?.exhibitId;
 
-  const { scrollTop, clientHeight, scrollHeight, scrollToTop } = useMyScroll();
+  const { scrollTop, clientHeight, scrollHeight, scrollToTop } = useMyScroll("catalogue-box-body");
   const history = useMyHistory();
   const location = useLocation();
   const { subId } = getUrlParams(location.search);
@@ -34,30 +35,113 @@ export const CatalogueModal = (props: {
       ? "desc"
       : "asc"
   );
+  const [historyNovelData, setHistoryNovelData] = useState<any[]>([]);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   /**
    * 切换正序，倒序
    */
   const handleSort = () => {
-    // 切换排序顺序
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    updateSort && updateSort(sortOrder === "asc" ? "desc" : "asc");
+  };
+
+  /** 获取合集的倒序内容 */
+  const getCollectionListBySortTypeDesc = async () => {
+    const novelViewedResponse = await freelogApp.getUserData("novelViewedHistory");
+    setHistoryNovelData(novelViewedResponse?.data?.data || []);
+  };
+
+  // 防抖处理滚动加载
+  const handleScrollLoad = useCallback(() => {
+    if (isLoadingMore || collectionList.length >= total) {
+      return;
+    }
+
+    setIsLoadingMore(true);
+    getCollectionList();
+
+    // 清理之前的定时器
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    // 设置一个延迟来重置加载状态，防止过快的连续请求
+    timeoutRef.current = setTimeout(() => {
+      setIsLoadingMore(false);
+      timeoutRef.current = null;
+    }, 500);
+  }, [isLoadingMore, collectionList.length, total, getCollectionList]);
+
+  // 记录用户阅读历史
+  const handleReaderHistory = async (item: any) => {
+    const newHistoryNovelData = [...(historyNovelData || [])];
+    const existingIndex = newHistoryNovelData.findIndex((i: any) => i.id === id);
+
+    if (existingIndex !== -1) {
+      const existingNovel = newHistoryNovelData[existingIndex];
+
+      // 确保info是一个数组
+      if (!Array.isArray(existingNovel.info)) {
+        existingNovel.info = existingNovel.info ? [existingNovel.info] : [];
+      }
+
+      // 检查当前章节是否已存在于记录中（只比较itemId）
+      const existingChapters = existingNovel.info.filter((chapter: any) => {
+        return chapter.itemId === item.itemId;
+      });
+
+      if (existingChapters.length > 0) {
+        // 如果章节已存在，删除所有相同itemId的旧数据
+        existingNovel.info = existingNovel.info.filter((chapter: any) => {
+          return chapter.itemId !== item.itemId;
+        });
+      }
+
+      // 添加新数据
+      existingNovel.info.push(item);
+
+      // 更新历史记录
+      newHistoryNovelData[existingIndex] = existingNovel;
+    } else {
+      // 如果漫画ID不存在，创建新记录，将info设为数组
+      newHistoryNovelData.push({
+        id,
+        info: [item]
+      });
+    }
+
+    setHistoryNovelData(newHistoryNovelData);
+    await freelogApp.setUserData("novelViewedHistory", newHistoryNovelData);
   };
 
   useEffect(() => {
-    updateSort && updateSort(sortOrder);
-  }, [sortOrder]);
-
-  useEffect(() => {
-    if (scrollTop + clientHeight === scrollHeight) {
-      getCollectionList();
+    if (scrollTop + clientHeight + 1 >= scrollHeight) {
+      handleScrollLoad();
     }
-  }, [scrollTop, clientHeight, scrollHeight]);
+  }, [scrollTop, clientHeight, scrollHeight, handleScrollLoad]);
+
+  // 在组件初始化时获取历史数据
+  useEffect(() => {
+    getCollectionListBySortTypeDesc();
+  }, []);
+
+  // 清理定时器
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <React.Fragment>
       <div className="catalogue-modal" onClick={closeCatalogueModal}></div>
 
       <div
+        id="catalogue-box-body"
         className={`catalogue-box-body ${!inMobile && "pc"}`}
         onClick={e => {
           e.stopPropagation();
@@ -84,7 +168,8 @@ export const CatalogueModal = (props: {
                 <div
                   className={`sub ${collectionItem.itemId === subId && "selected"}`}
                   key={collectionItem.itemId}
-                  onClick={() => {
+                  onClick={async () => {
+                    await handleReaderHistory(collectionItem);
                     inMobile
                       ? history.replacePage(
                           `/reader?collection=${true}&id=${id}&subId=${collectionItem.itemId}`
@@ -107,7 +192,7 @@ export const CatalogueModal = (props: {
                   ) : collectionItem.defaulterIdentityType === 4 ? (
                     <img className="sub-lock" src={Lock} alt="未授权" />
                   ) : (
-                    inMobile && <img src={RightArrow} />
+                    inMobile && <img src={RightArrow} alt="右箭头" />
                   )}
                 </div>
               );

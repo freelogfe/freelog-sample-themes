@@ -193,7 +193,6 @@ import {
 import { useStore } from "vuex";
 import { useGetList, useMyRouter, useMyScroll, useMyShelf } from "@/utils/hooks";
 import { State } from "@/store/index";
-
 export default {
   name: "home",
 

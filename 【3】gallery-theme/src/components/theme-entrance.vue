@@ -12,7 +12,10 @@
     @click="toTheme()"
   >
     <i class="freelog fl-icon-shiyongzhuti text-center"></i>
-    <div class="text">{{ themeEntrance.label }}</div>
+    <div class="text-wrapper">
+      <div class="text">{{ themeEntrance.label }}</div>
+      <div class="text2">官方示例主题，可免费使用</div>
+    </div>
   </div>
 </template>
 
@@ -47,16 +50,16 @@ export default {
 <style lang="scss" scoped>
 .theme-entrance-wrapper {
   position: fixed;
-  top: calc((100% - 80px) / 5 * 2);
-  right: 0;
-  width: 100px;
-  height: 80px;
-  padding: 15px 10px;
+  bottom: 30px;
+  right: 30px;
+  width: 250px;
+  height: 84px;
+  padding: 20px 30px;
   box-sizing: border-box;
-  background: var(--gradientColor);
-  border-radius: 20px 0px 0px 20px;
+  background: linear-gradient(135deg, #b620e0 0%, #ff9e3d 100%);
+  border-radius: 10px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
   color: #fff;
@@ -64,30 +67,48 @@ export default {
   transition: all 0.2s linear;
   display: none !important;
   z-index: 1;
-
-  .freelog {
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .text {
-    font-size: 14px;
-    line-height: 20px;
-  }
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 
   &:hover {
-    opacity: 0.8;
+    transform: translateY(-2px);
   }
 
   &:active {
-    opacity: 0.6;
+    transform: translateY(0);
   }
 
   &.show {
     display: flex !important;
+  }
+
+  .freelog {
+    width: 33px;
+    height: 33px;
+    font-size: 33px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #ffffff;
+  }
+
+  .text-wrapper {
+    .text {
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 600;
+      white-space: nowrap;
+      color: #ffffff;
+    }
+
+    .text2 {
+      font-weight: 400;
+      font-size: 12px;
+      color: #ffffff;
+      line-height: 18px;
+      margin-top: 6px;
+    }
   }
 }
 </style>

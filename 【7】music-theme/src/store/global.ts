@@ -31,6 +31,7 @@ export interface State {
   collectionList: any[] | null;
   playIdList: string[];
   playList: any[] | null;
+  playListLoading: boolean;
   playingInfo: any | null;
   playing: boolean;
   initUrl: string;
@@ -41,6 +42,7 @@ export interface State {
   playMode: string | null;
   playerShowStatus: false;
   theme: ThemeType;
+  maskLoading: boolean;
 }
 
 export const useGlobalStore = defineStore("global", {
@@ -58,6 +60,7 @@ export const useGlobalStore = defineStore("global", {
       collectionList: null, // 收藏列表
       playIdList: [], // 播放列表(id)
       playList: null, // 播放列表
+      playListLoading: false, // 播放列表加载状态
       playingInfo: null, // 播放中的声音信息
       playing: false, // 是否在播放中
       initUrl: "", // 播放器初始化 url（用于解决 IOS 无法异步播放声音问题）
@@ -67,7 +70,8 @@ export const useGlobalStore = defineStore("global", {
       nodeInfo: {},
       playMode: null, // 播放模式，顺序播放、随机播放,
       playerShowStatus: false, // 播放器收起展开状态 false：收起；true:展开
-      theme: currentTheme.value as ThemeType
+      theme: currentTheme.value as ThemeType,
+      maskLoading: false
     };
   },
   getters: {},
@@ -85,12 +89,13 @@ export const useGlobalStore = defineStore("global", {
       const userData = freelogApp.getCurrentUser();
       const [selfConfig, collectionIdListResponse, playingIdResponse, playModeResponse] =
         await Promise.all([
-          freelogApp.getSelfProperty(),
+          freelogApp.getSelfPropertyForTheme(),
           freelogApp.getUserData("collectionIdList"),
           freelogApp.getUserData("playingId"),
           freelogApp.getUserData("playMode")
         ]);
       const collectionIdList = collectionIdListResponse?.data?.data || [];
+      console.log("collectionIdList", collectionIdList);
       const playingId = playingIdResponse?.data?.data;
 
       // 节点信息

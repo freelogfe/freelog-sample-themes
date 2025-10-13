@@ -899,6 +899,25 @@ export default {
 
       data.documentData = documentData;
       data.href = freelogApp.getCurrentUrl();
+
+      // 更新 qq 微信 分享
+      const isWeChatOrQQ = (freelogApp as any).isWeChatOrQQ()
+      if (isWeChatOrQQ) {
+        const { exhibitTitle, exhibitIntro, coverImages } = documentData
+        const defaultImg = "//static.testfreelog.com/static/default_cover.png"
+        let imgUrl = coverImages[0] === defaultImg ? "" : coverImages[0]
+        const fShare = {
+          title: exhibitTitle,
+          desc: exhibitIntro,
+          imgUrl
+        };
+        const qShare = {
+          title: exhibitTitle,
+          imgUrl
+        };
+        (freelogApp as any).updateWechatShare(fShare, qShare)
+      }
+
       await mountShareWidget();
       scrollToTop("auto");
       data.directoryList = [];
@@ -979,7 +998,7 @@ export default {
         container,
         renderWidgetOptions: {
           data: { exhibit: data.documentData, type: "文档", routerType: "content" }
-        }
+        },
         // widget_entry: "https://localhost:8201",
       };
       data.shareWidget = await freelogApp.mountArticleWidget(params);

@@ -1,8 +1,8 @@
-import React, { useContext, useRef, useState, useEffect, useCallback } from "react";
+import React, { useContext, useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { freelogApp } from "freelog-runtime";
 import { globalContext } from "../../router";
 import { Header } from "../../components/header/header";
-import { Tags } from "../../components/tags/tags";
+import { NewTags } from "../../components/tags/new-tags";
 import { Footer } from "../../components/footer/footer";
 import { ThemeEntrance } from "../../components/theme-entrance/theme-entrance";
 import { LoginBtn } from "../../components/login-btn/login-btn";
@@ -11,38 +11,133 @@ import { showToast } from "../../components/toast/toast";
 import { CollectionList, ExhibitItem } from "../../api/interface";
 import { formatDate, getUrlParams, formatWordCount } from "../../utils/common";
 import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
+import { updateWxConfig } from "../../utils/update-wx-share";
 import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
 import Freeze from "../../assets/images/freeze.png";
 import Lock from "../../assets/images/mini-lock.png";
 import RightArrow from "../../assets/images/right-arrow.png";
+import LoadingSvg from "../../assets/images/loading.svg";
 
 import "./detail.scss";
 
 const detailContext = React.createContext<any>({});
 
+// 防抖hook
+const useDebounce = <T,>(value: T, delay: number): T => {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    // 设置定时器，在delay毫秒后更新防抖值
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    // 清理函数：如果value在delay时间内再次变化，清除之前的定时器
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
+// 无限滚动hook
+const useInfiniteScroll = (
+  loadMore: () => void,
+  hasMore: boolean,
+  isLoading: boolean,
+  threshold: number = 50
+) => {
+  const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
+  const debouncedScrollTop = useDebounce(scrollTop, 100);
+
+  const isReachedBottom = useMemo(() => {
+    return scrollTop + clientHeight + threshold >= scrollHeight;
+  }, [scrollTop, clientHeight, scrollHeight, threshold]);
+
+  useEffect(() => {
+    if (!hasMore || isLoading) {
+      return;
+    }
+
+    if (isReachedBottom) {
+      loadMore();
+    }
+  }, [
+    debouncedScrollTop,
+    clientHeight,
+    scrollHeight,
+    hasMore,
+    isLoading,
+    isReachedBottom,
+    loadMore
+  ]);
+};
+
+/**
+ * 获取集合项目标题的公共函数
+ * @param novel 小说对象
+ * @param collectionItem 集合项目对象
+ * @returns 返回应该显示的标题
+ */
+const getCollectionItemTitle = (novel: any, collectionItem: any) => {
+  const itemTitle = novel?.versionInfo?.exhibitProperty?.catalogueProperty?.collection_item_title;
+  // 作品标题
+  if (itemTitle === "collection_item_title_rtitle") {
+    return (collectionItem?.articleInfo as any)?.articleTitle || "";
+  }
+  // 连载编号
+  if (itemTitle === "collection_item_title_sn") {
+    return (
+      collectionItem?.articleInfo?.articleProperty?.number ||
+      (collectionItem?.articleInfo as any)?.articleTitle ||
+      ""
+    );
+  }
+  // 自定义
+  if (itemTitle === "collection_item_title_custom") {
+    return collectionItem.itemTitle || (collectionItem?.articleInfo as any)?.articleTitle || "";
+  }
+  // 不显示
+  if (itemTitle === "collection_item_title_empty") {
+    return (collectionItem?.articleInfo as any)?.articleTitle || "";
+  }
+
+  return (collectionItem?.articleInfo as any)?.articleTitle || "";
+};
+
 /** 详情页 */
 export const DetailScreen = (props: any) => {
-  const { scrollTop, clientHeight, scrollHeight } = useMyScroll();
   const { id } = getUrlParams(props.location.search);
   const [novel, setNovel] = useState<ExhibitItem | null>(null);
   const [total, setTotal] = useState<number>(0);
   const [collectionRecentDate, setCollectionRecentDate] = useState<string>("");
   const skip = useRef(0);
   const [sortOrder, setSortOrder] = useState("asc");
+  const [collectionDataDesc, setCollectionDataDesc] = useState<any>(null);
+  const [historyNovelData, setHistoryNovelData] = useState<any[]>([]);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // 获取合集下的单品列表
   const getCollectionList = useCallback(
     async (init = false) => {
       try {
-        if (!init && (novel?.collectionList?.length ?? 0) >= total) {
+        // 如果正在加载更多数据，则直接返回，防止并发请求
+        if (!init && isLoadingMore) {
           return;
+        }
+
+        // 设置加载状态
+        if (!init) {
+          setIsLoadingMore(true);
         }
 
         skip.current = init ? 0 : skip.current + 50;
 
         const subList = await (freelogApp as any).getCollectionSubList(id, {
           skip: skip.current,
-          limit: 50
+          limit: 50,
+          isShowDetailInfo: 1
         });
         const { dataList, totalItem } = subList.data.data;
         setTotal(totalItem);
@@ -68,10 +163,87 @@ export const DetailScreen = (props: any) => {
         }
       } catch (error) {
         console.error("Failed to get collection list", error);
+      } finally {
+        // 无论成功还是失败，都重置加载状态
+        if (!init) {
+          setIsLoadingMore(false);
+        }
       }
     },
-    [id, novel]
+    [id, isLoadingMore]
   );
+
+  /** 获取合集的倒序内容 */
+  const getCollectionListBySortTypeDesc = async () => {
+    const res = await (freelogApp as any).getCollectionSubList(id, {
+      sortType: -1,
+      skip: 0,
+      limit: 50,
+      isShowDetailInfo: 1
+    });
+
+    setCollectionDataDesc(res.data.data);
+  };
+
+  // 最近更新的一话
+  const latestNovelItem = useMemo(() => {
+    if (novel?.articleInfo?.articleType === 2) {
+      return collectionDataDesc?.dataList?.[0];
+    }
+    return null;
+  }, [novel?.articleInfo?.articleType, collectionDataDesc]);
+
+  // 当前小说的阅读历史
+  const currentHistoryNovel = useMemo(() => {
+    const res = historyNovelData?.find((i: any) => i.id === id);
+    return res?.info || [];
+  }, [historyNovelData, id]);
+
+  // 记录用户阅读历史
+  const handleReaderHistory = async (item: any) => {
+    const newHistoryNovelData = [...(historyNovelData || [])];
+    const existingIndex = newHistoryNovelData.findIndex((i: any) => i.id === id);
+
+    if (existingIndex !== -1) {
+      const existingNovel = newHistoryNovelData[existingIndex];
+
+      // 确保info是一个数组
+      if (!Array.isArray(existingNovel.info)) {
+        existingNovel.info = existingNovel.info ? [existingNovel.info] : [];
+      }
+
+      // 检查当前章节是否已存在于记录中（只比较itemId）
+      const existingChapters = existingNovel.info.filter((chapter: any) => {
+        return chapter.itemId === item.itemId;
+      });
+
+      console.log("找到的重复章节数量", existingChapters.length);
+
+      if (existingChapters.length > 0) {
+        // 如果章节已存在，删除所有相同itemId的旧数据
+        existingNovel.info = existingNovel.info.filter((chapter: any) => {
+          return chapter.itemId !== item.itemId;
+        });
+        console.log("删除所有旧数据后", existingNovel.info);
+      }
+
+      // 添加新数据
+      existingNovel.info.push(item);
+      console.log("添加新数据后", existingNovel.info);
+
+      // 更新历史记录
+      newHistoryNovelData[existingIndex] = existingNovel;
+    } else {
+      // 如果漫画ID不存在，创建新记录，将info设为数组
+      newHistoryNovelData.push({
+        id,
+        info: [item]
+      });
+    }
+
+    setHistoryNovelData(newHistoryNovelData);
+    await freelogApp.setUserData("novelViewedHistory", newHistoryNovelData);
+  };
 
   /** 获取小说信息 */
   const getNovelInfo = useCallback(async () => {
@@ -82,9 +254,14 @@ export const DetailScreen = (props: any) => {
         freelogApp.getExhibitAuthStatus(id)
       ]);
 
+      const novelViewedResponse = await freelogApp.getUserData("novelViewedHistory");
+      setHistoryNovelData(novelViewedResponse?.data?.data || []);
+
       const articleType = exhibitInfo.data.data.articleInfo.articleType;
       if (articleType === 2) {
         getCollectionList(true);
+        // 目的：获取合集的倒序内容Add commentMore actions
+        getCollectionListBySortTypeDesc();
         setSortOrder(
           (novel?.versionInfo?.exhibitProperty?.catalogueProperty as any)?.collection_sort_list ===
             "collection_sort_descending"
@@ -98,6 +275,8 @@ export const DetailScreen = (props: any) => {
         signCount: signCountData.data.data[0]?.count ?? 0,
         defaulterIdentityType: statusInfo.data.data[0]?.defaulterIdentityType ?? null
       };
+
+      updateWxConfig(exhibitInfo.data.data as any);
 
       setNovel(bookInfo);
     } catch (error) {
@@ -122,17 +301,32 @@ export const DetailScreen = (props: any) => {
     getNovelInfo();
   }, []);
 
-  useEffect(() => {
-    if (novel?.collectionList?.length && scrollTop + clientHeight === scrollHeight) {
-      getCollectionList(false);
-    }
-  }, [scrollTop, clientHeight, scrollHeight]);
+  // 计算是否还有更多数据
+  const hasMore = useMemo(() => {
+    return novel?.collectionList?.length ? novel.collectionList.length < total : false;
+  }, [novel?.collectionList?.length, total]);
+
+  useInfiniteScroll(() => getCollectionList(false), hasMore, isLoadingMore, 50);
 
   return (
-    <detailContext.Provider value={{ novel, setNovel, sortOrder, setSortOrder }}>
+    <detailContext.Provider
+      value={{
+        novel,
+        setNovel,
+        sortOrder,
+        setSortOrder,
+        latestNovelItem,
+        currentHistoryNovel,
+        handleReaderHistory
+      }}
+    >
       <div className="detail-wrapper">
         <Header />
-        <DetailBody total={total} collectionRecentDate={collectionRecentDate} />
+        <DetailBody
+          total={total}
+          collectionRecentDate={collectionRecentDate}
+          isLoadingMore={isLoadingMore}
+        />
         <Footer />
         <LoginBtn />
         <ThemeEntrance />
@@ -142,10 +336,22 @@ export const DetailScreen = (props: any) => {
 };
 
 /** 详情页主体内容 */
-const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
-  const { total, collectionRecentDate } = props;
+const DetailBody = (props: {
+  total: number;
+  collectionRecentDate: string;
+  isLoadingMore: boolean;
+}) => {
+  const { total, collectionRecentDate, isLoadingMore } = props;
   const { inMobile, userData } = useContext(globalContext);
-  const { novel, setNovel, sortOrder, setSortOrder } = useContext(detailContext);
+  const {
+    novel,
+    setNovel,
+    sortOrder,
+    setSortOrder,
+    latestNovelItem,
+    currentHistoryNovel,
+    handleReaderHistory
+  } = useContext(detailContext);
   const collectionList = novel?.collectionList;
   const { isCollected, operateShelf } = useMyShelf(novel?.exhibitId);
   const history = useMyHistory();
@@ -192,6 +398,32 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
     };
     shareWidget.current = await freelogApp.mountArticleWidget(params);
   };
+
+  // 判断用户是不是看过最近更新一话
+  const isLatestNovelViewed = useMemo(() => {
+    if (!latestNovelItem?.itemId) return false;
+
+    const historyItem = currentHistoryNovel.find(
+      (item: any) => item.itemId === latestNovelItem.itemId
+    );
+
+    console.log("所以时间一样吗", historyItem?.createDate === latestNovelItem.createDate);
+    return historyItem?.createDate === latestNovelItem.createDate;
+  }, [currentHistoryNovel, latestNovelItem]);
+
+  // 判断某个章节是否已阅读过
+  const isChapterViewed = useCallback(
+    (chapterItem: any) => {
+      if (!chapterItem?.itemId) return false;
+
+      const historyItem = currentHistoryNovel.find(
+        (item: any) => item.itemId === chapterItem.itemId
+      );
+
+      return historyItem?.createDate === chapterItem.createDate;
+    },
+    [currentHistoryNovel]
+  );
 
   /** 控制分享弹窗显示 */
   const setShareWidgetShow = (value: boolean) => {
@@ -285,10 +517,13 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                   <div className="content-top">
                     <div className="novel-name">{novel.exhibitTitle}</div>
 
-                    <div className="novel-author">{novel.articleInfo.articleOwnerName}</div>
+                    <div className="novel-author">
+                      {novel?.versionInfo?.exhibitProperty?.author ||
+                        novel.articleInfo.articleOwnerName}
+                    </div>
 
                     <div className="tags">
-                      <Tags data={novel.tags || []} />
+                      <NewTags data={novel.tags || []} />
                     </div>
                   </div>
 
@@ -406,7 +641,9 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                           )
                         }
                       >
-                        <span className="sub-title">{collectionItem.itemTitle}</span>
+                        <span className="sub-title">
+                          {getCollectionItemTitle(novel, collectionItem)}
+                        </span>
                         {collectionItem.articleInfo.status === 2 ? (
                           <img className="freeze-lock" src={Freeze} alt="封禁" />
                         ) : novel.onlineStatus === 0 ? (
@@ -422,6 +659,11 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                     );
                   })}
                 </div>
+                {isLoadingMore && (
+                  <div className="loading-container">
+                    <img src={LoadingSvg} alt="加载中" className="loading-icon" />
+                  </div>
+                )}
                 {collectionList.length === total && (
                   <div className="tip no-more">— 已加载全部章节 —</div>
                 )}
@@ -479,14 +721,74 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
 
                   <div className="novel-name">{novel.exhibitTitle}</div>
                 </div>
-                <div className="novel-author">{novel.articleInfo.articleOwnerName}</div>
+                <div className="novel-author">
+                  {novel?.versionInfo?.exhibitProperty?.author ||
+                    novel.articleInfo.articleOwnerName}
+                </div>
                 <div className="tags">
-                  <Tags data={novel.tags || []} />
+                  <NewTags data={novel.tags || []} />
                 </div>
-                <div className="create-date">创建时间：{formatDate(novel.createDate)}</div>
                 <div className="update-date">
-                  最近更新：{formatDate(collectionRecentDate || novel.updateDate)}
+                  {novel?.articleInfo?.articleType === 1 ? (
+                    <div className="detail-latest-box">
+                      {(novel?.versionInfo as any)?.exhibitProperty?.wordCount && (
+                        <div className="word-count">
+                          {formatWordCount(
+                            (novel?.versionInfo as any)?.exhibitProperty?.wordCount
+                          ) + "字"}
+                        </div>
+                      )}
+                      <div className="latest-novel">
+                        最近更新：{formatDate(novel?.articleInfo?.versions?.[0]?.createDate)}
+                      </div>
+                    </div>
+                  ) : novel?.articleInfo?.serializeStatus === 0 ? (
+                    <div className="detail-latest-box">
+                      <div className="on-going">连载中</div>
+                      {/* <div className="update-count">更新至{total}话</div> */}
+                      {(novel?.versionInfo?.exhibitProperty?.collection_word_count ||
+                        novel?.versionInfo?.exhibitProperty?.wordCount) && (
+                        <div className="word-count">
+                          {formatWordCount(
+                            collectionList?.length && !!collectionList.length
+                              ? novel?.versionInfo?.exhibitProperty?.collection_word_count
+                              : novel?.versionInfo?.exhibitProperty?.wordCount
+                          )}
+                          字
+                        </div>
+                      )}
+                      <div className="latest-novel-container">
+                        <div className="latest-novel">最近更新：{latestNovelItem?.itemTitle}</div>
+                        <div className="latest-novel-time">
+                          {formatDate(latestNovelItem?.articleInfo?.firstVersionReleaseDate)}
+                        </div>
+                      </div>
+                    </div>
+                  ) : novel?.articleInfo?.serializeStatus === 1 ? (
+                    <div className="detail-latest-box">
+                      <div className="completed">已完结</div>
+                      {/* <div className="update-count">共 {collectionList?.length} 话</div> */}
+                      {(novel?.versionInfo?.exhibitProperty?.collection_word_count ||
+                        novel?.versionInfo?.exhibitProperty?.wordCount) && (
+                        <div className="word-count">
+                          {formatWordCount(
+                            collectionList?.length && !!collectionList.length
+                              ? novel?.versionInfo?.exhibitProperty?.collection_word_count
+                              : novel?.versionInfo?.exhibitProperty?.wordCount
+                          )}
+                          字
+                        </div>
+                      )}
+                      <div className="latest-novel-container">
+                        <div className="latest-novel">最近更新：{latestNovelItem?.itemTitle}</div>
+                        <div className="latest-novel-time">
+                          {formatDate(latestNovelItem?.articleInfo?.firstVersionReleaseDate)}
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
+
                 <div className="btns-box">
                   <div className="operate-btns">
                     <div
@@ -503,6 +805,13 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                             (i: { id: string }) => i.id === novel.exhibitId
                           );
                           const subId = lastViewed[index]?.subId;
+                          const subIdInfo = collectionList.find((i: any) => {
+                            if (subId) {
+                              return i.itemId === subId;
+                            }
+                            return i.itemId === collectionList[0].itemId;
+                          });
+                          handleReaderHistory(subIdInfo);
 
                           history.switchPage(
                             `/reader?collection=${true}&id=${novel.exhibitId}&subId=${
@@ -517,7 +826,9 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                       立即阅读
                     </div>
                     <div
-                      className={`btn ${isCollected ? "warning-btn" : "collect-btn"}`}
+                      className={`btn ${
+                        isCollected ? "warning-btn cancel-collect-btn" : "collect-btn"
+                      }`}
                       onClick={() => operateShelf(novel)}
                     >
                       {isCollected ? "移出书架" : "加入书架"}
@@ -525,7 +836,7 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                   </div>
 
                   <div className="other-btns">
-                    {(novel?.versionInfo?.exhibitProperty?.collection_word_count ||
+                    {/* {(novel?.versionInfo?.exhibitProperty?.collection_word_count ||
                       novel?.versionInfo?.exhibitProperty?.wordCount) && (
                       <div className="word-count">
                         {formatWordCount(
@@ -535,7 +846,7 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                         )}
                         字
                       </div>
-                    )}
+                    )} */}
 
                     <div className="sign-count">{novel.signCount}人签约</div>
                     <div
@@ -565,16 +876,10 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
               <div className="intro-title">内容简介</div>
 
               {novel.exhibitIntro ? (
-                <div className={`intro ${introState === 1 ? "fold" : "unfold"}`}>
+                <div className="intro">
                   <div className="intro-content" ref={introContent}>
                     {novel.exhibitIntro}
                   </div>
-
-                  {introState === 1 && (
-                    <div className="view-all-btn" onClick={() => setIntroState(3)}>
-                      ...查看全部
-                    </div>
-                  )}
                 </div>
               ) : (
                 <div className="no-intro-tip">暂无简介</div>
@@ -585,12 +890,32 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
               <div className="novel-catalogue">
                 <div className="title-container">
                   <span className="title">目录</span>
-                  <span className="count">({total}章)</span>
+                  <span className="count">
+                    <span
+                      className={`status ${
+                        novel?.articleInfo?.serializeStatus === 1 ? "completed" : "ongoing"
+                      }`}
+                    >
+                      {novel?.articleInfo?.serializeStatus === 1 ? "已完结" : "连载中"}
+                    </span>
+                    {/* 更新至{total}章 */}
+                  </span>
+
                   <div className="sort" onClick={handleSort}>
                     <span>{sortOrder === "asc" ? "正序" : "倒序"}</span>
                     <span className={`triangle ${sortOrder === "asc" ? "asc" : "desc"}`}></span>
                   </div>
                 </div>
+
+                {!isLatestNovelViewed && (
+                  <div className="latest-tip-box">
+                    <div className="latest-title">最近更新</div>
+                    <div className="latest-novel">{latestNovelItem?.itemTitle}</div>
+                    <span className="time">
+                      {formatDate(latestNovelItem?.articleInfo?.firstVersionReleaseDate)}
+                    </span>
+                  </div>
+                )}
 
                 <div className="sub-directory-container">
                   {collectionList.map((collectionItem: CollectionList) => {
@@ -602,15 +927,22 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                           "disabled"
                         }`}
                         key={collectionItem.itemId}
-                        onClick={() =>
+                        onClick={async () => {
+                          await handleReaderHistory(collectionItem);
                           history.switchPage(
                             `/reader?collection=${true}&id=${novel.exhibitId}&subId=${
                               collectionItem.itemId
                             }`
-                          )
-                        }
+                          );
+                        }}
                       >
-                        <span className="sub-title">{collectionItem.itemTitle}</span>
+                        <span
+                          className={`sub-title ${
+                            !isChapterViewed(collectionItem) && "is-latest-temporary-not-viewed"
+                          }`}
+                        >
+                          {getCollectionItemTitle(novel, collectionItem)}
+                        </span>
                         {collectionItem.articleInfo.status === 2 ? (
                           <img className="freeze-lock" src={Freeze} alt="封禁" />
                         ) : novel.onlineStatus === 0 ? (
@@ -626,6 +958,11 @@ const DetailBody = (props: { total: number; collectionRecentDate: string }) => {
                     );
                   })}
                 </div>
+                {isLoadingMore && (
+                  <div className="loading-container">
+                    <img src={LoadingSvg} alt="加载中" className="loading-icon" />
+                  </div>
+                )}
                 {collectionList.length === total && (
                   <div className="tip no-more">— 已加载全部章节 —</div>
                 )}

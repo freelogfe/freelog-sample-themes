@@ -6,13 +6,14 @@ import { useGlobalStore } from "@/store/global";
 import HomeBanner from "./home-banner.vue";
 import HomePopular from "./home-popular.vue";
 import HomeAlbum from "@/components/album.vue";
-
+import HomePlayList from "@/components/play-list.vue";
+import { useGetList } from "@/utils/hooks";
 import type { Exhibit } from "@/interface";
 
 const store = useGlobalStore();
 const listData = ref<Exhibit[]>([]);
-const albumData = ref<Exhibit[]>([]);
 const loading = ref<boolean>(false);
+const datasOfGetList = useGetList();
 
 watch(
   () => store.authIdList,
@@ -27,11 +28,21 @@ watch(
 
 const popularData = computed(() => {
   const data = listData.value
-    .filter(i => i.articleInfo.status !== 2)
+    .filter(i => i.articleInfo.status !== 2 && i.articleInfo.articleType !== 3)
     .sort((a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime())
     .slice(0, 12);
 
   return data;
+});
+
+// 歌单列表
+const playListData = computed(() => {
+  return datasOfGetList.playListData?.listData?.slice(0, 5);
+});
+
+// 音乐专辑列表
+const musicAlbumData = computed(() => {
+  return datasOfGetList.listData?.listData?.slice(0, 5);
 });
 
 /** 获取展品列表 */
@@ -42,36 +53,27 @@ const getList = async () => {
   const queryParams = {
     articleResourceTypes: "音频",
     isLoadVersionProperty: 1,
-    limit: 100
+    limit: 20
   };
-  const list = await freelogApp.getExhibitListByPaging(queryParams);
+  const list = await freelogApp.getExhibitListByPage(queryParams);
   const { dataList } = list.data.data;
 
   if (dataList.length !== 0) {
     const ids = dataList.map(item => item.exhibitId).join();
 
-    const [signCountData, statusInfo] = await Promise.all([
-      freelogApp.getExhibitSignCount(ids),
-      freelogApp.getExhibitAuthStatus(ids)
-    ]);
+    const statusInfo = await freelogApp.getExhibitAuthStatus(ids);
 
     // 使用for...of确保顺序执行
     for (const item of dataList) {
-      let index;
-      index = signCountData.data.data.findIndex(
-        resultItem => resultItem.subjectId === item.exhibitId
+      const index = statusInfo.data.data.findIndex(
+        resultItem => resultItem.exhibitId === item.exhibitId
       );
-      if (index !== -1) {
-        item.signCount = signCountData.data.data[index].count;
-      }
-      index = statusInfo.data.data.findIndex(resultItem => resultItem.exhibitId === item.exhibitId);
       if (index !== -1) {
         item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
       }
 
       // 获取合集里的单品列表
       if (item.articleInfo.articleType === 2) {
-        albumData.value.push(item);
         await getCollectionList(
           item.exhibitId,
           item.exhibitTitle,
@@ -98,7 +100,7 @@ const getCollectionList = async (
   images: string[],
   onlineStatus: number
 ) => {
-  const subList = await freelogApp.getCollectionSubList(collectionID, {
+  const subList = await freelogApp.getCollectionSubListByPage(collectionID, {
     skip: subSkip,
     limit: 1_000,
     isShowDetailInfo: 1
@@ -108,7 +110,7 @@ const getCollectionList = async (
 
   if (dataList.length !== 0) {
     const ids = dataList.map((item: any) => item.itemId).join();
-    const statusInfo = await (freelogApp as any).getCollectionSubAuth(collectionID, {
+    const statusInfo = await (freelogApp as any).getCollectionSubAuthStatus(collectionID, {
       itemIds: ids
     });
 
@@ -129,6 +131,7 @@ const getCollectionList = async (
         item.albumName = exhibitTitle;
         item.exhibitId = collectionID;
         item.onlineStatus = onlineStatus;
+        item.total = totalItem;
       });
     }
   }
@@ -148,6 +151,10 @@ const getCollectionList = async (
 
 onBeforeMount(() => {
   getList();
+  // 获取音乐专辑
+  datasOfGetList.getList({ articleResourceTypes: "音乐专辑", sort: `createDate:-1` });
+  // 获取歌单
+  datasOfGetList.getPlayList();
 });
 </script>
 
@@ -159,7 +166,8 @@ onBeforeMount(() => {
     :class="{ pc: !store.inMobile, mobile: store.inMobile }"
   >
     <HomePopular hasHeader :data="popularData" />
-    <HomeAlbum hasHeader :data="albumData.slice(0, 5)" />
+    <HomeAlbum hasHeader :data="musicAlbumData" v-if="!datasOfGetList.listData.loading" />
+    <HomePlayList hasHeader :data="playListData" v-if="!datasOfGetList.playListData.loading" />
   </div>
 </template>
 

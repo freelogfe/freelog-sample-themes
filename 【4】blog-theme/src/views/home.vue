@@ -1,8 +1,7 @@
 <!-- 首页 -->
 
 <template>
-  <div class="home-wrapper"  @click="sortPopupShow = false">
-
+  <div class="home-wrapper" @click="sortPopupShow = false">
     <!-- mobile -->
     <div class="mobile-home-banner" v-if="inMobile">
       <div class="header-other-info">
@@ -12,8 +11,15 @@
       </div>
 
       <div class="header-blog-info">
-        <div class="blog-title" v-if="nodeTitle" @click="blogInfoPopupShow = true">{{ nodeTitle }}</div>
-        <div class="blog-desc" v-if="nodeShortDescription" v-html="nodeShortDescriptionComputed" @click="blogInfoPopupShow = true"></div>
+        <div class="blog-title" v-if="nodeTitle" @click="blogInfoPopupShow = true">
+          {{ nodeTitle }}
+        </div>
+        <div
+          class="blog-desc"
+          v-if="nodeShortDescription"
+          v-html="nodeShortDescriptionComputed"
+          @click="blogInfoPopupShow = true"
+        ></div>
         <div class="tags" :class="{ 'margin-top0': !nodeTitle && !nodeShortDescription }">
           <div
             class="category-btn"
@@ -35,14 +41,12 @@
     </div>
 
     <div class="mobile-home-body" v-if="inMobile">
-      <div class="header">
-        <div
-          class="sort"
-          :class="{ disabled: myLoading }"
-          v-if="!searchData.keywords"
-          @click.stop="sortPopupShow = true"
-        >
-          {{ createDateSortType === "-1" ? "最近发布" : "最早发布" }}
+      <!-- 移动端所有文章 -->
+      <template v-if="displayListData?.length">
+        <div class="header">
+          <div class="sort">
+            最近发布
+            <!-- {{ createDateSortType === "-1" ? "最近发布" : "最早发布" }}
           <i class="freelog fl-icon-zhankaigengduo"></i>
 
           <transition name="slide-down-scale">
@@ -68,22 +72,53 @@
                 </div>
               </div>
             </div>
-          </transition>
+          </transition> -->
+          </div>
+
+          <div class="router-btn">
+            <span @click="switchPage('/blog')">所有文章</span>
+            <img class="arrow" src="../assets/images/home-arrow.png" />
+          </div>
         </div>
-      </div>
 
-      <my-loader v-if="loading" />
+        <my-loader v-if="loading" />
 
-      <template v-if="!loading">
+        <template v-if="!loading">
+          <div class="article-list">
+            <my-article-v2
+              :data="item"
+              v-for="item in displayListData.slice(0, 5)"
+              :key="item.exhibitId"
+            />
+          </div>
+          <div className="tip" v-show="total === 0 || availableListData?.length === 0">
+            当前节点暂无任何数据，请稍后查看
+          </div>
+        </template>
+
+        <div class="view-all-btn" @click="switchPage('/blog')">查看所有文章</div>
+      </template>
+
+      <!-- 移动端专栏 -->
+      <template v-if="displayListCollectionData?.length">
+        <div class="header column-border">
+          <div class="sort">专栏</div>
+
+          <div class="router-btn">
+            <span @click="switchPage('/column')">所有专栏</span>
+            <img class="arrow" src="../assets/images/home-arrow.png" />
+          </div>
+        </div>
+
         <div class="article-list">
-          <my-article-v2 :data="item" v-for="item in availableListData" :key="item.exhibitId" />
+          <my-article-v2
+            :data="item"
+            v-for="item in displayListCollectionData.slice(0, 5)"
+            :key="item.exhibitId"
+          />
         </div>
-        <div className="tip" v-show="total === 0 || availableListData.length === 0">
-          当前节点暂无任何数据，请稍后查看
-        </div>
-        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">
-          — 已加载全部 —
-        </div>
+
+        <div class="view-all-btn" @click="switchPage('/column')">查看所有专栏</div>
       </template>
     </div>
 
@@ -92,11 +127,11 @@
       <template
         v-if="
           $route.path === '/home' &&
-          (banner || nodeTitle || nodeShortDescription || tagsList.length)
+          (banner || nodeTitle || nodeShortDescription || tagsList?.length)
         "
       >
         <!-- 博客信息 -->
-        <div class="header-blog-info" :class="{ withoutTitleBg: !banner && !nodeTitle }">
+        <div class="header-blog-info">
           <div class="blogger-avatar" v-if="banner">
             <img :src="banner" alt="博客banner" class="avatar-img" />
           </div>
@@ -106,8 +141,17 @@
               <div class="blog-title" :title="nodeTitle">{{ nodeTitle }}</div>
               <!-- <div class="sign-count">总签约量：{{ signCount }}人</div> -->
             </div>
-            <div class="blog-desc" v-if="nodeShortDescription" v-html="nodeShortDescriptionComputed" :title="nodeShortDescription"></div>
-            <div class="tags" :class="{ 'margin-top0': !nodeTitle && !nodeShortDescription }">
+            <div
+              class="blog-desc"
+              v-if="nodeShortDescription"
+              v-html="nodeShortDescriptionComputed"
+              :title="nodeShortDescription"
+            ></div>
+            <div
+              class="tags"
+              :class="{ 'margin-top0': !nodeTitle && !nodeShortDescription }"
+              v-if="tagsList?.length"
+            >
               <div
                 class="category-btn"
                 :class="{ disabled: myLoading }"
@@ -124,14 +168,9 @@
         </div>
       </template>
 
-      <div class="header" v-if="!searchData.keywords && listData.length">
-        <div
-          class="sort"
-          :class="{ disabled: myLoading }"
-          @mouseover="sortPopupShow = true"
-          @mouseleave="sortPopupShow = false"
-        >
-          {{ createDateSortType === "-1" ? "最近发布" : "最早发布" }}
+      <div class="header" v-if="!searchData.keywords && listData?.length">
+        <div class="sort" :class="{ disabled: myLoading }">
+          <!-- {{ createDateSortType === "-1" ? "最近发布" : "最早发布" }}
           <i class="freelog fl-icon-zhankaigengduo"></i>
 
           <transition name="slide-down-scale">
@@ -141,7 +180,13 @@
                 <div class="user-box-btn" @click="sort('1')">最早发布</div>
               </div>
             </div>
-          </transition>
+          </transition> -->
+          最近发布
+        </div>
+
+        <div class="blog-count">
+          <!-- <span>博客总数{{ isAllLoaded ? availableListData?.length : "" }}</span> -->
+          <span @click="switchPage('/blog')">查看全部</span>
         </div>
       </div>
 
@@ -149,13 +194,31 @@
 
       <template v-if="!loading">
         <div class="article-list">
-          <my-article-v2 :data="item" v-for="item in availableListData" :key="item.exhibitId" />
+          <my-article-v2 :data="item" v-for="item in displayListData" :key="item.exhibitId" />
         </div>
-        <div className="tip" v-show="total === 0 || availableListData.length === 0">
+        <div className="tip" v-show="total === 0 || availableListData?.length === 0">
           当前节点暂无任何数据，请稍后查看
         </div>
-        <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">
+        <!-- <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">
           — 已加载全部 —
+        </div> -->
+      </template>
+
+      <div class="header-collection" v-if="displayListCollectionData?.length">
+        <span class="collection-title">专栏</span>
+        <div class="collection-count">
+          <!-- <span>专栏总数{{ collectionsData?.length }}</span> -->
+          <span @click="switchPage('/column')">查看全部</span>
+        </div>
+      </div>
+
+      <template v-if="!loading && displayListCollectionData?.length">
+        <div class="article-list">
+          <my-article-v2
+            :data="item"
+            v-for="item in displayListCollectionData"
+            :key="item.exhibitId"
+          />
         </div>
       </template>
     </div>
@@ -165,12 +228,15 @@
 <script lang="ts">
 import {
   defineAsyncComponent,
-  onActivated,
-  onDeactivated,
   reactive,
   toRefs,
   watch,
-  computed
+  computed,
+  ref,
+  onMounted,
+  onUnmounted,
+  watchEffect,
+  onBeforeMount
 } from "vue";
 import { useGetList, useMyRouter, useMyScroll } from "../utils/hooks";
 import { useStore } from "vuex";
@@ -186,15 +252,14 @@ export default {
 
   setup() {
     const nodeInfo = freelogApp.nodeInfo;
-    console.log("nodeInfo", nodeInfo);
-    
+
     const store = useStore();
-    const tagsList: string[] = store.state.selfConfig.tags
+    const { scrollTo } = useMyScroll();
+    const tagsList: string[] = store.state.selfConfig.options_tags
       ?.split(",")
       ?.map((tag: string) => tag.trim()) // 去掉每个字符串的前后空格
       ?.filter((ele: string) => ele);
     const { query, route, router, switchPage } = useMyRouter();
-    const { scrollTop, clientHeight, scrollHeight, scrollTo } = useMyScroll();
     const datasOfGetList = useGetList();
 
     const data = reactive({
@@ -204,6 +269,29 @@ export default {
       blogInfoPopupShow: false,
       isInitial: true
     });
+    const isAllLoaded = ref(false);
+
+    const maxShowCount = ref(window.innerWidth >= 1300 ? 8 : 6);
+
+    // 防抖定时器
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    // 防抖函数
+    const debounce = (func: any, delay: number) => {
+      return (...args: any[]) => {
+        if (debounceTimer) {
+          clearTimeout(debounceTimer);
+        }
+        debounceTimer = setTimeout(() => {
+          func.apply(this, args);
+        }, delay);
+      };
+    };
+
+    // 防抖的获取数据函数
+    const debouncedGetList = debounce((searchData: any) => {
+      datasOfGetList.getList(searchData);
+    }, 300); // 300ms 防抖延迟
 
     const banner = computed(() => {
       return store.state.selfConfig.options_banner;
@@ -214,15 +302,31 @@ export default {
     });
 
     const availableListData = computed(() => {
-      console.log(datasOfGetList.listData.value);
-      
-      return datasOfGetList.listData.value.filter((ele: any) => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType!)) 
-    })
+      return datasOfGetList.listData.value.filter((ele: any) => ele.articleInfo.articleType === 1);
+    });
+
+    const collectionsData = computed(() => {
+      return datasOfGetList.listData.value.filter(
+        (ele: any) =>
+          [2, 3].includes(ele.articleInfo.articleType) &&
+          ele.articleInfo.resourceType.includes("专栏") &&
+          ele.articleInfo.status === 1 &&
+          [0, 4].includes(ele.defaulterIdentityType!)
+      );
+    });
 
     const nodeShortDescriptionComputed = computed(() => {
-      
-      return nodeInfo.nodeShortDescription?.replaceAll('\n', '<br />')
-    })
+      return nodeInfo.nodeShortDescription?.replaceAll("\n", "<br />");
+    });
+
+    const displayListData = computed(() => availableListData.value.slice(0, maxShowCount.value));
+    const displayListCollectionData = computed(() =>
+      collectionsData.value.slice(0, maxShowCount.value)
+    );
+
+    const updateMaxShowCount = () => {
+      maxShowCount.value = window.innerWidth >= 1300 ? 8 : 6;
+    };
 
     const methods = {
       /** 排序 */
@@ -250,14 +354,19 @@ export default {
       }
     };
 
-    watch(
-      () => scrollTop.value,
-      cur => {
-        if (cur + clientHeight.value === scrollHeight.value) {
-          datasOfGetList.getList();
-        }
+    watchEffect(() => {
+      if (
+        datasOfGetList.listData.value.length &&
+        datasOfGetList.listData.value.length === datasOfGetList.total.value
+      ) {
+        isAllLoaded.value = true;
       }
-    );
+
+      if (datasOfGetList.listData.value.length < datasOfGetList.total.value) {
+        // 使用防抖函数来避免频繁请求
+        debouncedGetList(data.searchData);
+      }
+    });
 
     watch(
       () => query.value,
@@ -280,31 +389,23 @@ export default {
       datasOfGetList.getList(data.searchData, true);
     };
 
-    onActivated(() => {
-      if (router.options.history.state.replaced && !data.isInitial) {
-        const homeScrollTop = sessionStorage.getItem("homeScroll");
-        scrollTo(Number(homeScrollTop), "auto");
+    onMounted(() => {
+      window.addEventListener("resize", updateMaxShowCount);
+    });
 
-        const { authIds } = store.state;
-        if (authIds.length === 0) return;
-
-        authIds.forEach((id: string) => {
-          const index = datasOfGetList.listData.value.findIndex(item => item.exhibitId === id);
-          if (index !== -1) datasOfGetList.listData.value[index].defaulterIdentityType = 0;
-        });
-        store.commit("setData", { key: "authIds", value: [] });
-      } else {
-        getData();
+    onUnmounted(() => {
+      window.removeEventListener("resize", updateMaxShowCount);
+      // 清理防抖定时器
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+        debounceTimer = null;
       }
-
-      data.isInitial = false;
     });
 
-    onDeactivated(() => {
-      sessionStorage.setItem("homeScroll", String(scrollTop.value));
+    onBeforeMount(() => {
+      scrollTo(0, "auto");
+      getData();
     });
-
-    getData();
 
     return {
       ...nodeInfo,
@@ -315,7 +416,12 @@ export default {
       banner,
       inMobile,
       availableListData,
-      nodeShortDescriptionComputed
+      nodeShortDescriptionComputed,
+      switchPage,
+      displayListData,
+      displayListCollectionData,
+      collectionsData,
+      isAllLoaded
     };
   }
 };
@@ -350,6 +456,7 @@ export default {
     .header-blog-info {
       background-color: #f7f7f7;
       padding: 20px;
+      padding-bottom: 30px;
 
       .blog-title {
         font-size: 30px;
@@ -450,10 +557,15 @@ export default {
       justify-content: space-between;
       padding: 30px 0;
 
+      &.column-border {
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+      }
+
       .sort {
         position: relative;
-        font-size: 16px;
-        line-height: 22px;
+        font-size: 20px;
+        font-weight: 600;
+        line-height: 26px;
         display: flex;
         align-items: center;
 
@@ -494,6 +606,22 @@ export default {
         }
       }
 
+      .router-btn {
+        display: flex;
+        align-items: center;
+        line-height: 22px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #222222;
+        line-height: 20px;
+
+        .arrow {
+          width: 7px;
+          height: 13px;
+          margin-left: 5px;
+        }
+      }
+
       .box-title {
         font-size: 16px;
         color: #999999;
@@ -514,6 +642,17 @@ export default {
           margin-left: 5px;
         }
       }
+    }
+
+    .view-all-btn {
+      font-weight: 600;
+      font-size: 14px;
+      color: #222222;
+      line-height: 20px;
+      margin: 30px 0 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .tip {
@@ -645,12 +784,12 @@ export default {
 
     .header-blog-info {
       position: relative;
-      min-height: 314px;
+      min-height: 304px;
       overflow: hidden;
-      
-      &.withoutTitleBg {
-        min-height: 100px;
-      }
+
+      // &.withoutTitleBg {
+      //   min-height: 100px;
+      // }
 
       .blogger-avatar {
         width: 100%;
@@ -678,7 +817,7 @@ export default {
         height: 100%;
         width: 100%;
         border-radius: 10px;
-        background-image: linear-gradient( 180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 100%);
+        // background-image: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 100%);
       }
 
       .info-content {
@@ -719,7 +858,7 @@ export default {
             height: 84px;
             max-width: 100%;
             font-size: 60px;
-            font-weight: 600;
+            font-weight: 400;
             line-height: 84px;
             overflow: hidden;
             white-space: nowrap;
@@ -743,19 +882,20 @@ export default {
 
         .blog-desc {
           font-size: 20px;
+          font-weight: 400;
           color: #fff;
           line-height: 28px;
           margin-top: 20px;
-          // display: -webkit-box;
-          // -webkit-box-orient: vertical;
-          // -webkit-line-clamp: 2;
-          // overflow: hidden;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
+          overflow: hidden;
         }
 
         .tags {
           display: flex;
           flex-wrap: wrap;
-          height: 26px;
+          height: 22px;
           overflow: hidden;
           margin-top: 30px;
 
@@ -766,17 +906,20 @@ export default {
           .category-btn {
             flex-shrink: 0;
             position: relative;
-            padding: 2px 8px;
+            padding: 0 8px;
             box-sizing: border-box;
-            font-size: 14px;
+            font-size: 12px;
             color: #fff;
             line-height: 20px;
             border-radius: 12px;
             border: 1px solid #ffffff;
-            margin-bottom: 2px;
             cursor: pointer;
             transition: all 0.2s linear;
             z-index: 1;
+            max-width: 250px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
 
             &:hover {
               opacity: 0.7;
@@ -795,20 +938,21 @@ export default {
     }
 
     .header {
-      font-size: 30px;
+      font-size: 28px;
       line-height: 36px;
       padding: 40px 0px;
+      margin-top: 40px;
 
       .sort {
         position: relative;
         width: fit-content;
         display: flex;
         align-items: center;
-        font-size: 14px;
+        font-size: 28px;
         font-weight: 600;
         color: #222222;
-        line-height: 20px;
-        cursor: pointer;
+        line-height: 34px;
+        // cursor: pointer;
 
         .freelog {
           font-size: 12px;
@@ -846,12 +990,31 @@ export default {
           }
         }
       }
+
+      .blog-count {
+        font-weight: 400;
+        font-size: 12px;
+        color: #000000;
+        line-height: 18px;
+        color: rgba(0, 0, 0, 0.4);
+        margin-top: 10px;
+
+        span:nth-child(1) {
+          // margin-left: 10px;
+          cursor: pointer;
+
+          &:hover {
+            color: rgba(0, 0, 0, 1);
+          }
+        }
+      }
     }
 
     .article-list {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 40px;
+      margin-bottom: 80px;
     }
 
     .tip {
@@ -866,6 +1029,33 @@ export default {
         font-size: 14px;
         line-height: 20px;
         margin: 100px 0px;
+      }
+    }
+
+    .header-collection {
+      margin-bottom: 40px;
+      .collection-title {
+        font-weight: 600;
+        font-size: 28px;
+        color: #222222;
+        line-height: 34px;
+      }
+
+      .collection-count {
+        font-weight: 400;
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.4);
+        line-height: 18px;
+        margin-top: 10px;
+
+        span:nth-child(1) {
+          // margin-left: 10px;
+          cursor: pointer;
+
+          &:hover {
+            color: rgba(0, 0, 0, 1);
+          }
+        }
       }
     }
   }

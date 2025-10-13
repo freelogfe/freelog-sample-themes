@@ -4,10 +4,11 @@ import AuthLinkAbnormal from "../../assets/images/auth-link-abnormal.png";
 import Freeze from "../../assets/images/freeze.png";
 import { ExhibitItem } from "../../api/interface";
 import { useMyHistory } from "../../utils/hooks";
-import { Tags } from "../tags/tags";
+import { NewTags } from "../tags/new-tags";
 import { useContext, useRef } from "react";
 import { globalContext } from "../../router";
 import { showToast } from "../toast/toast";
+import { formatWordCount } from "../../utils/common";
 
 /** 小说组件 */
 export const Novel = (props: {
@@ -84,7 +85,7 @@ export const Novel = (props: {
       </div>
 
       <div className={`book-author ${isDisabled() && "opacity-40p"}`}>
-        {data.articleInfo.articleOwnerName}
+        {data?.versionInfo?.exhibitProperty?.author || data.articleInfo.articleOwnerName}
       </div>
     </div>
   ) : (
@@ -127,12 +128,12 @@ export const Novel = (props: {
           </div>
 
           <div className={`book-author ${isDisabled() && "opacity-40p"}`}>
-            {data.articleInfo.articleOwnerName}
+            {data?.versionInfo?.exhibitProperty?.author || data.articleInfo.articleOwnerName}
           </div>
 
-          {!(mode === 3 && inMobile) && (
+          {!(mode === 3 && inMobile) && data.tags.length > 0 && (
             <div className={`tags ${isDisabled() && "opacity-40p"}`}>
-              <Tags data={data.tags} />
+              <NewTags data={data.tags} hoverColor="#5D9191" />
             </div>
           )}
 
@@ -141,6 +142,76 @@ export const Novel = (props: {
               className={`auth-tag ${data?.defaulterIdentityType! < 4 ? "is-auth" : "not-auth"}`}
             >
               {data.defaulterIdentityType! < 4 ? "已授权" : "未授权"}
+            </div>
+          )}
+
+          {!inMobile && (
+            <div className="update-date">
+              {data.articleInfo?.articleType === 1 ? (
+                <div className="detail-latest-box">
+                  <div className="single">单本</div>
+                  {data?.versionInfo?.exhibitProperty?.wordCount && (
+                    <div className="word-count">
+                      {formatWordCount((data?.versionInfo as any)?.exhibitProperty?.wordCount) +
+                        "字"}
+                    </div>
+                  )}
+                </div>
+              ) : (data.articleInfo as any)?.serializeStatus === 0 ? (
+                <div className="detail-latest-box">
+                  <div className="on-going">连载中</div>
+                  {(data?.versionInfo?.exhibitProperty?.collection_word_count ||
+                    data?.versionInfo?.exhibitProperty?.wordCount) && (
+                    <div className="word-count">
+                      {formatWordCount(
+                        (data?.versionInfo as any)?.exhibitProperty?.collection_word_count ||
+                          (data?.versionInfo as any)?.exhibitProperty?.wordCount
+                      ) + "字"}
+                    </div>
+                  )}
+                  <div
+                    className="latest-comic"
+                    onClick={e => {
+                      e.stopPropagation();
+                      history.switchPage(
+                        `/reader?collection=${true}&id=${data.exhibitId}&subId=${
+                          (data?.collectionList as any)?.dataList?.[0]?.itemId
+                        }`
+                      );
+                    }}
+                  >
+                    最近更新：
+                    {(data?.collectionList as any)?.dataList?.[0]?.itemTitle}
+                  </div>
+                </div>
+              ) : (data.articleInfo as any)?.serializeStatus === 1 ? (
+                <div className="detail-latest-box">
+                  <div className="completed">已完结</div>
+                  {(data?.versionInfo?.exhibitProperty?.collection_word_count ||
+                    data?.versionInfo?.exhibitProperty?.wordCount) && (
+                    <div className="word-count">
+                      {formatWordCount(
+                        (data?.versionInfo as any)?.exhibitProperty?.collection_word_count ||
+                          (data?.versionInfo as any)?.exhibitProperty?.wordCount
+                      ) + "字"}
+                    </div>
+                  )}
+                  <div
+                    className="latest-comic"
+                    onClick={e => {
+                      e.stopPropagation();
+                      history.switchPage(
+                        `/reader?collection=${true}&id=${data.exhibitId}&subId=${
+                          (data?.collectionList as any)?.dataList?.[0]?.itemId
+                        }`
+                      );
+                    }}
+                  >
+                    最近更新：
+                    {(data?.collectionList as any)?.dataList?.[0]?.itemTitle}
+                  </div>
+                </div>
+              ) : null}
             </div>
           )}
         </div>

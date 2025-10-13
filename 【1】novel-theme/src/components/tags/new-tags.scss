@@ -1,0 +1,56 @@
+.new-tag-wrapper {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  .tag {
+    display: inline;
+    font-size: 12px;
+    color: #666666;
+    line-height: 18px;
+
+    // mobile
+    &.in-mobile {
+      & + .tag {
+        &::before {
+          content: "";
+          width: 1px;
+          height: 10px;
+          background: #000000;
+          opacity: 0.1;
+          display: inline-block;
+          margin: 0 5px;
+        }
+      }
+
+      &:active {
+        background-color: #a0a5ae;
+        color: #fff;
+      }
+    }
+
+    // PC
+    &.in-pc {
+      cursor: pointer;
+      transition: all 0.2s linear;
+
+      & + .tag {
+        &::before {
+          content: "";
+          width: 1px;
+          height: 10px;
+          background: #000000;
+          opacity: 0.1;
+          display: inline-block;
+          margin: 0 5px;
+        }
+      }
+
+      &:hover {
+        color: var(--hover-color);
+      }
+    }
+  }
+}

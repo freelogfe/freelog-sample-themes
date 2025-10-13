@@ -1,3 +1,4 @@
+import { ref } from "vue";
 import { freelogApp } from "freelog-runtime";
 import { storeToRefs } from "pinia";
 import { useGlobalStore } from "@/store/global";
@@ -14,7 +15,7 @@ export const useCommon = {
     const itemsToAdd = []; // 用于存储需要添加的项
 
     const fetchCollectionList = async () => {
-      const subList = await freelogApp.getCollectionSubList(obj.collectionID, {
+      const subList = await freelogApp.getCollectionSubListByPage(obj.collectionID, {
         skip: subSkip,
         limit,
         isShowDetailInfo,
@@ -26,7 +27,7 @@ export const useCommon = {
 
       if (dataList?.length !== 0) {
         const ids = dataList.map(item => item.itemId).join();
-        const statusInfo = await freelogApp.getCollectionSubAuth(obj.collectionID, {
+        const statusInfo = await freelogApp.getCollectionSubAuthStatus(obj.collectionID, {
           itemIds: ids
         });
 
@@ -46,6 +47,7 @@ export const useCommon = {
             item.exhibitIntro = item.articleInfo.intro;
             item.albumName = obj.exhibitName;
             item.exhibitId = obj.collectionID;
+            item.parentArticleType = obj.articleType;
 
             itemsToAdd.push({ exhibitId: item.exhibitId, itemId: item.itemId });
           });
@@ -68,6 +70,183 @@ export const useCommon = {
     return await fetchCollectionList();
   }
 };
+
+export const useGetList = () => {
+  const playListData = ref({
+    total: 0,
+    listData: [],
+    loading: false
+  });
+
+  const listData = ref({
+    total: 0,
+    listData: [],
+    loading: false
+  });
+
+  // 防抖定时器
+  let playListDebounceTimer = null;
+  let listDebounceTimer = null;
+
+  /** 获取歌单列表 */
+  const getPlayList = async () => {
+    playListData.value.loading = true;
+
+    const queryParams = {
+      articleResourceTypes: "歌单",
+      isLoadVersionProperty: 1,
+      limit: 100,
+      skip: playListData.value.listData.length // 使用当前已加载数据的长度作为skip
+    };
+
+    if (
+      playListData.value.listData.length !== 0 &&
+      playListData.value.listData.length === playListData.value.total
+    ) {
+      playListData.value.loading = false;
+      return;
+    }
+
+    const list = await freelogApp.getExhibitListByPage(queryParams);
+    const { dataList, totalItem } = list.data.data;
+
+    if (dataList.length !== 0) {
+      const ids = dataList.map(item => item.exhibitId).join();
+
+      const statusInfo = await freelogApp.getExhibitAuthStatus(ids);
+
+      // 使用for...of确保顺序执行
+      for (const item of dataList) {
+        const index = statusInfo.data.data.findIndex(
+          resultItem => resultItem.exhibitId === item.exhibitId
+        );
+        if (index !== -1) {
+          item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+        }
+
+        if (item.articleInfo.articleType === 3) {
+          const res = await freelogApp.getCollectionSubListByPage(item.exhibitId, {
+            sortType: -1,
+            skip: 0,
+            limit: 1_000,
+            isShowDetailInfo: 1
+          });
+
+          item.collectionList = res.data.data;
+        }
+      }
+
+      // 追加新数据而不是替换
+      playListData.value.listData.push(...dataList);
+      playListData.value.total = totalItem;
+      playListData.value.loading = false;
+    } else {
+      playListData.value.loading = false;
+    }
+  };
+
+  /** 带防抖的获取歌单列表 */
+  const getPlayListWithDebounce = (delay = 200) => {
+    if (playListDebounceTimer) {
+      clearTimeout(playListDebounceTimer);
+    }
+
+    playListDebounceTimer = setTimeout(() => {
+      getPlayList();
+    }, delay);
+  };
+
+  /** 获取列表 */
+  const getList = async params => {
+    listData.value.loading = true;
+
+    const queryParams = {
+      articleResourceTypes: "音频",
+      isLoadVersionProperty: 1,
+      limit: 100,
+      skip: listData.value.listData.length, // 使用当前已加载数据的长度作为skip
+      ...params
+    };
+
+    if (
+      listData.value.listData.length !== 0 &&
+      listData.value.listData.length === listData.value.total
+    ) {
+      listData.value.loading = false;
+      return;
+    }
+
+    const list = await freelogApp.getExhibitListByPage(queryParams);
+    const { dataList, totalItem } = list.data.data;
+
+    if (dataList.length !== 0) {
+      const ids = dataList.map(item => item.exhibitId).join();
+
+      const statusInfo = await freelogApp.getExhibitAuthStatus(ids);
+
+      // 使用for...of确保顺序执行
+      for (const item of dataList) {
+        const index = statusInfo.data.data.findIndex(
+          resultItem => resultItem.exhibitId === item.exhibitId
+        );
+        if (index !== -1) {
+          item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+        }
+
+        if ([2, 3].includes(item.articleInfo.articleType)) {
+          const res = await freelogApp.getCollectionSubListByPage(item.exhibitId, {
+            sortType: -1,
+            skip: 0,
+            limit: 1_000,
+            isShowDetailInfo: 1
+          });
+
+          item.collectionList = res.data.data;
+        }
+      }
+
+      // 追加新数据而不是替换
+      listData.value.listData.push(...dataList);
+      listData.value.total = totalItem;
+      listData.value.loading = false;
+    } else {
+      listData.value.loading = false;
+    }
+  };
+
+  /** 带防抖的获取列表 */
+  const getListWithDebounce = (params, delay = 200) => {
+    if (listDebounceTimer) {
+      clearTimeout(listDebounceTimer);
+    }
+
+    listDebounceTimer = setTimeout(() => {
+      getList(params);
+    }, delay);
+  };
+
+  // 清理定时器的方法
+  const cleanup = () => {
+    if (playListDebounceTimer) {
+      clearTimeout(playListDebounceTimer);
+      playListDebounceTimer = null;
+    }
+    if (listDebounceTimer) {
+      clearTimeout(listDebounceTimer);
+      listDebounceTimer = null;
+    }
+  };
+
+  return {
+    getPlayList,
+    getPlayListWithDebounce,
+    playListData: playListData.value,
+    getList,
+    getListWithDebounce,
+    listData: listData.value,
+    cleanup
+  };
+};
 /** 授权 hook */
 export const useMyAuth = {
   /** 获取签约列表 */
@@ -76,13 +255,14 @@ export const useMyAuth = {
     const { userData } = storeToRefs(store);
 
     // 用户未登录
-    if (!userData.value.isLogin) return;
+    if (!userData.value.isLogin) {
+      return;
+    }
 
     const result = [];
     const signedList = await freelogApp.getSignStatistics();
     const idList = signedList.data.data.map(item => item.subjectId);
     if (!idList.length) {
-      store.setData({ key: "signedList", value: [] });
       return;
     }
 
@@ -103,7 +283,7 @@ export const useMyAuth = {
         defaulterIdentityType: statusItem.defaulterIdentityType
       });
     });
-    store.setData({ key: "signedList", value: result });
+    await store.setData({ key: "signedList", value: result });
   },
 
   /**
@@ -137,10 +317,13 @@ export const useMyAuth = {
 
     authIdList.push(exhibitId);
 
-    store.setData({ key: "collectionList", value: collectionList });
-    store.setData({ key: "signedList", value: signedList });
-    store.setData({ key: "playList", value: playList });
-    store.setData({ key: "authIdList", value: authIdList });
+    // 等待所有状态更新完成
+    await Promise.all([
+      store.setData({ key: "collectionList", value: collectionList }),
+      store.setData({ key: "signedList", value: signedList }),
+      store.setData({ key: "playList", value: playList }),
+      store.setData({ key: "authIdList", value: authIdList })
+    ]);
 
     if (play) {
       useMyPlay.addToPlayList({ exhibitId, itemId });
@@ -171,8 +354,9 @@ export const useMyCollection = {
 
     const result = [];
     const idList = store.collectionIdList;
+    console.log("idList", idList);
     if (!idList.length) {
-      store.setData({ key: "collectionList", value: [] });
+      await store.setData({ key: "collectionList", value: [] });
       return;
     }
 
@@ -180,33 +364,52 @@ export const useMyCollection = {
       if (item.itemId) {
         const [list, subInfo, subStatusList] = await Promise.all([
           freelogApp.getExhibitListById({ exhibitIds: item.exhibitId, isLoadVersionProperty: 1 }),
-          freelogApp.getCollectionSubInfo(item.exhibitId, { itemId: item.itemId }),
-          freelogApp.getCollectionSubAuth(item.exhibitId, { itemIds: item.itemId })
+          freelogApp.getCollectionSubById(item.exhibitId, { itemId: item.itemId }),
+          freelogApp.getCollectionSubAuthStatus(item.exhibitId, { itemIds: item.itemId })
         ]);
         result.push({
           ...subInfo.data.data,
-          onlineStatus: list.data?.data?.[0]?.status,
+          onlineStatus: list.data?.data?.[0]?.onlineStatus,
           coverImages: list.data?.data?.[0]?.coverImages,
           versionInfo: { exhibitProperty: subInfo.data.data.articleInfo?.articleProperty },
-          defaulterIdentityType: subStatusList.data.data[0].defaulterIdentityType
+          defaulterIdentityType: subStatusList.data.data[0].defaulterIdentityType,
+          albumName: list.data.data[0].exhibitTitle,
+          parentArticleType: list.data.data[0].articleInfo?.articleType
         });
       } else {
+        // console.log("item", item);
         const [list, statusList] = await Promise.all([
           freelogApp.getExhibitListById({
-            exhibitIds: item.exhibitId || item,
+            exhibitIds: item.exhibitId || item.id,
             isLoadVersionProperty: 1
           }),
           freelogApp.getExhibitAuthStatus(item.exhibitId)
         ]);
 
-        result.push({
-          ...list.data.data[0],
-          defaulterIdentityType: statusList.data.data[0].defaulterIdentityType
-        });
+        // console.log("listData", list);
+        if ([2, 3].includes(list.data.data[0].articleInfo?.articleType)) {
+          const subList = await freelogApp.getCollectionSubListByPage(item.exhibitId, {
+            sortType: -1,
+            skip: 0,
+            limit: 1_000,
+            isShowDetailInfo: 1
+          });
+
+          result.push({
+            ...list.data.data[0],
+            defaulterIdentityType: statusList.data.data[0].defaulterIdentityType,
+            totalItem: subList.data.data?.totalItem
+          });
+        } else {
+          result.push({
+            ...list.data.data[0],
+            defaulterIdentityType: statusList.data.data[0].defaulterIdentityType
+          });
+        }
       }
     }
 
-    store.setData({ key: "collectionList", value: result });
+    await store.setData({ key: "collectionList", value: result });
   },
 
   /** 判断当前展品是否已被收藏 */
@@ -232,7 +435,7 @@ export const useMyCollection = {
     const combineCollectionIdList = store.collectionIdList.map(
       i => `${i.exhibitId}${i.itemId ?? ""}`
     );
-    const collectionList = [...store.collectionList];
+    const collectionList = [...(store.collectionList || [])];
 
     const isCollected = combineCollectionIdList.includes(`${exhibitId}${itemId ?? ""}`);
     if (isCollected) {
@@ -240,20 +443,37 @@ export const useMyCollection = {
       const idIndex = combineCollectionIdList.findIndex(
         item => item === `${exhibitId}${itemId ?? ""}`
       );
-      collectionIdList.splice(idIndex, 1);
+      if (idIndex !== -1) {
+        collectionIdList.splice(idIndex, 1);
+      }
       const index = collectionList.findIndex(
         item => `${item.exhibitId}${item.itemId ?? ""}` === `${exhibitId}${itemId ?? ""}`
       );
-      collectionList.splice(index, 1);
+      if (index !== -1) {
+        collectionList.splice(index, 1);
+      }
     } else {
       // 收藏
+      // 确认parentArticleType
+      const parentArticleType = await freelogApp.getExhibitById(exhibitId, {
+        isLoadVersionProperty: 1
+      });
+
       collectionIdList.unshift({ exhibitId, itemId });
-      collectionList.unshift(data);
+      collectionList.unshift({
+        ...data,
+        parentArticleType: parentArticleType.data.data.articleInfo.articleType
+      });
     }
+
     const res = await freelogApp.setUserData("collectionIdList", collectionIdList);
     if (res.data.msg === "success") {
-      store.setData({ key: "collectionIdList", value: collectionIdList });
-      store.setData({ key: "collectionList", value: collectionList });
+      // 等待 store 更新完成
+      await store.setData({ key: "collectionIdList", value: collectionIdList });
+      await store.setData({ key: "collectionList", value: collectionList });
+
+      // 显示操作结果提示
+      showToast(isCollected ? "取消收藏成功" : "收藏成功");
     } else {
       showToast("操作失败");
     }
@@ -265,10 +485,12 @@ export const useMyPlay = {
   async getPlayList() {
     const store = useGlobalStore();
     const playIdList = store.playIdList;
+    store.setData({ key: "playListLoading", value: true });
 
     const result = [];
     if (!playIdList.length) {
       store.setData({ key: "playList", value: [] });
+      store.setData({ key: "playListLoading", value: false });
       return;
     }
 
@@ -279,15 +501,16 @@ export const useMyPlay = {
       if (item.itemId) {
         const [list, subInfo, subStatusList] = await Promise.all([
           freelogApp.getExhibitListById({ exhibitIds: item.exhibitId, isLoadVersionProperty: 1 }),
-          freelogApp.getCollectionSubInfo(item.exhibitId, { itemId: item.itemId }),
-          freelogApp.getCollectionSubAuth(item.exhibitId, { itemIds: item.itemId })
+          freelogApp.getCollectionSubById(item.exhibitId, { itemId: item.itemId }),
+          freelogApp.getCollectionSubAuthStatus(item.exhibitId, { itemIds: item.itemId })
         ]);
         result.push({
           ...subInfo.data.data,
           coverImages: list.data?.data?.[0]?.coverImages,
           versionInfo: { exhibitProperty: subInfo.data.data.articleInfo?.articleProperty },
           defaulterIdentityType: subStatusList.data.data[0].defaulterIdentityType,
-          albumName: list.data.data[0].exhibitName
+          albumName: list.data.data[0].exhibitName,
+          parentArticleType: list.data.data[0].articleInfo?.articleType
         });
       } else {
         const [list, statusList] = await Promise.all([
@@ -297,8 +520,7 @@ export const useMyPlay = {
           }),
           freelogApp.getExhibitAuthStatus(item.exhibitId)
         ]);
-
-        if (list.data.data[0].articleInfo.articleType === 2) {
+        if ([2, 3].includes(list.data.data[0].articleInfo?.articleType)) {
           const params = {
             collectionID: list.data.data[0].exhibitId,
             exhibitName: list.data.data[0].exhibitName,
@@ -306,7 +528,8 @@ export const useMyPlay = {
             options: {
               limit: 1_000,
               isShowDetailInfo: 1
-            }
+            },
+            parentArticleType: list.data.data[0].articleInfo?.articleType
           };
 
           const { data, itemsToAdd } = await useCommon.getCollectionSubList(params);
@@ -335,6 +558,7 @@ export const useMyPlay = {
     }
 
     store.setData({ key: "playList", value: result });
+    store.setData({ key: "playListLoading", value: false });
   },
 
   /** 判断当前展品是否已存在播放列表中 */
@@ -649,7 +873,7 @@ export const useMyPlay = {
   async getPlayingInfo(id) {
     const store = useGlobalStore();
     const [info, statusInfo, url] = await Promise.all([
-      freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+      freelogApp.getExhibitById(id, { isLoadVersionProperty: 1 }),
       freelogApp.getExhibitAuthStatus(id),
       freelogApp.getExhibitFileStream(id, { returnUrl: true })
     ]);

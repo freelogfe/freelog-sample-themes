@@ -63,7 +63,10 @@
                 <div class="comic-name">{{ comicInfo?.exhibitTitle }}</div>
 
                 <div class="comic-author">
-                  {{ comicInfo?.articleInfo?.articleOwnerName }}
+                  {{
+                    comicInfo?.versionInfo?.exhibitProperty?.comicCreator ||
+                    comicInfo?.articleInfo?.articleOwnerName
+                  }}
                 </div>
 
                 <div class="tags">
@@ -167,7 +170,7 @@
                   })
                 "
               >
-                <span class="sub-title">{{ item.itemTitle }}</span>
+                <span class="sub-title">{{ getCollectionItemTitle(comicInfo, item) }}</span>
 
                 <img
                   v-if="item.articleInfo?.status === 2"
@@ -192,7 +195,15 @@
               </div>
             </div>
 
-            <div className="tip no-more" v-if="listData.length === total">— 已加载全部章节 —</div>
+            <!-- Loading 状态 -->
+            <div v-if="loading && listData.length > 0" class="loading-container">
+              <img src="../assets/images/loading.svg" alt="加载中" class="loading-icon" />
+            </div>
+
+            <!-- 已加载全部提示 -->
+            <div className="tip no-more" v-if="listData.length === total && !loading">
+              — 已加载全部章节 —
+            </div>
           </div>
 
           <div v-else class="comic-catalogue">
@@ -268,29 +279,49 @@
               </div>
 
               <div class="comic-author">
-                {{ comicInfo?.articleInfo?.articleOwnerName }}
+                {{
+                  comicInfo?.versionInfo?.exhibitProperty?.comicCreator ||
+                  comicInfo?.articleInfo?.articleOwnerName
+                }}
               </div>
 
               <div class="tags">
-                <tags :tags="comicInfo?.tags" />
+                <new-tags :tags="comicInfo?.tags" />
               </div>
 
               <div class="update-date">
-                <div v-if="comicInfo.articleInfo?.articleType === 1">
+                <div class="detail-latest-box" v-if="comicInfo.articleInfo?.articleType === 1">
                   最近更新：{{ formatDate(comicInfo?.articleInfo?.versions[0]?.createDate) }}
                 </div>
 
-                <div v-else-if="comicInfo.articleInfo?.serializeStatus === 0">
-                  <span class="on-going"> 连载中 </span>
+                <div
+                  class="detail-latest-box"
+                  v-else-if="comicInfo.articleInfo?.serializeStatus === 0"
+                >
+                  <div class="on-going">连载中</div>
 
-                  最近更新：
-                  <span class="latest-comic">{{ latestComicItem?.itemTitle }}</span>
-                  {{ formatDate(latestComicItem?.articleInfo?.firstVersionReleaseDate) }}
+                  <div class="update-count">更新至{{ total }}话</div>
+                  <div class="latest-comic-container">
+                    <div class="latest-comic">最近更新：{{ latestComicItem?.itemTitle }}</div>
+                    <div class="latest-comic-time">
+                      {{ formatDate(latestComicItem?.articleInfo?.firstVersionReleaseDate) }}
+                    </div>
+                  </div>
                 </div>
 
-                <div v-else-if="comicInfo.articleInfo?.serializeStatus === 1">
-                  <span class="completed"> 已完结 </span>
-                  共 {{ listData.length }} 话
+                <div
+                  class="detail-latest-box"
+                  v-else-if="comicInfo.articleInfo?.serializeStatus === 1"
+                >
+                  <div class="completed">已完结</div>
+
+                  <div class="update-count">共 {{ total }} 话</div>
+                  <div class="latest-comic-container">
+                    <div class="latest-comic">最近更新：{{ latestComicItem?.itemTitle }}</div>
+                    <div class="latest-comic-time">
+                      {{ formatDate(latestComicItem?.articleInfo?.firstVersionReleaseDate) }}
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -354,8 +385,13 @@
               <div class="title-container">
                 <span class="title">目录</span>
                 <span class="count">
-                  {{ comicInfo.articleInfo?.serializeStatus === 1 ? "已完结" : "连载中" }}
-                  · 共{{ total }}话
+                  <span
+                    class="status"
+                    :class="comicInfo.articleInfo?.serializeStatus === 1 ? 'completed' : 'ongoing'"
+                  >
+                    {{ comicInfo.articleInfo?.serializeStatus === 1 ? "已完结" : "连载中" }}
+                  </span>
+                  更新至{{ total }}话
                 </span>
 
                 <div class="sort" @click="handleSort">
@@ -364,10 +400,7 @@
                 </div>
               </div>
 
-              <div
-                class="latest-tip-box"
-                v-if="isClickedLatestComic?.info?.itemId !== latestComicItem.itemId"
-              >
+              <div class="latest-tip-box" v-if="!isLatestComicViewed">
                 <div class="latest-title">最近更新</div>
                 <div class="latest-comic">{{ latestComicItem?.itemTitle }}</div>
                 <span class="time">
@@ -387,7 +420,6 @@
                   :key="item.itemId"
                   @click="
                     async () => {
-                      await handleLatestComic(item);
                       await handleReaderHistory(item);
                       switchPage('/reader', {
                         id: comicInfo?.exhibitId,
@@ -399,11 +431,9 @@
                 >
                   <span
                     class="sub-title"
-                    :class="
-                      !currentHistoryComic?.find(i => i.itemId === item.itemId) && 'is-latest'
-                    "
+                    :class="!isChapterViewed(item) && 'is-latest-temporary-not-viewed'"
                   >
-                    {{ item.itemTitle }}
+                    {{ getCollectionItemTitle(comicInfo, item) }}
                   </span>
                   <img
                     v-if="item.articleInfo?.status === 2"
@@ -429,7 +459,15 @@
                 </div>
               </div>
 
-              <div className="tip no-more" v-if="listData.length === total">— 已加载全部章节 —</div>
+              <!-- Loading 状态 -->
+              <div v-if="loading && listData.length > 0" class="loading-container">
+                <img src="../assets/images/loading.svg" alt="加载中" class="loading-icon" />
+              </div>
+
+              <!-- 已加载全部提示 -->
+              <div className="tip no-more" v-if="listData.length === total && !loading">
+                — 已加载全部章节 —
+              </div>
             </div>
 
             <div v-else class="comic-catalogue">
@@ -455,9 +493,23 @@ import { useStore } from "vuex";
 import { defineAsyncComponent, reactive, ref, toRefs, watch } from "@vue/runtime-core";
 import { WidgetController, freelogApp } from "freelog-runtime";
 import { useMyRouter, useMyShelf, useMyScroll } from "@/utils/hooks";
+import { updateWxConfig } from "@/utils/update-wx-share";
+
 import { formatDate, showToast } from "@/utils/common";
 import { ExhibitItem, CollectionList } from "@/api/interface";
 import { State } from "@/store/index";
+
+// 添加防抖函数
+const debounce = <T extends (...args: any[]) => any>(
+  func: T,
+  delay: number
+): ((...args: Parameters<T>) => void) => {
+  let timeoutId: number;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(null, args), delay);
+  };
+};
 
 export default {
   name: "detail",
@@ -467,7 +519,8 @@ export default {
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     "login-btn": defineAsyncComponent(() => import("../components/login-btn.vue")),
     "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
-    tags: defineAsyncComponent(() => import("../components/tags.vue"))
+    tags: defineAsyncComponent(() => import("../components/tags.vue")),
+    "new-tags": defineAsyncComponent(() => import("../components/new-tags.vue"))
   },
 
   setup() {
@@ -484,9 +537,11 @@ export default {
       shareShow: false,
       introState: 0,
       href: "",
-      shareWidget: null as WidgetController | null
+      shareWidget: null as WidgetController | null,
+      // 添加请求状态管理
+      loading: false,
+      requestId: 0
     });
-    const latestComicData = ref<{ id: number; info: CollectionList[] }[]>([]);
     const historyComicData = ref<{ id: number; info: CollectionList[] }[]>([]);
 
     const collectionData = reactive({
@@ -494,6 +549,8 @@ export default {
       total: 0,
       skip: 0
     });
+
+    const collectionDataDesc = ref();
 
     const methods = {
       /** 移动端分享 */
@@ -565,15 +622,14 @@ export default {
         freelogApp.getExhibitAuthStatus(id)
       ]);
 
-      const latestViewedResponse = await freelogApp.getUserData("comicLatestViewedHistory");
-      latestComicData.value = latestViewedResponse?.data?.data;
-
       const comicViewedResponse = await freelogApp.getUserData("comicViewedHistory");
       historyComicData.value = comicViewedResponse?.data?.data || [];
 
       const articleType = exhibitInfo.data.data.articleInfo.articleType;
       if (articleType === 2) {
         getCollectionList(true);
+        // 目的：获取合集的倒序内容
+        getCollectionListBySortTypeDesc();
 
         sortOrder.value =
           (exhibitInfo.data.data.versionInfo?.exhibitProperty?.catalogueProperty as any)
@@ -590,6 +646,8 @@ export default {
         defaulterIdentityType
       };
       data.href = freelogApp.getCurrentUrl();
+
+      updateWxConfig(exhibitInfo.data.data as any);
 
       mountShareWidget();
     };
@@ -626,115 +684,118 @@ export default {
       let { total, listData, skip } = collectionData;
 
       if (!init && listData.length >= total) return;
-      skip = init ? 0 : collectionData.skip + 50;
+      if (data.loading) return; // 如果正在加载，直接返回
 
-      const subList = await (freelogApp as any).getCollectionSubList(id, {
-        skip,
-        limit: 50
-      });
-      const { dataList, totalItem } = subList.data.data;
-      collectionData.total = totalItem;
+      data.loading = true;
+      const currentRequestId = ++data.requestId;
 
-      if (dataList.length !== 0) {
-        const ids = dataList.map((item: any) => item.itemId).join();
-        const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
-        if (statusInfo.data.data) {
-          (dataList as CollectionList[]).forEach(item => {
-            const index = statusInfo?.data?.data?.findIndex(
-              (resultItem: { itemId: string }) => resultItem.itemId === item.itemId
-            );
-            if (index !== -1) {
-              item.defaulterIdentityType = statusInfo?.data?.data[index].defaulterIdentityType;
-            }
-          });
+      try {
+        skip = init ? 0 : collectionData.skip + 50;
+
+        const subList = await (freelogApp as any).getCollectionSubList(id, {
+          skip,
+          limit: 50
+        });
+
+        // 检查是否是最新的请求
+        if (currentRequestId !== data.requestId) {
+          return; // 不是最新请求，放弃结果
         }
+
+        const { dataList, totalItem } = subList.data.data;
+        collectionData.total = totalItem;
+
+        if (dataList.length !== 0) {
+          const ids = dataList.map((item: any) => item.itemId).join();
+          const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
+
+          // 再次检查是否是最新的请求
+          if (currentRequestId !== data.requestId) {
+            return;
+          }
+
+          if (statusInfo.data.data) {
+            (dataList as CollectionList[]).forEach(item => {
+              const index = statusInfo?.data?.data?.findIndex(
+                (resultItem: { itemId: string }) => resultItem.itemId === item.itemId
+              );
+              if (index !== -1) {
+                item.defaulterIdentityType = statusInfo?.data?.data[index].defaulterIdentityType;
+              }
+            });
+          }
+        }
+        collectionData.listData = init ? dataList : [...listData, ...dataList];
+        collectionData.skip = skip; // 更新 skip 值
+      } catch (error) {
+        console.error("Error loading collection list:", error);
+      } finally {
+        data.loading = false;
       }
-      collectionData.listData = init ? dataList : [...listData, ...dataList];
     };
 
-    // 记录用户点击最近更新一话
-    const handleLatestComic = async (item: any) => {
-      if (latestComicItem?.value?.itemId === item.itemId) {
-        if (!latestComicData.value) {
-          latestComicData.value = [];
-        }
+    /** 获取合集的倒序内容 */
+    const getCollectionListBySortTypeDesc = async () => {
+      const res = await (freelogApp as any).getCollectionSubList(id, {
+        sortType: -1,
+        skip: 0,
+        limit: 50,
+        isShowDetailInfo: 1
+      });
 
-        const existingIndex = latestComicData.value.findIndex((i: any) => i.id === id);
-
-        if (existingIndex !== -1) {
-          latestComicData.value[existingIndex] = { id, info: item };
-        } else {
-          latestComicData.value.push({ id, info: item });
-        }
-
-        await freelogApp.setUserData("comicLatestViewedHistory", latestComicData.value);
-      }
+      collectionDataDesc.value = res.data.data as any;
     };
 
     // 记录用户阅读历史
     const handleReaderHistory = async (item: any) => {
-      if (!historyComicData.value) {
-        historyComicData.value = [];
-      }
-
-      // 查找当前漫画ID是否已存在于历史记录中
-      const existingIndex = historyComicData.value.findIndex((i: any) => i.id === id);
+      const newHistoryComicData = [...(historyComicData.value || [])];
+      const existingIndex = newHistoryComicData.findIndex((i: any) => i.id === id);
 
       if (existingIndex !== -1) {
-        // 如果漫画ID已存在，检查该章节是否已记录
-        const existingComic = historyComicData.value[existingIndex];
+        const existingComic = newHistoryComicData[existingIndex];
 
         // 确保info是一个数组
         if (!Array.isArray(existingComic.info)) {
           existingComic.info = existingComic.info ? [existingComic.info] : [];
         }
 
-        // 检查当前章节是否已存在于记录中
-        const chapterIndex = existingComic.info.findIndex((chapter: any) => {
+        // 检查当前章节是否已存在于记录中（只比较itemId）
+        const existingChapters = existingComic.info.filter((chapter: any) => {
           return chapter.itemId === item.itemId;
         });
 
-        if (chapterIndex !== -1) {
-          // 如果章节已存在，更新它
-          // existingComic.info[chapterIndex] = item;
-        } else {
-          // 如果章节不存在，添加到数组中
-          existingComic.info.push(item);
+        console.log("找到的重复章节数量", existingChapters.length);
+
+        if (existingChapters.length > 0) {
+          // 如果章节已存在，删除所有相同itemId的旧数据
+          existingComic.info = existingComic.info.filter((chapter: any) => {
+            return chapter.itemId !== item.itemId;
+          });
+          console.log("删除所有旧数据后", existingComic.info);
         }
 
+        // 添加新数据
+        existingComic.info.push(item);
+        console.log("添加新数据后", existingComic.info);
+
         // 更新历史记录
-        historyComicData.value[existingIndex] = existingComic;
+        newHistoryComicData[existingIndex] = existingComic;
       } else {
         // 如果漫画ID不存在，创建新记录，将info设为数组
-        historyComicData.value.push({
+        newHistoryComicData.push({
           id,
           info: [item]
         });
       }
 
-      // 保存到用户数据
-      await freelogApp.setUserData("comicViewedHistory", historyComicData.value);
-      // freelogApp.setUserData("comicViewedHistory", []);
+      historyComicData.value = newHistoryComicData;
+      await freelogApp.setUserData("comicViewedHistory", newHistoryComicData);
     };
 
     // 最近更新的一话
     const latestComicItem = computed(() => {
       if (data.comicInfo?.articleInfo?.articleType === 2) {
-        const items = [...collectionData.listData].sort((a: any, b: any) => a.sortId - b.sortId);
-
-        return items[items.length - 1];
-      }
-
-      return null;
-    });
-
-    // 用户是否已点击最近更新一话
-    const isClickedLatestComic = computed(() => {
-      if (!latestComicData.value) return null;
-      const existingIndex = latestComicData.value.findIndex((i: any) => i.id === id);
-
-      if (existingIndex !== -1) {
-        return latestComicData.value[existingIndex];
+        return collectionDataDesc.value?.dataList[0];
       }
 
       return null;
@@ -747,6 +808,60 @@ export default {
       return res?.info || [];
     });
 
+    // 判断用户是不是看过最近更新一话
+    const isLatestComicViewed = computed(() => {
+      const historyItem = currentHistoryComic.value.find(
+        (item: any) => item.itemId === latestComicItem.value.itemId
+      );
+
+      console.log("所以时间一样吗", historyItem?.createDate === latestComicItem.value.createDate);
+      return historyItem?.createDate === latestComicItem.value.createDate;
+    });
+
+    // 判断某个章节是否已阅读过
+    const isChapterViewed = (chapterItem: any) => {
+      if (!chapterItem?.itemId) return false;
+
+      const historyItem = currentHistoryComic.value.find(
+        (item: any) => item.itemId === chapterItem.itemId
+      );
+
+      return historyItem?.createDate === chapterItem.createDate;
+    };
+
+    /**
+     * 获取集合项目标题的公共函数
+     * @param comic 漫画对象
+     * @param collectionItem 集合项目对象
+     * @returns 返回应该显示的标题
+     */
+    const getCollectionItemTitle = (comic: any, collectionItem: any) => {
+      const itemTitle =
+        comic?.versionInfo?.exhibitProperty?.catalogueProperty?.collection_item_title;
+      // 作品标题
+      if (itemTitle === "collection_item_title_rtitle") {
+        return (collectionItem?.articleInfo as any)?.articleTitle || "";
+      }
+      // 连载编号
+      if (itemTitle === "collection_item_title_sn") {
+        return (
+          collectionItem?.articleInfo?.articleProperty?.number ||
+          (collectionItem?.articleInfo as any)?.articleTitle ||
+          ""
+        );
+      }
+      // 自定义
+      if (itemTitle === "collection_item_title_custom") {
+        return collectionItem.itemTitle || (collectionItem?.articleInfo as any)?.articleTitle || "";
+      }
+      // 不显示
+      if (itemTitle === "collection_item_title_empty") {
+        return (collectionItem?.articleInfo as any)?.articleTitle || "";
+      }
+
+      return (collectionItem?.articleInfo as any)?.articleTitle || "";
+    };
+
     watch(
       () => introContent.value,
       () => {
@@ -756,11 +871,15 @@ export default {
       }
     );
 
+    // 创建防抖版本的 getCollectionList
+    const debouncedGetCollectionList = debounce(getCollectionList, 300);
+
     watch(
       () => scrollTop.value,
       cur => {
-        if (cur + clientHeight.value !== scrollHeight.value) return;
-        getCollectionList();
+        if (cur + clientHeight.value + 1 >= scrollHeight.value) {
+          debouncedGetCollectionList();
+        }
       }
     );
 
@@ -785,9 +904,10 @@ export default {
       historyComicData,
       currentHistoryComic,
       latestComicItem,
-      handleLatestComic,
       handleReaderHistory,
-      isClickedLatestComic
+      getCollectionItemTitle,
+      isLatestComicViewed,
+      isChapterViewed
     };
   }
 };

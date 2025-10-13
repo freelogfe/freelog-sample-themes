@@ -290,6 +290,11 @@
 
       .breadcrumbs-item {
         color: #999999;
+
+        .collection-item-text {
+          margin-left: 10px;
+          color: #222222;
+        }
       }
 
       .current-page {

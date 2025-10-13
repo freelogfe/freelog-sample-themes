@@ -79,7 +79,14 @@ const operateCollect = data => {
 const share = data => {
   store.setData({
     key: "shareInfo",
-    value: { show: true, exhibit: data }
+    value: {
+      show: true,
+      exhibit: {
+        ...data,
+        shareUrlGenerationException: "音乐主题",
+        parentArticleType: data.itemId ? 2 : 1
+      }
+    }
   });
 };
 

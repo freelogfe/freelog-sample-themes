@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState, useEffect, useCallback } from "react";
+import React, { useContext, useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { freelogApp } from "freelog-runtime";
 import CSSTransition from "react-transition-group/CSSTransition";
@@ -17,6 +17,7 @@ import AllLoadedDark from "../../assets/images/all-loaded-dark.png";
 import AllLoadedLight from "../../assets/images/all-loaded-light.png";
 
 import "./reader.scss";
+import { updateWxConfig } from "../../utils/update-wx-share";
 
 export const readerContext = React.createContext<any>({});
 
@@ -50,6 +51,7 @@ export const ReaderScreen = (props: any) => {
   const location = useLocation();
   const skip = useRef(0);
   const widgetList = useRef<any>({});
+  const collectionListRef = useRef<CollectionList[]>([]);
 
   /** 获取小说信息 */
   const getNovelInfo = useCallback(async () => {
@@ -60,9 +62,16 @@ export const ReaderScreen = (props: any) => {
     ]);
 
     const { articleType } = exhibitInfo.data.data.articleInfo;
+    if (articleType === 1) {
+      // 更新微信分享
+      updateWxConfig(exhibitInfo.data.data as any);
+    }
     if (articleType === 2) {
-      getCollectionList(true);
-      getCollectionInfo();
+      // 重置 ref 数据
+      collectionListRef.current = [];
+      setCollectionList([]);
+      await getCollectionList(true);
+      await getCollectionInfo();
     }
     getRecommendList();
     setBook((pre: any) => {
@@ -78,7 +87,7 @@ export const ReaderScreen = (props: any) => {
   const getCollectionList = useCallback(
     async (init = false, skipChapter = 0) => {
       try {
-        if (!init && collectionList.length >= total) {
+        if (!init && collectionListRef.current.length >= total) {
           return;
         }
 
@@ -106,13 +115,16 @@ export const ReaderScreen = (props: any) => {
           }
           // return dataList;
 
-          setCollectionList(pre => [...pre, ...dataList]);
+          // 同时更新 ref 和 state
+          const newList = [...collectionListRef.current, ...dataList];
+          collectionListRef.current = newList;
+          setCollectionList(newList);
         }
       } catch (error) {
         console.error("Failed to get collection list", error);
       }
     },
-    [id, collectionList]
+    [id, total]
   );
 
   /** 获取推荐列表 */
@@ -135,11 +147,24 @@ export const ReaderScreen = (props: any) => {
     setBook((pre: any) => {
       return {
         ...pre,
-        articleInfo: res.data.data.articleInfo
+        articleInfo: res.data.data.articleInfo,
+        collectionInfo: res.data.data
       };
     });
-    getCollectionList(false, sortId - 15 < 0 ? 0 : sortId - 15);
+    await getCollectionList(false, sortId - 15 < 0 ? 0 : sortId - 15);
     setCurrentSortId(sortId);
+
+    // 更新微信分享
+    const {
+      itemTitle,
+      articleInfo: { intro, coverImages }
+    } = res.data.data;
+    const config = {
+      exhibitIntro: intro,
+      coverImages,
+      exhibitTitle: itemTitle
+    };
+    updateWxConfig(config);
   };
 
   /** 加载分享插件 */
@@ -168,6 +193,7 @@ export const ReaderScreen = (props: any) => {
           routerType: "reader"
         }
       }
+      // widget_entry: "https://localhost:8201"
     };
     widgetList.current.share = await freelogApp.mountArticleWidget(params);
   };
@@ -195,6 +221,7 @@ export const ReaderScreen = (props: any) => {
       }
       // widget_entry: "https://localhost:8202",
     };
+
     widgetList.current.markdown = await freelogApp.mountArticleWidget(params);
   };
 
@@ -312,7 +339,9 @@ export const ReaderScreen = (props: any) => {
     currentSortId,
     total,
     collectionList,
-    recommendList
+    recommendList,
+    widgetList,
+    getNovelInfo
   };
 
   return (
@@ -369,11 +398,14 @@ const ReaderBody = () => {
     currentSortId,
     total,
     collectionList,
-    recommendList
+    recommendList,
+    widgetList,
+    getNovelInfo
   } = useContext(readerContext);
 
   const [content, setContent] = useState<string>("");
   const [defaulterIdentityType, setDefaulterIdentityType] = useState<number | null>(null);
+  const [historyNovelData, setHistoryNovelData] = useState<any[]>([]);
 
   const preSubId =
     (collection &&
@@ -388,6 +420,7 @@ const ReaderBody = () => {
 
   /** 获取小说内容 */
   const getContent = useCallback(async () => {
+    setContent(""); // 先清空内容
     let authErrType: any = -1;
     const statusInfo = collection
       ? await (freelogApp as any).getCollectionSubAuth(id, { itemIds: subId })
@@ -396,6 +429,10 @@ const ReaderBody = () => {
       authErrType = statusInfo.data.data[0].defaulterIdentityType;
     }
     setDefaulterIdentityType(authErrType!);
+
+    if (collection) {
+      await getCollectionListBySortTypeDesc();
+    }
 
     if (authErrType === 0) {
       // 已签约并且授权链无异常
@@ -420,12 +457,64 @@ const ReaderBody = () => {
   const getAuth = async () => {
     const authResult = await freelogApp.addAuth(id, { immediate: true });
     const { status } = authResult;
-    if (status === 0) getContent();
+    if (status === 0) {
+      await getNovelInfo();
+      getContent();
+    }
   };
 
   /** 跳转详情 */
   const toDetailFromRecommend = (exhibitId: string) => {
     history.switchPage(`/detail?id=${exhibitId}`);
+  };
+
+  /** 获取合集的倒序内容 */
+  const getCollectionListBySortTypeDesc = async () => {
+    const novelViewedResponse = await freelogApp.getUserData("novelViewedHistory");
+    setHistoryNovelData(novelViewedResponse?.data?.data || []);
+  };
+
+  // 记录用户阅读历史
+  const handleReaderHistory = async (item: any) => {
+    const newHistoryNovelData = [...(historyNovelData || [])];
+    console.log("newHistoryNovelData", newHistoryNovelData);
+    const existingIndex = newHistoryNovelData.findIndex((i: any) => i.id === id);
+
+    if (existingIndex !== -1) {
+      const existingNovel = newHistoryNovelData[existingIndex];
+
+      // 确保info是一个数组
+      if (!Array.isArray(existingNovel.info)) {
+        existingNovel.info = existingNovel.info ? [existingNovel.info] : [];
+      }
+
+      // 检查当前章节是否已存在于记录中（只比较itemId）
+      const existingChapters = existingNovel.info.filter((chapter: any) => {
+        return chapter.itemId === item.itemId;
+      });
+
+      if (existingChapters.length > 0) {
+        // 如果章节已存在，删除所有相同itemId的旧数据
+        existingNovel.info = existingNovel.info.filter((chapter: any) => {
+          return chapter.itemId !== item.itemId;
+        });
+      }
+
+      // 添加新数据
+      existingNovel.info.push(item);
+
+      // 更新历史记录
+      newHistoryNovelData[existingIndex] = existingNovel;
+    } else {
+      // 如果漫画ID不存在，创建新记录，将info设为数组
+      newHistoryNovelData.push({
+        id,
+        info: [item]
+      });
+    }
+
+    setHistoryNovelData(newHistoryNovelData);
+    await freelogApp.setUserData("novelViewedHistory", newHistoryNovelData);
   };
 
   useEffect(() => {
@@ -441,6 +530,13 @@ const ReaderBody = () => {
     // eslint-disable-next-line
   }, [book, content]);
 
+  useEffect(() => {
+    if (!content && widgetList.current.markdown) {
+      widgetList.current.markdown.unmount();
+      widgetList.current.markdown = null;
+    }
+  }, [content]);
+
   if (loading || !book) {
     return <Loader />;
   } else if (inMobile === true) {
@@ -455,13 +551,22 @@ const ReaderBody = () => {
         }
       >
         <div className="info-area">
-          <span>最近更新：{formatDate(book?.updateDate)}</span>
+          <span>
+            最近更新：
+            {formatDate(
+              collection
+                ? book?.collectionInfo?.articleInfo?.latestVersionReleaseDate
+                : book?.updateDate
+            )}
+          </span>
           {(book?.articleInfo?.articleProperty?.wordCount ||
-            book?.versionInfo?.exhibitProperty?.wordCount) && (
+            book?.versionInfo?.exhibitProperty?.wordCount ||
+            book?.collectionInfo?.articleInfo?.articleProperty?.wordCount) && (
             <span>
               {formatWordCount(
                 book?.articleInfo?.articleProperty?.wordCount ||
-                  book?.versionInfo?.exhibitProperty?.wordCount
+                  book?.versionInfo?.exhibitProperty?.wordCount ||
+                  book?.collectionInfo?.articleInfo?.articleProperty?.wordCount
               )}
               字
             </span>
@@ -479,7 +584,8 @@ const ReaderBody = () => {
                   <span className="exceptional-text"> 作品已下架，无法访问 </span>
                 </div>
               </div>
-            ) : ![0, 4].includes(book?.defaulterIdentityType) ? (
+            ) : book?.defaulterIdentityType != null &&
+              ![0, 4].includes(book?.defaulterIdentityType) ? (
               <div className="exceptional-box">
                 <div className="icon">
                   <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
@@ -585,6 +691,13 @@ const ReaderBody = () => {
           <div className="breadcrumbs-item">
             <div className="second-text-btn" onClick={() => history.switchPage(`/detail?id=${id}`)}>
               {book?.exhibitTitle}
+              {/* 合集单章节 */}
+              {collection && (
+                <>
+                  <span> {">"}</span>
+                  <span className="collection-item-text">{book?.collectionInfo?.itemTitle}</span>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -598,13 +711,22 @@ const ReaderBody = () => {
           }
         >
           <div className="info-area">
-            <span>最近更新：{formatDate(book?.updateDate)}</span>
+            <span>
+              最近更新：
+              {formatDate(
+                collection
+                  ? book?.collectionInfo?.articleInfo?.latestVersionReleaseDate
+                  : book?.updateDate
+              )}
+            </span>
             {(book?.articleInfo?.articleProperty?.wordCount ||
-              book?.versionInfo?.exhibitProperty?.wordCount) && (
+              book?.versionInfo?.exhibitProperty?.wordCount ||
+              book?.collectionInfo?.articleInfo?.articleProperty?.wordCount) && (
               <span>
                 {formatWordCount(
                   book?.articleInfo?.articleProperty?.wordCount ||
-                    book?.versionInfo?.exhibitProperty?.wordCount
+                    book?.versionInfo?.exhibitProperty?.wordCount ||
+                    book?.collectionInfo?.articleInfo?.articleProperty?.wordCount
                 )}
                 字
               </span>
@@ -622,7 +744,8 @@ const ReaderBody = () => {
                     <span className="exceptional-text"> 作品已下架，无法访问 </span>
                   </div>
                 </div>
-              ) : ![0, 4].includes(book?.defaulterIdentityType) ? (
+              ) : book?.defaulterIdentityType != null &&
+                ![0, 4].includes(book?.defaulterIdentityType) ? (
                 <div className="exceptional-box">
                   <div className="icon">
                     <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
@@ -681,7 +804,12 @@ const ReaderBody = () => {
               >
                 <div
                   className={`pre ${currentSortId === 1 && "disabled"}`}
-                  onClick={() => {
+                  onClick={async () => {
+                    const subIdInfo = collectionList?.find((i: any) => i.itemId === preSubId);
+                    if (subIdInfo) {
+                      await handleReaderHistory(subIdInfo);
+                    }
+
                     scrollToTop();
                     history.switchPage(
                       `/reader?collection=${true}&id=${book.exhibitId}&subId=${preSubId}`
@@ -698,7 +826,12 @@ const ReaderBody = () => {
                 </div>
                 <div
                   className={`next ${currentSortId === total && "disabled"}`}
-                  onClick={() => {
+                  onClick={async () => {
+                    const subIdInfo = collectionList?.find((i: any) => i.itemId === nextSubId);
+                    if (subIdInfo) {
+                      await handleReaderHistory(subIdInfo);
+                    }
+
                     scrollToTop();
                     history.switchPage(
                       `/reader?collection=${true}&id=${book.exhibitId}&subId=${nextSubId}`

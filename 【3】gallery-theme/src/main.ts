@@ -5,21 +5,24 @@ import AppPage from "./App.vue";
 import routes from "./router";
 import store from "./store";
 import lazyPlugin from "vue3-lazy";
-import { initFreelogApp } from "freelog-runtime";
+import { freelogApp, initFreelogApp } from "freelog-runtime";
+import mapRoutes from "@/utils/map-routes";
 
 const myWindow: any = window;
 let app: App<Element> | null = null;
 let router: VueRouter.Router | null = null;
 let history: VueRouter.RouterHistory | null = null;
 
-myWindow.mount = () => {
+myWindow.mount = async () => {
   history = VueRouter.createWebHistory();
   router = VueRouter.createRouter({
     history,
-    routes,
+    routes
   });
 
   initFreelogApp();
+
+  await (freelogApp as any).mapShareUrl(mapRoutes);
 
   app = createApp(AppPage);
   app.use(router).use(store).use(lazyPlugin, {});

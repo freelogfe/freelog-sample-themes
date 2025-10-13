@@ -15,3 +15,9 @@
 - podcast-theme: 播客主题 by Vue2
 
 - music-theme: 音乐主题 by Vue3
+
+
+- 关于 articleInfo.articleType 
+  1:独立资源
+  2:组合资源(合集)
+  3:节点组合资源 4:存储对象

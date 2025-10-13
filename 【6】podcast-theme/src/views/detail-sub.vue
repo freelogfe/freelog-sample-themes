@@ -6,7 +6,9 @@
       weigui:
         voiceInfo &&
         (voiceInfo.articleInfo.status === 2 ||
-          (voiceInfo.child && voiceInfo.child.articleInfo && voiceInfo.child.articleInfo.status === 2) ||
+          (voiceInfo.child &&
+            voiceInfo.child.articleInfo &&
+            voiceInfo.child.articleInfo.status === 2) ||
           (voiceInfo.child && voiceInfo.child.authCode === 403))
     }"
   >
@@ -17,7 +19,9 @@
           v-if="
             voiceInfo &&
             (voiceInfo.articleInfo.status === 2 ||
-              (voiceInfo.child && voiceInfo.child.articleInfo && voiceInfo.child.articleInfo.status === 2) ||
+              (voiceInfo.child &&
+                voiceInfo.child.articleInfo &&
+                voiceInfo.child.articleInfo.status === 2) ||
               (voiceInfo.child && voiceInfo.child.authCode === 403))
           "
           class="detail-weigui"
@@ -74,6 +78,8 @@
                 v-if="
                   playingInfo &&
                   voiceInfo.articleInfo.articleType === 2 &&
+                  playingInfo.child &&
+                  voiceInfo.child &&
                   playingInfo.child.itemId === voiceInfo.child.itemId
                 "
                 class="duration"
@@ -156,7 +162,7 @@
               </div>
 
               <div class="btns-area">
-                <template v-if="playingInfo && voiceInfo.articleInfo.articleType === 2">
+                <template v-if="playingInfo && [2, 3].includes(voiceInfo.articleInfo.articleType)">
                   <div class="duration" v-if="playingInfo.exhibitId !== voiceInfo.exhibitId">
                     时长{{ computedDuration }}
                   </div>
@@ -165,6 +171,8 @@
                       class="playing-mark"
                       v-if="
                         playingInfo.exhibitId === voiceInfo.exhibitId &&
+                        playingInfo.child &&
+                        voiceInfo.child &&
                         playingInfo.child.itemId === voiceInfo.child.itemId
                       "
                     >
@@ -223,6 +231,7 @@ import { secondsToHMS, showToast } from "@/utils/common";
 import voice from "@/components/voice";
 import { freelogApp } from "freelog-runtime";
 import { supportAudio, unSupportAudioIOS } from "@/api/data";
+import { updateWxConfig } from "@/utils/update-wx-share";
 
 export default {
   name: "detail-sub",
@@ -329,14 +338,13 @@ export default {
       const isCollected = useMyCollection.ifExist(this.voiceInfo);
       return [
         {
-          icon:
-            this.voiceInfo.articleInfo.articleType === 2
-              ? !this.ifSupportMime || this.offOrAuthErrorComputed
-                ? "fl-icon-wufabofang"
-                : this.playing
-                ? "fl-icon-zanting-daibiankuang"
-                : "fl-icon-bofang-daibiankuang"
-              : "fl-icon-bofang-daibiankuang",
+          icon: [2, 3].includes(this.voiceInfo.articleInfo.articleType)
+            ? !this.ifSupportMime || this.offOrAuthErrorComputed
+              ? "fl-icon-wufabofang"
+              : this.playing
+              ? "fl-icon-zanting-daibiankuang"
+              : "fl-icon-bofang-daibiankuang"
+            : "fl-icon-bofang-daibiankuang",
           title:
             !this.ifSupportMime || this.offOrAuthErrorComputed
               ? "无法播放"
@@ -345,7 +353,7 @@ export default {
               : "播放",
           operate: this.playOrPause,
           disabled: !(
-            (this.voiceInfo.articleInfo.articleType === 2 &&
+            ([2, 3].includes(this.voiceInfo.articleInfo.articleType) &&
               this.ifSupportMime &&
               !this.offOrAuthErrorComputed) ||
             (this.voiceInfo.articleInfo.articleType === 1 &&
@@ -358,7 +366,7 @@ export default {
           title: "加入播放列表",
           operate: this.addToPlayList,
           disabled: !(
-            this.voiceInfo.articleInfo.articleType === 2 &&
+            [2, 3].includes(this.voiceInfo.articleInfo.articleType) &&
             !isInPlayList &&
             this.ifSupportMime &&
             !this.offOrAuthErrorComputed
@@ -382,7 +390,7 @@ export default {
     /** 加入播放列表 */
     async addToPlayList() {
       const { exhibitId, articleInfo, child } = this.voiceInfo;
-      if (articleInfo.articleType === 2) {
+      if ([2, 3].includes(articleInfo.articleType)) {
         useMyPlay.addToPlayList({
           id: exhibitId,
           itemId: child.itemId,
@@ -450,6 +458,18 @@ export default {
         info.data.data.child.url = url;
         info.data.data.child.authCode = subStatusInfo.data.data[0].authCode;
         result = info.data.data;
+
+        // 更新微信分享
+        const {
+          itemTitle,
+          articleInfo: { intro, coverImages }
+        } = detail.data.data;
+        const config = {
+          exhibitIntro: intro,
+          coverImages,
+          exhibitTitle: itemTitle
+        };
+        updateWxConfig(config);
       }
       this.voiceInfo = result;
     },
@@ -476,7 +496,7 @@ export default {
       position: relative;
       width: 140px;
       height: 140px;
-      background: #222;
+      // background: #222;
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-sizing: border-box;
       border-radius: 10px;
@@ -536,6 +556,12 @@ export default {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+        opacity: 0.8;
+        color: var(--text-color);
+
+        &:hover {
+          opacity: 1;
+        }
       }
     }
 
@@ -696,7 +722,7 @@ export default {
       position: fixed;
       width: 140px;
       height: 140px;
-      background: #222;
+      // background: #222;
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-sizing: border-box;
       border-radius: 10px;
@@ -742,7 +768,7 @@ export default {
       position: relative;
       width: 210px;
       height: 210px;
-      background: #222;
+      // background: #222;
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-sizing: border-box;
       border-radius: 10px;
@@ -800,19 +826,25 @@ export default {
         .title {
           flex: 1;
           width: 0;
-          color: var(--text-sixth-color);
+          color: var(--text-color);
+          opacity: 0.8;
           font-size: 36px;
           font-weight: 600;
           line-height: 56px;
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
+
+          &:hover {
+            opacity: 1;
+          }
         }
       }
 
       .intro {
         font-size: 14px;
-        color: var(--text-fourth-color);
+        color: var(--text-color);
+        opacity: 0.6;
         line-height: 20px;
         word-break: break-all;
         margin-top: 20px;
@@ -825,7 +857,6 @@ export default {
         .info-item {
           display: flex;
           align-items: center;
-          color: var(--text-fourth-color);
 
           & + .info-item {
             margin-left: 20px;
@@ -839,12 +870,14 @@ export default {
             font-size: 12px;
             line-height: 18px;
             margin-left: 5px;
+            color: var(--text-color);
+            opacity: 0.6;
           }
         }
         .to-pool {
           cursor: pointer;
           &:hover {
-            color: var(--text-sixth-color);
+            // color: var(--text-sixth-color);
           }
         }
       }
@@ -912,7 +945,7 @@ export default {
       position: fixed;
       width: 210px;
       height: 210px;
-      background: #222;
+      // background: #222;
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-sizing: border-box;
       border-radius: 10px;

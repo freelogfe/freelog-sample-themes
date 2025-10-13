@@ -6,13 +6,16 @@
     :class="{
       show:
         !inMobile &&
-        (selfConfig.options_entranceShow === '显示' || selfConfig.entranceShow === '显示')
+        (selfConfig.options_entranceShow.trim() === '显示' ||
+          selfConfig.entranceShow.trim() === '显示')
     }"
-    :style="{ boxShadow: `0px 2px 10px 0px ${theme.deriveColor}40` }"
     @click="toTheme()"
   >
-    <i class="freelog fl-icon-shiyongzhuti text-center"></i>
-    <div class="text">{{ themeEntrance.label }}</div>
+    <i class="freelog fl-icon-shiyongzhuti"></i>
+    <div class="text-wrapper">
+      <div class="text">{{ themeEntrance.label }}</div>
+      <div class="text2">官方示例主题，可免费使用</div>
+    </div>
   </div>
 </template>
 
@@ -48,46 +51,66 @@ export default {
 <style lang="scss" scoped>
 .theme-entrance-wrapper {
   position: fixed;
-  top: calc((100% - 80px) / 5 * 2);
-  right: 0;
-  width: 100px;
-  height: 80px;
-  padding: 15px 10px;
+  bottom: 30px;
+  right: 30px;
+  width: 250px;
+  height: 84px;
+  padding: 20px 30px;
   box-sizing: border-box;
-  background: var(--gradientColor);
-  border-radius: 20px 0px 0px 20px;
+  background: rgba(231, 148, 159, 0.1);
+  border-radius: 10px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  color: #fff;
+  gap: 6px;
+  color: #e7949f;
   cursor: pointer;
-  transition: all 0.2s linear;
+  transition: all 0.3s ease;
   display: none !important;
-
-  .freelog {
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .text {
-    font-size: 14px;
-    line-height: 20px;
-  }
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 
   &:hover {
-    opacity: 0.8;
+    transform: translateY(-2px);
+    background: rgba(231, 148, 159, 0.2);
   }
 
   &:active {
-    opacity: 0.6;
+    transform: translateY(0);
   }
 
   &.show {
     display: flex !important;
+  }
+
+  .freelog {
+    width: 33px;
+    height: 33px;
+    font-size: 33px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #e7949f;
+  }
+
+  .text-wrapper {
+    .text {
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 600;
+      white-space: nowrap;
+      color: #e7949f;
+    }
+
+    .text2 {
+      font-weight: 400;
+      font-size: 12px;
+      color: #e7949f;
+      line-height: 18px;
+      margin-top: 6px;
+    }
   }
 }
 </style>
