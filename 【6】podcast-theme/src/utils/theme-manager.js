@@ -65,7 +65,6 @@ export function initTheme() {
   } else {
     // 根据配置决定主题
     const configMode = store?.state?.selfConfig?.options_system_mode;
-    console.log(1111111, configMode);
 
     if (configMode === "system") {
       // 跟随系统设置
