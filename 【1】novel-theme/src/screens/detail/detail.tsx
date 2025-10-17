@@ -134,7 +134,7 @@ export const DetailScreen = (props: any) => {
 
         skip.current = init ? 0 : skip.current + 50;
 
-        const subList = await (freelogApp as any).getCollectionSubList(id, {
+        const subList = await (freelogApp as any).getCollectionSubListByPage(id, {
           skip: skip.current,
           limit: 50,
           isShowDetailInfo: 1
@@ -144,7 +144,9 @@ export const DetailScreen = (props: any) => {
 
         if (dataList.length !== 0) {
           const ids = dataList.map((item: any) => item.itemId).join();
-          const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
+          const statusInfo = await (freelogApp as any).getCollectionSubAuthStatus(id, {
+            itemIds: ids
+          });
           if (statusInfo.data.data) {
             (dataList as ExhibitItem[]).forEach((item: any) => {
               const index = statusInfo.data.data.findIndex(
@@ -175,7 +177,7 @@ export const DetailScreen = (props: any) => {
 
   /** 获取合集的倒序内容 */
   const getCollectionListBySortTypeDesc = async () => {
-    const res = await (freelogApp as any).getCollectionSubList(id, {
+    const res = await (freelogApp as any).getCollectionSubListByPage(id, {
       sortType: -1,
       skip: 0,
       limit: 50,
@@ -249,13 +251,13 @@ export const DetailScreen = (props: any) => {
   const getNovelInfo = useCallback(async () => {
     try {
       const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
-        freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+        freelogApp.getExhibitById(id, { isLoadVersionProperty: 1 }),
         freelogApp.getExhibitSignCount(id),
         freelogApp.getExhibitAuthStatus(id)
       ]);
 
       const novelViewedResponse = await freelogApp.getUserData("novelViewedHistory");
-      setHistoryNovelData(novelViewedResponse?.data?.data || []);
+      setHistoryNovelData((novelViewedResponse?.data?.data as any) || []);
 
       const articleType = exhibitInfo.data.data.articleInfo.articleType;
       if (articleType === 2) {
@@ -285,7 +287,7 @@ export const DetailScreen = (props: any) => {
   }, [id]);
 
   const getRecentDate = async () => {
-    const getRecentDate = await (freelogApp as any).getCollectionSubList(id, {
+    const getRecentDate = await (freelogApp as any).getCollectionSubListByPage(id, {
       skip: skip.current,
       limit: 1,
       sortType: -1
@@ -378,7 +380,7 @@ const DetailBody = (props: {
     const container = document.getElementById("share");
     if (!container) return;
 
-    const subDeps = await freelogApp.getSelfDependencyTree();
+    const subDeps = freelogApp.getSelfDepForTheme();
     const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-展品分享");
     if (!widgetData) return;
 

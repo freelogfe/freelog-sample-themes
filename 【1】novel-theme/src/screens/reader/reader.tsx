@@ -57,7 +57,7 @@ export const ReaderScreen = (props: any) => {
   const getNovelInfo = useCallback(async () => {
     setLoading(true);
     const [exhibitInfo, statusInfo] = await Promise.all([
-      freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+      freelogApp.getExhibitById(id, { isLoadVersionProperty: 1 }),
       freelogApp.getExhibitAuthStatus(id)
     ]);
 
@@ -93,7 +93,7 @@ export const ReaderScreen = (props: any) => {
 
         skip.current = init ? 0 : skip.current + 30;
 
-        const subList = await (freelogApp as any).getCollectionSubList(id, {
+        const subList = await (freelogApp as any).getCollectionSubListByPage(id, {
           skip: skipChapter ? skipChapter : skip.current,
           limit: 30
         });
@@ -102,7 +102,9 @@ export const ReaderScreen = (props: any) => {
 
         if (dataList.length !== 0) {
           const ids = dataList.map((item: any) => item.itemId).join();
-          const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
+          const statusInfo = await (freelogApp as any).getCollectionSubAuthStatus(id, {
+            itemIds: ids
+          });
           if (statusInfo.data.data) {
             (dataList as CollectionList[]).forEach(item => {
               const index = statusInfo.data.data.findIndex(
@@ -141,7 +143,7 @@ export const ReaderScreen = (props: any) => {
 
   // 获取单品详细信息
   const getCollectionInfo = async () => {
-    const res = await (freelogApp as any).getCollectionSubInfo(id, { itemId: subId });
+    const res = await (freelogApp as any).getCollectionSubById(id, { itemId: subId });
     const { sortId } = res.data.data;
 
     setBook((pre: any) => {
@@ -173,7 +175,7 @@ export const ReaderScreen = (props: any) => {
 
     if (widgetList.current.share) await widgetList.current.share.unmount();
 
-    const subDeps = await freelogApp.getSelfDependencyTree();
+    const subDeps = await freelogApp.getSelfDepForTheme();
     const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-展品分享");
     if (!widgetData) return;
 
@@ -200,7 +202,7 @@ export const ReaderScreen = (props: any) => {
 
   /** 加载 markdown 插件 */
   const mountMarkdownWidget = async (exhibitInfo: ExhibitItem, content: string) => {
-    const subDeps = await freelogApp.getSelfDependencyTree();
+    const subDeps = await freelogApp.getSelfDepForTheme();
     const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-markdown解析");
     if (!widgetData) return;
 
@@ -423,7 +425,7 @@ const ReaderBody = () => {
     setContent(""); // 先清空内容
     let authErrType: any = -1;
     const statusInfo = collection
-      ? await (freelogApp as any).getCollectionSubAuth(id, { itemIds: subId })
+      ? await (freelogApp as any).getCollectionSubAuthStatus(id, { itemIds: subId })
       : await freelogApp.getExhibitAuthStatus(id);
     if (statusInfo.data.data) {
       authErrType = statusInfo.data.data[0].defaulterIdentityType;
@@ -471,7 +473,7 @@ const ReaderBody = () => {
   /** 获取合集的倒序内容 */
   const getCollectionListBySortTypeDesc = async () => {
     const novelViewedResponse = await freelogApp.getUserData("novelViewedHistory");
-    setHistoryNovelData(novelViewedResponse?.data?.data || []);
+    setHistoryNovelData((novelViewedResponse?.data?.data as any) || []);
   };
 
   // 记录用户阅读历史

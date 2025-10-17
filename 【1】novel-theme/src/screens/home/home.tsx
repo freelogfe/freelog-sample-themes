@@ -54,7 +54,7 @@ export const HomeScreen = (props: any) => {
         if (tags) queryParams.tags = tags;
         if (keywords) queryParams.keywords = keywords;
 
-        const list = await freelogApp.getExhibitListByPaging(queryParams);
+        const list = await freelogApp.getExhibitListByPage(queryParams);
         const { dataList, totalItem } = list.data.data;
         console.log("dataList", dataList);
 
@@ -71,7 +71,7 @@ export const HomeScreen = (props: any) => {
               }
 
               if (item.articleInfo.articleType === 2) {
-                const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
+                const res = await (freelogApp as any).getCollectionSubListByPage(item.exhibitId, {
                   sortType: -1,
                   skip: 0,
                   limit: 50,

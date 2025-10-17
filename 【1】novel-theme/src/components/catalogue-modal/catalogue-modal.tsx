@@ -50,7 +50,7 @@ export const CatalogueModal = (props: {
   /** 获取合集的倒序内容 */
   const getCollectionListBySortTypeDesc = async () => {
     const novelViewedResponse = await freelogApp.getUserData("novelViewedHistory");
-    setHistoryNovelData(novelViewedResponse?.data?.data || []);
+    setHistoryNovelData((novelViewedResponse?.data?.data as any) || []);
   };
 
   // 防抖处理滚动加载
