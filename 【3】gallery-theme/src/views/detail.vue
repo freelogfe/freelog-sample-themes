@@ -512,7 +512,7 @@ export default {
       data.loading = true;
 
       const [exhibitInfo, statusInfo] = await Promise.all([
-        freelogApp.getExhibitInfo(data.currentId, { isLoadVersionProperty: 1 }),
+        freelogApp.getExhibitById(data.currentId, { isLoadVersionProperty: 1 }),
         freelogApp.getExhibitAuthStatus(data.currentId)
       ]);
       const { defaulterIdentityType = -1 } = statusInfo.data.data[0];
@@ -711,7 +711,7 @@ export default {
 
       if (data.shareWidget) await data.shareWidget.unmount();
 
-      const subDeps = await freelogApp.getSelfDependencyTree();
+      const subDeps = freelogApp.getSelfDepForTheme();
       const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-展品分享");
       if (!widgetData) return;
 
