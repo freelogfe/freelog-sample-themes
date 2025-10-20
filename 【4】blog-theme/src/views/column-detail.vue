@@ -24,7 +24,7 @@ const href = freelogApp.getCurrentUrl();
 // 获取展品信息
 const getExhibitInfo = async () => {
   const [exhibitInfoResult, statusInfoResult] = await Promise.all([
-    freelogApp.getExhibitInfo(exhibitId, { isLoadVersionProperty: 1 }),
+    freelogApp.getExhibitById(exhibitId, { isLoadVersionProperty: 1 }),
     freelogApp.getExhibitAuthStatus(exhibitId)
   ]);
 
@@ -56,7 +56,7 @@ let subSkip = 0;
 let subTempData = [];
 
 const getColumnList = async () => {
-  const columnList = await freelogApp.getCollectionSubList(exhibitId, {
+  const columnList = await freelogApp.getCollectionSubListByPage(exhibitId, {
     skip: subSkip,
     limit: 1_000,
     isShowDetailInfo: 1,
@@ -71,7 +71,7 @@ const getColumnList = async () => {
 
   if (dataList.length !== 0) {
     const ids = dataList.map((item: any) => item.itemId).join();
-    const statusInfo = await (freelogApp as any).getCollectionSubAuth(exhibitId, {
+    const statusInfo = await (freelogApp as any).getCollectionSubAuthStatus(exhibitId, {
       itemIds: ids
     });
 
@@ -147,7 +147,7 @@ const getRecommendList = async () => {
         item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
 
       if (item.articleInfo.articleType === 3) {
-        const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
+        const res = await (freelogApp as any).getCollectionSubListByPage(item.exhibitId, {
           sortType: -1,
           skip: 0,
           limit: 1_000,
@@ -171,7 +171,7 @@ const mountShareWidget = async () => {
 
   if (exhibitInfo.value?.shareWidget) await exhibitInfo.value.shareWidget.unmount();
 
-  const subDeps = await freelogApp.getSelfDependencyTree();
+  const subDeps = await freelogApp.getSelfDepForTheme();
 
   const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-展品分享");
   if (!widgetData) return;

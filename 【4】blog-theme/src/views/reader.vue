@@ -488,8 +488,8 @@ export default {
       const { id, itemId } = query.value;
 
       const [subInfo, subList] = await Promise.all([
-        (freelogApp as any).getCollectionSubInfo(id, { itemId }),
-        (freelogApp as any).getCollectionSubList(id, {
+        (freelogApp as any).getCollectionSubById(id, { itemId }),
+        (freelogApp as any).getCollectionSubListByPage(id, {
           skip: 0,
           limit: 1000
         })
@@ -523,7 +523,7 @@ export default {
       const { id, itemId } = query.value;
 
       const [exhibitInfo] = await Promise.all([
-        freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 })
+        freelogApp.getExhibitById(id, { isLoadVersionProperty: 1 })
       ]);
 
       const { articleType } = exhibitInfo.data.data.articleInfo;
@@ -533,7 +533,7 @@ export default {
       }
 
       const statusInfo = itemId
-        ? await (freelogApp as any).getCollectionSubAuth(id, { itemIds: itemId })
+        ? await (freelogApp as any).getCollectionSubAuthStatus(id, { itemIds: itemId })
         : await freelogApp.getExhibitAuthStatus(id);
 
       const { defaulterIdentityType } = statusInfo.data.data[0];
@@ -605,7 +605,7 @@ export default {
 
       if (data.shareWidget) await data.shareWidget.unmount();
 
-      const subDeps = await freelogApp.getSelfDependencyTree();
+      const subDeps = await freelogApp.getSelfDepForTheme();
       console.log("subDeps", subDeps);
 
       const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-展品分享");
@@ -638,7 +638,7 @@ export default {
       const container = document.getElementById("markdown");
       if (!container) return;
 
-      const subDeps = await freelogApp.getSelfDependencyTree();
+      const subDeps = await freelogApp.getSelfDepForTheme();
       const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-markdown解析");
       if (!widgetData) return;
 
@@ -709,18 +709,18 @@ export default {
         const tempRecommendData: any[] = [];
 
         for (const item of recommendData) {
-          const subList = await freelogApp.getCollectionSubList(item.exhibitId, {
+          const subList = await freelogApp.getCollectionSubListByPage(item.exhibitId, {
             sortType: -1,
             skip: 0,
             limit: 1_000,
             isShowDetailInfo: 1
           });
 
-          const { dataList } = subList.data.data as any;
+          const dataList = subList?.data?.data?.dataList ?? [];
 
           if (dataList.length !== 0) {
             const ids = dataList.map((item: any) => item.itemId).join();
-            const statusInfo = await freelogApp.getCollectionSubAuth(item.exhibitId, {
+            const statusInfo = await freelogApp.getCollectionSubAuthStatus(item.exhibitId, {
               itemIds: ids
             });
 
