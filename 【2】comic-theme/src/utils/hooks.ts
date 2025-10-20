@@ -111,7 +111,7 @@ export const useMyShelf = (id?: string) => {
       item.defaulterIdentityType = statusItem?.defaulterIdentityType;
 
       if (item.articleInfo.articleType === 2) {
-        const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
+        const res = await (freelogApp as any).getCollectionSubListByPage(item.exhibitId, {
           sortType: -1,
           skip: 0,
           limit: 50,
@@ -237,7 +237,7 @@ export const useGetList = () => {
       isLoadVersionProperty: 1,
       ...params
     };
-    const list = await freelogApp.getExhibitListByPaging(queryParams);
+    const list = await freelogApp.getExhibitListByPage(queryParams);
     const { dataList, totalItem } = list.data.data;
     if (dataList.length !== 0) {
       const ids = dataList.map(item => item.exhibitId).join();
@@ -258,7 +258,7 @@ export const useGetList = () => {
           item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
 
         if (item.articleInfo.articleType === 2) {
-          const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
+          const res = await (freelogApp as any).getCollectionSubListByPage(item.exhibitId, {
             sortType: -1,
             skip: 0,
             limit: 50,
@@ -322,7 +322,7 @@ export const useMySignedList = () => {
       item.defaulterIdentityType = statusItem?.defaulterIdentityType;
 
       if (item.articleInfo.articleType === 2) {
-        const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
+        const res = await (freelogApp as any).getCollectionSubListByPage(item.exhibitId, {
           sortType: -1,
           skip: 0,
           limit: 50,

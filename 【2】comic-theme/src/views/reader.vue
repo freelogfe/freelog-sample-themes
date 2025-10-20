@@ -1993,7 +1993,7 @@ export default {
 
     /** 获取漫画信息 */
     const getComicInfo = async () => {
-      const exhibitInfo = await freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 });
+      const exhibitInfo = await freelogApp.getExhibitById(id, { isLoadVersionProperty: 1 });
       let comicMode;
       const { resourceType, articleType } = exhibitInfo.data.data.articleInfo;
       data.comicInfo = exhibitInfo.data.data;
@@ -2013,7 +2013,7 @@ export default {
       // 合集逻辑
       if (articleType === 2) {
         const comicViewedResponse = await freelogApp.getUserData("comicViewedHistory");
-        historyComicData.value = comicViewedResponse?.data?.data || [];
+        historyComicData.value = (comicViewedResponse?.data?.data as any) || [];
 
         getCollectionList(true);
 
@@ -2023,7 +2023,7 @@ export default {
             ? "desc"
             : "asc";
 
-        const subInfoResponse = await (freelogApp as any).getCollectionSubInfo(id, {
+        const subInfoResponse = await (freelogApp as any).getCollectionSubById(id, {
           itemId: subId
         });
         const { resourceType } = subInfoResponse.data.data.articleInfo;
@@ -2057,7 +2057,7 @@ export default {
 
         data.collectionCurrent = init ? 0 : data.collectionCurrent + 100;
 
-        const subList = await (freelogApp as any).getCollectionSubList(id, {
+        const subList = await (freelogApp as any).getCollectionSubListByPage(id, {
           skip: data.collectionCurrent,
           limit: 100
         });
@@ -2066,7 +2066,9 @@ export default {
 
         if (dataList.length !== 0) {
           const ids = dataList.map((item: any) => item.itemId).join();
-          const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
+          const statusInfo = await (freelogApp as any).getCollectionSubAuthStatus(id, {
+            itemIds: ids
+          });
 
           if (statusInfo?.data?.data && Array.isArray(statusInfo.data.data)) {
             (dataList as CollectionList[]).forEach(item => {
@@ -2103,7 +2105,9 @@ export default {
     const getContent = async (updateSubId?: string) => {
       data.loading = true;
       const statusInfo = collection
-        ? await (freelogApp as any).getCollectionSubAuth(id, { itemIds: updateSubId || subId })
+        ? await (freelogApp as any).getCollectionSubAuthStatus(id, {
+            itemIds: updateSubId || subId
+          })
         : await freelogApp.getExhibitAuthStatus(id);
 
       if (statusInfo.data.data) {
@@ -2271,7 +2275,7 @@ export default {
 
       if (data.shareWidget) await data.shareWidget.unmount();
 
-      const subDeps = await freelogApp.getSelfDependencyTree();
+      const subDeps = await freelogApp.getSelfDepForTheme();
       const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-展品分享");
       if (!widgetData) return;
 
@@ -2302,7 +2306,7 @@ export default {
 
     // 获取单品详细信息
     const getCollectionInfo = async (subId?: string) => {
-      const res = await (freelogApp as any).getCollectionSubInfo(id, { itemId: subId });
+      const res = await (freelogApp as any).getCollectionSubById(id, { itemId: subId });
       data.comicInfo = { ...data.comicInfo, articleInfo: res.data.data.articleInfo };
 
       // 更新微信分享
