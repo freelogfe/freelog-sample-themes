@@ -268,7 +268,7 @@ export default {
       const [exhibitDetailList, authStatusList, exhibitSubList] = await Promise.all([
         freelogApp.getExhibitListById({ exhibitIds: allexhibitIds, isLoadVersionProperty: 1 }),
         freelogApp.getExhibitAuthStatus(allexhibitIds),
-        freelogApp.getCollectionsSubList(exhibitIds, {
+        freelogApp.getCollectionsSubListByPage(exhibitIds, {
           sortType: -1,
           skip: 0,
           limit: 10,
@@ -385,7 +385,7 @@ export default {
         isLoadVersionProperty: 1,
         limit: 10
       };
-      const list = await freelogApp.getExhibitListByPaging(queryParams);
+      const list = await freelogApp.getExhibitListByPage(queryParams);
       const { dataList, totalItem } = list.data.data;
       if (dataList.length !== 0) {
         const ids = dataList.map(item => item.exhibitId).join();

@@ -25,7 +25,12 @@ export const useMyAuth = {
       freelogApp.getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
       freelogApp.getExhibitSignCount(ids),
       freelogApp.getExhibitAuthStatus(ids),
-      freelogApp.getCollectionsSubList(ids, { sortType: 1, skip: 0, limit: 2, isShowDetailInfo: 1 })
+      freelogApp.getCollectionsSubListByPage(ids, {
+        sortType: 1,
+        skip: 0,
+        limit: 2,
+        isShowDetailInfo: 1
+      })
     ]);
 
     idList.forEach(id => {
@@ -204,7 +209,7 @@ export const useMyCollection = {
       .map(ele => ele.exhibitId);
     const allPoolUnique = [...new Set(allPoolIds)];
     const allPoolIdsStr = allPoolUnique.join(",");
-    const subNumList = await freelogApp.getCollectionsSubList(allPoolIdsStr, {
+    const subNumList = await freelogApp.getCollectionsSubListByPage(allPoolIdsStr, {
       sortType: 1,
       skip: 0,
       limit: 1,
@@ -349,7 +354,7 @@ export const useMyCollection = {
             id: exhibitId,
             isExhibit: true
           });
-          const subNumList = await freelogApp.getCollectionsSubList(data.exhibitId, {
+          const subNumList = await freelogApp.getCollectionsSubListByPage(data.exhibitId, {
             sortType: 1,
             skip: 0,
             limit: 1,
@@ -869,7 +874,7 @@ export const useMyPlay = {
       !exhibit.child.url
     ) {
       // 已授权未获取 url
-      const detail = await freelogApp.getCollectionSubInfo(exhibitId, {
+      const detail = await freelogApp.getCollectionSubById(exhibitId, {
         itemId: exhibit.child.itemId
       });
       const url = await freelogApp.getCollectionSubFileStream(exhibitId, {
@@ -877,7 +882,7 @@ export const useMyPlay = {
         returnUrl: true
       });
       // console.log(url);
-      const statusInfo = await freelogApp.getCollectionSubAuth(exhibitId, {
+      const statusInfo = await freelogApp.getCollectionSubAuthStatus(exhibitId, {
         itemIds: exhibit.child.itemId
       });
 
@@ -977,7 +982,7 @@ export const useMyPlay = {
   async getPlayingInfo(id, itemId) {
     if (!itemId) {
       const [info, statusInfo, url] = await Promise.all([
-        freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+        freelogApp.getExhibitById(id, { isLoadVersionProperty: 1 }),
         freelogApp.getExhibitAuthStatus(id),
         freelogApp.getExhibitFileStream(id, { returnUrl: true })
       ]);
@@ -986,13 +991,13 @@ export const useMyPlay = {
       store.commit("setData", { key: "playingInfo", value: info.data.data });
     } else {
       const [info, statusInfo, url, detail] = await Promise.all([
-        freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+        freelogApp.getExhibitById(id, { isLoadVersionProperty: 1 }),
         freelogApp.getExhibitAuthStatus(id),
         freelogApp.getCollectionSubFileStream(id, {
           itemId: itemId,
           returnUrl: true
         }),
-        freelogApp.getCollectionSubInfo(id, {
+        freelogApp.getCollectionSubById(id, {
           itemId: itemId
         })
       ]);
@@ -1068,7 +1073,7 @@ export const useMyPlay = {
   /** 获取数据 */
   async getListInCollection(exhibitId, options = { skip: 0, limit: 100 }) {
     const result = [];
-    const res = await freelogApp.getCollectionSubList(exhibitId, {
+    const res = await freelogApp.getCollectionSubListByPage(exhibitId, {
       isShowDetailInfo: 1,
       ...options
     });

@@ -439,16 +439,16 @@ export default {
       if (id && itemId) {
         // 处理分享
         const [info, statusInfo, url, detail, subStatusInfo] = await Promise.all([
-          freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+          freelogApp.getExhibitById(id, { isLoadVersionProperty: 1 }),
           freelogApp.getExhibitAuthStatus(id),
           freelogApp.getCollectionSubFileStream(id, {
             itemId: itemId,
             returnUrl: true
           }),
-          freelogApp.getCollectionSubInfo(id, {
+          freelogApp.getCollectionSubById(id, {
             itemId: itemId
           }),
-          freelogApp.getCollectionSubAuth(id, {
+          freelogApp.getCollectionSubAuthStatus(id, {
             itemIds: itemId
           })
         ]);

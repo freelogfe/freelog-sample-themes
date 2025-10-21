@@ -58,7 +58,7 @@ export default new Vuex.Store({
     async initStoreData(context) {
       const userData = await freelogApp.getCurrentUser();
       const [selfConfig, collectionIdListResponse, playingIdResponse] = await Promise.all([
-        freelogApp.getSelfProperty(),
+        freelogApp.getSelfPropertyForTheme(),
         freelogApp.getUserData("collectionIdList"),
         freelogApp.getUserData("playingId")
       ]);
@@ -208,7 +208,7 @@ export default new Vuex.Store({
       async function queryList(options = { skip: 0, limit: 100 }) {
         let { skip, limit } = options;
         const result = [];
-        const list = await freelogApp.getExhibitListByPaging({
+        const list = await freelogApp.getExhibitListByPage({
           ...options,
           articleResourceTypes: "音频",
           isLoadVersionProperty: 1

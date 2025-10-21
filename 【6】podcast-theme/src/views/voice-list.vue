@@ -64,7 +64,7 @@ export default {
   deactivated() {
     const app = document.getElementById("appPodcast");
     app.removeEventListener("scroll", this.scroll);
-    this.$store.dispatch("updateLastestAuthList")
+    this.$store.dispatch("updateLastestAuthList");
   },
 
   methods: {
@@ -82,7 +82,7 @@ export default {
         isLoadVersionProperty: 1,
         limit: 20
       };
-      const list = await freelogApp.getExhibitListByPaging(queryParams);
+      const list = await freelogApp.getExhibitListByPage(queryParams);
       const { dataList, totalItem } = list.data.data;
       if (dataList.length !== 0) {
         const ids = dataList.map(item => item.exhibitId).join();

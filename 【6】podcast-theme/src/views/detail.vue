@@ -574,7 +574,7 @@ export default {
     async getVoiceInfo() {
       this.voiceInfo = null;
       const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
-        freelogApp.getExhibitInfo(this.id, { isLoadVersionProperty: 1 }),
+        freelogApp.getExhibitById(this.id, { isLoadVersionProperty: 1 }),
         freelogApp.getExhibitSignCount(this.id),
         freelogApp.getExhibitAuthStatus(this.id)
       ]);
@@ -615,7 +615,7 @@ export default {
       let skip = (this.currentPage - 1) * limit;
       // 1:升序 -1:降序
       let sortType = this.dropDownShow.value ? -1 : 1;
-      const res = await freelogApp.getCollectionSubList(this.voiceInfo.exhibitId, {
+      const res = await freelogApp.getCollectionSubListByPage(this.voiceInfo.exhibitId, {
         skip,
         limit: 5,
         isShowDetailInfo: 1,
@@ -658,7 +658,7 @@ export default {
       let skip = (this.currentPage - 1) * limit;
       // 1:升序 -1:降序
       let sortType = this.dropDownShow.value ? -1 : 1;
-      const res = await freelogApp.getCollectionSubList(this.voiceInfo.exhibitId, {
+      const res = await freelogApp.getCollectionSubListByPage(this.voiceInfo.exhibitId, {
         skip,
         limit: 5,
         isShowDetailInfo: 1,
