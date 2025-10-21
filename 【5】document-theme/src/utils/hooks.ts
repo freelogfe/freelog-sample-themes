@@ -90,7 +90,7 @@ export const useGetList = (inList = false) => {
       isLoadVersionProperty: 1,
       ...params
     };
-    const list = await freelogApp.getExhibitListByPaging(queryParams);
+    const list = await freelogApp.getExhibitListByPage(queryParams);
     const { dataList, totalItem } = list.data.data;
     if (dataList.length !== 0) {
       const ids = dataList.map(item => item.exhibitId).join();
