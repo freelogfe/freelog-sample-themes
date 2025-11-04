@@ -56,7 +56,7 @@ export default {
   height: 84px;
   padding: 20px 30px;
   box-sizing: border-box;
-  background: linear-gradient(135deg, #b620e0 0%, #ff9e3d 100%);
+  background: linear-gradient(135deg, rgba(182, 32, 224, 0.6) 0%, rgba(255, 158, 61, 0.6) 100%);
   border-radius: 10px;
   display: flex;
   flex-direction: row;
@@ -72,6 +72,7 @@ export default {
 
   &:hover {
     transform: translateY(-2px);
+    background: linear-gradient(135deg, rgba(182, 32, 224, 0.8) 0%, rgba(255, 158, 61, 0.8) 100%);
   }
 
   &:active {
