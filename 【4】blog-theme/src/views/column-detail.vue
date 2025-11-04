@@ -586,9 +586,9 @@ onBeforeMount(() => {
   }
 }
 
-// @media screen and (min-width: 1300px) {
-//   .article-list {
-//     grid-template-columns: repeat(4, 1fr) !important;
-//   }
-// }
+@media screen and (min-width: 1300px) {
+  .article-list {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
 </style>
