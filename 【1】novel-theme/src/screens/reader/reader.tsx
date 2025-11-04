@@ -157,10 +157,8 @@ export const ReaderScreen = (props: any) => {
     setCurrentSortId(sortId);
 
     // 更新微信分享
-    const {
-      itemTitle,
-      articleInfo: { intro, coverImages }
-    } = res.data.data;
+    const { itemTitle, articleInfo = {} } = res?.data?.data || {};
+    const { intro, coverImages } = articleInfo;
     const config = {
       exhibitIntro: intro,
       coverImages,
