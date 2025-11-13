@@ -23,6 +23,7 @@
     </div>
     <div
       class="tags-tooltip"
+      :class="{ 'show-left': tooltipLeft }"
       v-show="showTagTooltip"
       :style="tooltipStyle"
       @mouseenter="isMouseOverTooltip = true"
@@ -39,7 +40,7 @@
 <script lang="ts">
 import { useMyRouter } from "@/utils/hooks";
 import { useStore } from "vuex";
-import { ref, computed, onMounted, reactive, toRefs } from "vue";
+import { ref, computed, onMounted, reactive, toRefs, nextTick } from "vue";
 
 export default {
   name: "tags",
@@ -73,6 +74,7 @@ export default {
     const showTagTooltip = ref(false);
     const tooltipStyle = ref({});
     const isMouseOverTooltip = ref(false);
+    const tooltipLeft = ref(false);
 
     const state = reactive({
       currentRow: 1, // 当前行
@@ -128,7 +130,20 @@ export default {
 
       // 如果总宽度超过容器宽度，显示提示框
       if (totalTagsWidth > tagsContainerWidth) {
+        // 先重置位置
+        tooltipLeft.value = false;
         showTagTooltip.value = true;
+        // 使用 nextTick 确保 DOM 已更新后再计算位置
+        nextTick(() => {
+          const tooltip = tagsPageContainerRef.value?.querySelector(".tags-tooltip");
+          if (tooltip && tagsPageContainerRef.value) {
+            const containerRect = tagsPageContainerRef.value.getBoundingClientRect();
+            const tooltipRect = tooltip.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            // 如果 tooltip 会超出视口右侧，则显示在左侧
+            tooltipLeft.value = containerRect.right + tooltipRect.width + 10 > viewportWidth;
+          }
+        });
       }
     };
 
@@ -177,6 +192,7 @@ export default {
       showTagTooltip,
       tooltipStyle,
       isMouseOverTooltip,
+      tooltipLeft,
       handleTagsHover,
       handleTagsLeave,
       handleTooltipLeave
@@ -287,6 +303,16 @@ export default {
       width: 20px;
       height: 100%;
       background: transparent;
+    }
+
+    &.show-left {
+      left: auto;
+      right: calc(100% + 10px);
+
+      &::before {
+        left: auto;
+        right: -20px; /* 调整连接区域位置 */
+      }
     }
 
     .tooltip-tag {

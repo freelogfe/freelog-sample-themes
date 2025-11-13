@@ -83,7 +83,11 @@
         >
           {{ data.exhibitTitle || data.itemTitle }}
         </span>
-        <div class="title-tooltip" v-show="showTitleTooltip">
+        <div
+          class="title-tooltip"
+          :class="{ 'show-left': titleTooltipLeft }"
+          v-show="showTitleTooltip"
+        >
           {{ data.exhibitTitle || data.itemTitle }}
         </div>
       </div>
@@ -98,7 +102,11 @@
       >
         {{ data.exhibitIntro || data.articleInfo?.intro || "" }}
       </div>
-      <div class="intro-tooltip" v-show="showIntroTooltip">
+      <div
+        class="intro-tooltip"
+        :class="{ 'show-left': introTooltipLeft }"
+        v-show="showIntroTooltip"
+      >
         {{ data.exhibitIntro || data.articleInfo?.intro }}
       </div>
     </div>
@@ -113,7 +121,7 @@
 
 <script lang="ts">
 import { formatDate } from "@/utils/common";
-import { defineAsyncComponent, onMounted, ref, computed } from "vue";
+import { defineAsyncComponent, onMounted, ref, computed, nextTick } from "vue";
 import { useMyRouter } from "@/utils/hooks";
 import { ExhibitItem } from "../api/interface";
 import { useStore } from "vuex";
@@ -135,8 +143,10 @@ export default {
     const imgHeight = ref(200);
     const showTitleTooltip = ref(false);
     const titleRef = ref(null) as any;
+    const titleTooltipLeft = ref(false);
     const showIntroTooltip = ref(false);
     const introRef = ref(null) as any;
+    const introTooltipLeft = ref(false);
 
     const inMobile = computed(() => {
       return store.state.inMobile;
@@ -166,7 +176,24 @@ export default {
       if (titleRef.value && !inMobile.value) {
         // 检查文本是否溢出
         const isOverflowing = titleRef.value.scrollHeight > titleRef.value.clientHeight;
-        showTitleTooltip.value = isOverflowing;
+        if (isOverflowing) {
+          // 先重置位置
+          titleTooltipLeft.value = false;
+          showTitleTooltip.value = true;
+          // 使用 nextTick 确保 DOM 已更新后再计算位置
+          nextTick(() => {
+            const tooltip = titleRef.value?.parentElement?.querySelector(".title-tooltip");
+            if (tooltip && containerRef.value) {
+              const containerRect = containerRef.value.getBoundingClientRect();
+              const tooltipRect = tooltip.getBoundingClientRect();
+              const viewportWidth = window.innerWidth;
+              // 如果 tooltip 会超出视口右侧，则显示在左侧
+              titleTooltipLeft.value = containerRect.right + tooltipRect.width + 10 > viewportWidth;
+            }
+          });
+        } else {
+          showTitleTooltip.value = false;
+        }
       }
     };
 
@@ -175,7 +202,25 @@ export default {
       if (introRef.value && !inMobile.value) {
         // 检查文本是否溢出
         const isOverflowing = introRef.value.scrollHeight > introRef.value.clientHeight;
-        showIntroTooltip.value = isOverflowing;
+        if (isOverflowing) {
+          // 先重置位置
+          introTooltipLeft.value = false;
+          showIntroTooltip.value = true;
+          // 使用 nextTick 确保 DOM 已更新后再计算位置
+          nextTick(() => {
+            const tooltip = introRef.value?.parentElement?.querySelector(".intro-tooltip");
+
+            if (tooltip && containerRef.value) {
+              const containerRect = containerRef.value.getBoundingClientRect();
+              const tooltipRect = tooltip.getBoundingClientRect();
+              const viewportWidth = window.innerWidth;
+              // 如果 tooltip 会超出视口右侧，则显示在左侧
+              introTooltipLeft.value = containerRect.right + tooltipRect.width + 10 > viewportWidth;
+            }
+          });
+        } else {
+          showIntroTooltip.value = false;
+        }
       }
     };
 
@@ -199,9 +244,11 @@ export default {
       inMobile,
       showTitleTooltip,
       titleRef,
+      titleTooltipLeft,
       handleTitleHover,
       showIntroTooltip,
       introRef,
+      introTooltipLeft,
       handleIntroHover,
       nodeInfo
     };
@@ -414,6 +461,11 @@ export default {
       margin-top: 5px;
       word-wrap: break-word;
       overflow: hidden;
+
+      &.show-left {
+        left: auto;
+        right: calc(100% + 10px);
+      }
     }
 
     .tag {
@@ -471,6 +523,11 @@ export default {
     margin-top: 5px;
     word-wrap: break-word;
     overflow: hidden;
+
+    &.show-left {
+      left: auto;
+      right: calc(100% + 10px);
+    }
   }
   .tags {
     margin-top: 10px;
