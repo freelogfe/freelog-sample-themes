@@ -359,6 +359,8 @@ const DetailBody = (props: {
   const history = useMyHistory();
   const introContent = useRef<any>();
   const shareWidget = useRef<any>();
+  const hideTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const mouseMoveHandlerRef = useRef<((e: MouseEvent) => void) | null>(null);
   const [introState, setIntroState] = useState(0);
   const [href, setHref] = useState("");
   // const [sortOrder, setSortOrder] = useState("asc");
@@ -396,7 +398,7 @@ const DetailBody = (props: {
       renderWidgetOptions: {
         data: { exhibit: novel, type: "小说", routerType: "detail" }
       }
-      // widget_entry: "https://localhost:8201",
+      // widget_entry: "https://localhost:8201"
     };
     shareWidget.current = await freelogApp.mountArticleWidget(params);
   };
@@ -432,6 +434,94 @@ const DetailBody = (props: {
     shareWidget.current?.setData({ show: value });
   };
 
+  /** 处理鼠标进入分享区域 */
+  const handleShareMouseEnter = () => {
+    // 清除隐藏定时器
+    console.log("handleTimeRef.current", hideTimerRef.current);
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+    // 显示分享组件
+    setShareWidgetShow(true);
+  };
+
+  /** 处理鼠标离开分享区域 */
+  const handleShareMouseLeave = (e: React.MouseEvent) => {
+    console.log("e", e.currentTarget);
+    const shareBtn = e.currentTarget as HTMLElement;
+    const shareElement = document.getElementById("share");
+
+    if (!shareElement) {
+      setShareWidgetShow(false);
+      return;
+    }
+
+    // 清除之前的定时器
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current);
+    }
+
+    // 移除之前的鼠标移动监听
+    if (mouseMoveHandlerRef.current) {
+      document.removeEventListener("mousemove", mouseMoveHandlerRef.current);
+      mouseMoveHandlerRef.current = null;
+    }
+
+    // 创建鼠标移动监听，检查鼠标是否在分享区域内
+    const checkMouseInShareArea = (mouseEvent: MouseEvent) => {
+      const btnRect = shareBtn.getBoundingClientRect();
+      const shareRect = shareElement.getBoundingClientRect();
+
+      const mouseX = mouseEvent.clientX;
+      const mouseY = mouseEvent.clientY;
+
+      // 检查鼠标是否在按钮或弹窗区域内（扩大范围避免边界问题）
+      const isInBtnArea =
+        mouseX >= btnRect.left - 10 &&
+        mouseX <= btnRect.right + 10 &&
+        mouseY >= btnRect.top - 10 &&
+        mouseY <= btnRect.bottom + 10;
+
+      const isInShareArea =
+        mouseX >= shareRect.left - 10 &&
+        mouseX <= shareRect.right + 10 &&
+        mouseY >= shareRect.top - 10 &&
+        mouseY <= shareRect.bottom + 10;
+
+      if (isInBtnArea || isInShareArea) {
+        // 鼠标在区域内，清除隐藏定时器
+        if (hideTimerRef.current) {
+          clearTimeout(hideTimerRef.current);
+          hideTimerRef.current = null;
+        }
+      } else {
+        // 鼠标不在区域内，隐藏分享组件
+        setShareWidgetShow(false);
+        // 移除监听
+        if (mouseMoveHandlerRef.current) {
+          document.removeEventListener("mousemove", mouseMoveHandlerRef.current);
+          mouseMoveHandlerRef.current = null;
+        }
+      }
+    };
+
+    // 添加鼠标移动监听
+    mouseMoveHandlerRef.current = checkMouseInShareArea;
+    document.addEventListener("mousemove", mouseMoveHandlerRef.current);
+
+    // 延迟隐藏，如果鼠标没有移动到弹窗，则隐藏
+    hideTimerRef.current = setTimeout(() => {
+      setShareWidgetShow(false);
+      // 移除监听
+      if (mouseMoveHandlerRef.current) {
+        document.removeEventListener("mousemove", mouseMoveHandlerRef.current);
+        mouseMoveHandlerRef.current = null;
+      }
+      hideTimerRef.current = null;
+    }, 300);
+  };
+
   /**
    * 切换正序，倒序
    */
@@ -458,6 +548,16 @@ const DetailBody = (props: {
     setHref(freelogApp.getCurrentUrl());
 
     return () => {
+      // 清理隐藏定时器
+      if (hideTimerRef.current) {
+        clearTimeout(hideTimerRef.current);
+        hideTimerRef.current = null;
+      }
+      // 清理鼠标移动监听
+      if (mouseMoveHandlerRef.current) {
+        document.removeEventListener("mousemove", mouseMoveHandlerRef.current);
+        mouseMoveHandlerRef.current = null;
+      }
       if (inMobile) return;
       (async function unmountWidget() {
         await shareWidget.current?.unmount();
@@ -853,13 +953,13 @@ const DetailBody = (props: {
                     <div className="sign-count">{novel.signCount}人签约</div>
                     <div
                       className="share-btn"
-                      onMouseOver={e => {
+                      onMouseEnter={e => {
                         e.stopPropagation();
-                        setShareWidgetShow(true);
+                        handleShareMouseEnter();
                       }}
                       onMouseLeave={e => {
                         e.stopPropagation();
-                        setShareWidgetShow(false);
+                        handleShareMouseLeave(e);
                       }}
                     >
                       <span className="share-btn-text">
@@ -867,7 +967,7 @@ const DetailBody = (props: {
                         分享给更多人
                       </span>
 
-                      <div id="share" className="share-wrapper" />
+                      <div id="share" className="share-wrapper-container" />
                     </div>
                   </div>
                 </div>

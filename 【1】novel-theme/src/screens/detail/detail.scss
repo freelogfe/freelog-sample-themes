@@ -853,10 +853,11 @@
                   }
                 }
 
-                .share-wrapper {
+                .share-wrapper-container {
                   position: absolute;
                   right: 0;
                   top: 100%;
+                  padding-top: 10px;
                 }
               }
             }
