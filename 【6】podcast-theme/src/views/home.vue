@@ -219,10 +219,20 @@ export default {
       return this.$store.state.selfConfig;
     },
     hotList() {
-      const data = this.listData
-        .filter(ele => [2, 3].includes(ele.articleInfo.articleType))
-        .concat(this.listData.filter(ele => ![2, 3].includes(ele.articleInfo.articleType)))
-        .filter(ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType));
+      // 先筛选出符合条件的项
+      const filtered = this.listData.filter(
+        ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType)
+      );
+
+      // 分别筛选出不同类型：优先 type === 2，然后是 type === 3，最后是其他
+      const type2 = filtered.filter(ele => ele.articleInfo.articleType === 2);
+      const type3 = filtered.filter(ele => ele.articleInfo.articleType === 3);
+      const others = filtered.filter(
+        ele => ele.articleInfo.articleType !== 2 && ele.articleInfo.articleType !== 3
+      );
+
+      // 按优先级顺序合并：type2 + type3 + 其他
+      const data = type2.concat(type3).concat(others);
       return JSON.parse(JSON.stringify(data.slice(0, 5)));
     }
   },
