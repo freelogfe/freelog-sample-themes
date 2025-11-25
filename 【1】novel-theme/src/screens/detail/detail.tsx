@@ -656,7 +656,7 @@ const DetailBody = (props: {
               <div className="novel-date-info">
                 <div className="date-info">创建时间：{formatDate(novel.createDate)}</div>
                 <div className="date-info">
-                  最近更新：{formatDate(collectionRecentDate || novel.updateDate)}
+                  编辑时间：{formatDate(collectionRecentDate || novel.updateDate)}
                 </div>
               </div>
 
@@ -841,7 +841,7 @@ const DetailBody = (props: {
                         </div>
                       )}
                       <div className="latest-novel">
-                        最近更新：{formatDate(novel?.articleInfo?.versions?.[0]?.createDate)}
+                        编辑时间：{formatDate(novel?.articleInfo?.versions?.[0]?.createDate)}
                       </div>
                     </div>
                   ) : novel?.articleInfo?.serializeStatus === 0 ? (

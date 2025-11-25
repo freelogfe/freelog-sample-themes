@@ -552,7 +552,7 @@ const ReaderBody = () => {
       >
         <div className="info-area">
           <span>
-            最近更新：
+            编辑时间：
             {formatDate(
               collection
                 ? book?.collectionInfo?.articleInfo?.latestVersionReleaseDate
@@ -712,7 +712,7 @@ const ReaderBody = () => {
         >
           <div className="info-area">
             <span>
-              最近更新：
+              编辑时间：
               {formatDate(
                 collection
                   ? book?.collectionInfo?.articleInfo?.latestVersionReleaseDate
