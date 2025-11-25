@@ -161,7 +161,7 @@ export const useGetList = () => {
     listData.value.loading = true;
 
     const queryParams = {
-      articleResourceTypes: "音频",
+      articleResourceTypes: "音乐",
       isLoadVersionProperty: 1,
       limit: 100,
       skip: listData.value.listData.length, // 使用当前已加载数据的长度作为skip
