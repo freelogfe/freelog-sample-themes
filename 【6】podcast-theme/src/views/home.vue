@@ -391,7 +391,7 @@ export default {
       this.loading = true;
       await sleep(800);
       const queryParams = {
-        articleResourceTypes: "音频",
+        articleResourceTypes: "连载播客,播客节目,播单",
         isLoadVersionProperty: 1,
         limit: 10
       };

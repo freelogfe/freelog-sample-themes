@@ -285,7 +285,7 @@ export default {
       this.skip = init ? 0 : this.skip + this.limit;
       const queryParams = {
         skip: this.skip,
-        articleResourceTypes: "音频",
+        articleResourceTypes: "连载播客,播客节目,播单",
         isLoadVersionProperty: 1,
         limit: this.limit,
         keywords: this.keywords

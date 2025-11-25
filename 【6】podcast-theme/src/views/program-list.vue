@@ -271,7 +271,7 @@ export default {
       const result = [];
       const list = await freelogApp.getExhibitListByPage({
         ...options,
-        articleResourceTypes: "音频",
+        articleResourceTypes: "连载播客,播客节目,播单",
         isLoadVersionProperty: 1
       });
       const { dataList, totalItem } = list.data.data;
