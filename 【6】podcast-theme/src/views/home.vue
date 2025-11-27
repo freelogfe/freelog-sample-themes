@@ -45,7 +45,7 @@
       <template v-if="!loading">
         <div class="content-area" v-if="total">
           <div class="content-top">
-            <div class="top-title">最近更新</div>
+            <div class="top-title" v-if="lastestList.length">最近更新</div>
           </div>
           <div class="voice-list">
             <voice
@@ -115,7 +115,7 @@
       <template v-if="!loading">
         <div class="content-area" v-if="total">
           <div class="content-top">
-            <div class="top-title">最近更新</div>
+            <div class="top-title" v-if="lastestList.length">最近更新</div>
           </div>
           <div class="voice-list">
             <voice
