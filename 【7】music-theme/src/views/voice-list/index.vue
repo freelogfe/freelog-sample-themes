@@ -45,7 +45,9 @@ export default {
 
   computed: {
     musicData() {
-      return this.listData.filter(i => i.articleInfo.status !== 2);
+      return this.listData.filter(
+        i => [0, 4].includes(i.defaulterIdentityType) && i.articleInfo.status !== 2
+      );
     }
   },
   watch: {

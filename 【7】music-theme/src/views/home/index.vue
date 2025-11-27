@@ -29,6 +29,7 @@ watch(
 const popularData = computed(() => {
   const data = listData.value
     .filter(i => i.articleInfo.status !== 2 && i.articleInfo.articleType !== 3)
+    .filter(i => [0, 4].includes(i.defaulterIdentityType))
     .sort((a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime())
     .slice(0, 12);
 
@@ -37,12 +38,18 @@ const popularData = computed(() => {
 
 // 歌单列表
 const playListData = computed(() => {
-  return datasOfGetList.playListData?.listData?.slice(0, 5);
+  const filteredList = datasOfGetList.playListData?.listData?.filter((i: Exhibit) =>
+    [0, 4].includes(i.defaulterIdentityType)
+  );
+  return filteredList?.slice(0, 5);
 });
 
 // 音乐专辑列表
 const musicAlbumData = computed(() => {
-  return datasOfGetList.listData?.listData?.slice(0, 5);
+  const filteredList = datasOfGetList.listData?.listData?.filter((i: Exhibit) =>
+    [0, 4].includes(i.defaulterIdentityType)
+  );
+  return filteredList?.slice(0, 5);
 });
 
 /** 获取展品列表 */
