@@ -86,8 +86,12 @@ export const HomeScreen = (props: any) => {
 
         setNovelList(pre =>
           init
-            ? dataList.filter((i: any) => i.articleInfo?.status !== 2)
-            : [...pre, ...dataList].filter((i: any) => i.articleInfo?.status !== 2)
+            ? dataList.filter(
+                (i: any) => i.articleInfo.status === 1 && [0, 4].includes(i.defaulterIdentityType)
+              )
+            : [...pre, ...dataList].filter(
+                (i: any) => i.articleInfo.status === 1 && [0, 4].includes(i.defaulterIdentityType)
+              )
         );
         setTotal(totalItem);
       } catch (error) {
