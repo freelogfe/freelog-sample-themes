@@ -502,7 +502,7 @@ export const useMyPlay = {
       // 2
       for (let index = addArr.length - 1; index >= 0; index--) {
         const { itemId } = addArr[index];
-        newList.unshift({
+        newList.push({
           id: exhibitId,
           isExhibit: false,
           itemId
@@ -523,7 +523,7 @@ export const useMyPlay = {
       // 2
       for (let index = addArr.length - 1; index >= 0; index--) {
         const { itemId } = addArr[index];
-        newList.unshift({
+        newList.push({
           id: exhibitId,
           isExhibit: false,
           itemId
@@ -571,7 +571,7 @@ export const useMyPlay = {
       ) {
         return;
       }
-      playIdList.unshift({
+      playIdList.push({
         id,
         isExhibit,
         itemId
@@ -607,7 +607,7 @@ export const useMyPlay = {
         return;
       }
 
-      playIdList.unshift({
+      playIdList.push({
         id,
         isExhibit,
         itemId
