@@ -468,7 +468,7 @@
                     "
                   />
                   <div class="duration" v-else>
-                    {{ secondsToHMS(item.versionInfo?.exhibitProperty.duration) }}
+                    {{ secondsToHMS(item.versionInfo?.exhibitProperty?.duration) }}
                   </div>
                   <i
                     class="text-btn freelog fl-icon-guanbi"
@@ -975,7 +975,7 @@ export default {
         return;
       }
 
-      if (!["音频"].includes(data?.articleInfo.resourceType[0])) {
+      if (!["音频"].includes(data?.articleInfo?.resourceType[0])) {
         showToast("此作品格式暂不支持访问");
         return;
       }
