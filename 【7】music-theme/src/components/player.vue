@@ -986,6 +986,7 @@ export default {
     /** 移出播放列表 */
     deleteVoice(id, itemId) {
       useMyPlay.removeFromPlayList(id, itemId);
+      this.$refs.player.currentTime = 0;
     },
 
     /** 清空播放列表 */
