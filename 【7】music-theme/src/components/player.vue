@@ -541,13 +541,16 @@ export default {
   watch: {
     "store.playMode": {
       handler(cur) {
+        this.currentPlayMode = cur;
         this.currentModeIndex = this.modes.findIndex(f => f === cur);
         if (cur === "RANDOM") {
           this.shuffledList = this.playList?.slice();
           this.shuffleArray(this.shuffledList);
           this.currentRandomIndex = 0;
         }
-      }
+      },
+      immediate: true,
+      deep: true
     },
     "store.playList": {
       handler(cur, pre) {
