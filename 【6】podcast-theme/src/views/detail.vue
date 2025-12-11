@@ -516,16 +516,23 @@ export default {
           key: exhibitId,
           value: JSON.parse(JSON.stringify(res))
         });
+        // 根据排序状态处理数组顺序：addToPlayListBatch 是从后往前遍历的
+        // dropDownShow.value 为 false（正序）时，需要反转数组；为 true（倒序）时，直接使用
+        let filteredArr = res.filter(ele => {
+          const mime = ele?.articleInfo?.articleProperty?.mime;
+          if (this.$store.state.isIOS) {
+            return supportAudio.includes(mime) && !unSupportAudioIOS.includes(mime);
+          }
+          return supportAudio.includes(mime);
+        });
+        // 如果是正序，需要反转数组（因为 addToPlayListBatch 从后往前遍历）
+        if (!this.dropDownShow.value) {
+          filteredArr = filteredArr.reverse();
+        }
         await useMyPlay.addToPlayListBatch(
           {
             exhibitId,
-            addArr: res.filter(ele => {
-              const mime = ele?.articleInfo?.articleProperty?.mime;
-              if (this.$store.state.isIOS) {
-                return supportAudio.includes(mime) && !unSupportAudioIOS.includes(mime);
-              }
-              return supportAudio.includes(mime);
-            })
+            addArr: filteredArr
           },
           true
         );
