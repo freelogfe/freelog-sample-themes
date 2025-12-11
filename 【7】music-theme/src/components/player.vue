@@ -563,7 +563,10 @@ export default {
           this.currentRandomIndex = 0;
         }
         // 加入播放列表，显示播放器动画
-        if (cur && pre && cur.length - pre.length === 1) this.animation();
+        if (cur && pre && cur.length - pre.length === 1) {
+          this.store.setData({ key: "playerShowStatus", value: true });
+          this.animation();
+        }
         if (!cur || !this.store.inMobile) return;
 
         if (!this.infoAreaWidth) {
@@ -1061,6 +1064,7 @@ export default {
       //   });
       // }
       // 播放音频，显示播放器动画
+      this.store.setData({ key: "playerShowStatus", value: true });
       this.animation();
     },
 
@@ -1129,6 +1133,8 @@ export default {
 
     /** 播放或加入播放列表时，播放器动画 */
     animation() {
+      // 如果用户主动关闭了播放器，不应该重新打开
+      if (!this.store.playerShowStatus) return;
       if (!this.show) this.show = true;
       if (this.closeTimer) this.clearCloseTimer();
       this.closeTimer = setTimeout(() => {
