@@ -942,9 +942,16 @@ export const useMyPlay = {
         returnUrl: true
       });
       firstItem.url = url;
+      // 根据排序状态处理数组顺序：addToPlayListBatch 是从后往前遍历的
+      // sortType 为 1（正序）时，需要反转数组；为 -1（倒序）时，直接使用
+      let addArr = availdRes;
+      if (!sortType || sortType === 1) {
+        // 正序时，需要反转数组（因为 addToPlayListBatch 从后往前遍历）
+        addArr = [...availdRes].reverse();
+      }
       await this.addToPlayListBatch({
         exhibitId,
-        addArr: availdRes
+        addArr: addArr
       });
 
       store.commit("setData", { key: "playingInfo", value: { ...exhibit, child: firstItem } });
