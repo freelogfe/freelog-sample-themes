@@ -126,6 +126,10 @@ export const useGetList = () => {
     data.total = totalItem;
     if (init) data.loading = false;
     data.myLoading = false;
+
+    if (!data.listData.length) {
+      store.commit("setData", { key: "homeLoading", value: false });
+    }
   };
 
   /** 清空展品列表 */
