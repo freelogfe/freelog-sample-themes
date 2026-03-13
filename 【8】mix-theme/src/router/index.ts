@@ -35,6 +35,16 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("../views/reader.vue")
   },
   {
+    path: "/comic-detail",
+    name: "comic-detail",
+    component: () => import("../views/comic-detail.vue")
+  },
+  {
+    path: "/comic-reader",
+    name: "comic-reader",
+    component: () => import("../views/comic-reader.vue")
+  },
+  {
     path: "/signedList",
     name: "signedList",
     component: () => import("../views/signed-list.vue")

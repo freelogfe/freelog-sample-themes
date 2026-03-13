@@ -159,16 +159,25 @@ export default {
       const { exhibitId, itemId } = props.data;
 
       const isColumn = [2, 3].includes(props.data.articleInfo?.articleType);
+      const isComic =
+        props.data.articleInfo?.resourceType.includes("漫画") ||
+        props.data.articleInfo?.resourceType.includes("连载漫画");
 
-      if (isColumn) {
-        switchPage("/column-detail", { id: exhibitId });
+      // 根据类型确定路由路径
+      let routePath = "";
+      if (isComic) {
+        routePath = "/comic-detail";
       } else {
-        if (itemId) {
-          switchPage("/reader", { id: exhibitId, itemId });
-        } else {
-          switchPage("/reader", { id: exhibitId });
-        }
+        routePath = isColumn ? "/column-detail" : "/reader";
       }
+
+      // 统一处理参数
+      const params: { id: string; itemId?: string } = { id: exhibitId };
+      if (itemId) {
+        params.itemId = itemId;
+      }
+
+      switchPage(routePath, params);
     };
 
     /** 处理标题悬停事件 */

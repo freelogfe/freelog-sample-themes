@@ -3,7 +3,7 @@ import { ExhibitInfo } from "freelog-runtime";
 /** 展品 */
 export interface ExhibitItem extends ExhibitInfo {
   [x: string]: any;
-  collectionList: any[];
+  collectionList?: any[];
   signCount?: number;
   latestSignDate?: string;
   defaulterIdentityType?: number;
@@ -24,6 +24,9 @@ export interface ExhibitItem extends ExhibitInfo {
       [key: string]: any;
     };
     status: number;
+    comicMode?: number;
+    // collectionList?: CollectionList[];
+    serializeStatus?: number;
   };
 }
 
@@ -39,4 +42,23 @@ export interface shareBtnItem {
   name: string;
   icon: string;
   bgColor: string;
+}
+
+// 合集单品列表
+export interface CollectionList {
+  itemId: string;
+  itemTitle: string;
+  sortId: number;
+  createDate: string;
+  articleInfo: ExhibitInfo;
+  defaulterIdentityType: number;
+}
+
+/** 内容图片 */
+export interface ContentImage {
+  name: string;
+  size: number;
+  url: string;
+  width: number;
+  height: number;
 }

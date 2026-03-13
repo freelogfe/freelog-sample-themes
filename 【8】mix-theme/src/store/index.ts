@@ -2,6 +2,7 @@ import { themeList } from "@/api/data";
 import { judgeDevice, judgeIOSDevice } from "@/utils/common";
 import { freelogApp } from "freelog-runtime";
 import { createStore } from "vuex";
+import { ExhibitItem } from "@/api/interface";
 
 /** 当前登录用户数据 */
 interface UserData {
@@ -23,6 +24,20 @@ interface HistoryItem {
   query?: any;
 }
 
+export interface State {
+  inMobile: boolean;
+  isIOS: boolean | null;
+  userData: UserData | null;
+  selfConfig: any;
+  theme: Theme;
+  locationHistory: HistoryItem[];
+  shelfIds: string[];
+  myShelf: ExhibitItem[] | null;
+  authIds: string[]; // 授权集合，用于刷新列表授权状态
+  maskLoading: boolean;
+  nodeInfo: any;
+}
+
 export default createStore({
   state: {
     inMobile: false as boolean,
@@ -32,7 +47,9 @@ export default createStore({
     locationHistory: [] as HistoryItem[],
     authIds: [] as string[], // 授权集合，用于刷新列表授权状态
     isIOS: false,
-    maskLoading: false
+    maskLoading: false,
+    shelfIds: [],
+    myShelf: null
   },
 
   mutations: {

@@ -1,7 +1,7 @@
 #app {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-  "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
-  "Noto Color Emoji";
+    "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 14px;
@@ -35,7 +35,7 @@ input:focus {
 
 .main-btn {
   color: #fff;
-  background-color: #0F2027;
+  background-color: #0f2027;
   cursor: pointer;
   transition: all 0.2s linear;
 
@@ -59,7 +59,7 @@ input:focus {
 
 .assist-btn {
   position: relative;
-  color: #0F2027;
+  color: #0f2027;
   cursor: pointer;
   overflow: hidden;
 
@@ -67,7 +67,7 @@ input:focus {
     content: "";
     position: absolute;
     inset: 0;
-    background: #0F2027;
+    background: #0f2027;
     opacity: 0.1;
     transition: all 0.2s linear;
   }
@@ -91,7 +91,7 @@ input:focus {
 }
 
 .text-btn {
-  color: #0F2027;
+  color: #0f2027;
   cursor: pointer;
   transition: all 0.2s linear;
 
@@ -119,7 +119,7 @@ input:focus {
   transition: all 0.2s linear;
 
   &:hover {
-    color: #0F2027;
+    color: #0f2027;
   }
 
   &:active {
@@ -162,7 +162,7 @@ input:focus {
 }
 
 .header-register-btn {
-  color: #FFF;
+  color: #fff;
   background: #222;
   cursor: pointer;
   transition: all 0.2s linear;
@@ -192,7 +192,7 @@ input:focus {
 
   &:hover {
     color: #fff;
-    background: #0F2027;
+    background: #0f2027;
   }
 
   &:active {
@@ -220,6 +220,48 @@ input:focus {
 .disabled {
   pointer-events: none;
 }
+
+/** 漫画相关样式--start */
+.collect-btn {
+  position: relative;
+  border-radius: 4px;
+  color: var(--deriveColor);
+  cursor: pointer;
+  transition: all 0.2s linear;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: var(--deriveColor);
+    opacity: 0.1;
+    z-index: 0;
+    transition: opacity 0.2s linear;
+  }
+
+  &:hover::before {
+    opacity: 0.2;
+  }
+
+  &:active {
+    opacity: 0.6;
+  }
+
+  &.mobile {
+    cursor: default;
+    transition: none;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    &:active {
+      opacity: 0.6;
+    }
+  }
+}
+/** 漫画相关样式--end */
 
 @keyframes fade-in-out {
   0% {

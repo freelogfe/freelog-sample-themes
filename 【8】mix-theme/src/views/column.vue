@@ -11,7 +11,7 @@ const datasOfGetList = useGetList();
 const data = reactive({
   sortPopupShow: false,
   createDateSortType: "-1",
-  searchData: { sort: "createDate:-1", articleResourceTypes: "专栏" } as {
+  searchData: { sort: "createDate:-1", articleResourceTypes: "专栏,连载漫画" } as {
     keywords?: string;
     tags?: string;
     sort?: string;
@@ -58,17 +58,14 @@ const setSort = (option: string) => {
 
   data.createDateSortType = option;
   data.searchData.sort = `createDate:${option}`;
-  data.searchData.articleResourceTypes = "专栏,漫画,连载漫画";
+  data.searchData.articleResourceTypes = "专栏,连载漫画";
   !store.state.inMobile && datasOfGetList.getList(data.searchData, true);
 };
 
 // 获取博客列表
 const getData = () => {
   datasOfGetList.clearData();
-  datasOfGetList.getList(
-    { articleResourceTypes: "专栏,漫画,连载漫画", sort: "createDate:-1" },
-    true
-  );
+  datasOfGetList.getList({ articleResourceTypes: "专栏,连载漫画", sort: "createDate:-1" }, true);
 };
 
 const columnLength = computed(() => {
@@ -109,7 +106,7 @@ watch(
   () => scrollTop.value,
   cur => {
     if (cur + clientHeight.value + 1 >= scrollHeight.value && route.path === "/column") {
-      datasOfGetList.getList({ articleResourceTypes: "专栏" });
+      datasOfGetList.getList({ articleResourceTypes: "专栏,连载漫画" });
     }
   }
 );

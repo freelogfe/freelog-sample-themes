@@ -312,7 +312,8 @@ export default {
       return datasOfGetList.listData.value.filter(
         (ele: any) =>
           [2, 3].includes(ele.articleInfo.articleType) &&
-          ele.articleInfo.resourceType.includes("专栏") &&
+          (ele.articleInfo.resourceType.includes("专栏") ||
+            ele.articleInfo.resourceType.includes("连载漫画")) &&
           ele.articleInfo.status === 1 &&
           [0, 4].includes(ele.defaulterIdentityType!)
       );

@@ -27,6 +27,14 @@ myWindow.mount = async () => {
     },
     columnDetail: (exhibitId: string) => {
       return `/column-detail?id=${exhibitId}`;
+    },
+    comicDetail: (exhibitId: string) => {
+      return `/comic-detail?id=${exhibitId}`;
+    },
+    comicReader: (exhibitId: string, itemId: string) => {
+      if (!itemId) {
+        return `/comic-reader?id=${exhibitId}`;
+      }
     }
   });
 

@@ -3,6 +3,8 @@ import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { ExhibitItem } from "../api/interface";
 import { freelogApp } from "freelog-runtime";
+import { callLogin } from "@/api/freelog";
+import { showToast } from "./common";
 
 /** 路由 hook */
 export const useMyRouter = () => {
@@ -29,7 +31,12 @@ export const useMyRouter = () => {
     return router.currentRoute.value.fullPath;
   };
 
-  return { query, route, router, switchPage, routerBack, getCurrentPath };
+  /** 替换当前路由 */
+  const replacePage = (path: string, query: any = {}) => {
+    router.replace({ path, query });
+  };
+
+  return { query, route, router, switchPage, routerBack, getCurrentPath, replacePage };
 };
 
 /** 路由历史 hook */
@@ -121,7 +128,7 @@ export const useGetList = () => {
     data.skip = init ? 0 : data.skip + 30;
     const queryParams = {
       skip: data.skip,
-      articleResourceTypes: "阅读",
+      articleResourceTypes: "阅读,漫画,连载漫画",
       limit: params.limit || 30,
       isLoadVersionProperty: 1,
       ...params
@@ -208,7 +215,7 @@ export const useMySignedList = () => {
       freelogApp.getExhibitSignCount(ids),
       freelogApp.getExhibitAuthStatus(ids)
     ]);
-    (list.data.data as ExhibitItem[]).forEach(item => {
+    for (const item of list.data.data as ExhibitItem[]) {
       const signCountItem = signCountData.data.data.find(
         signCount => signCount.subjectId === item.exhibitId
       );
@@ -217,7 +224,18 @@ export const useMySignedList = () => {
       item.defaulterIdentityType = statusItem?.defaulterIdentityType;
       const signDate = signedList.data.data.find(signItem => signItem.subjectId === item.exhibitId);
       item.latestSignDate = signDate?.latestSignDate;
-    });
+
+      // 获取专栏类型的 collectionList
+      if ([2, 3].includes(item.articleInfo.articleType)) {
+        const res = await (freelogApp as any).getCollectionSubListByPage(item.exhibitId, {
+          sortType: -1,
+          skip: 0,
+          limit: 1_000,
+          isShowDetailInfo: 1
+        });
+        item.collectionList = res.data.data as any;
+      }
+    }
     const _temp_list = list.data.data.filter(
       item => !item.articleInfo.resourceType.includes("主题")
     );
@@ -245,8 +263,8 @@ export const useMySignedList = () => {
 };
 
 /** 滚动 hook */
-export const useMyScroll = () => {
-  const app = document.getElementById("app");
+export const useMyScroll = (target?: string) => {
+  const app = document.getElementById(target || "app");
   const data = reactive({
     scrollTop: 0,
     clientHeight: 0,
@@ -265,6 +283,11 @@ export const useMyScroll = () => {
     app?.scroll({ top, behavior });
   };
 
+  /** 回到顶部 */
+  const scrollToTop = () => {
+    app?.scroll({ top: 0, behavior: "smooth" });
+  };
+
   app?.addEventListener("scroll", scroll);
   onUnmounted(() => {
     app?.removeEventListener("scroll", scroll);
@@ -272,6 +295,120 @@ export const useMyScroll = () => {
 
   return {
     ...toRefs(data),
-    scrollTo
+    scrollTo,
+    scrollToTop
   };
 };
+
+/** 有关漫画的hook--start */
+
+/** 收藏 hook */
+export const useMyShelf = (id?: string) => {
+  const store = useStore();
+
+  const data = reactive({
+    isCollected: false
+  });
+
+  /** 获取收藏数据 */
+  const getMyShelf = async () => {
+    if (!store.state.userData.isLogin) return;
+
+    const res = await freelogApp.getUserData("shelf");
+    const ids = res?.data?.data || [];
+
+    const shelfIds = (ids || []).sort();
+    const storeShelfIds = store.state.shelfIds.sort();
+    let change = false;
+    if (shelfIds.length !== storeShelfIds.length) {
+      change = true;
+    } else {
+      for (let i = 0; i < Math.max(shelfIds.length, storeShelfIds.length); i++) {
+        if (shelfIds[i] !== storeShelfIds[i]) {
+          change = true;
+          break;
+        }
+      }
+    }
+
+    if (!change) return;
+
+    store.commit("setData", { key: "shelfIds", value: shelfIds });
+
+    if (!ids || ids.length === 0) {
+      store.commit("setData", { key: "myShelf", value: [] });
+      return;
+    }
+
+    const exhibitIds = ids.join(",");
+    const [list, statusList] = await Promise.all([
+      freelogApp.getExhibitListById({ exhibitIds }),
+      freelogApp.getExhibitAuthStatus(exhibitIds)
+    ]);
+    for (const item of list.data.data as ExhibitItem[]) {
+      const statusItem = statusList.data.data.find(
+        (status: { exhibitId: string }) => status.exhibitId === item.exhibitId
+      );
+      item.defaulterIdentityType = statusItem?.defaulterIdentityType;
+
+      if (item.articleInfo.articleType === 2) {
+        const res = await (freelogApp as any).getCollectionSubListByPage(item.exhibitId, {
+          sortType: -1,
+          skip: 0,
+          limit: 50,
+          isShowDetailInfo: 1
+        });
+
+        item.collectionList = res.data.data as any;
+      }
+    }
+    store.commit("setData", { key: "myShelf", value: list.data.data });
+  };
+
+  /** 判断当前资源是否已被收藏 */
+  const ifExistInShelf = (exhibitId: string) => {
+    const shelfIds = store.state.shelfIds;
+    const isCollected = shelfIds.includes(exhibitId);
+    return isCollected;
+  };
+
+  /** 操作收藏（如未收藏则收藏，反之取消收藏） */
+  const operateShelf = async (exhibit: ExhibitItem) => {
+    if (!store.state.userData.isLogin) {
+      callLogin();
+      return;
+    }
+
+    const isThisCollected = ifExistInShelf(exhibit.exhibitId);
+
+    const shelfIds = [...store.state.shelfIds];
+    if (isThisCollected) {
+      const index = shelfIds.findIndex((item: string) => item === exhibit.exhibitId);
+      shelfIds.splice(index, 1);
+    } else {
+      shelfIds.push(exhibit.exhibitId);
+    }
+    const res = await freelogApp.setUserData("shelf", shelfIds);
+    if (res.data.errCode === 0) {
+      showToast(isThisCollected ? `已将漫画从收藏中移除～` : `已将漫画加入收藏～`);
+      getMyShelf();
+      if (id) data.isCollected = ifExistInShelf(id);
+    } else {
+      showToast("操作失败");
+    }
+  };
+
+  watch(
+    () => store.state.myShelf,
+    () => {
+      if (id) data.isCollected = ifExistInShelf(id);
+    },
+    { immediate: true }
+  );
+
+  getMyShelf();
+
+  return { ...toRefs(data), operateShelf };
+};
+
+/** 有关漫画的hook--end */

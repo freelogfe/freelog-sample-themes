@@ -19,7 +19,7 @@ const datasOfGetList = useGetList();
 const data = reactive({
   sortPopupShow: false,
   createDateSortType: "-1",
-  searchData: { sort: "createDate:-1", articleResourceTypes: "文章" } as {
+  searchData: { sort: "createDate:-1", articleResourceTypes: "文章,漫画" } as {
     keywords?: string;
     tags?: string;
     sort?: string;

@@ -1,12 +1,12 @@
 <template>
   <div v-if="!maskLoading" class="app-container" :class="{ isIOS: isIOS }">
-    <my-header />
+    <my-header v-if="$route.path !== '/comic-reader'" />
     <div class="app-wrapper" :class="{ inMobile: inMobile }">
       <router-view v-slot="{ Component }">
         <component :is="Component" />
       </router-view>
     </div>
-    <my-footer />
+    <my-footer v-if="$route.path !== '/comic-reader'" />
     <theme-entrance />
     <login-btn />
     <div id="modal"></div>
