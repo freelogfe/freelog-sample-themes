@@ -39,7 +39,12 @@ export default {
     const isIOS = computed(() => store.state.isIOS);
 
     const setShareWidgetShow = (value: boolean) => {
-      shareWidget.value?.setData({ show: value });
+      if (inMobile.value) {
+        const el = document.getElementById("mobile-share-wrap");
+        if (el) el.style.display = value ? "flex" : "none";
+      } else {
+        shareWidget.value?.setData({ show: value });
+      }
     };
 
     const mountShareWidget = async () => {
