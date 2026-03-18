@@ -7,56 +7,111 @@
       </router-view>
     </div>
     <my-footer />
-    <theme-entrance />
     <login-btn />
     <div id="modal"></div>
   </div>
-  <div class="maskLoading" v-else>
+  <div v-else class="maskLoading">
     <span class="freelog fl-icon-loading"></span>
   </div>
+  <Teleport to="body">
+    <div id="app-share" class="app-share"></div>
+  </Teleport>
 </template>
 
 <script lang="ts">
-import { computed, defineAsyncComponent } from "vue";
-import { widgetApi } from "freelog-runtime";
+import { computed, defineAsyncComponent, onMounted, onBeforeUnmount, ref, provide } from "vue";
+import { widgetApi, freelogApp } from "freelog-runtime";
 import { useStore } from "vuex";
+import type { WidgetController } from "freelog-runtime";
 
 export default {
   components: {
     "my-header": defineAsyncComponent(() => import("./components/header.vue")),
-    "theme-entrance": defineAsyncComponent(() => import("./components/theme-entrance.vue")),
     "login-btn": defineAsyncComponent(() => import("./components/login-btn.vue")),
     "my-footer": defineAsyncComponent(() => import("./components/footer.vue"))
   },
   setup() {
     const store = useStore();
+    const shareWidget = ref<WidgetController | null>(null);
 
-    const maskLoading = computed(() => {
-      return store.state.maskLoading;
-    });
+    const maskLoading = computed(() => store.state.maskLoading);
+    const inMobile = computed(() => store.state.inMobile);
+    const isIOS = computed(() => store.state.isIOS);
 
-    const inMobile = computed(() => {
-      return store.state.inMobile;
-    });
+    const setShareWidgetShow = (value: boolean) => {
+      shareWidget.value?.setData({ show: value });
+    };
 
-    const isIOS = computed(() => {
-      return store.state.isIOS;
+    const mountShareWidget = async () => {
+      const container = document.getElementById("app-share");
+      if (!container) return;
+      if (shareWidget.value) await shareWidget.value.unmount();
+
+      const subDeps = await freelogApp.getSelfDepForTheme();
+      const widgetData = subDeps.find(
+        (item: any) => item.articleName === "ZhuC/Freelog插件-展品分享"
+      );
+      if (!widgetData) return;
+
+      const { articleId, parentNid, nid } = widgetData;
+      const topExhibitId = freelogApp.getTopExhibitId();
+      const nodeInfo = freelogApp.nodeInfo;
+      const params = {
+        articleId,
+        parentNid,
+        nid,
+        topExhibitId,
+        container,
+        renderWidgetOptions: {
+          iframe: true,
+          data: {
+            exhibit: {
+              ...nodeInfo,
+              exhibitId: (nodeInfo as any).nodeId || topExhibitId,
+              exhibitTitle: (nodeInfo as any).nodeName || nodeInfo.nodeShortDescription
+            },
+            type: "博客",
+            show: false,
+            routerType: "detail",
+            onClose: () => setShareWidgetShow(false)
+          }
+        },
+        widget_entry: "https://localhost:8204"
+      };
+      shareWidget.value = await freelogApp.mountArticleWidget(params);
+    };
+
+    const openShare = () => {
+      setShareWidgetShow(true);
+    };
+
+    provide("openShare", openShare);
+
+    onMounted(() => mountShareWidget());
+    onBeforeUnmount(async () => {
+      await shareWidget.value?.unmount();
     });
 
     const themeInfo = widgetApi.getData()?.themeInfo;
     console.log("当前应用版本为:", themeInfo?.version, "+++");
 
-    return {
-      maskLoading,
-      inMobile,
-      isIOS
-    };
+    return { maskLoading, inMobile, isIOS };
   }
 };
 </script>
 
 <style lang="scss">
 @import "@/assets/css";
+
+.app-share {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  z-index: 1000;
+}
 
 .app-container {
   &.isIOS {

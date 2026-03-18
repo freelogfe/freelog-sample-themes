@@ -40,13 +40,18 @@
         </div>
 
         <div class="header-top-right">
-          <i
-            class="freelog fl-icon-content"
+          <img
+            class="header-search"
+            src="../assets/images/icon_search.svg"
             @click="searchPopupShow = true"
             v-if="!($route.path === '/reader')"
-          ></i>
-
-          <img class="menu" src="../assets/images/menu@3x.png" @click="userBoxShow = true" />
+          />
+          <img class="header-share" src="../assets/images/icon_share.svg" @click="openShare?.()" />
+          <img
+            class="header-menu"
+            src="../assets/images/icon_menu.svg"
+            @click="userBoxShow = true"
+          />
         </div>
       </div>
 
@@ -313,7 +318,7 @@
 </template>
 
 <script lang="ts">
-import { computed, reactive, ref, toRefs, watch } from "vue";
+import { computed, inject, reactive, ref, toRefs, watch } from "vue";
 import { useMyLocationHistory, useMyRouter, useSearchHistory } from "../utils/hooks";
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
@@ -325,6 +330,7 @@ export default {
   setup(props: any) {
     const nodeInfo = freelogApp.nodeInfo;
     const store = useStore();
+    const openShare = inject<() => void>("openShare");
     const { query, route, switchPage, routerBack } = useMyRouter();
     const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
     const searchInput = ref();
@@ -511,6 +517,7 @@ export default {
     return {
       ...props,
       ...nodeInfo,
+      openShare,
       callLogin,
       callLoginOut,
       switchPage,
