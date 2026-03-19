@@ -60,7 +60,8 @@ export default {
 
       const { articleId, parentNid, nid } = widgetData;
       const topExhibitId = freelogApp.getTopExhibitId();
-      const nodeInfo = freelogApp.nodeInfo;
+      const nodeInfo = freelogApp.nodeInfo as any;
+      const nodeUrl = new URL(freelogApp.getCurrentUrl()).origin;
       const params = {
         articleId,
         parentNid,
@@ -72,6 +73,8 @@ export default {
           data: {
             exhibit: {
               ...nodeInfo,
+              avatarUrl: `https://image.freelog.com/avatar/${nodeInfo?.ownerUserId || ""}`,
+              nodeUrl,
               exhibitId: (nodeInfo as any).nodeId || topExhibitId,
               exhibitTitle: (nodeInfo as any).nodeName || nodeInfo.nodeShortDescription
             },
