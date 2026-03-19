@@ -614,7 +614,7 @@ export default {
           if (this.data?.child?.articleInfo?.coverImages[0]) {
             return this.data?.child?.articleInfo?.coverImages[0];
           } else {
-            return "//static.freelog.com/static/default_cover.png";
+            return "//static.freelog.cn/static/default_cover.png";
           }
         } else {
           return this.data.coverImages[0];

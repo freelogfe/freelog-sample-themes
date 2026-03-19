@@ -262,7 +262,7 @@ onBeforeMount(() => {
         <div class="bottom">
           <div class="author-avatar">
             <img
-              :src="`https://image.freelog.com/avatar/${
+              :src="`https://image.freelog.cn/avatar/${
                 exhibitInfo?.articleInfo?.articleOwnerId || exhibitInfo?.userId
               }`"
               alt="头像"

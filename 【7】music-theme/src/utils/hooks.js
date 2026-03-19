@@ -815,7 +815,7 @@ export const useMyPlay = {
       // 部分设备（已知部分 ios）上无法直接播放音频，需要先使用任意 url 初始化播放器，才可播放音频
       store.setData({
         key: "initUrl",
-        value: "https://default-resource.freelog.com/default.mp3"
+        value: "https://default-resource.freelog.cn/default.mp3"
       });
       this.playOrPause(exhibit, type, callback);
       return;

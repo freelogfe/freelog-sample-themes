@@ -182,7 +182,7 @@
           <div class="other-info">
             <div class="author-avatar">
               <img
-                :src="`https://image.freelog.com/avatar/${
+                :src="`https://image.freelog.cn/avatar/${
                   articleData.articleInfo.articleOwnerId || articleData.userId
                 }`"
                 alt="头像"

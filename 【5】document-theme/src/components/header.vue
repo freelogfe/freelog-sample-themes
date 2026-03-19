@@ -141,10 +141,10 @@ export default {
       register() {
         const url = freelogApp.getCurrentUrl();
         const mainUrl = url.split("?")[0];
-        const reg = /\.([^.]*)\.com/;
+        const reg = (window as any).HOST_END==='.cn'? /\.([^.]*)\.cn/: /\.([^.]*)\.com/;
         const domain = reg.exec(mainUrl);
         const domainName = domain ? domain[1] : "freelog";
-        window.open(`https://user.${domainName}.com/logon`);
+        window.open(`https://user.${domainName}${(window as any).HOST_END}/logon`);
       },
 
       /** 通知父组件打开目录 */
