@@ -54,7 +54,7 @@ export default {
 
       const subDeps = await freelogApp.getSelfDepForTheme();
       const widgetData = subDeps.find(
-        (item: any) => item.articleName === "ZhuC/Freelog插件-展品分享"
+        (item: any) => item.articleName === "ZhuC/_Freelog插件-主页分享"
       );
       if (!widgetData) return;
 
@@ -83,8 +83,8 @@ export default {
             routerType: "detail",
             onClose: () => setShareWidgetShow(false)
           }
-        },
-        widget_entry: "https://localhost:8204"
+        }
+        // widget_entry: "https://localhost:8204"
       };
       shareWidget.value = await freelogApp.mountArticleWidget(params);
     };
