@@ -70,7 +70,7 @@ window.mount = async () => {
   let id, itemId
   const url = freelogApp.getCurrentUrl()
   const urlArr = url.split('?')
-  const vualeArr = urlArr[0].split('.com')
+  const vualeArr = window.HOST_END==='.cn'? urlArr[0].split('.cn'): urlArr[0].split('.com')
   const tempArr = vualeArr[1].split('/')
   const finalArr = tempArr.filter(ele => ele)
   

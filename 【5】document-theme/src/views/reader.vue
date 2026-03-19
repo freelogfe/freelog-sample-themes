@@ -882,7 +882,7 @@ export default {
       const requestArr: Promise<any>[] = [freelogApp.getExhibitSignCount(exhibitId)];
       if (!documentData) {
         requestArr.push(
-          freelogApp.getExhibitInfo(exhibitId, { isLoadVersionProperty: 1 }),
+          freelogApp.getExhibitById(exhibitId, { isLoadVersionProperty: 1 }),
           freelogApp.getExhibitAuthStatus(exhibitId)
         );
         const [signCountData, exhibitInfo, statusInfo] = await Promise.all(requestArr);
@@ -901,11 +901,11 @@ export default {
       data.href = freelogApp.getCurrentUrl();
 
       // 更新 qq 微信 分享
-      const isWeChatOrQQ = (freelogApp as any).isWeChatOrQQ()
+      const isWeChatOrQQ = (freelogApp as any).isWeChatOrQQ();
       if (isWeChatOrQQ) {
-        const { exhibitTitle, exhibitIntro, coverImages } = documentData
-        const defaultImg = "//static.testfreelog.com/static/default_cover.png"
-        let imgUrl = coverImages[0] === defaultImg ? "" : coverImages[0]
+        const { exhibitTitle, exhibitIntro, coverImages } = documentData;
+        const defaultImg = "//static.testfreelog.com/static/default_cover.png";
+        let imgUrl = coverImages[0] === defaultImg ? "" : coverImages[0];
         const fShare = {
           title: exhibitTitle,
           desc: exhibitIntro,
@@ -915,7 +915,7 @@ export default {
           title: exhibitTitle,
           imgUrl
         };
-        (freelogApp as any).updateWechatShare(fShare, qShare)
+        (freelogApp as any).updateWechatShare(fShare, qShare);
       }
 
       await mountShareWidget();
@@ -983,7 +983,7 @@ export default {
 
       if (data.shareWidget) await data.shareWidget.unmount();
 
-      const subDeps = await freelogApp.getSelfDependencyTree();
+      const subDeps = await freelogApp.getSelfDepForTheme();
       const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-展品分享");
       if (!widgetData) return;
 
@@ -998,7 +998,7 @@ export default {
         container,
         renderWidgetOptions: {
           data: { exhibit: data.documentData, type: "文档", routerType: "content" }
-        },
+        }
         // widget_entry: "https://localhost:8201",
       };
       data.shareWidget = await freelogApp.mountArticleWidget(params);

@@ -134,7 +134,7 @@ export const DetailScreen = (props: any) => {
 
         skip.current = init ? 0 : skip.current + 50;
 
-        const subList = await (freelogApp as any).getCollectionSubList(id, {
+        const subList = await (freelogApp as any).getCollectionSubListByPage(id, {
           skip: skip.current,
           limit: 50,
           isShowDetailInfo: 1
@@ -144,7 +144,9 @@ export const DetailScreen = (props: any) => {
 
         if (dataList.length !== 0) {
           const ids = dataList.map((item: any) => item.itemId).join();
-          const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
+          const statusInfo = await (freelogApp as any).getCollectionSubAuthStatus(id, {
+            itemIds: ids
+          });
           if (statusInfo.data.data) {
             (dataList as ExhibitItem[]).forEach((item: any) => {
               const index = statusInfo.data.data.findIndex(
@@ -175,7 +177,7 @@ export const DetailScreen = (props: any) => {
 
   /** 获取合集的倒序内容 */
   const getCollectionListBySortTypeDesc = async () => {
-    const res = await (freelogApp as any).getCollectionSubList(id, {
+    const res = await (freelogApp as any).getCollectionSubListByPage(id, {
       sortType: -1,
       skip: 0,
       limit: 50,
@@ -249,13 +251,13 @@ export const DetailScreen = (props: any) => {
   const getNovelInfo = useCallback(async () => {
     try {
       const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
-        freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+        freelogApp.getExhibitById(id, { isLoadVersionProperty: 1 }),
         freelogApp.getExhibitSignCount(id),
         freelogApp.getExhibitAuthStatus(id)
       ]);
 
       const novelViewedResponse = await freelogApp.getUserData("novelViewedHistory");
-      setHistoryNovelData(novelViewedResponse?.data?.data || []);
+      setHistoryNovelData((novelViewedResponse?.data?.data as any) || []);
 
       const articleType = exhibitInfo.data.data.articleInfo.articleType;
       if (articleType === 2) {
@@ -285,7 +287,7 @@ export const DetailScreen = (props: any) => {
   }, [id]);
 
   const getRecentDate = async () => {
-    const getRecentDate = await (freelogApp as any).getCollectionSubList(id, {
+    const getRecentDate = await (freelogApp as any).getCollectionSubListByPage(id, {
       skip: skip.current,
       limit: 1,
       sortType: -1
@@ -357,6 +359,8 @@ const DetailBody = (props: {
   const history = useMyHistory();
   const introContent = useRef<any>();
   const shareWidget = useRef<any>();
+  const hideTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const mouseMoveHandlerRef = useRef<((e: MouseEvent) => void) | null>(null);
   const [introState, setIntroState] = useState(0);
   const [href, setHref] = useState("");
   // const [sortOrder, setSortOrder] = useState("asc");
@@ -378,7 +382,7 @@ const DetailBody = (props: {
     const container = document.getElementById("share");
     if (!container) return;
 
-    const subDeps = await freelogApp.getSelfDependencyTree();
+    const subDeps = freelogApp.getSelfDepForTheme();
     const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-展品分享");
     if (!widgetData) return;
 
@@ -394,7 +398,7 @@ const DetailBody = (props: {
       renderWidgetOptions: {
         data: { exhibit: novel, type: "小说", routerType: "detail" }
       }
-      // widget_entry: "https://localhost:8201",
+      // widget_entry: "https://localhost:8201"
     };
     shareWidget.current = await freelogApp.mountArticleWidget(params);
   };
@@ -430,6 +434,94 @@ const DetailBody = (props: {
     shareWidget.current?.setData({ show: value });
   };
 
+  /** 处理鼠标进入分享区域 */
+  const handleShareMouseEnter = () => {
+    // 清除隐藏定时器
+    console.log("handleTimeRef.current", hideTimerRef.current);
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+    // 显示分享组件
+    setShareWidgetShow(true);
+  };
+
+  /** 处理鼠标离开分享区域 */
+  const handleShareMouseLeave = (e: React.MouseEvent) => {
+    console.log("e", e.currentTarget);
+    const shareBtn = e.currentTarget as HTMLElement;
+    const shareElement = document.getElementById("share");
+
+    if (!shareElement) {
+      setShareWidgetShow(false);
+      return;
+    }
+
+    // 清除之前的定时器
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current);
+    }
+
+    // 移除之前的鼠标移动监听
+    if (mouseMoveHandlerRef.current) {
+      document.removeEventListener("mousemove", mouseMoveHandlerRef.current);
+      mouseMoveHandlerRef.current = null;
+    }
+
+    // 创建鼠标移动监听，检查鼠标是否在分享区域内
+    const checkMouseInShareArea = (mouseEvent: MouseEvent) => {
+      const btnRect = shareBtn.getBoundingClientRect();
+      const shareRect = shareElement.getBoundingClientRect();
+
+      const mouseX = mouseEvent.clientX;
+      const mouseY = mouseEvent.clientY;
+
+      // 检查鼠标是否在按钮或弹窗区域内（扩大范围避免边界问题）
+      const isInBtnArea =
+        mouseX >= btnRect.left - 10 &&
+        mouseX <= btnRect.right + 10 &&
+        mouseY >= btnRect.top - 10 &&
+        mouseY <= btnRect.bottom + 10;
+
+      const isInShareArea =
+        mouseX >= shareRect.left - 10 &&
+        mouseX <= shareRect.right + 10 &&
+        mouseY >= shareRect.top - 10 &&
+        mouseY <= shareRect.bottom + 10;
+
+      if (isInBtnArea || isInShareArea) {
+        // 鼠标在区域内，清除隐藏定时器
+        if (hideTimerRef.current) {
+          clearTimeout(hideTimerRef.current);
+          hideTimerRef.current = null;
+        }
+      } else {
+        // 鼠标不在区域内，隐藏分享组件
+        setShareWidgetShow(false);
+        // 移除监听
+        if (mouseMoveHandlerRef.current) {
+          document.removeEventListener("mousemove", mouseMoveHandlerRef.current);
+          mouseMoveHandlerRef.current = null;
+        }
+      }
+    };
+
+    // 添加鼠标移动监听
+    mouseMoveHandlerRef.current = checkMouseInShareArea;
+    document.addEventListener("mousemove", mouseMoveHandlerRef.current);
+
+    // 延迟隐藏，如果鼠标没有移动到弹窗，则隐藏
+    hideTimerRef.current = setTimeout(() => {
+      setShareWidgetShow(false);
+      // 移除监听
+      if (mouseMoveHandlerRef.current) {
+        document.removeEventListener("mousemove", mouseMoveHandlerRef.current);
+        mouseMoveHandlerRef.current = null;
+      }
+      hideTimerRef.current = null;
+    }, 300);
+  };
+
   /**
    * 切换正序，倒序
    */
@@ -456,6 +548,16 @@ const DetailBody = (props: {
     setHref(freelogApp.getCurrentUrl());
 
     return () => {
+      // 清理隐藏定时器
+      if (hideTimerRef.current) {
+        clearTimeout(hideTimerRef.current);
+        hideTimerRef.current = null;
+      }
+      // 清理鼠标移动监听
+      if (mouseMoveHandlerRef.current) {
+        document.removeEventListener("mousemove", mouseMoveHandlerRef.current);
+        mouseMoveHandlerRef.current = null;
+      }
       if (inMobile) return;
       (async function unmountWidget() {
         await shareWidget.current?.unmount();
@@ -554,7 +656,7 @@ const DetailBody = (props: {
               <div className="novel-date-info">
                 <div className="date-info">创建时间：{formatDate(novel.createDate)}</div>
                 <div className="date-info">
-                  最近更新：{formatDate(collectionRecentDate || novel.updateDate)}
+                  编辑时间：{formatDate(collectionRecentDate || novel.updateDate)}
                 </div>
               </div>
 
@@ -739,7 +841,7 @@ const DetailBody = (props: {
                         </div>
                       )}
                       <div className="latest-novel">
-                        最近更新：{formatDate(novel?.articleInfo?.versions?.[0]?.createDate)}
+                        编辑时间：{formatDate(novel?.articleInfo?.versions?.[0]?.createDate)}
                       </div>
                     </div>
                   ) : novel?.articleInfo?.serializeStatus === 0 ? (
@@ -851,13 +953,13 @@ const DetailBody = (props: {
                     <div className="sign-count">{novel.signCount}人签约</div>
                     <div
                       className="share-btn"
-                      onMouseOver={e => {
+                      onMouseEnter={e => {
                         e.stopPropagation();
-                        setShareWidgetShow(true);
+                        handleShareMouseEnter();
                       }}
                       onMouseLeave={e => {
                         e.stopPropagation();
-                        setShareWidgetShow(false);
+                        handleShareMouseLeave(e);
                       }}
                     >
                       <span className="share-btn-text">
@@ -865,7 +967,7 @@ const DetailBody = (props: {
                         分享给更多人
                       </span>
 
-                      <div id="share" className="share-wrapper" />
+                      <div id="share" className="share-wrapper-container" />
                     </div>
                   </div>
                 </div>

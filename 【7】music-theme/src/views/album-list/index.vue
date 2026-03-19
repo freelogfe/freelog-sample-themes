@@ -2,7 +2,7 @@
 <template>
   <div class="album-list-wrapper">
     <list
-      :list="datasOfGetList.listData.listData"
+      :list="albumListData"
       :loading="datasOfGetList.listData.loading"
       :total="datasOfGetList.listData.total"
       :musicAlbumTab="false"
@@ -66,6 +66,15 @@ export default {
       articleResourceTypes: "音乐专辑",
       sort: `createDate:-1`
     });
+  },
+
+  computed: {
+    albumListData() {
+      const filteredList = this.datasOfGetList?.listData?.listData?.filter(i =>
+        [0, 4].includes(i.defaulterIdentityType)
+      );
+      return filteredList;
+    }
   },
 
   unmounted() {

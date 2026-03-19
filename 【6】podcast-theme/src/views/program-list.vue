@@ -269,9 +269,9 @@ export default {
     async queryList(options = { skip: 0, limit: 100 }) {
       let { skip, limit } = options;
       const result = [];
-      const list = await freelogApp.getExhibitListByPaging({
+      const list = await freelogApp.getExhibitListByPage({
         ...options,
-        articleResourceTypes: "音频",
+        articleResourceTypes: "连载播客,播客节目,播单",
         isLoadVersionProperty: 1
       });
       const { dataList, totalItem } = list.data.data;
@@ -312,7 +312,7 @@ export default {
         .filter(ele => ele.articleInfo && [2, 3].includes(ele.articleInfo.articleType))
         .map(ele => ele.exhibitId);
       const allPoolIdsStr = allPoolIds.join(",");
-      const res = await freelogApp.getCollectionsSubList(allPoolIdsStr, {
+      const res = await freelogApp.getCollectionsSubListByPage(allPoolIdsStr, {
         sortType: 1,
         skip: 0,
         limit: allPoolIds.length,

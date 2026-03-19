@@ -22,7 +22,7 @@ export default new Vuex.Store({
     playList: null, // 播放列表
     playingInfo: null, // 播放中的声音信息
     playing: false, // 是否在播放中
-    initUrl: "https://default-resource.freelog.com/default.mp3", // 播放器初始化 url（用于解决 IOS 无法异步播放声音问题）
+    initUrl: "https://default-resource.freelog.cn/default.mp3", // 播放器初始化 url（用于解决 IOS 无法异步播放声音问题）
     progress: 0, // 当前播放进度
     searchKey: "", // 搜索关键词
     cachePool: {}, // 合集id为key, 子作品详情列表为value, cache的是请求回来的源数据(包含了不符合播放的音频格式)
@@ -58,7 +58,7 @@ export default new Vuex.Store({
     async initStoreData(context) {
       const userData = await freelogApp.getCurrentUser();
       const [selfConfig, collectionIdListResponse, playingIdResponse] = await Promise.all([
-        freelogApp.getSelfProperty(),
+        freelogApp.getSelfPropertyForTheme(),
         freelogApp.getUserData("collectionIdList"),
         freelogApp.getUserData("playingId")
       ]);
@@ -208,9 +208,9 @@ export default new Vuex.Store({
       async function queryList(options = { skip: 0, limit: 100 }) {
         let { skip, limit } = options;
         const result = [];
-        const list = await freelogApp.getExhibitListByPaging({
+        const list = await freelogApp.getExhibitListByPage({
           ...options,
-          articleResourceTypes: "音频",
+          articleResourceTypes: "连载播客,播客节目,播单",
           isLoadVersionProperty: 1
         });
         const { dataList, totalItem } = list.data.data;

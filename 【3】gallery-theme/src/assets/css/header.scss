@@ -533,6 +533,18 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: relative;
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100vw;
+      height: 1px;
+      background-color: rgba(0, 0, 0, 0.1);
+    }
 
     .header-top-left {
       display: flex;
@@ -835,8 +847,8 @@
     width: 1230px;
     display: flex;
     align-items: center;
-    margin-top: 50px;
-    margin-bottom: 70px;
+    // margin-top: 50px;
+    // margin-bottom: 70px;
 
     .node-avatar {
       width: 100px;

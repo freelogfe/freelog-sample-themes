@@ -302,7 +302,10 @@ export default {
     });
 
     const availableListData = computed(() => {
-      return datasOfGetList.listData.value.filter((ele: any) => ele.articleInfo.articleType === 1);
+      return datasOfGetList.listData.value.filter(
+        (ele: any) =>
+          ele.articleInfo.articleType === 1 && [0, 4].includes(ele.defaulterIdentityType)
+      );
     });
 
     const collectionsData = computed(() => {

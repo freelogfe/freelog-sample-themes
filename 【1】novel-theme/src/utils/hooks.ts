@@ -19,7 +19,7 @@ export const useMyShelf = (id?: string) => {
     if (!userData?.isLogin) return;
 
     const res = await freelogApp.getUserData("shelf");
-    const ids = res?.data?.data || [];
+    const ids = (res?.data?.data as any) || [];
     setShelfIds(ids || []);
 
     if (!ids || ids.length === 0) {
@@ -42,7 +42,7 @@ export const useMyShelf = (id?: string) => {
       book.defaulterIdentityType = statusItem?.defaulterIdentityType;
 
       if (book.articleInfo.articleType === 2) {
-        const res = await (freelogApp as any).getCollectionSubList(book.exhibitId, {
+        const res = await (freelogApp as any).getCollectionSubListByPage(book.exhibitId, {
           sortType: -1,
           skip: 0,
           limit: 50,
@@ -133,7 +133,7 @@ export const useMySignedList = () => {
       item.defaulterIdentityType = statusItem?.defaulterIdentityType;
 
       if (item.articleInfo.articleType === 2) {
-        const res = await (freelogApp as any).getCollectionSubList(item.exhibitId, {
+        const res = await (freelogApp as any).getCollectionSubListByPage(item.exhibitId, {
           sortType: -1,
           skip: 0,
           limit: 50,

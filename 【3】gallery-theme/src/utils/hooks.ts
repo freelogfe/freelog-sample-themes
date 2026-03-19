@@ -90,7 +90,7 @@ export const useGetList = () => {
       limit: params.limit || 40,
       ...params
     };
-    const list = await freelogApp.getExhibitListByPaging(queryParams);
+    const list = await freelogApp.getExhibitListByPage(queryParams);
     const { dataList, totalItem } = list.data.data;
     if (dataList.length !== 0) {
       const ids = dataList.map(item => item.exhibitId).join();
@@ -114,11 +114,22 @@ export const useGetList = () => {
       store.commit("setData", { key: "homeLoading", value: false });
     }
     data.listData = init
-      ? dataList.filter((i: any) => i.articleInfo.status !== 2)
-      : [...data.listData, ...dataList.filter((i: any) => i.articleInfo.status !== 2)];
+      ? dataList.filter(
+          (i: any) => i.articleInfo.status === 1 && [0, 4].includes(i.defaulterIdentityType)
+        )
+      : [
+          ...data.listData,
+          ...dataList.filter(
+            (i: any) => i.articleInfo.status === 1 && [0, 4].includes(i.defaulterIdentityType)
+          )
+        ];
     data.total = totalItem;
     if (init) data.loading = false;
     data.myLoading = false;
+
+    if (!data.listData.length) {
+      store.commit("setData", { key: "homeLoading", value: false });
+    }
   };
 
   /** 清空展品列表 */

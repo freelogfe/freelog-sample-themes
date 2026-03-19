@@ -45,7 +45,7 @@
       <template v-if="!loading">
         <div class="content-area" v-if="total">
           <div class="content-top">
-            <div class="top-title">最近更新</div>
+            <div class="top-title" v-if="lastestList.length">最近更新</div>
           </div>
           <div class="voice-list">
             <voice
@@ -115,7 +115,7 @@
       <template v-if="!loading">
         <div class="content-area" v-if="total">
           <div class="content-top">
-            <div class="top-title">最近更新</div>
+            <div class="top-title" v-if="lastestList.length">最近更新</div>
           </div>
           <div class="voice-list">
             <voice
@@ -219,10 +219,20 @@ export default {
       return this.$store.state.selfConfig;
     },
     hotList() {
-      const data = this.listData
-        .filter(ele => [2, 3].includes(ele.articleInfo.articleType))
-        .concat(this.listData.filter(ele => ![2, 3].includes(ele.articleInfo.articleType)))
-        .filter(ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType));
+      // 先筛选出符合条件的项
+      const filtered = this.listData.filter(
+        ele => ele.articleInfo.status === 1 && [0, 4].includes(ele.defaulterIdentityType)
+      );
+
+      // 分别筛选出不同类型：优先 type === 2，然后是 type === 3，最后是其他
+      const type2 = filtered.filter(ele => ele.articleInfo.articleType === 2);
+      const type3 = filtered.filter(ele => ele.articleInfo.articleType === 3);
+      const others = filtered.filter(
+        ele => ele.articleInfo.articleType !== 2 && ele.articleInfo.articleType !== 3
+      );
+
+      // 按优先级顺序合并：type2 + type3 + 其他
+      const data = type2.concat(type3).concat(others);
       return JSON.parse(JSON.stringify(data.slice(0, 5)));
     }
   },
@@ -268,7 +278,7 @@ export default {
       const [exhibitDetailList, authStatusList, exhibitSubList] = await Promise.all([
         freelogApp.getExhibitListById({ exhibitIds: allexhibitIds, isLoadVersionProperty: 1 }),
         freelogApp.getExhibitAuthStatus(allexhibitIds),
-        freelogApp.getCollectionsSubList(exhibitIds, {
+        freelogApp.getCollectionsSubListByPage(exhibitIds, {
           sortType: -1,
           skip: 0,
           limit: 10,
@@ -381,11 +391,11 @@ export default {
       this.loading = true;
       await sleep(800);
       const queryParams = {
-        articleResourceTypes: "音频",
+        articleResourceTypes: "连载播客,播客节目,播单",
         isLoadVersionProperty: 1,
         limit: 10
       };
-      const list = await freelogApp.getExhibitListByPaging(queryParams);
+      const list = await freelogApp.getExhibitListByPage(queryParams);
       const { dataList, totalItem } = list.data.data;
       if (dataList.length !== 0) {
         const ids = dataList.map(item => item.exhibitId).join();

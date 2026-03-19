@@ -617,13 +617,13 @@ export default {
     /** 获取漫画信息 */
     const getComicInfo = async (id: string) => {
       const [exhibitInfo, signCountData, statusInfo] = await Promise.all([
-        freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+        freelogApp.getExhibitById(id, { isLoadVersionProperty: 1 }),
         freelogApp.getExhibitSignCount(id),
         freelogApp.getExhibitAuthStatus(id)
       ]);
 
       const comicViewedResponse = await freelogApp.getUserData("comicViewedHistory");
-      historyComicData.value = comicViewedResponse?.data?.data || [];
+      historyComicData.value = (comicViewedResponse?.data?.data as any) || [];
 
       const articleType = exhibitInfo.data.data.articleInfo.articleType;
       if (articleType === 2) {
@@ -659,7 +659,7 @@ export default {
       const container = document.getElementById("share");
       if (!container) return;
 
-      const subDeps = await freelogApp.getSelfDependencyTree();
+      const subDeps = await freelogApp.getSelfDepForTheme();
       const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-展品分享");
       if (!widgetData) return;
 
@@ -692,7 +692,7 @@ export default {
       try {
         skip = init ? 0 : collectionData.skip + 50;
 
-        const subList = await (freelogApp as any).getCollectionSubList(id, {
+        const subList = await (freelogApp as any).getCollectionSubListByPage(id, {
           skip,
           limit: 50
         });
@@ -707,7 +707,9 @@ export default {
 
         if (dataList.length !== 0) {
           const ids = dataList.map((item: any) => item.itemId).join();
-          const statusInfo = await (freelogApp as any).getCollectionSubAuth(id, { itemIds: ids });
+          const statusInfo = await (freelogApp as any).getCollectionSubAuthStatus(id, {
+            itemIds: ids
+          });
 
           // 再次检查是否是最新的请求
           if (currentRequestId !== data.requestId) {
@@ -736,7 +738,7 @@ export default {
 
     /** 获取合集的倒序内容 */
     const getCollectionListBySortTypeDesc = async () => {
-      const res = await (freelogApp as any).getCollectionSubList(id, {
+      const res = await (freelogApp as any).getCollectionSubListByPage(id, {
         sortType: -1,
         skip: 0,
         limit: 50,

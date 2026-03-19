@@ -65,9 +65,8 @@ export function initTheme() {
   } else {
     // 根据配置决定主题
     const configMode = store?.state?.selfConfig?.options_system_mode;
-    console.log(1111111, configMode);
 
-    if (configMode === "system") {
+    if (configMode === "跟随系统") {
       // 跟随系统设置
       const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
       const theme = isDarkMode ? "dark" : "light";
@@ -76,7 +75,7 @@ export function initTheme() {
       applyTheme(theme);
     } else {
       // 使用配置的主题
-      const theme = configMode || "light";
+      const theme = configMode ? (configMode === "浅色模式" ? "light" : "dark") : "light";
       applyTheme(theme);
     }
   }

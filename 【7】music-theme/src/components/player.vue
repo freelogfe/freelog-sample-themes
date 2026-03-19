@@ -468,7 +468,7 @@
                     "
                   />
                   <div class="duration" v-else>
-                    {{ secondsToHMS(item.versionInfo?.exhibitProperty.duration) }}
+                    {{ secondsToHMS(item.versionInfo?.exhibitProperty?.duration) }}
                   </div>
                   <i
                     class="text-btn freelog fl-icon-guanbi"
@@ -541,13 +541,16 @@ export default {
   watch: {
     "store.playMode": {
       handler(cur) {
+        this.currentPlayMode = cur;
         this.currentModeIndex = this.modes.findIndex(f => f === cur);
         if (cur === "RANDOM") {
           this.shuffledList = this.playList?.slice();
           this.shuffleArray(this.shuffledList);
           this.currentRandomIndex = 0;
         }
-      }
+      },
+      immediate: true,
+      deep: true
     },
     "store.playList": {
       handler(cur, pre) {
@@ -560,7 +563,10 @@ export default {
           this.currentRandomIndex = 0;
         }
         // 加入播放列表，显示播放器动画
-        if (cur && pre && cur.length - pre.length === 1) this.animation();
+        if (cur && pre && cur.length - pre.length === 1) {
+          this.store.setData({ key: "playerShowStatus", value: true });
+          this.animation();
+        }
         if (!cur || !this.store.inMobile) return;
 
         if (!this.infoAreaWidth) {
@@ -975,7 +981,7 @@ export default {
         return;
       }
 
-      if (!["音频"].includes(data?.articleInfo.resourceType[0])) {
+      if (!["音频"].includes(data?.articleInfo?.resourceType[0])) {
         showToast("此作品格式暂不支持访问");
         return;
       }
@@ -986,6 +992,7 @@ export default {
     /** 移出播放列表 */
     deleteVoice(id, itemId) {
       useMyPlay.removeFromPlayList(id, itemId);
+      this.$refs.player.currentTime = 0;
     },
 
     /** 清空播放列表 */
@@ -1057,6 +1064,7 @@ export default {
       //   });
       // }
       // 播放音频，显示播放器动画
+      this.store.setData({ key: "playerShowStatus", value: true });
       this.animation();
     },
 
@@ -1125,6 +1133,8 @@ export default {
 
     /** 播放或加入播放列表时，播放器动画 */
     animation() {
+      // 如果用户主动关闭了播放器，不应该重新打开
+      if (!this.store.playerShowStatus) return;
       if (!this.show) this.show = true;
       if (this.closeTimer) this.clearCloseTimer();
       this.closeTimer = setTimeout(() => {

@@ -64,7 +64,7 @@ export default createStore<State>({
     /** 初始化 store */
     async initStoreData(context) {
       const userData = freelogApp.getCurrentUser();
-      const selfConfig = await freelogApp.getSelfProperty();
+      const selfConfig = await freelogApp.getSelfPropertyForTheme();
       const nodeInfo = await freelogApp.nodeInfo;
 
       const inMobile = judgeDevice();

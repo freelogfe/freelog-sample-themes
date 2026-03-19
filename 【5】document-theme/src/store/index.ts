@@ -23,31 +23,31 @@ export default createStore({
     userData: null as UserData | null,
     selfConfig: {} as any,
     listData: [] as ExhibitItem[],
-    locationHistory: [] as HistoryItem[],
+    locationHistory: [] as HistoryItem[]
   },
 
   mutations: {
     /** 更新数据 */
     setData(state: any, payload: any) {
       state[payload.key] = payload.value;
-    },
+    }
   },
 
   actions: {
     /** 初始化 store */
     async initData(context) {
       const userData = await freelogApp.getCurrentUser();
-      const selfConfig = await freelogApp.getSelfProperty();
+      const selfConfig = await freelogApp.getSelfPropertyForTheme();
       const inMobile = judgeDevice();
       context.commit("setData", {
         key: "userData",
-        value: userData ? { ...userData, isLogin: true } : { isLogin: false },
+        value: userData ? { ...userData, isLogin: true } : { isLogin: false }
       });
       context.commit("setData", { key: "selfConfig", value: selfConfig });
       context.commit("setData", { key: "inMobile", value: inMobile });
       context.commit("setData", { key: "locationHistory", value: [] });
-    },
+    }
   },
 
-  modules: {},
+  modules: {}
 });

@@ -49,7 +49,13 @@ export default {
 
   computed: {
     searchData() {
-      return this.listData.filter(i => i.exhibitTitle.includes(this.store.searchKey)) || [];
+      return (
+        this.listData.filter(
+          i =>
+            [0, 4].includes(i.defaulterIdentityType) &&
+            i.exhibitTitle.includes(this.store.searchKey)
+        ) || []
+      );
     }
   },
 
@@ -73,9 +79,9 @@ export default {
 
     "$route.query": {
       async handler(cur) {
-        this.keywords = cur.tags;
+        // this.keywords = cur.tags;
         this.tags = cur.tags;
-        this.getList(true, { tags: cur.tags });
+        // this.getList(true, { tags: cur.tags });
       },
       immediate: true
     }
@@ -103,7 +109,7 @@ export default {
       this.skip = init ? 0 : this.skip + 100;
       const queryParams = {
         skip: this.skip,
-        articleResourceTypes: "音频",
+        articleResourceTypes: "音乐,音乐专辑,歌单",
         isLoadVersionProperty: 1,
         limit: 100,
         ...params

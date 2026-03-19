@@ -64,7 +64,7 @@ export default {
   deactivated() {
     const app = document.getElementById("appPodcast");
     app.removeEventListener("scroll", this.scroll);
-    this.$store.dispatch("updateLastestAuthList")
+    this.$store.dispatch("updateLastestAuthList");
   },
 
   methods: {
@@ -78,11 +78,11 @@ export default {
       this.skip = init ? 0 : this.skip + 20;
       const queryParams = {
         skip: this.skip,
-        articleResourceTypes: "音频",
+        articleResourceTypes: "连载播客,播客节目,播单",
         isLoadVersionProperty: 1,
         limit: 20
       };
-      const list = await freelogApp.getExhibitListByPaging(queryParams);
+      const list = await freelogApp.getExhibitListByPage(queryParams);
       const { dataList, totalItem } = list.data.data;
       if (dataList.length !== 0) {
         const ids = dataList.map(item => item.exhibitId).join();

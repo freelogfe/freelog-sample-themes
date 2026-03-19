@@ -48,7 +48,7 @@ export default createStore({
     /** 初始化 store */
     async initStoreData(context) {
       const userData = freelogApp.getCurrentUser();
-      const selfConfig = await freelogApp.getSelfProperty();
+      const selfConfig = freelogApp.getSelfPropertyForTheme();
       const inMobile = judgeDevice();
       const isIOS = judgeIOSDevice();
       const theme = themeList["炫丽"];

@@ -64,7 +64,7 @@ const RouterView = () => {
   /** 初始化全局数据 */
   const initGlobalData = async () => {
     const userData: any = freelogApp.getCurrentUser();
-    const selfConfig = await freelogApp.getSelfProperty();
+    const selfConfig: any = freelogApp.getSelfPropertyForTheme();
     const nodeInfo = await freelogApp.nodeInfo;
     const theme = themeList[selfConfig.options_theme || selfConfig.theme];
     setUserData(userData ? Object.assign(userData, { isLogin: true }) : { isLogin: false });

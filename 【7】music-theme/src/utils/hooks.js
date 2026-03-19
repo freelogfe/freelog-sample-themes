@@ -161,7 +161,7 @@ export const useGetList = () => {
     listData.value.loading = true;
 
     const queryParams = {
-      articleResourceTypes: "音频",
+      articleResourceTypes: "音乐",
       isLoadVersionProperty: 1,
       limit: 100,
       skip: listData.value.listData.length, // 使用当前已加载数据的长度作为skip
@@ -533,7 +533,7 @@ export const useMyPlay = {
           };
 
           const { data, itemsToAdd } = await useCommon.getCollectionSubList(params);
-          playIdList.unshift(...itemsToAdd);
+          playIdList.push(...itemsToAdd);
           result.push(...data);
 
           const removeIndex = playIdList.findIndex(
@@ -601,14 +601,14 @@ export const useMyPlay = {
           return;
         }
 
-        playIdList.unshift(obj);
+        playIdList.push(obj);
       } else {
         const hasDuplicateId = playIdList.findIndex(i => i.exhibitId === obj.exhibitId);
 
         if (obj.type === "PLAY_ADD_TO_PLAYLIST") {
           // 如果没有重复的 exhibitId，则添加到列表开头
           if (hasDuplicateId === -1) {
-            playIdList.unshift(obj);
+            playIdList.push(obj);
           }
         } else {
           // 如果有重复的 exhibitId，则先移除它
@@ -617,7 +617,7 @@ export const useMyPlay = {
           }
 
           // 将新的对象添加到列表开头
-          playIdList.unshift(obj);
+          playIdList.push(obj);
 
           if (obj.type !== "PLAY_ALBUM_ADD_TO_PLAYLIST") {
             showToast("添加成功");
@@ -642,7 +642,7 @@ export const useMyPlay = {
           return;
         }
 
-        playIdList.unshift(obj);
+        playIdList.push(obj);
       } else {
         // const hasDuplicateId = playIdList.findIndex(i => i.exhibitId === obj.exhibitId);
 
@@ -674,7 +674,7 @@ export const useMyPlay = {
         if (obj.type === "PLAY_ADD_TO_PLAYLIST") {
           // 如果没有重复的 exhibitId，则添加到列表开头
           if (hasDuplicateId === -1) {
-            playIdList.unshift(obj);
+            playIdList.push(obj);
           }
         } else {
           // 如果有重复的 exhibitId，则先移除它
@@ -683,7 +683,7 @@ export const useMyPlay = {
           }
 
           // 将新的对象添加到列表开头
-          playIdList.unshift(obj);
+          playIdList.push(obj);
 
           if (obj.type !== "PLAY_ALBUM_ADD_TO_PLAYLIST") {
             showToast("添加成功");
@@ -815,7 +815,7 @@ export const useMyPlay = {
       // 部分设备（已知部分 ios）上无法直接播放音频，需要先使用任意 url 初始化播放器，才可播放音频
       store.setData({
         key: "initUrl",
-        value: "https://default-resource.freelog.com/default.mp3"
+        value: "https://default-resource.freelog.cn/default.mp3"
       });
       this.playOrPause(exhibit, type, callback);
       return;

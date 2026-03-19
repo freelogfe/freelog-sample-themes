@@ -25,7 +25,12 @@ export const useMyAuth = {
       freelogApp.getExhibitListById({ exhibitIds: ids, isLoadVersionProperty: 1 }),
       freelogApp.getExhibitSignCount(ids),
       freelogApp.getExhibitAuthStatus(ids),
-      freelogApp.getCollectionsSubList(ids, { sortType: 1, skip: 0, limit: 2, isShowDetailInfo: 1 })
+      freelogApp.getCollectionsSubListByPage(ids, {
+        sortType: 1,
+        skip: 0,
+        limit: 2,
+        isShowDetailInfo: 1
+      })
     ]);
 
     idList.forEach(id => {
@@ -204,7 +209,7 @@ export const useMyCollection = {
       .map(ele => ele.exhibitId);
     const allPoolUnique = [...new Set(allPoolIds)];
     const allPoolIdsStr = allPoolUnique.join(",");
-    const subNumList = await freelogApp.getCollectionsSubList(allPoolIdsStr, {
+    const subNumList = await freelogApp.getCollectionsSubListByPage(allPoolIdsStr, {
       sortType: 1,
       skip: 0,
       limit: 1,
@@ -349,7 +354,7 @@ export const useMyCollection = {
             id: exhibitId,
             isExhibit: true
           });
-          const subNumList = await freelogApp.getCollectionsSubList(data.exhibitId, {
+          const subNumList = await freelogApp.getCollectionsSubListByPage(data.exhibitId, {
             sortType: 1,
             skip: 0,
             limit: 1,
@@ -497,7 +502,7 @@ export const useMyPlay = {
       // 2
       for (let index = addArr.length - 1; index >= 0; index--) {
         const { itemId } = addArr[index];
-        newList.unshift({
+        newList.push({
           id: exhibitId,
           isExhibit: false,
           itemId
@@ -518,7 +523,7 @@ export const useMyPlay = {
       // 2
       for (let index = addArr.length - 1; index >= 0; index--) {
         const { itemId } = addArr[index];
-        newList.unshift({
+        newList.push({
           id: exhibitId,
           isExhibit: false,
           itemId
@@ -566,7 +571,7 @@ export const useMyPlay = {
       ) {
         return;
       }
-      playIdList.unshift({
+      playIdList.push({
         id,
         isExhibit,
         itemId
@@ -602,7 +607,7 @@ export const useMyPlay = {
         return;
       }
 
-      playIdList.unshift({
+      playIdList.push({
         id,
         isExhibit,
         itemId
@@ -869,7 +874,7 @@ export const useMyPlay = {
       !exhibit.child.url
     ) {
       // 已授权未获取 url
-      const detail = await freelogApp.getCollectionSubInfo(exhibitId, {
+      const detail = await freelogApp.getCollectionSubById(exhibitId, {
         itemId: exhibit.child.itemId
       });
       const url = await freelogApp.getCollectionSubFileStream(exhibitId, {
@@ -877,7 +882,7 @@ export const useMyPlay = {
         returnUrl: true
       });
       // console.log(url);
-      const statusInfo = await freelogApp.getCollectionSubAuth(exhibitId, {
+      const statusInfo = await freelogApp.getCollectionSubAuthStatus(exhibitId, {
         itemIds: exhibit.child.itemId
       });
 
@@ -937,9 +942,16 @@ export const useMyPlay = {
         returnUrl: true
       });
       firstItem.url = url;
+      // 根据排序状态处理数组顺序：addToPlayListBatch 是从后往前遍历的
+      // sortType 为 1（正序）时，需要反转数组；为 -1（倒序）时，直接使用
+      let addArr = availdRes;
+      if (!sortType || sortType === 1) {
+        // 正序时，需要反转数组（因为 addToPlayListBatch 从后往前遍历）
+        addArr = [...availdRes].reverse();
+      }
       await this.addToPlayListBatch({
         exhibitId,
-        addArr: availdRes
+        addArr: addArr
       });
 
       store.commit("setData", { key: "playingInfo", value: { ...exhibit, child: firstItem } });
@@ -977,7 +989,7 @@ export const useMyPlay = {
   async getPlayingInfo(id, itemId) {
     if (!itemId) {
       const [info, statusInfo, url] = await Promise.all([
-        freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+        freelogApp.getExhibitById(id, { isLoadVersionProperty: 1 }),
         freelogApp.getExhibitAuthStatus(id),
         freelogApp.getExhibitFileStream(id, { returnUrl: true })
       ]);
@@ -986,13 +998,13 @@ export const useMyPlay = {
       store.commit("setData", { key: "playingInfo", value: info.data.data });
     } else {
       const [info, statusInfo, url, detail] = await Promise.all([
-        freelogApp.getExhibitInfo(id, { isLoadVersionProperty: 1 }),
+        freelogApp.getExhibitById(id, { isLoadVersionProperty: 1 }),
         freelogApp.getExhibitAuthStatus(id),
         freelogApp.getCollectionSubFileStream(id, {
           itemId: itemId,
           returnUrl: true
         }),
-        freelogApp.getCollectionSubInfo(id, {
+        freelogApp.getCollectionSubById(id, {
           itemId: itemId
         })
       ]);
@@ -1068,7 +1080,7 @@ export const useMyPlay = {
   /** 获取数据 */
   async getListInCollection(exhibitId, options = { skip: 0, limit: 100 }) {
     const result = [];
-    const res = await freelogApp.getCollectionSubList(exhibitId, {
+    const res = await freelogApp.getCollectionSubListByPage(exhibitId, {
       isShowDetailInfo: 1,
       ...options
     });

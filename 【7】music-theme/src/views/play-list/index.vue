@@ -44,7 +44,10 @@ export default {
 
   computed: {
     playListData() {
-      return this.datasOfGetList.playListData.listData;
+      const filteredList = this.datasOfGetList.playListData?.listData?.filter(i =>
+        [0, 4].includes(i.defaulterIdentityType)
+      );
+      return filteredList;
     }
   },
 
