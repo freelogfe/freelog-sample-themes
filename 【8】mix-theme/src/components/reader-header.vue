@@ -197,7 +197,7 @@ export default {
     const methods = {
       /** 注册 */
       register() {
-        window.open("https://user.freelog.com/logon");
+        window.open("https://user.freelog.cn/logon");
       },
 
       /** 改变 header 显示状态 */

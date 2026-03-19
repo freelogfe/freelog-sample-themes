@@ -223,7 +223,7 @@ export default {
       },
       /** 获取用户头像 */
       getAvatarUrl(id: number) {
-        return `https://image.freelog.com/avatar/${id}`;
+        return `https://image.freelog.cn/avatar/${id}`;
       },
 
       /** 授权 */

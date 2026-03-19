@@ -4,7 +4,7 @@
       <div class="tip">此主题供开发者使用，不支持常规展品的运营和展示。</div>
       <div class="tip">
         如需浏览更多主题，请前往
-        <div class="btn" @click="openPage('https://console.freelog.com/market?query=主题')">
+        <div class="btn" @click="openPage('https://console.freelog.cn/market?query=主题')">
           资源市场
         </div>
         。
@@ -45,10 +45,10 @@ export default defineComponent({
     const assetsData = {
       /** freelog 相关入口 */
       freelogEntrances: [
-        { label: "fl-icon-a-featherlogo5", url: "https://www.freelog.com/" },
+        { label: "fl-icon-a-featherlogo5", url: "https://www.freelog.cn/" },
         {
           label: "关于freelog",
-          url: "https://freelog4.freelog.com/$freelog-61f252ef6fe5c1002e2c7b4b=/home_id=62d0d202456ff0002e3295ab"
+          url: "https://freelog4.freelog.cn/$freelog-61f252ef6fe5c1002e2c7b4b=/home_id=62d0d202456ff0002e3295ab"
         }
       ] as freelogEntranceItem[]
     };
