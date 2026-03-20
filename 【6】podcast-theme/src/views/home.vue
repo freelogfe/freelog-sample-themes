@@ -166,12 +166,15 @@
         </el-skeleton>
       </template>
     </div>
+
+    <home-float-menu v-if="$store.state.inMobile === false" />
   </div>
 </template>
 
 <script>
 import voice from "@/components/voice";
 import program from "@/components/program";
+import homeFloatMenu from "@/components/home-float-menu";
 import { freelogApp } from "freelog-runtime";
 import Vue from "vue";
 import { sleep } from "@/utils/common";
@@ -181,7 +184,8 @@ export default {
 
   components: {
     voice,
-    program
+    program,
+    homeFloatMenu
   },
 
   data() {

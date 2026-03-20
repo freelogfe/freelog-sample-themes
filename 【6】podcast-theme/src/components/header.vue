@@ -20,9 +20,24 @@
         </div>
 
         <div class="header-right">
-          <i class="freelog fl-icon-content" @click.stop="toPage('/search-list')"></i>
-
-          <img class="menu" src="../assets/images/menu.png" @click="userBoxShow = true" />
+          <img
+            class="header-search"
+            src="../assets/images/icon_search.svg"
+            alt="搜索"
+            @click.stop="toPage('/search-list')"
+          />
+          <img
+            class="header-share"
+            src="../assets/images/icon_share.svg"
+            alt="分享"
+            @click="onOpenShare"
+          />
+          <img
+            class="header-menu"
+            src="../assets/images/icon_menu.svg"
+            alt="菜单"
+            @click="userBoxShow = true"
+          />
         </div>
       </template>
 
@@ -269,6 +284,13 @@ import {
 export default {
   name: "my-header",
 
+  inject: {
+    openShare: {
+      from: "openShare",
+      default: null
+    }
+  },
+
   data() {
     return {
       searchKey: "",
@@ -348,6 +370,13 @@ export default {
   },
 
   methods: {
+    /** 主页分享插件（App.vue provide） */
+    onOpenShare() {
+      if (typeof this.openShare === "function") {
+        this.openShare();
+      }
+    },
+
     callLogin,
     async callLoginOutHome() {
       await callLoginOut();
