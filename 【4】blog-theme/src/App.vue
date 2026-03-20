@@ -80,11 +80,10 @@ export default {
             },
             type: "博客",
             show: false,
-            routerType: "detail",
             onClose: () => setShareWidgetShow(false)
           }
         }
-        // widget_entry: "https://localhost:8204"
+        // widget_entry: "https://192.168.2.8:8204/"
       };
       shareWidget.value = await freelogApp.mountArticleWidget(params);
     };
