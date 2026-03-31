@@ -65,7 +65,6 @@ const handleClick = (action: "theme" | "share") => {
   position: fixed;
   bottom: 30px;
   right: 30px;
-  transform: translateY(-50%);
   display: flex;
   flex-direction: column;
   align-items: flex-end; /* 防止子项互相拉伸宽度 */
