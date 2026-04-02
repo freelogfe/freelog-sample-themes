@@ -259,7 +259,7 @@ export default {
       ?.split(",")
       ?.map((tag: string) => tag.trim()) // 去掉每个字符串的前后空格
       ?.filter((ele: string) => ele);
-    const { query, route, router, switchPage } = useMyRouter();
+    const { query, route, switchPage } = useMyRouter();
     const datasOfGetList = useGetList();
 
     const data = reactive({
