@@ -51,20 +51,28 @@
       justify-content: flex-end;
       margin-left: 10px;
 
-      .fl-icon-content {
+      .header-search,
+      .header-share {
         width: 20px;
         height: 20px;
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        margin-right: 20px;
+        cursor: pointer;
+        filter: brightness(0) invert(1);
+        opacity: 0.9;
       }
 
-      .menu {
-        width: 42px;
-        height: 32px;
-        margin-left: 30px;
+      .header-menu {
+        width: 20px;
+        height: 15px;
+        cursor: pointer;
+        filter: brightness(0) invert(1);
+        opacity: 0.9;
+      }
+
+      .header-search:active,
+      .header-share:active,
+      .header-menu:active {
+        opacity: 0.6;
       }
     }
   }

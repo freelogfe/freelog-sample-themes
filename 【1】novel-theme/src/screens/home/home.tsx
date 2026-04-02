@@ -4,8 +4,8 @@ import { Header } from "../../components/header/header";
 import { ExhibitItem } from "../../api/interface";
 import { Novel } from "../../components/novel/novel";
 import { useMyHistory, useMyScroll, useMyShelf } from "../../utils/hooks";
-import { globalContext } from "../../router";
-import { ThemeEntrance } from "../../components/theme-entrance/theme-entrance";
+import { globalContext } from "../../contexts/global-context";
+import { HomeFloatMenu } from "../../components/home-float-menu/home-float-menu";
 import { Footer } from "../../components/footer/footer";
 import { LoginBtn } from "../../components/login-btn/login-btn";
 import CSSTransition from "react-transition-group/CSSTransition";
@@ -135,7 +135,7 @@ export const HomeScreen = (props: any) => {
       />
       <Footer />
       <LoginBtn />
-      <ThemeEntrance />
+      {/* <ThemeEntrance /> */}
     </div>
   );
 };
@@ -288,6 +288,8 @@ const HomeBody = (props: {
     // PC
     return (
       <div className="home-body">
+        <HomeFloatMenu />
+
         {!searching && userData?.isLogin && myShelf && myShelf.length !== 0 && (
           <div className="book-list">
             <div className="shelf-header">
