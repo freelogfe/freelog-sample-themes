@@ -108,6 +108,8 @@
 
     <!-- PC -->
     <div class="home-body" v-if="!inMobile">
+      <home-float-menu />
+
       <div
         class="comic-list"
         v-if="!searching && userData?.isLogin && myShelf && myShelf.length !== 0"
@@ -176,7 +178,7 @@
 
     <my-footer />
 
-    <theme-entrance />
+    <!-- <theme-entrance /> -->
   </div>
 </template>
 
@@ -201,7 +203,8 @@ export default {
     "my-footer": defineAsyncComponent(() => import("../components/footer.vue")),
     "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
     "login-btn": defineAsyncComponent(() => import("../components/login-btn.vue")),
-    "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
+    // "theme-entrance": defineAsyncComponent(() => import("../components/theme-entrance.vue")),
+    "home-float-menu": defineAsyncComponent(() => import("../components/home-float-menu.vue")),
     comic: defineAsyncComponent(() => import("../components/comic.vue"))
   },
 
