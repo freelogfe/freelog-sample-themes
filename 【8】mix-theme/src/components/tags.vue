@@ -40,7 +40,7 @@
 <script lang="ts">
 import { useMyRouter } from "@/utils/hooks";
 import { useStore } from "vuex";
-import { ref, computed, onMounted, reactive, toRefs, nextTick } from "vue";
+import { ref, computed, onMounted, reactive, toRefs, nextTick, watch } from "vue";
 
 export default {
   name: "tags",
@@ -98,33 +98,60 @@ export default {
       return -(state.currentRow - 1) * (state.rowHight + gap);
     });
 
-    onMounted(() => {
-      const tagsHeight = tagsRef.value.offsetHeight;
-      const aTagHeight = tagsRef.value.children[0].offsetHeight;
+    const measureTagsLayout = () => {
+      const el = tagsRef.value as HTMLElement | undefined;
+      if (!el || el.children.length === 0) {
+        isShow.value = false;
+        state.currentRow = 1;
+        state.maxRow = 1;
+        state.rowHight = 0;
+        return;
+      }
+
+      const tagsHeight = el.offsetHeight;
+      const firstTag = el.children[0] as HTMLElement;
+      const aTagHeight = firstTag.offsetHeight;
       const gap = inMobile.value ? 8 : 5;
       state.rowHight = aTagHeight;
 
       if (tagsHeight > aTagHeight) {
         isShow.value = true;
         state.maxRow = Math.floor((tagsHeight + gap) / (aTagHeight + gap));
+      } else {
+        isShow.value = false;
+        state.maxRow = 1;
       }
+    };
+
+    onMounted(() => {
+      nextTick(() => measureTagsLayout());
     });
+
+    watch(
+      () => props.tags,
+      () => nextTick(() => measureTagsLayout()),
+      { deep: true }
+    );
 
     /** 处理标签容器悬停事件 */
     const handleTagsHover = (event: MouseEvent) => {
       if (inMobile.value) return;
 
       // 检查标签是否超出容器宽度
-      const tagsContainer = tagsRef.value;
-      const tagsContainerWidth = tagsPageContainerRef.value.offsetWidth;
+      const tagsContainer = tagsRef.value as HTMLElement | undefined;
+      const pageContainer = tagsPageContainerRef.value as HTMLElement | undefined;
+      if (!tagsContainer || !pageContainer) return;
+
+      const tagsContainerWidth = pageContainer.offsetWidth;
 
       // 计算所有标签的总宽度
       let totalTagsWidth = 0;
       const gap = inMobile.value ? 8 : 5;
 
       for (let i = 0; i < tagsContainer.children.length; i++) {
-        if (tagsContainer.children[i].classList.contains("tag")) {
-          totalTagsWidth += tagsContainer.children[i].offsetWidth + gap;
+        const child = tagsContainer.children[i] as HTMLElement;
+        if (child.classList.contains("tag")) {
+          totalTagsWidth += child.offsetWidth + gap;
         }
       }
 

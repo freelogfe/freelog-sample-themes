@@ -383,13 +383,13 @@
             <div class="operater-btn-label">目录</div>
           </div>
           <!-- 收藏 -->
-          <div class="operate-btn" @click="operateShelf(comicInfo)">
+          <!-- <div class="operate-btn" @click="operateShelf(comicInfo)">
             <i
               class="freelog"
               :class="`fl-icon-${isCollected ? 'shoucangxiaoshuoyishoucang' : 'shoucangxiaoshuo'}`"
             ></i>
             <div class="operater-btn-label">{{ isCollected ? "取消收藏" : "加入收藏" }}</div>
-          </div>
+          </div> -->
           <!-- 阅读模式 -->
           <div class="operate-btn" @click.stop="modeMenuShow = true">
             <i class="freelog fl-icon-shujia1"></i>

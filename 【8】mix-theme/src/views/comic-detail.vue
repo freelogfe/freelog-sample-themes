@@ -110,13 +110,13 @@
             >
               立即阅读
             </div>
-            <div
+            <!-- <div
               class="btn"
               :class="isCollected ? 'delete' : 'collect-btn mobile'"
               @click="operateShelf(comicInfo)"
             >
               {{ isCollected ? "取消收藏" : "加入收藏" }}
-            </div>
+            </div> -->
           </div>
         </div>
 
@@ -337,13 +337,13 @@
                   >
                     立即阅读
                   </div>
-                  <div
+                  <!-- <div
                     class="btn"
                     :class="isCollected ? 'warning-btn cancel-collect-btn' : 'collect-btn'"
                     @click="operateShelf(comicInfo)"
                   >
                     {{ isCollected ? "取消收藏" : "加入收藏" }}
-                  </div>
+                  </div> -->
                 </div>
 
                 <div class="other-btns">
