@@ -40,13 +40,25 @@
         </div>
 
         <div class="header-top-right">
-          <i
-            class="freelog fl-icon-content"
-            @click="searchPopupShow = true"
+          <img
+            class="header-search"
+            src="../assets/images/icon_search.svg"
+            alt="搜索"
+            @click.stop="searchPopupShow = true"
             v-if="!($route.path === '/reader')"
-          ></i>
-
-          <img class="menu" src="../assets/images/menu@3x.png" @click="userBoxShow = true" />
+          />
+          <img
+            class="header-share"
+            src="../assets/images/icon_share.svg"
+            alt="分享"
+            @click.stop="onOpenShare"
+          />
+          <img
+            class="header-menu"
+            src="../assets/images/icon_menu.svg"
+            alt="菜单"
+            @click.stop="userBoxShow = true"
+          />
         </div>
       </div>
 
@@ -313,7 +325,7 @@
 </template>
 
 <script lang="ts">
-import { computed, reactive, ref, toRefs, watch } from "vue";
+import { computed, inject, reactive, ref, toRefs, watch } from "vue";
 import { useMyLocationHistory, useMyRouter, useSearchHistory } from "../utils/hooks";
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
@@ -323,6 +335,9 @@ export default {
   name: "my-header",
 
   setup(props: any) {
+    const openShare = inject<() => void>("openShare");
+    const onOpenShare = () => openShare?.();
+
     const nodeInfo = freelogApp.nodeInfo;
     const store = useStore();
     const { query, route, switchPage, routerBack } = useMyRouter();
@@ -510,6 +525,7 @@ export default {
 
     return {
       ...props,
+      onOpenShare,
       ...nodeInfo,
       callLogin,
       callLoginOut,

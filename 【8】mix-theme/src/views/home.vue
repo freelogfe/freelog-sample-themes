@@ -124,6 +124,8 @@
 
     <!-- PC -->
     <div class="home-body" v-if="!inMobile">
+      <home-float-menu />
+
       <template
         v-if="
           $route.path === '/home' &&
@@ -247,7 +249,8 @@ export default {
 
   components: {
     "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
-    "my-article-v2": defineAsyncComponent(() => import("../components/article-v2.vue"))
+    "my-article-v2": defineAsyncComponent(() => import("../components/article-v2.vue")),
+    "home-float-menu": defineAsyncComponent(() => import("../components/home-float-menu.vue"))
   },
 
   setup() {

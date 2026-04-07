@@ -59,7 +59,7 @@
                 <i class="freelog fl-icon-shouye"></i>
                 <div class="btn-label">首页</div>
               </div>
-              <div
+              <!-- <div
                 class="btn"
                 @click="
                   switchPage('/shelf');
@@ -69,7 +69,7 @@
               >
                 <i class="freelog fl-icon-shujia"></i>
                 <div class="btn-label">我的收藏</div>
-              </div>
+              </div> -->
               <div
                 class="btn"
                 @click="
@@ -125,7 +125,7 @@
 
         <div class="header-right">
           <div class="nav-btn" @click="switchPage('/')">首页</div>
-          <div class="nav-btn" @click="switchPage('/shelf')" v-if="userData?.isLogin">我的收藏</div>
+          <!-- <div class="nav-btn" @click="switchPage('/shelf')" v-if="userData?.isLogin">我的收藏</div> -->
 
           <div
             class="user-avatar"
