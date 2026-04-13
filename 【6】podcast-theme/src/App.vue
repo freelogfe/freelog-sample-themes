@@ -121,7 +121,7 @@ export default {
           data: {
             exhibit: {
               ...nodeInfo,
-              avatarUrl: `https://image.freelog.com/avatar/${nodeInfo.ownerUserId || ""}`,
+              avatarUrl: `https://image.freelog.cn/avatar/${nodeInfo.ownerUserId || ""}`,
               nodeUrl,
               exhibitId: nodeInfo.nodeId || topExhibitId,
               exhibitTitle: nodeInfo.nodeName || nodeInfo.nodeShortDescription
