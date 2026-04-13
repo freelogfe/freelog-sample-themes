@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { onBeforeUnmount, onMounted, provide, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useGlobalStore } from "@/store/global";
+import { freelogApp } from "freelog-runtime";
+import type { WidgetController } from "freelog-runtime";
 
 import FreelogHeader from "@/components/header.vue";
 import FreelogFooter from "@/components/footer.vue";
 import FreelogPlayer from "@/components/player.vue";
-import FreelogThemeEntrance from "@/components/theme-entrance.vue";
 import FreelogShare from "@/components/share.vue";
 
 // 扩展 TouchEvent 类型以包含 Safari 特有的 scale 属性
@@ -15,6 +17,69 @@ interface SafariTouchEvent extends TouchEvent {
 
 const store = useGlobalStore();
 const { inMobile, maskLoading } = storeToRefs(store);
+
+const shareWidget = ref<WidgetController | null>(null);
+
+const setShareWidgetShow = (value: boolean) => {
+  if (inMobile.value) {
+    const el = document.getElementById("mobile-share-wrap");
+    if (el) el.style.display = value ? "flex" : "none";
+  } else {
+    shareWidget.value?.setData({ show: value });
+  }
+};
+
+const mountShareWidget = async () => {
+  const container = document.getElementById("app-share");
+  if (!container) return;
+  if (shareWidget.value) await shareWidget.value.unmount();
+
+  const subDeps = await freelogApp.getSelfDepForTheme();
+  const widgetData = subDeps.find(
+    (item: { articleName?: string }) => item.articleName === "ZhuC/_Freelog插件-主页分享"
+  );
+  if (!widgetData) return;
+
+  const { articleId, parentNid, nid } = widgetData;
+  const topExhibitId = freelogApp.getTopExhibitId();
+  const nodeInfo = freelogApp.nodeInfo as Record<string, unknown>;
+  const nodeUrl = new URL(freelogApp.getCurrentUrl()).origin;
+  const params = {
+    articleId,
+    parentNid,
+    nid,
+    topExhibitId,
+    container,
+    renderWidgetOptions: {
+      iframe: true,
+      data: {
+        exhibit: {
+          ...nodeInfo,
+          avatarUrl: `https://image.freelog.com/avatar/${(nodeInfo as { ownerUserId?: string })?.ownerUserId || ""}`,
+          nodeUrl,
+          exhibitId: (nodeInfo as { nodeId?: string }).nodeId || topExhibitId,
+          exhibitTitle: (nodeInfo as { nodeName?: string; nodeShortDescription?: string }).nodeName ||
+            (nodeInfo as { nodeShortDescription?: string }).nodeShortDescription
+        },
+        type: "音乐",
+        show: false,
+        onClose: () => setShareWidgetShow(false)
+      }
+    }
+  };
+  shareWidget.value = await freelogApp.mountArticleWidget(params);
+};
+
+const openShare = () => {
+  setShareWidgetShow(true);
+};
+
+provide("openShare", openShare);
+
+onMounted(() => mountShareWidget());
+onBeforeUnmount(async () => {
+  await shareWidget.value?.unmount();
+});
 
 window.addEventListener(
   "touchmove",
@@ -51,10 +116,12 @@ window.addEventListener(
     <FreelogFooter />
     <FreelogPlayer />
 
-    <FreelogThemeEntrance />
     <FreelogShare />
   </div>
   <div style="width: 100vw; height: 100vh" v-loading="maskLoading" v-else></div>
+  <Teleport to="body">
+    <div id="app-share" class="app-share"></div>
+  </Teleport>
 </template>
 
 <style lang="less">
@@ -141,5 +208,15 @@ window.addEventListener(
     backdrop-filter: blur(12px);
     box-sizing: border-box;
   }
+}
+
+.app-share {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  z-index: 1000;
 }
 </style>
