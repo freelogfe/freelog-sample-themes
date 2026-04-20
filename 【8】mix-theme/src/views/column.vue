@@ -224,29 +224,40 @@ onBeforeMount(() => {
       </transition>
     </div>
 
-    <!-- 内容 -->
-    <div
-      class="article-list"
-      :class="{ 'mobile-list': store.state.inMobile, 'pc-list': !store.state.inMobile }"
-    >
-      <my-article-v2 :data="item" v-for="item in availableListData" :key="item.exhibitId" />
-    </div>
+    <!-- 主内容区：有列表时不占满剩余高度；无列表时 flex:1，便于空态/首屏 loading 在剩余区域居中 -->
+    <div class="blog-body" :class="{ 'blog-body--fill': availableListData.length === 0 }">
+      <div
+        class="article-list"
+        v-if="availableListData.length > 0"
+        :class="{ 'mobile-list': store.state.inMobile, 'pc-list': !store.state.inMobile }"
+      >
+        <my-article-v2 :data="item" v-for="item in availableListData" :key="item.exhibitId" />
+      </div>
 
-    <!-- Loading 状态 -->
-    <div
-      v-if="datasOfGetList.myLoading.value && availableListData.length > 0"
-      class="loading-container"
-    >
-      <img src="@/assets/images/loading.svg" alt="加载中" class="loading-icon" />
+      <div class="no-data" v-else-if="!datasOfGetList.myLoading.value">
+        <div class="no-data-text">暂无任何结果</div>
+      </div>
+      <div
+        v-if="datasOfGetList.myLoading.value"
+        class="loading-container"
+        :class="{ 'loading-container--fill': availableListData.length === 0 }"
+      >
+        <img src="@/assets/images/loading.svg" alt="加载中" class="loading-icon" />
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped lang="scss">
 .blog-wrapper {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-height: calc(100vh - 158px);
   padding: 30px 20px;
 
   &.pc-wrapper {
+    min-height: calc(100vh - 148px);
     padding-top: 20px;
     margin: 0 auto;
     width: 90%;
@@ -255,6 +266,8 @@ onBeforeMount(() => {
   }
 
   .is-pc {
+    flex-shrink: 0;
+
     .blog-header {
       .blog-header-title {
         font-weight: 600;
@@ -272,12 +285,14 @@ onBeforeMount(() => {
     }
 
     .blog-filter {
-      margin: 24px 0 20px 0;
+      margin: 40px 0;
 
       .filter-row {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         flex-wrap: wrap;
+        /* 换行间距用 gap，避免 tag 的 margin-bottom 参与交叉轴对齐导致与左侧文案不齐 */
+        row-gap: 15px;
         margin-bottom: 8px;
 
         span {
@@ -309,7 +324,6 @@ onBeforeMount(() => {
 
         .tag-btn {
           margin-right: 20px;
-          margin-bottom: 15px;
           padding: 3px 10px;
           border: none;
           border-radius: 13px;
@@ -317,10 +331,10 @@ onBeforeMount(() => {
           font-size: 14px;
           cursor: pointer;
           max-width: 250px;
+          min-width: 0;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
-          display: inline-block;
 
           &:hover:not(.active) {
             color: #222222;
@@ -336,6 +350,8 @@ onBeforeMount(() => {
   }
 
   .is-mobile {
+    flex-shrink: 0;
+
     .header {
       display: flex;
       justify-content: space-between;
@@ -499,6 +515,16 @@ onBeforeMount(() => {
   }
 }
 
+.blog-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+
+  &--fill {
+    flex: 1;
+  }
+}
+
 .article-list.pc-list {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -518,12 +544,6 @@ onBeforeMount(() => {
   }
 }
 
-@media screen and (min-width: 1300px) {
-  .article-list.pc-list {
-    grid-template-columns: repeat(4, 1fr) !important;
-  }
-}
-
 // Loading 样式
 .loading-container {
   display: flex;
@@ -532,6 +552,12 @@ onBeforeMount(() => {
   justify-content: center;
   padding: 20px 0;
   margin: 20px 0;
+
+  &.loading-container--fill {
+    flex: 1;
+    margin: 0;
+    min-height: 0;
+  }
 
   .loading-icon {
     width: 32px;
@@ -545,6 +571,23 @@ onBeforeMount(() => {
     color: #999999;
     line-height: 20px;
   }
+}
+
+// 暂无结果：在 blog-body 剩余区域内水平 + 垂直居中
+.no-data {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  width: 100%;
+}
+
+.no-data-text {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 400;
+  color: #999999;
 }
 
 .tip.no-more {
@@ -561,6 +604,12 @@ onBeforeMount(() => {
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media screen and (min-width: 1300px) {
+  .article-list.pc-list {
+    grid-template-columns: repeat(4, 1fr) !important;
   }
 }
 </style>
