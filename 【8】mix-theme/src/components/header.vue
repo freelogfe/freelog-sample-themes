@@ -110,7 +110,7 @@
                 "
               >
                 <i class="freelog fl-icon-tuwen"></i>
-                <div class="btn-label">所有文章</div>
+                <div class="btn-label">所有作品</div>
               </div>
               <div
                 class="btn"
@@ -121,7 +121,7 @@
                 "
               >
                 <i class="freelog fl-icon-bokezhuanlan"></i>
-                <div class="btn-label">专栏</div>
+                <div class="btn-label">连载 & 专栏</div>
               </div>
               <div
                 class="btn"
@@ -364,11 +364,11 @@ export default {
         path: "/home"
       },
       {
-        label: "所有文章",
+        label: "所有作品",
         path: "/blog"
       },
       {
-        label: "专栏",
+        label: "连载 & 专栏",
         path: "/column"
       }
     ];
@@ -476,7 +476,7 @@ export default {
       register() {
         const url = freelogApp.getCurrentUrl();
         const mainUrl = url.split("?")[0];
-        const reg = (window as any).HOST_END==='.cn'? /\.([^.]*)\.cn/: /\.([^.]*)\.com/;
+        const reg = (window as any).HOST_END === ".cn" ? /\.([^.]*)\.cn/ : /\.([^.]*)\.com/;
         const domain = reg.exec(mainUrl);
         const domainName = domain ? domain[1] : "freelog";
         window.open(`https://user.${domainName}${(window as any).HOST_END}/logon`);

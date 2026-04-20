@@ -76,7 +76,7 @@
           </div>
 
           <div class="router-btn">
-            <span @click="switchPage('/blog')">所有文章</span>
+            <span @click="switchPage('/blog')">所有作品</span>
             <img class="arrow" src="../assets/images/home-arrow.png" />
           </div>
         </div>
@@ -96,7 +96,7 @@
           </div>
         </template>
 
-        <div class="view-all-btn" @click="switchPage('/blog')">查看所有文章</div>
+        <div class="view-all-btn" @click="switchPage('/blog')">查看所有作品</div>
       </template>
 
       <!-- 移动端专栏 -->

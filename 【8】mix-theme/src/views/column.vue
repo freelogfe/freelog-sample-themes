@@ -122,7 +122,7 @@ onBeforeMount(() => {
     <div class="is-pc" v-if="!store.state.inMobile">
       <!-- 头部 -->
       <div class="blog-header">
-        <div class="blog-header-title">专栏</div>
+        <div class="blog-header-title">连载 & 专栏</div>
         <!-- <div class="blog-header-count">总数{{ columnLength }}</div> -->
       </div>
       <!-- 排序筛选 -->
@@ -157,7 +157,7 @@ onBeforeMount(() => {
 
     <div class="is-mobile" v-else>
       <div class="header">
-        <div class="title">专栏</div>
+        <div class="title">连载 & 专栏</div>
         <div
           class="text-btn mobile filter"
           @click="

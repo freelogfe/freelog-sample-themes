@@ -79,7 +79,7 @@
                 "
               >
                 <i class="freelog fl-icon-tuwen"></i>
-                <div class="btn-label">所有文章</div>
+                <div class="btn-label">所有作品</div>
               </div>
               <div
                 class="btn"

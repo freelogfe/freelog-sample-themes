@@ -348,9 +348,7 @@
           </template>
         </template>
 
-        <template
-          v-else-if="comicInfo?.articleInfo != null && comicInfo.articleInfo.status !== 1"
-        >
+        <template v-else-if="comicInfo?.articleInfo != null && comicInfo.articleInfo.status !== 1">
           <div class="freeze-exhibit">
             <div class="icon">
               <i
@@ -1254,9 +1252,7 @@
           </template>
         </template>
 
-        <template
-          v-else-if="comicInfo?.articleInfo != null && comicInfo.articleInfo.status !== 1"
-        >
+        <template v-else-if="comicInfo?.articleInfo != null && comicInfo.articleInfo.status !== 1">
           <div class="freeze-exhibit">
             <div class="icon">
               <i
