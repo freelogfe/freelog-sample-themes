@@ -25,7 +25,7 @@
 
     <!-- 展品标题 -->
     <div class="comic-name">
-      <span @click="switchPage('/detail', { id: comicInfo.exhibitId })">{{
+      <span @click="switchPage('/comic-detail', { id: comicInfo.exhibitId })">{{
         comicInfo.exhibitTitle
       }}</span>
     </div>
@@ -132,7 +132,11 @@
         <div
           class="comic-name"
           :title="comicInfo.exhibitTitle"
-          @click="switchPage('/detail', { id: comicInfo.exhibitId })"
+          @click="
+            () => {
+              switchPage('/comic-detail', { id: comicInfo.exhibitId });
+            }
+          "
         >
           {{ comicInfo.exhibitTitle }}
         </div>
