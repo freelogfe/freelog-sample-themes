@@ -795,7 +795,18 @@
           />
         </div>
       </div>
+
+      <div id="app-vertical-comment"></div>
     </div>
+
+    <DetailFloatMenu
+      class="play-detail-comment-float"
+      :theme="commentFloatTheme"
+      :comment-count="0"
+      :show-comment-button="commentLayoutIsDrawer"
+      @share="shareFromFloat"
+      @comment="commentFromFloat"
+    />
   </div>
 </template>
 
@@ -805,10 +816,13 @@ import playStatus from "@/components/play-status.vue";
 import myTooltip from "@/components/tooltip.vue";
 import HomePlayList from "@/components/play-list.vue";
 import Voice from "@/components/voice.vue";
+import DetailFloatMenu from "@/components/detail-float-menu.vue";
+import { currentTheme } from "@/utils/theme-manager";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { showToast, absoluteTime, secondsToHMS } from "@/utils/common";
 import { updateWxConfig } from "@/utils/update-wx-share";
 import { useGlobalStore } from "@/store/global";
+import { callLogin } from "@/api/freelog";
 
 // 图片
 import AuthLinkAbnormalIcon from "@/assets/images/auth-link-abnormal.png";
@@ -825,7 +839,7 @@ import DarkMoreIcon from "@/assets/images/dark-arrow.png";
 export default {
   name: "detail",
 
-  components: { playStatus, myTooltip, HomePlayList, Voice },
+  components: { playStatus, myTooltip, HomePlayList, Voice, DetailFloatMenu },
 
   data() {
     const store = useGlobalStore();
@@ -864,8 +878,14 @@ export default {
       moreMenuShow: false,
       loading: false,
       nodeInfo,
-      recommendData: []
+      recommendData: [],
+      /** @type {import("freelog-runtime").WidgetController | null} */
+      commentWidget: null
     };
+  },
+
+  beforeUnmount() {
+    this.unmountCommentWidget();
   },
 
   watch: {
@@ -976,21 +996,21 @@ export default {
               ? !this.ifSupportMime || this.authLinkAbnormal || this.voiceInfo.onlineStatus === 0
                 ? "fl-icon-wufabofang"
                 : this.playing
-                ? "fl-icon-zanting-daibiankuang"
-                : "fl-icon-bofang-daibiankuang"
+                  ? "fl-icon-zanting-daibiankuang"
+                  : "fl-icon-bofang-daibiankuang"
               : !this.ifSupportMime || this.authLinkAbnormal || this.voiceInfo.onlineStatus === 0
-              ? "fl-icon-wufabofang"
-              : "fl-icon-bofang-daibiankuang",
+                ? "fl-icon-wufabofang"
+                : "fl-icon-bofang-daibiankuang",
           title:
             this.voiceInfo?.articleInfo?.articleType === 1
               ? !this.ifSupportMime || this.authLinkAbnormal || this.voiceInfo.onlineStatus === 0
                 ? "无法播放"
                 : this.playing
-                ? "暂停"
-                : "播放"
+                  ? "暂停"
+                  : "播放"
               : !this.ifSupportMime || this.authLinkAbnormal || this.voiceInfo.onlineStatus === 0
-              ? "无法播放"
-              : "播放全部",
+                ? "无法播放"
+                : "播放全部",
           operate:
             this.voiceInfo?.articleInfo?.articleType === 1 ? this.playOrPause : this.playOrPauseAll,
           disabled:
@@ -1062,10 +1082,119 @@ export default {
         release_type ||
         music_genre
       );
+    },
+
+    commentFloatTheme() {
+      return currentTheme.value === "light" ? "light" : "dark";
+    },
+
+    commentLayoutIsDrawer() {
+      return this.store.selfConfig?.options_commentLayout === "drawer";
     }
   },
 
   methods: {
+    shareFromFloat() {
+      if (this.store.inMobile) {
+        const input = document.getElementById("href");
+        if (!input) return;
+        input.select();
+        document.execCommand("Copy");
+        showToast("链接复制成功～");
+      } else {
+        this.store.setData({
+          key: "shareInfo",
+          value: {
+            show: true,
+            exhibit: this.getShareExhibit()
+          }
+        });
+      }
+    },
+
+    commentFromFloat() {
+      if (!this.commentLayoutIsDrawer) return;
+      this.setCommentWidgetShow(true);
+    },
+
+    setCommentWidgetShow(value) {
+      this.commentWidget?.setData({ show: value });
+    },
+
+    /**
+     * 从宿主 :root 读取音乐主题 token，传入评论插件（背景 + 两级字色 + light/dark）
+     * --text-eighth-color：主阅读色；--text-sixth-color：次要/辅助色
+     */
+    getCommentWidgetThemePayload() {
+      const root = document.documentElement;
+      const cs = getComputedStyle(root);
+      const pick = name => {
+        const v = cs.getPropertyValue(name).trim();
+        return v || undefined;
+      };
+      return {
+        isLoggedIn: this.store.userData.isLogin,
+        avatarUrl: this.store.userData.headImage,
+        theme: this.commentFloatTheme,
+        pageBackground: pick("--bg-color"),
+        textPrimary: pick("--text-eighth-color"),
+        textSecondary: pick("--text-sixth-color")
+      };
+    },
+
+    async unmountCommentWidget() {
+      if (!this.commentWidget) return;
+      await this.commentWidget.unmount();
+      this.commentWidget = null;
+    },
+
+    /**
+     * 挂载评论插件
+     */
+    async mountCommentWidget() {
+      const container = document.getElementById("app-vertical-comment");
+      if (!container || !this.voiceInfo) return;
+
+      await this.unmountCommentWidget();
+
+      const subDeps = await freelogApp.getSelfDepForTheme();
+      console.log("subDeps", subDeps);
+      const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-评论插件");
+      if (!widgetData) return;
+
+      const { articleId, parentNid, nid } = widgetData;
+      const topExhibitId = freelogApp.getTopExhibitId();
+      const exhibit = this.getShareExhibit();
+      const layout =
+        this.store.selfConfig?.options_commentLayout === "drawer" ? "drawer" : "vertical";
+
+      const isNodeAdmin = this.store.userData.isOwner;
+
+      const params = {
+        articleId,
+        parentNid,
+        nid,
+        topExhibitId,
+        container,
+        renderWidgetOptions: {
+          iframe: true,
+          data: {
+            exhibit,
+            exhibitId: this.voiceInfo?.exhibitId,
+            isNodeAdmin,
+            type: "音乐",
+            layout,
+            show: false,
+            onClose: () => this.setCommentWidgetShow(false),
+            onLogin: () => callLogin(),
+            ...this.getCommentWidgetThemePayload()
+          }
+        },
+        widget_entry: "https://localhost:8203"
+      };
+      this.commentWidget = await freelogApp.mountArticleWidget(params);
+    },
+
     /** 查看音乐详情 */
     toMusicDetail(item) {
       this.moreMenuShow = false;
@@ -1083,15 +1212,15 @@ export default {
             this.voiceInfo.onlineStatus === 0
               ? "fl-icon-wufabofang"
               : this.playingSub({ exhibitId: item.exhibitId, itemId: item.itemId })
-              ? "fl-icon-zanting-daibiankuang"
-              : "fl-icon-bofang-daibiankuang",
+                ? "fl-icon-zanting-daibiankuang"
+                : "fl-icon-bofang-daibiankuang",
           label:
             !this.ifSupportMimeSub(item.versionInfo?.exhibitProperty?.mime) ||
             this.voiceInfo.onlineStatus === 0
               ? "无法播放"
               : this.playingSub({ exhibitId: item.exhibitId, itemId: item.itemId })
-              ? "暂停音乐"
-              : "播放音乐",
+                ? "暂停音乐"
+                : "播放音乐",
           operate: () => this.playOrPause(item),
           disabled:
             !this.ifSupportMimeSub(item.versionInfo?.exhibitProperty?.mime) ||
@@ -1181,8 +1310,8 @@ export default {
             item.articleInfo.status === 2
               ? "fl-icon-wufabofang"
               : this.playingSub(item)
-              ? "fl-icon-zanting-daibiankuang"
-              : "fl-icon-bofang-daibiankuang",
+                ? "fl-icon-zanting-daibiankuang"
+                : "fl-icon-bofang-daibiankuang",
           title: this.playingSub(item) ? "暂停" : "播放",
           operate: () => this.playOrPause(item),
           disabled:
@@ -1285,10 +1414,22 @@ export default {
       );
     },
 
+    /**
+     * 构造分享弹层用的 exhibit（与原先 PC 分支逻辑一致）
+     * @param item 可选；来自列表行时传入单品，否则用当前页 voiceInfo
+     */
+    getShareExhibit(item) {
+      const source = item !== undefined && item !== null ? item : this.voiceInfo;
+      return source?.itemId
+        ? { ...source, shareUrlGenerationException: "音乐主题", parentArticleType: 3 }
+        : { ...this.voiceInfo, albumName: this.albumName };
+    },
+
     /** 分享 */
     share(item) {
       if (this.store.inMobile) {
         const input = document.getElementById("href");
+        if (!input) return;
         input.select();
         document.execCommand("Copy");
         showToast("链接复制成功～");
@@ -1297,9 +1438,7 @@ export default {
           key: "shareInfo",
           value: {
             show: true,
-            exhibit: item.itemId
-              ? { ...item, shareUrlGenerationException: "音乐主题", parentArticleType: 3 }
-              : { ...this.voiceInfo, albumName: this.albumName }
+            exhibit: this.getShareExhibit(item)
           }
         });
       }
@@ -1308,6 +1447,7 @@ export default {
     /** 获取音乐详情 */
     async getVoiceInfo() {
       this.loading = true;
+      await this.unmountCommentWidget();
       this.voiceInfo = null;
       // 合集中的一个单品
       if (this.subID) {
@@ -1386,6 +1526,8 @@ export default {
 
       this.href = freelogApp.getCurrentUrl();
       this.loading = false;
+      await this.$nextTick();
+      await this.mountCommentWidget();
     },
 
     /** 授权 */
@@ -1653,5 +1795,14 @@ export default {
       }
     }
   }
+}
+
+.play-detail-comment-float {
+  position: fixed;
+  z-index: 100;
+  right: 36px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: auto;
 }
 </style>

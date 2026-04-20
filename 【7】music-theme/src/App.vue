@@ -55,10 +55,11 @@ const mountShareWidget = async () => {
       data: {
         exhibit: {
           ...nodeInfo,
-          avatarUrl: `https://image.freelog.com/avatar/${(nodeInfo as { ownerUserId?: string })?.ownerUserId || ""}`,
+          avatarUrl: `https://image.freelog.cn/avatar/${(nodeInfo as { ownerUserId?: string })?.ownerUserId || ""}`,
           nodeUrl,
           exhibitId: (nodeInfo as { nodeId?: string }).nodeId || topExhibitId,
-          exhibitTitle: (nodeInfo as { nodeName?: string; nodeShortDescription?: string }).nodeName ||
+          exhibitTitle:
+            (nodeInfo as { nodeName?: string; nodeShortDescription?: string }).nodeName ||
             (nodeInfo as { nodeShortDescription?: string }).nodeShortDescription
         },
         type: "音乐",

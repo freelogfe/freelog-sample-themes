@@ -12,6 +12,8 @@ import "@/assets/css/theme.less";
 import App from "./App.vue";
 import router from "./router";
 
+let app: any = null;
+
 window.mount = async () => {
   const isMicroApp = !window.__MICRO_APP_ENVIRONMENT__;
   console.log(isMicroApp ? "%c独立模块" : "%c子应用", "color:red; padding:10px; font-size: 15px");
@@ -21,7 +23,7 @@ window.mount = async () => {
   await freelogApp.mapShareUrl(mapRoutes);
 
   const pinia = createPinia();
-  const app = createApp(App);
+  app = createApp(App);
   app.use(pinia);
   app.use(router);
 
@@ -43,6 +45,7 @@ window.mount = async () => {
       }
       const url = freelogApp.getCurrentUrl();
       location.href = url;
+      freelogApp.reload();
     },
     () => {
       if (store.$state.isIOS) {
@@ -68,7 +71,10 @@ window.mount = async () => {
   );
 };
 
-window.unmount = () => {};
+window.unmount = () => {
+  app?.unmount();
+  app = null;
+};
 
 if (!window.__MICRO_APP_ENVIRONMENT__) {
   window.mount();

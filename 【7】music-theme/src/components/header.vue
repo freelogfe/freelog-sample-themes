@@ -207,13 +207,6 @@
             </transition>
           </div>
 
-          <img
-            class="header-share header-share-pc"
-            src="../assets/images/icon_share.svg"
-            alt="分享"
-            @click.stop="onOpenShare"
-          />
-
           <el-popover
             popper-class="header-user-box"
             placement="bottom-end"
@@ -521,7 +514,7 @@ export default {
     register() {
       const url = freelogApp.getCurrentUrl();
       const mainUrl = url.split("?")[0];
-      const reg = (window as any).HOST_END==='.cn'? /\.([^.]*)\.cn/: /\.([^.]*)\.com/;
+      const reg = (window as any).HOST_END === ".cn" ? /\.([^.]*)\.cn/ : /\.([^.]*)\.com/;
       const domain = reg.exec(mainUrl);
       const domainName = domain ? domain[1] : "freelog";
       window.open(`https://user.${domainName}${(window as any).HOST_END}/logon`);

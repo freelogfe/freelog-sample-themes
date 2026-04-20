@@ -8,6 +8,8 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Album: typeof import('./src/components/album.vue')['default']
+    CommentPluginFloat: typeof import('./src/components/comment-plugin-float.vue')['default']
+    DetailFloatMenu: typeof import('./src/components/detail-float-menu.vue')['default']
     ElPopover: typeof import('element-plus/es')['ElPopover']
     ElProgress: typeof import('element-plus/es')['ElProgress']
     ElSkeleton: typeof import('element-plus/es')['ElSkeleton']
