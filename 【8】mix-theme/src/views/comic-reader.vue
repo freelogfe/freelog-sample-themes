@@ -1963,7 +1963,7 @@ export default {
 
       /** 跳转详情 */
       toDetailFromRecommend(exhibitId: string) {
-        switchPage("/detail", {
+        switchPage("/comic-detail", {
           id: exhibitId
         });
       },
