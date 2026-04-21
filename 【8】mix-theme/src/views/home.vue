@@ -268,7 +268,11 @@ export default {
     const data = reactive({
       sortPopupShow: false,
       createDateSortType: "-1",
-      searchData: { sort: "updateDate:-1" } as { keywords?: string; tags?: string; sort?: string },
+      searchData: { sort: "resourceFirstVersionReleaseDate:-1" } as {
+        keywords?: string;
+        tags?: string;
+        sort?: string;
+      },
       blogInfoPopupShow: false,
       isInitial: true
     });
