@@ -19,7 +19,7 @@ const datasOfGetList = useGetList();
 const data = reactive({
   sortPopupShow: false,
   createDateSortType: "-1",
-  searchData: { sort: "createDate:-1", articleResourceTypes: "文章,漫画" } as {
+  searchData: { sort: "resourceFirstVersionReleaseDate:-1", articleResourceTypes: "文章,漫画" } as {
     keywords?: string;
     tags?: string;
     sort?: string;
@@ -64,7 +64,7 @@ const setSort = (option: string) => {
   if (data.createDateSortType === option) return;
 
   data.createDateSortType = option;
-  data.searchData.sort = `createDate:${option}`;
+  data.searchData.sort = `resourceFirstVersionReleaseDate:${option}`;
   !store.state.inMobile && datasOfGetList.getList(data.searchData, true);
 };
 

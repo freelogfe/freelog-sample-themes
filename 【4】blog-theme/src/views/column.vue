@@ -11,7 +11,7 @@ const datasOfGetList = useGetList();
 const data = reactive({
   sortPopupShow: false,
   createDateSortType: "-1",
-  searchData: { sort: "createDate:-1", articleResourceTypes: "专栏" } as {
+  searchData: { sort: "resourceFirstVersionReleaseDate:-1", articleResourceTypes: "专栏" } as {
     keywords?: string;
     tags?: string;
     sort?: string;
@@ -57,7 +57,7 @@ const setSort = (option: string) => {
   if (data.createDateSortType === option) return;
 
   data.createDateSortType = option;
-  data.searchData.sort = `createDate:${option}`;
+  data.searchData.sort = `resourceFirstVersionReleaseDate:${option}`;
   data.searchData.articleResourceTypes = "专栏";
   !store.state.inMobile && datasOfGetList.getList(data.searchData, true);
 };
@@ -65,7 +65,10 @@ const setSort = (option: string) => {
 // 获取博客列表
 const getData = () => {
   datasOfGetList.clearData();
-  datasOfGetList.getList({ articleResourceTypes: "专栏", sort: "createDate:-1" }, true);
+  datasOfGetList.getList(
+    { articleResourceTypes: "专栏", sort: "resourceFirstVersionReleaseDate:-1" },
+    true
+  );
 };
 
 const columnLength = computed(() => {
