@@ -897,7 +897,6 @@ export default {
         this.subID = cur.subID;
         this.albumName = cur.albumName;
         await this.getVoiceInfo();
-        this.getRecommendList();
       },
       immediate: true
     },
@@ -1525,6 +1524,13 @@ export default {
       }
 
       this.href = freelogApp.getCurrentUrl();
+      // 与详情一并拉取推荐，避免首屏无「更多音乐」、接口返回后整块插入导致评论区下移跳动
+      try {
+        await this.getRecommendList();
+      } catch (e) {
+        console.error("getRecommendList failed", e);
+        this.recommendData = [];
+      }
       this.loading = false;
       await this.$nextTick();
       await this.mountCommentWidget();
