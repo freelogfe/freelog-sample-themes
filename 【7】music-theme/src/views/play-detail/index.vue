@@ -1533,7 +1533,10 @@ export default {
       }
       this.loading = false;
       await this.$nextTick();
+      // TODO 这里要console调整，更新最新版本之后获取不到属性，暂时注释
+      // if (this.store.selfConfig.options_commentStatus === "开启") {
       await this.mountCommentWidget();
+      // }
     },
 
     /** 授权 */
