@@ -90,8 +90,8 @@ export const useGlobalStore = defineStore("global", {
       const [selfConfig, collectionIdListResponse, playingIdResponse, playModeResponse] =
         await Promise.all([
           freelogApp.getSelfPropertyForTheme(),
-          freelogApp.getUserData("collectionIdList"),
-          freelogApp.getUserData("playingId"),
+          freelogApp.getUserData("music-collectionIdList"),
+          freelogApp.getUserData("music-playingId"),
           freelogApp.getUserData("playMode")
         ]);
       const collectionIdList = collectionIdListResponse?.data?.data || [];
@@ -130,11 +130,11 @@ export const useGlobalStore = defineStore("global", {
       let playIdList = [];
       if (this.userData.isLogin) {
         // 登录时播放列表取用户数据
-        const playIdListResponse = await freelogApp.getUserData("playIdList");
+        const playIdListResponse = await freelogApp.getUserData("music-playIdList");
         playIdList = playIdListResponse?.data?.data || [];
 
         // 如果此时本地有播放列表，那需要自动添加至用户数据
-        const list = localStorage.getItem("playIdList") || "[]";
+        const list = localStorage.getItem("music-playIdList") || "[]";
         const localPlayIdList = JSON.parse(list);
         if (localPlayIdList.length) {
           // 合并并去重
@@ -152,12 +152,12 @@ export const useGlobalStore = defineStore("global", {
 
           playIdList = uniquePlayIdList;
 
-          freelogApp.setUserData("playIdList", playIdList);
-          localStorage.setItem("playIdList", "[]");
+          freelogApp.setUserData("music-playIdList", playIdList);
+          localStorage.setItem("music-playIdList", "[]");
         }
       } else {
         // 未登录时播放列表取本地
-        const list = localStorage.getItem("playIdList") || "[]";
+        const list = localStorage.getItem("music-playIdList") || "[]";
         playIdList = JSON.parse(list);
       }
       this.playIdList = playIdList || [];
