@@ -13,7 +13,7 @@ const data = reactive({
   createDateSortType: "-1",
   searchData: {
     sort: "resourceFirstVersionReleaseDate:-1",
-    articleResourceTypes: "专栏,连载漫画"
+    articleResourceTypes: "专栏,连载漫画,连载小说"
   } as {
     keywords?: string;
     tags?: string;
@@ -61,7 +61,7 @@ const setSort = (option: string) => {
 
   data.createDateSortType = option;
   data.searchData.sort = `resourceFirstVersionReleaseDate:${option}`;
-  data.searchData.articleResourceTypes = "专栏,连载漫画";
+  data.searchData.articleResourceTypes = "专栏,连载漫画,连载小说";
   !store.state.inMobile && datasOfGetList.getList(data.searchData, true);
 };
 
@@ -69,7 +69,7 @@ const setSort = (option: string) => {
 const getData = () => {
   datasOfGetList.clearData();
   datasOfGetList.getList(
-    { articleResourceTypes: "专栏,连载漫画", sort: "resourceFirstVersionReleaseDate:-1" },
+    { articleResourceTypes: "专栏,连载漫画,连载小说", sort: "resourceFirstVersionReleaseDate:-1" },
     true
   );
 };
@@ -112,7 +112,7 @@ watch(
   () => scrollTop.value,
   cur => {
     if (cur + clientHeight.value + 1 >= scrollHeight.value && route.path === "/column") {
-      datasOfGetList.getList({ articleResourceTypes: "专栏,连载漫画" });
+      datasOfGetList.getList({ articleResourceTypes: "专栏,连载漫画,连载小说" });
     }
   }
 );

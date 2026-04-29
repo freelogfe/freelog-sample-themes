@@ -102,7 +102,7 @@
       <!-- 移动端专栏 -->
       <template v-if="displayListCollectionData?.length">
         <div class="header column-border">
-          <div class="sort">专栏</div>
+          <div class="sort">连载 & 专栏</div>
 
           <div class="router-btn">
             <span @click="switchPage('/column')">所有专栏</span>
@@ -207,7 +207,7 @@
       </template>
 
       <div class="header-collection" v-if="displayListCollectionData?.length">
-        <span class="collection-title">专栏</span>
+        <span class="collection-title">连载 & 专栏</span>
         <div class="collection-count">
           <!-- <span>专栏总数{{ collectionsData?.length }}</span> -->
           <span @click="switchPage('/column')">查看全部</span>
