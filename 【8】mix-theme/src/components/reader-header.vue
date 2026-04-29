@@ -143,13 +143,15 @@
       </div>
 
       <div class="header-box">
-        <!-- logo -->
-        <img
+        <div
           class="logo"
-          :src="require('../assets/images/logo.png')"
+          v-if="nodeInfo?.nodeLogo"
+          :style="{ backgroundImage: `url(${nodeInfo.nodeLogo})` }"
           @click="switchPage('/home')"
-        />
-
+        ></div>
+        <div class="logo-text" v-else :title="nodeInfo?.nodeTitle" @click="switchPage('/home')">
+          {{ nodeInfo?.nodeTitle }}
+        </div>
         <div class="header-right">
           <div class="nav-btn" @click="switchPage('/')">首页</div>
           <!-- <div class="nav-btn" @click="switchPage('/shelf')" v-if="userData?.isLogin">我的收藏</div> -->
@@ -199,6 +201,7 @@ import { callLogin, callLoginOut } from "@/api/freelog";
 import { ExhibitItem } from "@/api/interface";
 import { useMyLocationHistory, useMyRouter } from "@/utils/hooks";
 import { State } from "@/store/index";
+import { freelogApp } from "freelog-runtime";
 export default {
   name: "reader-header",
 
@@ -211,6 +214,8 @@ export default {
     context: SetupContext<["changeBarShow"]>
   ) {
     const store = useStore<State>();
+    const nodeInfo = freelogApp.nodeInfo;
+
     const { switchPage, routerBack } = useMyRouter();
 
     const data = reactive({
@@ -250,7 +255,8 @@ export default {
       ...props,
       ...toRefs(store.state),
       ...toRefs(data),
-      ...methods
+      ...methods,
+      nodeInfo
     };
   }
 };
@@ -496,8 +502,11 @@ export default {
       display: flex;
       align-items: center;
       justify-content: center;
+      /** 整块铺满会盖住下层 logo，导致左侧点击穿透失败；仅标题条接收点击 */
+      pointer-events: none;
 
       .comic-name {
+        pointer-events: auto;
         width: 400px;
         text-align: center;
         font-size: 16px;
@@ -512,6 +521,8 @@ export default {
     }
 
     .header-box {
+      position: relative;
+      z-index: 2;
       width: 1160px;
       height: 70px;
       display: flex;
@@ -521,14 +532,31 @@ export default {
       .logo {
         position: relative;
         height: 24px;
+        min-width: 80px;
+        max-width: 200px;
         cursor: pointer;
-        z-index: 1;
+        background-repeat: no-repeat;
+        background-position: left center;
+        background-size: contain;
+      }
+
+      .logo-text {
+        position: relative;
+        max-width: 200px;
+        height: 24px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #ffffff;
+        line-height: 24px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        cursor: pointer;
       }
 
       .header-right {
         display: flex;
         align-items: center;
-        z-index: 1;
 
         .nav-btn {
           padding: 0 25px;
