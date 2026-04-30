@@ -42,7 +42,9 @@ export default {
 
       const subDeps = await freelogApp.getSelfDepForTheme();
       const widgetData = subDeps.find(
-        (item: { articleName?: string }) => item.articleName === "ZhuC/_Freelog插件-主页分享"
+        (item: { articleName?: string }) =>
+          item.articleName === "ZhuC/_Freelog插件-主页分享" ||
+          item.articleName === "ZhuC/Freelog插件-主页分享"
       );
       console.log("widgetData", widgetData);
       if (!widgetData) return;
