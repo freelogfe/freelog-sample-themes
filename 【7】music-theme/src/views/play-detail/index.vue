@@ -1157,7 +1157,6 @@ export default {
       await this.unmountCommentWidget();
 
       const subDeps = await freelogApp.getSelfDepForTheme();
-      console.log("subDeps", subDeps);
       const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-评论插件");
       if (!widgetData) return;
 
@@ -1180,6 +1179,7 @@ export default {
           data: {
             exhibit,
             exhibitId: this.voiceInfo?.exhibitId,
+            itemId: this.subID,
             isNodeAdmin,
             type: "音乐",
             layout,
@@ -1188,8 +1188,8 @@ export default {
             onLogin: () => callLogin(),
             ...this.getCommentWidgetThemePayload()
           }
-        },
-        widget_entry: "https://localhost:8203"
+        }
+        // widget_entry: "https://localhost:8203"
       };
       this.commentWidget = await freelogApp.mountArticleWidget(params);
     },
