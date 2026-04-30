@@ -16,6 +16,7 @@
 
 - music-theme: 音乐主题 by Vue3
 
+- mix-theme: 博客+漫画主题 by Vue3
 
 - 关于 articleInfo.articleType 
   1:独立资源

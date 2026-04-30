@@ -119,7 +119,7 @@ export const useMyAuth = {
           store.commit("setData", { key: "playingInfo", value: JSON.parse(JSON.stringify(data)) });
           store.commit("setplayingSuccessRecorder", JSON.parse(JSON.stringify(data)));
           store.commit("setData", { key: "playing", value: true });
-          freelogApp.setUserData("playingId", `${exhibitId}=${data.child.itemId}`);
+          freelogApp.setUserData("podcast-playingId", `${exhibitId}=${data.child.itemId}`);
         } else {
           // 场景一：点击播放合集
           // 1. 将合集的所有子作品加入播放列表(子作品有数量限制，暂不支持全量)
@@ -164,14 +164,14 @@ export const useMyAuth = {
           store.commit("setData", { key: "playingInfo", value: payload });
           store.commit("setplayingSuccessRecorder", JSON.parse(JSON.stringify(payload)));
           store.commit("setData", { key: "playing", value: true });
-          freelogApp.setUserData("playingId", `${exhibitId}=${playingId}`);
+          freelogApp.setUserData("podcast-playingId", `${exhibitId}=${playingId}`);
         }
       } else {
         useMyPlay.addToPlayList({
           id: exhibitId,
           isExhibit: true
         });
-        freelogApp.setUserData("playingId", exhibitId);
+        freelogApp.setUserData("podcast-playingId", exhibitId);
         // 已授权未获取 url
         const url = await freelogApp.getExhibitFileStream(exhibitId, { returnUrl: true });
         Vue.set(data, "url", url);
@@ -365,7 +365,7 @@ export const useMyCollection = {
       }
       collectionList.unshift(JSON.parse(JSON.stringify(payload)));
     }
-    const res = await freelogApp.setUserData("collectionIdList", collectionIdList);
+    const res = await freelogApp.setUserData("podcast-collectionIdList", collectionIdList);
     if (res.data.msg === "success") {
       store.commit("setData", { key: "collectionIdList", value: collectionIdList });
       store.commit("setData", { key: "collectionList", value: collectionList });
@@ -444,7 +444,7 @@ export const useMyPlay = {
     const id = data.exhibitId;
     if (!store.state.userData.isLogin) {
       // 未登录时播放列表取本地
-      const list = localStorage.getItem("playIdList") || "[]";
+      const list = localStorage.getItem("podcast-playIdList") || "[]";
       const playIdList = JSON.parse(list);
       if (data.articleInfo.articleType === 1) {
         return playIdList.map(ele => ele.id).includes(id);
@@ -470,16 +470,16 @@ export const useMyPlay = {
   /** 将合集/单集移出播放列表 */
   async removePlayListBatch(exhibitId) {
     if (!store.state.userData.isLogin) {
-      const list = localStorage.getItem("playIdList") || "[]";
+      const list = localStorage.getItem("podcast-playIdList") || "[]";
       const playIdList = JSON.parse(list);
       const newList = playIdList.filter(ele => ele.id !== exhibitId);
-      localStorage.setItem("playIdList", JSON.stringify(newList));
+      localStorage.setItem("podcast-playIdList", JSON.stringify(newList));
       store.commit("setData", { key: "playIdList", value: newList });
       await useMyPlay.getPlayList();
     } else {
       const playIdList = [...store.state.playIdList];
       const newList = playIdList.filter(ele => ele.id !== exhibitId);
-      const res = await freelogApp.setUserData("playIdList", newList);
+      const res = await freelogApp.setUserData("podcast-playIdList", newList);
 
       if (res.data.msg === "success") {
         store.commit("setData", { key: "playIdList", value: newList });
@@ -495,7 +495,7 @@ export const useMyPlay = {
     // 1.删除之前存在的
     // 2.批量添加
     if (!store.state.userData.isLogin) {
-      const list = localStorage.getItem("playIdList") || "[]";
+      const list = localStorage.getItem("podcast-playIdList") || "[]";
       const playIdList = JSON.parse(list);
       // 1
       const newList = playIdList.filter(ele => ele.id !== exhibitId);
@@ -509,7 +509,7 @@ export const useMyPlay = {
         });
       }
 
-      localStorage.setItem("playIdList", JSON.stringify(newList));
+      localStorage.setItem("podcast-playIdList", JSON.stringify(newList));
       store.commit("setData", { key: "playIdList", value: newList });
       callback && callback();
       bol && showToast("添加成功");
@@ -530,7 +530,7 @@ export const useMyPlay = {
         });
       }
 
-      const res = await freelogApp.setUserData("playIdList", newList);
+      const res = await freelogApp.setUserData("podcast-playIdList", newList);
 
       if (res.data.msg === "success") {
         store.commit("setData", { key: "playIdList", value: newList });
@@ -548,7 +548,7 @@ export const useMyPlay = {
     const { id, callback, isExhibit, itemId } = options;
     if (!store.state.userData.isLogin) {
       // 未登录时存在本地
-      const list = localStorage.getItem("playIdList") || "[]";
+      const list = localStorage.getItem("podcast-playIdList") || "[]";
       const playIdList = JSON.parse(list);
       /* 检查是否已在播放列表中
         1.若是可播放展品 */
@@ -577,7 +577,7 @@ export const useMyPlay = {
         itemId
       });
 
-      localStorage.setItem("playIdList", JSON.stringify(playIdList));
+      localStorage.setItem("podcast-playIdList", JSON.stringify(playIdList));
       store.commit("setData", { key: "playIdList", value: playIdList });
       callback && callback();
       await useMyPlay.getPlayList();
@@ -612,7 +612,7 @@ export const useMyPlay = {
         isExhibit,
         itemId
       });
-      const res = await freelogApp.setUserData("playIdList", playIdList);
+      const res = await freelogApp.setUserData("podcast-playIdList", playIdList);
 
       if (res.data.msg === "success") {
         store.commit("setData", { key: "playIdList", value: playIdList });
@@ -631,14 +631,14 @@ export const useMyPlay = {
 
     if (!store.state.userData.isLogin) {
       // 未登录时取本地
-      const list = localStorage.getItem("playIdList") || "[]";
+      const list = localStorage.getItem("podcast-playIdList") || "[]";
       const playIdList = JSON.parse(list);
       const playList = store.state.playList;
       let index = 0;
       if (articleInfo.articleType === 1) {
         const idIndex = playIdList.findIndex(item => item.id === exhibitId);
         playIdList.splice(idIndex, 1);
-        localStorage.setItem("playIdList", JSON.stringify(playIdList));
+        localStorage.setItem("podcast-playIdList", JSON.stringify(playIdList));
 
         index = playList.findIndex(item => item.exhibitId === exhibitId);
         playList.splice(index, 1);
@@ -647,7 +647,7 @@ export const useMyPlay = {
           item => item.id === exhibitId && item.itemId === child.itemId
         );
         playIdList.splice(idIndex, 1);
-        localStorage.setItem("playIdList", JSON.stringify(playIdList));
+        localStorage.setItem("podcast-playIdList", JSON.stringify(playIdList));
 
         index = playList.findIndex(
           item => item.exhibitId === exhibitId && item.child.itemId === child.itemId
@@ -687,7 +687,7 @@ export const useMyPlay = {
         );
         playIdList.splice(idIndex, 1);
       }
-      const res = await freelogApp.setUserData("playIdList", playIdList);
+      const res = await freelogApp.setUserData("podcast-playIdList", playIdList);
 
       if (res.data.errCode === 0) {
         let index = 0;
@@ -733,7 +733,7 @@ export const useMyPlay = {
   async clearPlayList() {
     if (!store.state.userData.isLogin) {
       // 未登录时取本地
-      localStorage.setItem("playIdList", "[]");
+      localStorage.setItem("podcast-playIdList", "[]");
       store.commit("setData", { key: "playIdList", value: [] });
       store.commit("setData", { key: "playList", value: [] });
       store.commit("setData", { key: "playing", value: false });
@@ -742,7 +742,7 @@ export const useMyPlay = {
       store.commit("setplayingSuccessRecorder", "init");
     } else {
       // 已登录时取用户数据
-      const res = await freelogApp.setUserData("playIdList", []);
+      const res = await freelogApp.setUserData("podcast-playIdList", []);
       if (res.data.msg === "success") {
         store.commit("setData", { key: "playIdList", value: [] });
         store.commit("setData", { key: "playList", value: [] });
@@ -960,7 +960,7 @@ export const useMyPlay = {
         JSON.parse(JSON.stringify({ ...exhibit, child: firstItem }))
       );
       store.commit("setData", { key: "playing", value: true });
-      freelogApp.setUserData("playingId", `${exhibitId}=${playingId}`);
+      freelogApp.setUserData("podcast-playingId", `${exhibitId}=${playingId}`);
     } else if ([2, 3].includes(exhibit.articleInfo.articleType) && exhibit.child) {
       // 场景二：进去合集里点击某一首歌曲
       useMyPlay.addToPlayList({
@@ -971,7 +971,7 @@ export const useMyPlay = {
       store.commit("setData", { key: "playingInfo", value: exhibit });
       store.commit("setplayingSuccessRecorder", JSON.parse(JSON.stringify(exhibit)));
       store.commit("setData", { key: "playing", value: true });
-      freelogApp.setUserData("playingId", `${exhibitId}=${exhibit.child.itemId}`);
+      freelogApp.setUserData("podcast-playingId", `${exhibitId}=${exhibit.child.itemId}`);
     } else {
       // 场景三：点击可播放的展品
       useMyPlay.addToPlayList({
@@ -981,7 +981,7 @@ export const useMyPlay = {
       store.commit("setData", { key: "playingInfo", value: exhibit });
       store.commit("setplayingSuccessRecorder", JSON.parse(JSON.stringify(exhibit)));
       store.commit("setData", { key: "playing", value: true });
-      freelogApp.setUserData("playingId", exhibitId);
+      freelogApp.setUserData("podcast-playingId", exhibitId);
     }
   },
 

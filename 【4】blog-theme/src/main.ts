@@ -59,6 +59,12 @@ myWindow.mount = async () => {
     routes
   });
 
+  router.afterEach((to, from) => {
+    if (from.matched.length > 0) {
+      freelogApp.closeAuth();
+    }
+  });
+
   app = createApp(AppPage);
   app.use(router).use(store).use(lazyPlugin, {});
   app.mount("#app");

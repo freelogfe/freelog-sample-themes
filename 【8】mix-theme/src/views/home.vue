@@ -76,7 +76,7 @@
           </div>
 
           <div class="router-btn">
-            <span @click="switchPage('/blog')">所有文章</span>
+            <span @click="switchPage('/blog')">所有作品</span>
             <img class="arrow" src="../assets/images/home-arrow.png" />
           </div>
         </div>
@@ -96,13 +96,13 @@
           </div>
         </template>
 
-        <div class="view-all-btn" @click="switchPage('/blog')">查看所有文章</div>
+        <div class="view-all-btn" @click="switchPage('/blog')">查看所有作品</div>
       </template>
 
       <!-- 移动端专栏 -->
       <template v-if="displayListCollectionData?.length">
         <div class="header column-border">
-          <div class="sort">专栏</div>
+          <div class="sort">连载 & 专栏</div>
 
           <div class="router-btn">
             <span @click="switchPage('/column')">所有专栏</span>
@@ -207,7 +207,7 @@
       </template>
 
       <div class="header-collection" v-if="displayListCollectionData?.length">
-        <span class="collection-title">专栏</span>
+        <span class="collection-title">连载 & 专栏</span>
         <div class="collection-count">
           <!-- <span>专栏总数{{ collectionsData?.length }}</span> -->
           <span @click="switchPage('/column')">查看全部</span>
@@ -268,7 +268,11 @@ export default {
     const data = reactive({
       sortPopupShow: false,
       createDateSortType: "-1",
-      searchData: { sort: "createDate:-1" } as { keywords?: string; tags?: string; sort?: string },
+      searchData: { sort: "resourceFirstVersionReleaseDate:-1" } as {
+        keywords?: string;
+        tags?: string;
+        sort?: string;
+      },
       blogInfoPopupShow: false,
       isInitial: true
     });

@@ -156,8 +156,8 @@
 
             .tags {
               margin-top: 12px;
-              height: 24px;
-              overflow: hidden;
+              min-height: 24px;
+              line-height: 18px;
             }
           }
 
@@ -584,8 +584,8 @@
 
           .tags {
             margin: 15px 0;
-            height: 18px;
-            overflow: hidden;
+            min-height: 18px;
+            line-height: 18px;
           }
 
           .create-date {

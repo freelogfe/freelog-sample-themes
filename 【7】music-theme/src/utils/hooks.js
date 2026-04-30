@@ -327,7 +327,7 @@ export const useMyAuth = {
 
     if (play) {
       useMyPlay.addToPlayList({ exhibitId, itemId });
-      freelogApp.setUserData("playingId", { exhibitId, itemId });
+      freelogApp.setUserData("music-playingId", { exhibitId, itemId });
 
       // 已授权未获取 url
       const url = itemId
@@ -466,7 +466,7 @@ export const useMyCollection = {
       });
     }
 
-    const res = await freelogApp.setUserData("collectionIdList", collectionIdList);
+    const res = await freelogApp.setUserData("music-collectionIdList", collectionIdList);
     if (res.data.msg === "success") {
       // 等待 store 更新完成
       await store.setData({ key: "collectionIdList", value: collectionIdList });
@@ -552,9 +552,9 @@ export const useMyPlay = {
     // });
 
     if (store.userData.isLogin) {
-      freelogApp.setUserData("playIdList", playIdList);
+      freelogApp.setUserData("music-playIdList", playIdList);
     } else {
-      localStorage.setItem("playIdList", JSON.stringify(playIdList));
+      localStorage.setItem("music-playIdList", JSON.stringify(playIdList));
     }
 
     store.setData({ key: "playList", value: result });
@@ -567,7 +567,7 @@ export const useMyPlay = {
 
     if (!store.userData.isLogin) {
       // 未登录时播放列表取本地
-      // const list = localStorage.getItem("playIdList") || "[]";
+      // const list = localStorage.getItem("music-playIdList") || "[]";
       // const playIdList = JSON.parse(list);
       return store.playIdList
         .map(i => `${i.exhibitId}${i.itemId ?? ""}`)
@@ -589,7 +589,7 @@ export const useMyPlay = {
 
     if (!store.userData.isLogin) {
       // 未登录时存在本地
-      const list = localStorage.getItem("playIdList") || "[]";
+      const list = localStorage.getItem("music-playIdList") || "[]";
       let playIdList = JSON.parse(list);
 
       if (obj.itemId) {
@@ -625,7 +625,7 @@ export const useMyPlay = {
         }
       }
 
-      localStorage.setItem("playIdList", JSON.stringify(playIdList));
+      localStorage.setItem("music-playIdList", JSON.stringify(playIdList));
       store.setData({ key: "playIdList", value: playIdList });
       callback && callback();
       useMyPlay.getPlayList();
@@ -691,7 +691,7 @@ export const useMyPlay = {
         }
       }
 
-      const res = await freelogApp.setUserData("playIdList", playIdList);
+      const res = await freelogApp.setUserData("music-playIdList", playIdList);
 
       if (res.data.msg === "success") {
         store.setData({ key: "playIdList", value: playIdList });
@@ -710,13 +710,13 @@ export const useMyPlay = {
 
     if (!store.userData.isLogin) {
       // 未登录时取本地
-      const list = localStorage.getItem("playIdList") || "[]";
+      const list = localStorage.getItem("music-playIdList") || "[]";
       const playIdList = JSON.parse(list);
       const idIndex = playIdList.findIndex(
         item => `${item.exhibitId}${item.itemId ?? ""}` === `${id}${itemId ?? ""}`
       );
       playIdList.splice(idIndex, 1);
-      localStorage.setItem("playIdList", JSON.stringify(playIdList));
+      localStorage.setItem("music-playIdList", JSON.stringify(playIdList));
 
       const playList = store.playList;
       const index = playList.findIndex(
@@ -744,7 +744,7 @@ export const useMyPlay = {
       );
 
       playIdList.splice(index, 1);
-      const res = await freelogApp.setUserData("playIdList", playIdList);
+      const res = await freelogApp.setUserData("music-playIdList", playIdList);
 
       if (res.data.msg === "success") {
         const playList = store.playList;
@@ -776,14 +776,14 @@ export const useMyPlay = {
 
     if (!store.userData.isLogin) {
       // 未登录时取本地
-      localStorage.setItem("playIdList", "[]");
+      localStorage.setItem("music-playIdList", "[]");
       store.setData({ key: "playIdList", value: [] });
       store.setData({ key: "playList", value: [] });
       store.setData({ key: "playing", value: false });
       store.setData({ key: "playingInfo", value: null });
     } else {
       // 已登录时取用户数据
-      const res = await freelogApp.setUserData("playIdList", []);
+      const res = await freelogApp.setUserData("music-playIdList", []);
       if (res.data.msg === "success") {
         store.setData({ key: "playIdList", value: [] });
         store.setData({ key: "playList", value: [] });
@@ -865,7 +865,7 @@ export const useMyPlay = {
     store.setData({ key: "playingInfo", value: exhibit });
     store.setData({ key: "playing", value: true });
     store.setData({ key: "playerShowStatus", value: true });
-    freelogApp.setUserData("playingId", { exhibitId, itemId });
+    freelogApp.setUserData("music-playingId", { exhibitId, itemId });
     callback && callback();
   },
 
