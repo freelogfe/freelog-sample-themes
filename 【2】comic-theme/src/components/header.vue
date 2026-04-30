@@ -29,13 +29,25 @@
       </div>
 
       <div class="header-top-right">
-        <i
-          class="freelog fl-icon-content"
-          @click="searchPopupShow = true"
-          v-if="!homeHeader && !readerHeader"
-        ></i>
-
-        <img class="menu" src="../assets/images/menu.png" @click="userBoxShow = true" />
+        <img
+          class="header-search"
+          src="../assets/images/icon_search.svg"
+          alt="搜索"
+          @click.stop="searchPopupShow = true"
+          v-if="!readerHeader"
+        />
+        <img
+          class="header-share"
+          src="../assets/images/icon_share.svg"
+          alt="分享"
+          @click.stop="onOpenShare"
+        />
+        <img
+          class="header-menu"
+          src="../assets/images/icon_menu.svg"
+          alt="菜单"
+          @click.stop="userBoxShow = true"
+        />
       </div>
     </div>
 
@@ -283,7 +295,7 @@
 </template>
 
 <script lang="ts">
-import { computed, reactive, ref, toRefs, watch } from "vue";
+import { computed, inject, reactive, ref, toRefs, watch } from "vue";
 import { useStore } from "vuex";
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { useMyLocationHistory, useMyRouter, useSearchHistory } from "@/utils/hooks";
@@ -309,6 +321,9 @@ export default {
   },
 
   setup(props: { homeHeader: boolean }) {
+    const openShare = inject<() => void>("openShare");
+    const onOpenShare = () => openShare?.();
+
     const store = useStore<State>();
     const { query, route, switchPage, routerBack } = useMyRouter();
     const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
@@ -465,6 +480,7 @@ export default {
 
     return {
       ...props,
+      onOpenShare,
       callLogin,
       callLoginOut,
       route,

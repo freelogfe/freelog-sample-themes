@@ -1,7 +1,7 @@
 // 移动端头部
 .mobile-header-wrapper {
   width: 100%;
-  padding: 0px 20px 0px 10px;
+  padding: 0px 20px 0px 20px;
   box-sizing: border-box;
   background: #ffffff;
 
@@ -53,6 +53,18 @@
         display: flex;
         align-items: center;
         justify-content: center;
+      }
+
+      .header-search,
+      .header-share {
+        width: 20px;
+        height: 20px;
+        margin-right: 20px;
+      }
+
+      .header-menu {
+        width: 20px;
+        height: 15px;
       }
 
       .menu {

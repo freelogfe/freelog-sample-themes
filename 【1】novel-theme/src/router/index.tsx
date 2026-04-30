@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Router, Route, Switch, Redirect } from "react-router-dom";
 import { createBrowserHistory } from "history";
 import { HomeScreen } from "../screens/home/home";
@@ -9,30 +10,11 @@ import { ReaderScreen } from "../screens/reader/reader";
 import { judgeDevice } from "../utils/common";
 import { themeList } from "../api/data";
 import { freelogApp } from "freelog-runtime";
+import type { WidgetController } from "freelog-runtime";
+import { ShareContext } from "../contexts/share-context";
+import { globalContext, Theme, UserData } from "../contexts/global-context";
 
-/** 全局数据 */
-interface Global {
-  inMobile: boolean | null;
-  userData: UserData | null;
-  selfConfig: any;
-  theme: Theme;
-  locationHistory: string[];
-  nodeInfo: any;
-}
-
-/** 当前登录用户数据 */
-interface UserData {
-  username: string;
-  headImage: string;
-  mobile: string;
-  isLogin: boolean;
-}
-
-/** 主题数据 */
-interface Theme {
-  gradientColor: string;
-  deriveColor: string;
-}
+export { globalContext } from "../contexts/global-context";
 
 const history = createBrowserHistory();
 
@@ -44,15 +26,6 @@ const routeList = [
   { name: "reader", path: "/reader", component: ReaderScreen }
 ];
 
-export const globalContext = React.createContext<Global>({
-  inMobile: null,
-  userData: null,
-  selfConfig: {},
-  theme: { gradientColor: "", deriveColor: "" },
-  locationHistory: [],
-  nodeInfo: {}
-});
-
 const RouterView = () => {
   const [inMobile, setInMobile] = useState<boolean | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -60,6 +33,23 @@ const RouterView = () => {
   const [nodeInfo, setNodeInfo] = useState<any>({});
   const [theme, setTheme] = useState<Theme>({ gradientColor: "", deriveColor: "" });
   const [locationHistory] = useState<string[]>([]);
+
+  const shareWidgetRef = useRef<WidgetController | null>(null);
+  const inMobileRef = useRef<boolean | null>(null);
+  useEffect(() => {
+    inMobileRef.current = inMobile;
+  }, [inMobile]);
+
+  const setShareWidgetShow = useCallback((value: boolean) => {
+    if (inMobileRef.current) {
+      const el = document.getElementById("mobile-share-wrap");
+      if (el) el.style.display = value ? "flex" : "none";
+    } else {
+      shareWidgetRef.current?.setData({ show: value });
+    }
+  }, []);
+
+  const openShare = useCallback(() => setShareWidgetShow(true), [setShareWidgetShow]);
 
   /** 初始化全局数据 */
   const initGlobalData = async () => {
@@ -84,19 +74,71 @@ const RouterView = () => {
     initGlobalData();
   }, []);
 
+  useEffect(() => {
+    const run = async () => {
+      const container = document.getElementById("app-share");
+      if (!container) return;
+      if (shareWidgetRef.current) await shareWidgetRef.current.unmount();
+
+      const subDeps = await freelogApp.getSelfDepForTheme();
+      const widgetData = subDeps.find(
+        (item: { articleName?: string }) =>
+          item.articleName === "ZhuC/_Freelog插件-主页分享" ||
+          item.articleName === "ZhuC/Freelog插件-主页分享"
+      );
+      if (!widgetData) return;
+
+      const { articleId, parentNid, nid } = widgetData;
+      const topExhibitId = freelogApp.getTopExhibitId();
+      const nodeInfo = freelogApp.nodeInfo as any;
+      const nodeUrl = new URL(freelogApp.getCurrentUrl()).origin;
+      const params = {
+        articleId,
+        parentNid,
+        nid,
+        topExhibitId,
+        container,
+        renderWidgetOptions: {
+          iframe: true,
+          data: {
+            exhibit: {
+              ...nodeInfo,
+              avatarUrl: `https://image.freelog.cn/avatar/${nodeInfo?.ownerUserId || ""}`,
+              nodeUrl,
+              exhibitId: nodeInfo.nodeId || topExhibitId,
+              exhibitTitle: nodeInfo.nodeName || nodeInfo.nodeShortDescription
+            },
+            type: "小说",
+            show: false,
+            onClose: () => setShareWidgetShow(false)
+          }
+        }
+      };
+      shareWidgetRef.current = await freelogApp.mountArticleWidget(params);
+    };
+    run();
+    return () => {
+      void shareWidgetRef.current?.unmount();
+      shareWidgetRef.current = null;
+    };
+  }, [setShareWidgetShow]);
+
   return (
     <globalContext.Provider
       value={{ inMobile, userData, selfConfig, theme, locationHistory, nodeInfo }}
     >
-      <Router history={history}>
-        <Switch>
-          <Route path="/" exact render={() => <Redirect to="/home" />} />
-          {routeList.map(route => (
-            <Route path={route.path} component={route.component} key={route.name}></Route>
-          ))}
-          <Route path="*" exact render={() => <Redirect to="/home" />} />
-        </Switch>
-      </Router>
+      <ShareContext.Provider value={{ openShare }}>
+        {createPortal(<div id="app-share" className="app-share" />, document.body)}
+        <Router history={history}>
+          <Switch>
+            <Route path="/" exact render={() => <Redirect to="/home" />} />
+            {routeList.map(route => (
+              <Route path={route.path} component={route.component} key={route.name}></Route>
+            ))}
+            <Route path="*" exact render={() => <Redirect to="/home" />} />
+          </Switch>
+        </Router>
+      </ShareContext.Provider>
     </globalContext.Provider>
   );
 };

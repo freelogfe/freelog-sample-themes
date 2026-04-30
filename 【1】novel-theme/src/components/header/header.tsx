@@ -1,13 +1,15 @@
 import { freelogApp } from "freelog-runtime";
 import "./header.scss";
-// import MyLogo from "../../assets/images/logo.png";
-import MyMenu from "../../assets/images/menu.png";
+import IconSearch from "../../assets/images/icon_search.svg";
+import IconShare from "../../assets/images/icon_share.svg";
+import IconMenu from "../../assets/images/icon_menu.svg";
 import DefaultAvatar from "../../assets/images/default-avatar.png";
 import BackArrow from "../../assets/images/arrow.png";
 import { useState, useEffect, useCallback, useContext, useMemo } from "react";
 import { useMyHistory, useMyLocationHistory, useSearchHistory } from "../../utils/hooks";
 import { callLogin, callLoginOut } from "../../api/freelog";
-import { globalContext } from "../../router";
+import { globalContext } from "../../contexts/global-context";
+import { ShareContext } from "../../contexts/share-context";
 import CSSTransition from "react-transition-group/CSSTransition";
 
 /** 页面头部 */
@@ -20,6 +22,7 @@ export const Header = (props: {
   const history = useMyHistory();
   const { locationHistory } = useMyLocationHistory();
   const { inMobile, userData, nodeInfo } = useContext(globalContext);
+  const { openShare } = useContext(ShareContext);
   const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
   const [searchKey, setSearchKey] = useState("");
   const [search, setSearch] = useState(0);
@@ -153,11 +156,35 @@ export const Header = (props: {
           )}
 
           <div className="header-top-right">
-            {!props.homeHeader && !props.readerHeader && (
-              <i className="freelog fl-icon-content" onClick={() => setSearchPopupShow(true)}></i>
+            {!props.readerHeader && (
+              <img
+                className="header-search"
+                src={IconSearch}
+                alt="搜索"
+                onClick={e => {
+                  e.stopPropagation();
+                  setSearchPopupShow(true);
+                }}
+              />
             )}
-
-            <img className="menu" src={MyMenu} alt="菜单" onClick={() => setUserBoxShow(true)} />
+            <img
+              className="header-share"
+              src={IconShare}
+              alt="分享"
+              onClick={e => {
+                e.stopPropagation();
+                openShare();
+              }}
+            />
+            <img
+              className="header-menu"
+              src={IconMenu}
+              alt="菜单"
+              onClick={e => {
+                e.stopPropagation();
+                setUserBoxShow(true);
+              }}
+            />
           </div>
         </div>
 

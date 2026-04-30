@@ -76,7 +76,7 @@
           </div>
 
           <div class="router-btn">
-            <span @click="switchPage('/blog')">所有文章</span>
+            <span @click="switchPage('/blog')">所有作品</span>
             <img class="arrow" src="../assets/images/home-arrow.png" />
           </div>
         </div>
@@ -96,13 +96,13 @@
           </div>
         </template>
 
-        <div class="view-all-btn" @click="switchPage('/blog')">查看所有文章</div>
+        <div class="view-all-btn" @click="switchPage('/blog')">查看所有作品</div>
       </template>
 
       <!-- 移动端专栏 -->
       <template v-if="displayListCollectionData?.length">
         <div class="header column-border">
-          <div class="sort">专栏</div>
+          <div class="sort">连载 & 专栏</div>
 
           <div class="router-btn">
             <span @click="switchPage('/column')">所有专栏</span>
@@ -124,6 +124,8 @@
 
     <!-- PC -->
     <div class="home-body" v-if="!inMobile">
+      <home-float-menu />
+
       <template
         v-if="
           $route.path === '/home' &&
@@ -205,7 +207,7 @@
       </template>
 
       <div class="header-collection" v-if="displayListCollectionData?.length">
-        <span class="collection-title">专栏</span>
+        <span class="collection-title">连载 & 专栏</span>
         <div class="collection-count">
           <!-- <span>专栏总数{{ collectionsData?.length }}</span> -->
           <span @click="switchPage('/column')">查看全部</span>
@@ -247,7 +249,8 @@ export default {
 
   components: {
     "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
-    "my-article-v2": defineAsyncComponent(() => import("../components/article-v2.vue"))
+    "my-article-v2": defineAsyncComponent(() => import("../components/article-v2.vue")),
+    "home-float-menu": defineAsyncComponent(() => import("../components/home-float-menu.vue"))
   },
 
   setup() {
@@ -259,13 +262,17 @@ export default {
       ?.split(",")
       ?.map((tag: string) => tag.trim()) // 去掉每个字符串的前后空格
       ?.filter((ele: string) => ele);
-    const { query, route, router, switchPage } = useMyRouter();
+    const { query, route, switchPage } = useMyRouter();
     const datasOfGetList = useGetList();
 
     const data = reactive({
       sortPopupShow: false,
       createDateSortType: "-1",
-      searchData: { sort: "createDate:-1" } as { keywords?: string; tags?: string; sort?: string },
+      searchData: { sort: "resourceFirstVersionReleaseDate:-1" } as {
+        keywords?: string;
+        tags?: string;
+        sort?: string;
+      },
       blogInfoPopupShow: false,
       isInitial: true
     });

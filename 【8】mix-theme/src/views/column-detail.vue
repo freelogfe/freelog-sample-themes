@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { freelogApp } from "freelog-runtime";
-import { ref, onBeforeMount, defineAsyncComponent, onMounted, nextTick, watchEffect } from "vue";
+import { ref, onBeforeMount, defineAsyncComponent, nextTick, watchEffect } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 import { useMyRouter, useMyScroll } from "@/utils/hooks";

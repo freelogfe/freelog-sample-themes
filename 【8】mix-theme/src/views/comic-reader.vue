@@ -348,7 +348,7 @@
           </template>
         </template>
 
-        <template v-else>
+        <template v-else-if="comicInfo?.articleInfo != null && comicInfo.articleInfo.status !== 1">
           <div class="freeze-exhibit">
             <div class="icon">
               <i
@@ -383,13 +383,13 @@
             <div class="operater-btn-label">目录</div>
           </div>
           <!-- 收藏 -->
-          <div class="operate-btn" @click="operateShelf(comicInfo)">
+          <!-- <div class="operate-btn" @click="operateShelf(comicInfo)">
             <i
               class="freelog"
               :class="`fl-icon-${isCollected ? 'shoucangxiaoshuoyishoucang' : 'shoucangxiaoshuo'}`"
             ></i>
             <div class="operater-btn-label">{{ isCollected ? "取消收藏" : "加入收藏" }}</div>
-          </div>
+          </div> -->
           <!-- 阅读模式 -->
           <div class="operate-btn" @click.stop="modeMenuShow = true">
             <i class="freelog fl-icon-shujia1"></i>
@@ -1252,7 +1252,7 @@
           </template>
         </template>
 
-        <template v-else>
+        <template v-else-if="comicInfo?.articleInfo != null && comicInfo.articleInfo.status !== 1">
           <div class="freeze-exhibit">
             <div class="icon">
               <i
@@ -1528,7 +1528,7 @@
                   jumpPage = 1;
                   setCatalogueModal();
                   await handleReaderHistory(item);
-                  switchPage('/reader', {
+                  switchPage('/comic-reader', {
                     id: comicInfo?.exhibitId,
                     collection: true,
                     subId: item.itemId
@@ -1860,7 +1860,7 @@ export default {
           await handleReaderHistory(subIdInfo);
         }
 
-        replacePage("/reader", {
+        replacePage("/comic-reader", {
           id: data.comicInfo?.exhibitId,
           collection: true,
           subId: preSubID
@@ -1884,7 +1884,7 @@ export default {
           await handleReaderHistory(subIdInfo);
         }
 
-        replacePage("/reader", {
+        replacePage("/comic-reader", {
           id: data.comicInfo?.exhibitId,
           collection: true,
           subId: nextSubID
@@ -1963,7 +1963,7 @@ export default {
 
       /** 跳转详情 */
       toDetailFromRecommend(exhibitId: string) {
-        switchPage("/detail", {
+        switchPage("/comic-detail", {
           id: exhibitId
         });
       },

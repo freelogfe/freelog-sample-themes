@@ -124,6 +124,8 @@
 
     <!-- PC -->
     <div class="home-body" v-if="!inMobile">
+      <home-float-menu />
+
       <template
         v-if="
           $route.path === '/home' &&
@@ -247,7 +249,8 @@ export default {
 
   components: {
     "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
-    "my-article-v2": defineAsyncComponent(() => import("../components/article-v2.vue"))
+    "my-article-v2": defineAsyncComponent(() => import("../components/article-v2.vue")),
+    "home-float-menu": defineAsyncComponent(() => import("../components/home-float-menu.vue"))
   },
 
   setup() {
@@ -265,7 +268,11 @@ export default {
     const data = reactive({
       sortPopupShow: false,
       createDateSortType: "-1",
-      searchData: { sort: "createDate:-1" } as { keywords?: string; tags?: string; sort?: string },
+      searchData: { sort: "resourceFirstVersionReleaseDate:-1" } as {
+        keywords?: string;
+        tags?: string;
+        sort?: string;
+      },
       blogInfoPopupShow: false,
       isInitial: true
     });

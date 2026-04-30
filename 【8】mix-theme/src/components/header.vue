@@ -40,13 +40,25 @@
         </div>
 
         <div class="header-top-right">
-          <i
-            class="freelog fl-icon-content"
-            @click="searchPopupShow = true"
+          <img
+            class="header-search"
+            src="../assets/images/icon_search.svg"
+            alt="搜索"
+            @click.stop="searchPopupShow = true"
             v-if="!($route.path === '/reader')"
-          ></i>
-
-          <img class="menu" src="../assets/images/menu@3x.png" @click="userBoxShow = true" />
+          />
+          <img
+            class="header-share"
+            src="../assets/images/icon_share.svg"
+            alt="分享"
+            @click.stop="onOpenShare"
+          />
+          <img
+            class="header-menu"
+            src="../assets/images/icon_menu.svg"
+            alt="菜单"
+            @click.stop="userBoxShow = true"
+          />
         </div>
       </div>
 
@@ -98,7 +110,7 @@
                 "
               >
                 <i class="freelog fl-icon-tuwen"></i>
-                <div class="btn-label">所有文章</div>
+                <div class="btn-label">所有作品</div>
               </div>
               <div
                 class="btn"
@@ -109,7 +121,7 @@
                 "
               >
                 <i class="freelog fl-icon-bokezhuanlan"></i>
-                <div class="btn-label">专栏</div>
+                <div class="btn-label">连载 & 专栏</div>
               </div>
               <div
                 class="btn"
@@ -313,7 +325,7 @@
 </template>
 
 <script lang="ts">
-import { computed, reactive, ref, toRefs, watch } from "vue";
+import { computed, inject, reactive, ref, toRefs, watch } from "vue";
 import { useMyLocationHistory, useMyRouter, useSearchHistory } from "../utils/hooks";
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
@@ -323,6 +335,9 @@ export default {
   name: "my-header",
 
   setup(props: any) {
+    const openShare = inject<() => void>("openShare");
+    const onOpenShare = () => openShare?.();
+
     const nodeInfo = freelogApp.nodeInfo;
     const store = useStore();
     const { query, route, switchPage, routerBack } = useMyRouter();
@@ -349,11 +364,11 @@ export default {
         path: "/home"
       },
       {
-        label: "所有文章",
+        label: "所有作品",
         path: "/blog"
       },
       {
-        label: "专栏",
+        label: "连载 & 专栏",
         path: "/column"
       }
     ];
@@ -461,7 +476,7 @@ export default {
       register() {
         const url = freelogApp.getCurrentUrl();
         const mainUrl = url.split("?")[0];
-        const reg = (window as any).HOST_END==='.cn'? /\.([^.]*)\.cn/: /\.([^.]*)\.com/;
+        const reg = (window as any).HOST_END === ".cn" ? /\.([^.]*)\.cn/ : /\.([^.]*)\.com/;
         const domain = reg.exec(mainUrl);
         const domainName = domain ? domain[1] : "freelog";
         window.open(`https://user.${domainName}${(window as any).HOST_END}/logon`);
@@ -510,6 +525,7 @@ export default {
 
     return {
       ...props,
+      onOpenShare,
       ...nodeInfo,
       callLogin,
       callLoginOut,

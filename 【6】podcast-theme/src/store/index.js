@@ -59,8 +59,8 @@ export default new Vuex.Store({
       const userData = await freelogApp.getCurrentUser();
       const [selfConfig, collectionIdListResponse, playingIdResponse] = await Promise.all([
         freelogApp.getSelfPropertyForTheme(),
-        freelogApp.getUserData("collectionIdList"),
-        freelogApp.getUserData("playingId")
+        freelogApp.getUserData("podcast-collectionIdList"),
+        freelogApp.getUserData("podcast-playingId")
       ]);
 
       // 兼容历史数据
@@ -105,7 +105,7 @@ export default new Vuex.Store({
       let playIdList = [];
       if (context.state.userData.isLogin) {
         // 登录时播放列表取用户数据
-        const playIdListResponse = await freelogApp.getUserData("playIdList");
+        const playIdListResponse = await freelogApp.getUserData("podcast-playIdList");
         playIdList =
           playIdListResponse?.data?.data?.filter(
             ele =>
@@ -115,16 +115,16 @@ export default new Vuex.Store({
           ) || [];
 
         // 如果此时本地有播放列表，那需要自动添加至用户数据
-        const list = localStorage.getItem("playIdList") || "[]";
+        const list = localStorage.getItem("podcast-playIdList") || "[]";
         const localPlayIdList = JSON.parse(list);
         if (localPlayIdList.length) {
           playIdList = [...new Set([...playIdList, ...localPlayIdList])];
-          freelogApp.setUserData("playIdList", playIdList);
-          localStorage.setItem("playIdList", "[]");
+          freelogApp.setUserData("podcast-playIdList", playIdList);
+          localStorage.setItem("podcast-playIdList", "[]");
         }
       } else {
         // 未登录时播放列表取本地
-        const list = localStorage.getItem("playIdList") || "[]";
+        const list = localStorage.getItem("podcast-playIdList") || "[]";
         playIdList = JSON.parse(list);
       }
       context.commit("setData", { key: "playIdList", value: playIdList || [] });

@@ -21,6 +21,16 @@ body {
   margin: 0;
 }
 
+.app-share {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  z-index: 1000;
+}
+
 code {
   // font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
