@@ -6,7 +6,7 @@ import { judgeDevice, judgeIOSDevice } from "@/utils/common";
 // @ts-ignore
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { currentTheme, toggleTheme, ThemeType } from "@/utils/theme-manager";
-import { freelogApp } from "freelog-runtime";
+import { freelogApp, widgetApi } from "freelog-runtime";
 
 interface UserData {
   isLogin: boolean | null;
@@ -103,6 +103,14 @@ export const useGlobalStore = defineStore("global", {
         freelogApp.getUserData("playMode")
       ]);
 
+      const widgetData = widgetApi.getData();
+      const subDepsData = widgetData.themeInfo.versionInfo.dependencyTree.find(
+        (item: any) => item.articleName === "ZhuC/Freelog插件-评论插件"
+      );
+      const commentWidgetData = await freelogApp.getExhibitDepInfo(widgetData.themeInfo.exhibitId, {
+        articleNids: subDepsData?.nid || ""
+      });
+
       const collectionIdList = collectionIdListResponse?.data?.data || [];
       console.log("collectionIdList", collectionIdList);
       const playingId = playingIdResponse?.data?.data;
@@ -128,7 +136,7 @@ export const useGlobalStore = defineStore("global", {
 
       // 自定义选项
       this.selfConfig = selfConfig;
-      this.selfWidgetConfig = selfWidgetConfig.data.data;
+      this.selfWidgetConfig = commentWidgetData.data.data[0].articleProperty;
 
       // 获取签约列表
       useMyAuth.getSignedList();

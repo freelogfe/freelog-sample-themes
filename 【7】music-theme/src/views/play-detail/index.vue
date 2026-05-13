@@ -1533,7 +1533,7 @@ export default {
       }
       this.loading = false;
       await this.$nextTick();
-      if (this.store.selfConfig.options_commentStatus === "开启") {
+      if (this.store.selfWidgetConfig.options_commentStatus === "开启") {
         await this.mountCommentWidget();
       }
     },
