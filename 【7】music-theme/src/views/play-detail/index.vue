@@ -1088,7 +1088,7 @@ export default {
     },
 
     commentLayoutIsDrawer() {
-      return this.store.selfConfig?.options_commentLayout === "drawer";
+      return this.store.selfWidgetConfig?.options_commentLayout === "drawer";
     }
   },
 
@@ -1156,7 +1156,7 @@ export default {
 
       await this.unmountCommentWidget();
 
-      const subDeps = await freelogApp.getSelfDepForTheme();
+      const subDeps = freelogApp.getSelfDepForTheme();
       const widgetData = subDeps.find(item => item.articleName === "ZhuC/Freelog插件-评论插件");
       if (!widgetData) return;
 
@@ -1164,7 +1164,7 @@ export default {
       const topExhibitId = freelogApp.getTopExhibitId();
       const exhibit = this.getShareExhibit();
       const layout =
-        this.store.selfConfig?.options_commentLayout === "drawer" ? "drawer" : "vertical";
+        this.store.selfWidgetConfig.options_commentLayout === "drawer" ? "drawer" : "vertical";
 
       const isNodeAdmin = this.store.userData.isOwner;
 

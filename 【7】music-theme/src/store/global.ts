@@ -23,6 +23,7 @@ export interface State {
   isIOS: boolean | null;
   userData: UserData;
   selfConfig: Record<string, any>;
+  selfWidgetConfig: Record<string, any>;
   locationHistory: string[];
   routerMode: number;
   shareInfo: ShareInfo;
@@ -52,6 +53,7 @@ export const useGlobalStore = defineStore("global", {
       isIOS: null, // 是否 IOS 设备
       userData: { isLogin: null }, // 当前登录的用户数据
       selfConfig: {}, // 自定义配置
+      selfWidgetConfig: {}, // 自定义插件配置
       locationHistory: [], // 历史路由
       routerMode: 1, // 当前路由模式 1-push 2-back
       shareInfo: { show: false, exhibit: null }, // 分享数据
@@ -87,13 +89,20 @@ export const useGlobalStore = defineStore("global", {
       // freelogApp.setUserData("collectionIdList", []);
 
       const userData = freelogApp.getCurrentUser();
-      const [selfConfig, collectionIdListResponse, playingIdResponse, playModeResponse] =
-        await Promise.all([
-          freelogApp.getSelfPropertyForTheme(),
-          freelogApp.getUserData("music-collectionIdList"),
-          freelogApp.getUserData("music-playingId"),
-          freelogApp.getUserData("playMode")
-        ]);
+      const [
+        selfConfig,
+        selfWidgetConfig,
+        collectionIdListResponse,
+        playingIdResponse,
+        playModeResponse
+      ] = await Promise.all([
+        freelogApp.getSelfPropertyForTheme(),
+        freelogApp.getSelfProperty(),
+        freelogApp.getUserData("music-collectionIdList"),
+        freelogApp.getUserData("music-playingId"),
+        freelogApp.getUserData("playMode")
+      ]);
+
       const collectionIdList = collectionIdListResponse?.data?.data || [];
       console.log("collectionIdList", collectionIdList);
       const playingId = playingIdResponse?.data?.data;
@@ -119,6 +128,7 @@ export const useGlobalStore = defineStore("global", {
 
       // 自定义选项
       this.selfConfig = selfConfig;
+      this.selfWidgetConfig = selfWidgetConfig.data.data;
 
       // 获取签约列表
       useMyAuth.getSignedList();
