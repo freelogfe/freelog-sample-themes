@@ -14,13 +14,13 @@ const baseMenuList = [
     label: "使用此主题",
     desc: "官方示例主题, 可免费使用",
     action: "theme" as const
+  },
+  {
+    icon: "freelog fl-icon-fenxiang",
+    label: "分享节点",
+    desc: "点击下载二维码, 分享你的节点",
+    action: "share" as const
   }
-  // {
-  //   icon: "freelog fl-icon-fenxiang",
-  //   label: "分享节点",
-  //   desc: "点击下载二维码, 分享你的节点",
-  //   action: "share" as const
-  // }
 ];
 
 const themeMode = computed(() => {
