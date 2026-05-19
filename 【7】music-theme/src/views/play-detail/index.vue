@@ -27,10 +27,7 @@
         <div class="top-area">
           <!-- 封面 -->
           <div class="banner">
-            <img
-              :src="store.selfConfig.options_node_banner || MobileDefaultBanner"
-              alt="节点封面"
-            />
+            <img :src="store.nodeInfo.coverImage || MobileDefaultBanner" alt="节点封面" />
           </div>
           <!-- 信息 -->
           <div class="info-area">
