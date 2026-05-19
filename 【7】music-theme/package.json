@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "element-plus": "^2.7.7",
-    "freelog-runtime": "5.0.5",
+    "freelog-runtime": "5.0.6",
     "pinia": "^2.1.7",
     "qrcode.vue": "3.4.1",
     "vue": "^3.4.29",

@@ -27,6 +27,12 @@ window.mount = async () => {
   app.use(pinia);
   app.use(router);
 
+  router.afterEach((to, from) => {
+    if (from.matched.length > 0) {
+      freelogApp.closeAuth();
+    }
+  });
+
   const store = useGlobalStore();
   await store.initStoreData();
 
