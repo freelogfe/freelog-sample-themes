@@ -20,6 +20,12 @@ myWindow.mount = async () => {
     routes
   });
 
+  router.afterEach((to, from) => {
+    if (from.matched.length > 0) {
+      freelogApp.closeAuth();
+    }
+  });
+
   initFreelogApp();
 
   await (freelogApp as any).mapShareUrl(mapRoutes);

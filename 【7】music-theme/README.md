@@ -3,7 +3,6 @@
 格式为【key: 属性说明】
 
 - options_entranceShow: 主题入口按钮显示
-- options_node_banner：封面
 - options_node_logo：头像
 
 ## 支持资源类型

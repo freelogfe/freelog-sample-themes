@@ -12,7 +12,7 @@ const { selfConfig, nodeInfo } = storeToRefs(store);
 const currentBanner = ref("");
 
 watch(
-  () => selfConfig.value.options_node_banner,
+  () => nodeInfo.value.coverImage,
   newBanner => {
     console.log("newBanner", newBanner);
     if (newBanner) {
@@ -50,7 +50,7 @@ onMounted(() => {
     :style="{ marginTop: store.nodeInfo.nodeLogo ? '-158px' : '-98px' }"
   >
     <!-- 节点封面 -->
-    <div class="node-banner" :class="selfConfig.options_node_banner && 'background-shadow'">
+    <div class="node-banner" :class="nodeInfo.coverImage && 'background-shadow'">
       <img :src="currentBanner" alt="节点封面" />
     </div>
 
@@ -83,7 +83,7 @@ onMounted(() => {
   <div class="mobile-home-banner-wrap" v-else>
     <!-- 节点封面 -->
     <div class="node-banner">
-      <img :src="selfConfig.options_node_banner || MobileDefaultBanner" alt="节点封面" />
+      <img :src="nodeInfo.coverImage || MobileDefaultBanner" alt="节点封面" />
     </div>
 
     <!-- 节点信息 -->

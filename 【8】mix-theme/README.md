@@ -20,4 +20,3 @@
 
 - entranceShow: 主题入口按钮显示
 - tags: 筛选分类标签【标签与标签之间以英文逗号进行分割，如：技术,宣传】
-- options_banner: banner 图片网络地址

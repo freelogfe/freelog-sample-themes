@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useGlobalStore } from "@/store/global";
 import darkIconShare from "@/assets/images/dark_icon_share.svg";
 import lightIconShare from "@/assets/images/light_icon_share.svg";
 import darkIconComments from "@/assets/images/dark_icon_comments.svg";
 import lightIconComments from "@/assets/images/light_icon_comments.svg";
+
+const store = useGlobalStore();
 
 const props = withDefaults(
   defineProps<{
@@ -46,6 +49,7 @@ const commentIconSrc = computed(() =>
 
 <template>
   <div
+    v-if="store.inMobile === false"
     class="detail-float-menu"
     :class="`detail-float-menu--${theme}`"
     data-name="评论插件-侧栏浮钮"

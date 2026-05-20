@@ -29,13 +29,18 @@ const data = reactive({
 
 const sortOptions = ["最近发布", "最早发布"];
 const activeSort = ref(sortOptions[0]);
-const tagsList: string[] = [
-  "全部",
-  ...((store.state.selfConfig.options_tags || store.state.selfConfig.tags)
-    ?.split(",")
-    ?.map((tag: string) => tag.trim())
-    ?.filter(Boolean) || [])
-];
+function normalizeThemeTagInput(raw: unknown): string[] {
+  if (raw == null || raw === "") return [];
+  if (Array.isArray(raw)) return raw.map(t => String(t).trim()).filter(Boolean);
+  if (typeof raw === "string" && raw.trim())
+    return raw
+      .split(",")
+      .map((tag: string) => tag.trim())
+      .filter(Boolean);
+  return [];
+}
+const fromSettingTags = normalizeThemeTagInput((store.state.nodeInfo as any)?.exhibitMatchTags);
+const tagsList: string[] = ["全部", ...fromSettingTags];
 const activeFilter = ref(tagsList[0]);
 
 const setFilter = (option: string) => {
