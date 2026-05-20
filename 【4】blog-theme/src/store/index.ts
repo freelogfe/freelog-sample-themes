@@ -32,7 +32,8 @@ export default createStore({
     locationHistory: [] as HistoryItem[],
     authIds: [] as string[], // 授权集合，用于刷新列表授权状态
     isIOS: false,
-    maskLoading: false
+    maskLoading: false,
+    nodeInfo: {} as any
   },
 
   mutations: {
@@ -47,6 +48,7 @@ export default createStore({
     async initData(context) {
       const userData = freelogApp.getCurrentUser();
       const selfConfig = await freelogApp.getSelfPropertyForTheme();
+      const nodeInfo = freelogApp.nodeInfo;
       console.log("getSelfProperty", selfConfig);
 
       const inMobile = judgeDevice();
@@ -66,6 +68,7 @@ export default createStore({
       context.commit("setData", { key: "inMobile", value: inMobile });
       context.commit("setData", { key: "theme", value: theme });
       context.commit("setData", { key: "locationHistory", value: [] });
+      context.commit("setData", { key: "nodeInfo", value: nodeInfo });
 
       const app = document.getElementById("app");
       app?.setAttribute(

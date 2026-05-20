@@ -151,12 +151,16 @@ const HomeBody = (props: {
   myloading: boolean;
 }) => {
   const { novelList, searching, total, tags, keywords, loading, myloading } = props;
-  const { inMobile, userData, selfConfig } = useContext(globalContext);
-  const tagsList: string[] =
-    (selfConfig.options_tags || selfConfig.tags)
-      ?.split(",")
-      ?.map((tag: string) => tag.trim()) // 去掉每个字符串的前后空格
-      ?.filter(Boolean) || [];
+  const { inMobile, userData, nodeInfo } = useContext(globalContext);
+  const rawTags = (nodeInfo as any)?.exhibitMatchTags;
+  const tagsList: string[] = Array.isArray(rawTags)
+    ? rawTags.map((t: unknown) => String(t).trim()).filter(Boolean)
+    : typeof rawTags === "string" && rawTags.trim()
+      ? rawTags
+          .split(",")
+          .map((tag: string) => tag.trim())
+          .filter(Boolean)
+      : [];
   const { myShelf } = useMyShelf();
   const history = useMyHistory();
   const [filterBoxShow, setFilterBoxShow] = useState(false);

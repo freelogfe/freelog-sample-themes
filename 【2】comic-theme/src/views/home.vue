@@ -210,10 +210,15 @@ export default {
 
   setup() {
     const store = useStore<State>();
-    const tagsList: string[] = (store.state.selfConfig.options_tags || store.state.selfConfig.tags)
-      ?.split(",")
-      ?.map((tag: string) => tag.trim()) // 去掉每个字符串的前后空格
-      ?.filter(Boolean);
+    const rawTags = store.state.nodeInfo?.exhibitMatchTags;
+    const tagsList: string[] = Array.isArray(rawTags)
+      ? rawTags.map((t: unknown) => String(t).trim()).filter(Boolean)
+      : typeof rawTags === "string" && rawTags.trim()
+      ? rawTags
+          .split(",")
+          .map((tag: string) => tag.trim())
+          .filter(Boolean)
+      : [];
     const { query, route, router, switchPage } = useMyRouter();
     const { scrollTop, clientHeight, scrollHeight, scrollTo } = useMyScroll();
     useMyShelf();

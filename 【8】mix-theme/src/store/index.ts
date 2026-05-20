@@ -64,6 +64,7 @@ export default createStore({
     async initData(context) {
       const userData = freelogApp.getCurrentUser();
       const selfConfig = await freelogApp.getSelfPropertyForTheme();
+      const nodeInfo = freelogApp.nodeInfo;
       console.log("getSelfProperty", selfConfig);
 
       const inMobile = judgeDevice();
@@ -83,6 +84,7 @@ export default createStore({
       context.commit("setData", { key: "inMobile", value: inMobile });
       context.commit("setData", { key: "theme", value: theme });
       context.commit("setData", { key: "locationHistory", value: [] });
+      context.commit("setData", { key: "nodeInfo", value: nodeInfo });
 
       const app = document.getElementById("app");
       app?.setAttribute(

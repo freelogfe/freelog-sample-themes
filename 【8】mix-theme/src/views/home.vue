@@ -258,10 +258,15 @@ export default {
 
     const store = useStore();
     const { scrollTo } = useMyScroll();
-    const tagsList: string[] = store.state.selfConfig.options_tags
-      ?.split(",")
-      ?.map((tag: string) => tag.trim()) // 去掉每个字符串的前后空格
-      ?.filter((ele: string) => ele);
+    const rawTags = (nodeInfo as any)?.exhibitMatchTags;
+    const tagsList: string[] = Array.isArray(rawTags)
+      ? rawTags.map((t: unknown) => String(t).trim()).filter(Boolean)
+      : typeof rawTags === "string" && rawTags.trim()
+      ? rawTags
+          .split(",")
+          .map((tag: string) => tag.trim())
+          .filter(Boolean)
+      : [];
     const { query, route, switchPage } = useMyRouter();
     const datasOfGetList = useGetList();
 
@@ -301,7 +306,7 @@ export default {
     }, 300); // 300ms 防抖延迟
 
     const banner = computed(() => {
-      return store.state.selfConfig.options_banner;
+      return (nodeInfo as any)?.coverImage || "";
     });
 
     const inMobile = computed(() => {
