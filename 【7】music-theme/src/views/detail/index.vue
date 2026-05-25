@@ -1295,6 +1295,7 @@ export default {
       return {
         isLoggedIn: this.store.userData.isLogin,
         avatarUrl: this.store.userData.headImage,
+        currentUserId: this.store.userData.userId,
         theme: this.commentFloatTheme,
         pageBackground: pick("--bg-color"),
         textPrimary: pick("--text-eighth-color"),
@@ -1348,8 +1349,8 @@ export default {
             onLogin: () => callLogin(),
             ...this.getCommentWidgetThemePayload()
           }
-        }
-        // widget_entry: "https://localhost:8203"
+        },
+        widget_entry: "https://localhost:8203"
       };
       this.commentWidget = await freelogApp.mountArticleWidget(params);
     },
