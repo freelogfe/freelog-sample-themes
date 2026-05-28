@@ -849,6 +849,14 @@ export default {
         }
       },
       deep: true
+    },
+
+    commentFloatTheme() {
+      this.syncCommentWidgetHostData();
+    },
+
+    "store.userData.isLogin"() {
+      this.syncCommentWidgetHostData();
     }
   },
 
@@ -1299,8 +1307,15 @@ export default {
         theme: this.commentFloatTheme,
         pageBackground: pick("--bg-color"),
         textPrimary: pick("--text-eighth-color"),
-        textSecondary: pick("--text-sixth-color")
+        textSecondary: pick("--text-sixth-color"),
+        borderColor: pick("--border-color")
       };
+    },
+
+    /** 换肤 / 登录态变化时同步评论插件 token，避免 iframe 内仍用旧色值 */
+    syncCommentWidgetHostData() {
+      if (!this.commentWidget) return;
+      this.commentWidget.setData(this.getCommentWidgetThemePayload());
     },
 
     async unmountCommentWidget() {
