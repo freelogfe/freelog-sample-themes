@@ -800,7 +800,7 @@
       class="play-detail-comment-float"
       :theme="commentFloatTheme"
       :comment-count="0"
-      :show-comment-button="commentLayoutIsDrawer"
+      :show-comment-button="commentLayoutIsOpen && commentLayoutIsDrawer"
       @share="shareFromFloat"
       @comment="commentFromFloat"
     />
@@ -1094,6 +1094,10 @@ export default {
 
     commentLayoutIsDrawer() {
       return this.store.selfWidgetConfig?.options_commentLayout === "drawer";
+    },
+
+    commentLayoutIsOpen() {
+      return this.store.selfWidgetConfig?.options_commentStatus === "开启";
     }
   },
 
@@ -1123,6 +1127,33 @@ export default {
 
     setCommentWidgetShow(value) {
       this.commentWidget?.setData({ show: value });
+      if (!this.commentLayoutIsDrawer) return;
+
+      const app = document.getElementById("app");
+      if (app) app.style.overflow = value ? "hidden" : "";
+
+      const container = document.getElementById("app-vertical-comment");
+      const iframe = container?.querySelector("iframe");
+      if (!iframe) return;
+
+      if (value) {
+        iframe.dataset.commentDrawerPrevStyle = iframe.getAttribute("style") ?? "";
+        Object.assign(iframe.style, {
+          position: "fixed",
+          inset: "0",
+          width: "100%",
+          height: "100%",
+          zIndex: "9999",
+          border: "none",
+          pointerEvents: "auto"
+        });
+        return;
+      }
+
+      const prev = iframe.dataset.commentDrawerPrevStyle ?? "";
+      if (prev) iframe.setAttribute("style", prev);
+      else iframe.removeAttribute("style");
+      delete iframe.dataset.commentDrawerPrevStyle;
     },
 
     /**
@@ -1158,6 +1189,17 @@ export default {
       if (!this.commentWidget) return;
       await this.commentWidget.unmount();
       this.commentWidget = null;
+
+      const app = document.getElementById("app");
+      if (app) app.style.overflow = "";
+
+      const iframe = document.getElementById("app-vertical-comment")?.querySelector("iframe");
+      if (iframe) {
+        const prev = iframe.dataset.commentDrawerPrevStyle ?? "";
+        if (prev) iframe.setAttribute("style", prev);
+        else iframe.removeAttribute("style");
+        delete iframe.dataset.commentDrawerPrevStyle;
+      }
     },
 
     /**
