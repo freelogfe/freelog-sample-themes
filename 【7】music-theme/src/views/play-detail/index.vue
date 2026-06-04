@@ -532,16 +532,7 @@
               class="tag in-pc"
               v-for="value in subID ? voiceInfo?.articleInfo?.articleTags : voiceInfo?.tags"
               :key="value"
-              @click="
-                () => {
-                  const query = {};
-                  query.tags = value;
-                  $router.myPush({
-                    path: '/search-list',
-                    query
-                  });
-                }
-              "
+              @click="searchByTag(value)"
             >
               {{ value }}
             </div>
@@ -1102,6 +1093,17 @@ export default {
   },
 
   methods: {
+    /** 点击标签：按标签搜索 */
+    searchByTag(tag) {
+      const tagName = typeof tag === "string" ? tag : tag?.name ?? String(tag ?? "");
+      if (!tagName) return;
+      this.store.setData({ key: "searchKey", value: "" });
+      this.$router.myPush({
+        path: "/search-list",
+        query: { tags: tagName }
+      });
+    },
+
     shareFromFloat() {
       if (this.store.inMobile) {
         const input = document.getElementById("href");

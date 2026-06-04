@@ -473,16 +473,7 @@
               class="tag in-pc"
               v-for="value in subID ? voiceInfo?.articleInfo?.articleTags : voiceInfo?.tags"
               :key="value"
-              @click="
-                () => {
-                  const query = {};
-                  query.tags = value;
-                  $router.myPush({
-                    path: '/search-list',
-                    query
-                  });
-                }
-              "
+              @click="searchByTag(value)"
             >
               {{ value }}
             </div>
@@ -1027,6 +1018,18 @@ export default {
         query: { id: item.exhibitId, subID: item.itemId, albumName: item.albumName }
       });
     },
+
+    /** 点击标签：按标签搜索 */
+    searchByTag(tag) {
+      const tagName = typeof tag === "string" ? tag : tag?.name ?? String(tag ?? "");
+      if (!tagName) return;
+      this.store.setData({ key: "searchKey", value: "" });
+      this.$router.myPush({
+        path: "/search-list",
+        query: { tags: tagName }
+      });
+    },
+
     /** 更多菜单按钮群 */
     menuBtnList(item) {
       return [
