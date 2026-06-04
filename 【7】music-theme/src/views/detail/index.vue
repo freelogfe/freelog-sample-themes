@@ -1406,8 +1406,8 @@ export default {
             onLogin: () => callLogin(),
             ...this.getCommentWidgetThemePayload()
           }
-        },
-        widget_entry: "https://localhost:8203"
+        }
+        // widget_entry: "https://localhost:8203"
       };
       this.commentWidget = await freelogApp.mountArticleWidget(params);
     },

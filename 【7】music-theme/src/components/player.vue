@@ -533,6 +533,7 @@ export default {
       currentModeIndex: 0, // 当前模式索引
       currentRandomIndex: 0, // 当前随机播放索引
       shuffledList: [], // 随机播放列表
+      randomPlayListSignature: "", // 播放列表曲目集合签名，用于避免无变化时重洗
       store
       // realDuration: ""
     };
@@ -544,9 +545,7 @@ export default {
         this.currentPlayMode = cur;
         this.currentModeIndex = this.modes.findIndex(f => f === cur);
         if (cur === "RANDOM") {
-          this.shuffledList = this.playList?.slice();
-          this.shuffleArray(this.shuffledList);
-          this.currentRandomIndex = 0;
+          this.refreshRandomPlayList({ reshuffle: true });
         }
       },
       immediate: true,
@@ -558,9 +557,7 @@ export default {
         this.playList = cur ? [...cur] : null;
 
         if (this.currentPlayMode === "RANDOM" && this.playList?.length) {
-          this.shuffledList = this.playList.slice();
-          this.shuffleArray(this.shuffledList);
-          this.currentRandomIndex = 0;
+          this.refreshRandomPlayList();
         }
         // 加入播放列表，显示播放器动画
         if (cur && pre && cur.length - pre.length === 1) {
@@ -588,6 +585,10 @@ export default {
 
         this.store.setData({ key: "progress", value: 0 });
         this.playingInfo = cur;
+
+        if (this.currentPlayMode === "RANDOM" && cur) {
+          this.syncRandomIndexToPlaying();
+        }
 
         if (this.playList && this.store.inMobile) {
           const index = this.playList.findIndex(
@@ -794,6 +795,108 @@ export default {
       }
     },
 
+    trackKey(item) {
+      if (!item) return "";
+      const id = item.exhibitId ?? "";
+      const sub = item.itemId ?? "";
+      return `${id}${sub}`;
+    },
+
+    playListSignature(list) {
+      if (!list?.length) return "";
+      return list
+        .map(item => this.trackKey(item))
+        .sort()
+        .join("\u0001");
+    },
+
+    getPlayingTrackKey() {
+      return this.trackKey(this.store.playingInfo || this.playingInfo);
+    },
+
+    /**
+     * 刷新随机列表：曲目未变时保持洗牌顺序，仅更新对象引用；
+     * 避免 getPlayList 触发重洗导致 currentRandomIndex 错位（两首歌时易卡在同一首）。
+     */
+    refreshRandomPlayList({ reshuffle = false } = {}) {
+      if (!this.playList?.length) {
+        this.shuffledList = [];
+        this.randomPlayListSignature = "";
+        this.currentRandomIndex = 0;
+        return;
+      }
+
+      const signature = this.playListSignature(this.playList);
+      const sameTracks =
+        !reshuffle &&
+        signature === this.randomPlayListSignature &&
+        this.shuffledList.length === this.playList.length;
+
+      if (sameTracks) {
+        this.shuffledList = this.shuffledList.map(
+          item =>
+            this.playList.find(p => this.trackKey(p) === this.trackKey(item)) ?? item
+        );
+      } else {
+        this.shuffledList = this.playList.slice();
+        this.shuffleArray(this.shuffledList);
+        this.randomPlayListSignature = signature;
+      }
+
+      if (this.getPlayingTrackKey()) {
+        this.syncRandomIndexToPlaying();
+      } else {
+        this.currentRandomIndex = 0;
+      }
+    },
+
+    /** 将 currentRandomIndex 对齐到当前正在播放的歌曲 */
+    syncRandomIndexToPlaying() {
+      if (!this.shuffledList?.length) return;
+      const key = this.getPlayingTrackKey();
+      if (!key) return;
+
+      let idx = this.shuffledList.findIndex(item => this.trackKey(item) === key);
+      if (idx < 0 && this.playList?.length) {
+        const inPlay = this.playList.findIndex(item => this.trackKey(item) === key);
+        if (inPlay >= 0) {
+          const refKey = this.trackKey(this.playList[inPlay]);
+          idx = this.shuffledList.findIndex(item => this.trackKey(item) === refKey);
+        }
+      }
+      if (idx >= 0) this.currentRandomIndex = idx;
+    },
+
+    resolveRandomIndexForPlaying() {
+      this.syncRandomIndexToPlaying();
+      const key = this.getPlayingTrackKey();
+      if (!key) return this.currentRandomIndex;
+      const idx = this.shuffledList.findIndex(item => this.trackKey(item) === key);
+      return idx >= 0 ? idx : this.currentRandomIndex;
+    },
+
+    /** 随机模式：从当前曲的下一首开始，列表多于 1 首时避免连播同一首 */
+    advanceRandomIndex() {
+      if (!this.shuffledList?.length) return;
+      const len = this.shuffledList.length;
+      if (len <= 1) {
+        this.currentRandomIndex = 0;
+        return;
+      }
+
+      const currentKey = this.getPlayingTrackKey();
+      let idx = this.resolveRandomIndexForPlaying();
+      let next = idx;
+      let attempts = 0;
+
+      do {
+        next = (next + 1) % len;
+        attempts += 1;
+      } while (attempts < len && this.trackKey(this.shuffledList[next]) === currentKey);
+
+      this.currentRandomIndex = next;
+    },
+
     /** 关闭播放器 */
     closePlayer() {
       const store = useGlobalStore();
@@ -824,8 +927,8 @@ export default {
       if (["NORMAL", "REPEAT-ALL", "REPEAT-ONE"].includes(this.currentPlayMode)) {
         useMyPlay.preVoice();
       } else {
+        this.syncRandomIndexToPlaying();
         this.currentRandomIndex = this.currentRandomIndex - 1;
-        // 重置当前随机播放索引
         if (this.currentRandomIndex < 0) {
           this.currentRandomIndex = this.shuffledList.length - 1;
         }
@@ -837,17 +940,15 @@ export default {
     nextVoice(data, type) {
       if (["NORMAL", "REPEAT-ALL", "REPEAT-ONE"].includes(this.currentPlayMode)) {
         useMyPlay.nextVoice();
+      } else if (type === "AUTO") {
+        useMyPlay.nextVoice(data);
       } else {
-        if (type === "AUTO") {
-          useMyPlay.nextVoice(data);
-        } else {
-          this.currentRandomIndex = this.currentRandomIndex + 1;
-          // 重置当前随机播放索引
-          if (this.currentRandomIndex >= this.shuffledList.length) {
-            this.currentRandomIndex = 0;
-          }
-          useMyPlay.nextVoice(this.shuffledList[this.currentRandomIndex]);
+        this.syncRandomIndexToPlaying();
+        this.currentRandomIndex = this.currentRandomIndex + 1;
+        if (this.currentRandomIndex >= this.shuffledList.length) {
+          this.currentRandomIndex = 0;
         }
+        useMyPlay.nextVoice(this.shuffledList[this.currentRandomIndex]);
       }
     },
 
@@ -889,11 +990,7 @@ export default {
         await this.store.setData({ key: "playingInfo", value: null });
         useMyPlay.playOrPause(tempData);
       } else {
-        this.currentRandomIndex = this.currentRandomIndex + 1;
-        // 重置当前随机播放索引
-        if (this.currentRandomIndex >= this.shuffledList.length) {
-          this.currentRandomIndex = 0;
-        }
+        this.advanceRandomIndex();
         this.nextVoice(this.shuffledList[this.currentRandomIndex], "AUTO");
       }
     },
