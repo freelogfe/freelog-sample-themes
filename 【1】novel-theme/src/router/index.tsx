@@ -18,6 +18,14 @@ export { globalContext } from "../contexts/global-context";
 
 const history = createBrowserHistory();
 
+let hadRouteChange = false;
+history.listen(() => {
+  if (hadRouteChange) {
+    freelogApp.closeAuth();
+  }
+  hadRouteChange = true;
+});
+
 const routeList = [
   { name: "home", path: "/home", component: HomeScreen },
   { name: "shelf", path: "/shelf", component: ShelfScreen },

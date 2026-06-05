@@ -6,7 +6,7 @@ import { judgeDevice, judgeIOSDevice } from "@/utils/common";
 // @ts-ignore
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
 import { currentTheme, toggleTheme, ThemeType } from "@/utils/theme-manager";
-import { freelogApp } from "freelog-runtime";
+import { freelogApp, widgetApi } from "freelog-runtime";
 
 interface UserData {
   isLogin: boolean | null;
@@ -23,6 +23,7 @@ export interface State {
   isIOS: boolean | null;
   userData: UserData;
   selfConfig: Record<string, any>;
+  selfWidgetConfig: Record<string, any>;
   locationHistory: string[];
   routerMode: number;
   shareInfo: ShareInfo;
@@ -52,6 +53,7 @@ export const useGlobalStore = defineStore("global", {
       isIOS: null, // 是否 IOS 设备
       userData: { isLogin: null }, // 当前登录的用户数据
       selfConfig: {}, // 自定义配置
+      selfWidgetConfig: {}, // 自定义插件配置
       locationHistory: [], // 历史路由
       routerMode: 1, // 当前路由模式 1-push 2-back
       shareInfo: { show: false, exhibit: null }, // 分享数据
@@ -87,13 +89,28 @@ export const useGlobalStore = defineStore("global", {
       // freelogApp.setUserData("collectionIdList", []);
 
       const userData = freelogApp.getCurrentUser();
-      const [selfConfig, collectionIdListResponse, playingIdResponse, playModeResponse] =
-        await Promise.all([
-          freelogApp.getSelfPropertyForTheme(),
-          freelogApp.getUserData("music-collectionIdList"),
-          freelogApp.getUserData("music-playingId"),
-          freelogApp.getUserData("playMode")
-        ]);
+      const [
+        selfConfig,
+        selfWidgetConfig,
+        collectionIdListResponse,
+        playingIdResponse,
+        playModeResponse
+      ] = await Promise.all([
+        freelogApp.getSelfPropertyForTheme(),
+        freelogApp.getSelfProperty(),
+        freelogApp.getUserData("music-collectionIdList"),
+        freelogApp.getUserData("music-playingId"),
+        freelogApp.getUserData("playMode")
+      ]);
+
+      const widgetData = widgetApi.getData();
+      const subDepsData = widgetData.themeInfo.versionInfo.dependencyTree.find(
+        (item: any) => item.articleName === "ZhuC/Freelog插件-评论插件"
+      );
+      const commentWidgetData = await freelogApp.getExhibitDepInfo(widgetData.themeInfo.exhibitId, {
+        articleNids: subDepsData?.nid || ""
+      });
+
       const collectionIdList = collectionIdListResponse?.data?.data || [];
       console.log("collectionIdList", collectionIdList);
       const playingId = playingIdResponse?.data?.data;
@@ -119,6 +136,7 @@ export const useGlobalStore = defineStore("global", {
 
       // 自定义选项
       this.selfConfig = selfConfig;
+      this.selfWidgetConfig = commentWidgetData.data.data[0].articleProperty;
 
       // 获取签约列表
       useMyAuth.getSignedList();

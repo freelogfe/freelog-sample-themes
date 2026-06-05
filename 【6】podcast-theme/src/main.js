@@ -120,6 +120,12 @@ window.mount = async () => {
     store.commit("setData", { key: "routerMode", value: 1 });
   });
 
+  router.afterEach((to, from) => {
+    if (from.matched.length > 0) {
+      freelogApp.closeAuth();
+    }
+  });
+
   /* import...from...静态导入时, 分享链接失效; import()导入时, 分享链接可成功打开;
    * import...from...静态导入时: 在main.js中先导入App.vue时, 在mapShareUrl后, 还需要sleep一次, 具体原因未知(目前已在mapShareUrl里sleep了, 在主题中不需要再处理);
    * import()导入时: 分享链接可成功打开; const { default: App } = await import("./App.vue")

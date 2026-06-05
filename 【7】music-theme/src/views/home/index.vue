@@ -5,6 +5,7 @@ import { useGlobalStore } from "@/store/global";
 
 import HomeBanner from "./home-banner.vue";
 import HomePopular from "./home-popular.vue";
+import HomeFloatMenu from "@/components/home-float-menu.vue";
 import HomeAlbum from "@/components/album.vue";
 import HomePlayList from "@/components/play-list.vue";
 import { useGetList } from "@/utils/hooks";
@@ -166,6 +167,7 @@ onBeforeMount(() => {
 </script>
 
 <template>
+  <HomeFloatMenu v-if="store.inMobile === false" />
   <HomeBanner />
   <div
     v-if="!loading"

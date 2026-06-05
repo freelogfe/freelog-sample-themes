@@ -10,7 +10,7 @@
           ? searchData.length
             ? `查询到${searchData.length}个相关结果`
             : ''
-          : `“${keywords}”的搜索结果${searchData.length ? '（' + searchData.length + '）' : ''}`
+          : `“${displayKeyword}”的搜索结果${searchData.length ? '（' + searchData.length + '）' : ''}`
       "
       noMoreTip="已加载全部"
       noDataTip="暂无任何结果"
@@ -43,18 +43,26 @@ export default {
       store,
       subTotal: 0,
       subSkip: 0,
-      subTempData: []
+      subTempData: [],
+      skip: 0
     };
   },
 
   computed: {
+    /** 列表页展示用关键词（标签搜索 / 关键词搜索） */
+    displayKeyword() {
+      return this.tags || this.keywords || this.store.searchKey || "";
+    },
+
     searchData() {
       return (
-        this.listData.filter(
-          i =>
-            [0, 4].includes(i.defaulterIdentityType) &&
-            i.exhibitTitle.includes(this.store.searchKey)
-        ) || []
+        this.listData.filter(i => {
+          if (![0, 4].includes(i.defaulterIdentityType)) return false;
+          // 标签搜索：接口已按 tags 筛选，不再用标题二次过滤
+          if (this.tags) return true;
+          const key = this.store.searchKey || this.keywords;
+          return key ? i.exhibitTitle.includes(key) : true;
+        }) || []
       );
     }
   },
@@ -69,9 +77,11 @@ export default {
 
     "store.searchKey": {
       handler(cur) {
+        if (this.$route.query?.tags) return;
         if (cur === this.keywords) return;
+        this.tags = "";
         this.listData = [];
-        this.keywords = cur;
+        this.keywords = cur || "";
         this.getList(true);
       },
       immediate: true
@@ -79,9 +89,15 @@ export default {
 
     "$route.query": {
       async handler(cur) {
-        // this.keywords = cur.tags;
-        this.tags = cur.tags;
-        // this.getList(true, { tags: cur.tags });
+        const tag = cur?.tags;
+        if (!tag) {
+          this.tags = "";
+          return;
+        }
+        this.tags = tag;
+        this.keywords = tag;
+        this.listData = [];
+        await this.getList(true, { tags: tag });
       },
       immediate: true
     }

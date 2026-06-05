@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Album: typeof import('./src/components/album.vue')['default']
+    DetailFloatMenu: typeof import('./src/components/detail-float-menu.vue')['default']
     ElPopover: typeof import('element-plus/es')['ElPopover']
     ElProgress: typeof import('element-plus/es')['ElProgress']
     ElSkeleton: typeof import('element-plus/es')['ElSkeleton']
@@ -17,6 +18,7 @@ declare module 'vue' {
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     Footer: typeof import('./src/components/footer.vue')['default']
     Header: typeof import('./src/components/header.vue')['default']
+    HomeFloatMenu: typeof import('./src/components/home-float-menu.vue')['default']
     List: typeof import('./src/components/list.vue')['default']
     MobileAlbum: typeof import('./src/components/mobile-album.vue')['default']
     Player: typeof import('./src/components/player.vue')['default']

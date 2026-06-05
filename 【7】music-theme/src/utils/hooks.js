@@ -828,8 +828,8 @@ export const useMyPlay = {
         // 暂停
         store.setData({ key: "playing", value: false });
         return;
-      } else if (exhibitId === id && !playing && playingUrl) {
-        // 之前暂停的声音继续播放
+      } else if (exhibitId === id && !playing && playingUrl && type === "normal") {
+        // 用户点击暂停后再播放：仅 normal 走续播，避免随机/自动切歌误判为续播同一首
         store.setData({ key: "playing", value: true });
         return;
       }
@@ -898,7 +898,9 @@ export const useMyPlay = {
       } else {
         preVoiceInfo = playList[index - 1];
       }
-    } else {
+    } else if (data) {
+      preVoiceInfo = data;
+    } else if (index >= 0) {
       preVoiceInfo = playList[index];
     }
 
@@ -921,7 +923,9 @@ export const useMyPlay = {
       } else {
         nextVoiceInfo = playList[index + 1];
       }
-    } else {
+    } else if (data) {
+      nextVoiceInfo = data;
+    } else if (index >= 0) {
       nextVoiceInfo = playList[index];
     }
 

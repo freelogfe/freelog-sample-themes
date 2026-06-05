@@ -23,8 +23,24 @@
         </div>
 
         <div class="header-right">
-          <i class="freelog fl-icon-content" @click="toPage('/search-list')"></i>
-          <img class="menu" src="../assets/images/menu.png" @click="userBoxShow = true" />
+          <img
+            class="header-search"
+            src="../assets/images/icon_search.svg"
+            alt="搜索"
+            @click.stop="toPage('/search-list')"
+          />
+          <img
+            class="header-share"
+            src="../assets/images/icon_share.svg"
+            alt="分享"
+            @click.stop="onOpenShare"
+          />
+          <img
+            class="header-menu"
+            src="../assets/images/icon_menu.svg"
+            alt="菜单"
+            @click.stop="userBoxShow = true"
+          />
         </div>
       </template>
 
@@ -288,6 +304,13 @@ import { freelogApp } from "freelog-runtime";
 export default {
   name: "freelog-header",
 
+  inject: {
+    openShare: {
+      from: "openShare",
+      default: () => () => undefined
+    }
+  },
+
   data() {
     const store = useGlobalStore();
 
@@ -385,6 +408,11 @@ export default {
   methods: {
     callLogin,
     callLoginOut,
+
+    onOpenShare() {
+      const fn = this.openShare as (() => void) | undefined;
+      fn?.();
+    },
 
     /** 返回 */
     back() {
@@ -486,7 +514,7 @@ export default {
     register() {
       const url = freelogApp.getCurrentUrl();
       const mainUrl = url.split("?")[0];
-      const reg = (window as any).HOST_END==='.cn'? /\.([^.]*)\.cn/: /\.([^.]*)\.com/;
+      const reg = (window as any).HOST_END === ".cn" ? /\.([^.]*)\.cn/ : /\.([^.]*)\.com/;
       const domain = reg.exec(mainUrl);
       const domainName = domain ? domain[1] : "freelog";
       window.open(`https://user.${domainName}${(window as any).HOST_END}/logon`);
