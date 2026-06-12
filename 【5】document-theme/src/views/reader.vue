@@ -283,7 +283,13 @@
     </div>
 
     <!-- PC -->
-    <div class="home-body" @click="setShareWidgetShow(false)" v-if="!inMobile">
+    <div
+      class="home-body"
+      :class="{ 'has-list-bar': !isNodeEmpty }"
+      :style="{ '--list-bar-width': `${listBarWidth}px` }"
+      @click="setShareWidgetShow(false)"
+      v-if="!inMobile"
+    >
       <!-- 列表条 -->
       <div class="list-bar" v-if="!isNodeEmpty">
         <el-skeleton class="list-skeleton" :rows="2" animated v-if="loading" />
@@ -299,7 +305,7 @@
                   :class="{ 'in-focus': searchKey }"
                   v-model="searchKey"
                   :maxLength="100"
-                  placeholder="输入文档名称或关键字"
+                  placeholder="支持搜索关键字"
                   @input="searchKeyInput()"
                   @keyup="inputKeyUp($event)"
                   @focus="searchHistoryShow = true"
@@ -444,6 +450,7 @@
             </div>
           </template>
         </template>
+        <div class="list-bar-resizer" @mousedown="startResizeListBar"></div>
       </div>
 
       <div class="no-data no-data--center" v-if="isNodeEmpty">
@@ -452,151 +459,183 @@
         </div>
       </div>
       <el-skeleton class="content-skeleton" :rows="9" animated v-if="myLoading === true" />
-      <!-- 内容区域 -->
-      <div class="content-area" v-if="myLoading === false">
-        <div class="content-body">
-          <template v-if="documentData?.articleInfo?.status === 1">
-            <template v-if="documentData.onlineStatus === 0">
-              <div class="exceptional-box">
-                <div class="icon">
-                  <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
-                </div>
-                <span class="exceptional-text"> 作品已下架，无法访问 </span>
-              </div>
-            </template>
-
-            <template v-else-if="![0, 4].includes(documentData?.defaulterIdentityType)">
-              <div className="exceptional-box">
-                <div className="icon">
-                  <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"> </i>
-                </div>
-                <span className="exceptional-text"> 作品异常，无法访问 </span>
-              </div>
-            </template>
-
-            <!-- 静默签约 -->
-            <my-markdown
-              :data="documentData"
-              @getDirectory="getDirectory($event)"
-              v-else-if="documentData?.defaulterIdentityType === 0 && userData.isLogin === false"
-            />
-
-            <template
-              v-else-if="documentData?.defaulterIdentityType === 4 || userData.isLogin === false"
-            >
-              <div class="lock-box">
-                <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
-                <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
-                <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
-              </div>
-            </template>
-
-            <template v-else-if="!['阅读'].includes(documentData?.articleInfo.resourceType[0])">
-              <div className="exceptional-box">
-                <div className="icon">
-                  <i className="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
-                </div>
-                <span className="exceptional-text">此作品格式暂不支持访问 </span>
-              </div>
-            </template>
-
-            <my-markdown
-              :data="documentData"
-              @getDirectory="getDirectory($event)"
-              v-else-if="documentData?.defaulterIdentityType === 0"
-            />
-          </template>
-
-          <template v-else>
-            <div class="freeze-exhibit">
-              <!-- <div class="header">{{ documentData?.exhibitTitle }}</div> -->
-              <div class="icon">
-                <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
-              </div>
-              <span className="exceptional-text"> 此作品因违规无法访问 </span>
-            </div>
-          </template>
-
-          <div class="footer-area">
-            <div class="footer-bar" v-if="documentData?.defaulterIdentityType === 0">
-              <div>最近更新 {{ relativeTime(documentData?.updateDate) }}</div>
-              <div class="divider"></div>
-              <div>签约量 {{ documentData?.signCount }}</div>
-              <div class="divider"></div>
-              <div>作者 {{ documentData?.articleInfo?.articleOwnerName }}</div>
-            </div>
-
-            <div class="switch-btns" v-if="listData.length && currentIndex !== -1">
-              <div
-                class="switch-btn pre"
-                :class="{ invalid: !currentIndex }"
-                :title="currentIndex ? listData[currentIndex - 1].exhibitTitle : ''"
-                @click="
-                  switchPage('/reader', {
-                    id: listData[currentIndex - 1].exhibitId
-                  })
-                "
-              >
-                <i class="freelog fl-icon-fangxiang"></i>
-                <div class="btn-info">
-                  <div class="btn-title">上一篇</div>
-                  <div class="document-title">
-                    {{ currentIndex ? listData[currentIndex - 1].exhibitTitle : "当前为第一篇" }}
+      <div class="page-main" v-if="myLoading === false">
+        <div class="content-area">
+          <div class="content-shell">
+            <div class="content-body">
+              <template v-if="documentData?.articleInfo?.status === 1">
+                <template v-if="documentData.onlineStatus === 0">
+                  <div class="exceptional-box">
+                    <div class="icon">
+                      <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
+                    </div>
+                    <span class="exceptional-text"> 作品已下架，无法访问 </span>
                   </div>
+                </template>
+
+                <template v-else-if="![0, 4].includes(documentData?.defaulterIdentityType)">
+                  <div className="exceptional-box">
+                    <div className="icon">
+                      <i className="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze">
+                      </i>
+                    </div>
+                    <span className="exceptional-text"> 作品异常，无法访问 </span>
+                  </div>
+                </template>
+
+                <!-- 静默签约 -->
+                <my-markdown
+                  :data="documentData"
+                  @getDirectory="getDirectory($event)"
+                  v-else-if="
+                    documentData?.defaulterIdentityType === 0 && userData.isLogin === false
+                  "
+                />
+
+                <template
+                  v-else-if="
+                    documentData?.defaulterIdentityType === 4 || userData.isLogin === false
+                  "
+                >
+                  <div class="lock-box">
+                    <i class="freelog fl-icon-zhanpinweishouquansuoding lock"></i>
+                    <div class="lock-tip">展品未开放授权，继续浏览请签约并获取授权</div>
+                    <div class="get-btn" @click="getAuth(documentData)">获取授权</div>
+                  </div>
+                </template>
+
+                <template v-else-if="!['阅读'].includes(documentData?.articleInfo.resourceType[0])">
+                  <div className="exceptional-box">
+                    <div className="icon">
+                      <i className="freelog fl-icon-yichang_wenjiangeshicuowu freeze"> </i>
+                    </div>
+                    <span className="exceptional-text">此作品格式暂不支持访问 </span>
+                  </div>
+                </template>
+
+                <my-markdown
+                  :data="documentData"
+                  @getDirectory="getDirectory($event)"
+                  v-else-if="documentData?.defaulterIdentityType === 0"
+                />
+              </template>
+
+              <template v-else>
+                <div class="freeze-exhibit">
+                  <!-- <div class="header">{{ documentData?.exhibitTitle }}</div> -->
+                  <div class="icon">
+                    <i class="freelog fl-icon-a-yichang_wendangbokexiaoshuoziyuan freeze"></i>
+                  </div>
+                  <span className="exceptional-text"> 此作品因违规无法访问 </span>
                 </div>
-              </div>
-              <div
-                class="switch-btn next"
-                :class="{ invalid: currentIndex === listData.length - 1 }"
-                :title="
-                  currentIndex !== listData.length - 1
-                    ? listData[currentIndex + 1].exhibitTitle
-                    : ''
-                "
-                @click="
-                  switchPage('/reader', {
-                    id: listData[currentIndex + 1].exhibitId
-                  })
-                "
-              >
-                <div class="btn-info">
-                  <div class="btn-title">下一篇</div>
-                  <div class="document-title">
-                    {{
+              </template>
+
+              <div class="footer-area">
+                <div class="footer-bar" v-if="documentData?.defaulterIdentityType === 0">
+                  <div>最近更新 {{ relativeTime(documentData?.updateDate) }}</div>
+                  <div class="divider"></div>
+                  <div>签约量 {{ documentData?.signCount }}</div>
+                  <div class="divider"></div>
+                  <div>作者 {{ documentData?.articleInfo?.articleOwnerName }}</div>
+                </div>
+
+                <div class="switch-btns" v-if="listData.length && currentIndex !== -1">
+                  <div
+                    class="switch-btn pre"
+                    :class="{ invalid: !currentIndex }"
+                    :title="currentIndex ? listData[currentIndex - 1].exhibitTitle : ''"
+                    @click="
+                      switchPage('/reader', {
+                        id: listData[currentIndex - 1].exhibitId
+                      })
+                    "
+                  >
+                    <i class="freelog fl-icon-fangxiang"></i>
+                    <div class="btn-info">
+                      <div class="btn-title">上一篇</div>
+                      <div class="document-title">
+                        {{
+                          currentIndex ? listData[currentIndex - 1].exhibitTitle : "当前为第一篇"
+                        }}
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="switch-btn next"
+                    :class="{ invalid: currentIndex === listData.length - 1 }"
+                    :title="
                       currentIndex !== listData.length - 1
                         ? listData[currentIndex + 1].exhibitTitle
-                        : "当前为最后一篇"
-                    }}
+                        : ''
+                    "
+                    @click="
+                      switchPage('/reader', {
+                        id: listData[currentIndex + 1].exhibitId
+                      })
+                    "
+                  >
+                    <div class="btn-info">
+                      <div class="btn-title">下一篇</div>
+                      <div class="document-title">
+                        {{
+                          currentIndex !== listData.length - 1
+                            ? listData[currentIndex + 1].exhibitTitle
+                            : "当前为最后一篇"
+                        }}
+                      </div>
+                    </div>
+                    <i class="freelog fl-icon-fangxiang"></i>
                   </div>
                 </div>
-                <i class="freelog fl-icon-fangxiang"></i>
               </div>
+
+              <my-footer />
             </div>
           </div>
-
-          <my-footer />
         </div>
-      </div>
 
-      <!-- 标题目录区域 -->
-      <div class="title-directory-box">
-        <div class="title-directory-icon" v-if="directoryList.length">
-          <div class="icon" v-for="item in 6" :key="`directoryIcon${item}`"></div>
-        </div>
-        <div class="title-directory">
-          <div
-            class="directory-item"
-            :class="{
-              active: currentTitle === item.innerText && index === currentTitleIndex,
-              second: item.nodeName === 'H2',
-              third: item.nodeName === 'H3'
-            }"
-            :title="item.innerText"
-            v-for="(item, index) in directoryList"
-            :key="item.id"
-            @click="jumpToTitle(item.innerText, index)"
-          >
-            <span>{{ item.innerText }}</span>
+        <div
+          class="title-directory-box"
+          :class="{ 'is-wide': isWideScreen }"
+          v-if="directoryList.length"
+        >
+          <div class="title-directory-panel">
+            <button
+              class="directory-scroll-more is-top"
+              type="button"
+              v-show="showDirectoryScrollUp"
+              @click="scrollDirectory(-1)"
+            >
+              <img class="scroll-more-icon" src="../assets/images/directory-more.svg" alt="" />
+            </button>
+            <div
+              class="title-directory"
+              ref="titleDirectoryRef"
+              @scroll="updateDirectoryScrollState"
+            >
+              <div
+                class="directory-item"
+                :class="{
+                  active: currentTitle === item.innerText && index === currentTitleIndex,
+                  second: item.nodeName === 'H2',
+                  third: item.nodeName === 'H3'
+                }"
+                :title="item.innerText"
+                v-for="(item, index) in directoryList"
+                :key="item.id"
+                @click="jumpToTitle(item.innerText, index)"
+              >
+                <span>{{ item.innerText }}</span>
+              </div>
+            </div>
+            <button
+              class="directory-scroll-more is-bottom"
+              type="button"
+              v-show="showDirectoryScrollDown"
+              @click="scrollDirectory(1)"
+            >
+              <img class="scroll-more-icon" src="../assets/images/directory-more.svg" alt="" />
+            </button>
           </div>
         </div>
       </div>
@@ -622,13 +661,28 @@
 </template>
 
 <script lang="ts">
-import { computed, defineAsyncComponent, onBeforeUnmount, reactive, ref, toRefs, watch } from "vue";
+import {
+  computed,
+  defineAsyncComponent,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  ref,
+  toRefs,
+  watch
+} from "vue";
 import { useStore } from "vuex";
 import { useGetList, useMyRouter, useMyScroll, useSearchHistory } from "../utils/hooks";
 import { ExhibitItem } from "@/api/interface";
 import { relativeTime } from "@/utils/common";
 import { showToast } from "@/utils/common";
 import { WidgetController, freelogApp } from "freelog-runtime";
+
+const LIST_BAR_MIN = 300;
+const LIST_BAR_MAX = 400;
+const LIST_BAR_STORAGE_KEY = "document-theme-list-bar-width";
+const OUTLINE_WIDE_BREAKPOINT = 1520;
 
 export default {
   name: "reader",
@@ -649,6 +703,14 @@ export default {
     const datasOfGetList = useGetList();
     const searchInput = ref();
     const searchHistoryPopup = ref();
+    const titleDirectoryRef = ref<HTMLElement | null>(null);
+    const listBarWidth = ref(LIST_BAR_MIN);
+    const isResizingListBar = ref(false);
+    const directoryScrollTop = ref(0);
+    const directoryCanScrollDown = ref(false);
+    const isWideScreen = ref(
+      typeof window !== "undefined" ? window.innerWidth >= OUTLINE_WIDE_BREAKPOINT : false
+    );
     const mySearchHistory = computed(() =>
       searchHistory.value.filter(item => item.includes(data.searchKey))
     );
@@ -682,6 +744,9 @@ export default {
         !data.searching &&
         data.myLoading === null
     );
+
+    const showDirectoryScrollUp = computed(() => directoryScrollTop.value > 0);
+    const showDirectoryScrollDown = computed(() => directoryCanScrollDown.value);
 
     const methods = {
       /** 移动端分享 */
@@ -770,11 +835,37 @@ export default {
       /** 获取目录数据 */
       getDirectory(directoryList: HTMLElement[]) {
         data.directoryList = directoryList;
+        nextTick(() => methods.updateDirectoryScrollState());
         if (data.currentTitle) {
           setTimeout(() => {
             methods.jumpToTitle(data.currentTitle);
           }, 40);
         }
+      },
+
+      updateDirectoryScrollState() {
+        const el = titleDirectoryRef.value;
+        if (!el) {
+          directoryScrollTop.value = 0;
+          directoryCanScrollDown.value = false;
+          return;
+        }
+
+        directoryScrollTop.value = el.scrollTop;
+        directoryCanScrollDown.value = el.scrollTop + el.clientHeight < el.scrollHeight - 1;
+      },
+
+      scrollDirectory(direction: -1 | 1) {
+        titleDirectoryRef.value?.scrollBy({ top: direction * 80, behavior: "smooth" });
+      },
+
+      startResizeListBar(e: MouseEvent) {
+        e.preventDefault();
+        isResizingListBar.value = true;
+        document.addEventListener("mousemove", onListBarResizeMove);
+        document.addEventListener("mouseup", stopResizeListBar);
+        document.body.style.cursor = "col-resize";
+        document.body.style.userSelect = "none";
       },
 
       /** 跳到标题位置, 需保证在 debouncedScroll 后执行 */
@@ -1094,8 +1185,45 @@ export default {
 
     onBeforeUnmount(async () => {
       window.removeEventListener("keyup", keyup);
+      window.removeEventListener("resize", onWindowResize);
+      document.removeEventListener("mousemove", onListBarResizeMove);
+      document.removeEventListener("mouseup", stopResizeListBar);
       await data.shareWidget?.unmount();
     });
+
+    const onListBarResizeMove = (e: MouseEvent) => {
+      if (!isResizingListBar.value) return;
+      listBarWidth.value = Math.min(LIST_BAR_MAX, Math.max(LIST_BAR_MIN, e.clientX));
+    };
+
+    const stopResizeListBar = () => {
+      if (!isResizingListBar.value) return;
+      isResizingListBar.value = false;
+      document.removeEventListener("mousemove", onListBarResizeMove);
+      document.removeEventListener("mouseup", stopResizeListBar);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      localStorage.setItem(LIST_BAR_STORAGE_KEY, String(listBarWidth.value));
+    };
+
+    const onWindowResize = () => {
+      isWideScreen.value = window.innerWidth >= OUTLINE_WIDE_BREAKPOINT;
+      methods.updateDirectoryScrollState();
+    };
+
+    onMounted(() => {
+      const saved = Number(localStorage.getItem(LIST_BAR_STORAGE_KEY));
+      if (saved >= LIST_BAR_MIN && saved <= LIST_BAR_MAX) {
+        listBarWidth.value = saved;
+      }
+      methods.updateDirectoryScrollState();
+      window.addEventListener("resize", onWindowResize);
+    });
+
+    watch(
+      () => data.directoryList.length,
+      () => nextTick(() => methods.updateDirectoryScrollState())
+    );
 
     window.addEventListener("keyup", keyup);
 
@@ -1114,6 +1242,11 @@ export default {
       ...toRefs(data),
       currentIndex,
       isNodeEmpty,
+      listBarWidth,
+      isWideScreen,
+      titleDirectoryRef,
+      showDirectoryScrollUp,
+      showDirectoryScrollDown,
       ...methods
     };
   }
