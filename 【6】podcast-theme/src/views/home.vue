@@ -497,6 +497,8 @@ export default {
           -webkit-box-orient: vertical;
           -webkit-line-clamp: 3;
           overflow: hidden;
+          word-break: break-word;
+          white-space: pre-wrap;
         }
       }
     }
@@ -753,17 +755,15 @@ export default {
   // PC
   .pc-home-wrapper {
     .top-area {
-      padding: 20px 0 50px;
+      padding: 20px 0 80px;
       display: flex;
       align-items: center;
       border-bottom: 1px solid var(--text-first-color);
 
       .node-avatar {
         width: 240px;
-        height: 240px;
+        height: 132px;
         border-radius: 10px;
-        border: 1px solid var(--border-color);
-        background-color: var(--bg-other-color);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -772,7 +772,7 @@ export default {
         .avatar-img {
           width: 100%;
           height: 100%;
-          object-fit: contain;
+          object-fit: cover;
         }
 
         .default-avatar {
@@ -803,12 +803,13 @@ export default {
           font-size: 14px;
           color: var(--text-color);
           line-height: 20px;
-          margin-top: 25px;
-          word-break: break-all;
+          margin-top: 30px;
           display: -webkit-box;
           -webkit-box-orient: vertical;
           -webkit-line-clamp: 4;
           overflow: hidden;
+          word-break: break-word;
+          white-space: pre-wrap;
         }
 
         .sign-count {
