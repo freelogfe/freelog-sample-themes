@@ -6,8 +6,10 @@
 
     <!-- mobile -->
     <div class="mobile-home-body" v-if="inMobile">
-      <div class="no-data" v-if="loading === false && !total && myLoading === null">
-        <img class="no-data-img" src="../assets/images/no-data.svg" />
+      <div class="no-data no-data--center" v-if="isNodeEmpty">
+        <div class="no-data-inner">
+          <img class="no-data-img" src="../assets/images/no-data.svg" alt="" />
+        </div>
       </div>
       <el-skeleton class="content-skeleton" :rows="9" animated v-if="myLoading === true" />
       <!-- 内容区域 -->
@@ -141,7 +143,7 @@
 
             <el-skeleton class="list-skeleton" :rows="2" animated v-if="loading" />
 
-            <div class="no-data-tip" v-if="!loading && !total && !searching">当前节点暂无内容</div>
+            <div class="no-data-tip" v-if="isNodeEmpty">暂无内容</div>
 
             <template v-else-if="!loading">
               <template v-if="!viewOffline">
@@ -283,12 +285,10 @@
     <!-- PC -->
     <div class="home-body" @click="setShareWidgetShow(false)" v-if="!inMobile">
       <!-- 列表条 -->
-      <div class="list-bar">
+      <div class="list-bar" v-if="!isNodeEmpty">
         <el-skeleton class="list-skeleton" :rows="2" animated v-if="loading" />
 
-        <div class="no-data-tip" v-if="!loading && !total && !searching">当前节点暂无内容</div>
-
-        <template v-else-if="!loading">
+        <template v-if="!loading">
           <template v-if="!viewOffline">
             <!-- 搜索框 -->
             <div class="search-box">
@@ -446,8 +446,10 @@
         </template>
       </div>
 
-      <div class="no-data" v-if="loading === false && !total && myLoading === null">
-        <img class="no-data-img" src="../assets/images/no-data.svg" />
+      <div class="no-data no-data--center" v-if="isNodeEmpty">
+        <div class="no-data-inner">
+          <img class="no-data-img" src="../assets/images/no-data.svg" alt="" />
+        </div>
       </div>
       <el-skeleton class="content-skeleton" :rows="9" animated v-if="myLoading === true" />
       <!-- 内容区域 -->
@@ -672,6 +674,14 @@ export default {
     const currentIndex = computed(() => {
       return datasOfGetList.listData.value.findIndex(item => item.exhibitId === data.currentId);
     });
+
+    const isNodeEmpty = computed(
+      () =>
+        !datasOfGetList.loading.value &&
+        !datasOfGetList.total.value &&
+        !data.searching &&
+        data.myLoading === null
+    );
 
     const methods = {
       /** 移动端分享 */
@@ -1103,6 +1113,7 @@ export default {
       searchHistoryPopup,
       ...toRefs(data),
       currentIndex,
+      isNodeEmpty,
       ...methods
     };
   }
