@@ -54,6 +54,7 @@
                   alt="未授权"
                   v-else-if="voiceInfo?.defaulterIdentityType >= 4"
                 ></i>
+                <i class="freelog fl-icon-gedanbiaoshi gedan-icon"></i>
                 <span class="title">{{ voiceInfo?.exhibitTitle }}</span>
               </div>
 
@@ -212,18 +213,18 @@
             <div class="single-content-intro" v-else>
               <!-- 歌单介绍 -->
               <div class="info-detail" v-if="!subID">
-                <div class="detail-item">
+                <!-- <div class="detail-item">
                   <span class="name">资源类型:</span>
                   <span class="value">{{ voiceInfo?.articleInfo?.resourceType?.[1] }}</span>
-                </div>
+                </div> -->
                 <div class="detail-item">
                   <span class="name">创建人:</span>
                   <span class="value">{{ nodeInfo?.ownerUserName }}</span>
                 </div>
-                <div class="detail-item">
+                <!-- <div class="detail-item">
                   <span class="name">歌曲数量:</span>
                   <span class="value">{{ collectionData.length }}</span>
-                </div>
+                </div> -->
                 <div
                   class="detail-item"
                   v-if="voiceInfo?.versionInfo?.exhibitProperty.collection_duration"
@@ -501,6 +502,7 @@
               @click.stop="getAuth()"
               v-if="voiceInfo?.defaulterIdentityType >= 4"
             ></i>
+            <i class="freelog fl-icon-gedanbiaoshi gedan-icon"></i>
 
             <my-tooltip :content="voiceInfo?.exhibitTitle">
               <span class="title">{{ voiceInfo?.exhibitTitle }}</span>
@@ -540,18 +542,18 @@
 
           <!-- 歌单详情 -->
           <div class="info-detail" v-if="!subID">
-            <div class="detail-item">
+            <!-- <div class="detail-item">
               <span class="name">资源类型:</span>
               <span class="value">{{ voiceInfo?.articleInfo?.resourceType?.[1] }}</span>
-            </div>
+            </div> -->
             <div class="detail-item">
               <span class="name">创建人:</span>
               <span class="value">{{ nodeInfo?.ownerUserName }}</span>
             </div>
-            <div class="detail-item">
+            <!-- <div class="detail-item">
               <span class="name">歌曲数量:</span>
               <span class="value">{{ collectionData.length }}</span>
-            </div>
+            </div> -->
             <div
               class="detail-item"
               v-if="voiceInfo?.versionInfo?.exhibitProperty.collection_duration"
@@ -1095,7 +1097,7 @@ export default {
   methods: {
     /** 点击标签：按标签搜索 */
     searchByTag(tag) {
-      const tagName = typeof tag === "string" ? tag : tag?.name ?? String(tag ?? "");
+      const tagName = typeof tag === "string" ? tag : (tag?.name ?? String(tag ?? ""));
       if (!tagName) return;
       this.store.setData({ key: "searchKey", value: "" });
       this.$router.myPush({

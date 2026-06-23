@@ -54,6 +54,7 @@
                   alt="未授权"
                   v-else-if="voiceInfo?.defaulterIdentityType >= 4"
                 ></i>
+                <i class="freelog fl-icon-zhuanjibiaoshi zhuanji-icon"></i>
                 <span class="title">{{ voiceInfo?.exhibitTitle }}</span>
               </div>
 
@@ -212,10 +213,10 @@
             <div class="single-content-intro" v-else>
               <!-- 专辑介绍 -->
               <div class="info-detail" v-if="!subID">
-                <div class="detail-item">
+                <!-- <div class="detail-item">
                   <span class="name">资源类型:</span>
                   <span class="value">{{ voiceInfo?.articleInfo?.resourceType?.[1] }}</span>
-                </div>
+                </div> -->
                 <div
                   class="detail-item"
                   v-if="voiceInfo?.versionInfo?.exhibitProperty.display_artist"
@@ -225,10 +226,10 @@
                     voiceInfo?.versionInfo?.exhibitProperty.display_artist
                   }}</span>
                 </div>
-                <div class="detail-item">
+                <!-- <div class="detail-item">
                   <span class="name">歌曲数量:</span>
                   <span class="value">{{ collectionData.length }}</span>
-                </div>
+                </div> -->
                 <div class="detail-item">
                   <span class="name">发行时间:</span>
                   <span class="value">{{
@@ -264,6 +265,7 @@
 
         <div v-else>
           <div class="single-content-intro">
+            <!-- TODO 有可能逻辑进不到这里，先观察，后删除 -->
             <div class="info-detail" v-if="voiceInfo?.articleInfo?.articleType === 2">
               <div class="detail-item">
                 <span class="name">资源类型:</span>
@@ -443,6 +445,8 @@
               v-if="voiceInfo?.defaulterIdentityType >= 4"
             ></i>
 
+            <i class="freelog fl-icon-zhuanjibiaoshi zhuanji-icon"></i>
+
             <my-tooltip :content="voiceInfo?.exhibitTitle">
               <span class="title">{{ voiceInfo?.exhibitTitle }}</span>
             </my-tooltip>
@@ -481,20 +485,20 @@
 
           <!-- 专辑详情 -->
           <div class="info-detail" v-if="voiceInfo?.articleInfo?.articleType === 2">
-            <div class="detail-item">
+            <!-- <div class="detail-item">
               <span class="name">资源类型:</span>
               <span class="value">{{ voiceInfo?.articleInfo?.resourceType?.[1] }}</span>
-            </div>
+            </div> -->
             <div class="detail-item" v-if="voiceInfo?.versionInfo?.exhibitProperty.display_artist">
               <span class="name">艺人:</span>
               <span class="value">{{
                 voiceInfo?.versionInfo?.exhibitProperty.display_artist
               }}</span>
             </div>
-            <div class="detail-item">
+            <!-- <div class="detail-item">
               <span class="name">歌曲数量:</span>
               <span class="value">{{ collectionData.length }}</span>
-            </div>
+            </div> -->
             <div class="detail-item">
               <span class="name">发行时间:</span>
               <span class="value">{{
@@ -1021,7 +1025,7 @@ export default {
 
     /** 点击标签：按标签搜索 */
     searchByTag(tag) {
-      const tagName = typeof tag === "string" ? tag : tag?.name ?? String(tag ?? "");
+      const tagName = typeof tag === "string" ? tag : (tag?.name ?? String(tag ?? ""));
       if (!tagName) return;
       this.store.setData({ key: "searchKey", value: "" });
       this.$router.myPush({
