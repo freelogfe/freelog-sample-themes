@@ -87,7 +87,7 @@ onMounted(() => {
     </div>
 
     <!-- 节点信息 -->
-    <div class="node-info">
+    <div class="node-info" :class="!selfConfig.options_node_logo && 'no-avatar'">
       <div class="avatar" v-if="selfConfig.options_node_logo">
         <img :src="selfConfig.options_node_logo" alt="avatar" />
       </div>
@@ -226,6 +226,10 @@ onMounted(() => {
   .node-info {
     margin-top: -50px;
     padding: 0 15px;
+
+    &.no-avatar {
+      margin-top: 5px;
+    }
 
     .avatar {
       width: 100px;
