@@ -109,7 +109,7 @@ img {
   transition: all 0.2s linear;
 
   &.second-level {
-    color: #ffffff;
+    color: var(--text-color);
   }
 
   &:hover {
