@@ -54,7 +54,14 @@
                   alt="未授权"
                   v-else-if="voiceInfo?.defaulterIdentityType >= 4"
                 ></i>
-                <i class="freelog fl-icon-zhuanjibiaoshi zhuanji-icon"></i>
+                <i
+                  class="freelog fl-icon-zhuanjibiaoshi zhuanji-icon"
+                  v-if="voiceInfo?.articleInfo?.articleType === 2"
+                ></i>
+                <i
+                  class="freelog fl-icon-danqubiaoshi danqu-icon"
+                  v-if="voiceInfo?.articleInfo?.articleType === 1"
+                ></i>
                 <span class="title">{{ voiceInfo?.exhibitTitle }}</span>
               </div>
 
@@ -445,7 +452,14 @@
               v-if="voiceInfo?.defaulterIdentityType >= 4"
             ></i>
 
-            <i class="freelog fl-icon-zhuanjibiaoshi zhuanji-icon"></i>
+            <i
+              class="freelog fl-icon-zhuanjibiaoshi zhuanji-icon"
+              v-if="voiceInfo?.articleInfo?.articleType === 2"
+            ></i>
+            <i
+              class="freelog fl-icon-danqubiaoshi danqu-icon"
+              v-if="voiceInfo?.articleInfo?.articleType === 1"
+            ></i>
 
             <my-tooltip :content="voiceInfo?.exhibitTitle">
               <span class="title">{{ voiceInfo?.exhibitTitle }}</span>

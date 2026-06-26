@@ -54,7 +54,14 @@
                   alt="未授权"
                   v-else-if="voiceInfo?.defaulterIdentityType >= 4"
                 ></i>
-                <i class="freelog fl-icon-gedanbiaoshi gedan-icon"></i>
+                <i
+                  class="freelog fl-icon-gedanbiaoshi gedan-icon"
+                  v-if="voiceInfo?.articleInfo?.articleType === 3"
+                ></i>
+                <i
+                  class="freelog fl-icon-danqubiaoshi danqu-icon"
+                  v-if="voiceInfo?.articleInfo?.articleType === 1"
+                ></i>
                 <span class="title">{{ voiceInfo?.exhibitTitle }}</span>
               </div>
 
@@ -502,7 +509,14 @@
               @click.stop="getAuth()"
               v-if="voiceInfo?.defaulterIdentityType >= 4"
             ></i>
-            <i class="freelog fl-icon-gedanbiaoshi gedan-icon"></i>
+            <i
+              class="freelog fl-icon-gedanbiaoshi gedan-icon"
+              v-if="voiceInfo?.articleInfo?.articleType === 3"
+            ></i>
+            <i
+              class="freelog fl-icon-danqubiaoshi danqu-icon"
+              v-if="voiceInfo?.articleInfo?.articleType === 1"
+            ></i>
 
             <my-tooltip :content="voiceInfo?.exhibitTitle">
               <span class="title">{{ voiceInfo?.exhibitTitle }}</span>
