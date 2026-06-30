@@ -780,6 +780,9 @@
         <span class="exceptional-text"> 此作品因违规无法访问 </span>
       </div>
 
+      <!-- 评论模块 -->
+      <div id="app-vertical-comment"></div>
+
       <!-- 推荐列表模块 -->
       <!-- 专辑推荐 -->
       <div v-if="recommendData.length">
@@ -807,8 +810,6 @@
           />
         </div>
       </div>
-
-      <div id="app-vertical-comment"></div>
     </div>
 
     <DetailFloatMenu
