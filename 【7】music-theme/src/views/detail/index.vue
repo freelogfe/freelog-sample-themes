@@ -1358,6 +1358,7 @@ export default {
         currentUserId: this.store.userData.userId,
         theme: this.commentFloatTheme,
         pageBackground: pick("--bg-color"),
+        pageColor: "#44d7b6",
         textPrimary: pick("--text-eighth-color"),
         textSecondary: pick("--text-sixth-color"),
         borderColor: pick("--border-color")
@@ -1427,8 +1428,8 @@ export default {
             onLogin: () => callLogin(),
             ...this.getCommentWidgetThemePayload()
           }
-        }
-        // widget_entry: "https://localhost:8203"
+        },
+        widget_entry: "https://localhost:8203"
       };
       this.commentWidget = await freelogApp.mountArticleWidget(params);
     },
