@@ -672,7 +672,7 @@
     display: flex;
     align-items: flex-start;
     box-sizing: border-box;
-    --list-bar-width: 300px;
+    --list-bar-width: clamp(300px, 25vw, 400px);
     --outline-float-width: 220px;
     --outline-fixed-width: 300px;
 
@@ -703,8 +703,6 @@
       left: 0;
       top: 70px;
       width: var(--list-bar-width);
-      min-width: 300px;
-      max-width: 400px;
       height: calc(100vh - 70px);
       overflow-y: auto;
       background: #fafbfc;
@@ -715,20 +713,6 @@
       padding: 30px;
       box-sizing: border-box;
       z-index: 20;
-
-      .list-bar-resizer {
-        position: absolute;
-        right: 0;
-        top: 0;
-        width: 4px;
-        height: 100%;
-        cursor: col-resize;
-        z-index: 1;
-
-        &:hover {
-          background: rgba(39, 132, 255, 0.15);
-        }
-      }
 
       .list-skeleton {
         width: 100%;
