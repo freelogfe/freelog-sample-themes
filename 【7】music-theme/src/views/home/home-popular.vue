@@ -128,13 +128,13 @@ const menuBtnList = item => {
       icon: !ifSupportMime(item.versionInfo?.exhibitProperty?.mime)
         ? "fl-icon-wufabofang"
         : playing({ exhibitId: item.exhibitId, itemId: item.itemId })
-        ? "fl-icon-zanting-daibiankuang"
-        : "fl-icon-bofang-daibiankuang",
+          ? "fl-icon-zanting-daibiankuang"
+          : "fl-icon-bofang-daibiankuang",
       label: !ifSupportMime(item.versionInfo?.exhibitProperty?.mime)
         ? "无法播放"
         : playing({ exhibitId: item.exhibitId, itemId: item.itemId })
-        ? "暂停音乐"
-        : "播放音乐",
+          ? "暂停音乐"
+          : "播放音乐",
       operate: () => playOrPause(item),
       disabled: !ifSupportMime(item.versionInfo?.exhibitProperty?.mime)
     },
@@ -288,7 +288,15 @@ const isSelectedData = item => {
             <myTooltip content="加入播放列表">
               <i
                 class="freelog text-btn"
-                :class="['fl-icon-jiarubofangliebiao', { disabled: useMyPlay.ifExist({exhibitId:item.exhibitId,itemId:item.itemId}) || (item.articleInfo.articleType === 1 && !ifSupportMime(item.versionInfo?.exhibitProperty?.mime as string)) }]"
+                :class="[
+                  'fl-icon-jiarubofangliebiao',
+                  {
+                    disabled:
+                      useMyPlay.ifExist({ exhibitId: item.exhibitId, itemId: item.itemId }) ||
+                      (item.articleInfo.articleType === 1 &&
+                        !ifSupportMime(item.versionInfo?.exhibitProperty?.mime as string))
+                  }
+                ]"
                 @click="addToPlayList({ exhibitId: item.exhibitId, itemId: item.itemId })"
               />
             </myTooltip>
@@ -300,7 +308,15 @@ const isSelectedData = item => {
               />
             </myTooltip>
 
-            <div class="more-btns" v-if="showMore" @mouseleave="showMore = false">
+            <div
+              class="more-btns"
+              :class="{
+                'light-theme': currentTheme === 'light',
+                'dark-theme': currentTheme === 'dark'
+              }"
+              v-if="showMore"
+              @mouseleave="showMore = false"
+            >
               <div class="more-item" @click="share(item)">
                 <i class="freelog text-btn fl-icon-fenxiang" />
                 分享
@@ -716,6 +732,13 @@ const isSelectedData = item => {
             backdrop-filter: blur(25px);
             overflow: hidden;
             z-index: 99;
+
+            &.light-theme {
+              background: var(--bg-color);
+            }
+            &.dark-theme {
+              background: #222222;
+            }
 
             .more-item {
               height: 50px;
