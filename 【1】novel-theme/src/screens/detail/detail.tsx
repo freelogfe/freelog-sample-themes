@@ -372,7 +372,8 @@ const DetailBody = (props: {
     input.select();
     document.execCommand("Copy");
     showToast("链接复制成功～");
-    // freelogApp.pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: novel.exhibitId } });
+    (freelogApp as any).pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: novel.exhibitId } });
+    (freelogApp as any).pushMessage4Task({ taskConfigCode: "T0004004", meta: { presentableId: novel.exhibitId } });
   };
 
   /** 加载分享插件 */

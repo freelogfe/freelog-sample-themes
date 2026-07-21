@@ -700,10 +700,10 @@ export default {
             this.currentPlayMode === "NORMAL"
               ? "fl-icon-shunxubofang"
               : this.currentPlayMode === "RANDOM"
-              ? "fl-icon-suijibofang1"
-              : this.currentPlayMode === "REPEAT-ONE"
-              ? "fl-icon-liebiaoxunhuanbeifen"
-              : "fl-icon-liebiaoxunhuan",
+                ? "fl-icon-suijibofang1"
+                : this.currentPlayMode === "REPEAT-ONE"
+                  ? "fl-icon-liebiaoxunhuanbeifen"
+                  : "fl-icon-liebiaoxunhuan",
           operate: () => {
             this.changePlayMode();
           }
@@ -742,10 +742,10 @@ export default {
             this.currentPlayMode === "NORMAL"
               ? "fl-icon-shunxubofang"
               : this.currentPlayMode === "RANDOM"
-              ? "fl-icon-suijibofang1"
-              : this.currentPlayMode === "REPEAT-ONE"
-              ? "fl-icon-liebiaoxunhuanbeifen"
-              : "fl-icon-liebiaoxunhuan",
+                ? "fl-icon-suijibofang1"
+                : this.currentPlayMode === "REPEAT-ONE"
+                  ? "fl-icon-liebiaoxunhuanbeifen"
+                  : "fl-icon-liebiaoxunhuan",
           operate: () => {
             this.changePlayMode();
           }
@@ -834,8 +834,7 @@ export default {
 
       if (sameTracks) {
         this.shuffledList = this.shuffledList.map(
-          item =>
-            this.playList.find(p => this.trackKey(p) === this.trackKey(item)) ?? item
+          item => this.playList.find(p => this.trackKey(p) === this.trackKey(item)) ?? item
         );
       } else {
         this.shuffledList = this.playList.slice();
@@ -1044,6 +1043,14 @@ export default {
           .writeText(copiedShareHref)
           .then(() => {
             showToast("链接复制成功～");
+            freelogApp.pushMessage4Task({
+              taskConfigCode: "TS000077",
+              meta: { presentableId: this.playingInfo.exhibitId }
+            });
+            freelogApp.pushMessage4Task({
+              taskConfigCode: "T0004004",
+              meta: { presentableId: this.playingInfo.exhibitId }
+            });
           })
           .catch(error => {
             const input = document.createElement("input");
