@@ -737,11 +737,17 @@
                     />
                   </myTooltip>
                 </div>
-                <div class="singer gedan-singer">
-                  {{ item.articleInfo.articleProperty?.display_artist }}
+                <div
+                  class="singer gedan-singer"
+                  :class="{ 'unknown-text': !item.articleInfo.articleProperty?.display_artist }"
+                >
+                  {{ item.articleInfo.articleProperty?.display_artist || "未知" }}
                 </div>
-                <div class="gedan-album-name">
-                  {{ item.articleInfo.articleProperty?.album_name }}
+                <div
+                  class="gedan-album-name"
+                  :class="{ 'unknown-text': !item.articleInfo.articleProperty?.album_name }"
+                >
+                  {{ item.articleInfo.articleProperty?.album_name || "未知" }}
                 </div>
                 <!-- 播放中标识 -->
                 <play-status

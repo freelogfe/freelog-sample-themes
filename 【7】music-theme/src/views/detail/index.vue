@@ -604,9 +604,9 @@
             v-if="voiceInfo?.articleInfo.articleType === 2 && collectionData.length"
           >
             <div class="title">包含音乐（{{ collectionData.length }}）</div>
-            <div class="content-item-wrap">
+            <div class="content-item-wrap zhuan-ji">
               <div
-                class="content-item"
+                class="content-item zhuan-ji-content-item"
                 :class="{
                   'opacity-40':
                     ![0, 4].includes(item.defaulterIdentityType) ||
@@ -650,7 +650,10 @@
 
                   <span class="music-text">{{ item.exhibitTitle }}</span>
                 </div>
-                <div class="album-sub-btns-area" :class="{ opacity: authLinkAbnormal }">
+                <div
+                  class="album-sub-btns-area zhuan-ji-album-sub-btns-area"
+                  :class="{ opacity: authLinkAbnormal }"
+                >
                   <myTooltip
                     :content="btn.title"
                     v-for="btn in albumSubBtnList(item)"
@@ -663,7 +666,18 @@
                     />
                   </myTooltip>
                 </div>
-                <div class="singer">{{ item.articleInfo.articleProperty?.display_artist }}</div>
+                <div
+                  class="singer zhuan-ji-singer"
+                  :class="{ 'unknown-text': !item.articleInfo.articleProperty?.display_artist }"
+                >
+                  {{ item.articleInfo.articleProperty?.display_artist || "未知" }}
+                </div>
+                <div
+                  class="album-name zhuan-ji-album-name"
+                  :class="{ 'unknown-text': !item.articleInfo.articleProperty?.album_name }"
+                >
+                  {{ item.articleInfo.articleProperty?.album_name || "未知" }}
+                </div>
                 <!-- 播放中标识 -->
                 <play-status
                   class="time"
