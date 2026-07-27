@@ -154,33 +154,41 @@
       <div class="no-data-tip" v-if="noDataMessage">{{ noDataMessage }}</div>
     </template>
 
+    <!-- 音乐列表、专辑列表、歌单列表，其他列表 骨架图 -->
     <template v-else>
-      <el-skeleton class="pc-skeleton" animated v-if="!store.inMobile">
-        <template slot="template">
-          <div class="voice-skeleton" v-for="item in 5" :key="item">
-            <el-skeleton-item class="cover" variant="image" />
-            <div class="info-area">
-              <el-skeleton-item class="voice-title" variant="text" />
-              <el-skeleton-item class="voice-intro" variant="text" />
-              <el-skeleton-item class="voice-intro" variant="text" />
-              <el-skeleton-item class="voice-others" variant="text" />
+      <!-- 音乐列表骨架图 -->
+      <VoiceListSkeleton v-if="$route.name === 'voice-list'" />
+      <!-- 专辑列表、歌单列表骨架图 -->
+      <AlbumPlayListSkeleton v-else-if="['album-list', 'play-list'].includes($route.name)" />
+      <!-- 其他列表骨架图 -->
+      <template v-else>
+        <el-skeleton class="pc-skeleton" animated v-if="!store.inMobile">
+          <template slot="template">
+            <div class="voice-skeleton" v-for="item in 5" :key="item">
+              <el-skeleton-item class="cover" variant="image" />
+              <div class="info-area">
+                <el-skeleton-item class="voice-title" variant="text" />
+                <el-skeleton-item class="voice-intro" variant="text" />
+                <el-skeleton-item class="voice-intro" variant="text" />
+                <el-skeleton-item class="voice-others" variant="text" />
+              </div>
             </div>
-          </div>
-        </template>
-      </el-skeleton>
+          </template>
+        </el-skeleton>
 
-      <el-skeleton class="mobile-skeleton" animated v-else>
-        <template slot="template">
-          <div class="voice-skeleton" v-for="item in 4" :key="item">
-            <el-skeleton-item class="cover" variant="image" />
-            <div class="info-area">
-              <el-skeleton-item class="voice-title" variant="text" />
-              <el-skeleton-item class="voice-duration" variant="text" />
-              <el-skeleton-item class="voice-others" variant="text" />
+        <el-skeleton class="mobile-skeleton" animated v-else>
+          <template slot="template">
+            <div class="voice-skeleton" v-for="item in 4" :key="item">
+              <el-skeleton-item class="cover" variant="image" />
+              <div class="info-area">
+                <el-skeleton-item class="voice-title" variant="text" />
+                <el-skeleton-item class="voice-duration" variant="text" />
+                <el-skeleton-item class="voice-others" variant="text" />
+              </div>
             </div>
-          </div>
-        </template>
-      </el-skeleton>
+          </template>
+        </el-skeleton>
+      </template>
     </template>
   </div>
 </template>
@@ -191,6 +199,8 @@ import voice from "@/components/voice.vue";
 import PCAlbum from "@/components/album.vue";
 import MobileAlbum from "@/components/mobile-album.vue";
 import PCPlayList from "@/components/play-list.vue";
+import VoiceListSkeleton from "@/components/voice-list-skeleton.vue";
+import AlbumPlayListSkeleton from "@/components/album-play-list-skeleton.vue";
 
 const TabEnum = {
   Music: 1,
@@ -205,7 +215,9 @@ export default {
     voice,
     PCAlbum,
     MobileAlbum,
-    PCPlayList
+    PCPlayList,
+    VoiceListSkeleton,
+    AlbumPlayListSkeleton
   },
 
   props: {
