@@ -426,7 +426,14 @@ export default {
         input.select();
         document.execCommand("Copy");
         showToast("链接复制成功～");
-        // freelogApp.pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: data.articleData?.exhibitId } });
+        (freelogApp as any).pushMessage4Task({
+          taskConfigCode: "TS000077",
+          meta: { presentableId: data.articleData?.exhibitId }
+        });
+        (freelogApp as any).pushMessage4Task({
+          taskConfigCode: "T0004004",
+          meta: { presentableId: data.articleData?.exhibitId }
+        });
       },
 
       /** 获取授权 */

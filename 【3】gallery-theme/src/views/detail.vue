@@ -443,7 +443,14 @@ export default {
         input.select();
         document.execCommand("Copy");
         showToast("链接复制成功～");
-        // freelogApp.pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: data.exhibitInfo?.exhibitId } });
+        (freelogApp as any).pushMessage4Task({
+          taskConfigCode: "TS000077",
+          meta: { presentableId: data.exhibitInfo?.exhibitId }
+        });
+        (freelogApp as any).pushMessage4Task({
+          taskConfigCode: "T0004004",
+          meta: { presentableId: data.exhibitInfo?.exhibitId }
+        });
       },
 
       /** 获取用户头像 */

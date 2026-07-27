@@ -286,7 +286,6 @@
     <div
       class="home-body"
       :class="{ 'has-list-bar': !isNodeEmpty }"
-      :style="{ '--list-bar-width': `${listBarWidth}px` }"
       @click="setShareWidgetShow(false)"
       v-if="!inMobile"
     >
@@ -450,7 +449,6 @@
             </div>
           </template>
         </template>
-        <div class="list-bar-resizer" @mousedown="startResizeListBar"></div>
       </div>
 
       <div class="no-data no-data--center" v-if="isNodeEmpty">
@@ -679,9 +677,6 @@ import { relativeTime } from "@/utils/common";
 import { showToast } from "@/utils/common";
 import { WidgetController, freelogApp } from "freelog-runtime";
 
-const LIST_BAR_MIN = 300;
-const LIST_BAR_MAX = 400;
-const LIST_BAR_STORAGE_KEY = "document-theme-list-bar-width";
 const OUTLINE_WIDE_BREAKPOINT = 1520;
 
 export default {
@@ -704,8 +699,6 @@ export default {
     const searchInput = ref();
     const searchHistoryPopup = ref();
     const titleDirectoryRef = ref<HTMLElement | null>(null);
-    const listBarWidth = ref(LIST_BAR_MIN);
-    const isResizingListBar = ref(false);
     const directoryScrollTop = ref(0);
     const directoryCanScrollDown = ref(false);
     const isWideScreen = ref(
@@ -755,7 +748,14 @@ export default {
         input.select();
         document.execCommand("Copy");
         showToast("链接复制成功～");
-        // freelogApp.pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: data.documentData?.exhibitId } });
+        (freelogApp as any).pushMessage4Task({
+          taskConfigCode: "TS000077",
+          meta: { presentableId: data.documentData?.exhibitId }
+        });
+        (freelogApp as any).pushMessage4Task({
+          taskConfigCode: "T0004004",
+          meta: { presentableId: data.documentData?.exhibitId }
+        });
       },
 
       /** 输入搜索词 */
@@ -857,15 +857,6 @@ export default {
 
       scrollDirectory(direction: -1 | 1) {
         titleDirectoryRef.value?.scrollBy({ top: direction * 80, behavior: "smooth" });
-      },
-
-      startResizeListBar(e: MouseEvent) {
-        e.preventDefault();
-        isResizingListBar.value = true;
-        document.addEventListener("mousemove", onListBarResizeMove);
-        document.addEventListener("mouseup", stopResizeListBar);
-        document.body.style.cursor = "col-resize";
-        document.body.style.userSelect = "none";
       },
 
       /** 跳到标题位置, 需保证在 debouncedScroll 后执行 */
@@ -1186,25 +1177,8 @@ export default {
     onBeforeUnmount(async () => {
       window.removeEventListener("keyup", keyup);
       window.removeEventListener("resize", onWindowResize);
-      document.removeEventListener("mousemove", onListBarResizeMove);
-      document.removeEventListener("mouseup", stopResizeListBar);
       await data.shareWidget?.unmount();
     });
-
-    const onListBarResizeMove = (e: MouseEvent) => {
-      if (!isResizingListBar.value) return;
-      listBarWidth.value = Math.min(LIST_BAR_MAX, Math.max(LIST_BAR_MIN, e.clientX));
-    };
-
-    const stopResizeListBar = () => {
-      if (!isResizingListBar.value) return;
-      isResizingListBar.value = false;
-      document.removeEventListener("mousemove", onListBarResizeMove);
-      document.removeEventListener("mouseup", stopResizeListBar);
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-      localStorage.setItem(LIST_BAR_STORAGE_KEY, String(listBarWidth.value));
-    };
 
     const onWindowResize = () => {
       isWideScreen.value = window.innerWidth >= OUTLINE_WIDE_BREAKPOINT;
@@ -1212,10 +1186,6 @@ export default {
     };
 
     onMounted(() => {
-      const saved = Number(localStorage.getItem(LIST_BAR_STORAGE_KEY));
-      if (saved >= LIST_BAR_MIN && saved <= LIST_BAR_MAX) {
-        listBarWidth.value = saved;
-      }
       methods.updateDirectoryScrollState();
       window.addEventListener("resize", onWindowResize);
     });
@@ -1242,7 +1212,6 @@ export default {
       ...toRefs(data),
       currentIndex,
       isNodeEmpty,
-      listBarWidth,
       isWideScreen,
       titleDirectoryRef,
       showDirectoryScrollUp,

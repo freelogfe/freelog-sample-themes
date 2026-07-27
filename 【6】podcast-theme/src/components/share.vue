@@ -197,7 +197,14 @@ export default {
           this.copySuccess = false;
         }, 2300);
       }
-      // freelogApp.pushMessage4Task({ taskConfigCode: "TS000077", meta: { presentableId: this.shareInfo.exhibit.exhibitId } });
+      freelogApp.pushMessage4Task({
+        taskConfigCode: "TS000077",
+        meta: { presentableId: this.shareInfo.exhibit.exhibitId }
+      });
+      freelogApp.pushMessage4Task({
+        taskConfigCode: "T0004004",
+        meta: { presentableId: this.shareInfo.exhibit.exhibitId }
+      });
     }
   }
 };
