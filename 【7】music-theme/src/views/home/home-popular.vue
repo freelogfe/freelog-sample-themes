@@ -200,7 +200,7 @@ const isSelectedData = item => {
         v-for="(item, index) in props.data"
         :key="index"
       >
-        <div class="index">{{ changeIndex(index + 1) }}</div>
+        <!-- <div class="index">{{ changeIndex(index + 1) }}</div> -->
         <div class="info-box">
           <div class="cover-image">
             <img :src="item.coverImages[0]" alt="歌曲封面" />
@@ -260,7 +260,7 @@ const isSelectedData = item => {
                 alt="未授权"
                 v-else-if="item.defaulterIdentityType >= 4"
               ></i>
-              {{ item.exhibitTitle }}
+              <span class="title-text">{{ item.exhibitTitle }}</span>
             </span>
             <span
               class="desc"
@@ -397,7 +397,7 @@ const isSelectedData = item => {
                 @click.stop="getAuth(item)"
                 v-if="item.defaulterIdentityType >= 4"
               ></i>
-              {{ item.exhibitTitle }}
+              <span class="title-text">{{ item.exhibitTitle }}</span>
             </span>
             <span
               class="desc"
@@ -471,7 +471,7 @@ const isSelectedData = item => {
     justify-content: space-between;
 
     .title {
-      font-weight: 600;
+      font-weight: 400;
       font-size: 20px;
       color: var(--text-color);
       line-height: 28px;
@@ -481,7 +481,7 @@ const isSelectedData = item => {
     .more {
       display: flex;
       align-items: center;
-      font-weight: 600;
+      font-weight: 400;
       font-size: 14px;
       color: var(--text-color);
       opacity: 0.8;
@@ -510,7 +510,7 @@ const isSelectedData = item => {
     display: flex;
     flex-wrap: wrap;
     gap: 40px 30px;
-    margin-top: 40px;
+    margin-top: 30px;
 
     .content-item {
       display: flex;
@@ -543,7 +543,7 @@ const isSelectedData = item => {
           height: 70px;
           background: var(--bg-second-color);
           border-radius: 6px;
-          margin-right: 15px;
+          margin-right: 20px;
           overflow: hidden;
           cursor: pointer;
 
@@ -617,21 +617,27 @@ const isSelectedData = item => {
         .info {
           display: flex;
           flex-direction: column;
-          gap: 6px;
+          gap: 5px;
 
           .title {
             display: flex;
             align-items: center;
             width: 196px;
-            font-weight: 600;
+            min-width: 0;
+            font-weight: 400;
             font-size: 16px;
             color: var(--text-color);
             line-height: 22px;
             opacity: 0.8;
             cursor: pointer;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
+
+            .title-text {
+              flex: 1;
+              min-width: 0;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+            }
 
             &:hover {
               color: #44d7b6;
@@ -673,22 +679,33 @@ const isSelectedData = item => {
           }
 
           .desc {
+            display: block;
             width: 196px;
+            max-width: 100%;
+            min-width: 0;
             font-weight: 400;
             font-size: 12px;
             color: var(--text-color);
             line-height: 18px;
             overflow: hidden;
             white-space: nowrap;
+            opacity: 0.4;
             text-overflow: ellipsis;
           }
 
           .type {
+            display: block;
+            width: 196px;
+            max-width: 100%;
+            min-width: 0;
             font-weight: 400;
             font-size: 12px;
             color: var(--text-color);
             line-height: 18px;
             opacity: 0.4;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
 
             &.album {
               cursor: pointer;
@@ -791,7 +808,7 @@ const isSelectedData = item => {
     justify-content: space-between;
 
     .title {
-      font-weight: 600;
+      font-weight: 400;
       font-size: 20px;
       color: var(--text-color);
       line-height: 28px;
@@ -801,7 +818,7 @@ const isSelectedData = item => {
     .more {
       display: flex;
       align-items: center;
-      font-weight: 600;
+      font-weight: 400;
       font-size: 14px;
       color: var(--text-color);
       opacity: 0.8;
@@ -831,7 +848,7 @@ const isSelectedData = item => {
     flex-direction: column;
     flex-wrap: wrap;
     gap: 15px 0;
-    margin-top: 40px;
+    margin-top: 30px;
 
     .content-item {
       display: flex;
@@ -867,15 +884,21 @@ const isSelectedData = item => {
             display: flex;
             align-items: center;
             width: 196px;
+            min-width: 0;
             font-weight: 600;
             font-size: 16px;
             color: var(--text-color);
             line-height: 22px;
             opacity: 0.8;
             cursor: pointer;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
+
+            .title-text {
+              flex: 1;
+              min-width: 0;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+            }
 
             &:hover {
               // color: #44d7b6;
@@ -917,22 +940,33 @@ const isSelectedData = item => {
           }
 
           .desc {
+            display: block;
             width: 196px;
+            max-width: 100%;
+            min-width: 0;
             font-weight: 400;
             font-size: 12px;
             color: var(--text-color);
             line-height: 18px;
             overflow: hidden;
             white-space: nowrap;
+            opacity: 0.4;
             text-overflow: ellipsis;
           }
 
           .type {
+            display: block;
+            width: 196px;
+            max-width: 100%;
+            min-width: 0;
             font-weight: 400;
             font-size: 12px;
             color: var(--text-color);
             line-height: 18px;
             opacity: 0.4;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
 
             &.album {
               cursor: pointer;

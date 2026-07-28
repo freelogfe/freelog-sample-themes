@@ -479,10 +479,10 @@ onBeforeUnmount(() => {
   .album-header-box {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
 
     .title {
-      font-weight: 600;
+      font-weight: 400;
       font-size: 20px;
       color: var(--text-color);
       line-height: 28px;
@@ -496,7 +496,7 @@ onBeforeUnmount(() => {
     .more {
       display: flex;
       align-items: center;
-      font-weight: 600;
+      font-weight: 400;
       font-size: 14px;
       color: var(--text-color);
       opacity: 0.8;
@@ -810,7 +810,7 @@ onBeforeUnmount(() => {
     margin-bottom: 20px;
 
     .title {
-      font-weight: 600;
+      font-weight: 400;
       font-size: 20px;
       color: var(--text-color);
       line-height: 28px;
@@ -820,7 +820,7 @@ onBeforeUnmount(() => {
     .more {
       display: flex;
       align-items: center;
-      font-weight: 600;
+      font-weight: 400;
       font-size: 14px;
       color: var(--text-color);
       opacity: 0.6;

@@ -138,7 +138,7 @@
       class="pc-header-wrapper"
       v-if="store.inMobile === false"
       :style="{
-        paddingTop: store.nodeInfo.nodeLogo ? '40px' : '',
+        padding: store.nodeInfo.nodeLogo ? '40px 0' : '',
         height: store.nodeInfo.nodeLogo ? '' : '98px'
       }"
     >
