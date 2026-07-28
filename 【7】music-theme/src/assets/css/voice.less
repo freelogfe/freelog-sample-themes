@@ -662,8 +662,30 @@
       }
 
       .recommend-duration {
+        text-align: right;
+        justify-content: flex-end;
+      }
+    }
+
+    &.voice-list-page {
+      .right-box {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+
+        .duration {
+          text-align: right;
+        }
+
+        ::v-deep .play-status {
+          width: auto;
+          justify-content: flex-end;
+        }
+
+        .recommend-duration {
           text-align: right;
           justify-content: flex-end;
+        }
       }
     }
 

@@ -149,7 +149,8 @@
           !ifSupportMime ||
           authLinkAbnormal ||
           data.onlineStatus === 0 ||
-          data.articleInfo.status === 2
+          data.articleInfo.status === 2,
+        'voice-list-page': $route.name === 'voice-list'
       }"
       :title="
         !ifSupportMime ||
