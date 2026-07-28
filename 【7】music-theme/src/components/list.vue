@@ -60,7 +60,7 @@
       </div>
       <!-- 音乐 -->
       <div class="voice-list" v-if="tab === 1 && list.length && total !== 0">
-        <div class="voice-bar" v-if="!store.inMobile">
+        <div class="voice-bar" v-if="!store.inMobile && $route.name !== 'voice-list'">
           <span>歌曲</span>
           <span>专辑</span>
           <span>时长</span>
@@ -651,17 +651,17 @@ export default {
           }
 
           &:nth-child(2) {
-            width: 340px;
+            width: 260px;
           }
 
           &:nth-child(3) {
-            width: 120px;
+            width: 170px;
           }
         }
       }
 
       .voice-wrapper + .voice-wrapper {
-        margin-top: 25px;
+        margin-top: 20px;
       }
     }
 

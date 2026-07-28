@@ -149,7 +149,7 @@
         overflow: hidden;
         font-size: 14px;
         line-height: 20px;
-        color: var(--text-fourth-color);
+        color: var(--text-sixth-color);
         margin-top: 2px;
       }
 
@@ -347,6 +347,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 40px;
 
     &.unplayable {
       opacity: 0.4;
@@ -363,7 +364,7 @@
     }
 
     .left-box {
-      width: 730px;
+      width: 640px;
       display: flex;
 
       .cover-area {
@@ -471,7 +472,7 @@
         justify-content: space-between;
         flex: 1;
         margin-left: 20px;
-        width: 330px;
+        width: 390px;
 
         &.flex-justify-center {
           justify-content: center;
@@ -560,7 +561,7 @@
         .intro {
           width: 100%;
           font-size: 12px;
-          color: var(--text-fourth-color);
+          color: var(--text-sixth-color);
           line-height: 18px;
           display: -webkit-box;
           -webkit-box-orient: vertical;
@@ -625,11 +626,18 @@
     }
 
     .middle-box {
-      width: 340px;
+      width: 170px;
       font-weight: 400;
       font-size: 12px;
       line-height: 18px;
-      color: var(--text-fourth-color);
+      color: var(--text-sixth-color);
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+
+      &.unknown-text {
+        color: var(--text-fourth-color);
+      }
 
       &.album {
         cursor: pointer;
@@ -641,11 +649,15 @@
     }
 
     .right-box {
-      width: 130px;
+      width: 180px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+
       .duration {
         font-size: 12px;
         font-weight: 400;
-        color: var(--text-fourth-color);
+        color: var(--text-sixth-color);
         flex-shrink: 0;
       }
 

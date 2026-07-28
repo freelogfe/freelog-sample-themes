@@ -255,17 +255,24 @@
         </div>
       </div>
       <div
+        class="singer middle-box"
+        :class="{ 'unknown-text': !data.versionInfo.exhibitProperty?.display_artist }"
+        v-if="$route.name === 'voice-list'"
+      >
+        {{ data.versionInfo.exhibitProperty.display_artist || "未知" }}
+      </div>
+      <div
         class="middle-box"
-        :class="data.albumName && 'album'"
+        :class="{ 'unknown-text': !data.albumName, album: data.albumName }"
         @click="
           data.albumName &&
-            $router.myPush({
-              path: data.parentArticleType === 3 ? '/play-detail' : '/detail',
-              query: { id: data.exhibitId }
-            })
+          $router.myPush({
+            path: data.parentArticleType === 3 ? '/play-detail' : '/detail',
+            query: { id: data.exhibitId }
+          })
         "
       >
-        {{ data.albumName || "-" }}
+        {{ data.albumName || "未知" }}
       </div>
       <div class="right-box">
         <play-status
@@ -419,8 +426,8 @@ export default {
             this.data.articleInfo.status === 2
               ? "fl-icon-wufabofang"
               : this.playing
-              ? "fl-icon-zanting-daibiankuang"
-              : "fl-icon-bofang-daibiankuang",
+                ? "fl-icon-zanting-daibiankuang"
+                : "fl-icon-bofang-daibiankuang",
           title:
             !this.ifSupportMime ||
             this.authLinkAbnormal ||
@@ -428,8 +435,8 @@ export default {
             this.data.articleInfo.status === 2
               ? "无法播放"
               : this.playing
-              ? "暂停"
-              : "播放",
+                ? "暂停"
+                : "播放",
           operate: this.playOrPause,
           disabled:
             !this.ifSupportMime ||
@@ -463,8 +470,8 @@ export default {
             this.data.articleInfo.status === 2
               ? "fl-icon-wufabofang"
               : this.playing
-              ? "fl-icon-zanting-daibiankuang"
-              : "fl-icon-bofang-daibiankuang",
+                ? "fl-icon-zanting-daibiankuang"
+                : "fl-icon-bofang-daibiankuang",
           label: !this.ifSupportMime ? "无法播放" : this.playing ? "暂停音乐" : "播放音乐",
           operate: this.playOrPause,
           disabled:
