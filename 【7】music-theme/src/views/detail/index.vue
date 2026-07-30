@@ -668,15 +668,32 @@
                 </div>
                 <div
                   class="singer zhuan-ji-singer"
-                  :class="{ 'unknown-text': !item.articleInfo.articleProperty?.display_artist }"
+                  :class="{
+                    'unknown-text': !(
+                      item.articleInfo.articleProperty?.display_artist ||
+                      item?.articleInfo?.articleOwnerName
+                    )
+                  }"
                 >
-                  {{ item.articleInfo.articleProperty?.display_artist || "未知" }}
+                  {{
+                    item.articleInfo.articleProperty?.display_artist ||
+                    item?.articleInfo?.articleOwnerName ||
+                    "未知"
+                  }}
                 </div>
                 <div
                   class="album-name zhuan-ji-album-name"
-                  :class="{ 'unknown-text': !item.articleInfo.articleProperty?.album_name }"
+                  :class="{
+                    'unknown-text': !(
+                      item.articleInfo.articleProperty?.album_name || voiceInfo?.exhibitTitle
+                    )
+                  }"
                 >
-                  {{ item.articleInfo.articleProperty?.album_name || "未知" }}
+                  {{
+                    item.articleInfo.articleProperty?.album_name ||
+                    voiceInfo?.exhibitTitle ||
+                    "未知"
+                  }}
                 </div>
                 <!-- 播放中标识 -->
                 <play-status
