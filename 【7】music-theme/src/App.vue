@@ -7,7 +7,7 @@ import type { WidgetController } from "freelog-runtime";
 
 import FreelogHeader from "@/components/header.vue";
 import FreelogFooter from "@/components/footer.vue";
-import FreelogPlayer from "@/components/player.vue";
+import FreelogPlayer from "@/components/player-v2.vue";
 import FreelogShare from "@/components/share.vue";
 
 // 扩展 TouchEvent 类型以包含 Safari 特有的 scale 属性

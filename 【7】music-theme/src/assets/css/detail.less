@@ -1137,6 +1137,7 @@
             .content-item {
               height: 22px;
               display: flex;
+              align-items: center;
               justify-content: space-between;
               margin-bottom: 15px;
 
@@ -1174,6 +1175,8 @@
 
               .music {
                 width: 285px;
+                min-width: 0;
+                flex-shrink: 0;
                 font-weight: 600;
                 font-size: 16px;
                 color: var(--text-eighth-color);
@@ -1212,11 +1215,12 @@
                 }
 
                 .music-text {
-                  width: 100%;
+                  flex: 1;
+                  min-width: 0;
+                  line-height: 22px;
                   white-space: nowrap;
                   overflow: hidden;
                   text-overflow: ellipsis;
-                  flex: 1;
 
                   &:hover {
                     color: #44d7b6;
@@ -1281,11 +1285,26 @@
               }
 
               .time {
-                width: 100px;
+                width: 180px;
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
                 font-weight: 400;
                 font-size: 12px;
                 color: var(--text-sixth-color);
                 line-height: 18px;
+                white-space: nowrap;
+
+                ::v-deep .play-status {
+                  width: auto;
+                  flex-shrink: 0;
+                  justify-content: flex-end;
+
+                  .play-text {
+                    white-space: nowrap;
+                  }
+                }
               }
             }
 

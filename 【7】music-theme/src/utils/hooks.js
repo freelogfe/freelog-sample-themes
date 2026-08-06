@@ -606,10 +606,11 @@ export const useMyPlay = {
         const hasDuplicateId = playIdList.findIndex(i => i.exhibitId === obj.exhibitId);
 
         if (obj.type === "PLAY_ADD_TO_PLAYLIST") {
-          // 如果没有重复的 exhibitId，则添加到列表开头
-          if (hasDuplicateId === -1) {
-            playIdList.push(obj);
+          // 已在播放列表中（如自动切歌），无需重复刷新列表
+          if (hasDuplicateId !== -1) {
+            return;
           }
+          playIdList.push(obj);
         } else {
           // 如果有重复的 exhibitId，则先移除它
           if (hasDuplicateId !== -1) {
@@ -672,10 +673,11 @@ export const useMyPlay = {
         const hasDuplicateId = playIdList.findIndex(i => i.exhibitId === obj.exhibitId);
 
         if (obj.type === "PLAY_ADD_TO_PLAYLIST") {
-          // 如果没有重复的 exhibitId，则添加到列表开头
-          if (hasDuplicateId === -1) {
-            playIdList.push(obj);
+          // 已在播放列表中（如自动切歌），无需重复刷新列表
+          if (hasDuplicateId !== -1) {
+            return;
           }
+          playIdList.push(obj);
         } else {
           // 如果有重复的 exhibitId，则先移除它
           if (hasDuplicateId !== -1) {

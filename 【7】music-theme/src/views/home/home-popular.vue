@@ -308,33 +308,25 @@ const isSelectedData = item => {
               />
             </myTooltip>
 
-            <div
-              class="more-btns"
-              :class="{
-                'light-theme': currentTheme === 'light',
-                'dark-theme': currentTheme === 'dark'
-              }"
-              v-if="showMore"
-              @mouseleave="showMore = false"
-            >
+            <div class="more-btns" v-if="showMore" @mouseleave="showMore = false">
               <div class="more-item" @click="share(item)">
-                <i class="freelog text-btn fl-icon-fenxiang" />
-                分享
+                <i class="freelog fl-icon-icon_fenxiang1" />
+                <span>分享</span>
               </div>
               <div class="more-item" @click="operateCollect(item)">
                 <i
-                  class="freelog text-btn"
+                  class="freelog"
                   :class="
                     useMyCollection.ifExist({ exhibitId: item.exhibitId, itemId: item.itemId })
                       ? 'fl-icon-shoucangxiaoshuoyishoucang'
                       : 'fl-icon-shoucangxiaoshuo'
                   "
                 />
-                {{
+                <span>{{
                   useMyCollection.ifExist({ exhibitId: item.exhibitId, itemId: item.itemId })
                     ? "取消收藏"
                     : "收藏"
-                }}
+                }}</span>
               </div>
             </div>
           </div>
@@ -741,41 +733,48 @@ const isSelectedData = item => {
             position: absolute;
             right: 0;
             top: 14px;
-            width: 91px;
-            height: 100px;
-            background: var(--bg-color);
-            box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
-            backdrop-filter: blur(25px);
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            padding: 5px;
+            background: var(--text-first-color);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
             overflow: hidden;
             z-index: 99;
 
-            &.light-theme {
-              background: var(--bg-color);
-            }
-            &.dark-theme {
-              background: #222222;
-            }
-
             .more-item {
-              height: 50px;
               display: flex;
-              justify-content: center;
               align-items: center;
+              gap: 10px;
+              padding: 10px 20px;
+              border-radius: 5px;
               cursor: pointer;
-              color: var(--text-color);
+              font-size: 14px;
+              line-height: 20px;
+              color: var(--text-eighth-color);
+              white-space: nowrap;
+              transition: background-color 0.2s linear;
 
-              &:hover {
-                background: #44d7b6;
+              .freelog {
+                flex-shrink: 0;
+                font-size: 16px;
+                color: var(--text-eighth-color);
               }
 
-              .text-btn {
-                margin-left: 0;
-                margin-right: 5px;
-                &:hover {
-                  color: var(--text-color);
-                  opacity: 0.8;
-                }
+              .fl-icon-shoucangxiaoshuo,
+              .fl-icon-shoucangxiaoshuoyishoucang {
+                font-size: 20px;
+              }
+
+              &:hover {
+                background: var(--text-first-color);
+              }
+
+              &:active {
+                background: var(--text-second-color);
               }
             }
           }

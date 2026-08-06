@@ -42,6 +42,7 @@ export interface State {
   nodeInfo: Record<string, any>;
   playMode: string | null;
   playerShowStatus: false;
+  playerCollapsed: boolean;
   theme: ThemeType;
   maskLoading: boolean;
 }
@@ -71,7 +72,8 @@ export const useGlobalStore = defineStore("global", {
       searchKey: "", // 搜索关键词
       nodeInfo: {},
       playMode: null, // 播放模式，顺序播放、随机播放,
-      playerShowStatus: false, // 播放器收起展开状态 false：收起；true:展开
+      playerShowStatus: false, // 播放器是否显示
+      playerCollapsed: false, // 播放器是否折叠（右下角 compact 态）
       theme: currentTheme.value as ThemeType,
       maskLoading: false
     };

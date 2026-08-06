@@ -10,13 +10,13 @@ const openShare = inject<() => void>("openShare");
 
 const baseMenuList = [
   {
-    icon: "freelog fl-icon-shiyongzhuti",
+    icon: "freelog fl-icon-a-icon_usetheme",
     label: "使用此主题",
     desc: "官方示例主题, 可免费使用",
     action: "theme" as const
   },
   {
-    icon: "freelog fl-icon-fenxiang",
+    icon: "freelog fl-icon-icon_fenxiang1",
     label: "分享节点",
     desc: "点击下载二维码, 分享你的节点",
     action: "share" as const
@@ -39,6 +39,10 @@ const menuList = computed(() =>
   baseMenuList.filter(item => item.action !== "theme" || showThemeEntrance.value)
 );
 
+const isPlayerCollapsed = computed(
+  () => store.playerShowStatus && store.playerCollapsed && !store.inMobile
+);
+
 const handleClick = (action: "theme" | "share") => {
   if (action === "theme") {
     window.open(themeEntrance.url);
@@ -49,7 +53,10 @@ const handleClick = (action: "theme" | "share") => {
 </script>
 
 <template>
-  <div class="home-float-menu" :class="`theme-${themeMode}`">
+  <div
+    class="home-float-menu"
+    :class="[`theme-${themeMode}`, { 'is-player-collapsed': isPlayerCollapsed }]"
+  >
     <div
       class="home-float-menu-item"
       v-for="item in menuList"
@@ -76,15 +83,21 @@ const handleClick = (action: "theme" | "share") => {
   gap: 12px;
   z-index: 100;
   padding-right: 0;
+  transition: bottom 0.3s ease;
+
+  &.is-player-collapsed {
+    bottom: 120px;
+  }
 }
 
 .home-float-menu-item {
   display: flex;
   flex-direction: row-reverse;
   align-items: center;
-  width: 84px;
+  justify-content: center;
+  width: 68px;
   height: 68px;
-  padding: 0 30px;
+  // padding: 0 30px;
   box-sizing: border-box;
   border-radius: 50px;
   background: rgba(34, 34, 34, 0.1);
