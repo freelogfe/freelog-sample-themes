@@ -64,7 +64,7 @@
             ></i>
 
             <el-progress
-              class="progress"
+              class="circle-progress"
               type="circle"
               :percentage="percentage"
               color="white"

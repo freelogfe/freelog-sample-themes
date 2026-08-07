@@ -111,11 +111,35 @@
 
         .play-btn-area {
           position: relative;
+          width: 30px;
+          height: 30px;
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
 
-          ::v-deep .progress {
+          .freelog.play {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            line-height: 1;
+          }
+
+          ::v-deep .circle-progress {
             position: absolute;
-            left: 0;
-            top: 0;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+
+            svg {
+              display: block;
+            }
 
             .el-progress-circle__track {
               stroke: transparent;
@@ -142,52 +166,58 @@
         }
       }
 
-      .progress {
+      .progress-box {
         position: absolute;
         left: 20px;
         right: 20px;
         bottom: 0;
         height: 2px;
 
-        &.no-voice ::v-deep .el-slider__button {
-          display: none;
-        }
-
-        ::v-deep .el-slider__runway {
-          margin: 0;
+        .progress {
+          width: 100%;
           height: 2px;
-          background-color: transparent;
 
-          .el-slider__bar {
-            height: 2px;
-            opacity: 0.3;
+          &.no-voice ::v-deep .el-slider__button {
+            display: none;
           }
 
-          .el-slider__button-wrapper {
-            width: 5px;
-            height: 5px;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            will-change: transform;
+          ::v-deep .el-slider__runway {
+            margin: 0;
+            height: 2px;
+            background-color: transparent;
 
-            .el-slider__button {
-              position: relative;
+            .el-slider__bar {
+              height: 2px;
+              opacity: 0.3;
+            }
+
+            .el-slider__button-wrapper {
               width: 5px;
               height: 5px;
-              border: none;
-              transition: none;
+              top: 50%;
+              transform: translate(-50%, -50%);
+              display: flex;
+              align-items: center;
+              justify-content: center;
               will-change: transform;
 
-              &::after {
-                content: "";
-                position: absolute;
-                left: -15px;
-                right: -15px;
-                top: -15px;
-                bottom: -15px;
+              .el-slider__button {
+                position: relative;
+                width: 5px;
+                height: 5px;
+                border: none;
+                transform: none;
+                transition: none;
+                will-change: transform;
+
+                &::after {
+                  content: "";
+                  position: absolute;
+                  left: -15px;
+                  right: -15px;
+                  top: -15px;
+                  bottom: -15px;
+                }
               }
             }
           }
