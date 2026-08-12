@@ -129,16 +129,17 @@
   >
     <div class="header-body">
       <div class="header-center">
-        <div
-          class="comic-name"
-          :title="comicInfo.exhibitTitle"
-          @click="
-            () => {
-              switchPage('/comic-detail', { id: comicInfo.exhibitId });
-            }
-          "
-        >
-          {{ comicInfo.exhibitTitle }}
+        <div class="comic-name" :class="{ 'is-breadcrumb': showTitleBreadcrumb }">
+          <template v-if="showTitleBreadcrumb">
+            <span class="album-name" :title="albumTitle" @click.stop="goAlbumDetail">
+              {{ albumTitle }}
+            </span>
+            <img class="breadcrumb-separator" src="../assets/images/icon_back.png" alt="" />
+            <span class="current-title" :title="episodeTitle">{{ episodeTitle }}</span>
+          </template>
+          <span v-else class="single-title" :title="comicInfo.exhibitTitle">
+            {{ comicInfo.exhibitTitle }}
+          </span>
         </div>
       </div>
 
@@ -195,7 +196,8 @@
 </template>
 
 <script lang="ts">
-import { SetupContext, reactive, toRefs, watch } from "vue";
+import { SetupContext, computed, reactive, toRefs, watch } from "vue";
+import { useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { ExhibitItem } from "@/api/interface";
@@ -214,9 +216,32 @@ export default {
     context: SetupContext<["changeBarShow"]>
   ) {
     const store = useStore<State>();
+    const route = useRoute();
     const nodeInfo = freelogApp.nodeInfo;
 
     const { switchPage, routerBack } = useMyRouter();
+
+    const isAlbum = computed(() => {
+      if (String(route.query.collection) === "true") return true;
+      return !!(props.comicInfo?.collectionList?.length || props.comicInfo?.currentItemTitle);
+    });
+
+    const albumTitle = computed(() => props.comicInfo?.exhibitTitle || "");
+
+    const episodeTitle = computed(() => {
+      const subId = route.query.subId as string;
+      if (!subId) return "";
+
+      const fromList = props.comicInfo?.collectionList?.find(item => item.itemId === subId);
+      return fromList?.itemTitle || props.comicInfo?.currentItemTitle || "";
+    });
+
+    const showTitleBreadcrumb = computed(() => isAlbum.value && !!episodeTitle.value);
+
+    const goAlbumDetail = () => {
+      if (!props.comicInfo?.exhibitId) return;
+      switchPage("/comic-detail", { id: props.comicInfo.exhibitId });
+    };
 
     const data = reactive({
       headerShow: false,
@@ -256,7 +281,11 @@ export default {
       ...toRefs(store.state),
       ...toRefs(data),
       ...methods,
-      nodeInfo
+      nodeInfo,
+      albumTitle,
+      episodeTitle,
+      showTitleBreadcrumb,
+      goAlbumDetail
     };
   }
 };
@@ -489,7 +518,8 @@ export default {
     position: relative;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
     display: flex;
     justify-content: center;
     transform: translateY(-70px);
@@ -502,21 +532,68 @@ export default {
       display: flex;
       align-items: center;
       justify-content: center;
-      /** 整块铺满会盖住下层 logo，导致左侧点击穿透失败；仅标题条接收点击 */
+      z-index: 1;
+      /** 整块铺满会拦截中间标题 hover/click，仅标题区域接收事件 */
       pointer-events: none;
 
       .comic-name {
         pointer-events: auto;
-        width: 400px;
+        max-width: 560px;
+        width: auto;
         text-align: center;
         font-size: 16px;
-        font-weight: 600;
-        color: #ffffff;
         line-height: 22px;
         overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        cursor: pointer;
+        cursor: default;
+
+        &.is-breadcrumb {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .album-name {
+          color: #ffffff;
+          opacity: 0.6;
+          font-weight: 600;
+          cursor: pointer;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          max-width: 240px;
+          transition: opacity 0.2s linear, font-weight 0.2s linear;
+
+          &:hover {
+            opacity: 1;
+          }
+        }
+
+        .breadcrumb-separator {
+          width: 14px;
+          height: 14px;
+          margin: 0 10px;
+        }
+
+        .current-title,
+        .single-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #ffffff;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+
+        .single-title {
+          display: block;
+          max-width: 400px;
+          cursor: default;
+        }
+
+        .current-title {
+          max-width: 240px;
+          cursor: default;
+        }
       }
     }
 
@@ -528,6 +605,14 @@ export default {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      /** 中间空白区域不拦截事件，让下层标题可 hover/click */
+      pointer-events: none;
+
+      .logo,
+      .logo-text,
+      .header-right {
+        pointer-events: auto;
+      }
 
       .logo {
         position: relative;

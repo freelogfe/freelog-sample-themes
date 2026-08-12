@@ -196,7 +196,7 @@
             </div>
           </template>
 
-          <template v-else-if="!['漫画'].includes(comicInfo?.articleInfo.resourceType[1])">
+          <template v-else-if="isUnsupportedComicFormat">
             <div
               class="exceptional-box"
               :class="{ light: theme === 'light', dark: theme === 'dark' }"
@@ -863,7 +863,7 @@
             </div>
           </template>
 
-          <template v-else-if="!['漫画'].includes(comicInfo?.articleInfo.resourceType[1])">
+          <template v-else-if="isUnsupportedComicFormat">
             <div
               class="exceptional-box"
               :class="{ light: theme === 'light', dark: theme === 'dark' }"
@@ -1642,7 +1642,7 @@ export default {
     let tipTimer: any = null;
 
     const data = reactive({
-      loading: false,
+      loading: true,
       comicInfo: {} as ExhibitItem,
       contentImgList: [] as ContentImage[],
       mobilePagingList: [] as ContentImage[],
@@ -1993,6 +1993,7 @@ export default {
 
     /** 获取漫画信息 */
     const getComicInfo = async () => {
+      data.loading = true;
       const exhibitInfo = await freelogApp.getExhibitById(id, { isLoadVersionProperty: 1 });
       let comicMode;
       const { resourceType, articleType } = exhibitInfo.data.data.articleInfo;
@@ -2026,8 +2027,13 @@ export default {
         const subInfoResponse = await (freelogApp as any).getCollectionSubById(id, {
           itemId: subId
         });
-        const { resourceType } = subInfoResponse.data.data.articleInfo;
-        data.comicInfo = { ...data.comicInfo, articleInfo: subInfoResponse.data.data.articleInfo };
+        const subInfo = subInfoResponse.data.data;
+        const { resourceType } = subInfo.articleInfo;
+        data.comicInfo = {
+          ...data.comicInfo,
+          articleInfo: subInfo.articleInfo,
+          currentItemTitle: subInfo.itemTitle
+        };
 
         if (resourceType[2] === "条漫") {
           comicMode = 1;
@@ -2043,7 +2049,7 @@ export default {
         comicMode
       };
       data.comicMode = comicMode;
-      getContent();
+      await getContent();
       getRecommendList();
     };
 
@@ -2395,18 +2401,14 @@ export default {
       }
     });
 
-    // 监听单品id，更新单品详情
+    // 切换话数时更新单品详情（首次进入由 getComicInfo 处理，不可 immediate）
     watch(
       () => query.value.subId,
-      cur => {
-        if (query.value.subId) {
-          getContent(cur);
-          getCollectionInfo(cur);
-          data.collectionSubId = cur;
-        }
-      },
-      {
-        immediate: true
+      async (cur, prev) => {
+        if (!cur || cur === prev) return;
+        data.collectionSubId = cur;
+        await getCollectionInfo(cur);
+        await getContent(cur);
       }
     );
 
@@ -2440,6 +2442,12 @@ export default {
       const targetID = filterData?.length && filterData[0].sortId;
 
       return targetID;
+    });
+
+    const isUnsupportedComicFormat = computed(() => {
+      const resourceType = data.comicInfo?.articleInfo?.resourceType;
+      if (!resourceType?.length) return false;
+      return !resourceType.includes("漫画") && !resourceType.includes("连载漫画");
     });
 
     const nextChapterBoxWidth = computed(() => {
@@ -2569,6 +2577,7 @@ export default {
       ...toRefs(data),
       ...methods,
       currentSortID,
+      isUnsupportedComicFormat,
       nextChapterBoxWidth,
       query,
       sortOrder,
