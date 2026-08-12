@@ -955,6 +955,9 @@ export default {
     }
 
     .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       font-size: 28px;
       line-height: 36px;
       padding: 40px 0px;
@@ -1010,18 +1013,18 @@ export default {
 
       .blog-count {
         font-weight: 400;
-        font-size: 12px;
+        font-size: 14px;
         color: #000000;
         line-height: 18px;
-        color: rgba(0, 0, 0, 0.4);
-        margin-top: 10px;
+        flex-shrink: 0;
+        color: rgba(34, 34, 34, 1);
 
         span:nth-child(1) {
           // margin-left: 10px;
           cursor: pointer;
 
           &:hover {
-            color: rgba(0, 0, 0, 1);
+            // color: rgba(0, 0, 0, 1);
           }
         }
       }
@@ -1030,7 +1033,7 @@ export default {
     .article-list {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 40px;
+      gap: 30px;
       margin-bottom: 80px;
     }
 
@@ -1050,7 +1053,11 @@ export default {
     }
 
     .header-collection {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       margin-bottom: 40px;
+
       .collection-title {
         font-weight: 600;
         font-size: 28px;
@@ -1060,17 +1067,17 @@ export default {
 
       .collection-count {
         font-weight: 400;
-        font-size: 12px;
-        color: rgba(0, 0, 0, 0.4);
+        font-size: 14px;
+        color: rgba(34, 34, 34, 1);
         line-height: 18px;
-        margin-top: 10px;
+        flex-shrink: 0;
 
         span:nth-child(1) {
           // margin-left: 10px;
           cursor: pointer;
 
           &:hover {
-            color: rgba(0, 0, 0, 1);
+            // color: rgba(0, 0, 0, 1);
           }
         }
       }

@@ -31,9 +31,7 @@
     <div class="article-info">
       <div class="author-avatar">
         <img
-          :src="`https://image.freelog.cn/avatar/${
-            data.articleInfo.articleOwnerId || data.userId
-          }`"
+          :src="`https://image.freelog.cn/avatar/${data.articleInfo.articleOwnerId || data.userId}`"
           alt="头像"
         />
       </div>
@@ -278,6 +276,7 @@ export default {
     border-radius: 5px;
     position: relative;
     border: 1px solid #e5e7eb; /* 将border移到这里 */
+    border-radius: 10px;
 
     .article-cover {
       img {
@@ -285,7 +284,6 @@ export default {
         height: 100%;
         object-fit: cover;
         transition: transform 0.3s ease;
-        border-radius: 5px;
       }
     }
 
