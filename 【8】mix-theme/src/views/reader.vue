@@ -173,7 +173,7 @@
               @mouseleave.stop="setShareWidgetShow(false)"
             >
               <span class="share-btn-text" :class="{ active: shareShow }">
-                <i class="freelog fl-icon-fenxiang"></i>分享
+                <i class="freelog fl-icon-icon_fenxiang1"></i>分享
               </span>
 
               <div id="share" class="share-wrapper" />
@@ -332,6 +332,14 @@
           </div>
         </div>
       </div>
+
+      <div class="reader-fixed-btns" v-if="!inMobile && !contentLoading">
+        <back-top>
+          <div class="back-top-btn">
+            <i class="freelog fl-icon-huidaodingbu"></i>
+          </div>
+        </back-top>
+      </div>
     </div>
   </div>
 </template>
@@ -360,7 +368,8 @@ export default {
   components: {
     tags: defineAsyncComponent(() => import("../components/tags.vue")),
     "my-article-v2": defineAsyncComponent(() => import("../components/article-v2.vue")),
-    "my-loader": defineAsyncComponent(() => import("../components/loader.vue"))
+    "my-loader": defineAsyncComponent(() => import("../components/loader.vue")),
+    "back-top": defineAsyncComponent(() => import("../components/back-top.vue"))
   },
 
   setup() {
@@ -1065,24 +1074,25 @@ export default {
 
   // PC
   .reader-body {
-    width: 965px;
+    width: 1080px;
     margin: 0 auto;
 
     .article-cover {
-      width: 965px;
-      height: 654px;
+      width: 1080px;
+      height: 730px;
 
       img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        border-radius: 10px;
       }
     }
 
     .article-card {
       width: 100%;
       box-sizing: border-box;
-      padding-top: 50px;
+      padding-top: 40px;
       margin-bottom: 100px;
 
       .title-share {
@@ -1113,6 +1123,10 @@ export default {
             line-height: 20px;
             color: #222;
             transition: all 0.2s linear;
+            display: flex;
+            align-items: center;
+            border-radius: 10px;
+            border: 1px solid #222;
 
             &:hover,
             &.active {
@@ -1123,8 +1137,9 @@ export default {
               opacity: 0.6;
             }
 
-            .fl-icon-fenxiang {
-              margin-right: 6px;
+            .fl-icon-fenxiang,
+            .fl-icon-icon_fenxiang1 {
+              margin-right: 5px;
             }
           }
 
@@ -1139,7 +1154,7 @@ export default {
 
       .other-info {
         height: 24px;
-        margin-top: 12px;
+        margin-top: 15px;
         display: flex;
         align-items: center;
 
@@ -1227,7 +1242,7 @@ export default {
           display: flex;
 
           .divider {
-            margin: 30px 0px;
+            margin: 40px 0px;
             height: 1px;
             background-color: rgba(0, 0, 0, 0.1);
           }
@@ -1416,6 +1431,34 @@ export default {
         .article-wrapper:first-child {
           border-top: 1px solid rgba(0, 0, 0, 0.1);
         }
+      }
+    }
+  }
+
+  .reader-fixed-btns {
+    position: fixed;
+    left: auto;
+    right: max(30px, calc((100% - 1080px) / 2 + 30px));
+    bottom: 30px;
+    z-index: 20;
+
+    .back-top-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #222;
+      background: rgba(0, 0, 0, 0.05);
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.1);
+      }
+
+      .freelog {
+        font-size: 18px;
       }
     }
   }

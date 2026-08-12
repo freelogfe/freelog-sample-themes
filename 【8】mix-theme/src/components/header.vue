@@ -209,7 +209,11 @@
   </div>
 
   <!-- PC -->
-  <div class="header-wrapper" v-if="!inMobile">
+  <div
+    class="header-wrapper"
+    :class="{ 'reader-floating-nav': readerFloatingNav }"
+    v-if="!inMobile"
+  >
     <div class="header-top">
       <div class="header-top-left">
         <!-- logo -->
@@ -326,7 +330,7 @@
 
 <script lang="ts">
 import { computed, inject, reactive, ref, toRefs, watch } from "vue";
-import { useMyLocationHistory, useMyRouter, useSearchHistory } from "../utils/hooks";
+import { useMyLocationHistory, useMyRouter, useMyScroll, useSearchHistory } from "../utils/hooks";
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
 import { freelogApp } from "freelog-runtime";
@@ -341,6 +345,7 @@ export default {
     const nodeInfo = freelogApp.nodeInfo;
     const store = useStore();
     const { query, route, switchPage, routerBack } = useMyRouter();
+    const { scrollTop } = useMyScroll();
     const { searchHistory, searchWord, deleteWord, clearHistory } = useSearchHistory();
     const searchInput = ref();
     const searchHistoryPopup = ref();
@@ -385,6 +390,11 @@ export default {
 
     const locationHistory = computed(() => {
       return store.state.locationHistory;
+    });
+
+    const readerFloatingNav = computed(() => {
+      if (route.path !== "/reader") return false;
+      return scrollTop.value > 120;
     });
 
     const methods = {
@@ -544,7 +554,8 @@ export default {
       ...toRefs(data),
       ...methods,
       locationHistory,
-      menuBtnList
+      menuBtnList,
+      readerFloatingNav
     };
   }
 };
