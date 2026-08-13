@@ -186,7 +186,7 @@
           最近发布
         </div>
 
-        <div class="blog-count">
+        <div class="blog-count" v-if="availableListData?.length >= 4">
           <!-- <span>博客总数{{ isAllLoaded ? availableListData?.length : "" }}</span> -->
           <span @click="switchPage('/blog')">查看全部</span>
         </div>
@@ -208,7 +208,7 @@
 
       <div class="header-collection" v-if="displayListCollectionData?.length">
         <span class="collection-title">连载 & 专栏</span>
-        <div class="collection-count">
+        <div class="collection-count" v-if="collectionsData?.length >= 4">
           <!-- <span>专栏总数{{ collectionsData?.length }}</span> -->
           <span @click="switchPage('/column')">查看全部</span>
         </div>
