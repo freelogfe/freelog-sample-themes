@@ -11,9 +11,9 @@
         height: exhibitInfo?.defaulterIdentityType >= 4 ? '460px' : contentHeight + 'px'
       }"
     >
-      <my-loader v-if="loading" />
+      <my-loader v-if="loading || isContentPending" />
       <transition-group name="content-fade">
-        <template v-if="!loading">
+        <template v-if="!loading && !isContentPending">
           <template v-if="exhibitInfo?.articleInfo?.status === 1">
             <template v-if="!loading">
               <div v-if="exhibitInfo.onlineStatus === 0">
@@ -40,7 +40,10 @@
               <template
                 v-else-if="exhibitInfo?.defaulterIdentityType === 0 && userData.isLogin === false"
               >
-                <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')" />
+                <img
+                  :src="content"
+                  v-if="content && exhibitInfo?.articleInfo.resourceType.includes('图片')"
+                />
                 <video
                   :src="content"
                   :poster="exhibitInfo?.coverImages[0]"
@@ -49,7 +52,7 @@
                   autoplay
                   webkit-playsinline
                   playsinline
-                  v-else-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
+                  v-else-if="content && exhibitInfo?.articleInfo.resourceType.includes('视频')"
                 ></video>
               </template>
 
@@ -73,7 +76,10 @@
               </div>
 
               <template v-else-if="exhibitInfo?.defaulterIdentityType === 0">
-                <img :src="content" v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')" />
+                <img
+                  :src="content"
+                  v-if="content && exhibitInfo?.articleInfo.resourceType.includes('图片')"
+                />
                 <video
                   :src="content"
                   :poster="exhibitInfo?.coverImages[0]"
@@ -82,7 +88,7 @@
                   autoplay
                   webkit-playsinline
                   playsinline
-                  v-else-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
+                  v-else-if="content && exhibitInfo?.articleInfo.resourceType.includes('视频')"
                 ></video>
               </template>
             </template>
@@ -228,10 +234,10 @@
           </div>
 
           <div ref="contentArea" class="main-area">
-            <my-loader v-if="loading" />
+            <my-loader v-if="loading || isContentPending" />
 
             <transition-group name="content-fade">
-              <template v-if="!loading">
+              <template v-if="!loading && !isContentPending">
                 <template v-if="exhibitInfo?.articleInfo?.status === 1">
                   <div v-if="exhibitInfo.onlineStatus === 0">
                     <div class="exceptional-box">
@@ -268,7 +274,7 @@
                       }"
                       :src="content"
                       oncontextmenu="return false"
-                      v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')"
+                      v-if="content && exhibitInfo?.articleInfo.resourceType.includes('图片')"
                     />
                     <video
                       :class="{
@@ -280,7 +286,7 @@
                       controls
                       controlslist="nodownload"
                       oncontextmenu="return false"
-                      v-else-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
+                      v-else-if="content && exhibitInfo?.articleInfo.resourceType.includes('视频')"
                     ></video>
                   </template>
 
@@ -315,7 +321,7 @@
                       }"
                       :src="content"
                       oncontextmenu="return false"
-                      v-if="exhibitInfo?.articleInfo.resourceType.includes('图片')"
+                      v-if="content && exhibitInfo?.articleInfo.resourceType.includes('图片')"
                     />
                     <video
                       :class="{
@@ -327,7 +333,7 @@
                       controls
                       controlslist="nodownload"
                       oncontextmenu="return false"
-                      v-else-if="exhibitInfo?.articleInfo.resourceType.includes('视频')"
+                      v-else-if="content && exhibitInfo?.articleInfo.resourceType.includes('视频')"
                     ></video>
                   </template>
                 </template>
@@ -387,7 +393,7 @@
 </template>
 
 <script lang="ts">
-import { SetupContext, defineAsyncComponent, onUnmounted, reactive, ref, toRefs, watch } from "vue";
+import { SetupContext, computed, defineAsyncComponent, onUnmounted, reactive, ref, toRefs, watch } from "vue";
 import { ExhibitItem } from "../api/interface";
 import { useGetList, useMyRouter, useMyWaterfall } from "../utils/hooks";
 import { useStore } from "vuex";
@@ -424,7 +430,7 @@ export default {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
     const data = reactive({
-      loading: false,
+      loading: true,
       currentId: "",
       exhibitInfo: null as ExhibitItem | null,
       content: "",
@@ -434,6 +440,59 @@ export default {
       shareShow: false,
       href: "",
       shareWidget: null as WidgetController | null
+    });
+
+    const AUTH_PENDING_TTL = 5 * 60 * 1000;
+    const getAuthPendingKey = (id: string) => `gallery-auth-pending-${id}`;
+
+    const isAuthPending = (id: string) => {
+      const pendingAt = sessionStorage.getItem(getAuthPendingKey(id));
+      if (!pendingAt) return false;
+      if (Date.now() - Number(pendingAt) > AUTH_PENDING_TTL) {
+        sessionStorage.removeItem(getAuthPendingKey(id));
+        return false;
+      }
+      return true;
+    };
+
+    const markAuthPending = (id: string) => {
+      sessionStorage.setItem(getAuthPendingKey(id), String(Date.now()));
+    };
+
+    const clearAuthPending = (id: string) => {
+      sessionStorage.removeItem(getAuthPendingKey(id));
+    };
+
+    const resolveAuthStatus = async (id: string) => {
+      const statusInfo = await freelogApp.getExhibitAuthStatus(id);
+      let defaulterIdentityType = statusInfo.data.data[0]?.defaulterIdentityType ?? -1;
+
+      if (defaulterIdentityType === 4 && isAuthPending(id)) {
+        for (let i = 0; i < 5; i++) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          const retryInfo = await freelogApp.getExhibitAuthStatus(id);
+          defaulterIdentityType = retryInfo.data.data[0]?.defaulterIdentityType ?? -1;
+          if (defaulterIdentityType === 0) {
+            clearAuthPending(id);
+            break;
+          }
+          if (![0, 4].includes(defaulterIdentityType)) break;
+        }
+
+        if (defaulterIdentityType !== 0) {
+          clearAuthPending(id);
+        }
+      }
+
+      return defaulterIdentityType;
+    };
+
+    const isContentPending = computed(() => {
+      if (data.loading) return false;
+      if (!data.exhibitInfo || data.exhibitInfo.defaulterIdentityType !== 0) return false;
+      const resourceType = data.exhibitInfo.articleInfo?.resourceType || [];
+      if (!resourceType.includes("图片") && !resourceType.includes("视频")) return false;
+      return !data.content;
     });
 
     const methods = {
@@ -491,10 +550,12 @@ export default {
       /** 授权 */
       async getAuth() {
         window.removeEventListener("keyup", keyup);
+        markAuthPending(data.currentId);
         const authResult = await freelogApp.addAuth(data.currentId, { immediate: true });
         window.addEventListener("keyup", keyup);
         const { status } = authResult;
         if (status === 0) {
+          clearAuthPending(data.currentId);
           getData();
           refreshAuth();
         }
@@ -517,12 +578,10 @@ export default {
     /** 获取资源内容 */
     const getData = async () => {
       data.loading = true;
+      data.content = "";
 
-      const [exhibitInfo, statusInfo] = await Promise.all([
-        freelogApp.getExhibitById(data.currentId, { isLoadVersionProperty: 1 }),
-        freelogApp.getExhibitAuthStatus(data.currentId)
-      ]);
-      const { defaulterIdentityType = -1 } = statusInfo.data.data[0];
+      const exhibitInfo = await freelogApp.getExhibitById(data.currentId, { isLoadVersionProperty: 1 });
+      const defaulterIdentityType = await resolveAuthStatus(data.currentId);
 
       data.exhibitInfo = { ...exhibitInfo.data.data, defaulterIdentityType };
 
@@ -617,7 +676,6 @@ export default {
             // iOS 上尝试自动播放
             video.play().catch(error => {
               console.log("iOS autoplay failed:", error);
-              data.loading = false;
             });
           }
 
@@ -633,7 +691,6 @@ export default {
                 video.load();
                 video.play().catch(error => {
                   console.log("微信环境播放失败:", error);
-                  data.loading = false;
                 });
               });
             } else {
@@ -646,7 +703,6 @@ export default {
                   video.load();
                   video.play().catch(error => {
                     console.log("微信环境播放失败:", error);
-                    data.loading = false;
                   });
                 },
                 false
@@ -659,7 +715,9 @@ export default {
       } else if (defaulterIdentityType === 4) {
         // 未签约并且授权链无异常
         data.loading = false;
-        methods.getAuth();
+        if (!isAuthPending(data.currentId)) {
+          methods.getAuth();
+        }
       } else {
         data.loading = false;
       }
@@ -867,7 +925,8 @@ export default {
       scrollArea,
       contentArea,
       showMoreTagBtn,
-      handleUpdateWidth
+      handleUpdateWidth,
+      isContentPending
     };
   }
 };
