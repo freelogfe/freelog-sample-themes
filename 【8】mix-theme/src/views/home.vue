@@ -170,8 +170,11 @@
         </div>
       </template>
 
-      <div class="header" v-if="!searchData.keywords && listData?.length">
-        <div class="sort" :class="{ disabled: myLoading }">
+      <div
+        class="header"
+        v-if="!searchData.keywords && listData?.length && availableListData?.length"
+      >
+        <div class="sort" :class="{ disabled: myLoading }" v-if="availableListData?.length">
           <!-- {{ createDateSortType === "-1" ? "最近发布" : "最早发布" }}
           <i class="freelog fl-icon-zhankaigengduo"></i>
 
@@ -195,10 +198,16 @@
       <my-loader v-if="loading" />
 
       <template v-if="!loading">
-        <div class="article-list">
+        <div class="article-list" v-if="displayListData?.length">
           <my-article-v2 :data="item" v-for="item in displayListData" :key="item.exhibitId" />
         </div>
-        <div className="tip" v-show="total === 0 || availableListData?.length === 0">
+        <div
+          className="tip"
+          v-show="
+            total === 0 ||
+            (availableListData?.length === 0 && displayListCollectionData?.length === 0)
+          "
+        >
           当前节点暂无任何数据，请稍后查看
         </div>
         <!-- <div className="tip no-more" v-show="listData.length !== 0 && listData.length === total">
