@@ -68,11 +68,11 @@
           </div>
 
           <div class="recommend" :class="{ 'pc-recommend': !inMobile }" v-if="recommendList.length">
+            <div class="recommend-divider" v-if="!inMobile"></div>
             <div class="recommend-header">
               <div class="recommend-title">相关推荐</div>
-              <div class="text-btn" @click="switchPage('/')">更多>></div>
+              <span class="recommend-more" @click="switchPage('/')">查看全部</span>
             </div>
-            <div class="divider"></div>
             <div class="article-list" :class="{ 'in-mobile': inMobile, 'in-pc': !inMobile }">
               <my-article-v2 :data="item" v-for="item in recommendList" :key="item.exhibitId" />
             </div>
@@ -322,11 +322,11 @@
         </div>
 
         <div class="recommend pc-recommend" v-if="recommendList.length">
+          <div class="recommend-divider"></div>
           <div class="recommend-header">
             <div class="recommend-title">相关推荐</div>
-            <div class="text-btn" @click="switchPage('/')">更多>></div>
+            <span class="recommend-more" @click="switchPage('/')">查看全部</span>
           </div>
-          <div class="divider"></div>
           <div class="article-list">
             <my-article-v2 :data="item" v-for="item in recommendList" :key="item.exhibitId" />
           </div>
@@ -1089,6 +1089,10 @@ export default {
       }
     }
 
+    &:has(.pc-recommend) .article-card {
+      margin-bottom: 0;
+    }
+
     .article-card {
       width: 100%;
       box-sizing: border-box;
@@ -1397,27 +1401,39 @@ export default {
     }
 
     .recommend {
-      .divider {
-        height: 1px;
-        background: rgba(0, 0, 0, 0.1);
-        margin-top: 15px;
+      &.pc-recommend {
+        margin-top: 40px;
+
+        .recommend-divider {
+          height: 1px;
+          background: rgba(0, 0, 0, 0.1);
+        }
+
+        .recommend-header {
+          margin-top: 40px;
+        }
       }
 
       .recommend-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        margin-bottom: 40px;
 
         .recommend-title {
-          font-size: 14px;
           font-weight: 600;
+          font-size: 28px;
           color: #222222;
-          line-height: 20px;
+          line-height: 34px;
         }
 
-        .text-btn {
+        .recommend-more {
+          flex-shrink: 0;
+          font-weight: 400;
           font-size: 14px;
-          line-height: 20px;
+          color: rgba(34, 34, 34, 1);
+          line-height: 18px;
+          cursor: pointer;
         }
       }
 
@@ -1425,12 +1441,8 @@ export default {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 40px;
-        margin-top: 40px;
+        margin-top: 0;
         margin-bottom: 40px;
-
-        .article-wrapper:first-child {
-          border-top: 1px solid rgba(0, 0, 0, 0.1);
-        }
       }
     }
   }
@@ -1514,24 +1526,23 @@ export default {
           display: flex;
           align-items: center;
           justify-content: space-between;
+          margin-bottom: 30px;
 
           .recommend-title {
-            font-size: 16px;
             font-weight: 600;
+            font-size: 28px;
             color: #222222;
-            line-height: 22px;
+            line-height: 34px;
           }
 
-          .text-btn {
+          .recommend-more {
+            flex-shrink: 0;
+            font-weight: 400;
             font-size: 14px;
-            line-height: 20px;
+            color: rgba(34, 34, 34, 1);
+            line-height: 18px;
+            cursor: pointer;
           }
-        }
-
-        .divider {
-          height: 1px;
-          background: rgba(0, 0, 0, 0.1);
-          margin-top: 15px;
         }
 
         .article-list {
@@ -1692,28 +1703,44 @@ export default {
 
 .recommend.pc-recommend {
   width: 100%;
-  // padding: 30px 20px;
-  // box-sizing: border-box;
+  margin-top: 40px;
   background-color: #fff;
 
-  .recommend-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #222222;
-    line-height: 22px;
-    // margin-bottom: 30px;
+  .recommend-divider {
+    height: 1px;
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  .recommend-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 40px;
+    margin-bottom: 40px;
+
+    .recommend-title {
+      font-weight: 600;
+      font-size: 28px;
+      color: #222222;
+      line-height: 34px;
+    }
+
+    .recommend-more {
+      flex-shrink: 0;
+      font-weight: 400;
+      font-size: 14px;
+      color: rgba(34, 34, 34, 1);
+      line-height: 18px;
+      cursor: pointer;
+    }
   }
 
   .article-list {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 40px;
-    margin-top: 40px;
+    margin-top: 0;
     margin-bottom: 40px;
-
-    .article-wrapper:first-child {
-      border-top: 1px solid rgba(0, 0, 0, 0.1);
-    }
   }
 }
 </style>
