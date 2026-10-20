@@ -228,6 +228,7 @@
               <div class="markdown-area" v-if="articleData?.defaulterIdentityType === 0">
                 <div
                   class="markdown-wrapper"
+                  ref="markdownWrapperRef"
                   :class="{ withoutCategory: directoryList.length === 0 }"
                 >
                   <div class="divider"></div>
@@ -333,7 +334,11 @@
         </div>
       </div>
 
-      <div class="reader-fixed-btns" v-if="!inMobile && !contentLoading">
+      <div
+        class="reader-fixed-btns"
+        v-if="!inMobile && !contentLoading && articleData?.defaulterIdentityType === 0"
+        :style="backTopPositionStyle"
+      >
         <back-top>
           <div class="back-top-btn">
             <i class="freelog fl-icon-huidaodingbu"></i>
@@ -349,7 +354,9 @@ import {
   defineAsyncComponent,
   nextTick,
   onBeforeUnmount,
+  onMounted,
   reactive,
+  ref,
   toRefs,
   watch,
   computed
@@ -378,6 +385,32 @@ export default {
     const datasOfGetList = useGetList();
     const { scrollTo } = useMyScroll();
     console.log("query", query.value);
+
+    const markdownWrapperRef = ref<HTMLElement | null>(null);
+    const backTopLeft = ref<number | null>(null);
+    const BACK_TOP_GAP_ABOVE_FOOTER = 30;
+    const BACK_TOP_GAP_FROM_TEXT_RIGHT = 30;
+    let markdownResizeObserver: { disconnect(): void } | null = null;
+
+    const backTopPositionStyle = computed(() => {
+      if (backTopLeft.value == null) {
+        return { visibility: "hidden" as const };
+      }
+      return {
+        left: `${backTopLeft.value}px`,
+        bottom: `${BACK_TOP_GAP_ABOVE_FOOTER}px`,
+        visibility: "visible" as const
+      };
+    });
+
+    const updateBackTopPosition = () => {
+      if (store.state.inMobile || !markdownWrapperRef.value) {
+        backTopLeft.value = null;
+        return;
+      }
+      const rect = markdownWrapperRef.value.getBoundingClientRect();
+      backTopLeft.value = rect.right + BACK_TOP_GAP_FROM_TEXT_RIGHT;
+    };
 
     const data = reactive({
       contentLoading: false,
@@ -814,7 +847,36 @@ export default {
       }
     );
 
+    watch(
+      () => [data.contentLoading, data.directoryList.length] as const,
+      () => {
+        nextTick(() => updateBackTopPosition());
+      }
+    );
+
+    watch(markdownWrapperRef, el => {
+      markdownResizeObserver?.disconnect();
+      markdownResizeObserver = null;
+      if (el && (window as any).ResizeObserver) {
+        const observer = new (window as any).ResizeObserver(() => updateBackTopPosition());
+        observer.observe(el);
+        markdownResizeObserver = observer;
+        nextTick(() => updateBackTopPosition());
+      }
+    });
+
+    onMounted(() => {
+      window.addEventListener("resize", updateBackTopPosition);
+      document.getElementById("app")?.addEventListener("scroll", updateBackTopPosition, {
+        passive: true
+      });
+      nextTick(() => updateBackTopPosition());
+    });
+
     onBeforeUnmount(async () => {
+      markdownResizeObserver?.disconnect();
+      window.removeEventListener("resize", updateBackTopPosition);
+      document.getElementById("app")?.removeEventListener("scroll", updateBackTopPosition);
       await data.shareWidget?.unmount();
       await data.markdownWidget?.unmount();
       document.getElementById("app")!.removeEventListener("scroll", methods.handleScroll);
@@ -834,7 +896,9 @@ export default {
       userData,
       errorMsg,
       prevArticle,
-      nextArticle
+      nextArticle,
+      markdownWrapperRef,
+      backTopPositionStyle
     };
   }
 };
@@ -1449,9 +1513,6 @@ export default {
 
   .reader-fixed-btns {
     position: fixed;
-    left: auto;
-    right: max(30px, calc((100% - 1080px) / 2 + 30px));
-    bottom: 30px;
     z-index: 20;
 
     .back-top-btn {
@@ -1463,10 +1524,11 @@ export default {
       justify-content: center;
       cursor: pointer;
       color: #222;
-      background: rgba(0, 0, 0, 0.05);
+      background: #f2f2f2;
+      box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.08);
 
       &:hover {
-        background: rgba(0, 0, 0, 0.1);
+        background: #e8e8e8;
       }
 
       .freelog {
