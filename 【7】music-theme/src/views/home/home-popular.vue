@@ -770,11 +770,21 @@ const isSelectedData = item => {
               }
 
               &:hover {
-                background: var(--text-first-color);
+                background: #44d7b6;
+                color: var(--text-color);
+
+                .freelog {
+                  color: var(--text-color);
+                }
               }
 
               &:active {
-                background: var(--text-second-color);
+                background: #44d7b6;
+                color: var(--text-color);
+
+                .freelog {
+                  color: var(--text-color);
+                }
               }
             }
           }
