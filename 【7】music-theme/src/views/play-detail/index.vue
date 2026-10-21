@@ -1560,92 +1560,101 @@ export default {
     /** 获取音乐详情 */
     async getVoiceInfo() {
       this.loading = true;
-      await this.unmountCommentWidget();
-      this.voiceInfo = null;
-      // 合集中的一个单品
-      if (this.subID) {
-        const [exhibitInfo, subInfo, subStatusInfo, url] = await Promise.all([
-          freelogApp.getExhibitById(this.id, { isLoadVersionProperty: 1 }),
-          freelogApp.getCollectionSubById(this.id, { itemId: this.subID }),
-          freelogApp.getCollectionSubAuthStatus(this.id, { itemIds: this.subID }),
-          freelogApp.getCollectionSubFileStream(this.id, {
-            itemId: this.subID,
-            returnUrl: true
-          })
-        ]);
-
-        // 更新微信分享
-        const {
-          itemTitle,
-          articleInfo: { intro, coverImages }
-        } = subInfo.data.data;
-        const config = {
-          exhibitIntro: intro,
-          coverImages,
-          exhibitTitle: itemTitle
-        };
-        updateWxConfig(config);
-
-        this.voiceInfo = {
-          ...subInfo.data.data,
-          coverImages: exhibitInfo.data.data.coverImages,
-          versionInfo: {
-            exhibitProperty: {
-              ...subInfo.data.data.articleInfo?.articleProperty,
-              release_date:
-                subInfo.data.data.articleInfo?.articleProperty?.release_date ||
-                subInfo.data.data.articleInfo?.firstVersionReleaseDate
-            }
-          },
-          defaulterIdentityType: subStatusInfo.data.data[0].defaulterIdentityType,
-          exhibitTitle: subInfo.data.data.itemTitle,
-          updateDate: subInfo.data.data.articleInfo?.latestVersionReleaseDate,
-          url,
-          onlineStatus: exhibitInfo.data.data.onlineStatus
-        };
-      } else {
-        // 普通展品
-        const [exhibitInfo, statusInfo, url] = await Promise.all([
-          freelogApp.getExhibitById(this.id, { isLoadVersionProperty: 1 }),
-          freelogApp.getExhibitAuthStatus(this.id),
-          freelogApp.getExhibitFileStream(this.id, { returnUrl: true })
-        ]);
-
-        // 更新微信分享
-        updateWxConfig(exhibitInfo.data.data);
-
-        this.voiceInfo = {
-          ...exhibitInfo.data.data,
-          defaulterIdentityType: statusInfo.data.data[0].defaulterIdentityType,
-          url
-        };
-
-        console.log("voiceInfo", this.voiceInfo);
-
-        // 合集
-        const { articleInfo, exhibitName, coverImages, onlineStatus, versionInfo } =
-          exhibitInfo.data.data;
-        if (articleInfo.articleType === 3) {
-          this.collectionData = [];
-          await this.getCollectionList(
-            this.id,
-            exhibitName,
-            coverImages,
-            onlineStatus,
-            versionInfo
-          );
-        }
-      }
-
-      this.href = freelogApp.getCurrentUrl();
-      // 与详情一并拉取推荐，避免首屏无「更多音乐」、接口返回后整块插入导致评论区下移跳动
       try {
-        await this.getRecommendList();
-      } catch (e) {
-        console.error("getRecommendList failed", e);
-        this.recommendData = [];
+        await this.unmountCommentWidget();
+        this.voiceInfo = null;
+        // 合集中的一个单品
+        if (this.subID) {
+          const [exhibitInfo, subInfo, subStatusInfo, url] = await Promise.all([
+            freelogApp.getExhibitById(this.id, { isLoadVersionProperty: 1 }),
+            freelogApp.getCollectionSubById(this.id, { itemId: this.subID }),
+            freelogApp.getCollectionSubAuthStatus(this.id, { itemIds: this.subID }),
+            freelogApp.getCollectionSubFileStream(this.id, {
+              itemId: this.subID,
+              returnUrl: true
+            })
+          ]);
+
+          const subData = subInfo?.data?.data;
+          if (!subData) {
+            throw new Error("getCollectionSubById returned empty data");
+          }
+          const {
+            itemTitle,
+            articleInfo: { intro, coverImages }
+          } = subData;
+          updateWxConfig({
+            exhibitIntro: intro,
+            coverImages,
+            exhibitTitle: itemTitle
+          });
+
+          this.voiceInfo = {
+            ...subData,
+            coverImages: exhibitInfo?.data?.data?.coverImages,
+            versionInfo: {
+              exhibitProperty: {
+                ...subData.articleInfo?.articleProperty,
+                release_date:
+                  subData.articleInfo?.articleProperty?.release_date ||
+                  subData.articleInfo?.firstVersionReleaseDate
+              }
+            },
+            defaulterIdentityType: subStatusInfo?.data?.data?.[0]?.defaulterIdentityType,
+            exhibitTitle: subData.itemTitle,
+            updateDate: subData.articleInfo?.latestVersionReleaseDate,
+            url,
+            onlineStatus: exhibitInfo?.data?.data?.onlineStatus
+          };
+        } else {
+          // 普通展品
+          const [exhibitInfo, statusInfo, url] = await Promise.all([
+            freelogApp.getExhibitById(this.id, { isLoadVersionProperty: 1 }),
+            freelogApp.getExhibitAuthStatus(this.id),
+            freelogApp.getExhibitFileStream(this.id, { returnUrl: true })
+          ]);
+
+          const exhibitData = exhibitInfo?.data?.data;
+          if (!exhibitData) {
+            throw new Error("getExhibitById returned empty data");
+          }
+
+          updateWxConfig(exhibitData);
+
+          this.voiceInfo = {
+            ...exhibitData,
+            defaulterIdentityType: statusInfo?.data?.data?.[0]?.defaulterIdentityType,
+            url
+          };
+
+          console.log("voiceInfo", this.voiceInfo);
+
+          // 合集
+          const { articleInfo, exhibitName, coverImages, onlineStatus, versionInfo } = exhibitData;
+          if (articleInfo.articleType === 3) {
+            this.collectionData = [];
+            await this.getCollectionList(
+              this.id,
+              exhibitName,
+              coverImages,
+              onlineStatus,
+              versionInfo
+            );
+          }
+        }
+
+        this.href = freelogApp.getCurrentUrl();
+        try {
+          await this.getRecommendList();
+        } catch (e) {
+          console.error("getRecommendList failed", e);
+          this.recommendData = [];
+        }
+      } catch (error) {
+        console.error("getVoiceInfo failed", error);
+      } finally {
+        this.loading = false;
       }
-      this.loading = false;
       await this.$nextTick();
       if (this.store.selfWidgetConfig.options_commentStatus === "开启") {
         await this.mountCommentWidget();

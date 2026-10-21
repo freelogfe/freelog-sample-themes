@@ -496,69 +496,86 @@ export const useMyPlay = {
 
     const playIdListCopy = [...playIdList];
 
-    for (let item of playIdListCopy) {
-      // playIdList.forEach(async item => {
-      if (item.itemId) {
-        const [list, subInfo, subStatusList] = await Promise.all([
-          freelogApp.getExhibitListById({ exhibitIds: item.exhibitId, isLoadVersionProperty: 1 }),
-          freelogApp.getCollectionSubById(item.exhibitId, { itemId: item.itemId }),
-          freelogApp.getCollectionSubAuthStatus(item.exhibitId, { itemIds: item.itemId })
-        ]);
-        result.push({
-          ...subInfo.data.data,
-          coverImages: list.data?.data?.[0]?.coverImages,
-          versionInfo: { exhibitProperty: subInfo.data.data.articleInfo?.articleProperty },
-          defaulterIdentityType: subStatusList.data.data[0].defaulterIdentityType,
-          albumName: list.data.data[0].exhibitName,
-          parentArticleType: list.data.data[0].articleInfo?.articleType
-        });
-      } else {
-        const [list, statusList] = await Promise.all([
-          freelogApp.getExhibitListById({
-            exhibitIds: item.exhibitId || item,
-            isLoadVersionProperty: 1
-          }),
-          freelogApp.getExhibitAuthStatus(item.exhibitId)
-        ]);
-        if ([2, 3].includes(list.data.data[0].articleInfo?.articleType)) {
-          const params = {
-            collectionID: list.data.data[0].exhibitId,
-            exhibitName: list.data.data[0].exhibitName,
-            images: list.data?.data?.[0]?.coverImages,
-            options: {
-              limit: 1_000,
-              isShowDetailInfo: 1
-            },
-            parentArticleType: list.data.data[0].articleInfo?.articleType
-          };
-
-          const { data, itemsToAdd } = await useCommon.getCollectionSubList(params);
-          playIdList.push(...itemsToAdd);
-          result.push(...data);
-
-          const removeIndex = playIdList.findIndex(
-            item => `${item.exhibitId}${item.itemId ?? ""}` === `${list.data.data[0].exhibitId}`
-          );
-          playIdList.splice(removeIndex, 1);
-          // showToast("添加成功");
-        } else {
+    try {
+      for (let item of playIdListCopy) {
+        if (item.itemId) {
+          const [list, subInfo, subStatusList] = await Promise.all([
+            freelogApp.getExhibitListById({ exhibitIds: item.exhibitId, isLoadVersionProperty: 1 }),
+            freelogApp.getCollectionSubById(item.exhibitId, { itemId: item.itemId }),
+            freelogApp.getCollectionSubAuthStatus(item.exhibitId, { itemIds: item.itemId })
+          ]);
+          const subData = subInfo?.data?.data;
+          const listItem = list?.data?.data?.[0];
+          if (!subData || !listItem) {
+            console.warn("[getPlayList] skip invalid collection item", item);
+            continue;
+          }
           result.push({
-            ...list.data.data[0],
-            defaulterIdentityType: statusList.data.data[0].defaulterIdentityType
+            ...subData,
+            coverImages: listItem.coverImages,
+            versionInfo: { exhibitProperty: subData.articleInfo?.articleProperty },
+            defaulterIdentityType: subStatusList?.data?.data?.[0]?.defaulterIdentityType,
+            albumName: listItem.exhibitName,
+            parentArticleType: listItem.articleInfo?.articleType
           });
+        } else {
+          const [list, statusList] = await Promise.all([
+            freelogApp.getExhibitListById({
+              exhibitIds: item.exhibitId || item,
+              isLoadVersionProperty: 1
+            }),
+            freelogApp.getExhibitAuthStatus(item.exhibitId)
+          ]);
+          const listItem = list?.data?.data?.[0];
+          if (!listItem) {
+            console.warn("[getPlayList] skip invalid exhibit", item);
+            continue;
+          }
+          if ([2, 3].includes(listItem.articleInfo?.articleType)) {
+            const params = {
+              collectionID: listItem.exhibitId,
+              exhibitName: listItem.exhibitName,
+              images: listItem.coverImages,
+              options: {
+                limit: 1_000,
+                isShowDetailInfo: 1
+              },
+              parentArticleType: listItem.articleInfo?.articleType
+            };
+
+            const { data, itemsToAdd } = await useCommon.getCollectionSubList(params);
+            playIdList.push(...itemsToAdd);
+            result.push(...data);
+
+            const removeIndex = playIdList.findIndex(
+              playItem =>
+                `${playItem.exhibitId}${playItem.itemId ?? ""}` === `${listItem.exhibitId}`
+            );
+            if (removeIndex !== -1) {
+              playIdList.splice(removeIndex, 1);
+            }
+          } else {
+            result.push({
+              ...listItem,
+              defaulterIdentityType: statusList?.data?.data?.[0]?.defaulterIdentityType
+            });
+          }
         }
       }
-    }
-    // });
 
-    if (store.userData.isLogin) {
-      freelogApp.setUserData("music-playIdList", playIdList);
-    } else {
-      localStorage.setItem("music-playIdList", JSON.stringify(playIdList));
-    }
+      if (store.userData.isLogin) {
+        freelogApp.setUserData("music-playIdList", playIdList);
+      } else {
+        localStorage.setItem("music-playIdList", JSON.stringify(playIdList));
+      }
 
-    store.setData({ key: "playList", value: result });
-    store.setData({ key: "playListLoading", value: false });
+      store.setData({ key: "playList", value: result });
+    } catch (error) {
+      console.error("[getPlayList] failed", error);
+      store.setData({ key: "playList", value: result });
+    } finally {
+      store.setData({ key: "playListLoading", value: false });
+    }
   },
 
   /** 判断当前展品是否已存在播放列表中 */
