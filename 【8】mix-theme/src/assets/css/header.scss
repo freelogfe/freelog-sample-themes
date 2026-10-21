@@ -765,5 +765,19 @@
     z-index: 100;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(20px);
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.28s ease, opacity 0.28s ease;
+
+    &.reader-floating-nav--instant {
+      transition: none;
+    }
+
+    &.reader-floating-nav--visible {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
   }
 }

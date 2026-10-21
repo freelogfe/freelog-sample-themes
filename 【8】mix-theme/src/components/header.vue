@@ -211,7 +211,11 @@
   <!-- PC -->
   <div
     class="header-wrapper"
-    :class="{ 'reader-floating-nav': readerFloatingNav }"
+    :class="{
+      'reader-floating-nav': readerFloatingNavMode,
+      'reader-floating-nav--visible': readerFloatingNavVisible,
+      'reader-floating-nav--instant': readerFloatingNavInstant
+    }"
     v-if="!inMobile"
   >
     <div class="header-top">
@@ -329,7 +333,7 @@
 </template>
 
 <script lang="ts">
-import { computed, inject, reactive, ref, toRefs, watch } from "vue";
+import { computed, inject, nextTick, reactive, ref, toRefs, watch } from "vue";
 import { useMyLocationHistory, useMyRouter, useMyScroll, useSearchHistory } from "../utils/hooks";
 import { callLogin, callLoginOut } from "@/api/freelog";
 import { useStore } from "vuex";
@@ -392,10 +396,72 @@ export default {
       return store.state.locationHistory;
     });
 
-    const readerFloatingNav = computed(() => {
+    /** 阅读页 PC 顶栏：向下滚动隐藏，向上滚动出现（需先滚过阈值） */
+    const READER_FLOATING_NAV_THRESHOLD = 120;
+    const READER_FLOATING_SCROLL_DELTA = 4;
+    const readerFloatingNavVisible = ref(false);
+    const readerFloatingNavInstant = ref(false);
+    let lastReaderScrollTop = 0;
+    let readerFloatingNavEngaged = false;
+
+    const readerFloatingNavMode = computed(() => {
       if (route.path !== "/reader") return false;
-      return scrollTop.value > 120;
+      return scrollTop.value > READER_FLOATING_NAV_THRESHOLD;
     });
+
+    watch(readerFloatingNavMode, (mode, prevMode) => {
+      if (mode && !prevMode) {
+        readerFloatingNavVisible.value = false;
+        readerFloatingNavEngaged = true;
+        readerFloatingNavInstant.value = true;
+        nextTick(() => {
+          requestAnimationFrame(() => {
+            readerFloatingNavInstant.value = false;
+          });
+        });
+      }
+      if (!mode) {
+        readerFloatingNavEngaged = false;
+        readerFloatingNavVisible.value = false;
+      }
+    });
+
+    watch(
+      () => [route.path, scrollTop.value] as const,
+      ([path, top]) => {
+        if (path !== "/reader") {
+          readerFloatingNavVisible.value = false;
+          readerFloatingNavEngaged = false;
+          lastReaderScrollTop = top;
+          return;
+        }
+
+        if (top <= READER_FLOATING_NAV_THRESHOLD) {
+          readerFloatingNavVisible.value = false;
+          readerFloatingNavEngaged = false;
+          lastReaderScrollTop = top;
+          return;
+        }
+
+        if (!readerFloatingNavEngaged) {
+          lastReaderScrollTop = top;
+          return;
+        }
+
+        const delta = top - lastReaderScrollTop;
+        if (Math.abs(delta) < READER_FLOATING_SCROLL_DELTA) {
+          return;
+        }
+
+        if (delta > 0) {
+          readerFloatingNavVisible.value = false;
+        } else {
+          readerFloatingNavVisible.value = true;
+        }
+
+        lastReaderScrollTop = top;
+      }
+    );
 
     const methods = {
       /** 输入搜索词 */
@@ -555,7 +621,9 @@ export default {
       ...methods,
       locationHistory,
       menuBtnList,
-      readerFloatingNav
+      readerFloatingNavMode,
+      readerFloatingNavVisible,
+      readerFloatingNavInstant
     };
   }
 };
