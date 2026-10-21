@@ -137,7 +137,12 @@
             <img class="breadcrumb-separator" src="../assets/images/icon_back.png" alt="" />
             <span class="current-title" :title="episodeTitle">{{ episodeTitle }}</span>
           </template>
-          <span v-else class="single-title" :title="comicInfo.exhibitTitle">
+          <span
+            v-else
+            class="single-title"
+            :title="comicInfo.exhibitTitle"
+            @click.stop="goAlbumDetail"
+          >
             {{ comicInfo.exhibitTitle }}
           </span>
         </div>
@@ -587,7 +592,12 @@ export default {
         .single-title {
           display: block;
           max-width: 400px;
-          cursor: default;
+          cursor: pointer;
+          transition: opacity 0.2s linear;
+
+          &:hover {
+            opacity: 0.85;
+          }
         }
 
         .current-title {
