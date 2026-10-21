@@ -7,6 +7,8 @@
     :show-arrow="false"
     :show-after="3000"
     :content="content"
+    :disabled="!content"
+    :teleported="false"
   >
     <slot />
   </el-tooltip>
