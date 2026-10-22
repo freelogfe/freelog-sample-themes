@@ -49,8 +49,8 @@
                 {{ playingInfo.itemTitle || playingInfo.exhibitTitle }}
               </div>
 
-              <div class="singer" v-if="playingInfo.articleInfo?.articleProperty?.display_artist">
-                {{ playingInfo.articleInfo?.articleProperty?.display_artist }}
+              <div class="singer" v-if="playingArtist">
+                {{ playingArtist }}
               </div>
             </div>
           </div>
@@ -204,8 +204,8 @@
           <div class="title">
             {{ playingInfo.exhibitTitle }}
           </div>
-          <div class="desc">
-            {{ playingInfo.articleInfo?.articleProperty?.display_artist }}
+          <div class="desc" v-if="playingArtist">
+            {{ playingArtist }}
           </div>
           <div
             class="type"
@@ -410,8 +410,8 @@
                     {{ playingInfo?.itemTitle || playingInfo.exhibitTitle }}
                   </span>
                 </my-tooltip>
-                <div class="artist" v-if="playingInfo.articleInfo?.articleProperty?.display_artist">
-                  {{ playingInfo.articleInfo?.articleProperty?.display_artist }}
+                <div class="artist" v-if="playingArtist">
+                  {{ playingArtist }}
                 </div>
                 <my-tooltip :content="playingInfo?.albumName" v-if="playingInfo.albumName">
                   <span
@@ -600,6 +600,16 @@ export default {
   computed: {
     utilityBtnList() {
       return this.rightBtnList.filter(item => item.name !== "showBtn");
+    },
+
+    playingArtist() {
+      const info = this.playingInfo;
+      if (!info) return "";
+      return (
+        info?.versionInfo?.exhibitProperty?.display_artist ||
+        info?.articleInfo?.articleProperty?.display_artist ||
+        ""
+      );
     }
   },
 
@@ -733,6 +743,7 @@ export default {
     getItemArtist(item) {
       return (
         item?.versionInfo?.exhibitProperty?.display_artist ||
+        item?.articleInfo?.articleProperty?.display_artist ||
         item?.articleInfo?.articleOwnerName ||
         ""
       );
