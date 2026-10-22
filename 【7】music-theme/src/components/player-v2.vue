@@ -376,136 +376,131 @@
         class="pc-player-v2"
         :class="{ 'is-collapsing': collapseAnimating }"
       >
-          <div class="pc-player-v2-inner">
-            <div class="track-area">
-              <div class="cover-area">
-                <img
-                  class="cover"
-                  :src="playingInfo.coverImages && playingInfo.coverImages[0]"
-                  v-if="playingInfo"
-                />
-                <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
-              </div>
-              <div class="meta-area">
-                <template v-if="playingInfo">
-                  <my-tooltip :content="playingInfo?.itemTitle || playingInfo.exhibitTitle">
-                    <span
-                      class="song-title voice-title"
-                      @click="
-                        playingInfo?.itemTitle
-                          ? $router.myPush({
-                              path:
-                                playingInfo.parentArticleType === 3 ? '/play-detail' : '/detail',
-                              query: {
-                                id: playingInfo.exhibitId,
-                                subID: playingInfo.itemId,
-                                albumName: playingInfo.exhibitTitle
-                              }
-                            })
-                          : $router.myPush({
-                              path:
-                                playingInfo.parentArticleType === 3 ? '/play-detail' : '/detail',
-                              query: { id: playingInfo.exhibitId }
-                            })
-                      "
-                    >
-                      {{ playingInfo?.itemTitle || playingInfo.exhibitTitle }}
-                    </span>
-                  </my-tooltip>
-                  <div
-                    class="artist"
-                    v-if="playingInfo.articleInfo?.articleProperty?.display_artist"
-                  >
-                    {{ playingInfo.articleInfo?.articleProperty?.display_artist }}
-                  </div>
-                  <my-tooltip :content="playingInfo?.albumName" v-if="playingInfo.albumName">
-                    <span
-                      class="album album-title"
-                      @click="
-                        $router.myPush({
-                          path: playingInfo.parentArticleType === 3 ? '/play-detail' : '/detail',
-                          query: { id: playingInfo.exhibitId }
-                        })
-                      "
-                    >
-                      {{ playingInfo.albumName }}
-                    </span>
-                  </my-tooltip>
-                  <span class="album album-title single-song" v-else>单曲</span>
-                </template>
-                <span class="no-data-title" v-else>暂无播放的声音</span>
-              </div>
+        <div class="pc-player-v2-inner">
+          <div class="track-area">
+            <div class="cover-area">
+              <img
+                class="cover"
+                :src="playingInfo.coverImages && playingInfo.coverImages[0]"
+                v-if="playingInfo"
+              />
+              <img class="default-avatar" src="../assets/images/default-avatar.png" v-else />
             </div>
+            <div class="meta-area">
+              <template v-if="playingInfo">
+                <my-tooltip :content="playingInfo?.itemTitle || playingInfo.exhibitTitle">
+                  <span
+                    class="song-title voice-title"
+                    @click="
+                      playingInfo?.itemTitle
+                        ? $router.myPush({
+                            path: playingInfo.parentArticleType === 3 ? '/play-detail' : '/detail',
+                            query: {
+                              id: playingInfo.exhibitId,
+                              subID: playingInfo.itemId,
+                              albumName: playingInfo.exhibitTitle
+                            }
+                          })
+                        : $router.myPush({
+                            path: playingInfo.parentArticleType === 3 ? '/play-detail' : '/detail',
+                            query: { id: playingInfo.exhibitId }
+                          })
+                    "
+                  >
+                    {{ playingInfo?.itemTitle || playingInfo.exhibitTitle }}
+                  </span>
+                </my-tooltip>
+                <div class="artist" v-if="playingInfo.articleInfo?.articleProperty?.display_artist">
+                  {{ playingInfo.articleInfo?.articleProperty?.display_artist }}
+                </div>
+                <my-tooltip :content="playingInfo?.albumName" v-if="playingInfo.albumName">
+                  <span
+                    class="album album-title"
+                    @click="
+                      $router.myPush({
+                        path: playingInfo.parentArticleType === 3 ? '/play-detail' : '/detail',
+                        query: { id: playingInfo.exhibitId }
+                      })
+                    "
+                  >
+                    {{ playingInfo.albumName }}
+                  </span>
+                </my-tooltip>
+                <span class="album album-title single-song" v-else>单曲</span>
+              </template>
+              <span class="no-data-title" v-else>暂无播放的声音</span>
+            </div>
+          </div>
 
-            <div class="controls-area">
+          <div class="controls-area">
+            <button
+              type="button"
+              class="control-btn"
+              :class="{ disabled: item.disabled }"
+              v-for="item in leftBtnList"
+              :key="item.icon"
+              @click="item.operate"
+            >
+              <i class="freelog" :class="item.icon" />
+            </button>
+          </div>
+
+          <div class="progress-area">
+            <span class="time current-time">
+              {{ secondsToHMS(store.progress * 1000) }}
+            </span>
+            <div class="slider-wrap" @mousedown="slidingProgress = true">
+              <el-slider
+                class="progress"
+                :class="{ 'no-voice': !playingInfo }"
+                v-model="store.progress"
+                :min="0"
+                :max="progressMax"
+                :format-tooltip="() => secondsToHMS(store.progress * 1000)"
+                @change="changeProgress"
+              ></el-slider>
+            </div>
+            <span class="time total-time" v-if="playingInfo">
+              {{ secondsToHMS(playingInfo.versionInfo.exhibitProperty.duration) }}
+            </span>
+            <span class="time total-time" v-else>00:00</span>
+          </div>
+
+          <div class="actions-area">
+            <template v-for="item in utilityBtnList" :key="item.name">
+              <div v-if="item.name === 'volume'" class="volume-wrap">
+                <transition name="scale">
+                  <div ref="volumePopup" class="pc-volume-popup" v-if="volumePopupShow">
+                    <el-slider
+                      class="progress"
+                      v-model="volume"
+                      vertical
+                      :min="0"
+                      :max="100"
+                    ></el-slider>
+                  </div>
+                </transition>
+                <button type="button" class="action-btn" :ref="item.name" @click="item.operate">
+                  <i class="freelog" :class="item.icon" />
+                </button>
+              </div>
               <button
+                v-else
                 type="button"
-                class="control-btn"
-                :class="{ disabled: item.disabled }"
-                v-for="item in leftBtnList"
-                :key="item.icon"
+                class="action-btn"
+                :ref="item.name"
                 @click="item.operate"
               >
                 <i class="freelog" :class="item.icon" />
               </button>
-            </div>
-
-            <div class="progress-area">
-              <span class="time current-time">
-                {{ secondsToHMS(store.progress * 1000) }}
-              </span>
-              <div class="slider-wrap" @mousedown="slidingProgress = true">
-                <el-slider
-                  class="progress"
-                  :class="{ 'no-voice': !playingInfo }"
-                  v-model="store.progress"
-                  :min="0"
-                  :max="progressMax"
-                  :format-tooltip="() => secondsToHMS(store.progress * 1000)"
-                  @change="changeProgress"
-                ></el-slider>
-              </div>
-              <span class="time total-time" v-if="playingInfo">
-                {{ secondsToHMS(playingInfo.versionInfo.exhibitProperty.duration) }}
-              </span>
-              <span class="time total-time" v-else>00:00</span>
-            </div>
-
-            <div class="actions-area">
-              <template v-for="item in utilityBtnList" :key="item.name">
-                <div v-if="item.name === 'volume'" class="volume-wrap">
-                  <transition name="scale">
-                    <div ref="volumePopup" class="pc-volume-popup" v-if="volumePopupShow">
-                      <el-slider
-                        class="progress"
-                        v-model="volume"
-                        vertical
-                        :min="0"
-                        :max="100"
-                      ></el-slider>
-                    </div>
-                  </transition>
-                  <button type="button" class="action-btn" :ref="item.name" @click="item.operate">
-                    <i class="freelog" :class="item.icon" />
-                  </button>
-                </div>
-                <button
-                  v-else
-                  type="button"
-                  class="action-btn"
-                  :ref="item.name"
-                  @click="item.operate"
-                >
-                  <i class="freelog" :class="item.icon" />
-                </button>
-              </template>
-            </div>
-
-            <button type="button" class="collapse-btn" @click="startCollapsePlayer">
-              <i class="freelog fl-icon-icon_back" />
-            </button>
+            </template>
           </div>
+
+          <button type="button" class="collapse-btn" @click="startCollapsePlayer">
+            <i class="freelog fl-icon-icon_back" />
+          </button>
         </div>
+      </div>
     </div>
 
     <transition name="player-collapsed">
@@ -673,8 +668,14 @@ export default {
 
       const collapseScale = String(78 / rect.width);
 
-      playerEl.style.setProperty("--collapse-dx", `${targetCenterX - (rect.left + rect.width / 2)}px`);
-      playerEl.style.setProperty("--collapse-dy", `${targetCenterY - (rect.top + rect.height / 2)}px`);
+      playerEl.style.setProperty(
+        "--collapse-dx",
+        `${targetCenterX - (rect.left + rect.width / 2)}px`
+      );
+      playerEl.style.setProperty(
+        "--collapse-dy",
+        `${targetCenterY - (rect.top + rect.height / 2)}px`
+      );
       playerEl.style.setProperty("--collapse-scale", collapseScale);
       this.$el.style.setProperty("--collapse-scale", collapseScale);
 

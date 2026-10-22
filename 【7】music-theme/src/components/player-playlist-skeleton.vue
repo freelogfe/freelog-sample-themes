@@ -16,7 +16,7 @@ export default {
 
   data() {
     return {
-      rowCount: 10
+      rowCount: 8
     };
   }
 };
@@ -25,21 +25,22 @@ export default {
 <style lang="less" scoped>
 .player-playlist-skeleton {
   flex: 1;
+  min-height: 0;
   overflow: hidden;
-  padding: 0 15px 15px;
   box-sizing: border-box;
 }
 
 .skeleton-row {
   display: flex;
   align-items: center;
+  gap: 40px;
   height: 40px;
   padding: 0 15px;
+  border-radius: 6px;
   box-sizing: border-box;
 }
 
 .skeleton-block {
-  height: 20px;
   border-radius: 4px;
   flex-shrink: 0;
   background: linear-gradient(
@@ -54,23 +55,25 @@ export default {
 
 .col-title {
   width: 398px;
-  margin-right: 40px;
+  height: 20px;
 }
 
 .col-artist,
 .col-album {
   width: 170px;
-  margin-right: 40px;
+  height: 18px;
 }
 
 .col-duration {
   width: 180px;
+  height: 18px;
 }
 
 .col-delete {
   width: 20px;
   height: 20px;
   margin-left: auto;
+  border-radius: 4px;
 }
 
 @keyframes player-playlist-skeleton-loading {
