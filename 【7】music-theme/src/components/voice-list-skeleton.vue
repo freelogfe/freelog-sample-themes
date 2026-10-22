@@ -107,7 +107,8 @@ export default {
   .skeleton-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 40px;
     width: 100%;
   }
 
@@ -151,6 +152,7 @@ export default {
     &.col-4 {
       width: 180px;
       height: 18px;
+      margin-left: auto;
     }
   }
 

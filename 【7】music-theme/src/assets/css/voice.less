@@ -354,7 +354,8 @@
     }
 
     &:hover {
-      .left-box .btns-area {
+      .left-box .btns-area,
+      .voice-list-actions {
         opacity: 1;
 
         &.opacity {
@@ -668,7 +669,72 @@
     }
 
     &.voice-list-page {
+      justify-content: flex-start;
+      flex-wrap: nowrap;
+      gap: 40px;
+
+      .left-box {
+        width: 460px;
+        flex: 0 0 460px;
+        min-width: 0;
+
+        .info-area {
+          flex: 1;
+          min-width: 0;
+          width: auto;
+        }
+
+        .title-area {
+          min-width: 0;
+
+          ::v-deep .el-tooltip__trigger {
+            display: block;
+            min-width: 0;
+            max-width: 100%;
+          }
+
+          .title {
+            display: block;
+            max-width: 100%;
+          }
+        }
+      }
+
+      .voice-list-actions {
+        flex: 0 0 140px;
+        width: 140px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+
+        .text-btn {
+          font-size: 20px;
+          flex-shrink: 0;
+          margin-left: 0 !important;
+        }
+      }
+
+      &:hover .voice-list-actions {
+        opacity: 1;
+
+        &.opacity {
+          opacity: 0.4;
+        }
+      }
+
+      .singer.middle-box,
+      .middle-box:not(.singer) {
+        flex: 0 0 170px;
+        width: 170px;
+      }
+
       .right-box {
+        flex: 0 0 180px;
+        width: 180px;
+        margin-left: auto;
         display: flex;
         justify-content: flex-end;
         align-items: center;

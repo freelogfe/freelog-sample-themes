@@ -150,7 +150,7 @@
           authLinkAbnormal ||
           data.onlineStatus === 0 ||
           data.articleInfo.status === 2,
-        'voice-list-page': $route.name === 'voice-list'
+        'voice-list-page': isMusicTableList
       }"
       :title="
         !ifSupportMime ||
@@ -202,8 +202,7 @@
         <div
           class="info-area"
           :class="
-            ($route.name === 'voice-list' ||
-              !data.versionInfo?.exhibitProperty?.display_artist) &&
+            (isMusicTableList || !data.versionInfo?.exhibitProperty?.display_artist) &&
               'flex-justify-center'
           "
         >
@@ -248,12 +247,16 @@
           <div
             class="intro"
             :class="{ 'opacity-40': authLinkAbnormal }"
-            v-if="$route.name !== 'voice-list'"
+            v-if="!isMusicTableList"
           >
             {{ data?.versionInfo?.exhibitProperty?.display_artist }}
           </div>
         </div>
-        <div class="btns-area" :class="{ opacity: authLinkAbnormal }">
+        <div
+          class="btns-area"
+          :class="{ opacity: authLinkAbnormal }"
+          v-if="!isMusicTableList"
+        >
           <myTooltip :content="item.title" v-for="item in btnList" :key="item.title">
             <i
               class="freelog text-btn"
@@ -264,9 +267,22 @@
         </div>
       </div>
       <div
+        class="btns-area voice-list-actions"
+        :class="{ opacity: authLinkAbnormal }"
+        v-if="isMusicTableList"
+      >
+        <myTooltip :content="item.title" v-for="item in btnList" :key="item.title">
+          <i
+            class="freelog text-btn"
+            :class="[item.icon, { disabled: item.disabled }]"
+            @click="item.operate"
+          />
+        </myTooltip>
+      </div>
+      <div
         class="singer middle-box"
         :class="{ 'unknown-text': !data.versionInfo.exhibitProperty?.display_artist }"
-        v-if="$route.name === 'voice-list'"
+        v-if="isMusicTableList"
       >
         {{ data.versionInfo.exhibitProperty.display_artist || "未知" }}
       </div>
@@ -318,7 +334,7 @@
 import playStatus from "@/components/play-status.vue";
 import myTooltip from "@/components/tooltip.vue";
 import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
-import { secondsToHMS, absoluteTime } from "@/utils/common";
+import { secondsToHMS, absoluteTime, MUSIC_TABLE_LIST_ROUTES } from "@/utils/common";
 import { useGlobalStore } from "@/store/global";
 
 export default {
@@ -409,6 +425,10 @@ export default {
         "audio/flac"
       ];
       return supportMimeList.includes(this.data.versionInfo?.exhibitProperty?.mime);
+    },
+
+    isMusicTableList() {
+      return MUSIC_TABLE_LIST_ROUTES.includes(this.$route.name);
     },
 
     /** 是否播放中 */

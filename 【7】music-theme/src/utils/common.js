@@ -186,3 +186,6 @@ export const scrollIntoView = () => {
     behavior: "smooth"
   });
 };
+
+/** PC 音乐表格列表（固定列：歌名 / 操作 / 艺人 / 专辑 / 时长） */
+export const MUSIC_TABLE_LIST_ROUTES = ["voice-list", "signed-list"];

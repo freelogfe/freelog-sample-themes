@@ -60,7 +60,7 @@
       </div>
       <!-- 音乐 -->
       <div class="voice-list" v-if="tab === 1 && list.length && total !== 0">
-        <div class="voice-bar" v-if="!store.inMobile && $route.name !== 'voice-list'">
+        <div class="voice-bar" v-if="!store.inMobile && !isMusicTableList">
           <span>歌曲</span>
           <span>专辑</span>
           <span>时长</span>
@@ -201,6 +201,7 @@ import MobileAlbum from "@/components/mobile-album.vue";
 import PCPlayList from "@/components/play-list.vue";
 import VoiceListSkeleton from "@/components/voice-list-skeleton.vue";
 import AlbumPlayListSkeleton from "@/components/album-play-list-skeleton.vue";
+import { MUSIC_TABLE_LIST_ROUTES } from "@/utils/common";
 
 const TabEnum = {
   Music: 1,
@@ -293,6 +294,10 @@ export default {
   },
 
   computed: {
+    isMusicTableList() {
+      return MUSIC_TABLE_LIST_ROUTES.includes(this.$route.name);
+    },
+
     musicLength() {
       const data = this.list?.filter(i => i.articleInfo?.articleType === 1) || [];
       return data.length;
