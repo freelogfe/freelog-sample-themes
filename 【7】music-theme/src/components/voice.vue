@@ -201,7 +201,11 @@
         </div>
         <div
           class="info-area"
-          :class="!data.versionInfo?.exhibitProperty?.display_artist && 'flex-justify-center'"
+          :class="
+            ($route.name === 'voice-list' ||
+              !data.versionInfo?.exhibitProperty?.display_artist) &&
+              'flex-justify-center'
+          "
         >
           <div class="title-area">
             <img
@@ -241,7 +245,11 @@
               </span>
             </myTooltip>
           </div>
-          <div class="intro" :class="{ 'opacity-40': authLinkAbnormal }">
+          <div
+            class="intro"
+            :class="{ 'opacity-40': authLinkAbnormal }"
+            v-if="$route.name !== 'voice-list'"
+          >
             {{ data?.versionInfo?.exhibitProperty?.display_artist }}
           </div>
         </div>
