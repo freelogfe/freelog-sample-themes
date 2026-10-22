@@ -20,7 +20,6 @@ declare module 'vue' {
     Footer: typeof import('./src/components/footer.vue')['default']
     Header: typeof import('./src/components/header.vue')['default']
     HomeFloatMenu: typeof import('./src/components/home-float-menu.vue')['default']
-    HomeFloatMenuItems: typeof import('./src/components/home-float-menu-items.vue')['default']
     List: typeof import('./src/components/list.vue')['default']
     MobileAlbum: typeof import('./src/components/mobile-album.vue')['default']
     Player: typeof import('./src/components/player.vue')['default']
