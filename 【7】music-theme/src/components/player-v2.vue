@@ -750,7 +750,12 @@ export default {
     },
 
     getItemAlbum(item) {
-      return item.albumName || "单曲";
+      return (
+        item?.albumName ||
+        item?.versionInfo?.exhibitProperty?.album_name ||
+        item?.articleInfo?.articleProperty?.album_name ||
+        "单曲"
+      );
     },
 
     goToItemAlbum(item) {

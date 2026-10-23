@@ -281,14 +281,14 @@
       </div>
       <div
         class="singer middle-box"
-        :class="{ 'unknown-text': !data.versionInfo.exhibitProperty?.display_artist }"
+        :class="{ 'unknown-text': !itemArtist }"
         v-if="isMusicTableList"
       >
-        {{ data.versionInfo.exhibitProperty.display_artist || "未知" }}
+        {{ itemArtist || "未知" }}
       </div>
       <div
         class="middle-box"
-        :class="{ 'unknown-text': !data.albumName, album: data.albumName }"
+        :class="{ 'unknown-text': !itemAlbum, album: data.albumName }"
         @click="
           data.albumName &&
           $router.myPush({
@@ -297,7 +297,7 @@
           })
         "
       >
-        {{ data.albumName || "未知" }}
+        {{ itemAlbum || "未知" }}
       </div>
       <div class="right-box">
         <play-status
@@ -429,6 +429,26 @@ export default {
 
     isMusicTableList() {
       return MUSIC_TABLE_LIST_ROUTES.includes(this.$route.name);
+    },
+
+    itemArtist() {
+      const d = this.data;
+      return (
+        d?.versionInfo?.exhibitProperty?.display_artist ||
+        d?.articleInfo?.articleProperty?.display_artist ||
+        d?.articleInfo?.articleOwnerName ||
+        ""
+      );
+    },
+
+    itemAlbum() {
+      const d = this.data;
+      return (
+        d?.albumName ||
+        d?.versionInfo?.exhibitProperty?.album_name ||
+        d?.articleInfo?.articleProperty?.album_name ||
+        ""
+      );
     },
 
     /** 是否播放中 */
