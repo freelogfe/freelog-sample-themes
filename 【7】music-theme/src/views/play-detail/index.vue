@@ -1874,7 +1874,7 @@ export default {
 
   &.voice-recommend {
     .voice-wrapper + .voice-wrapper {
-      margin-top: 15px;
+      margin-top: 20px;
     }
 
     .voice-recommend-header {

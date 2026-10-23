@@ -428,7 +428,12 @@ export default {
     },
 
     isMusicTableList() {
-      return MUSIC_TABLE_LIST_ROUTES.includes(this.$route.name);
+      if (this.store.inMobile) {
+        return MUSIC_TABLE_LIST_ROUTES.includes(this.$route.name);
+      }
+      return (
+        MUSIC_TABLE_LIST_ROUTES.includes(this.$route.name) || this.isVoiceRecommend
+      );
     },
 
     itemArtist() {
