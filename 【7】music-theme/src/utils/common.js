@@ -181,6 +181,7 @@ export const sleep = duration => {
 // 修复ios的safari浏览器, 软键盘将页面顶到安全区域外的问题(方式一)
 export const scrollIntoView = () => {
   const headerWrapper = document.getElementById("headerWrapper");
+  if (!headerWrapper) return;
   headerWrapper.scrollIntoView({
     block: "end",
     behavior: "smooth"

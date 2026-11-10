@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted, onUnmounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useGlobalStore } from "@/store/global";
 
@@ -25,20 +25,23 @@ watch(
 );
 
 const resizeBanner = () => {
-  if (!store.inMobile) {
-    const banner = document.querySelector(".node-banner") as HTMLElement;
-    const width = window.innerWidth;
-    const height = (760 / 1920) * width; // 根据 1920x660 的比例设置高度
-    banner.style.height = `${height}px`;
-  }
-};
+  if (store.inMobile) return;
 
-// 页面加载时和窗口大小调整时调用
-window.addEventListener("load", resizeBanner);
-window.addEventListener("resize", resizeBanner);
+  const banner = document.querySelector(".node-banner") as HTMLElement | null;
+  if (!banner) return;
+
+  const width = window.innerWidth;
+  const height = (760 / 1920) * width; // 根据 1920x660 的比例设置高度
+  banner.style.height = `${height}px`;
+};
 
 onMounted(() => {
   resizeBanner();
+  window.addEventListener("resize", resizeBanner);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", resizeBanner);
 });
 </script>
 

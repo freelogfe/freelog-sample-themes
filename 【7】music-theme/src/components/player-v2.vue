@@ -656,7 +656,7 @@ export default {
         playerEl.style.removeProperty("--collapse-dy");
         playerEl.style.removeProperty("--collapse-scale");
       }
-      this.$el.style.removeProperty("--collapse-scale");
+      this.$el?.style?.removeProperty("--collapse-scale");
       this.collapseAnimating = false;
     },
 
@@ -687,7 +687,7 @@ export default {
         `${targetCenterY - (rect.top + rect.height / 2)}px`
       );
       playerEl.style.setProperty("--collapse-scale", collapseScale);
-      this.$el.style.setProperty("--collapse-scale", collapseScale);
+      this.$el?.style?.setProperty("--collapse-scale", collapseScale);
 
       this.collapseAnimating = true;
       this.collapsePlayer();
@@ -721,7 +721,7 @@ export default {
         playerEl.style.removeProperty("--collapse-dy");
         playerEl.style.removeProperty("--collapse-scale");
       }
-      this.$el.style.removeProperty("--collapse-scale");
+      this.$el?.style?.removeProperty("--collapse-scale");
 
       this.collapseAnimating = false;
     },
