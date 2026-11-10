@@ -124,6 +124,7 @@ export const useGetList = () => {
           )
         ];
     data.total = totalItem;
+    store.commit("setData", { key: "listData", value: data.listData });
     if (init) data.loading = false;
     data.myLoading = false;
 

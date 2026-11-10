@@ -15,19 +15,23 @@
         </div>
       </div>
 
+      <div
+        class="text-btn mobile filter"
+        :class="{ disabled: myLoading }"
+        @click="filterBoxShow = true"
+        v-if="!searchData.keywords && !homeLoading"
+      >
+        <i className="freelog fl-icon-shaixuan"></i>
+        <div class="filter-label">筛选</div>
+      </div>
+
       <my-loader v-if="homeLoading" />
 
-      <template v-if="!homeLoading">
-        <div
-          class="text-btn mobile filter"
-          :class="{ disabled: myLoading }"
-          @click="filterBoxShow = true"
-          v-if="!searchData.keywords"
-        >
-          <i className="freelog fl-icon-shaixuan"></i>
-          <div class="filter-label">筛选</div>
-        </div>
+      <div class="no-data" v-else-if="!listData.length">
+        <div class="no-data-text">暂无内容</div>
+      </div>
 
+      <template v-else>
         <div class="frame-list">
           <div class="waterfall" v-for="list in listNumber" :key="list">
             <my-frame
@@ -40,10 +44,9 @@
           </div>
         </div>
 
-        <div className="tip" v-show="total === 0">当前节点暂无数据，请稍后查看</div>
         <div
-          className="tip no-more"
-          v-show="listData.length !== 0 && listData.length === total && noMore"
+          class="tip no-more"
+          v-if="listData.length !== 0 && listData.length === total && noMore"
         >
           — 已加载全部 —
         </div>
@@ -202,7 +205,11 @@
 
       <my-loader v-if="homeLoading" />
 
-      <template v-if="!homeLoading">
+      <div class="no-data" v-else-if="!listData.length">
+        <div class="no-data-text">暂无内容</div>
+      </div>
+
+      <template v-else>
         <div class="frame-list">
           <div class="waterfall" v-for="list in listNumber" :key="list">
             <my-frame
@@ -215,8 +222,7 @@
           </div>
         </div>
 
-        <div className="tip" v-show="total === 0">当前节点暂无数据，请稍后查看</div>
-        <div className="tip no-more" v-show="total !== 0 && listData.length === total && noMore">
+        <div class="tip no-more" v-if="listData.length && listData.length === total && noMore">
           — 已加载全部 —
         </div>
       </template>
@@ -477,10 +483,17 @@ export default {
 
     watch(
       () => datasOfGetList.listData.value,
-      async (cur: any, pre: any) => {
+      async (cur: any) => {
         if (datasOfGetList.skip.value === 0) initWaterfall();
 
         const index = datasOfGetList.skip.value;
+        const batchCount = Math.max(0, cur.length - index);
+
+        if (batchCount === 0) {
+          setWaterFall(cur, index);
+          return;
+        }
+
         const { inMobile } = store.state;
         let num = 0;
         let frameWidth = 0;
@@ -496,19 +509,26 @@ export default {
 
         for (let i = index; i < cur.length; i++) {
           const img = new Image();
-          img.src = cur[i].coverImages[0];
+          const cover = cur[i].coverImages?.[0];
+          if (!cover) {
+            cur[i].height = minHeight;
+            num++;
+            if (num === batchCount) setWaterFall(cur, index);
+            continue;
+          }
+          img.src = cover;
           img.onload = () => {
             const height = (frameWidth / img.width) * img.height;
             cur[i].height = height < minHeight ? minHeight : height;
             num++;
 
-            if (num === cur.length - pre.length) setWaterFall(cur, index);
+            if (num === batchCount) setWaterFall(cur, index);
           };
           img.onerror = () => {
             cur[i].height = minHeight;
             num++;
 
-            if (num === cur.length - pre.length) setWaterFall(cur, index);
+            if (num === batchCount) setWaterFall(cur, index);
           };
         }
       }
@@ -558,12 +578,12 @@ export default {
     getData();
 
     return {
-      ...toRefs(store.state),
       tagsList,
       switchPage,
       listNumber,
       waterfall,
       waterfallList,
+      ...toRefs(store.state),
       ...datasOfGetList,
       ...toRefs(data),
       ...methods,
@@ -647,6 +667,21 @@ export default {
         .frame-wrapper + .frame-wrapper {
           margin-top: 10px;
         }
+      }
+    }
+
+    .no-data {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: calc(100vh - 320px);
+      box-sizing: border-box;
+
+      .no-data-text {
+        font-size: 24px;
+        line-height: 33px;
+        color: rgba(0, 0, 0, 0.4);
+        text-align: center;
       }
     }
 
@@ -928,6 +963,21 @@ export default {
         .frame-wrapper + .frame-wrapper {
           margin-top: 10px;
         }
+      }
+    }
+
+    .no-data {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 590px;
+      box-sizing: border-box;
+
+      .no-data-text {
+        font-size: 30px;
+        line-height: 42px;
+        color: rgba(0, 0, 0, 0.4);
+        text-align: center;
       }
     }
 
