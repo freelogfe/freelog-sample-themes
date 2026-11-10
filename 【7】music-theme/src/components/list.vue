@@ -493,7 +493,7 @@ export default {
       font-weight: 600;
       color: var(--text-color);
       line-height: 56px;
-      opacity: 0.8;
+      // opacity: 0.8;
       margin-bottom: 40px;
       word-break: break-all;
     }
