@@ -25,7 +25,7 @@
         <div class="filter-label">筛选</div>
       </div>
 
-      <my-loader v-if="homeLoading" />
+      <my-loader v-if="homeLoading || myLoading" />
 
       <div class="no-data" v-else-if="!listData.length">
         <div class="no-data-text">暂无内容</div>
@@ -203,7 +203,7 @@
         </div>
       </div>
 
-      <my-loader v-if="homeLoading" />
+      <my-loader v-if="homeLoading || myLoading" />
 
       <div class="no-data" v-else-if="!listData.length">
         <div class="no-data-text">暂无内容</div>
@@ -427,6 +427,8 @@ export default {
 
     /** 获取数据 */
     const getData = () => {
+      store.commit("setData", { key: "homeLoading", value: true });
+      data.noMore = false;
       data.searchData = query.value;
       datasOfGetList.clearData();
       datasOfGetList.getList(data.searchData, true);

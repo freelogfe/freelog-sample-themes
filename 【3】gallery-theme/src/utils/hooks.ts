@@ -288,7 +288,10 @@ export const useMyWaterfall = () => {
     }
 
     nextTick(() => {
-      store.commit("setData", { key: "homeLoading", value: false });
+      // 列表被清空、重新拉取时不要关 loading，避免筛选时闪「暂无内容」
+      if (listData.length > 0) {
+        store.commit("setData", { key: "homeLoading", value: false });
+      }
     });
   };
 
