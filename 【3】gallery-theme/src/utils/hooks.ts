@@ -75,12 +75,24 @@ export const useGetList = () => {
     skip: 0
   });
 
+  type GetListOptions = {
+    /** 是否驱动首页全局 loading（详情内相关推荐应设为 false） */
+    affectHomeLoading?: boolean;
+    /** 是否把列表写入 vuex listData（详情推荐列表不应覆盖首页） */
+    syncListToStore?: boolean;
+  };
+
   /** 获取展品列表 */
-  const getList = async (params: any = {}, init = false) => {
+  const getList = async (params: any = {}, init = false, options: GetListOptions = {}) => {
+    const affectHomeLoading = options.affectHomeLoading !== false;
+    const syncListToStore = options.syncListToStore !== false;
+
     if (data.myLoading) return;
     if (data.total === data.listData.length && !init) return;
 
-    store.commit("setData", { key: "homeLoading", value: true });
+    if (affectHomeLoading) {
+      store.commit("setData", { key: "homeLoading", value: true });
+    }
     if (init) data.loading = true;
     data.myLoading = true;
     data.skip = init ? 0 : data.skip + 40;
@@ -110,7 +122,7 @@ export const useGetList = () => {
         if (index !== -1)
           item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
       });
-    } else {
+    } else if (affectHomeLoading) {
       store.commit("setData", { key: "homeLoading", value: false });
     }
     data.listData = init
@@ -124,11 +136,13 @@ export const useGetList = () => {
           )
         ];
     data.total = totalItem;
-    store.commit("setData", { key: "listData", value: data.listData });
+    if (syncListToStore) {
+      store.commit("setData", { key: "listData", value: data.listData });
+    }
     if (init) data.loading = false;
     data.myLoading = false;
 
-    if (!data.listData.length) {
+    if (affectHomeLoading && !data.listData.length) {
       store.commit("setData", { key: "homeLoading", value: false });
     }
   };
@@ -272,7 +286,7 @@ export const useMyWaterfall = () => {
   };
 
   /** 整理瀑布流数据 */
-  const setWaterFall = (listData: ExhibitItem[], startIndex = 0) => {
+  const setWaterFall = (listData: ExhibitItem[], startIndex = 0, affectHomeLoading = true) => {
     for (let i = startIndex; i < listData.length; i++) {
       let minHeightItemIndex = 0;
       if (heightList.length && heightList.length < data.listNumber) {
@@ -289,7 +303,7 @@ export const useMyWaterfall = () => {
 
     nextTick(() => {
       // 列表被清空、重新拉取时不要关 loading，避免筛选时闪「暂无内容」
-      if (listData.length > 0) {
+      if (affectHomeLoading && listData.length > 0) {
         store.commit("setData", { key: "homeLoading", value: false });
       }
     });

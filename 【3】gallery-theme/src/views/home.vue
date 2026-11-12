@@ -547,6 +547,21 @@ export default {
       }
     );
 
+    /** PC 关闭详情弹窗后兜底：清首页 loading，并按本地列表重排瀑布流 */
+    watch(
+      () => data.currentId,
+      id => {
+        if (id) return;
+        store.commit("setData", { key: "homeLoading", value: false });
+        const list = datasOfGetList.listData.value as ExhibitItem[];
+        if (!list.length) return;
+        nextTick(() => {
+          initWaterfall();
+          setWaterFall(list);
+        });
+      }
+    );
+
     onActivated(() => {
       if (router.options.history.state.replaced) {
         const homeScrollTop = sessionStorage.getItem("homeScroll");

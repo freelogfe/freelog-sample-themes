@@ -393,7 +393,16 @@
 </template>
 
 <script lang="ts">
-import { SetupContext, computed, defineAsyncComponent, onUnmounted, reactive, ref, toRefs, watch } from "vue";
+import {
+  SetupContext,
+  computed,
+  defineAsyncComponent,
+  onUnmounted,
+  reactive,
+  ref,
+  toRefs,
+  watch
+} from "vue";
 import { ExhibitItem } from "../api/interface";
 import { useGetList, useMyRouter, useMyWaterfall } from "../utils/hooks";
 import { useStore } from "vuex";
@@ -536,6 +545,8 @@ export default {
 
       /** 关闭详情弹窗 */
       closePopup() {
+        clearAuthPending(data.currentId);
+        store.commit("setData", { key: "homeLoading", value: false });
         if (store.state.inMobile) {
           switchPage("/home");
         } else {
@@ -554,8 +565,11 @@ export default {
         const authResult = await freelogApp.addAuth(data.currentId, { immediate: true });
         window.addEventListener("keyup", keyup);
         const { status } = authResult;
+        console.log("这里的返回值", status);
+        console.log("完整的返回值", authResult);
         if (status === 0) {
           clearAuthPending(data.currentId);
+          if (!data.currentId) return;
           getData();
           refreshAuth();
         }
@@ -580,7 +594,9 @@ export default {
       data.loading = true;
       data.content = "";
 
-      const exhibitInfo = await freelogApp.getExhibitById(data.currentId, { isLoadVersionProperty: 1 });
+      const exhibitInfo = await freelogApp.getExhibitById(data.currentId, {
+        isLoadVersionProperty: 1
+      });
       const defaulterIdentityType = await resolveAuthStatus(data.currentId);
 
       data.exhibitInfo = { ...exhibitInfo.data.data, defaulterIdentityType };
@@ -713,6 +729,7 @@ export default {
           data.loading = false;
         }
       } else if (defaulterIdentityType === 4) {
+        console.log("是来到我这里了吗");
         // 未签约并且授权链无异常
         data.loading = false;
         if (!isAuthPending(data.currentId)) {
@@ -722,7 +739,11 @@ export default {
         data.loading = false;
       }
 
-      datasOfGetList.getList({ tags: data.exhibitInfo?.tags.join(","), limit: 20 }, true);
+      datasOfGetList.getList(
+        { tags: data.exhibitInfo?.tags.join(","), limit: 20 },
+        true,
+        { affectHomeLoading: false, syncListToStore: false }
+      );
     };
 
     /** 根据资源宽高比决定显示模式 */
@@ -750,7 +771,9 @@ export default {
       setWaterFall(
         datasOfGetList.listData.value.filter(
           item => item.exhibitId !== data.currentId
-        ) as ExhibitItem[]
+        ) as ExhibitItem[],
+        0,
+        false
       );
       data.recommendShow = datasOfGetList.listData.value.length !== 0;
     };
@@ -879,6 +902,15 @@ export default {
       () => datasOfGetList.listData.value,
       async (cur: any) => {
         initWaterfall();
+        data.recommendShow = cur.length > 1;
+        const recommendList = cur.filter(
+          (item: ExhibitItem) => item.exhibitId !== data.currentId
+        ) as ExhibitItem[];
+
+        if (!recommendList.length) {
+          setWaterFall([], 0, false);
+          return;
+        }
 
         const { inMobile } = store.state;
         let num = 0;
@@ -893,19 +925,30 @@ export default {
           minHeight = 230;
         }
 
-        for (let i = 0; i < cur.length; i++) {
+        const finishBatch = () => {
+          num++;
+          if (num === recommendList.length) setWaterFall(recommendList, 0, false);
+        };
+
+        for (let i = 0; i < recommendList.length; i++) {
+          const cover = recommendList[i].coverImages?.[0];
+          if (!cover) {
+            recommendList[i].height = minHeight;
+            finishBatch();
+            continue;
+          }
           const img = new Image();
-          img.src = cur[i].coverImages[0];
+          img.src = cover;
           img.onload = () => {
             const height = (frameWidth / img.width) * img.height;
-            cur[i].height = height < minHeight ? minHeight : height;
-            num++;
-
-            if (num === cur.length)
-              setWaterFall(cur.filter((item: ExhibitItem) => item.exhibitId !== data.currentId));
+            recommendList[i].height = height < minHeight ? minHeight : height;
+            finishBatch();
+          };
+          img.onerror = () => {
+            recommendList[i].height = minHeight;
+            finishBatch();
           };
         }
-        data.recommendShow = cur.length > 1;
       }
     );
 
@@ -916,6 +959,7 @@ export default {
 
     return {
       ...toRefs(store.state),
+      ...datasOfGetList,
       switchPage,
       listNumber,
       waterfall,
