@@ -434,6 +434,8 @@ export default {
     const scrollArea = ref<any>(null);
     const contentArea = ref<any>(null);
     const showMoreTagBtn = ref<boolean>();
+    /** 防止连续点「获取授权」叠多个 addAuth */
+    const authRequesting = ref(false);
 
     // iOS 检测
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -560,18 +562,28 @@ export default {
 
       /** 授权 */
       async getAuth() {
+        const exhibitId = data.currentId?.trim();
+        if (!exhibitId || authRequesting.value) return;
+
+        authRequesting.value = true;
         window.removeEventListener("keyup", keyup);
-        markAuthPending(data.currentId);
-        const authResult = await freelogApp.addAuth(data.currentId, { immediate: true });
-        window.addEventListener("keyup", keyup);
-        const { status } = authResult;
-        console.log("这里的返回值", status);
-        console.log("完整的返回值", authResult);
-        if (status === 0) {
-          clearAuthPending(data.currentId);
-          if (!data.currentId) return;
-          getData();
-          refreshAuth();
+        markAuthPending(exhibitId);
+        try {
+          const authResult = await freelogApp.addAuth(exhibitId, { immediate: true });
+          const { status } = authResult;
+          if (status !== 0) return;
+          if (!data.currentId || data.currentId !== exhibitId) return;
+
+          // 勿在此处 clearAuthPending：getData → resolveAuthStatus 依赖 pending 做最多 5s 轮询
+          //（「等待后免费」侧栏已授权时，展品 defaulterIdentityType 可能尚未变为 0）
+          await getData();
+          if (data.exhibitInfo?.defaulterIdentityType === 0) {
+            clearAuthPending(exhibitId);
+            refreshAuth();
+          }
+        } finally {
+          authRequesting.value = false;
+          window.addEventListener("keyup", keyup);
         }
       },
 
@@ -613,6 +625,7 @@ export default {
         data.loading = false;
       } else if (defaulterIdentityType === 0) {
         // 已签约并且授权链无异常
+        clearAuthPending(data.currentId);
         const info = await freelogApp.getExhibitFileStream(data.currentId, { returnUrl: true });
         if (!info) {
           data.loading = false;
