@@ -1,0 +1,35 @@
+{
+  "name": "shengyu-theme",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "serve": "vite --port 8109",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.check.json",
+    "test": "node --test scripts/shengyu.test.cjs",
+    "serve:compat": "node scripts/serve-compat.mjs",
+    "build:compat": "vite build --mode compat"
+  },
+  "dependencies": {
+    "element-plus": "^2.7.7",
+    "freelog-runtime": "5.0.6",
+    "pinia": "^2.1.7",
+    "qrcode.vue": "3.4.1",
+    "vue": "^3.4.29",
+    "vue-router": "^4.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "@vitejs/plugin-vue": "^5.0.5",
+    "less": "^4.2.0",
+    "less-loader": "^12.2.0",
+    "typescript": "^5.2.2",
+    "unplugin-auto-import": "^0.18.0",
+    "unplugin-vue-components": "^0.27.3",
+    "vite": "^5.3.1",
+    "vite-plugin-mkcert": "^1.17.5",
+    "vue-tsc": "^2.0.21"
+  }
+}

@@ -1,0 +1,12 @@
+.sy-skeleton-block {
+  display: block;
+  background: linear-gradient(90deg, var(--sy-card) 25%, var(--sy-hover) 37%, var(--sy-card) 63%) 100% 50% / 400% 100%;
+  animation: sy-skeleton-loading 1.4s ease infinite;
+  border-radius: 4px;
+}
+@keyframes sy-skeleton-loading {
+  to { background-position: 0 50%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sy-skeleton-block { animation: none; }
+}

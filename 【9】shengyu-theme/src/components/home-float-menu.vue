@@ -1,0 +1,225 @@
+<script setup lang="ts">
+import { computed } from "vue";
+import { useGlobalStore } from "@/store/global";
+import { currentTheme } from "@/utils/theme-manager";
+
+const store = useGlobalStore();
+const props = defineProps<{ embedded?: boolean; themeUrl: string }>();
+const emit = defineEmits<{ share: [] }>();
+
+const baseMenuList = [
+  {
+    icon: "freelog fl-icon-a-icon_usetheme",
+    label: "使用此主题",
+    desc: "官方示例主题, 可免费使用",
+    action: "theme" as const
+  },
+  {
+    icon: "freelog fl-icon-icon_fenxiang1",
+    label: "分享节点",
+    desc: "点击下载二维码, 分享你的节点",
+    action: "share" as const
+  }
+];
+
+const themeMode = computed(() => {
+  return currentTheme.value || "light";
+});
+
+const showThemeEntrance = computed(() => {
+  const selfConfig = store.selfConfig;
+  // Keep the node's explicit visibility setting; new Shengyu nodes show it by default.
+  const visibility = selfConfig?.options_entranceShow ?? selfConfig?.entranceShow;
+  return visibility?.trim() !== "隐藏";
+});
+
+const menuList = computed(() =>
+  baseMenuList.filter(item => item.action !== "theme" || showThemeEntrance.value)
+);
+
+const isPlayerCollapsed = computed(
+  () => store.playerShowStatus && store.playerCollapsed && !store.inMobile
+);
+
+</script>
+
+<template>
+  <div
+    class="home-float-menu"
+    :class="[`theme-${themeMode}`, { 'is-player-collapsed': isPlayerCollapsed, embedded: props.embedded }]"
+  >
+    <component
+      :is="item.action === 'theme' ? 'a' : 'button'"
+      class="home-float-menu-item"
+      v-for="item in menuList"
+      :key="item.label"
+      :href="item.action === 'theme' ? props.themeUrl : undefined"
+      :target="item.action === 'theme' ? '_blank' : undefined"
+      :rel="item.action === 'theme' ? 'noopener noreferrer' : undefined"
+      :type="item.action === 'share' ? 'button' : undefined"
+      :aria-label="item.label"
+      @click="item.action === 'share' && emit('share')"
+    >
+      <div class="menu-content">
+        <span class="menu-label">{{ item.label }}</span>
+        <span class="menu-desc">{{ item.desc }}</span>
+      </div>
+      <i :class="item.icon" class="menu-icon" aria-hidden="true"></i>
+    </component>
+  </div>
+</template>
+
+<style lang="less" scoped>
+.home-float-menu {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  z-index: 100;
+  padding-right: 0;
+  transition: bottom 0.3s ease;
+
+  &.is-player-collapsed {
+    bottom: 120px;
+  }
+
+  &.embedded {
+    position: static;
+    gap: inherit;
+  }
+}
+
+.home-float-menu-item {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: center;
+  width: var(--tool-size, 68px);
+  height: var(--tool-size, 68px);
+  padding: 0;
+  border: 0;
+  text-decoration: none;
+  font-family: inherit;
+  // padding: 0 30px;
+  box-sizing: border-box;
+  border-radius: 50px;
+  background: rgba(34, 34, 34, 0.1);
+  backdrop-filter: blur(5px);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    width 0.3s ease,
+    border-radius 0.3s ease,
+    box-shadow 0.2s ease;
+
+  .theme-light & {
+    background: rgba(34, 34, 34, 0.1);
+  }
+
+  .theme-dark & {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  &:hover,
+  &:focus-visible {
+    width: 243px;
+    max-width: calc(100vw - 24px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+
+    .theme-light & {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .theme-dark & {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    .menu-content {
+      max-width: 220px;
+      opacity: 1;
+      margin-left: 15px;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--sy-brand);
+    outline-offset: 3px;
+  }
+}
+
+.menu-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px !important;
+  color: #222222;
+
+  .theme-light & {
+    color: #222222;
+  }
+
+  .theme-dark & {
+    color: #ffffff;
+  }
+}
+
+.menu-content {
+  flex-shrink: 0;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  white-space: nowrap;
+  transition:
+    max-width 0.3s ease,
+    opacity 0.2s ease;
+}
+
+.menu-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #222222;
+  line-height: 20px;
+
+  .theme-light & {
+    color: #222222;
+  }
+
+  .theme-dark & {
+    color: #ffffff;
+  }
+}
+
+.menu-desc {
+  font-size: 12px;
+  font-weight: 400;
+  color: #222222;
+  line-height: 18px;
+
+  .theme-light & {
+    color: #222222;
+  }
+
+  .theme-dark & {
+    color: #ffffff;
+  }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

@@ -1,0 +1,8 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Frame 75">
+<mask id="stroke0_0_4" fill="white">
+<path d="M32.8715 25.1085L54.3225 36.4648C57.1604 37.9673 57.1604 42.0327 54.3225 43.5351L32.8716 54.8915C30.2075 56.3019 27 54.3707 27 51.3564V28.6436C27 25.6293 30.2075 23.6981 32.8715 25.1085Z"/>
+</mask>
+<path id="Vector 23" d="M54.3225 36.4648L32.8715 25.1085C30.2075 23.6981 27 25.6293 27 28.6436V51.3564C27 54.3707 30.2075 56.3019 32.8716 54.8915L54.3225 43.5351C57.1604 42.0327 57.1604 37.9673 54.3225 36.4648Z" stroke-width="4" stroke-linejoin="round" stroke="#1B1E20" mask="url(#stroke0_0_4)"/>
+</g>
+</svg>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+  <defs><linearGradient id="background" x2="0" y2="1"><stop stop-color="#f3f4f5"/><stop offset="1" stop-color="#dedede"/></linearGradient></defs>
+  <rect width="300" height="300" fill="url(#background)"/>
+  <text x="150" y="150" text-anchor="middle" dominant-baseline="central" fill="#999" font-family="Arial, sans-serif" font-size="26">暂无封面</text>
+</svg>

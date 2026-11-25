@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "composite": false,
+    "noEmit": true
+  },
+  "include": [
+    "src/main.ts",
+    "src/App.vue",
+    "src/views/shengyu/**/*.vue",
+    "src/components/shengyu-card.vue",
+    "src/global.d.ts",
+    "src/vite-env.d.ts"
+  ]
+}
