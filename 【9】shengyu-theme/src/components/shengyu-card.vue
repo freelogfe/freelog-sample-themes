@@ -64,7 +64,7 @@ function share() {
   closeMenu();
   store.setData({ key: 'shareInfo', value: { show: true, exhibit: {
     ...props.item,
-    shareUrlGenerationException: '音乐主题',
+    shareUrlGenerationException: '声屿主题',
     parentArticleType: props.item.parentArticleType || (props.item.itemId ? 2 : 1),
   } } });
 }

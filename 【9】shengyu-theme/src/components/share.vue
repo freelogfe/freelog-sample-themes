@@ -3,6 +3,7 @@ import { nextTick, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { freelogApp, type WidgetController } from 'freelog-runtime';
 import { useGlobalStore } from '@/store/global';
 import { isPodcast } from '@/api/shengyu';
+import { buildShengyuExhibitWechatQrUrl } from '@/utils/share-wechat-qr';
 import { currentTheme } from '@/utils/theme-manager';
 
 const store = useGlobalStore();
@@ -61,6 +62,7 @@ function refresh() {
   const request = ++revision;
   const exhibit = store.shareInfo.exhibit;
   const show = store.shareInfo.show && !!exhibit;
+  const wechatQrUrl = exhibit ? buildShengyuExhibitWechatQrUrl(exhibit) : '';
   error.value = '';
   dialog.value?.close();
   pending = pending.catch(() => {}).then(async () => {
@@ -85,10 +87,16 @@ function refresh() {
           exhibit: { ...exhibit, exhibitTitle: exhibit.itemTitle || exhibit.exhibitTitle },
           type: isPodcast(exhibit) ? '播客' : '音乐',
           routerType: 'detail',
+          shareUrlGenerationException:
+            exhibit.shareUrlGenerationException ?? '声屿主题',
+          parentArticleType: exhibit.parentArticleType,
+          wechatQrUrl,
           copyButtonColors: copyButtonColors(),
           show: true,
           onClose: close,
-        } },
+        },
+      },
+      widget_entry: "https://localhost:8201"
       });
       if (disposed || request !== revision) { await mounted.unmount(); return; }
       if (mounted.success === false) {

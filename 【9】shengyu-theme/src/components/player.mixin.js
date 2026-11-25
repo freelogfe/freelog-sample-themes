@@ -595,7 +595,16 @@ export default {
             showToast("链接复制成功～");
           });
       } else {
-        this.store.setData({ key: "shareInfo", value: { show: true, exhibit: this.voiceInfo } });
+        this.store.setData({
+          key: "shareInfo",
+          value: {
+            show: true,
+            exhibit: {
+              ...this.voiceInfo,
+              shareUrlGenerationException: "声屿主题",
+            },
+          },
+        });
       }
     },
 

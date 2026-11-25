@@ -435,7 +435,7 @@ function share(target = detail.value) {
       show: true,
       exhibit: {
         ...target,
-        shareUrlGenerationException: "音乐主题",
+        shareUrlGenerationException: "声屿主题",
         parentArticleType: target.parentArticleType || target.articleInfo?.articleType || 1
       }
     }
