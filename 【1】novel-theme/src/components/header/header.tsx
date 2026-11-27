@@ -91,10 +91,18 @@ export const Header = (props: {
     }
   };
 
-  const hasLogo = useMemo(() => {
-    const config = nodeInfo;
-    return !!config?.nodeLogo;
-  }, [nodeInfo]);
+  const [logoBroken, setLogoBroken] = useState(false);
+
+  const hasLogo = useMemo(() => Boolean(nodeInfo?.nodeLogo?.trim()), [nodeInfo]);
+
+  const nodeTitleLabel = useMemo(
+    () => nodeInfo?.nodeTitle || nodeInfo?.nodeName || nodeInfo?.nodeShortDescription || "首页",
+    [nodeInfo]
+  );
+
+  useEffect(() => {
+    setLogoBroken(false);
+  }, [nodeInfo?.nodeLogo]);
 
   useEffect(() => {
     if (search === 0) return;
@@ -131,14 +139,24 @@ export const Header = (props: {
         {/* header顶部 */}
         <div className={`header-top ${userData?.isLogin && "logon"}`}>
           {props.homeHeader ? (
-            // logo
-            <img
-              className="logo"
-              src={nodeInfo?.nodeLogo}
-              alt="logo"
-              referrerPolicy="no-referrer"
-              onClick={() => history.switchPage("/home")}
-            />
+            hasLogo && !logoBroken ? (
+              <img
+                className="logo"
+                src={nodeInfo.nodeLogo}
+                alt={nodeTitleLabel}
+                referrerPolicy="no-referrer"
+                onError={() => setLogoBroken(true)}
+                onClick={() => history.switchPage("/home")}
+              />
+            ) : (
+              <div
+                className="logo-text"
+                title={nodeTitleLabel}
+                onClick={() => history.switchPage("/home")}
+              >
+                {nodeTitleLabel}
+              </div>
+            )
           ) : (
             <div
               className="header-top-left"
