@@ -43,6 +43,7 @@ import {
   authAbnormal,
   type AudioEntry
 } from "@/api/shengyu";
+import { getHomeRecentSectionCount } from "@/utils/home-options";
 const route = useRoute(),
   router = useRouter(),
   store = useGlobalStore();
@@ -451,16 +452,17 @@ async function load(reset = true, preserveList = false) {
   error.value = "";
   try {
     if (home) {
+      const recentSectionCount = getHomeRecentSectionCount(store.selfConfig);
       const results = await Promise.all(
         Object.entries(resourceTypes).map(
           async ([key, type]) =>
             [
               key,
               (key === "songs"
-                ? { dataList: await recommendedSongs() }
+                ? { dataList: await recommendedSongs(recentSectionCount) }
                 : key === "albums" || key === "playlists"
                   ? await listCollectionsPage(key, 0, key === "albums" ? 8 : 10)
-                  : await listEntries(type, 0, key === "songs" ? 12 : key === "albums" ? 8 : 10)
+                  : await listEntries(type, 0, 10)
               ).dataList
             ] as const
         )
@@ -477,7 +479,7 @@ async function load(reset = true, preserveList = false) {
         groups.value.episodes = episodes
               .flat()
               .sort((a, b) => String(b.updateDate).localeCompare(String(a.updateDate)))
-              .slice(0, 10);
+              .slice(0, recentSectionCount);
     } else if (details) {
       const parent = await getEntry(String(route.query.id || route.query.exhibitId || ""));
       if (!parent) throw new Error("未找到该内容");

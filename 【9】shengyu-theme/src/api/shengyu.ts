@@ -182,8 +182,9 @@ export async function collectionEntries(parent: AudioEntry, limit = 100): Promis
   return result;
 }
 // Keep homepage recommendations aligned with music-theme, independently of catalog pagination.
-export async function recommendedSongs(): Promise<AudioEntry[]> {
-  const page = await listEntries('音乐,音乐专辑', 0, 20, null);
+export async function recommendedSongs(limit = 12): Promise<AudioEntry[]> {
+  const fetchLimit = Math.max(20, limit + 8);
+  const page = await listEntries('音乐,音乐专辑', 0, fetchLimit, null);
   const songs: AudioEntry[] = [];
   for (const item of page.dataList) {
     if (item.articleInfo?.articleType === 2) {
@@ -201,7 +202,7 @@ export async function recommendedSongs(): Promise<AudioEntry[]> {
     .filter(item => item.articleInfo?.status !== 2 && item.articleInfo?.articleType !== 3)
     .filter(item => !unplayable(item))
     .sort((a, b) => new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime())
-    .slice(0, 12);
+    .slice(0, limit);
 }
 
 // The cursor counts upstream exhibits, not the number of songs expanded from albums.
