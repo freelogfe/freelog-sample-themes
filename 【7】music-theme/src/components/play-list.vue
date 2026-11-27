@@ -684,6 +684,9 @@ onBeforeUnmount(() => {
 
         .top-area {
           display: flex;
+          align-items: center;
+          min-height: 20px;
+
           .offline {
             padding: 1px 5px;
             background: rgba(255, 255, 255, 0.2);
@@ -692,6 +695,7 @@ onBeforeUnmount(() => {
             align-items: center;
             justify-content: center;
             margin-right: 5px;
+            flex-shrink: 0;
 
             span {
               font-size: 10px;
@@ -707,9 +711,18 @@ onBeforeUnmount(() => {
             width: 16px;
             height: 16px;
             margin-right: 5px;
+            flex-shrink: 0;
           }
 
           .lock {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            font-size: 16px;
+            line-height: 1;
             margin-right: 5px;
             cursor: pointer;
           }
@@ -910,15 +923,30 @@ onBeforeUnmount(() => {
 
         .top-area {
           display: flex;
+          align-items: center;
+          min-height: 20px;
+
+          .offline {
+            flex-shrink: 0;
+          }
 
           .freeze-lock,
           .auth-link-abnormal {
             width: 16px;
             height: 16px;
             margin-right: 5px;
+            flex-shrink: 0;
           }
 
           .lock {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            font-size: 16px;
+            line-height: 1;
             margin-right: 5px;
             cursor: pointer;
           }
@@ -934,6 +962,8 @@ onBeforeUnmount(() => {
             text-overflow: ellipsis;
             white-space: nowrap;
             max-width: 180px;
+            flex: 1;
+            min-width: 0;
 
             &:hover {
               color: #44d7b6;

@@ -495,9 +495,16 @@ const getCollectionList = async (obj: {
             }
 
             .lock {
+              flex-shrink: 0;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              width: 16px;
+              height: 16px;
+              font-size: 16px;
+              line-height: 1;
               margin-right: 5px;
               cursor: pointer;
-              flex-shrink: 0;
             }
 
             .title {
