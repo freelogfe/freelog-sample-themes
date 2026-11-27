@@ -62,6 +62,9 @@ export const useMyAuth = {
     const { status } = authResult;
     if (status !== 0) return false;
     data.defaulterIdentityType = 0;
+    if (data.child) {
+      Vue.set(data.child, "defaulterIdentityType", 0);
+    }
 
     // 同步收藏列表、签约列表、播放列表相应展品的授权状态，更新授权列表
     const { collectionList, signedList, playList } = store.state;
@@ -83,12 +86,18 @@ export const useMyAuth = {
       if (collectionItems.length) {
         for (const collectionItem of collectionItems) {
           collectionItem.defaulterIdentityType = 0;
+          if (data.child?.itemId && collectionItem.child?.itemId === data.child.itemId) {
+            Vue.set(collectionItem.child, "defaulterIdentityType", 0);
+          }
         }
       }
       const playItems = playList.filter(item => item.exhibitId === exhibitId);
       if (playItems.length) {
         for (const playItem of playItems) {
           playItem.defaulterIdentityType = 0;
+          if (data.child?.itemId && playItem.child?.itemId === data.child.itemId) {
+            Vue.set(playItem.child, "defaulterIdentityType", 0);
+          }
         }
       }
     }
@@ -769,7 +778,15 @@ export const useMyPlay = {
       return;
     }
 
-    const { defaulterIdentityType, url, exhibitId, articleInfo, onlineStatus } = exhibit;
+    const { url, exhibitId, articleInfo, onlineStatus } = exhibit;
+    let { defaulterIdentityType } = exhibit;
+    if (
+      exhibit.child &&
+      exhibit.child.defaulterIdentityType != null &&
+      [2, 3].includes(articleInfo.articleType)
+    ) {
+      defaulterIdentityType = exhibit.child.defaulterIdentityType;
+    }
 
     /* part0: 展品被封禁 */
     if (articleInfo.status === 2) {

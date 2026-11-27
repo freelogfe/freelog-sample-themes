@@ -37,7 +37,7 @@
           <i
             class="freelog fl-icon-suoding lock"
             @click.stop="getAuth()"
-            v-if="data.defaulterIdentityType >= 4"
+            v-if="displayAuthType >= 4"
             :class="{ 'opacity-40': authLinkAbnormal, 'pointer-none': authLinkAbnormal }"
           ></i>
           <template v-if="!data.child">
@@ -75,7 +75,7 @@
                   (data.articleInfo && data.articleInfo.status === 2) ||
                   (data.child && data.child.articleInfo && data.child.articleInfo.status === 2)
               }"
-              v-if="data.defaulterIdentityType < 4"
+              v-if="displayAuthType < 4"
             >
               已授权
             </div>
@@ -229,7 +229,7 @@
           <i
             class="freelog fl-icon-suoding lock"
             @click.stop="getAuth()"
-            v-if="data.defaulterIdentityType >= 4"
+            v-if="displayAuthType >= 4"
             :class="{
               'opacity-40':
                 authLinkAbnormal ||
@@ -283,7 +283,7 @@
                   (data.articleInfo && data.articleInfo.status === 2) ||
                   (data.child && data.child.articleInfo && data.child.articleInfo.status === 2)
               }"
-              v-if="data.defaulterIdentityType < 4"
+              v-if="displayAuthType < 4"
             >
               已授权
             </div>
@@ -622,9 +622,22 @@ export default {
       }
     },
 
+    /** 合集内声音按子单品授权判断锁与异常 */
+    displayAuthType() {
+      if (
+        this.data?.child &&
+        [2, 3].includes(this.data?.articleInfo?.articleType) &&
+        this.mode === "voice"
+      ) {
+        const childType = this.data.child.defaulterIdentityType;
+        if (childType !== undefined && childType !== null) return childType;
+      }
+      return this.data?.defaulterIdentityType ?? -1;
+    },
+
     /** 授权链异常 */
     authLinkAbnormal() {
-      return ![0, 4].includes(this.data.defaulterIdentityType);
+      return ![0, 4].includes(this.displayAuthType);
     },
 
     /** 处于下架异常 */

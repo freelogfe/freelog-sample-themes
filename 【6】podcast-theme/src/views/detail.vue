@@ -344,10 +344,11 @@ export default {
           this.voiceInfo.defaulterIdentityType = ele.defaulterIdentityType;
         }
 
-        // 更新子作品列表
-        if (this.list.length && this.list[0].exhibitId === ele.exhibitId) {
+        // 合集内子声音按单品授权展示；父展品已授权时同步列表中的锁状态
+        if (this.list.length && this.list[0].exhibitId === ele.exhibitId && ele.defaulterIdentityType === 0) {
           for (const item of this.list) {
-            item.defaulterIdentityType = ele.defaulterIdentityType;
+            item.defaulterIdentityType = 0;
+            if (item.child) item.child.defaulterIdentityType = 0;
           }
         }
       });
@@ -355,6 +356,16 @@ export default {
 
     voiceInfo(newValue) {
       this.isCollected = useMyCollection.ifExist(newValue);
+    },
+
+    "$store.state.playingInfo"(cur) {
+      if (!cur?.child?.itemId || !this.list.length) return;
+      if (cur.exhibitId !== this.voiceInfo?.exhibitId) return;
+      if (cur.defaulterIdentityType !== 0 && cur.child.defaulterIdentityType !== 0) return;
+      const row = this.list.find(item => item.child?.itemId === cur.child.itemId);
+      if (!row) return;
+      row.defaulterIdentityType = 0;
+      if (row.child) row.child.defaulterIdentityType = 0;
     },
 
     "$store.state.inMobile"(cur) {
@@ -622,6 +633,35 @@ export default {
       useMyAuth.getAuth(this.voiceInfo);
     },
 
+    /** 合集子声音行：按单品授权状态展示锁，而非父合集展品状态 */
+    async mapCollectionRows(dataList) {
+      if (!dataList?.length) return [];
+      const exhibitId = this.voiceInfo.exhibitId;
+      const itemIds = dataList.map(ele => ele.itemId).join(",");
+      const statusInfo = await freelogApp.getCollectionSubAuthStatus(exhibitId, { itemIds });
+      const statuses = statusInfo.data.data || [];
+
+      for (let index = dataList.length - 1; index >= 0; index--) {
+        const element = dataList[index];
+        const url = await freelogApp.getCollectionSubFileStream(exhibitId, {
+          itemId: element.itemId,
+          returnUrl: true
+        });
+        element.url = url;
+        const status = statuses.find(s => s.itemId === element.itemId);
+        if (status) element.defaulterIdentityType = status.defaulterIdentityType;
+      }
+
+      return dataList.map(ele => {
+        const subAuth = ele.defaulterIdentityType ?? this.voiceInfo.defaulterIdentityType;
+        return {
+          ...this.voiceInfo,
+          defaulterIdentityType: subAuth,
+          child: { ...ele, defaulterIdentityType: subAuth }
+        };
+      });
+    },
+
     /** 分页 */
     async queryList() {
       this.myLoading = true;
@@ -637,20 +677,7 @@ export default {
       });
       if (res.data.errCode === 0) {
         const arr = res.data.data.dataList;
-        for (let index = arr.length - 1; index >= 0; index--) {
-          const element = arr[index];
-          const url = await freelogApp.getCollectionSubFileStream(this.voiceInfo.exhibitId, {
-            itemId: element.itemId,
-            returnUrl: true
-          });
-          element.url = url;
-        }
-        this.list = arr.map(ele => {
-          return {
-            ...this.voiceInfo,
-            child: ele
-          };
-        });
+        this.list = await this.mapCollectionRows(arr);
         this.total = res.data.data.totalItem;
         this.myLoading = false;
       } else {
@@ -680,22 +707,7 @@ export default {
       });
       if (res.data.errCode === 0) {
         const arr = res.data.data.dataList;
-        for (let index = arr.length - 1; index >= 0; index--) {
-          const element = arr[index];
-          const url = await freelogApp.getCollectionSubFileStream(this.voiceInfo.exhibitId, {
-            itemId: element.itemId,
-            returnUrl: true
-          });
-          element.url = url;
-        }
-        this.list.push(
-          ...arr.map(ele => {
-            return {
-              ...this.voiceInfo,
-              child: ele
-            };
-          })
-        );
+        this.list.push(...(await this.mapCollectionRows(arr)));
         this.total = res.data.data.totalItem;
         this.myLoading = false;
       } else {
