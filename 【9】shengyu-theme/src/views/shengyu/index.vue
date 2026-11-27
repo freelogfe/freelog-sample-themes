@@ -40,6 +40,7 @@ import {
   entryCategory,
   searchEntries,
   searchCardMode,
+  authAbnormal,
   type AudioEntry
 } from "@/api/shengyu";
 const route = useRoute(),
@@ -166,7 +167,7 @@ async function loadRecommendations() {
           : await listEntries(types, 0, count + 1);
     if (active)
       recommendations.value = response.dataList
-        .filter(item => item.exhibitId !== detail.value?.exhibitId)
+        .filter(item => item.exhibitId !== detail.value?.exhibitId && !authAbnormal(item))
         .slice(0, count);
   } catch {
     if (active) recommendationError.value = true;

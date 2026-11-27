@@ -157,7 +157,9 @@ const getRecommendList = async () => {
         item.collectionList = res.data.data as any;
       }
     }
-    recommendList.value = recommendData.slice(0, 6);
+    recommendList.value = recommendData
+      .filter((i: ExhibitItem) => [0, 4].includes(i.defaulterIdentityType ?? -1))
+      .slice(0, 6);
   }
 };
 

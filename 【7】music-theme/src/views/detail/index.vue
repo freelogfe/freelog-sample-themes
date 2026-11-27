@@ -1679,6 +1679,8 @@ export default {
         const tempRecommendData = [];
 
         for (const item of recommendData) {
+          if (![0, 4].includes(item.defaulterIdentityType)) continue;
+
           const subList = await freelogApp.getCollectionSubListByPage(item.exhibitId, {
             skip: 0,
             limit: 1_000,
@@ -1716,9 +1718,11 @@ export default {
           tempRecommendData.push(...dataList);
         }
 
-        this.recommendData = tempRecommendData.slice(0, 5);
+        this.recommendData = tempRecommendData
+          .filter(i => [0, 4].includes(i.defaulterIdentityType))
+          .slice(0, 5);
       } else {
-        this.recommendData = recommendData;
+        this.recommendData = recommendData.filter(i => [0, 4].includes(i.defaulterIdentityType));
       }
     },
 

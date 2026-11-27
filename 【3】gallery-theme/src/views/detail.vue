@@ -902,10 +902,11 @@ export default {
       () => datasOfGetList.listData.value,
       async (cur: any) => {
         initWaterfall();
-        data.recommendShow = cur.length > 1;
         const recommendList = cur.filter(
-          (item: ExhibitItem) => item.exhibitId !== data.currentId
+          (item: ExhibitItem) =>
+            item.exhibitId !== data.currentId && [0, 4].includes(item.defaulterIdentityType ?? -1)
         ) as ExhibitItem[];
+        data.recommendShow = recommendList.length > 0;
 
         if (!recommendList.length) {
           setWaterFall([], 0, false);

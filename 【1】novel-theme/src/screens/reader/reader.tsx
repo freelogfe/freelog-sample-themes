@@ -107,7 +107,23 @@ export const ReaderScreen = (props: any) => {
     });
     const { data: recommendData } = res.data;
 
-    setRecommendList(recommendData);
+    if (recommendData.length) {
+      const ids = recommendData.map((item: ExhibitItem) => item.exhibitId).join();
+      const statusInfo = await freelogApp.getExhibitAuthStatus(ids);
+
+      for (const item of recommendData as ExhibitItem[]) {
+        const index = statusInfo.data.data.findIndex(
+          (resultItem: { exhibitId: string }) => resultItem.exhibitId === item.exhibitId
+        );
+        if (index !== -1) {
+          item.defaulterIdentityType = statusInfo.data.data[index].defaulterIdentityType;
+        }
+      }
+    }
+
+    setRecommendList(
+      recommendData.filter((item: ExhibitItem) => [0, 4].includes(item.defaulterIdentityType ?? -1))
+    );
   }, [id]);
 
   // 获取单品详细信息

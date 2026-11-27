@@ -717,6 +717,8 @@ export default {
         const tempRecommendData: any[] = [];
 
         for (const item of recommendData) {
+          if (![0, 4].includes(item.defaulterIdentityType)) continue;
+
           const subList = await freelogApp.getCollectionSubListByPage(item.exhibitId, {
             sortType: -1,
             skip: 0,
