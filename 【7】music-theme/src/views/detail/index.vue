@@ -775,7 +775,13 @@ import myTooltip from "@/components/tooltip.vue";
 import Album from "@/components/album.vue";
 import Voice from "@/components/voice.vue";
 import DetailFloatMenu from "@/components/detail-float-menu.vue";
-import { useMyAuth, useMyCollection, useMyPlay } from "@/utils/hooks";
+import {
+  useMyAuth,
+  useMyCollection,
+  useMyPlay,
+  resolveSignedExhibitAuth,
+  syncDetailAlbumAuthState
+} from "@/utils/hooks";
 import { showToast, absoluteTime, secondsToHMS } from "@/utils/common";
 import { updateWxConfig } from "@/utils/update-wx-share";
 import { useGlobalStore } from "@/store/global";
@@ -884,10 +890,16 @@ export default {
 
     "store.authIdList": {
       handler(cur) {
-        if (cur.includes(this.voiceInfo.exhibitId)) {
-          this.voiceInfo.defaulterIdentityType = 0;
-          this.collectionData.forEach(i => (i.defaulterIdentityType = 0));
-        }
+        if (!this.voiceInfo?.exhibitId || !cur?.includes(this.voiceInfo.exhibitId)) return;
+        this.applyDetailAlbumAuthState();
+      },
+      immediate: true,
+      deep: true
+    },
+
+    "store.signedList": {
+      handler() {
+        this.applyDetailAlbumAuthState();
       },
       deep: true
     },
@@ -1508,6 +1520,12 @@ export default {
           };
           updateWxConfig(config);
 
+          let subAuthType = subStatusInfo?.data?.data?.[0]?.defaulterIdentityType;
+          const parentAuth = await freelogApp.getExhibitAuthStatus(this.id);
+          let parentAuthType = parentAuth?.data?.data?.[0]?.defaulterIdentityType;
+          parentAuthType = await resolveSignedExhibitAuth(this.id, parentAuthType, this.store);
+          if (parentAuthType === 0) subAuthType = 0;
+
           this.voiceInfo = {
             ...subData,
             coverImages: exhibitInfo?.data?.data?.coverImages,
@@ -1519,12 +1537,14 @@ export default {
                   subData.articleInfo?.firstVersionReleaseDate
               }
             },
-            defaulterIdentityType: subStatusInfo?.data?.data?.[0]?.defaulterIdentityType,
+            defaulterIdentityType: subAuthType,
             exhibitTitle: subData.itemTitle,
             updateDate: subData.articleInfo?.latestVersionReleaseDate,
             url,
-            onlineStatus: exhibitInfo?.data?.data?.onlineStatus
+            onlineStatus: exhibitInfo?.data?.data?.onlineStatus,
+            exhibitId: this.id
           };
+          this.applyDetailAlbumAuthState();
         } else {
           // 普通展品
           const [exhibitInfo, signCountData, statusInfo, url] = await Promise.all([
@@ -1542,10 +1562,13 @@ export default {
           // 更新微信分享
           updateWxConfig(exhibitData);
 
+          let exhibitAuthType = statusInfo?.data?.data?.[0]?.defaulterIdentityType;
+          exhibitAuthType = await resolveSignedExhibitAuth(this.id, exhibitAuthType, this.store);
+
           this.voiceInfo = {
             ...exhibitData,
             signCount: signCountData?.data?.data?.[0]?.count,
-            defaulterIdentityType: statusInfo?.data?.data?.[0]?.defaulterIdentityType,
+            defaulterIdentityType: exhibitAuthType,
             url
           };
 
@@ -1560,6 +1583,9 @@ export default {
               onlineStatus,
               versionInfo
             );
+            this.applyDetailAlbumAuthState();
+          } else {
+            this.applyDetailAlbumAuthState();
           }
         }
 
@@ -1581,9 +1607,14 @@ export default {
       }
     },
 
+    applyDetailAlbumAuthState() {
+      syncDetailAlbumAuthState(this.voiceInfo, this.collectionData, this.id, this.store);
+    },
+
     /** 授权 */
-    async getAuth() {
-      useMyAuth.getAuth(this.voiceInfo);
+    async getAuth(data) {
+      await useMyAuth.getAuth(data || this.voiceInfo);
+      this.applyDetailAlbumAuthState();
     },
 
     /** 获取合集里的单品列表 */
@@ -1642,6 +1673,7 @@ export default {
         this.subTotal = 0;
         this.subSkip = 0;
         this.subTempData = [];
+        this.applyDetailAlbumAuthState();
       }
     },
 

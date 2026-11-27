@@ -247,6 +247,51 @@ export const useGetList = () => {
     cleanup
   };
 };
+
+/**
+ * 已签约展品：消费授权接口可能滞后，重拉一次；仍待授权时与合约「已授权」展示一致
+ */
+export async function resolveSignedExhibitAuth(exhibitId, authType, store) {
+  if (authType !== 4 || !store?.userData?.isLogin || !exhibitId) {
+    return authType;
+  }
+  try {
+    const signStats = await freelogApp.getSignStatistics();
+    const signed = signStats?.data?.data?.some(item => item.subjectId === exhibitId);
+    if (!signed) return authType;
+
+    const retry = await freelogApp.getExhibitAuthStatus(exhibitId);
+    const retryType = retry?.data?.data?.[0]?.defaulterIdentityType;
+    if (retryType === 0) return 0;
+    if (retryType === 4) return 0;
+    return retryType ?? authType;
+  } catch {
+    return authType;
+  }
+}
+
+/** 详情页专辑/曲目锁标与本地授权、父专辑授权对齐 */
+export function syncDetailAlbumAuthState(voiceInfo, collectionData, exhibitId, store) {
+  if (!voiceInfo || !exhibitId) return;
+
+  const exhibitKey = voiceInfo.exhibitId || exhibitId;
+  const authorizedLocally =
+    store.authIdList?.includes(exhibitKey) ||
+    store.signedList?.some(s => s.exhibitId === exhibitKey && s.defaulterIdentityType === 0);
+
+  if (authorizedLocally) {
+    voiceInfo.defaulterIdentityType = 0;
+  }
+
+  if (voiceInfo.defaulterIdentityType === 0 && Array.isArray(collectionData) && collectionData.length) {
+    collectionData.forEach(item => {
+      if (item.defaulterIdentityType === 4) {
+        item.defaulterIdentityType = 0;
+      }
+    });
+  }
+}
+
 /** 授权 hook */
 export const useMyAuth = {
   /** 获取签约列表 */
